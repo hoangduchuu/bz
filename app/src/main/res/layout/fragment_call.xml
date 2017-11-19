@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:fitsSystemWindows="true"
+    tools:context="com.ping.android.activity.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <Button
+                android:id="@+id/call_edit"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="EDIT" />
+            <Button
+                android:id="@+id/call_cancel_edit"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:visibility="gone"
+                android:text="CANCEL" />
+
+            <com.ping.android.view.CustomSwitch
+                android:id="@+id/call_switch"
+                android:layout_width="120dp"
+                android:layout_height="26dp"
+                android:layout_centerInParent="true"
+                custom:leftSwitch="All"
+                custom:rightSwitch="Missed" />
+
+        </RelativeLayout>
+
+        <LinearLayout style="@style/SearchLayout">
+
+            <SearchView
+                android:id="@+id/call_search_view"
+                style="@style/SearchView"></SearchView>
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/call_recycle_view"
+            style="@style/RecyclerView"
+            android:layout_weight="1" />
+
+        <View style="@style/ViewSeparate" />
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

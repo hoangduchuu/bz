@@ -1,0 +1,163 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:fitsSystemWindows="true"
+    tools:context=".ChatActivity">
+
+    <include layout="@layout/notify_network_other" />
+
+    <LinearLayout
+        android:id="@+id/contentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_white"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <ImageView
+                android:id="@+id/chat_back"
+                style="@style/BackButton"/>
+
+            <TextView
+                android:id="@+id/new_chat_to"
+                style="@style/TextTitle"
+                android:text="NEW CHAT" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/new_chat_address_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/default_padding"
+                android:text="To:   "
+                android:textSize="@dimen/text_size_medium" />
+
+            <MultiAutoCompleteTextView
+                android:id="@+id/new_chat_suggest_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="" />
+
+            <ImageView
+                android:id="@+id/new_chat_select_contact"
+                style="@style/ActionButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:scaleType="center"
+                android:src="@drawable/ic_plus" />
+
+        </LinearLayout>
+
+        <View style="@style/horizontal_divider" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/chat_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none" />
+
+            <View
+                style="@style/horizontal_divider"
+                android:layout_gravity="bottom" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/chat_layout_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/chat_message_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/default_padding"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="New Message"
+                    android:inputType="textCapSentences" />
+
+                <Button
+                    android:id="@+id/chat_send_message_btn"
+                    style="@style/ActionButton"
+                    android:text="Send" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/chat_layout_voice"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:visibility="gone">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:padding="2dp">
+
+                    <com.ping.android.view.RecorderVisualizerView
+                        android:id="@+id/visualizer"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_centerHorizontal="true"
+                        android:background="@android:color/background_light" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical">
+
+                    <ToggleButton
+                        android:id="@+id/chat_start_record"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/toggle_record"
+                        android:checked="false"
+                        android:text=""
+                        android:textOff=""
+                        android:textOn="" />
+
+                    <ImageView
+                        android:id="@+id/chat_send_record"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@null"
+                        android:padding="4dp"
+                        android:src="@drawable/send"
+                        android:text="Send" />
+                </LinearLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

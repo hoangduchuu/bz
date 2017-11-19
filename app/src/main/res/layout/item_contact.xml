@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_contact_item"
+    style="@style/ListItemContainer"
+    android:layout_marginLeft="@dimen/default_padding"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/friend_profile"
+        android:layout_width="@dimen/user_profile_icon_width"
+        android:layout_height="@dimen/user_profile_icon_height"
+        android:src="@drawable/ic_avatar_gray" />
+
+    <RelativeLayout
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_marginRight="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/friend_name"
+                style="@style/AppTextAppearance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="User name" />
+
+            <ImageView
+                android:id="@+id/friend_message"
+                style="@style/list_item_btn"
+                android:background="@null"
+                android:src="@drawable/start_message" />
+
+            <ImageView
+                android:id="@+id/friend_call_voice"
+                style="@style/list_item_btn"
+                android:src="@drawable/start_voice_call" />
+
+            <ImageView
+                android:id="@+id/friend_call_video"
+                style="@style/list_item_btn"
+                android:src="@drawable/start_video_call"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <View
+            style="@style/horizontal_divider"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+</LinearLayout>

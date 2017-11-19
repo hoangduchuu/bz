@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:fitsSystemWindows="true"
+    tools:context="com.ping.android.activity.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <ImageView
+                android:id="@+id/user_detail_back"
+                style="@style/BackButton" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="USER" />
+        </RelativeLayout>
+
+        <View style="@style/ViewSeparate" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                style="@style/MatchParent"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/user_detail_image"
+                    android:layout_width="@dimen/logo_w_h"
+                    android:layout_height="@dimen/logo_w_h"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/ic_avatar_gray" />
+
+                <TextView
+                    android:id="@+id/tv_display_name"
+                    style="@style/WrapContent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:text="User's Profile"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+
+                <LinearLayout
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal">
+
+                    <ImageView
+                        android:id="@+id/user_detail_message"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@null"
+                        android:src="@drawable/start_message" />
+
+                    <ImageView
+                        android:id="@+id/user_detail_voice"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginLeft="20dp"
+                        android:background="@null"
+                        android:src="@drawable/start_voice_call" />
+
+                    <ImageView
+                        android:id="@+id/user_detail_video"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginLeft="20dp"
+                        android:background="@null"
+                        android:src="@drawable/start_video_call" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/MatchParent"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        style="@style/ItemSetting"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/profile_username" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="Username" />
+
+                        <TextView
+                            android:id="@+id/user_detail_name"
+                            style="@style/WrapContent"
+                            android:layout_alignParentEnd="true"
+                            android:paddingRight="@dimen/default_padding"
+                            android:text="me.me"
+                            android:textColor="@color/text_color_grey"
+                            android:textSize="@dimen/text_size_small" />
+                    </LinearLayout>
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <LinearLayout
+                        style="@style/MatchWidth"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                        <LinearLayout style="@style/ItemSetting"
+                            android:id="@+id/layout_save_contact">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/ic_plus" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Save Contact"
+                                android:textColor="@color/orange" />
+                        </LinearLayout>
+
+
+                        <LinearLayout style="@style/ItemSetting"
+                            android:id="@+id/layout_delete_contact">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/delete" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Delete Contact"
+                                android:textColor="@color/orange" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <LinearLayout style="@style/ItemSetting">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/icon_block" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="Block" />
+
+                        <Switch
+                            android:id="@+id/user_detail_block"
+                            style="@style/ItemSettingIconRight.Toggle" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <View style="@style/ViewSeparate" />
+
+    </LinearLayout>
+
+    <include layout="@layout/notify_network_other" />
+</android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,75 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.ping.android.activity.AddContactActivity">
+
+    <LinearLayout
+        android:id="@+id/contentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <ImageView
+                android:id="@+id/iv_back"
+                style="@style/BackButton" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="BLOCK LIST" />
+
+            <Button
+                android:id="@+id/block_save"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="SAVE" />
+        </RelativeLayout>
+
+        <View style="@style/ViewSeparate" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/main_background_gray"
+            android:paddingBottom="10dp"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BLOCK MESSAGES AND CALLS FROM" />
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/block_list_view"
+            style="@style/RecyclerView"
+            android:layout_weight="1"
+            android:background="@color/main_background_white" />
+
+
+        <LinearLayout
+            android:id="@+id/block_add"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/ItemSettingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="ADD NEW"
+                android:textColor="@color/orange" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include layout="@layout/notify_network_other" />
+
+</android.support.design.widget.CoordinatorLayout>

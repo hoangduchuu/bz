@@ -1,0 +1,128 @@
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".AddGroupActivity">
+
+    <LinearLayout
+        android:id="@+id/contentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_white"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <ImageView
+                android:id="@+id/new_group_back"
+                style="@style/BackButton"/>
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="NEW GROUP" />
+
+            <Button
+                android:id="@+id/new_group_save"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="DONE" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/default_padding"
+            android:layout_marginRight="@dimen/default_padding"
+            android:layout_marginTop="@dimen/default_padding">
+
+            <EditText
+                android:id="@+id/new_group_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:hint="Name this group" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/AppTextAppearance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/default_padding"
+                android:text="To: " />
+
+            <MultiAutoCompleteTextView
+                android:id="@+id/new_group_suggest_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null" />
+
+            <ImageView
+                android:id="@+id/new_group_select_contact"
+                style="@style/ActionButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_vertical"
+                android:scaleType="center"
+                android:src="@drawable/ic_plus" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_marginTop="@dimen/default_padding"
+            style="@style/horizontal_divider"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/chat_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none" />
+
+            <View
+                style="@style/horizontal_divider"
+                android:layout_gravity="bottom" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/new_group_layout_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#fff"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/new_group_message_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="New Message"
+                android:inputType="textNoSuggestions" />
+
+            <Button
+                android:id="@+id/new_group_send_message_btn"
+                style="@style/ActionButton"
+                android:text="Send" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <include layout="@layout/notify_network_other" />
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:fitsSystemWindows="true"
+    tools:context="com.ping.android.activity.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="ME" />
+        </RelativeLayout>
+
+        <View style="@style/ViewSeparate" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                style="@style/MatchParent"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/profile_image"
+                    android:layout_width="@dimen/logo_w_h"
+                    android:layout_height="@dimen/logo_w_h"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/ic_avatar_gray" />
+
+                <TextView
+                    android:id="@+id/tv_display_name"
+                    style="@style/WrapContent"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Me"
+                    android:textSize="18sp" />
+
+                <LinearLayout
+                    style="@style/MatchParent"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        style="@style/MatchWidth"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/profile_username_detail"
+                            style="@style/ItemSetting"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_username" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Username" />
+
+                            <TextView
+                                android:id="@+id/profile_name"
+                                style="@style/AppTextAppearance.Small.Grey"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:layout_marginRight="@dimen/default_padding"
+                                android:text="me.me" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting"
+                            android:id="@+id/profile_phone_detail">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_phone" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Phone Number" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_change_password"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_private" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Change Password" />
+
+                            <ImageView
+                                style="@style/ItemSettingIconRight"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:id="@+id/profile_mapping"
+                        style="@style/ItemSetting"
+                        android:layout_marginTop="@dimen/setting_item_separate"
+                        android:orientation="horizontal"
+                        android:background="@color/white">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/profile_transphabet" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="Transphabet" />
+
+                        <ImageView
+                            style="@style/ItemSettingIconRight"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/MatchWidth"
+                        android:layout_marginTop="@dimen/setting_item_separate"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/ic_notifications" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Sound Notifications" />
+
+                            <Switch
+                                android:id="@+id/profile_notification"
+                                style="@style/ItemSettingIconRight.Toggle" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_private" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Hide Profile Picture" />
+
+                            <Switch
+                                android:id="@+id/profile_show_profile"
+                                style="@style/ItemSettingIconRight.Toggle" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_block"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_lock" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Block List" />
+
+                            <ImageView
+                                style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        style="@style/MatchWidth"
+                        android:layout_marginTop="@dimen/setting_item_separate"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/profile_help"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_help" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Help" />
+
+                            <ImageView
+                                android:id="@+id/imageView"
+                                style="@style/ItemSettingIconRight"
+                                android:src="@drawable/ic_arrow_right_gray" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting"
+                            android:id="@+id/profile_privacy_and_terms">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_terms" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/profile_privacy_terms" />
+
+                            <ImageView
+                                style="@style/ItemSettingIconRight"
+                                android:src="@drawable/ic_arrow_right_gray" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="@style/ItemSettingIconLeft"
+                                android:src="@drawable/profile_sign_out" />
+
+                            <Button
+                                android:paddingLeft="0dp"
+                                android:background="@null"
+                                android:id="@+id/profile_sign_out"
+                                style="@style/ActionButton"
+                                android:text="Sign Out"
+                                android:textAllCaps="false" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

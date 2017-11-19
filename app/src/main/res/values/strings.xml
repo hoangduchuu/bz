@@ -1,0 +1,192 @@
+<resources>
+    <string name="message_hint"><i>Type a message...</i></string>
+    <string name="app_name">Bzzz</string>
+    <string name="txt_setting_incoming">Incoming Messages Mapping</string>
+    <string name="txt_setting_puzzle">Incoming Pictures Puzzled</string>
+    <string name="txt_setting_chat_notification">Chat notifications</string>
+    <string name="txt_setting_app_notification">In-App notifications</string>
+    <string name="txt_setting_app_sound">In-App sounds</string>
+    <string name="txt_setting_picture">Profile Picture</string>
+    <string name="txt_setting_about">About</string>
+
+    <string name="msg_create_account_failed">Unable to create account. Please try again.</string>
+    <string name="msg_auth_info_incorrect">Please check your login details.</string>
+    <string name="msg_auth_failed">Authentication failed, check your username/email or password.</string>
+    <string name="msg_empty_username">Please enter your username or email address.</string>
+    <string name="msg_empty_password">Please enter your password.</string>
+    <string name="msg_empty_new_password">Please enter new password.</string>
+    <string name="msg_empty_confirm_password">Please enter confirm password.</string>
+    <string name="msg_empty_ping_id">Please enter username.</string>
+    <string name="msg_empty_email">Please enter email.</string>
+    <string name="msg_empty_phone">Please enter phone.</string>
+    <string name="msg_empty_phone_4n">Please enter last 4 number of phone.</string>
+    <string name="msg_duplicate_ping_id">This username is already registered by other user</string>
+    <string name="msg_duplicate_email">This email is already registered by other user</string>
+    <string name="msg_duplicate_phone">This phone is already registered by other user</string>
+    <string name="msg_invalid_ping_id">Please enter username with correct format.</string>
+    <string name="msg_invalid_email">Please enter email with correct format.</string>
+    <string name="msg_invalid_phone">Please enter phone with correct format.</string>
+    <string name="msg_invalid_password">Password too short, enter minimum 10 characters.</string>
+    <string name="msg_mismatch_password">Password does not match</string>
+    <string name="msg_wrong_password">Password does not correct</string>
+    <string name="msg_mismatch_new_password">New Password does not match.</string>
+    <string name="msg_update_password_fail">Cannot update password</string>
+    <string name="msg_update_password_success">Update password successful.</string>
+    <string name="msg_wrong_reset_info">Please input correct reset information.</string>
+    <string name="msg_reset_info_success">Please check email for reset password.</string>
+    <string name="msg_reset_info_fail">Cannot reset password</string>
+    <string name="msg_current_user_empty_quickbloxID">Cannot setup. Please re-login and try again</string>
+    <string name="msg_opponent_user_empty_quickbloxID">Your opponent cannot contact</string>
+    <string name="msg_accept_term">You must agree to the Terms of Service.</string>
+    <string name="msg_account_msg_blocked" formatted="false">You cannot send message to %1s because %2s is currently in your block list.</string>
+    <string name="msg_account_call_blocked" formatted="false">You cannot call %1s because %2s is currently in your block list.</string>
+    <string name="msg_account_blocked_by">The user %s blocked you</string>
+
+    <string name="special_char_d_1">đ</string>
+    <string name="special_char_d_2">Đ</string>
+
+    <string name="dlg_error">Error</string>
+    <string name="dlg_retry">Retry</string>
+
+    <string name="no_internet_connection">No Internet Connection.</string>
+
+    <string name="msg_network_connecting">Connecting . . .</string>
+
+    <!-- Dialogs strings. -->
+    <string name="dlg_signal_error">Disconnected… Please check your Internet connection.</string>
+
+
+    <!-- Errors strings. -->
+    <string name="sign_up_error">Error creating new quickBlox user, please try again</string>
+
+    <string name="permission_unavailable">%s is not available now.</string>
+
+    <!--menu-->
+    <string name="action_settings">Settings</string>
+    <string name="action_screen_share">Screen share</string>
+
+
+    <!--action bar-->
+    <string name="subtitle_text_logged_in_as">Logged in as %s</string>
+
+
+    <string name="also_on_call">Also on call:</string>
+    <string name="user_list_on_call">User 1, User 2, User 3, User 4, User 5, User 6</string>
+
+
+    <string name="opponent_pending">Pending</string>
+    <string name="opponent_closed">Closed</string>
+    <string name="text_incoming_audio_call">Incoming Audio Call</string>
+    <string name="text_incoming_video_call">Incoming Video Call</string>
+    <string name="text_status_connect">Connect…</string>
+    <string name="text_status_checking">Checking…</string>
+    <string name="text_status_connected">Connected</string>
+    <string name="text_status_disconnected">Disconnected</string>
+
+    <string name="text_status_rejected">Rejected</string>
+    <string name="text_status_no_answer">No answer</string>
+    <string name="text_status_hang_up">Hung up</string>
+    <string name="text_status_closed">Closed</string>
+
+
+    <!-- Settings strings. -->
+    <string name="title_video_category">Video</string>
+    <string name="title_call_settings_category">Call Settings</string>
+
+    <integer name="pref_default_int_value">0</integer>
+
+    <string name="pref_frame_rate_key">frame_rate</string>
+    <string name="pref_frame_rate_title">Frame Rate (0&#8211;30)</string>
+    <string name="pref_frame_rate_default">0</string>
+    <integer name="pref_frame_rate_min_value">0</integer>
+    <integer name="pref_frame_rate_max_value">30</integer>
+    <integer name="pref_frame_rate_stepSize">5</integer>
+
+    <string name="pref_resolution_key">resolution_preference</string>
+    <string name="pref_resolution_title">Video Format</string>
+    <string name="pref_resolution_dlg">Enter RTC local video resolution</string>
+    <string name="pref_resolution_default">-1</string>
+
+    <string name="pref_startbitratevalue_key">startbitratevalue_preference</string>
+    <string name="pref_startbitratevalue_title">Bandwidth (0&#8211;2000)</string>
+    <string name="pref_startbitratevalue_default">0</string>
+    <integer name="pref_startbitratevalue_min_value">0</integer>
+    <integer name="pref_startbitratevalue_max_value">2000</integer>
+    <integer name="pref_startbitratevalue_step_size">100</integer>
+
+    <string name="pref_disable_built_in_aec_key">disable_built_in_aec_preference</string>
+    <string name="pref_disable_built_in_aec_title">Disable built-in AEC</string>
+    <string name="pref_disable_built_in_aec_dlg">Disable built-in AEC</string>
+    <string name="pref_disable_built_in_aec_default">false</string>
+
+    <string name="pref_opensles_key">opensles_preference</string>
+    <string name="pref_opensles_title">Use OpenSL ES for audio playback</string>
+    <string name="pref_opensles_dlg">Use OpenSL ES for audio playback</string>
+    <string name="pref_opensles_default">false</string>
+
+    <string name="pref_noaudioprocessing_key">audioprocessing_preference</string>
+    <string name="pref_noaudioprocessing_title">Disable audio processing</string>
+    <string name="pref_noaudioprocessing_dlg">Disable audio processing pipeline</string>
+    <string name="pref_noaudioprocessing_default">false</string>
+
+    <!--Call Settings-->
+
+    <string name="pref_answer_time_interval_key">answer_time_interval</string>
+    <string name="pref_answer_time_interval_title">Answer Time Interval (15&#8211;90s)</string>
+    <string name="pref_answer_time_interval_default_value">60</string>
+    <integer name="pref_answer_time_interval_min_value">15</integer>
+    <integer name="pref_answer_time_interval_max_value">90</integer>
+    <integer name="pref_answer_time_interval_step_size">5</integer>
+
+    <string name="pref_disconnect_time_interval_key">disconnect_time_interval</string>
+    <string name="pref_disconnect_time_interval_title">Disconnect Time Interval (10&#8211;90s)</string>
+    <string name="pref_disconnect_time_interval_default_value">10</string>
+    <integer name="pref_disconnect_time_interval_min_value">10</integer>
+    <integer name="pref_disconnect_time_interval_max_value">90</integer>
+    <integer name="pref_disconnect_time_interval_step_size">5</integer>
+
+    <string name="pref_dialing_time_interval_key">Dialing_time_interval</string>
+    <string name="pref_dialing_time_interval_title">Dialing Time Interval (3&#8211;10s)</string>
+    <string name="pref_dialing_time_interval_default_value">5</string>
+    <integer name="pref_dialing_time_interval_min_value">3</integer>
+    <integer name="pref_dialing_time_interval_max_value">10</integer>
+    <integer name="pref_dialing_time_interval_step_size">1</integer>
+
+    <string name="pref_videocodec_key">videocodec_preference</string>
+    <string name="pref_videocodec_title">Default video codec</string>
+    <string name="pref_videocodec_dlg">Select default video codec</string>
+    <string name="pref_videocodec_default">0</string>
+
+    <string name="pref_hwcodec_key">hwcodec_preference</string>
+    <string name="pref_hwcodec_title">Video codec hardware acceleration</string>
+    <string name="pref_hwcodec_default">true</string>
+
+    <string name="pref_audiocodec_key">pref_audio_codec</string>
+    <string name="pref_audiocodec_title">Default audio codec</string>
+    <string name="pref_audiocodec_def">ISAC</string>
+    <string name="pref_audiocodec_dlg">Select default audio codec</string>
+    <string name="accepted">Accepted</string>
+    <string name="connection_was_lost">Connection was lost</string>
+
+    <string name="opponents">and %s other</string>
+    <string name="opponent">and %s </string>
+    <string name="ringing">Connecting ...</string>
+    <string name="stop_share">Stop</string>
+    <string name="camera_swicth_failed">\"Failed switch camera\"</string>
+    <string name="connecting">Connecting . . .</string>
+    <string name="validate_invalid_user">Invalid Username</string>
+    <string name="why_register_your_phone_number">Why register your phone number?</string>
+    <string name="suggest_add_phone">Your phone number helps you connect with friends, get SMS update and much more.\nOnly you can see this number.</string>
+    <string name="registered_phone">REGISTERED PHONE</string>
+    <string name="user_details">User Details</string>
+    <string name="generate_random">Generate Random</string>
+    <string name="setting_manual_set_up">Manual Set-up</string>
+    <string name="register_agree_term_of_service"><u>I agree to the Terms of Service.</u></string>
+    <string name="profile_privacy_terms"><![CDATA[Privacy & Terms]]></string>
+    <string name="privacy_terms"><![CDATA[PRIVACY & TERMS]]></string>
+    <string name="data_privacy">Data Privacy</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="copyright">©2017 ver %s</string>
+    <string name="forgot_password">Forgot Password?</string>
+
+</resources>

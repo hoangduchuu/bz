@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal|bottom"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="30dp"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/tab_item_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            tools:src="@drawable/ic_tab_messages_gray" />
+
+        <TextView
+            android:id="@+id/tab_item_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:minWidth="12dp"
+            android:background="@drawable/badge_circle"
+            android:padding="2dp"
+            android:textColor="#FFF"
+            android:textSize="8sp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:text="1" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tab_item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="3dp"
+        android:textSize="10sp"
+        tools:text="Message" />
+</LinearLayout>

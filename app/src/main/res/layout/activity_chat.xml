@@ -1,0 +1,283 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ChatActivity">
+
+    <include layout="@layout/notify_network_other" />
+
+    <LinearLayout
+        android:id="@+id/contentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_white"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            style="@style/TopMenu"
+            android:layout_height="@dimen/top_bar_height">
+
+            <Button
+                android:id="@+id/chat_cancel_edit"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="CANCEL"
+                tools:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/chat_back"
+                style="@style/BackButton" />
+
+            <TextView
+                android:id="@+id/chat_new_message_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="-10dp"
+                android:layout_toEndOf="@+id/chat_back"
+                android:background="@drawable/background_msg_count"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp"
+                android:text="10"
+                android:textColor="#FFF"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:id="@+id/chat_header_center"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|center_horizontal"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTextAppearance"
+                        android:id="@+id/chat_person_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:maxWidth="220dp"
+                        android:text="User "
+                        android:layout_centerVertical="true"
+                        android:layout_centerHorizontal="true"
+                        tools:text="ipsum dolor sit amet, consectetur adipiscing elit." />
+
+                    <ImageView
+                        android:layout_toRightOf="@id/chat_person_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="5dp"
+                        android:src="@drawable/ic_yellow_arrow_right"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
+
+
+                <TextView
+                    android:id="@+id/chat_person_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Online"
+                    android:textSize="@dimen/text_size_xxsmall" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/chat_edit"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="EDIT" />
+
+            <Button
+                android:id="@+id/chat_delete"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="DELETE"
+                tools:visibility="gone" />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/chat_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="none" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <View style="@style/horizontal_divider" />
+
+            <LinearLayout
+                android:id="@+id/chat_layout_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/chat_tgl_outcoming"
+                    style="@style/ActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:button="@null"
+                    android:checked="true"
+                    android:drawableLeft="@drawable/toggle_mask_msg"
+                    android:gravity="center"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp" />
+
+                <EditText
+                    android:id="@+id/chat_message_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="New Message"
+                    android:inputType="textCapSentences"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <Button
+                    android:id="@+id/chat_send_message_btn"
+                    style="@style/ActionButton"
+                    android:layout_centerVertical="true"
+                    android:text="Send"
+                    android:textAllCaps="true" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/chat_layout_msg_type"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/chat_text_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_text" />
+
+                <ImageButton
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_emoji" />
+
+                <ImageButton
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_camera" />
+
+                <ImageButton
+                    android:id="@+id/chat_image_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_picture" />
+
+                <ImageButton
+                    android:id="@+id/chat_game_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_game" />
+
+                <ImageButton
+                    android:id="@+id/chat_voice_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_voice" />
+
+                <ImageButton
+                    android:id="@+id/chat_voice_call_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_call" />
+
+                <ImageButton
+                    android:id="@+id/chat_video_call_btn"
+                    style="@style/ChatTypeIcon"
+                    android:src="@drawable/chat_video" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/chat_layout_voice"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/white"
+                    android:padding="2dp">
+
+                    <com.ping.android.view.RecorderVisualizerView
+                        android:id="@+id/visualizer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_centerHorizontal="true"
+                        android:background="@android:color/background_light" />
+                </FrameLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerInParent="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    tools:visibility="visible">
+
+                    <Button
+                        android:id="@+id/chat_cancel_record"
+                        style="@style/ActionButton"
+                        android:text="Cancel"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/chat_start_record"
+                        style="@style/ActionButton"
+                        android:layout_centerInParent="true"
+                        android:text="RECORD" />
+
+                    <Button
+                        android:id="@+id/chat_send_record"
+                        style="@style/ActionButton"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:text="Send"
+                        android:textAllCaps="false" />
+                </RelativeLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/chat_bottom_menu"
+            style="@style/BottomMenu"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <Button
+                android:id="@+id/chat_mask"
+                style="@style/ActionButton"
+                android:text="MASK ALL" />
+
+            <Button
+                android:id="@+id/chat_unmask"
+                style="@style/ActionButton"
+                android:layout_alignParentRight="true"
+                android:text="UNMASK ALL" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

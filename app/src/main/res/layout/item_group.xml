@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/group_item"
+    style="@style/ListItemContainer"
+
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <RadioButton
+        android:id="@+id/group_item_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:background="@null" />
+
+    <ImageView
+        android:id="@+id/group_item_profile"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_width="@dimen/user_profile_icon_width"
+        android:layout_height="@dimen/user_profile_icon_height"
+        android:src="@drawable/ic_avatar_gray" />
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_weight="1"
+                    style="@style/AppTextAppearance"
+                    android:id="@+id/group_item_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:maxLines="1"
+                    android:text="Group name" />
+
+
+                <TextView
+                    android:id="@+id/group_item_create_date"
+                    style="@style/AppTextAppearance.Small.Grey"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_marginLeft="@dimen/default_padding"
+                    android:layout_marginRight="@dimen/default_padding"
+                    android:text="07-22-2017-07:40" />
+            </LinearLayout>
+
+
+            <TextView
+                android:id="@+id/group_item_members"
+                style="@style/AppTextAppearance.Small.Grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_marginRight="@dimen/default_padding"
+                android:text="Group members name" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/horizontal_divider"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+
+</LinearLayout>

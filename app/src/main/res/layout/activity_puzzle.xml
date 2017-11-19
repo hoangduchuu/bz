@@ -1,0 +1,45 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:fitsSystemWindows="true"
+    tools:context=".MappingActivity">
+
+    <LinearLayout
+        android:id="@+id/contentRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_white"
+        android:orientation="vertical">
+
+        <RelativeLayout style="@style/TopMenu">
+
+            <ImageView
+                android:id="@+id/puzzle_back"
+                style="@style/BackButton" />
+
+            <ToggleButton
+                android:id="@+id/puzzle_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@null"
+                android:textColor="@color/orange"
+                android:textOff="UnPuzzle"
+                android:textOn="Puzzle" />
+
+        </RelativeLayout>
+
+        <com.ping.android.view.TouchImageView
+            android:id="@+id/puzzle_image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <include layout="@layout/notify_network_other" />
+
+</android.support.design.widget.CoordinatorLayout>

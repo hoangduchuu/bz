@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragmentIncomeCall"
+    style="@style/MatchParent">
+
+    <LinearLayout
+        android:id="@+id/layout_info_about_call"
+        style="@style/MatchParent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="60dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/also_in_call_text_left_right_padding"
+        android:paddingRight="@dimen/also_in_call_text_left_right_padding">
+
+        <ImageView
+            android:id="@+id/image_caller_avatar"
+            android:layout_width="@dimen/logo_w_h"
+            android:layout_height="@dimen/logo_w_h"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/ic_avatar_gray" />
+
+        <TextView
+            android:id="@+id/text_outgoing_opponents_names"
+            style="@style/MatchWidth"
+            android:gravity="center_horizontal"
+            android:paddingLeft="@dimen/padding_outgoing_screen"
+            android:paddingRight="@dimen/padding_outgoing_screen"
+            android:textSize="@dimen/text_size_call"
+            android:textStyle="normal"
+            tools:text="John, Bob, Merlin" />
+
+        <TextView
+            android:id="@+id/text_ringing"
+            style="@style/MatchWidth"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_horizontal"
+            android:text="@string/ringing"
+            android:textSize="@dimen/text_size_ringing"/>
+
+        <Chronometer
+            android:id="@+id/chronometer_timer_call"
+            style="@style/WrapContent"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/margin_common"
+            android:textColor="@color/text_color_also_on_call"
+            android:textSize="@dimen/text_size"
+            android:visibility="invisible" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="60dp"
+            android:layout_weight="1"
+            android:gravity="bottom">
+
+            <ToggleButton
+                android:id="@+id/toggle_mic"
+                android:layout_width="@dimen/toggle_button_params"
+                android:layout_height="@dimen/toggle_button_params"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/selector_toggle_mic"
+                android:checked="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:textOff=""
+                android:textOn="" />
+
+            <ImageButton
+                android:id="@+id/button_hangup_call"
+                style="@style/CallActionImageButton"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/ic_call_hang_up" />
+
+            <ToggleButton
+                android:id="@+id/toggle_speaker"
+                android:layout_width="@dimen/toggle_button_params"
+                android:layout_height="@dimen/toggle_button_params"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/selector_toggle_speaker"
+                android:checked="true"
+                android:textOff=""
+                android:textOn="" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>

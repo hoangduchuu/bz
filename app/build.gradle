@@ -1,0 +1,87 @@
+apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
+
+//    dataBinding {
+//        enabled = true
+//    }
+
+    defaultConfig {
+        applicationId "com.ping.android"
+        minSdkVersion 21
+        targetSdkVersion 22
+        versionCode 5
+        versionName "0.0.5"
+        jackOptions {
+            enabled true
+        }
+        //multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    dexOptions {
+        javaMaxHeapSize '3072m'
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def file = output.outputFile
+            def fileName = file.name.replace(".apk", "-v" + versionName + "(" + versionCode + ").apk")
+            output.outputFile = new File(file.parentFile, fileName)
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //testCompile 'junit:junit:4.12'
+    //SUPPORT ANDROID
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:recyclerview-v7:25.0.1'
+    compile 'com.android.support:design:25.0.1'
+    //IMAGE LOAD
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    //CHAT UI
+    compile 'hani.momanii.supernova_emoji_library:supernova-emoji-library:0.0.2'
+    // AUTH
+    //compile 'com.google.android.gms:play-services-auth:10.0.1'
+    compile 'com.google.firebase:firebase-auth:10.0.1'
+    //DATABASE FIREBASE,UI
+    compile 'com.google.firebase:firebase-database:10.0.1'
+    //compile 'com.firebaseui:firebase-ui-database:1.0.1'
+    //STORAGE FIREBASE
+    compile 'com.google.firebase:firebase-storage:10.0.1'
+    //Places SERVICES
+    //compile 'com.google.android.gms:play-services-places:10.0.1'
+
+    //apache lib
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+
+    //ShortcutBadger
+    compile "me.leolin:ShortcutBadger:1.1.13@aar"
+    compile("com.quickblox:quickblox-android-sdk-messages:$rootProject.qbSdkVersion")
+    compile("com.quickblox:quickblox-android-sdk-videochat-webrtc:3.3.0")
+    compile 'com.hbb20:ccp:1.7.6'
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+        transitive = true;
+    }
+    compile "com.squareup.okhttp3:okhttp:$rootProject.okhttpLibraryVersion"
+    compile "com.squareup.okhttp3:logging-interceptor:$rootProject.okhttpLibraryVersion"
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.joooonho:selectableroundedimageview:1.0.1'
+}
+
+apply plugin: 'com.google.gms.google-services'

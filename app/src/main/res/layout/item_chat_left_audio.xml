@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ItemChat"
+    android:orientation="horizontal">
+
+    <RadioButton
+        android:id="@+id/item_chat_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginRight="10dp"
+        android:background="@null" />
+
+    <ImageView
+        android:id="@+id/item_chat_user_profile"
+        android:layout_width="@dimen/user_profile_icon_chat_width"
+        android:layout_height="@dimen/user_profile_icon_chat_height"
+        android:layout_gravity="bottom"
+        android:src="@drawable/ic_avatar_gray" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="@dimen/item_chat_margin"
+        android:orientation="vertical"
+        android:padding="5dp">
+
+        <TextView
+            android:id="@+id/item_chat_info"
+            style="@style/AppTextAppearance.VerySmall.Grey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="user" />
+
+        <ImageButton
+            android:id="@+id/item_chat_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/item_chat_user_profile"
+            android:background="@drawable/background_chat_left"
+            android:padding="5dp"
+            android:src="@drawable/play" />
+
+        <TextView
+            android:id="@+id/item_chat_status"
+            style="@style/AppTextAppearance.VerySmall.Grey"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="Sent" />
+    </LinearLayout>
+
+</LinearLayout>

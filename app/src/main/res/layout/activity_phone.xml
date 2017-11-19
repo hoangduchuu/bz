@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.ping.android.activity.RegistrationActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/gray_bg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                style="@style/ProfileSmallStyle"
+                android:layout_marginTop="68dp"
+                android:src="@drawable/ic_avatar_color" />
+
+            <TextView
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:textSize="@dimen/text_size_medium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="@string/why_register_your_phone_number"/>
+
+            <TextView
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="7dp"
+                android:textSize="@dimen/text_size_xxsmall"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="@string/suggest_add_phone"/>
+
+            <LinearLayout style="@style/InputLayoutStyle"
+                android:layout_marginTop="80dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="Select Country"
+                        android:textColor="@color/text_input_login_hint" />
+
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/ccp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:background="@android:color/transparent" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/phone_number"
+                    style="@style/InputTextStyle"
+                    android:hint="Phone Number"
+                    android:inputType="phone" />
+
+                <View style="@style/InputUnderLineStyle" />
+
+
+                <RelativeLayout
+                    android:layout_marginTop="20dp"
+                    android:id="@+id/phone_register"
+                    style="@style/NextButtonLayout">
+
+                    <TextView
+                        style="@style/NextButtonText"
+                        android:text="OK" />
+
+                    <ImageView
+                        style="@style/NextButtonImage"
+                        android:src="@drawable/ic_arrow_right" />
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <include layout="@layout/notify_network_other" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/ProgressStyle" />
+</android.support.design.widget.CoordinatorLayout>
