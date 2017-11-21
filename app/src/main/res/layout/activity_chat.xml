@@ -46,12 +46,12 @@
                 android:textSize="12sp" />
 
             <LinearLayout
-                android:layout_centerHorizontal="true"
-                android:layout_centerInParent="true"
-                android:layout_centerVertical="true"
                 android:id="@+id/chat_header_center"
                 android:layout_width="240dp"
                 android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
                 android:gravity="center_vertical|center_horizontal"
                 android:orientation="vertical">
 
@@ -61,25 +61,25 @@
                     android:orientation="horizontal">
 
                     <TextView
-                        style="@style/AppTextAppearance"
                         android:id="@+id/chat_person_name"
+                        style="@style/AppTextAppearance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:maxWidth="220dp"
                         android:text="User "
-                        android:layout_centerVertical="true"
-                        android:layout_centerHorizontal="true"
                         tools:text="ipsum dolor sit amet, consectetur adipiscing elit." />
 
                     <ImageView
-                        android:layout_toRightOf="@id/chat_person_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/chat_person_name"
                         android:paddingLeft="5dp"
-                        android:src="@drawable/ic_yellow_arrow_right"
-                        android:layout_centerVertical="true"/>
+                        android:src="@drawable/ic_yellow_arrow_right" />
                 </RelativeLayout>
 
 
@@ -107,12 +107,19 @@
                 tools:visibility="gone" />
         </RelativeLayout>
 
+
+        <ImageView
+            android:id="@+id/load_more"
+            style="@style/LoadMoreButton"
+            android:visibility="gone" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/chat_list_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:scrollbars="none" />
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -137,8 +144,8 @@
                     android:checked="true"
                     android:drawableLeft="@drawable/toggle_mask_msg"
                     android:gravity="center"
-                    android:paddingRight="10dp"
-                    android:paddingLeft="10dp" />
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp" />
 
                 <EditText
                     android:id="@+id/chat_message_tv"

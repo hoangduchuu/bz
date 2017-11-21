@@ -133,6 +133,15 @@
         <item name="android:paddingRight">16dp</item>
     </style>
 
+    <style name="LoadMoreButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/ic_up</item>
+        <item name="android:background">@drawable/button_ripple</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
     <style name="ItemSetting" parent="MatchWidth">
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_height">@dimen/setting_item_height</item>

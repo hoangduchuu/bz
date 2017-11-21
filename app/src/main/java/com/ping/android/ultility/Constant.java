@@ -1,8 +1,8 @@
 package com.ping.android.ultility;
 
 public class Constant {
-    public  static final String START_ACTIVITY_GROUP_ID = "GROUP_ID";
-    public  static final String START_ACTIVITY_USER_ID = "USER_ID";
+    public static final String START_ACTIVITY_GROUP_ID = "GROUP_ID";
+    public static final String START_ACTIVITY_USER_ID = "USER_ID";
 
     public static final int IMAGE_GALLERY_REQUEST = 1;
     public static final int GAME_GALLERY_REQUEST = 2;
@@ -44,6 +44,9 @@ public class Constant {
 
     public static final String QB_PING_ROOM = "mnb";
     public static final String QB_ACC_PASS = "QB_ACC_PASS";
+
+    public static final int LATEST_RECENT_MESSAGE = 5;
+    public static final int LOAD_MORE_MESSAGE_AMOUNT = 2;
 
     public enum TYPE_FRIEND {
         NON_FRIEND,
