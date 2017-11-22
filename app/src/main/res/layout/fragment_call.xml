@@ -38,6 +38,12 @@
                 custom:leftSwitch="All"
                 custom:rightSwitch="Missed" />
 
+            <Button
+                android:id="@+id/call_delete"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentRight="true"
+                android:visibility="gone"
+                android:text="DELETE" />
         </RelativeLayout>
 
         <LinearLayout style="@style/SearchLayout">
