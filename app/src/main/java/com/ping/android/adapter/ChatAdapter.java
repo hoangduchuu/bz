@@ -289,6 +289,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         return 0;
     }
 
+    public Message getItem(int position) {
+        if (displayMessages == null || displayMessages.size() == 0) {
+            return null;
+        }
+
+        return displayMessages.get(position);
+    }
+
     public interface ClickListener {
         void onSelect(List<Message> selectMessages);
     }

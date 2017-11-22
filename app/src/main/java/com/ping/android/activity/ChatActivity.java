@@ -114,10 +114,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private TextWatcher textWatcher;
 
-    private int chatLoadLimit = Constant.LATEST_RECENT_MESSAGE;
-    private String latestMessageLoadedKey = null;
-    private long chatsAmount = 0;
-    private boolean isScrollToTop = false;
+    private boolean isScrollToTop = false, isEndOfConvesation = false;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
@@ -312,7 +309,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                updateLoadMoreButtonStatus(pastVisibleItems == 0 && adapter.getItemCount() < chatsAmount);
+                updateLoadMoreButtonStatus(pastVisibleItems == 0 && !isEndOfConvesation);
                 isScrollToTop = pastVisibleItems == 0;
             }
         });
@@ -370,27 +367,34 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         onUpdateEditMode();
     }
 
+    private double getLatestMessageTimeStamp() {
+        if (adapter == null || adapter.getItemCount() == 0) {
+            return 0;
+        }
+
+        Message message = adapter.getItem(0);
+
+        return message == null ? 0 : message.timestamp;
+    }
+
     private void loadMoreChats() {
         mDatabase.child("messages")
                 .child(conversationID)
-                .orderByKey()
-                .endAt(latestMessageLoadedKey)
+                .orderByChild("timestamp")
+                .endAt(getLatestMessageTimeStamp())
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
-                .addChildEventListener(observeChatEvent);
-
-        if (latestMessageLoadedKey != null) {
-            latestMessageLoadedKey = null;
-        }
-    }
-
-    private void updateChatAmount() {
-        mDatabase.child("messages")
-                .child(conversationID)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            chatsAmount = dataSnapshot.getChildrenCount();
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                processAddChild(child);
+                            }
+                        }
+
+                        if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
+                            isEndOfConvesation = true;
+                            updateLoadMoreButtonStatus(false);
                         }
                     }
 
@@ -415,7 +419,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         messages = new ArrayList<>();
         fromUser = ServiceManager.getInstance().getCurrentUser();
 
-        updateChatAmount();
         initConversationData();
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -430,32 +433,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeChatEvent = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Message message = new Message(dataSnapshot);
-                if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                    return;
-                }
-
-                if (message != null && message.key.equals(latestMessageLoadedKey)) {
-                    return;
-                }
-
-                ServiceManager.getInstance().getUser(message.senderId, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        if (error == null) {
-                            message.sender = (User) data[0];
-                            updateMessageMarkStatus(message);
-                            updateMessageStatus(message);
-                            adapter.addOrUpdate(message);
-                            recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
-                            updateConversationReadStatus();
-
-                            if (latestMessageLoadedKey == null) {
-                                latestMessageLoadedKey = message.key;
-                            }
-                        }
-                    }
-                });
+                processAddChild(dataSnapshot);
             }
 
             @Override
@@ -526,33 +504,54 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     }
 
-    private void initConversationData() {
-        mDatabase.child("users").child(fromUserID).child("conversations").child(conversationID)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        orginalConversation = new Conversation(dataSnapshot);
-                        ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
-                            @Override
-                            public void complete(Object error, Object... data) {
-                                orginalConversation.members = (List<User>) data[0];
-                                for (User user : orginalConversation.members) {
-                                    if (!user.key.equals(fromUserID)) {
-                                        orginalConversation.opponentUser = user;
-                                        if (adapter != null)
-                                            adapter.setOrginalConversation(orginalConversation);
-                                        break;
-                                    }
-                                }
-                            }
-                        });
-                        startChat();
-                    }
+    private void processAddChild(DataSnapshot dataSnapshot) {
+        Message message = new Message(dataSnapshot);
 
+        if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+            return;
+        }
+
+        ServiceManager.getInstance().getUser(message.senderId, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                if (error == null) {
+                    message.sender = (User) data[0];
+                    updateMessageMarkStatus(message);
+                    updateMessageStatus(message);
+                    adapter.addOrUpdate(message);
+                    recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
+                    updateConversationReadStatus();
+                }
+            }
+        });
+    }
+
+    private void initConversationData() {
+        mDatabase.child("users").child(fromUserID).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                orginalConversation = new Conversation(dataSnapshot);
+                ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void complete(Object error, Object... data) {
+                        orginalConversation.members = (List<User>) data[0];
+                        for (User user : orginalConversation.members) {
+                            if (!user.key.equals(fromUserID)) {
+                                orginalConversation.opponentUser = user;
+                                if (adapter != null)
+                                    adapter.setOrginalConversation(orginalConversation);
+                                break;
+                            }
+                        }
                     }
                 });
+                startChat();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
     private void startChat() {
@@ -591,7 +590,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
-        mDatabase.child("messages").child(conversationID).orderByKey().limitToLast(chatLoadLimit).addChildEventListener(observeChatEvent);
+        mDatabase.child("messages").child(conversationID).orderByChild("timestamp").limitToLast(Constant.LATEST_RECENT_MESSAGES).addChildEventListener(observeChatEvent);
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
     }
