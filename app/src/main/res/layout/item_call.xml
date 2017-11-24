@@ -2,14 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_contact_item"
-    android:layout_marginLeft="@dimen/default_padding"
     style="@style/ListItemContainer"
     android:orientation="horizontal">
+
+    <RadioButton
+        android:id="@+id/call_item_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/default_padding"
+        android:background="@null" />
 
     <ImageView
         android:id="@+id/call_item_profile"
         android:layout_width="@dimen/user_profile_icon_width"
         android:layout_height="@dimen/user_profile_icon_height"
+        android:layout_marginLeft="@dimen/default_padding"
         android:layout_centerVertical="true"
         android:src="@drawable/ic_avatar_gray" />
 
@@ -57,12 +64,6 @@
                 android:id="@+id/item_call_video"
                 style="@style/list_item_btn"
                 android:src="@drawable/start_video_call" />
-
-            <ImageView
-                android:id="@+id/item_call_delete"
-                android:layout_centerVertical="true"
-                style="@style/list_item_btn"
-                android:src="@drawable/delete" />
         </LinearLayout>
         <View
             style="@style/horizontal_divider"
