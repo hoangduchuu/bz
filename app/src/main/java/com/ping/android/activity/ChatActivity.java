@@ -547,6 +547,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void notifyTyping() {
+        // Tuan - just init textWatcher once
+        if (textWatcher != null) return;
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
