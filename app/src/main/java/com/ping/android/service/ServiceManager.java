@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializer;
 import com.ping.android.App;
 import com.ping.android.activity.R;
 import com.ping.android.db.QbUsersDbManager;
@@ -40,6 +42,11 @@ import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
 import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.helper.StringifyArrayList;
+import com.quickblox.messages.QBPushNotifications;
+import com.quickblox.messages.model.QBEnvironment;
+import com.quickblox.messages.model.QBEvent;
+import com.quickblox.messages.model.QBEventType;
+import com.quickblox.messages.model.QBNotificationType;
 import com.quickblox.users.model.QBUser;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -1015,6 +1022,39 @@ public class ServiceManager {
             }
         }
         return null;
+    }
+
+    public void sendCallingNotificationToUser(int quickBloxId, String callType){
+        String messageData = String.format("%s is %s calling", ServiceManager.getInstance().currentUser.getDisplayName(), callType);
+        JsonObject object = new JsonObject();
+        object.addProperty("message", messageData);
+        object.addProperty("ios_badge", "1");
+        object.addProperty("ios_sound", "default");
+        object.addProperty("notificationType", "incoming_call");
+        QBEvent event = new QBEvent();
+        event.setNotificationType(QBNotificationType.PUSH);
+        event.addUserIds(quickBloxId);
+        //event.setUserId(quickBloxId);
+        event.setType(QBEventType.ONE_SHOT);
+        event.setMessage(object.toString());
+        //add more props
+        //event.setPushType(QBPushType.APNS);
+        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
+            @Override
+            public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onError(QBResponseException e) {
+                Log.e(e);
+            }
+        });
+
+
+
+
     }
 }
 

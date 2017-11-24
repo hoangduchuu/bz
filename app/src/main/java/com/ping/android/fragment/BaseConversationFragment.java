@@ -17,8 +17,9 @@ import android.widget.ToggleButton;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.db.QbUsersDbManager;
+import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Consts;
-import com.ping.android.utils.CollectionsUtils;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.WebRtcSessionManager;
 import com.quickblox.chat.QBChatService;
@@ -27,6 +28,8 @@ import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class BaseConversationFragment extends BaseToolBarFragment implements CallActivity.CurrentCallStateCallback {
 
@@ -127,11 +130,19 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 
         }
 
+        User currentUser = ServiceManager.getInstance().getCurrentUser();
+        Map<String, String> userInfo = new HashMap();
+        userInfo.put("ping_id", currentUser.pingID);
+        userInfo.put("user_id", currentUser.key);
+        userInfo.put("first_last_name", currentUser.getDisplayName());
+
         if (currentSession.getState() != QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_ACTIVE) {
             if (isIncomingCall) {
-                currentSession.acceptCall(null);
+                currentSession.acceptCall(userInfo);
             } else {
-                currentSession.startCall(null);
+                currentSession.startCall(userInfo);
+                String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
+                ServiceManager.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
             }
             isMessageProcessed = true;
         }
