@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import org.jivesoftware.smack.util.StringUtils;
 
+import java.io.File;
 import java.util.Random;
 
 public class UiUtils {
@@ -104,6 +105,15 @@ public class UiUtils {
         } else {
             imageView.setImageResource(IMG_DEFAULT);
         }
+    }
+
+    public static void displayProfileAvatar(ImageView imageView, String filePath) {
+        Picasso.with(imageView.getContext())
+                .load(new File(filePath))
+                .transform(new CircleTransform())
+                .error(IMG_DEFAULT)
+                .placeholder(IMG_DEFAULT)
+                .into(imageView);
     }
 
     public static void displayProfileAvatar(final Context context,
