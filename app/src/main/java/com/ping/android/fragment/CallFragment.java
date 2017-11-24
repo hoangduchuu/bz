@@ -29,6 +29,8 @@ import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.view.CustomSwitch;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +48,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     private LinearLayoutManager mLinearLayoutManager;
     private RecyclerView rvListCall;
 //    private RelativeLayout bottomMenu;
-    private Button btnEditCall;
+    private Button btnEditCall, btnDeleteCall;
 
     private User currentUser;
     private CallAdapter adapter;
@@ -106,6 +108,9 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
             case R.id.call_cancel_edit:
                 onExitEdit();
                 break;
+            case R.id.call_delete:
+                onDelete();
+                break;
         }
     }
 
@@ -131,6 +136,11 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         // TODO exit edit when there is no record
     }
 
+    @Override
+    public void onSelect(ArrayList<Call> selectConversations) {
+        updateEditMode();
+    }
+
     private void bindViews(View view) {
         rvListCall = (RecyclerView) view.findViewById(R.id.call_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
@@ -140,6 +150,10 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
 
         btnEditCall = (Button) view.findViewById(R.id.call_edit);
         btnEditCall.setOnClickListener(this);
+
+        btnDeleteCall = (Button) view.findViewById(R.id.call_delete);
+        btnDeleteCall.setOnClickListener(this);
+
         btnCancel = (Button) view.findViewById(R.id.call_cancel_edit);
         btnCancel.setOnClickListener(this);
     }
@@ -197,9 +211,21 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         if (isEditMode) {
             btnEditCall.setVisibility(View.GONE);
             btnCancel.setVisibility(View.VISIBLE);
+            btnDeleteCall.setVisibility(View.VISIBLE);
         } else {
             btnEditCall.setVisibility(View.VISIBLE);
             btnCancel.setVisibility(View.GONE);
+            btnDeleteCall.setVisibility(View.GONE);
+        }
+
+        updateEditMenu();
+    }
+
+    private void updateEditMenu() {
+        if (CollectionUtils.isEmpty(adapter.getSelectCall())) {
+            btnDeleteCall.setEnabled(false);
+        } else {
+            btnDeleteCall.setEnabled(true);
         }
     }
 
@@ -270,5 +296,12 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         isEditMode = false;
         updateEditMode();
         adapter.setEditMode(isEditMode);
+    }
+
+    private void onDelete() {
+        ArrayList<Call> selectedCalls = adapter.getSelectCall();
+        ServiceManager.getInstance().deleteCalls(selectedCalls);
+        adapter.cleanSelectCall();
+        updateEditMenu();
     }
 }

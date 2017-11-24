@@ -15,9 +15,11 @@ public class BeforeLoginActivity extends CoreActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.loading_sign_in_container:
             case R.id.loading_sign_in:
                 onSignIn();
                 break;
+            case R.id.loading_sign_up_container:
             case R.id.loading_sign_up:
                 onSignUp();
                 break;
@@ -25,6 +27,9 @@ public class BeforeLoginActivity extends CoreActivity implements View.OnClickLis
     }
 
     private void bindViews() {
+        findViewById(R.id.loading_sign_in_container).setOnClickListener(this);
+        findViewById(R.id.loading_sign_up_container).setOnClickListener(this);
+
         findViewById(R.id.loading_sign_in).setOnClickListener(this);
         findViewById(R.id.loading_sign_up).setOnClickListener(this);
     }

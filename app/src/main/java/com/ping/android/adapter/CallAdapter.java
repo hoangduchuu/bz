@@ -1,13 +1,18 @@
 package com.ping.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
@@ -22,6 +27,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
     private ArrayList<Call> originalCalls;
     private ArrayList<Call> displayCalls;
+    private ArrayList<Call> selectCalls;
     private User currentUser;
     private Boolean isEditMode = false;
     private Context mContext;
@@ -30,6 +36,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     public CallAdapter(ArrayList<Call> calls, Context context, ClickListener clickListener) {
         originalCalls = calls;
         displayCalls = (ArrayList<Call>) calls.clone();
+        selectCalls = new ArrayList<>();
         mContext = context;
         this.clickListener = clickListener;
         currentUser = ServiceManager.getInstance().getCurrentUser();
@@ -97,6 +104,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         if (deletedCall != null) {
             originalCalls.remove(deletedCall);
             displayCalls.remove(deletedCall);
+            selectCalls.remove(deletedCall);
             notifyDataSetChanged();
         }
     }
@@ -113,7 +121,18 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
     public void setEditMode(Boolean isEditMode) {
         this.isEditMode = isEditMode;
+        if (!isEditMode) {
+            selectCalls.clear();
+        }
         notifyDataSetChanged();
+    }
+
+    public ArrayList<Call> getSelectCall() {
+        return selectCalls;
+    }
+
+    public void cleanSelectCall() {
+        selectCalls.clear();
     }
 
     private boolean isFiltered(Call call, String text, Boolean isAll) {
@@ -149,10 +168,16 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         } else {
             info = "Missed. ";
         }
+
         String time = CommonMethod.convertTimestampToTime(call.timestamp).toString();
         holder.setInfo(info + time);
         holder.setInfoColor();
         holder.setEditMode(isEditMode);
+        if (selectCalls.contains(call)) {
+            holder.setSelect(true);
+        } else {
+            holder.setSelect(false);
+        }
         UiUtils.displayProfileImage(mContext, holder.ivProfileImage, call.opponentUser);
     }
 
@@ -165,12 +190,15 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         void onReCall(Call call, Boolean isVideoCall);
 
         void onDeleteCall(Call call);
+
+        void onSelect(ArrayList<Call> selectCalls);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
-        ImageView ivVideoCall, ivVoiceCall, ivDeleteCall;
+        ImageView ivVideoCall, ivVoiceCall;
         TextView tvName, tvInfo;
+        RadioButton rbSelect;
         Call call;
 
         public ViewHolder(View itemView) {
@@ -182,8 +210,9 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             ivVideoCall.setOnClickListener(this);
             ivVoiceCall = (ImageView) itemView.findViewById(R.id.item_call_voice);
             ivVoiceCall.setOnClickListener(this);
-            ivDeleteCall = (ImageView) itemView.findViewById(R.id.item_call_delete);
-            ivDeleteCall.setOnClickListener(this);
+            rbSelect = (RadioButton) itemView.findViewById(R.id.call_item_select);
+            rbSelect.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
         public void setName(String name) {
@@ -204,27 +233,60 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
         public void setEditMode(Boolean isEditMode) {
             if (isEditMode) {
-                ivDeleteCall.setVisibility(View.VISIBLE);
+                rbSelect.setVisibility(View.VISIBLE);
                 ivVideoCall.setVisibility(View.GONE);
                 ivVoiceCall.setVisibility(View.GONE);
             } else {
-                ivDeleteCall.setVisibility(View.GONE);
+                rbSelect.setVisibility(View.GONE);
                 ivVideoCall.setVisibility(View.VISIBLE);
                 ivVoiceCall.setVisibility(View.VISIBLE);
             }
         }
 
+        public void setSelect(Boolean isSelect) {
+            rbSelect.setChecked(isSelect);
+            rbSelect.setSelected(isSelect);
+        }
+
+        private void onClickEditMode(View view) {
+            boolean isSelect;
+            switch (view.getId()) {
+                case R.id.call_item_select:
+                    isSelect = !rbSelect.isSelected();
+                    rbSelect.setChecked(isSelect);
+                    rbSelect.setSelected(isSelect);
+                    break;
+                default:
+                    isSelect = !rbSelect.isSelected();
+                    rbSelect.setChecked(isSelect);
+                    rbSelect.setSelected(isSelect);
+                    break;
+            }
+            selectCall();
+        }
+
+        private void selectCall() {
+            if (rbSelect.isSelected()) {
+                selectCalls.add(call);
+            } else {
+                selectCalls.remove(call);
+            }
+            clickListener.onSelect(selectCalls);
+        }
+
         @Override
         public void onClick(View view) {
+            if (isEditMode) {
+                onClickEditMode(view);
+                return;
+            }
+
             switch (view.getId()) {
                 case R.id.item_call_video:
                     clickListener.onReCall(call, true);
                     break;
                 case R.id.item_call_voice:
                     clickListener.onReCall(call, false);
-                    break;
-                case R.id.item_call_delete:
-                    clickListener.onDeleteCall(call);
                     break;
             }
         }
