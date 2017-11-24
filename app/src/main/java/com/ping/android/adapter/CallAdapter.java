@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -232,15 +233,21 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         }
 
         public void setEditMode(Boolean isEditMode) {
-            if (isEditMode) {
-                rbSelect.setVisibility(View.VISIBLE);
-                ivVideoCall.setVisibility(View.GONE);
-                ivVoiceCall.setVisibility(View.GONE);
-            } else {
-                rbSelect.setVisibility(View.GONE);
-                ivVideoCall.setVisibility(View.VISIBLE);
-                ivVoiceCall.setVisibility(View.VISIBLE);
-            }
+            rbSelect.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+                    if (isEditMode) {
+                        rbSelect.setVisibility(View.VISIBLE);
+                        ivVideoCall.setVisibility(View.GONE);
+                        ivVoiceCall.setVisibility(View.GONE);
+                    } else {
+                        rbSelect.setVisibility(View.GONE);
+                        ivVideoCall.setVisibility(View.VISIBLE);
+                        ivVoiceCall.setVisibility(View.VISIBLE);
+                    }
+                }
+            }, 10);
         }
 
         public void setSelect(Boolean isSelect) {
