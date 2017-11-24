@@ -84,7 +84,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private LinearLayoutManager mLinearLayoutManager;
     private RelativeLayout layoutVoice, layoutBottomMenu;
     private LinearLayout layoutText, layoutMsgType;
-    private ImageView btBack;
+    private ImageView btBack, btLoadMoreChat;
     private Button btSendRecord;
     private Button tbRecord;
     private CheckBox tgMarkOut;
@@ -113,6 +113,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private TextWatcher textWatcher;
+
+    private boolean isScrollToTop = false, isEndOfConvesation = false;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
@@ -261,6 +263,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             case R.id.chat_video_call_btn:
                 onVideoCall();
                 break;
+            case R.id.load_more:
+                loadMoreChats();
+                isScrollToTop = true;
+                break;
         }
     }
 
@@ -298,6 +304,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(true);
+        recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
+                updateLoadMoreButtonStatus(pastVisibleItems == 0 && !isEndOfConvesation);
+                isScrollToTop = pastVisibleItems == 0;
+            }
+        });
 
         findViewById(R.id.chat_person_name).setOnClickListener(this);
 
@@ -323,6 +338,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         btCancelEdit = (Button) findViewById(R.id.chat_cancel_edit);
         btCancelEdit.setOnClickListener(this);
 
+        btLoadMoreChat = (ImageView) findViewById(R.id.load_more);
+        btLoadMoreChat.setOnClickListener(this);
+
         layoutText = (LinearLayout) findViewById(R.id.chat_layout_text);
         layoutVoice = (RelativeLayout) findViewById(R.id.chat_layout_voice);
         layoutBottomMenu = (RelativeLayout) findViewById(R.id.chat_bottom_menu);
@@ -347,6 +365,44 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
+    }
+
+    private double getLatestMessageTimeStamp() {
+        if (adapter == null || adapter.getItemCount() == 0) {
+            return 0;
+        }
+
+        Message message = adapter.getItem(0);
+
+        return message == null ? 0 : message.timestamp;
+    }
+
+    private void loadMoreChats() {
+        mDatabase.child("messages")
+                .child(conversationID)
+                .orderByChild("timestamp")
+                .endAt(getLatestMessageTimeStamp())
+                .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                processAddChild(child);
+                            }
+                        }
+
+                        if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
+                            isEndOfConvesation = true;
+                            updateLoadMoreButtonStatus(false);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void init() {
@@ -377,23 +433,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeChatEvent = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Message message = new Message(dataSnapshot);
-                if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                    return;
-                }
-                ServiceManager.getInstance().getUser(message.senderId, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        if (error == null) {
-                            message.sender = (User) data[0];
-                            updateMessageMarkStatus(message);
-                            updateMessageStatus(message);
-                            adapter.addOrUpdate(message);
-                            recycleChatView.scrollToPosition(adapter.getItemCount() - 1);
-                            updateConversationReadStatus();
-                        }
-                    }
-                });
+                processAddChild(dataSnapshot);
             }
 
             @Override
@@ -451,7 +491,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Boolean status = CommonMethod.getBooleanOf(dataSnapshot.getValue());
                 if (status == null) status = false;
-                if(status)
+                if (status)
                     tvChatStatus.setText("Online");
                 else
                     tvChatStatus.setText("Offline");
@@ -462,6 +502,28 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
 
+    }
+
+    private void processAddChild(DataSnapshot dataSnapshot) {
+        Message message = new Message(dataSnapshot);
+
+        if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+            return;
+        }
+
+        ServiceManager.getInstance().getUser(message.senderId, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                if (error == null) {
+                    message.sender = (User) data[0];
+                    updateMessageMarkStatus(message);
+                    updateMessageStatus(message);
+                    adapter.addOrUpdate(message);
+                    recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
+                    updateConversationReadStatus();
+                }
+            }
+        });
     }
 
     private void initConversationData() {
@@ -476,7 +538,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                         for (User user : orginalConversation.members) {
                             if (!user.key.equals(fromUserID)) {
                                 orginalConversation.opponentUser = user;
-                                if(adapter != null)
+                                if (adapter != null)
                                     adapter.setOrginalConversation(orginalConversation);
                                 break;
                             }
@@ -528,7 +590,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
-        mDatabase.child("messages").child(conversationID).addChildEventListener(observeChatEvent);
+        mDatabase.child("messages").child(conversationID).orderByChild("timestamp").limitToLast(Constant.LATEST_RECENT_MESSAGES).addChildEventListener(observeChatEvent);
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
     }
@@ -536,8 +598,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void observeStatus() {
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             mDatabase.child("users").child(orginalConversation.opponentUser.key).child("loginStatus").addValueEventListener(observeStatusEvent);
-        }
-        else {
+        } else {
             tvChatStatus.setVisibility(View.GONE);
         }
     }
@@ -710,7 +771,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             setRecordMode(false);
         }
 
-        if(type != Constant.MESSAGE_TYPE.TEXT) {
+        if (type != Constant.MESSAGE_TYPE.TEXT) {
             View view = this.getCurrentFocus();
             if (view != null) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -720,7 +781,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void setRecordMode(boolean isRecording) {
-        if(isRecording) {
+        if (isRecording) {
             btCancelRecord.setVisibility(View.VISIBLE);
             btSendRecord.setVisibility(View.VISIBLE);
         } else {
@@ -757,6 +818,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSentMessage(String text) {
+        loadMoreChats();
         if (StringUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
@@ -765,7 +827,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if( checkBlocked()){
+        if (checkBlocked()) {
             return;
         }
 
@@ -797,7 +859,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if( checkBlocked()){
+        if (checkBlocked()) {
             return;
         }
 
@@ -812,7 +874,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if( checkBlocked()){
+        if (checkBlocked()) {
             return;
         }
 
@@ -879,7 +941,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if( checkBlocked()){
+        if (checkBlocked()) {
             return;
         }
 
@@ -1092,7 +1154,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
-            for(String userId : orginalConversation.memberIDs.keySet()) {
+            for (String userId : orginalConversation.memberIDs.keySet()) {
                 mDatabase.child("messages").child(conversationID).child(message.key).child("status").
                         child(userId).setValue(status);
             }
@@ -1111,7 +1173,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void updateMessageMarkStatus(Message message) {
-        if(message.markStatuses == null || !message.markStatuses.containsKey(fromUser.key)) {
+        if (message.markStatuses == null || !message.markStatuses.containsKey(fromUser.key)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, message.key,
                     (ServiceManager.getInstance().getMaskSetting(orginalConversation.maskMessages)));
         }
@@ -1150,5 +1212,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             isBlocked = true;
         }
         return isBlocked;
+    }
+
+    private void updateLoadMoreButtonStatus(boolean isShow) {
+        btLoadMoreChat.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 }

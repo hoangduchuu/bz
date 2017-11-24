@@ -39,9 +39,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> implements Comparator<Message> {
 
     private static final int RIGHT_MSG = 0;
     private static final int LEFT_MSG = 1;
@@ -88,11 +90,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             }
         }
 
-        if(isAdd) {
+        if (isAdd) {
             addMessage(message);
         } else {
             updateMessage(message);
         }
+
+        Collections.sort(displayMessages, this);
+        notifyDataSetChanged();
     }
 
     public void addMessage(Message message) {
@@ -271,6 +276,25 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public int getItemCount() {
         return displayMessages.size();
+    }
+
+    @Override
+    public int compare(Message o1, Message o2) {
+        if (o1.timestamp > o2.timestamp) {
+            return 1;
+        } else if (o1.timestamp < o2.timestamp) {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    public Message getItem(int position) {
+        if (displayMessages == null || displayMessages.size() == 0) {
+            return null;
+        }
+
+        return displayMessages.get(position);
     }
 
     public interface ClickListener {
