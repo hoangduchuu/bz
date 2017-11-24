@@ -11,6 +11,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -104,11 +107,18 @@ public class MainActivity extends CoreActivity {
     }
 
     public void onEditMode(Boolean isEditMode) {
-        if (isEditMode) {
-            tabLayout.setVisibility(View.GONE);
-        } else {
-            tabLayout.setVisibility(View.VISIBLE);
-        }
+        tabLayout.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Transition slide = new Slide();
+                TransitionManager.beginDelayedTransition(tabLayout, slide);
+                if (isEditMode) {
+                    tabLayout.setVisibility(View.GONE);
+                } else {
+                    tabLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        }, 10);
     }
 
     private void observeBadgeNumber() {

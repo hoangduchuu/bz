@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -288,11 +291,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
 
         public void setEditMode(Boolean isEditMode) {
-            if (isEditMode) {
-                rbSelect.setVisibility(View.VISIBLE);
-            } else {
-                rbSelect.setVisibility(View.GONE);
-            }
+            rbSelect.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    TransitionManager.beginDelayedTransition(messageItem);
+                    if (isEditMode) {
+                        rbSelect.setVisibility(View.VISIBLE);
+                    } else {
+                        rbSelect.setVisibility(View.GONE);
+                    }
+
+                }
+            }, 10);
         }
 
         public void setSelect(Boolean isSelect) {
