@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ServiceManager {
-
+    private static final String TAG = ServiceManager.class.getSimpleName();
     public static final int IMG_DEFAULT = R.drawable.ic_avatar_gray;
     private static ServiceManager ourInstance = new ServiceManager();
     private final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
@@ -751,20 +751,34 @@ public class ServiceManager {
 
     public void createConversationIDForPVPChat(String fromUserId, String toUserId, Callback completion) {
         String conversationID = fromUserId.compareTo(toUserId) > 0 ? fromUserId + toUserId : toUserId + fromUserId;
+        Conversation conversation = Conversation.createNewConversation(fromUserId, toUserId);
         mDatabase.child("conversations").equalTo(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    completion.complete(null, conversationID);
-                } else {
-                    Conversation conversation = Conversation.createNewConversation(fromUserId, toUserId);
+                if (!dataSnapshot.exists()) {
                     mDatabase.child("conversations").child(conversationID).setValue(conversation);
-                    completion.complete(null, conversationID);
                 }
+                // Tuan - create conversation node in users/{userId}/conversations/{conversationId}
+                mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).setValue(conversation);
+                        }
+                        completion.complete(null, conversationID);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.e(TAG + databaseError.getMessage());
+                        completion.complete(databaseError, conversationID);
+                    }
+                });
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                completion.complete(databaseError, conversationID);
             }
         });
     }
