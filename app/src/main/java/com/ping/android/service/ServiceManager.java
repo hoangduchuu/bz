@@ -751,29 +751,16 @@ public class ServiceManager {
 
     public void createConversationIDForPVPChat(String fromUserId, String toUserId, Callback completion) {
         String conversationID = fromUserId.compareTo(toUserId) > 0 ? fromUserId + toUserId : toUserId + fromUserId;
-        Conversation conversation = Conversation.createNewConversation(fromUserId, toUserId);
         mDatabase.child("conversations").equalTo(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
+                    Conversation conversation = Conversation.createNewConversation(fromUserId, toUserId);
                     mDatabase.child("conversations").child(conversationID).setValue(conversation);
+                    // Tuan - create conversation node in users/{userId}/conversations/{conversationId}
+                    mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).setValue(conversation);
                 }
-                // Tuan - create conversation node in users/{userId}/conversations/{conversationId}
-                mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).setValue(conversation);
-                        }
-                        completion.complete(null, conversationID);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.e(TAG + databaseError.getMessage());
-                        completion.complete(databaseError, conversationID);
-                    }
-                });
+                completion.complete(null, conversationID);
             }
 
             @Override
