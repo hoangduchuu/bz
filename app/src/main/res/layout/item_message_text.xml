@@ -35,7 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginRight="@dimen/default_padding">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -59,7 +60,6 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_marginLeft="@dimen/default_padding"
-                        android:layout_marginRight="@dimen/default_padding"
                         tools:text="01-06-2017-06:54" />
                 </RelativeLayout>
 
@@ -68,11 +68,10 @@
                     style="@style/AppTextAppearance.Small.Grey"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/default_padding"
                     android:layout_marginTop="3dp"
-                    android:ellipsize="end"
                     android:maxLines="1"
-                    tools:text="This is the comment text" />
+                    android:ellipsize="end"
+                    tools:text="This is the comment text. very long long long text with many many line" />
             </LinearLayout>
 
             <View
