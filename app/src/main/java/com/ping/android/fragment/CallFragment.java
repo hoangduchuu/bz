@@ -165,7 +165,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         mDatabase = database.getReference();
         currentUser = ServiceManager.getInstance().getCurrentUser();
         calls = new ArrayList<>();
-        adapter = new CallAdapter(calls, getContext(), this);
+        adapter = new CallAdapter(calls, this);
         observeCalls();
     }
 
@@ -208,6 +208,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         MainActivity mainActivity = (MainActivity) getActivity();
         mainActivity.onEditMode(isEditMode);
         adapter.setEditMode(isEditMode);
+
         if (isEditMode) {
             btnEditCall.setVisibility(View.GONE);
             btnCancel.setVisibility(View.VISIBLE);
