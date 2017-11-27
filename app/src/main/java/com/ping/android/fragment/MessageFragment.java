@@ -290,6 +290,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         ArrayList<Conversation> readConversations = adapter.getSelectConversation();
         ServiceManager.getInstance().deleteConversation(readConversations);
         adapter.cleanSelectConversation();
-        updateEditMenu();
+        isEditMode = false;
+        updateEditMode();
     }
 }

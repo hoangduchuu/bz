@@ -1,70 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.MainActivity">
+    android:background="@color/main_background_gray"
+    android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/main_background_gray"
-        android:orientation="vertical">
+    <RelativeLayout style="@style/TopMenu">
 
-        <RelativeLayout style="@style/TopMenu">
+        <Button
+            android:id="@+id/group_edit"
+            style="@style/ActionButton.TopMenu"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            android:text="EDIT" />
 
-            <Button
-                android:id="@+id/group_edit"
-                style="@style/ActionButton.TopMenu"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:text="EDIT" />
+        <TextView
+            style="@style/TextTitle"
+            android:text="GROUPS" />
 
-            <TextView
-                style="@style/TextTitle"
-                android:text="GROUPS" />
+        <Button
+            android:id="@+id/group_add"
+            style="@style/ActionButton.TopMenu"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="CREATE" />
+    </RelativeLayout>
 
-            <Button
-                android:id="@+id/group_add"
-                style="@style/ActionButton.TopMenu"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:text="CREATE" />
-        </RelativeLayout>
+    <LinearLayout style="@style/SearchLayout">
 
-        <LinearLayout style="@style/SearchLayout">
+        <SearchView
+            android:id="@+id/group_search_view"
+            style="@style/SearchView"></SearchView>
 
-            <SearchView
-                android:id="@+id/group_search_view"
-                style="@style/SearchView"></SearchView>
-
-        </LinearLayout>
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/group_recycle_view"
-            style="@style/RecyclerView"
-            android:layout_weight="1" />
-
-        <View style="@style/ViewSeparate" />
-
-        <RelativeLayout
-            android:id="@+id/group_bottom_menu"
-            style="@style/BottomMenu">
-
-            <Button
-                android:id="@+id/group_leave"
-                style="@style/ActionButton.TopMenu"
-                android:text="LEAVE GROUP" />
-
-            <Button
-                android:id="@+id/group_delete"
-                style="@style/ActionButton.TopMenu"
-                android:layout_alignParentEnd="true"
-                android:text="DELETE GROUP" />
-        </RelativeLayout>
     </LinearLayout>
 
-</android.support.design.widget.CoordinatorLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/group_recycle_view"
+        style="@style/RecyclerView"
+        android:layout_weight="1" />
+
+    <View style="@style/ViewSeparate" />
+
+    <RelativeLayout
+        android:id="@+id/group_bottom_menu"
+        style="@style/BottomMenu">
+
+        <Button
+            android:id="@+id/group_leave"
+            style="@style/ActionButton.TopMenu"
+            android:text="LEAVE GROUP" />
+
+        <Button
+            android:id="@+id/group_delete"
+            style="@style/ActionButton.TopMenu"
+            android:layout_alignParentEnd="true"
+            android:text="DELETE GROUP" />
+    </RelativeLayout>
+</LinearLayout>
