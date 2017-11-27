@@ -1,15 +1,20 @@
 package com.ping.android.fragment;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -307,11 +312,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 Bundle extras = data.getExtras();
                 if (data.hasExtra("data")) {
                     Bitmap selectedBitmap = extras.getParcelable("data");
-                    saveImage(selectedBitmap, profileFilePath);
+                    saveImage(selectedBitmap);
+                    UiUtils.displayProfileAvatar(profileImage, profileFilePath);
                 }
-                // Set The Bitmap Data To ImageView
-                Bitmap originalBitmap = BitmapFactory.decodeFile(profileFilePath);
-                profileImage.setImageBitmap(originalBitmap);
                 uploadProfile();
             }
         }
@@ -351,16 +354,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private void performCrop(Uri contentUri) {
         try {
-            Long timestamp = System.currentTimeMillis() / 1000L;
-            profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
-            profileFilePath = profileFileFolder + File.separator + profileFileName;
-
-            saveImage(contentUri, profileFilePath);
-
+            File file = getMediaFileFromUri(getContext(), contentUri);
+            if (file == null) {
+                return;
+            }
             //Start Crop Activity
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
 
-            cropIntent.setDataAndType(Uri.fromFile(new File(profileFilePath)), "image/*");
+            cropIntent.setDataAndType(Uri.fromFile(file), "image/*");
             // set crop properties
             cropIntent.putExtra("crop", "true");
             // indicate aspect of desired crop
@@ -383,11 +384,14 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private void saveImage(Uri uri, String localPath) {
         FileOutputStream out = null;
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
-            out = new FileOutputStream(localPath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            File file = getMediaFileFromUri(getContext(), uri);
+            if (file != null) {
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                out = new FileOutputStream(localPath);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            }
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             try {
                 if (out != null) {
@@ -398,10 +402,56 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void saveImage(Bitmap bitmap, String localPath) {
+    private File getMediaFileFromUri(Context context, Uri uri) {
+        String selection = null;
+        String[] selectionArgs = null;
+        String[] projection;
+        String column = null;
+        Uri contentUri = uri;
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            final String docId = DocumentsContract.getDocumentId(uri);
+            final String[] split = docId.split(":");
+            final String type = split[0];
+            if ("image".equals(type)) {
+                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                column = MediaStore.Images.Media.DATA;
+            } else if ("video".equals(type)) {
+                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                column = MediaStore.Video.Media.DATA;
+            }
+            selection = MediaStore.Images.Media._ID + "=?";
+            selectionArgs = new String[]{
+                    split[1]
+            };
+
+        } else {
+            column = MediaStore.Images.Media.DATA;
+        }
+        projection = new String[]{column};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(contentUri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                final int columnIndex = cursor.getColumnIndexOrThrow(column);
+                String path = cursor.getString(columnIndex);
+                if (!TextUtils.isEmpty(path)) {
+                    return new File(path);
+                }
+            }
+        } finally {
+            if (cursor != null)
+                cursor.close();
+        }
+        return null;
+    }
+
+    private void saveImage(Bitmap bitmap) {
+        Long timestamp = System.currentTimeMillis() / 1000L;
+        profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
+        profileFilePath = profileFileFolder + File.separator + profileFileName;
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(localPath);
+            out = new FileOutputStream(profileFilePath);
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
         } catch (Exception e) {
         } finally {
@@ -421,6 +471,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
