@@ -200,7 +200,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             mDatabase.child("users").child(orginalConversation.opponentUser.key).child("loginStatus").removeEventListener(observeStatusEvent);
         }
 
-//        mDatabase.child("conversations").child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
+        mDatabase.child("conversations").child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
     }
 
     @Override
@@ -472,8 +472,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeTypingEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                Log.i(TAG, String.format("conversations.%s.%s addValueEventListener onDataChange key: %s",
-//                        conversationID, "typingIndicator", dataSnapshot.getKey()));
+                Log.i(TAG, String.format("conversations.%s.%s addValueEventListener onDataChange key: %s",
+                        conversationID, "typingIndicator", dataSnapshot.getKey()));
 //                Map<String, Boolean> typingIndicator =  (Map<String, Boolean>) dataSnapshot.getValue();
 //                if (typingIndicator != null && typingIndicator.containsKey(toUserID)) {
 //                    Boolean typing = typingIndicator.get(toUserID);
@@ -604,7 +604,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeTyping() {
-//        mDatabase.child("conversations").child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
+        mDatabase.child("conversations").child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
     }
 
     private void notifyTyping() {
