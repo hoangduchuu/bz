@@ -94,6 +94,9 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         if (mMessageDatabase != null) {
             mMessageDatabase.removeEventListener(observeConversationEvent);
         }
+        if (groupEventListener != null) {
+            ServiceManager.getInstance().stopListenGroupChange(currentUser.key, groupEventListener);
+        }
     }
 
     @Override
