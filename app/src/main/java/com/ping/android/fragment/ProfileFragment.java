@@ -1,20 +1,11 @@
 package com.ping.android.fragment;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,16 +38,14 @@ import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.QBResRequestExecutor;
+import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
-
-import static android.app.Activity.RESULT_OK;
 
 public class ProfileFragment extends Fragment implements View.OnClickListener {
 
@@ -66,6 +55,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private FirebaseStorage storage;
+    private ImagePickerHelper imagePickerHelper;
 
     private ImageView profileImage;
     private TextView tvName;
@@ -299,25 +289,18 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onActivityResult(requestCode, resultCode, data);
+        }
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Constant.SELECT_IMAGE_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getData();
-                performCrop(selectedImageUri);
-            }
-        }
+    }
 
-        if (requestCode == Constant.CROP_IMAGE_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                if (data.hasExtra("data")) {
-                    Bitmap selectedBitmap = extras.getParcelable("data");
-                    saveImage(selectedBitmap);
-                    UiUtils.displayProfileAvatar(profileImage, profileFilePath);
-                }
-                uploadProfile();
-            }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void onEditMapping(View view) {
@@ -345,123 +328,20 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.SELECT_IMAGE_REQUEST);
-
-    }
-
-    private void performCrop(Uri contentUri) {
-        try {
-            File file = getMediaFileFromUri(getContext(), contentUri);
-            if (file == null) {
-                return;
-            }
-            //Start Crop Activity
-            Intent cropIntent = new Intent("com.android.camera.action.CROP");
-
-            cropIntent.setDataAndType(Uri.fromFile(file), "image/*");
-            // set crop properties
-            cropIntent.putExtra("crop", "true");
-            // indicate aspect of desired crop
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            // indicate output X and Y
-            cropIntent.putExtra("outputX", 280);
-            cropIntent.putExtra("outputY", 280);
-
-            // retrieve data on return
-            cropIntent.putExtra("return-data", true);
-            // start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, Constant.CROP_IMAGE_REQUEST);
-        }
-        // respond to users whose devices do not support the crop action
-        catch (ActivityNotFoundException anfe) {
-        }
-    }
-
-    private void saveImage(Uri uri, String localPath) {
-        FileOutputStream out = null;
-        try {
-            File file = getMediaFileFromUri(getContext(), uri);
-            if (file != null) {
-                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                out = new FileOutputStream(localPath);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e1) {
-            }
-        }
-    }
-
-    private File getMediaFileFromUri(Context context, Uri uri) {
-        String selection = null;
-        String[] selectionArgs = null;
-        String[] projection;
-        String column = null;
-        Uri contentUri = uri;
-        if (DocumentsContract.isDocumentUri(context, uri)) {
-            final String docId = DocumentsContract.getDocumentId(uri);
-            final String[] split = docId.split(":");
-            final String type = split[0];
-            if ("image".equals(type)) {
-                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                column = MediaStore.Images.Media.DATA;
-            } else if ("video".equals(type)) {
-                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                column = MediaStore.Video.Media.DATA;
-            }
-            selection = MediaStore.Images.Media._ID + "=?";
-            selectionArgs = new String[]{
-                    split[1]
-            };
-
-        } else {
-            column = MediaStore.Images.Media.DATA;
-        }
-        projection = new String[]{column};
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(contentUri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int columnIndex = cursor.getColumnIndexOrThrow(column);
-                String path = cursor.getString(columnIndex);
-                if (!TextUtils.isEmpty(path)) {
-                    return new File(path);
-                }
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-    private void saveImage(Bitmap bitmap) {
         Long timestamp = System.currentTimeMillis() / 1000L;
         profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(profileFilePath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e1) {
-            }
-        }
+
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File imagePath = (File) data[0];
+                        UiUtils.displayProfileAvatar(profileImage, imagePath);
+                        uploadProfile();
+                    }
+                });
+        imagePickerHelper.openPicker();
     }
 
     private void uploadProfile() {

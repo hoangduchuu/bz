@@ -36,13 +36,22 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/default_padding"
             android:layout_marginRight="@dimen/default_padding"
-            android:layout_marginTop="@dimen/default_padding">
+            android:layout_marginTop="@dimen/default_padding"
+            android:gravity="bottom">
+
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="@dimen/user_profile_icon_width"
+                android:layout_height="@dimen/user_profile_icon_width"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_avatar_gray" />
 
             <EditText
                 android:id="@+id/new_group_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
+                android:layout_marginStart="@dimen/default_padding"
                 android:hint="Name this group" />
         </LinearLayout>
 
