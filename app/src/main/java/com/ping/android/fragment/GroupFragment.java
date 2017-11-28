@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.activity.AddGroupActivity;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
@@ -57,6 +58,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     private GroupAdapter adapter;
     private boolean loadData, loadGUI, isEditMode;
 
+    private ChildEventListener groupListener;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +91,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     public void onDestroyView() {
         super.onDestroyView();
         loadGUI = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (groupListener != null) {
+            ServiceManager.getInstance().stopListenGroupChange(currentUser.key, groupListener);
+        }
     }
 
     @Override
@@ -162,7 +173,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void getGroup() {
-        mDatabase.child("users").child(currentUser.key).child("groups").addChildEventListener(new ChildEventListener() {
+        groupListener = new ChildEventListener() {
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -185,7 +196,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
-        });
+        };
+        ServiceManager.getInstance().listenGroupChange(currentUser.key, groupListener);
     }
 
     private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
