@@ -181,19 +181,23 @@ public class ImagePickerHelper {
             column = MediaStore.Images.Media.DATA;
         }
         projection = new String[]{column};
-        Cursor cursor = null;
-        try {
-            cursor = context.getContentResolver().query(contentUri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int columnIndex = cursor.getColumnIndexOrThrow(column);
-                String path = cursor.getString(columnIndex);
-                if (!TextUtils.isEmpty(path)) {
-                    return new File(path);
+        if ("content".equals(uri.getScheme())) {
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(contentUri, projection, selection, selectionArgs, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    final int columnIndex = cursor.getColumnIndexOrThrow(column);
+                    String path = cursor.getString(columnIndex);
+                    if (!TextUtils.isEmpty(path)) {
+                        return new File(path);
+                    }
                 }
+            } finally {
+                if (cursor != null)
+                    cursor.close();
             }
-        } finally {
-            if (cursor != null)
-                cursor.close();
+        } else if ("file".equals(uri.getScheme())) {
+            return new File(uri.getPath());
         }
         return null;
     }
