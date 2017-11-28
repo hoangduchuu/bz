@@ -44,6 +44,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private FirebaseDatabase database;
     private DatabaseReference mDatabase, mMessageDatabase;
     private ChildEventListener observeConversationEvent;
+    private ChildEventListener groupEventListener;
     private LinearLayoutManager linearLayoutManager;
     private SearchView searchView;
     private RecyclerView listChat;
@@ -219,6 +220,36 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         };
         mMessageDatabase = mDatabase.child("users").child(auth.getCurrentUser().getUid()).child("conversations");
         mMessageDatabase.addChildEventListener(observeConversationEvent);
+
+        groupEventListener = new ChildEventListener() {
+
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Group group = new Group(dataSnapshot);
+                adapter.onGroupChange(group);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ServiceManager.getInstance().listenGroupChange(currentUser.key, groupEventListener);
     }
 
     private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {

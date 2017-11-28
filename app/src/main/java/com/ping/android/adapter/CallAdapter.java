@@ -69,7 +69,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     public void addCall(Call call) {
-        Log.d(TAG, "Add call");
         int index = 0;
         for (Call item : originalCalls) {
             if (CommonMethod.compareTimestamp(call.timestamp, item.timestamp))
