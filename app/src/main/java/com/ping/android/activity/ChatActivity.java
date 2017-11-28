@@ -56,6 +56,7 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
+import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,7 +91,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private CheckBox tgMarkOut;
     private TextView tvChatStatus;
     private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
-    private ImageButton btVoiceCall, btVideoCall;
+    private ImageButton btVoiceCall, btVideoCall, btEmoji;
     private EditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
 
@@ -115,6 +116,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private TextWatcher textWatcher;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
+    private EmojiPopup emojiPopup;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
@@ -263,6 +265,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             case R.id.chat_video_call_btn:
                 onVideoCall();
                 break;
+            case R.id.chat_emoji_btn:
+                showEmojiEditor();
             case R.id.load_more:
                 loadMoreChats();
                 isScrollToTop = true;
@@ -337,7 +341,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         btEdit.setOnClickListener(this);
         btCancelEdit = (Button) findViewById(R.id.chat_cancel_edit);
         btCancelEdit.setOnClickListener(this);
-
         btLoadMoreChat = (ImageView) findViewById(R.id.load_more);
         btLoadMoreChat.setOnClickListener(this);
 
@@ -360,8 +363,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         tvNewMsgCount = (TextView) findViewById(R.id.chat_new_message_count);
         layoutMsgType = (LinearLayout) findViewById(R.id.chat_layout_msg_type);
-
+        //emoji
         findViewById(R.id.chat_header_center).setOnClickListener(this);
+        emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(findViewById(R.id.chat_message_tv));
+        btEmoji = findViewById(R.id.chat_emoji_btn);
+        btEmoji.setOnClickListener(this);
 
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
@@ -758,6 +764,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
+        if (emojiPopup.isShowing()) {
+            emojiPopup.toggle();
+        }
         if (type == Constant.MESSAGE_TYPE.TEXT) {
             layoutText.setVisibility(View.VISIBLE);
             layoutVoice.setVisibility(View.GONE);
@@ -777,6 +786,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
+        }
+    }
+
+    private void showEmojiEditor(){
+        layoutText.setVisibility(View.VISIBLE);
+        layoutVoice.setVisibility(View.GONE);
+        if(!emojiPopup.isShowing()){
+            emojiPopup.toggle();
         }
     }
 
