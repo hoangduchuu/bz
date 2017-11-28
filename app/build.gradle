@@ -42,46 +42,56 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     //testCompile 'junit:junit:4.12'
     //SUPPORT ANDROID
-    compile 'com.android.support:appcompat-v7:27.0.1'
-    compile 'com.android.support:recyclerview-v7:27.0.1'
-    compile 'com.android.support:design:27.0.1'
+    implementation 'com.android.support:appcompat-v7:27.0.1'
+    implementation 'com.android.support:support-v4:27.0.1'
+    implementation 'com.android.support:cardview-v7:27.0.1'
+    implementation 'com.android.support:recyclerview-v7:27.0.1'
+    implementation 'com.android.support:design:27.0.1'
     //IMAGE LOAD
-    compile 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
     //CHAT UI
-    compile 'hani.momanii.supernova_emoji_library:supernova-emoji-library:0.0.2'
+    implementation 'hani.momanii.supernova_emoji_library:supernova-emoji-library:0.0.2'
     // AUTH
     //compile 'com.google.android.gms:play-services-auth:10.0.1'
-    compile 'com.google.firebase:firebase-auth:11.6.0'
+    implementation 'com.google.firebase:firebase-auth:11.6.0'
+    implementation 'com.google.firebase:firebase-messaging:11.6.0'
+    implementation 'com.google.android.gms:play-services-gcm:11.6.0'
     //DATABASE FIREBASE,UI
-    compile 'com.google.firebase:firebase-database:11.6.0'
+    implementation 'com.google.firebase:firebase-database:11.6.0'
     //compile 'com.firebaseui:firebase-ui-database:1.0.1'
     //STORAGE FIREBASE
-    compile 'com.google.firebase:firebase-storage:11.6.0'
+    implementation 'com.google.firebase:firebase-storage:11.6.0'
     //Places SERVICES
     //compile 'com.google.android.gms:play-services-places:10.0.1'
 
     //apache lib
-    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
 
     //ShortcutBadger
-    compile "me.leolin:ShortcutBadger:1.1.17@aar"
-    compile("com.quickblox:quickblox-android-sdk-messages:$rootProject.qbSdkVersion")
-    compile("com.quickblox:quickblox-android-sdk-videochat-webrtc:3.3.0")
-    compile 'com.hbb20:ccp:1.7.6'
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+    implementation "me.leolin:ShortcutBadger:1.1.17@aar"
+    implementation("com.quickblox:quickblox-android-sdk-messages:$rootProject.qbSdkVersion") {
+        exclude group: 'com.google.android.gms', module: 'play-services-gcm'
+        exclude group: 'com.google.firebase', module: 'firebase-messaging'
+    }
+    implementation("com.quickblox:quickblox-android-sdk-videochat-webrtc:3.3.0")
+    implementation("com.hbb20:ccp:1.7.6") {
+        exclude group: 'com.android.support'
+    }
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
         transitive = true;
     }
-    compile "com.squareup.okhttp3:okhttp:$rootProject.okhttpLibraryVersion"
-    compile "com.squareup.okhttp3:logging-interceptor:$rootProject.okhttpLibraryVersion"
-    compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.joooonho:selectableroundedimageview:1.0.1'
-
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.okhttpLibraryVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.okhttpLibraryVersion"
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.joooonho:selectableroundedimageview:1.0.1'
+    implementation 'com.wang.avi:library:2.1.3'
     //Emoji
-    compile 'com.vanniktech:emoji-ios:0.5.1'
+    implementation 'com.vanniktech:emoji-ios:0.5.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

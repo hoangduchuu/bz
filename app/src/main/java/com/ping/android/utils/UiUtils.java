@@ -107,9 +107,18 @@ public class UiUtils {
         }
     }
 
-    public static void displayProfileAvatar(ImageView imageView, String filePath) {
+    public static void displayProfileAvatar(ImageView imageView, File filePath) {
         Picasso.with(imageView.getContext())
-                .load(new File(filePath))
+                .load(filePath)
+                .transform(new CircleTransform())
+                .error(IMG_DEFAULT)
+                .placeholder(IMG_DEFAULT)
+                .into(imageView);
+    }
+
+    public static void displayProfileAvatar(ImageView imageView, String imageProfile) {
+        Picasso.with(imageView.getContext())
+                .load(imageProfile)
                 .transform(new CircleTransform())
                 .error(IMG_DEFAULT)
                 .placeholder(IMG_DEFAULT)

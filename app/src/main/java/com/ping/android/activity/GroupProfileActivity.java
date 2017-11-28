@@ -1,7 +1,9 @@
 package com.ping.android.activity;
 
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -19,9 +21,12 @@ import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +45,8 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private Group group;
     private GroupProfileAdapter adapter;
     private Conversation conversation;
+    private ImagePickerHelper imagePickerHelper;
+    private File groupProfileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,12 +119,17 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
             case R.id.group_profile_puzzle:
                 onPuzzleSetting();
                 break;
+            case R.id.group_profile_image:
+                openPicker();
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onActivityResult(requestCode, resultCode, data);
+        }
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
                 ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_USER_IDS");
@@ -126,8 +138,17 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     private void bindViews() {
         groupProfile = (ImageView) findViewById(R.id.group_profile_image);
+        groupProfile.setOnClickListener(this);
         groupName = (EditText) findViewById(R.id.group_profile_name);
         rvListMember = (RecyclerView) findViewById(R.id.group_profile_list_member);
         mLinearLayoutManager = new LinearLayoutManager(this);
@@ -149,6 +170,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
         groupName.setText(group.groupName);
+        UiUtils.displayProfileAvatar(groupProfile, group.groupAvatar);
         swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         cbPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
@@ -182,6 +204,32 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         if(!group.groupName.equals(groupName.getText().toString()))
             ServiceManager.getInstance().renameGroup(group, groupName.getText().toString());
         return true;
+    }
+
+    private void openPicker() {
+        String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
+                "profile" + File.separator + currentUser.key;
+        long timestamp = System.currentTimeMillis() / 1000L;
+        String profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
+        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        groupProfileImage = (File) data[0];
+                        UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
+                        ServiceManager.getInstance().uploadGroupAvatar(groupID, groupProfileImage, new Callback() {
+                            @Override
+                            public void complete(Object error, Object... data) {
+                                if (error == null) {
+                                    String profileImage = (String) data[0];
+                                    ServiceManager.getInstance().updateGroupAvatar(groupID, group.memberIDs.keySet(), profileImage);
+                                }
+                            }
+                        });
+                    }
+                });
+        imagePickerHelper.openPicker();
     }
 
     private void onNotificationSetting() {
