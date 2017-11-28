@@ -251,7 +251,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             });
 
         } else {
-
             holder.ivProfileImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -261,7 +260,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             });
 
-            UiUtils.displayProfileImage(activity, holder.ivProfileImage, null);
+            UiUtils.displayProfileAvatar(holder.ivProfileImage, model.group.groupAvatar);
         }
     }
 

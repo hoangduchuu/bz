@@ -42,11 +42,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AddGroupActivity extends CoreActivity implements View.OnClickListener, SelectContactAdapter.ClickListener {
-
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-
     private LinearLayoutManager mLinearLayoutManager;
     private EditText etGroupName, edMessage;
     private MultiAutoCompleteTextView suggestContactView;
@@ -113,10 +108,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void init() {
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-
         fromUser = ServiceManager.getInstance().getCurrentUser();
         allUsers = ServiceManager.getInstance().getAllUsers();
         ContactAutoCompleteAdapter autoCompleteAdapter = new ContactAutoCompleteAdapter(this, R.layout.item_auto_complete_contact, fromUser.friendList);
@@ -259,7 +250,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
         toUsers.add(fromUser);
         toUserID.add(fromUser.key);
-        String groupKey = mDatabase.child("groups").push().getKey();
+        String groupKey = ServiceManager.getInstance().getGroupKey();
 
         showLoading();
         if (groupProfileImage != null) {
@@ -288,13 +279,8 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         for (User user : toUsers) {
             group.memberIDs.put(user.key, true);
         }
-        mDatabase.child("groups").child(groupKey).setValue(group.toMap());
-
-        for (User user : toUsers) {
-            mDatabase.child("users").child(user.key).child("groups").child(groupKey).setValue(group.toMap());
-        }
-
         group.key = groupKey;
+        ServiceManager.getInstance().createGroup(group);
         ServiceManager.getInstance().createConversationForGroupChat(fromUser.key, group, new Callback() {
             @Override
             public void complete(Object error, Object... data) {

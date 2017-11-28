@@ -16,8 +16,7 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            style="@style/TopMenu"
-            android:layout_height="@dimen/top_bar_height">
+            style="@style/TopMenu">
 
             <Button
                 android:id="@+id/chat_cancel_edit"

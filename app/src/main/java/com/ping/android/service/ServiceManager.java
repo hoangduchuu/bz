@@ -66,6 +66,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class ServiceManager {
@@ -444,6 +445,26 @@ public class ServiceManager {
     //-------------------------------------------------------
     // Start Group region
     //-------------------------------------------------------
+    public void listenGroupChange(String userId, ChildEventListener listener) {
+        mDatabase.child("users").child(userId).child("groups").addChildEventListener(listener);
+    }
+
+    public void stopListenGroupChange(String userId, ChildEventListener listener) {
+        mDatabase.child("users").child(userId).child("groups").removeEventListener(listener);
+    }
+
+    public String getGroupKey() {
+        return mDatabase.child("groups").push().getKey();
+    }
+
+    public void createGroup(Group group) {
+        mDatabase.child("groups").child(group.key).setValue(group.toMap());
+
+        for (String userId : group.memberIDs.keySet()) {
+            mDatabase.child("users").child(userId).child("groups").child(group.key).setValue(group.toMap());
+        }
+    }
+
     public void getGroup(String id, Callback completion) {
         mDatabase.child("users").child(currentUser.key).child("groups").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -500,6 +521,13 @@ public class ServiceManager {
         mDatabase.child("groups").child(group.key).child("groupName").setValue(name);
         for(String userID : group.memberIDs.keySet()) {
             mDatabase.child("users").child(userID).child("groups").child(group.key).child("groupName").setValue(name);
+        }
+    }
+
+    public void updateGroupAvatar(String groupId, Set<String> memberIDs, String value) {
+        mDatabase.child("groups").child(groupId).child("groupAvatar").setValue(value);
+        for (String userId : memberIDs) {
+            mDatabase.child("users").child(userId).child("groups").child(groupId).child("groupAvatar").setValue(value);
         }
     }
 
