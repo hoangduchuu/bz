@@ -1,19 +1,15 @@
 package com.ping.android.adapter;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
+import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
@@ -23,24 +19,38 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
-
+    private static final String TAG = CallAdapter.class.getSimpleName();
     private ArrayList<Call> originalCalls;
     private ArrayList<Call> displayCalls;
     private ArrayList<Call> selectCalls;
     private User currentUser;
     private Boolean isEditMode = false;
-    private Context mContext;
     private ClickListener clickListener;
+    private RecyclerView recyclerView;
+    private Set<ViewHolder> boundsViewHolder = new HashSet<>();
 
-    public CallAdapter(ArrayList<Call> calls, Context context, ClickListener clickListener) {
+    public CallAdapter(ArrayList<Call> calls, ClickListener clickListener) {
         originalCalls = calls;
         displayCalls = (ArrayList<Call>) calls.clone();
         selectCalls = new ArrayList<>();
-        mContext = context;
         this.clickListener = clickListener;
         currentUser = ServiceManager.getInstance().getCurrentUser();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.recyclerView = null;
     }
 
     public void addOrUpdateCall(Call call) {
@@ -59,10 +69,11 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     public void addCall(Call call) {
+        Log.d(TAG, "Add call");
         int index = 0;
         for (Call item : originalCalls) {
             if (CommonMethod.compareTimestamp(call.timestamp, item.timestamp))
-                index ++;
+                index++;
             else
                 break;
         }
@@ -71,7 +82,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         index = 0;
         for (Call item : displayCalls) {
             if (CommonMethod.compareTimestamp(call.timestamp, item.timestamp))
-                index ++;
+                index++;
             else
                 break;
         }
@@ -80,6 +91,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     public void updateCall(Call call) {
+        Log.d(TAG, "update Call");
         for (int i = 0; i < originalCalls.size(); i++) {
             if (originalCalls.get(i).key.equals(call.key)) {
                 originalCalls.set(i, call);
@@ -125,7 +137,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         if (!isEditMode) {
             selectCalls.clear();
         }
-        notifyDataSetChanged();
+        toggleEditMode();
     }
 
     public ArrayList<Call> getSelectCall() {
@@ -134,6 +146,16 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
     public void cleanSelectCall() {
         selectCalls.clear();
+    }
+
+    private void toggleEditMode() {
+        this.recyclerView.postDelayed(() -> {
+            TransitionManager.endTransitions(recyclerView);
+            TransitionManager.beginDelayedTransition(recyclerView);
+            for (ViewHolder holder : boundsViewHolder) {
+                holder.setEditMode(isEditMode);
+            }
+        }, 10);
     }
 
     private boolean isFiltered(Call call, String text, Boolean isAll) {
@@ -154,32 +176,16 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Call call = displayCalls.get(position);
-        holder.call = call;
-        holder.setName(call.opponentUser.getDisplayName());
-        String info = "";
-        if (call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
-            info = "";
-            if(call.senderId.equals(currentUser.key)) {
-                info = "Outgoing. ";
-            } else {
-                info = "Incoming. ";
-            }
-        } else {
-            info = "Missed. ";
-        }
+    public void onViewRecycled(ViewHolder holder) {
+        super.onViewRecycled(holder);
+        boundsViewHolder.remove(holder);
+    }
 
-        String time = CommonMethod.convertTimestampToTime(call.timestamp).toString();
-        holder.setInfo(info + time);
-        holder.setInfoColor();
-        holder.setEditMode(isEditMode);
-        if (selectCalls.contains(call)) {
-            holder.setSelect(true);
-        } else {
-            holder.setSelect(false);
-        }
-        UiUtils.displayProfileImage(mContext, holder.ivProfileImage, call.opponentUser);
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        boundsViewHolder.add(holder);
+        Call call = displayCalls.get(position);
+        holder.bindData(call);
     }
 
     @Override
@@ -216,38 +222,24 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             itemView.setOnClickListener(this);
         }
 
-        public void setName(String name) {
-            tvName.setText(name);
-        }
-
-        public void setInfo(String info) {
-            tvInfo.setText(info);
-        }
-
         public void setInfoColor() {
             if (call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
-                tvInfo.setTextColor(mContext.getResources().getColor(R.color.text_color));
+                tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color));
             } else {
-                tvInfo.setTextColor(mContext.getResources().getColor(R.color.red));
+                tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.red));
             }
         }
 
-        public void setEditMode(Boolean isEditMode) {
-            rbSelect.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    TransitionManager.beginDelayedTransition((ViewGroup) itemView);
-                    if (isEditMode) {
-                        rbSelect.setVisibility(View.VISIBLE);
-                        ivVideoCall.setVisibility(View.GONE);
-                        ivVoiceCall.setVisibility(View.GONE);
-                    } else {
-                        rbSelect.setVisibility(View.GONE);
-                        ivVideoCall.setVisibility(View.VISIBLE);
-                        ivVoiceCall.setVisibility(View.VISIBLE);
-                    }
-                }
-            }, 10);
+        public void setEditMode(boolean isEditMode) {
+            if (isEditMode) {
+                rbSelect.setVisibility(View.VISIBLE);
+                ivVideoCall.setVisibility(View.GONE);
+                ivVoiceCall.setVisibility(View.GONE);
+            } else {
+                ivVideoCall.setVisibility(View.VISIBLE);
+                ivVoiceCall.setVisibility(View.VISIBLE);
+                rbSelect.setVisibility(View.GONE);
+            }
         }
 
         public void setSelect(Boolean isSelect) {
@@ -296,6 +288,29 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                     clickListener.onReCall(call, false);
                     break;
             }
+        }
+
+        public void bindData(Call call) {
+            this.call = call;
+            String info = "";
+            if (call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
+                info = "";
+                if (call.senderId.equals(currentUser.key)) {
+                    info = "Outgoing. ";
+                } else {
+                    info = "Incoming. ";
+                }
+            } else {
+                info = "Missed. ";
+            }
+
+            String time = CommonMethod.convertTimestampToTime(call.timestamp).toString();
+            tvInfo.setText(info + time);
+            tvName.setText(call.opponentUser.getDisplayName());
+            setInfoColor();
+            setEditMode(isEditMode);
+            setSelect(selectCalls.contains(call));
+            UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, call.opponentUser);
         }
     }
 }
