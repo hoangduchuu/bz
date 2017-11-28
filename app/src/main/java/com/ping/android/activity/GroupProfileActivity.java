@@ -19,6 +19,7 @@ import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -149,6 +150,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
         groupName.setText(group.groupName);
+        UiUtils.displayProfileAvatar(groupProfile, group.groupAvatar);
         swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         cbPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));

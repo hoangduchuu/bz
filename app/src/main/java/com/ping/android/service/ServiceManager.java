@@ -7,8 +7,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -18,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializer;
 import com.ping.android.App;
@@ -53,6 +59,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -494,6 +501,20 @@ public class ServiceManager {
         for(String userID : group.memberIDs.keySet()) {
             mDatabase.child("users").child(userID).child("groups").child(group.key).child("groupName").setValue(name);
         }
+    }
+
+    public void uploadGroupAvatar(String groupId, File file, Callback callback) {
+        String fileName = System.currentTimeMillis() + groupId + ".png";
+        String imageStoragePath = "group" + File.separator + groupId + File.separator + fileName;
+        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
+        UploadTask uploadTask = photoRef.putFile(Uri.fromFile(file));
+        uploadTask.addOnFailureListener(e -> {
+            e.printStackTrace();
+            callback.complete(e);
+        }).addOnSuccessListener(taskSnapshot -> {
+            String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
+            callback.complete(null, downloadUrl);
+        });
     }
 
     //-------------------------------------------------------

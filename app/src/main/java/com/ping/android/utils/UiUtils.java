@@ -116,6 +116,15 @@ public class UiUtils {
                 .into(imageView);
     }
 
+    public static void displayProfileAvatar(ImageView imageView, String imageProfile) {
+        Picasso.with(imageView.getContext())
+                .load(imageProfile)
+                .transform(new CircleTransform())
+                .error(IMG_DEFAULT)
+                .placeholder(IMG_DEFAULT)
+                .into(imageView);
+    }
+
     public static void displayProfileAvatar(final Context context,
                                             final ImageView imageView, final String avatarUrl, final int defaultImg) {
         if (imageView == null || context == null) {

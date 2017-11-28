@@ -13,7 +13,8 @@ public class Group {
     public String key;
     public String conversationID;
     public String groupName;
-    public Double timestamp;
+    public double timestamp;
+    public String groupAvatar;
     public Map<String, Boolean> memberIDs;
     public Map<String, Boolean> deleteStatuses;
 
@@ -28,6 +29,7 @@ public class Group {
         this.conversationID = CommonMethod.getStringOf(dataSnapshot.child("conversationID").getValue());
         this.groupName = CommonMethod.getStringOf(dataSnapshot.child("groupName").getValue());
         this.timestamp = CommonMethod.getDoubleOf(dataSnapshot.child("timestamp").getValue());
+        this.groupAvatar = CommonMethod.getStringOf(dataSnapshot.child("groupAvatar").getValue());
         this.memberIDs = (Map<String, Boolean>) dataSnapshot.child("memberIDs").getValue();
         this.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
     }
@@ -41,6 +43,7 @@ public class Group {
         result.put("timestamp", timestamp);
         result.put("memberIDs", memberIDs);
         result.put("deleteStatuses", deleteStatuses);
+        result.put("groupAvatar", groupAvatar);
         return result;
     }
 }

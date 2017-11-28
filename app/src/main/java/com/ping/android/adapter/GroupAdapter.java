@@ -15,6 +15,7 @@ import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -150,21 +151,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Group group = displayGroups.get(position);
-        holder.group = group;
-        holder.setGroupName(group.groupName);
-        List<String> displayNames = new ArrayList<>();
-        for (User contact : group.members) {
-            displayNames.add(ServiceManager.getInstance().getFirstName(contact));
-        }
-        holder.setGroupMember(TextUtils.join(", ", displayNames));
-        holder.updateProfileImage();
-        holder.setCreateTime(CommonMethod.convertTimestampToDate(group.timestamp).toString());
-        holder.setEditMode(isEditMode);
-        if (selectGroups.contains(group)) {
-            holder.setSelect(true);
-        } else {
-            holder.setSelect(false);
-        }
+        holder.bindData(group);
     }
 
     @Override
@@ -237,33 +224,29 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             clickListener.onSelect(selectGroups);
         }
 
-        public void setGroupName(String groupName) {
-            tvGroupName.setText(groupName);
-        }
-
-        public void setGroupMember(String groupMember) {
-            tvGroupMember.setText(groupMember);
-        }
-
-        public void updateProfileImage() {
-//            ivProfileImage.setImages(ServiceManager.getInstance().getProfileImage(group.members));
-        }
-
-        public void setCreateTime(String time) {
-            tvCreateTime.setText("Created: " + time);
-        }
-
-        public void setEditMode(Boolean isEditMode) {
-            if (isEditMode) {
-                rbSelect.setVisibility(View.VISIBLE);
-            } else {
-                rbSelect.setVisibility(View.GONE);
-            }
+        public void setEditMode(boolean isEditMode) {
+            rbSelect.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
         }
 
         public void setSelect(Boolean isSelect) {
             rbSelect.setChecked(isSelect);
             rbSelect.setSelected(isSelect);
+        }
+
+        public void bindData(Group group) {
+            this.group = group;
+            tvGroupName.setText(group.groupName);
+            List<String> displayNames = new ArrayList<>();
+            for (User contact : group.members) {
+                displayNames.add(ServiceManager.getInstance().getFirstName(contact));
+            }
+            tvGroupMember.setText(TextUtils.join(", ", displayNames));
+            UiUtils.displayProfileAvatar(ivProfileImage, group.groupAvatar);
+            tvCreateTime.setText("Created: " + CommonMethod.convertTimestampToDate(group.timestamp).toString());
+            setEditMode(isEditMode);
+            if (isEditMode) {
+                setSelect(selectGroups.contains(group));
+            }
         }
     }
 }

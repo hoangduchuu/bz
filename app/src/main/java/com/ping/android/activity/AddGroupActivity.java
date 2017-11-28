@@ -3,6 +3,9 @@ package com.ping.android.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -20,16 +23,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.ContactAutoCompleteAdapter;
 import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
+import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,11 +52,15 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private MultiAutoCompleteTextView suggestContactView;
     private Button btSave, btSendMessage;
     private ImageView btBack;
+    private ImageView groupAvatar;
 
     private User fromUser;
     private ArrayList<User> allUsers;
 
     private TextWatcher textWatcher;
+
+    private ImagePickerHelper imagePickerHelper;
+    private File groupProfileImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +77,8 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         btBack.setOnClickListener(this);
         btSave = (Button) findViewById(R.id.new_group_save);
         btSave.setOnClickListener(this);
+        groupAvatar = findViewById(R.id.profile_image);
+        groupAvatar.setOnClickListener(this);
 
         edMessage = (EditText) findViewById(R.id.new_group_message_tv);
         btSendMessage = (Button) findViewById(R.id.new_group_send_message_btn);
@@ -142,18 +155,31 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             case R.id.new_group_send_message_btn:
                 onCreateGroup(edMessage.getText().toString());
                 break;
+            case R.id.profile_image:
+                openPicker();
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onActivityResult(requestCode, resultCode, data);
+        }
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
                 ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_PING_IDS");
                 addToContact(selectContacts);
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void checkReadySend() {
@@ -191,7 +217,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         suggestContactView.setSelection(currentTo.length());
     }
 
-    public void onCreateGroup(String msg) {
+    private void onCreateGroup(String msg) {
         String groupNames = etGroupName.getText().toString().trim();
         if (StringUtils.isEmpty(groupNames)) {
             Toaster.shortToast("Name this group.");
@@ -235,10 +261,29 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         toUserID.add(fromUser.key);
         String groupKey = mDatabase.child("groups").push().getKey();
 
+        showLoading();
+        if (groupProfileImage != null) {
+            ServiceManager.getInstance().uploadGroupAvatar(groupKey, groupProfileImage, new Callback() {
+                @Override
+                public void complete(Object error, Object... data) {
+                    if (error == null) {
+                        String profileImage = (String) data[0];
+                        createGroup(toUsers, groupKey, msg, profileImage);
+                    }
+                }
+            });
+        } else {
+            createGroup(toUsers, groupKey, msg, "");
+        }
+
+    }
+
+    private void createGroup(List<User> toUsers, String groupKey, String msg, String profileImage) {
         Double timestamp = System.currentTimeMillis() / 1000D;
         Group group = new Group();
         group.timestamp = timestamp;
         group.groupName = etGroupName.getText().toString().trim();
+        group.groupAvatar = profileImage;
 
         for (User user : toUsers) {
             group.memberIDs.put(user.key, true);
@@ -255,14 +300,31 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             public void complete(Object error, Object... data) {
                 group.conversationID = data[0].toString();
                 onSendMessage(group, msg);
+                hideLoading();
                 finish();
             }
         });
-
     }
 
-    public void onCancelGroup() {
+    private void onCancelGroup() {
         finish();
+    }
+
+    private void openPicker() {
+        String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
+                "profile" + File.separator + fromUser.key;
+        long timestamp = System.currentTimeMillis() / 1000L;
+        String profileFileName = "" + timestamp + "-" + fromUser.key + ".png";
+        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        groupProfileImage = (File) data[0];
+                        UiUtils.displayProfileAvatar(groupAvatar, groupProfileImage);
+                    }
+                });
+        imagePickerHelper.openPicker();
     }
 
     private User getUserByAnyID(String id) {
@@ -285,6 +347,19 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         intent.putExtra("CONVERSATION_ID", group.conversationID);
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
+    }
+
+    DialogFragment loadingDialog;
+
+    private void showLoading() {
+        loadingDialog = new LoadingDialog();
+        loadingDialog.show(getSupportFragmentManager(), "LOADING");
+    }
+
+    private void hideLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
     }
 
     @Override
