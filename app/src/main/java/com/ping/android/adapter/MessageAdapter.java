@@ -3,10 +3,8 @@ package com.ping.android.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +25,8 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
@@ -37,6 +37,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private Boolean isEditMode = false;
     private Activity activity;
     private ClickListener clickListener;
+    private RecyclerView recyclerView;
+    private Set<MessageViewHolder> boundsViewHolder = new HashSet<>();
 
     public MessageAdapter(ArrayList<Conversation> conversations, Activity activity, ClickListener clickListener) {
         this.originalConversations = conversations;
@@ -45,6 +47,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.activity = activity;
         this.clickListener = clickListener;
         currentUser = ServiceManager.getInstance().getCurrentUser();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.recyclerView = null;
+    }
+
+    @Override
+    public void onViewRecycled(MessageViewHolder holder) {
+        super.onViewRecycled(holder);
+        boundsViewHolder.remove(holder);
     }
 
     public void addOrUpdateConversation(Conversation conversation) {
@@ -123,7 +143,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         if (!isEditMode) {
             selectConversations.clear();
         }
-        notifyDataSetChanged();
+        toggleEditMode();
     }
 
     public ArrayList<Conversation> getSelectConversation() {
@@ -143,6 +163,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
         return false;
+    }
+
+    private void toggleEditMode() {
+        this.recyclerView.postDelayed(() -> {
+            TransitionManager.endTransitions(recyclerView);
+            TransitionManager.beginDelayedTransition(recyclerView);
+            for (MessageViewHolder holder : boundsViewHolder) {
+                holder.setEditMode(isEditMode);
+            }
+        }, 10);
     }
 
     @Override
@@ -173,6 +203,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     @Override
     public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
+        boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
         holder.setConversation(model);
         if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
@@ -291,18 +322,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
 
         public void setEditMode(Boolean isEditMode) {
-            rbSelect.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    TransitionManager.beginDelayedTransition(messageItem);
-                    if (isEditMode) {
-                        rbSelect.setVisibility(View.VISIBLE);
-                    } else {
-                        rbSelect.setVisibility(View.GONE);
-                    }
-
-                }
-            }, 10);
+            if (isEditMode) {
+                rbSelect.setVisibility(View.VISIBLE);
+            } else {
+                rbSelect.setVisibility(View.GONE);
+            }
         }
 
         public void setSelect(Boolean isSelect) {
