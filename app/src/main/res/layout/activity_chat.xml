@@ -147,8 +147,8 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp" />
 
-                <EditText
-                    android:id="@+id/chat_message_tv"
+                <com.vanniktech.emoji.EmojiEditText
+                android:id="@+id/chat_message_tv"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -179,6 +179,7 @@
                     android:src="@drawable/chat_text" />
 
                 <ImageButton
+                    android:id="@+id/chat_emoji_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_emoji" />
 
