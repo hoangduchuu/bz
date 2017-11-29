@@ -1,18 +1,24 @@
 package com.ping.android.activity;
 
+import android.*;
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -298,6 +304,32 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (selectedImageUri != null) {
                     sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_GAME);
                 }
+            }
+        }
+    }
+
+    private boolean isPermissionGrant() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private void requestPermission() {
+        this.requestPermissions(new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE }, 123);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 123: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    onSendImage();
+                } else {
+                }
+                return;
             }
         }
     }
@@ -879,6 +911,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSendImage() {
+
+        if(!isPermissionGrant()){
+            requestPermission();
+            return;
+        }
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
