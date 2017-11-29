@@ -182,6 +182,7 @@
                     android:src="@drawable/chat_emoji" />
 
                 <ImageButton
+                    android:id="@+id/chat_camera_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_camera" />
 

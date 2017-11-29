@@ -533,7 +533,7 @@ public class ServiceManager {
 
     public void uploadGroupAvatar(String groupId, File file, Callback callback) {
         String fileName = System.currentTimeMillis() + groupId + ".png";
-        String imageStoragePath = "group" + File.separator + groupId + File.separator + fileName;
+        String imageStoragePath = "groups" + File.separator + groupId + File.separator + fileName;
         StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
         UploadTask uploadTask = photoRef.putFile(Uri.fromFile(file));
         uploadTask.addOnFailureListener(e -> {
