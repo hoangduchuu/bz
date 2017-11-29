@@ -201,8 +201,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Group group = new Group(dataSnapshot);
-        group.key = dataSnapshot.getKey();
+        Group group = Group.from(dataSnapshot);
         if (MapUtils.isEmpty(group.memberIDs)) {
             return;
         }

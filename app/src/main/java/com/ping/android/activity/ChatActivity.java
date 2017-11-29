@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -60,6 +61,7 @@ import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -202,7 +204,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             mDatabase.child("users").child(orginalConversation.opponentUser.key).child("loginStatus").removeEventListener(observeStatusEvent);
         }
 
-//        mDatabase.child("conversations").child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
+        mDatabase.child("conversations").child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
     }
 
     @Override
@@ -444,7 +446,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Message message = new Message(dataSnapshot);
+                Message message = Message.from(dataSnapshot);
                 if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
                     adapter.deleteMessage(message.key);
                     return;
@@ -478,13 +480,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeTypingEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                Log.i(TAG, String.format("conversations.%s.%s addValueEventListener onDataChange key: %s",
-//                        conversationID, "typingIndicator", dataSnapshot.getKey()));
-//                Map<String, Boolean> typingIndicator =  (Map<String, Boolean>) dataSnapshot.getValue();
-//                if (typingIndicator != null && typingIndicator.containsKey(toUserID)) {
-//                    Boolean typing = typingIndicator.get(toUserID);
-//                    showTyping(typing);
-//                }
+                Map<String, Boolean> typingIndicator =  (Map<String, Boolean>) dataSnapshot.getValue();
+                boolean isTyping = false;
+                if (typingIndicator != null) {
+                    for (String key : typingIndicator.keySet()) {
+                        if (!key.equals(fromUser.key) && typingIndicator.get(key)) {
+                            isTyping = true;
+                            break;
+                        }
+                    }
+                }
+                showTyping(isTyping);
             }
 
             @Override
@@ -507,11 +513,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-
     }
 
     private void processAddChild(DataSnapshot dataSnapshot) {
-        Message message = new Message(dataSnapshot);
+        //Message message = new Message(dataSnapshot);
+        Message message = Message.from(dataSnapshot);
 
         if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
             return;
@@ -536,7 +542,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         mDatabase.child("users").child(fromUserID).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                orginalConversation = new Conversation(dataSnapshot);
+                orginalConversation = Conversation.from(dataSnapshot);
                 ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
                     @Override
                     public void complete(Object error, Object... data) {
@@ -610,7 +616,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeTyping() {
-//        mDatabase.child("conversations").child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
+        mDatabase.child("conversations").child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
     }
 
     private void notifyTyping() {
@@ -647,6 +653,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if (!TextUtils.isEmpty(edMessage.getText()) && !isTyping) {
+                    isTyping = true;
+                    updateConversationTyping(isTyping);
+                } else if (TextUtils.isEmpty(edMessage.getText()) && isTyping) {
+                    isTyping = false;
+                    updateConversationTyping(isTyping);
+                }
+
                 if (!tgMarkOut.isChecked()) {
                     originalText = editable.toString();
                     return;
@@ -661,14 +675,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     edMessage.setSelection(encodeText.length());
                 }
                 edMessage.addTextChangedListener(textWatcher);
-
-                if (StringUtils.isNotEmpty(edMessage.getText()) && !isTyping) {
-                    isTyping = true;
-                    updateConversationTyping(isTyping);
-                } else if (StringUtils.isEmpty(edMessage.getText()) && isTyping) {
-                    isTyping = false;
-                    updateConversationTyping(isTyping);
-                }
             }
         };
         edMessage.addTextChangedListener(textWatcher);
@@ -849,7 +855,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
 
         edMessage.setText(null);
-        Double timestamp = System.currentTimeMillis() / 1000D;
+        double timestamp = System.currentTimeMillis() / 1000L;
         Message message = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
                 timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses());
 
@@ -962,7 +968,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        Double timestamp = System.currentTimeMillis() / 1000D;
+        double timestamp = System.currentTimeMillis() / 1000L;
 
         //Create fragment_message on Message by ConversationID was created before
         String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
@@ -1068,9 +1074,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return deleteStatuses;
     }
 
-    private void sendImageFirebase(final Uri uri, Long msgType) {
+    private void sendImageFirebase(final Uri uri, int msgType) {
         final String imageName = getFileNameFromURI(uri);
-        Double timestamp = System.currentTimeMillis() / 1000D;
+        double timestamp = System.currentTimeMillis() / 1000L;
 
         String pathFirebaseImage = fromUser.key + "/" + timestamp + "/" + imageName;
         String pathLocalImage = this.getExternalFilesDir(null).getAbsolutePath() + File.separator
@@ -1196,7 +1202,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
     }
 
-    private void showTyping(Boolean typing) {
+    private void showTyping(boolean typing) {
         adapter.showTyping(typing);
         recycleChatView.scrollToPosition(adapter.getItemCount() - 1);
     }

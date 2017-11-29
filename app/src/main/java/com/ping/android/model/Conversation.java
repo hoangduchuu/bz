@@ -3,8 +3,11 @@ package com.ping.android.model;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.PropertyName;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+
+import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,12 +17,13 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class Conversation {
     public String key;
-    public Long messageType;
-    public Long conversationType;
+    public int messageType;
+    public int conversationType;
+    @PropertyName("lastMessage")
     public String message;
     public String groupID;
     public String senderId;
-    public Double timesstamps;
+    public double timesstamps;
     public Map<String, Boolean> memberIDs;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> readStatuses;
@@ -39,26 +43,15 @@ public class Conversation {
     public Conversation() {
     }
 
-    public Conversation(DataSnapshot dataSnapshot) {
-        this.key = dataSnapshot.getKey();
-        this.messageType = CommonMethod.getLongOf(dataSnapshot.child("messageType").getValue());
-        this.conversationType = CommonMethod.getLongOf(dataSnapshot.child("conversationType").getValue());
-        this.message = CommonMethod.getStringOf(dataSnapshot.child("lastMessage").getValue());
-        this.senderId = CommonMethod.getStringOf(dataSnapshot.child("senderId").getValue());
-        this.groupID = CommonMethod.getStringOf(dataSnapshot.child("groupID").getValue());
-        this.timesstamps = CommonMethod.getDoubleOf(dataSnapshot.child("timesstamps").getValue());
-        this.memberIDs = (Map<String, Boolean>) dataSnapshot.child("memberIDs").getValue();
-        this.markStatuses = (Map<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
-        this.readStatuses = (Map<String, Boolean>) dataSnapshot.child("readStatuses").getValue();
-        this.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
-        this.notifications = (Map<String, Boolean>) dataSnapshot.child("notifications").getValue();
-        this.maskMessages = (Map<String, Boolean>) dataSnapshot.child("maskMessages").getValue();
-        this.puzzleMessages = (Map<String, Boolean>) dataSnapshot.child("puzzleMessages").getValue();
-        this.maskOutputs = (Map<String, Boolean>) dataSnapshot.child("maskOutputs").getValue();
+    public static Conversation from(DataSnapshot dataSnapshot) {
+        Conversation conversation = dataSnapshot.getValue(Conversation.class);
+        Assert.assertNotNull(conversation);
+        conversation.key = dataSnapshot.getKey();
+        return conversation;
     }
 
-    public Conversation(Long conversationType, Long messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
-                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, Double timestamp,
+    public Conversation(int conversationType, int messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
+                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, double timestamp,
                         Conversation originalConversation
     ) {
         this.conversationType = conversationType;
@@ -85,7 +78,7 @@ public class Conversation {
         conversation.messageType = Constant.MSG_TYPE_TEXT;
         conversation.conversationType = Constant.CONVERSATION_TYPE_INDIVIDUAL;
         conversation.senderId = fromUserId;
-        conversation.timesstamps = System.currentTimeMillis() / 1000D;
+        conversation.timesstamps = System.currentTimeMillis() / 1000L;
 
         Map<String, Boolean> defaultTrueValues = new HashMap<>();
         defaultTrueValues.put(fromUserId, true);
@@ -109,7 +102,7 @@ public class Conversation {
         conversation.conversationType = Constant.CONVERSATION_TYPE_GROUP;
         conversation.groupID = group.key;
         conversation.senderId = fromUserId;
-        conversation.timesstamps = System.currentTimeMillis() / 1000D;
+        conversation.timesstamps = System.currentTimeMillis() / 1000L;
 
         Map<String, Boolean> defaultTrueValues = new HashMap<>();
         Map<String, Boolean> defaultFalseValues = new HashMap<>();

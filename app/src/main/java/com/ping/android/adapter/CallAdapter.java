@@ -114,10 +114,15 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             }
         }
         if (deletedCall != null) {
+            int index = displayCalls.indexOf(deletedCall);
             originalCalls.remove(deletedCall);
             displayCalls.remove(deletedCall);
             selectCalls.remove(deletedCall);
-            notifyDataSetChanged();
+            if (index >= 0) {
+                ViewHolder viewHolder = (ViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
+                boundsViewHolder.remove(viewHolder);
+                notifyItemRemoved(index);
+            }
         }
     }
 
@@ -132,11 +137,13 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     public void setEditMode(Boolean isEditMode) {
-        this.isEditMode = isEditMode;
-        if (!isEditMode) {
-            selectCalls.clear();
+        if (this.isEditMode != isEditMode) {
+            this.isEditMode = isEditMode;
+            if (!isEditMode) {
+                selectCalls.clear();
+            }
+            toggleEditMode();
         }
-        toggleEditMode();
     }
 
     public ArrayList<Call> getSelectCall() {
@@ -158,7 +165,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     private boolean isFiltered(Call call, String text, Boolean isAll) {
-        if (!isAll && call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
+        if (!isAll && call.status == Constant.CALL_STATUS_SUCCESS) {
             return false;
         }
         if (!CommonMethod.isFiltered(call.opponentUser, text)) {
@@ -222,7 +229,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         }
 
         public void setInfoColor() {
-            if (call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
+            if (call.status == Constant.CALL_STATUS_SUCCESS) {
                 tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color));
             } else {
                 tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.red));
@@ -291,9 +298,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
         public void bindData(Call call) {
             this.call = call;
-            String info = "";
-            if (call.status.equals(Constant.CALL_STATUS_SUCCESS)) {
-                info = "";
+            String info;
+            if (call.status == Constant.CALL_STATUS_SUCCESS) {
                 if (call.senderId.equals(currentUser.key)) {
                     info = "Outgoing. ";
                 } else {

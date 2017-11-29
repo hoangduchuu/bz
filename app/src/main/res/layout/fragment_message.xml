@@ -23,14 +23,15 @@
             android:id="@+id/message_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_menu_edit" />
         
         <Button
             android:id="@+id/message_delete"
             style="@style/ActionButton.TopMenu"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:visibility="gone"
             android:text="DELETE" />
     </RelativeLayout>

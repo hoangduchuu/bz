@@ -233,7 +233,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Group group = new Group(dataSnapshot);
+                Group group = Group.from(dataSnapshot);
                 adapter.onGroupChange(group);
             }
 
@@ -256,8 +256,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Conversation conversation = new Conversation(dataSnapshot);
-        conversation.key = dataSnapshot.getKey();
+        Conversation conversation = Conversation.from(dataSnapshot);
         if (MapUtils.isEmpty(conversation.memberIDs)) {
             return;
         }
@@ -321,8 +320,11 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void onDelete() {
-        ArrayList<Conversation> readConversations = adapter.getSelectConversation();
+        ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
         ServiceManager.getInstance().deleteConversation(readConversations);
+        for (Conversation conversation : readConversations) {
+            adapter.deleteConversation(conversation.key);
+        }
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();

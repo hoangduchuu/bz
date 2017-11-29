@@ -8,15 +8,8 @@
     android:paddingTop="5dp">
 
     <ImageView
-        android:id="@+id/item_chat_user_profile"
-        android:layout_width="@dimen/user_profile_icon_chat_width"
-        android:layout_height="@dimen/user_profile_icon_chat_height"
-        android:src="@drawable/ic_avatar_gray" />
-
-    <ImageView
+        android:id="@+id/typing"
         android:layout_width="wrap_content"
-        android:layout_height="35dp"
-        android:layout_marginLeft="10dp"
-        android:layout_toEndOf="@+id/item_chat_user_profile"
+        android:layout_height="wrap_content"
         android:src="@drawable/typing" />
 </RelativeLayout>

@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.widget.AutoCompleteTextView;
 import android.widget.SearchView;
 
+import com.google.firebase.database.DataSnapshot;
 import com.ping.android.model.User;
 
 import org.apache.commons.lang3.StringUtils;
@@ -131,6 +132,22 @@ public class CommonMethod {
         return null;
     }
 
+    public static long longValue(Object object, long defaultValue) {
+        if (object != null) {
+            return 1;
+        }
+        return defaultValue;
+    }
+
+    public static int intValue(DataSnapshot snapshot) {
+        return intValue(snapshot, -1);
+    }
+
+    public static int intValue(DataSnapshot snapshot, int defaultValue) {
+        Integer value = snapshot.getValue(Integer.class);
+        return value != null ? value : defaultValue;
+    }
+
     public static Double getDoubleOf(Object object) {
         if (object != null) {
             return Double.valueOf(object.toString());
@@ -145,60 +162,50 @@ public class CommonMethod {
         return null;
     }
 
-    public static String convertTimestampToTime(Double milliSeconds) {
-        if (milliSeconds == null) {
-            milliSeconds = (double)System.currentTimeMillis();
-        } else {
-            milliSeconds *= 1000L;
-        }
+    public static String convertTimestampToTime(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
 
-        String time = DateFormat.format("h:mm a", milliSeconds.longValue()).toString();
+        String time = DateFormat.format("h:mm a", milliSeconds).toString();
         String formatDate = "";
-        if (DateUtils.isToday(milliSeconds.longValue())) {
-            formatDate = DateFormat.format("h:mm a", milliSeconds.longValue()).toString();
+        if (DateUtils.isToday(milliSeconds)) {
+            formatDate = DateFormat.format("h:mm a", milliSeconds).toString();
         } else if(isXDateFromToday(milliSeconds, 1)) {
             formatDate = "Yesterday" + " " + time;
         } else if(isXDateFromToday(milliSeconds, 7)) {
-            formatDate = DateFormat.format("EEE", milliSeconds.longValue()).toString() + " " + time;
+            formatDate = DateFormat.format("EEE", milliSeconds).toString() + " " + time;
         } else {
-            formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds.longValue()).toString() + " " + time;
+            formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds).toString() + " " + time;
         }
         return formatDate;
     }
 
-    public static String convertTimestampToDate(Double milliSeconds) {
-        if (milliSeconds == null) {
-            milliSeconds = (double)System.currentTimeMillis();
-        } else {
-            milliSeconds *= 1000L;
-        }
+    public static String convertTimestampToDate(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
 
         String formatDate = "";
-        if (DateUtils.isToday(milliSeconds.longValue())) {
-            formatDate = DateFormat.format("h:mm a", milliSeconds.longValue()).toString();
+        if (DateUtils.isToday(milliSeconds)) {
+            formatDate = DateFormat.format("h:mm a", milliSeconds).toString();
         } else if(isXDateFromToday(milliSeconds, 1)) {
             formatDate = "Yesterday";
         } else if(isXDateFromToday(milliSeconds, 7)) {
-            formatDate = DateFormat.format("EEE", milliSeconds.longValue()).toString();
+            formatDate = DateFormat.format("EEE", milliSeconds).toString();
         } else {
-            formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds.longValue()).toString();
+            formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds).toString();
         }
         return formatDate;
     }
 
-    public static boolean isXDateFromToday(Double milliSeconds, int x) {
+    public static boolean isXDateFromToday(long milliSeconds, int x) {
         for(int i = 0; i<= x; i++) {
             long diff = i * 24 * 3600 * 1000;
-            if (DateUtils.isToday(milliSeconds.longValue() + diff)) {
+            if (DateUtils.isToday(milliSeconds + diff)) {
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean compareTimestamp(Double first, Double second) {
-        if (first == null || second == null)
-            return true;
+    public static boolean compareTimestamp(double first, double second) {
         return first < second;
     }
 

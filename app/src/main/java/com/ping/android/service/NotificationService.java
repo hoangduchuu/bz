@@ -60,8 +60,7 @@ public class NotificationService extends Service {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.i(TAG, String.format("users.%s addChildEventListener onChildAdded key: %s",
                         mAuth.getCurrentUser().getUid(), "conversations", dataSnapshot.getKey()));
-                Conversation conversation = new Conversation(dataSnapshot);
-                conversation.key = dataSnapshot.getKey();
+                Conversation conversation = Conversation.from(dataSnapshot);
                 if (MapUtils.isEmpty(conversation.memberIDs)) {
                     return;
                 }
@@ -80,7 +79,7 @@ public class NotificationService extends Service {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.i(TAG, String.format("users.%s addChildEventListener onChildChanged key: %s",
                         mAuth.getCurrentUser().getUid(), "conversations", dataSnapshot.getKey()));
-                Conversation conversation = new Conversation(dataSnapshot);
+                Conversation conversation = Conversation.from(dataSnapshot);
                 conversation.key = dataSnapshot.getKey();
                 ServiceManager.getInstance().initMembers(conversation.memberIDs, new Callback() {
                     @Override
@@ -94,7 +93,7 @@ public class NotificationService extends Service {
                             break;
                         }
                         if (!conversations.get(i).message.equals(conversation.message) ||
-                                !conversations.get(i).timesstamps.equals(conversation.timesstamps)) {
+                                conversations.get(i).timesstamps != conversation.timesstamps) {
                             showNewMessage(conversation);
                         }
                         conversations.set(i, conversation);

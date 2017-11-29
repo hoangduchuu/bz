@@ -1,8 +1,12 @@
 package com.ping.android.model;
 
+import android.service.autofill.Dataset;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.ping.android.ultility.CommonMethod;
+
+import junit.framework.Assert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,14 +17,16 @@ public class Call {
     public String key;
     public String senderId;
     public String receiveId;
-    public Long status;
-    public Double timestamp;
+    public int status;
+    public double timestamp;
     public Map<String, Boolean> deleteStatuses;
 
     public List<User> members = new ArrayList<>();
     public User opponentUser;
 
-    public Call(String senderId, String receiveId, Long status, Map<String, Boolean> deleteStatuses, Double timestamp) {
+    public Call() {}
+
+    public Call(String senderId, String receiveId, int status, Map<String, Boolean> deleteStatuses, double timestamp) {
         this.senderId = senderId;
         this.receiveId = receiveId;
         this.status = status;
@@ -28,13 +34,11 @@ public class Call {
         this.timestamp = timestamp;
     }
 
-    public Call(DataSnapshot dataSnapshot) {
-        this.key = dataSnapshot.getKey();
-        this.senderId = CommonMethod.getStringOf(dataSnapshot.child("senderId").getValue());
-        this.receiveId = CommonMethod.getStringOf(dataSnapshot.child("receiveId").getValue());
-        this.status = CommonMethod.getLongOf(dataSnapshot.child("status").getValue());
-        this.timestamp = CommonMethod.getDoubleOf(dataSnapshot.child("timestamp").getValue());
-        this.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
+    public static Call from(DataSnapshot dataSnapshot) {
+        Call call = dataSnapshot.getValue(Call.class);
+        Assert.assertNotNull(call);
+        call.key = dataSnapshot.getKey();
+        return call;
     }
 
     @Exclude
