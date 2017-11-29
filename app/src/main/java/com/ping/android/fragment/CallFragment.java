@@ -300,9 +300,12 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     }
 
     private void onDelete() {
-        ArrayList<Call> selectedCalls = adapter.getSelectCall();
+        ArrayList<Call> selectedCalls = new ArrayList<>(adapter.getSelectCall());
         ServiceManager.getInstance().deleteCalls(selectedCalls);
+        for (Call call : selectedCalls) {
+            adapter.deleteCall(call.key);
+        }
         adapter.cleanSelectCall();
-        updateEditMenu();
+        onExitEdit();
     }
 }

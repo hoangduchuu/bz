@@ -116,16 +116,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void deleteConversation(String conversationID) {
         Conversation deletedConversation = null;
+        int index = -1;
         for (Conversation conversation : originalConversations) {
             if (conversation.key.equals(conversationID)) {
                 deletedConversation = conversation;
             }
         }
         if (deletedConversation != null) {
+            index = displayConversations.indexOf(deletedConversation);
             originalConversations.remove(deletedConversation);
             displayConversations.remove(deletedConversation);
             selectConversations.remove(deletedConversation);
-            notifyDataSetChanged();
+
+            if (index >= 0) {
+                MessageViewHolder viewHolder = (MessageViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
+                boundsViewHolder.remove(viewHolder);
+                notifyItemRemoved(index);
+            }
         }
     }
 
@@ -139,12 +146,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyDataSetChanged();
     }
 
-    public void setEditMode(Boolean isEditMode) {
-        this.isEditMode = isEditMode;
-        if (!isEditMode) {
-            selectConversations.clear();
+    public void setEditMode(boolean isEditMode) {
+        if (this.isEditMode != isEditMode) {
+            this.isEditMode = isEditMode;
+            if (!isEditMode) {
+                selectConversations.clear();
+            }
+            toggleEditMode();
         }
-        toggleEditMode();
     }
 
     public ArrayList<Conversation> getSelectConversation() {

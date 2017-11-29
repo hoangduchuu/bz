@@ -114,10 +114,15 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             }
         }
         if (deletedCall != null) {
+            int index = displayCalls.indexOf(deletedCall);
             originalCalls.remove(deletedCall);
             displayCalls.remove(deletedCall);
             selectCalls.remove(deletedCall);
-            notifyDataSetChanged();
+            if (index >= 0) {
+                ViewHolder viewHolder = (ViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
+                boundsViewHolder.remove(viewHolder);
+                notifyItemRemoved(index);
+            }
         }
     }
 
@@ -132,11 +137,13 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     public void setEditMode(Boolean isEditMode) {
-        this.isEditMode = isEditMode;
-        if (!isEditMode) {
-            selectCalls.clear();
+        if (this.isEditMode != isEditMode) {
+            this.isEditMode = isEditMode;
+            if (!isEditMode) {
+                selectCalls.clear();
+            }
+            toggleEditMode();
         }
-        toggleEditMode();
     }
 
     public ArrayList<Call> getSelectCall() {

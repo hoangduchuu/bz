@@ -320,8 +320,11 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void onDelete() {
-        ArrayList<Conversation> readConversations = adapter.getSelectConversation();
+        ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
         ServiceManager.getInstance().deleteConversation(readConversations);
+        for (Conversation conversation : readConversations) {
+            adapter.deleteConversation(conversation.key);
+        }
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();
