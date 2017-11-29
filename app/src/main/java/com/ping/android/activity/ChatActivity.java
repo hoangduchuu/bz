@@ -269,6 +269,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 break;
             case R.id.chat_emoji_btn:
                 showEmojiEditor();
+                break;
             case R.id.load_more:
                 loadMoreChats();
                 isScrollToTop = true;
