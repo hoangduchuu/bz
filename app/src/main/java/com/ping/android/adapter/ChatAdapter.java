@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -43,7 +44,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> implements Comparator<Message> {
+public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Comparator<Message> {
 
     private static final int RIGHT_MSG = 0;
     private static final int LEFT_MSG = 1;
@@ -140,7 +141,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         notifyDataSetChanged();
     }
 
-    public void showTyping(Boolean show) {
+    public void showTyping(boolean show) {
         int typingPosition = -1;
         for (int i = 0; i < displayMessages.size(); i++) {
             if (displayMessages.get(i).messageType == Constant.MSG_TYPE_TYPING) {
@@ -168,11 +169,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     @Override
-    public ChatViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        if (viewType == Constant.MSG_TYPE_TYPING.intValue()) {
+        if (viewType == (int) Constant.MSG_TYPE_TYPING) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_left_typing, parent, false);
-            return new ChatAdapter.ChatViewHolder(view);
+            return new TypingViewHolder(view);
         } else if (viewType == RIGHT_MSG) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_right_msg, parent, false);
             return new ChatAdapter.ChatViewHolder(view);
@@ -205,7 +206,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         Message model = displayMessages.get(position);
         if (model.messageType == Constant.MSG_TYPE_TYPING) {
-            return Constant.MSG_TYPE_TYPING.intValue();
+            return Constant.MSG_TYPE_TYPING;
         }
         if (model.photoUrl != null) {
             if (model.senderId.equals(currentUserID)) {
@@ -233,43 +234,46 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     @Override
-    public void onBindViewHolder(ChatViewHolder viewHolder, int position) {
-        Message model = displayMessages.get(position);
-        viewHolder.setModel(model);
-        viewHolder.setChatText(model.message);
-        Long status = ServiceManager.getInstance().getCurrentStatus(model.status);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ChatViewHolder) {
+            ChatViewHolder viewHolder = (ChatViewHolder) holder;
+            Message model = displayMessages.get(position);
+            viewHolder.setModel(model);
+            viewHolder.setChatText(model.message);
+            Long status = ServiceManager.getInstance().getCurrentStatus(model.status);
 
-        viewHolder.setIvChatProfile();
-        viewHolder.setInfo();
-        if (model.photoUrl != null) {
-            viewHolder.setIvChatPhoto(model.photoUrl);
-        } else if (model.gameUrl != null) {
-            viewHolder.setIvChatPhoto(model.gameUrl);
-        } else if (model.audioUrl != null) {
-            viewHolder.setAudioSrc(model.audioUrl);
-        }
-
-        if (model.gameUrl != null) {
-            if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                viewHolder.setStatus(status);
-            } else if (getItemViewType(position) == LEFT_MSG_GAME) {
-                viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
-            } else {
-                viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
+            viewHolder.setIvChatProfile();
+            viewHolder.setInfo();
+            if (model.photoUrl != null) {
+                viewHolder.setIvChatPhoto(model.photoUrl);
+            } else if (model.gameUrl != null) {
+                viewHolder.setIvChatPhoto(model.gameUrl);
+            } else if (model.audioUrl != null) {
+                viewHolder.setAudioSrc(model.audioUrl);
             }
-        } else {
-            if (model.senderId.equals(currentUserID) && position == displayMessages.size() - 1) {
-                viewHolder.setStatus(status);
-            } else {
-                viewHolder.setStatus(Constant.MESSAGE_STATUS_HIDE);
-            }
-        }
 
-        viewHolder.setEditMode(isEditMode);
-        if (selectMessages.contains(model)) {
-            viewHolder.setSelect(true);
-        } else {
-            viewHolder.setSelect(false);
+            if (model.gameUrl != null) {
+                if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    viewHolder.setStatus(status);
+                } else if (getItemViewType(position) == LEFT_MSG_GAME) {
+                    viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
+                } else {
+                    viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
+                }
+            } else {
+                if (model.senderId.equals(currentUserID) && position == displayMessages.size() - 1) {
+                    viewHolder.setStatus(status);
+                } else {
+                    viewHolder.setStatus(Constant.MESSAGE_STATUS_HIDE);
+                }
+            }
+
+            viewHolder.setEditMode(isEditMode);
+            if (selectMessages.contains(model)) {
+                viewHolder.setSelect(true);
+            } else {
+                viewHolder.setSelect(false);
+            }
         }
     }
 
@@ -301,8 +305,18 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         void onSelect(List<Message> selectMessages);
     }
 
-    public class ChatViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static class TypingViewHolder extends RecyclerView.ViewHolder {
+        AnimationDrawable rocketAnimation;
 
+        public TypingViewHolder(View itemView) {
+            super(itemView);
+            ImageView imageView = itemView.findViewById(R.id.typing);
+            rocketAnimation = (AnimationDrawable) imageView.getDrawable();
+            rocketAnimation.start();
+        }
+    }
+
+    public class ChatViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         private final static int DOUBLE_TAP = 2;
         private final static int SINGLE_TAP = 1;
         private final static int DELAY = 300;
@@ -337,6 +351,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         public ChatViewHolder(View itemView) {
             super(itemView);
+            initView();
+        }
+
+        protected void initView() {
             tvInfo = (TextView) itemView.findViewById(R.id.item_chat_info);
             tvText = (TextView) itemView.findViewById(R.id.item_chat_text);
             if (tvText != null) {

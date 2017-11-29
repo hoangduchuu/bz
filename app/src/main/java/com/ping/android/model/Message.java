@@ -1,11 +1,18 @@
 package com.ping.android.model;
 
 
+import android.text.TextUtils;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
+
+import junit.framework.Assert;
+
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +27,11 @@ public class Message {
     public String gameUrl;
     public String senderId;
     public String senderName;
-    public Double timestamp;
+    public long timestamp;
     public Map<String, Long> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
-    public Long messageType;
+    public long messageType;
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -32,29 +39,26 @@ public class Message {
     public Message() {
     }
 
-    public Message(DataSnapshot dataSnapshot) {
-        try {
-            this.key = dataSnapshot.getKey();
-            this.messageType = CommonMethod.getLongOf(dataSnapshot.child("messageType").getValue());
-            this.message = CommonMethod.getStringOf(dataSnapshot.child("message").getValue());
-            this.photoUrl = CommonMethod.getStringOf(dataSnapshot.child("photoUrl").getValue());
-            this.thumbUrl = CommonMethod.getStringOf(dataSnapshot.child("thumbUrl").getValue());
-            this.audioUrl = CommonMethod.getStringOf(dataSnapshot.child("audioUrl").getValue());
-            this.gameUrl = CommonMethod.getStringOf(dataSnapshot.child("gameUrl").getValue());
-            this.senderId = CommonMethod.getStringOf(dataSnapshot.child("senderId").getValue());
-            this.senderName = CommonMethod.getStringOf(dataSnapshot.child("senderName").getValue());
-            this.timestamp = CommonMethod.getDoubleOf(dataSnapshot.child("timestamp").getValue());
-
-            this.markStatuses = (Map<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
-            this.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
-            this.status = (Map<String, Long>) dataSnapshot.child("status").getValue();
-        } catch (Exception ex) {
-            Log.e(ex);
+    public static Message from(DataSnapshot dataSnapshot) {
+        Message message = dataSnapshot.getValue(Message.class);
+        Assert.assertNotNull(message);
+        message.key = dataSnapshot.getKey();
+        if (message.messageType == 0) {
+            if (!TextUtils.isEmpty(message.message)) {
+                message.messageType = Constant.MSG_TYPE_TEXT;
+            } else if (!TextUtils.isEmpty(message.photoUrl)) {
+                message.messageType = Constant.MSG_TYPE_IMAGE;
+            } else if (!TextUtils.isEmpty(message.gameUrl)) {
+                message.messageType = Constant.MSG_TYPE_GAME;
+            } else if (!TextUtils.isEmpty(message.audioUrl)) {
+                message.messageType = Constant.MSG_TYPE_VOICE;
+            }
         }
+        return message;
     }
 
     public static Message createTextMessage(String text, String senderId, String senderName,
-                                            Double timestamp, Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                            long timestamp, Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.message = text;
         message.senderId = senderId;
@@ -67,7 +71,7 @@ public class Message {
     }
 
     public static Message createImageMessage(String photoUrl, String thumbUrl, String senderId,
-                                             String senderName, Double timestamp, Map<String, Long> status,
+                                             String senderName, long timestamp, Map<String, Long> status,
                                              Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.photoUrl = photoUrl;
@@ -81,7 +85,7 @@ public class Message {
         return message;
     }
 
-    public static Message createAudioMessage(String audioUrl, String senderId, String senderName, Double timestamp,
+    public static Message createAudioMessage(String audioUrl, String senderId, String senderName, long timestamp,
                                              Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.audioUrl = audioUrl;
@@ -94,7 +98,7 @@ public class Message {
         return message;
     }
 
-    public static Message createGameMessage(String gameUrl, String senderId, String senderName, Double timestamp,
+    public static Message createGameMessage(String gameUrl, String senderId, String senderName, long timestamp,
                                             Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.gameUrl = gameUrl;

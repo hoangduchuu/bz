@@ -199,7 +199,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemViewType(int position) {
         Conversation model = displayConversations.get(position);
-        return model.messageType.intValue();
+        return model.messageType;
     }
 
     @Override
@@ -239,7 +239,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.setSelect(false);
         }
 
-        if (model.conversationType.equals(Constant.CONVERSATION_TYPE_INDIVIDUAL)) {
+        if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             UiUtils.displayProfileImage(activity, holder.ivProfileImage, model.opponentUser);
 
             holder.ivProfileImage.setOnClickListener(new View.OnClickListener() {

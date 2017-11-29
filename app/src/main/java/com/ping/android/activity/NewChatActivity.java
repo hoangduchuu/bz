@@ -347,7 +347,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             return;
         }
 
-        Double timestamp = System.currentTimeMillis() / 1000D;
+        long timestamp = System.currentTimeMillis() / 1000L;
         toInfos = new ArrayList<>();
         ArrayList<String> displayNames = new ArrayList<>();
         for (User contact : toUsers) {
@@ -407,7 +407,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (toInfos == null) {
             return;
         }
-        Double timestamp = toInfos.get(0).timestamp;
+        long timestamp = toInfos.get(0).timestamp;
         Message displayMessage = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
                 timestamp, getStatuses(toInfos.get(0).toUser), getMessageMarkStatuses(toInfos.get(0).toUser),
                 getMessageDeleteStatuses(toInfos.get(0).toUser));
@@ -522,14 +522,14 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
     }
 
-    private void sendNewImageFirebase(final Uri uri, long msgType) {
+    private void sendNewImageFirebase(final Uri uri, int msgType) {
         getToContact();
         if (toInfos == null) {
             return;
         }
         final String imageName = getFileNameFromURI(uri);
 
-        Double timestamp = toInfos.get(0).timestamp;
+        long timestamp = toInfos.get(0).timestamp;
 
         String pathFirebaseImage = fromUser.key + "/" + timestamp + "/" + imageName;
         String pathLocalImage = getExternalFilesDir(null).getAbsolutePath() + File.separator
@@ -548,7 +548,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Double timestamp = toInfos.get(0).timestamp;
+                long timestamp = toInfos.get(0).timestamp;
                 String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
                 Message messageDisplay = null;
                 if (msgType == Constant.MSG_TYPE_IMAGE) {
@@ -576,7 +576,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         });
     }
 
-    private void sendImageFirebase(String downloadUrl, long msgType, ToInfo toInfo) {
+    private void sendImageFirebase(String downloadUrl, int msgType, ToInfo toInfo) {
         Message message = null;
         if (msgType == Constant.MSG_TYPE_IMAGE) {
             message = Message.createImageMessage(downloadUrl, downloadUrl,
@@ -702,7 +702,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (toInfos == null) {
             return;
         }
-        Double timestamp = toInfos.get(0).timestamp;
+        long timestamp = toInfos.get(0).timestamp;
         File audioFile = new File(currentOutFile);
         String audioName = audioFile.getName();
         String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;

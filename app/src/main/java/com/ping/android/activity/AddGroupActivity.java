@@ -270,7 +270,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void createGroup(List<User> toUsers, String groupKey, String msg, String profileImage) {
-        Double timestamp = System.currentTimeMillis() / 1000D;
+        long timestamp = System.currentTimeMillis() / 1000L;
         Group group = new Group();
         group.timestamp = timestamp;
         group.groupName = etGroupName.getText().toString().trim();

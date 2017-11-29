@@ -11,26 +11,26 @@ public class Constant {
     public static final int SELECT_IMAGE_REQUEST = 7;
     public static final int CROP_IMAGE_REQUEST = 8;
 
-    public static final Long MSG_TYPE_TEXT = 1L;
-    public static final Long MSG_TYPE_IMAGE = 2L;
-    public static final Long MSG_TYPE_VOICE = 3L;
-    public static final Long MSG_TYPE_GAME = 4L;
-    public static final Long MSG_TYPE_TYPING = 10L;
+    public static final int MSG_TYPE_TEXT = 1;
+    public static final int MSG_TYPE_IMAGE = 2;
+    public static final int MSG_TYPE_VOICE = 3;
+    public static final int MSG_TYPE_GAME = 4;
+    public static final int MSG_TYPE_TYPING = 10;
 
-    public static final Long CONVERSATION_TYPE_INDIVIDUAL = 1L;
-    public static final Long CONVERSATION_TYPE_GROUP = 2L;
+    public static final int CONVERSATION_TYPE_INDIVIDUAL = 1;
+    public static final int CONVERSATION_TYPE_GROUP = 2;
 
-    public static final Long MESSAGE_STATUS_HIDE = -1L;
-    public static final Long MESSAGE_STATUS_SENT = 0L;
-    public static final Long MESSAGE_STATUS_DELIVERED = 1L;
-    public static final Long MESSAGE_STATUS_ERROR = 2L;
-    public static final Long MESSAGE_STATUS_GAME_PASS = 3L;
-    public static final Long MESSAGE_STATUS_GAME_FAIL = 4L;
-    public static final Long MESSAGE_STATUS_GAME_INIT = 5L;
-    public static final Long MESSAGE_STATUS_GAME_DELIVERED = 6L;
+    public static final long MESSAGE_STATUS_HIDE = -1L;
+    public static final long MESSAGE_STATUS_SENT = 0L;
+    public static final long MESSAGE_STATUS_DELIVERED = 1L;
+    public static final long MESSAGE_STATUS_ERROR = 2L;
+    public static final long MESSAGE_STATUS_GAME_PASS = 3L;
+    public static final long MESSAGE_STATUS_GAME_FAIL = 4L;
+    public static final long MESSAGE_STATUS_GAME_INIT = 5L;
+    public static final long MESSAGE_STATUS_GAME_DELIVERED = 6L;
 
-    public static final Long CALL_STATUS_SUCCESS = 0L;
-    public static final Long CALL_STATUS_MISS = 1L;
+    public static final int CALL_STATUS_SUCCESS = 0;
+    public static final int CALL_STATUS_MISS = 1;
 
     public static final int NOTIFICATION_NEW_MSG = 0;
 

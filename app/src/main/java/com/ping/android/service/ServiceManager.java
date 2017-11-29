@@ -469,7 +469,7 @@ public class ServiceManager {
         mDatabase.child("users").child(currentUser.key).child("groups").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Group group = new Group(dataSnapshot);
+                Group group = Group.from(dataSnapshot);
                 completion.complete(null, group);
             }
 
@@ -671,7 +671,7 @@ public class ServiceManager {
                                 Conversation conversation = (Conversation) data[0];
                                 completion.complete(null, conversation);
                             }else {
-                                completion.complete("Error", null);
+                                completion.complete("Error");
                             }
                         }
                     });
@@ -685,10 +685,10 @@ public class ServiceManager {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Conversation conversation = new Conversation(dataSnapshot);
+                    Conversation conversation = Conversation.from(dataSnapshot);
                     completion.complete(null, conversation);
                 } else {
-                    completion.complete("Error", null);
+                    completion.complete("Error");
                 }
             }
 

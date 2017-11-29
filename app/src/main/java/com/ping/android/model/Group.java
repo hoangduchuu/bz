@@ -4,6 +4,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.ping.android.ultility.CommonMethod;
 
+import junit.framework.Assert;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +15,7 @@ public class Group {
     public String key;
     public String conversationID;
     public String groupName;
-    public double timestamp;
+    public long timestamp;
     public String groupAvatar;
     public Map<String, Boolean> memberIDs;
     public Map<String, Boolean> deleteStatuses;
@@ -24,14 +26,11 @@ public class Group {
         memberIDs = new HashMap<>();
     }
 
-    public Group(DataSnapshot dataSnapshot) {
-        this.key = dataSnapshot.getKey();
-        this.conversationID = CommonMethod.getStringOf(dataSnapshot.child("conversationID").getValue());
-        this.groupName = CommonMethod.getStringOf(dataSnapshot.child("groupName").getValue());
-        this.timestamp = CommonMethod.getDoubleOf(dataSnapshot.child("timestamp").getValue());
-        this.groupAvatar = CommonMethod.getStringOf(dataSnapshot.child("groupAvatar").getValue());
-        this.memberIDs = (Map<String, Boolean>) dataSnapshot.child("memberIDs").getValue();
-        this.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
+    public static Group from(DataSnapshot dataSnapshot) {
+        Group group = dataSnapshot.getValue(Group.class);
+        Assert.assertNotNull(group);
+        group.key = dataSnapshot.getKey();
+        return group;
     }
 
     @Exclude

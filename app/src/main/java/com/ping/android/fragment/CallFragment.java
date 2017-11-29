@@ -263,7 +263,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     }
 
     private void insertOrUpdateCall(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Call call = new Call(dataSnapshot);
+        Call call = Call.from(dataSnapshot);
         if(ServiceManager.getInstance().getCurrentDeleteStatus(call.deleteStatuses)) {
             if (!isAddNew) {
                 adapter.deleteCall(call.key);
