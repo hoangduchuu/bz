@@ -23,7 +23,7 @@ public class Conversation {
     public String message;
     public String groupID;
     public String senderId;
-    public long timesstamps;
+    public double timesstamps;
     public Map<String, Boolean> memberIDs;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> readStatuses;
@@ -51,7 +51,7 @@ public class Conversation {
     }
 
     public Conversation(int conversationType, int messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
-                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, long timestamp,
+                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, double timestamp,
                         Conversation originalConversation
     ) {
         this.conversationType = conversationType;

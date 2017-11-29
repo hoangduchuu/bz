@@ -838,7 +838,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
 
         edMessage.setText(null);
-        long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
         Message message = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
                 timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses());
 
@@ -951,7 +951,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
 
         //Create fragment_message on Message by ConversationID was created before
         String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
@@ -1059,7 +1059,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void sendImageFirebase(final Uri uri, int msgType) {
         final String imageName = getFileNameFromURI(uri);
-        long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
 
         String pathFirebaseImage = fromUser.key + "/" + timestamp + "/" + imageName;
         String pathLocalImage = this.getExternalFilesDir(null).getAbsolutePath() + File.separator

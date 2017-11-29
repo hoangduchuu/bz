@@ -6,5 +6,5 @@ public class ToInfo {
     public User toUser;
     public String conversationID;
     public String messageID;
-    public long timestamp;
+    public double timestamp;
 }

@@ -27,7 +27,7 @@ public class Message {
     public String gameUrl;
     public String senderId;
     public String senderName;
-    public long timestamp;
+    public double timestamp;
     public Map<String, Long> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
@@ -58,7 +58,7 @@ public class Message {
     }
 
     public static Message createTextMessage(String text, String senderId, String senderName,
-                                            long timestamp, Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                            double timestamp, Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.message = text;
         message.senderId = senderId;
@@ -71,7 +71,7 @@ public class Message {
     }
 
     public static Message createImageMessage(String photoUrl, String thumbUrl, String senderId,
-                                             String senderName, long timestamp, Map<String, Long> status,
+                                             String senderName, double timestamp, Map<String, Long> status,
                                              Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.photoUrl = photoUrl;
@@ -85,7 +85,7 @@ public class Message {
         return message;
     }
 
-    public static Message createAudioMessage(String audioUrl, String senderId, String senderName, long timestamp,
+    public static Message createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
                                              Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.audioUrl = audioUrl;
@@ -98,7 +98,7 @@ public class Message {
         return message;
     }
 
-    public static Message createGameMessage(String gameUrl, String senderId, String senderName, long timestamp,
+    public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
                                             Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
         Message message = new Message();
         message.gameUrl = gameUrl;

@@ -328,7 +328,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
-        Long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
         profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
 

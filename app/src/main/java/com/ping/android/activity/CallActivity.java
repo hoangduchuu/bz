@@ -223,7 +223,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         } else {
             otherUser = ServiceManager.getInstance().getUserByQBId(currentSession.getOpponents().get(0));
         }
-        long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
         callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, getCallDeleteStatuses(), timestamp);
     }
 

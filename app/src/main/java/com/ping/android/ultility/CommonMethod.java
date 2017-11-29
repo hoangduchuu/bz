@@ -162,8 +162,8 @@ public class CommonMethod {
         return null;
     }
 
-    public static String convertTimestampToTime(long milliSeconds) {
-        milliSeconds *= 1000L;
+    public static String convertTimestampToTime(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
 
         String time = DateFormat.format("h:mm a", milliSeconds).toString();
         String formatDate = "";
@@ -179,8 +179,8 @@ public class CommonMethod {
         return formatDate;
     }
 
-    public static String convertTimestampToDate(long milliSeconds) {
-        milliSeconds *= 1000L;
+    public static String convertTimestampToDate(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
 
         String formatDate = "";
         if (DateUtils.isToday(milliSeconds)) {
@@ -205,7 +205,7 @@ public class CommonMethod {
         return false;
     }
 
-    public static boolean compareTimestamp(long first, long second) {
+    public static boolean compareTimestamp(double first, double second) {
         return first < second;
     }
 

@@ -347,7 +347,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             return;
         }
 
-        long timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000L;
         toInfos = new ArrayList<>();
         ArrayList<String> displayNames = new ArrayList<>();
         for (User contact : toUsers) {
@@ -407,7 +407,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (toInfos == null) {
             return;
         }
-        long timestamp = toInfos.get(0).timestamp;
+        double timestamp = toInfos.get(0).timestamp;
         Message displayMessage = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
                 timestamp, getStatuses(toInfos.get(0).toUser), getMessageMarkStatuses(toInfos.get(0).toUser),
                 getMessageDeleteStatuses(toInfos.get(0).toUser));
@@ -529,7 +529,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }
         final String imageName = getFileNameFromURI(uri);
 
-        long timestamp = toInfos.get(0).timestamp;
+        double timestamp = toInfos.get(0).timestamp;
 
         String pathFirebaseImage = fromUser.key + "/" + timestamp + "/" + imageName;
         String pathLocalImage = getExternalFilesDir(null).getAbsolutePath() + File.separator
@@ -548,7 +548,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                long timestamp = toInfos.get(0).timestamp;
+                double timestamp = toInfos.get(0).timestamp;
                 String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
                 Message messageDisplay = null;
                 if (msgType == Constant.MSG_TYPE_IMAGE) {
@@ -702,7 +702,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (toInfos == null) {
             return;
         }
-        long timestamp = toInfos.get(0).timestamp;
+        double timestamp = toInfos.get(0).timestamp;
         File audioFile = new File(currentOutFile);
         String audioName = audioFile.getName();
         String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;

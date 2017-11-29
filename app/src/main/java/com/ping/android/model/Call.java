@@ -18,7 +18,7 @@ public class Call {
     public String senderId;
     public String receiveId;
     public int status;
-    public long timestamp;
+    public double timestamp;
     public Map<String, Boolean> deleteStatuses;
 
     public List<User> members = new ArrayList<>();
@@ -26,7 +26,7 @@ public class Call {
 
     public Call() {}
 
-    public Call(String senderId, String receiveId, int status, Map<String, Boolean> deleteStatuses, long timestamp) {
+    public Call(String senderId, String receiveId, int status, Map<String, Boolean> deleteStatuses, double timestamp) {
         this.senderId = senderId;
         this.receiveId = receiveId;
         this.status = status;

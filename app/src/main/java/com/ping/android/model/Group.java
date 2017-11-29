@@ -15,7 +15,7 @@ public class Group {
     public String key;
     public String conversationID;
     public String groupName;
-    public long timestamp;
+    public double timestamp;
     public String groupAvatar;
     public Map<String, Boolean> memberIDs;
     public Map<String, Boolean> deleteStatuses;
