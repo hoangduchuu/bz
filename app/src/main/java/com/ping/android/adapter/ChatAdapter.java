@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -688,6 +689,21 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
                 bitmapMark = true;
             }
             Bitmap originalBitmap = BitmapFactory.decodeFile(imageLocalPath);
+
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            ((Activity)ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int maxEdgeLength = Math.round((float)(displaymetrics.widthPixels * .6));
+
+            if (originalBitmap.getWidth() > originalBitmap.getHeight()) {
+
+                ivChatPhoto.getLayoutParams().height = Math.round((float)(maxEdgeLength * originalBitmap.getHeight()/originalBitmap.getWidth()));
+                ivChatPhoto.getLayoutParams().width = maxEdgeLength;
+            } else {
+
+                ivChatPhoto.getLayoutParams().height = maxEdgeLength;
+                ivChatPhoto.getLayoutParams().width = Math.round((float)(maxEdgeLength * originalBitmap.getWidth()/ originalBitmap.getHeight()));
+            }
+
             if (!bitmapMark) {
                 ivChatPhoto.setImageBitmap(originalBitmap);
             } else {

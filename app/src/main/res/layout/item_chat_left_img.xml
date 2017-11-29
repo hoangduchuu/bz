@@ -24,8 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/item_chat_margin"
         android:orientation="vertical"
-        android:layout_marginLeft="10dp"
-        android:padding="5dp">
+        android:layout_marginLeft="10dp">
 
         <TextView
             style="@style/AppTextAppearance.VerySmall.Grey"
