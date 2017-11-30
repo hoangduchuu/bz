@@ -1,22 +1,17 @@
 package com.ping.android.activity;
 
-import android.*;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,20 +53,20 @@ import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.BzzzStorage;
+import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -123,6 +118,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private TextWatcher textWatcher;
+
+    private ImagePickerHelper imagePickerHelper;
+    private BzzzStorage bzzzStorage;
+    private MessageRepository messageRepository;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
@@ -244,6 +243,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             case R.id.chat_text_btn:
                 onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
                 break;
+            case R.id.chat_camera_btn:
+                onSendCamera();
+                break;
             case R.id.chat_image_btn:
                 onSendImage();
                 break;
@@ -291,22 +293,32 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == Constant.IMAGE_GALLERY_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null) {
-                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_IMAGE);
-                }
-            }
-        } else if (requestCode == Constant.GAME_GALLERY_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = data.getData();
-                if (selectedImageUri != null) {
-                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_GAME);
-                }
-            }
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onActivityResult(requestCode, resultCode, data);
         }
+//        if (requestCode == Constant.IMAGE_GALLERY_REQUEST) {
+//            if (resultCode == RESULT_OK) {
+//                Uri selectedImageUri = data.getData();
+//                if (selectedImageUri != null) {
+//                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_IMAGE);
+//                }
+//            }
+//        } else if (requestCode == Constant.GAME_GALLERY_REQUEST) {
+//            if (resultCode == RESULT_OK) {
+//                Uri selectedImageUri = data.getData();
+//                if (selectedImageUri != null) {
+//                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_GAME);
+//                }
+//            }
+//        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private boolean isPermissionGrant() {
@@ -316,23 +328,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @TargetApi(Build.VERSION_CODES.M)
     private void requestPermission() {
         this.requestPermissions(new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE }, 123);
-    }
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 123: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    onSendImage();
-                } else {
-                }
-                return;
-            }
-        }
     }
 
     private void bindViews() {
@@ -358,6 +353,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
+        findViewById(R.id.chat_camera_btn).setOnClickListener(this);
         findViewById(R.id.chat_voice_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
         findViewById(R.id.chat_send_message_btn).setOnClickListener(this);
@@ -448,6 +444,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void init() {
+        bzzzStorage = new BzzzStorage();
+        messageRepository = MessageRepository.from(conversationID);
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
@@ -621,7 +619,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
             });
         }
-        if (!StringUtils.isEmpty(sendNewMsg)) {
+        if (!TextUtils.isEmpty(sendNewMsg)) {
             onSentMessage(sendNewMsg);
             sendNewMsg = "";
         }
@@ -876,7 +874,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void onSentMessage(String text) {
         loadMoreChats();
-        if (StringUtils.isEmpty(text)) {
+        if (TextUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -897,20 +895,42 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
-        //Create or Update Conversation
-        mDatabase.child("conversations").child(conversationID).updateChildren(conversation.toMap());
+        String messageKey = messageRepository.generateMessageKey();
+        messageRepository.updateMessage(messageKey, message);
 
-
-        //Create fragment_message on Message by ConversationID was created before
-        String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
+        // Update conversations
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("conversations/" + conversationID, conversation.toMap());
         message.key = messageKey;
-        mDatabase.child("messages").child(conversationID).child(messageKey).setValue(message);
-
         for (User toUser : orginalConversation.members) {
             if (checkMessageBlocked(toUser)) continue;
-            mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
+            updateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+        messageRepository.updateBatchData(updateData, null);
+    }
+
+    private void onSendCamera() {
+        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (checkBlocked()) {
+            return;
+        }
+
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setCrop(false)
+                .setScale(true)
+                .setGenerateThumbnail(true)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        File thumbnail = (File) data[1];
+                        sendImageFirebase(file, thumbnail);
+                    }
+                });
+        imagePickerHelper.openCamera();
     }
 
     private void onSendImage() {
@@ -927,10 +947,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.IMAGE_GALLERY_REQUEST);
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setCrop(false)
+                .setScale(true)
+                .setGenerateThumbnail(true)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        File thumbnail = (File) data[1];
+                        sendImageFirebase(file, thumbnail);
+                    }
+                });
+        imagePickerHelper.openPicker();
     }
 
     private void onSendGame() {
@@ -942,10 +970,21 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setCrop(false)
+                .setScale(true)
+                .setGenerateThumbnail(true)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        sendGameFirebase(file);
+                    }
+                });
+        imagePickerHelper.openPicker();
+//        Intent intent = new Intent();
+//        intent.setType("image/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
     }
 
     private void onStartRecord() {
@@ -1116,102 +1155,67 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return deleteStatuses;
     }
 
-    private void sendImageFirebase(final Uri uri, int msgType) {
-        final String imageName = getFileNameFromURI(uri);
-        double timestamp = System.currentTimeMillis() / 1000L;
-
-        String pathFirebaseImage = fromUser.key + "/" + timestamp + "/" + imageName;
-        String pathLocalImage = this.getExternalFilesDir(null).getAbsolutePath() + File.separator
-                + fromUser.key + File.separator + timestamp;
-        CommonMethod.createFolder(pathLocalImage);
-        pathLocalImage = pathLocalImage + File.separator + imageName;
-        prepareImage(uri, pathLocalImage);
-
-        //Create fragment_message on Message by ConversationID was created before
-        String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(pathFirebaseImage);
-        UploadTask uploadTask = photoRef.putFile(Uri.fromFile(new File(pathLocalImage)));
-
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+    private void sendImageFirebase(File file, File thumbnail) {
+        // upload thumbnail first first
+        bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
+            if (error != null) {
+                // TODO handle error when uploading image
+                return;
             }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
-                Message message = null;
-                if (msgType == Constant.MSG_TYPE_IMAGE) {
-                    message = Message.createImageMessage(downloadUrl, downloadUrl,
-                            fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
-                } else if (msgType == Constant.MSG_TYPE_GAME) {
-                    message = Message.createGameMessage(downloadUrl,
-                            fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
+            String thumbnailUrl = (String) data[0];
+            // Upload image
+            bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
+                String imageUrl = thumbnailUrl;
+                if (error1 == null) {
+                    imageUrl = (String) data1[0];
                 }
-                message.key = messageKey;
+                sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
+            });
+        });
+    }
 
-                Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, downloadUrl,
-                        orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                        getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
-
-                //Create or Update Conversation
-                mDatabase.child("conversations").child(conversationID).updateChildren(conversation.toMap());
-                mDatabase.child("messages").child(conversationID).child(messageKey).updateChildren(message.toMap());
-                for (User toUser : orginalConversation.members) {
-                    if (checkMessageBlocked(toUser)) continue;
-                    mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
-                }
-                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+    private void sendGameFirebase(File file) {
+        bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
+            if (error1 == null) {
+                String imageUrl = (String) data1[0];
+                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME);
             }
         });
     }
 
-    private void prepareImage(Uri uri, String localPath) {
-        FileOutputStream out = null;
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            int newWidth, newHeight;
-            out = new FileOutputStream(localPath);
-            if (width > Constant.IMAGE_LIMIT_WIDTH) {
-                float scale = 1f * Constant.IMAGE_LIMIT_WIDTH / width;
-                newWidth = (int) (scale * width);
-                newHeight = (int) (scale * height);
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-                scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            } else {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-            }
-        } catch (Exception e) {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (Exception e1) {
-            }
+    private void sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
+        String messageKey = messageRepository.generateMessageKey();
+        double timestamp = System.currentTimeMillis() / 1000;
+        Message message = null;
+        if (msgType == Constant.MSG_TYPE_IMAGE) {
+            message = Message.createImageMessage(imageUrl, thumbnailUrl,
+                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
+        } else if (msgType == Constant.MSG_TYPE_GAME) {
+            message = Message.createGameMessage(imageUrl,
+                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
         }
-    }
+                message.key = messageKey;
 
-    private String getFileNameFromURI(Uri uri) {
-        String uriString = uri.toString();
-        File file = new File(uriString);
-        String imageName = null;
+        Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
+                orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
+                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
-        if (uriString.startsWith("content://")) {
-            Cursor cursor = null;
-            try {
-                cursor = this.getContentResolver().query(uri, null, null, null, null);
-                if (cursor != null && cursor.moveToFirst()) {
-                    imageName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            } finally {
-                cursor.close();
-            }
-        } else if (uriString.startsWith("file://")) {
-            imageName = file.getName();
+        //Create or Update Conversation
+        Map<String, Object> conversationUpdateData = new HashMap<>();
+        conversationUpdateData.put("conversations/" + conversationID, conversation.toMap());
+        messageRepository.updateMessage(messageKey, message);
+        for (User toUser : orginalConversation.members) {
+            if (checkMessageBlocked(toUser)) continue;
+            conversationUpdateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
-        return imageName;
+                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+        messageRepository.updateBatchData(conversationUpdateData, (error, data) -> {
+            if (error != null) {
+                if (error instanceof Exception) {
+                    ((Exception) error).printStackTrace();
+                }
+            }
+        });
     }
 
     private void updateMessageStatus(Message message) {

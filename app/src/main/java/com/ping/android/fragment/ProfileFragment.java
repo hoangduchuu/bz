@@ -345,7 +345,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void uploadProfile() {
-        String imageStoragePath = "profile" + File.separator + currentUser.key + File.separator + profileFileName;
+        String imageStoragePath = "profiles" + File.separator + currentUser.key + File.separator + profileFileName;
         StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
         UploadTask uploadTask = photoRef.putFile(Uri.fromFile(new File(profileFilePath)));
         uploadTask.addOnFailureListener(new OnFailureListener() {

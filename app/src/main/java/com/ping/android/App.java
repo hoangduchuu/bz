@@ -1,10 +1,18 @@
 package com.ping.android;
 
+import android.content.Context;
+
 import com.google.firebase.database.FirebaseDatabase;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.ping.android.util.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.FireBaseRequestHandler;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
+
+import okhttp3.Cache;
+import okhttp3.OkHttpClient;
 
 public class App extends CoreApp {
 
@@ -23,9 +31,19 @@ public class App extends CoreApp {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         Picasso picasso = new Picasso.Builder(getApplicationContext())
-                .addRequestHandler(new FireBaseRequestHandler())
+//                .addRequestHandler(new FireBaseRequestHandler())
+                .downloader(new OkHttp3Downloader(createCacheClient(this)))
                 .build();
         Picasso.setSingletonInstance(picasso);
+    }
+
+    private OkHttpClient createCacheClient(Context context){
+        File httpCacheDirectory = new File(context.getCacheDir(), "bzzz");
+        Cache cache = new Cache(httpCacheDirectory, 250000);
+
+        return new OkHttpClient.Builder()
+                .cache(cache)
+                .build();
     }
 
     private void initApplication() {

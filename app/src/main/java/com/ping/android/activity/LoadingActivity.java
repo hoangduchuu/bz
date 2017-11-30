@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -20,7 +21,14 @@ public class LoadingActivity extends CoreActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+
+        // Set up Crashlytics, disabled for debug builds
+        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build();
+
+        // Initialize Fabric with the debug-disabled crashlytics.
+        Fabric.with(this, crashlyticsKit);
 
 
 

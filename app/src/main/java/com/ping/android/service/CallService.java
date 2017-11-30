@@ -143,7 +143,9 @@ public class CallService extends Service {
 
     private void initQBRTCClient() {
         rtcClient = QBRTCClient.getInstance(getApplicationContext());
+
         // Add signalling manager
+        // FIXME: issue https://github.com/QuickBlox/quickblox-android-sdk/issues/441
         chatService.getVideoChatWebRTCSignalingManager().addSignalingManagerListener(new QBVideoChatSignalingManagerListener() {
             @Override
             public void signalingCreated(QBSignaling qbSignaling, boolean createdLocally) {
