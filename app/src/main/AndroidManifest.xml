@@ -32,6 +32,7 @@
 
         <activity
             android:name=".LoadingActivity"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,93 +41,116 @@
         </activity>
         <activity
             android:name=".BeforeLoginActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Log"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Log"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RegistrationActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Registration"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PhoneActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Registration"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Message"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ChatActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Chat"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".NewChatActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Chat"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SelectContactActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Chat"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AddContactActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Contact"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MappingActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Contact"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PuzzleActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="PuzzleActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".GameActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ChangePasswordActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ForgotPasswordActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CallActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PermissionsActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".AddGroupActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".BlockActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".GroupProfileActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".UserProfileActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".UserDetailActivity"
+            android:screenOrientation="sensorPortrait"
             android:label="Add Group"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".TransphabetActivity"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".PrivacyAndTermActivity"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <meta-data
