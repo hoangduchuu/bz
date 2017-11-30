@@ -257,10 +257,11 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             ServiceManager.getInstance().uploadGroupAvatar(groupKey, groupProfileImage, new Callback() {
                 @Override
                 public void complete(Object error, Object... data) {
+                    String profileImage = "";
                     if (error == null) {
-                        String profileImage = (String) data[0];
-                        createGroup(toUsers, groupKey, msg, profileImage);
+                        profileImage = (String) data[0];
                     }
+                    createGroup(toUsers, groupKey, msg, profileImage);
                 }
             });
         } else {
@@ -284,8 +285,10 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         ServiceManager.getInstance().createConversationForGroupChat(fromUser.key, group, new Callback() {
             @Override
             public void complete(Object error, Object... data) {
-                group.conversationID = data[0].toString();
-                onSendMessage(group, msg);
+                if (error != null) {
+                    group.conversationID = data[0].toString();
+                    onSendMessage(group, msg);
+                }
                 hideLoading();
                 finish();
             }

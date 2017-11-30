@@ -20,6 +20,7 @@ import com.ping.android.model.User;
 import com.squareup.picasso.Picasso;
 
 import org.jivesoftware.smack.util.StringUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.Random;
@@ -108,6 +109,10 @@ public class UiUtils {
     }
 
     public static void displayProfileAvatar(ImageView imageView, File filePath) {
+        if (filePath == null) {
+            imageView.setImageResource(IMG_DEFAULT);
+            return;
+        }
         Picasso.with(imageView.getContext())
                 .load(filePath)
                 .transform(new CircleTransform())
@@ -117,31 +122,15 @@ public class UiUtils {
     }
 
     public static void displayProfileAvatar(ImageView imageView, String imageProfile) {
+        if (TextUtils.isEmpty(imageProfile)) {
+            imageView.setImageResource(IMG_DEFAULT);
+            return;
+        }
         Picasso.with(imageView.getContext())
                 .load(imageProfile)
                 .transform(new CircleTransform())
                 .error(IMG_DEFAULT)
                 .placeholder(IMG_DEFAULT)
-                .into(imageView);
-    }
-
-    public static void displayProfileAvatar(final Context context,
-                                            final ImageView imageView, final String avatarUrl, final int defaultImg) {
-        if (imageView == null || context == null) {
-            return;
-        }
-
-        if (TextUtils.isEmpty(avatarUrl)) {
-            imageView.setImageResource(defaultImg);
-            return;
-        }
-
-        new Picasso.Builder(context)
-                .addRequestHandler(new FireBaseRequestHandler()).build()
-                .load(avatarUrl)
-                .error(defaultImg)
-                .placeholder(defaultImg)
-                .noFade()
                 .into(imageView);
     }
 
