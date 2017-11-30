@@ -34,7 +34,7 @@ allprojects {
 ext {
     qbSdkVersion = '3.3.0'
     robotoTextViewVersion = '2.4.3'
-    okhttpLibraryVersion = '3.4.2'
+    okhttpLibraryVersion = '3.9.1'
 }
 
 task clean(type: Delete) {

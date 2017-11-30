@@ -1,35 +1,27 @@
 package com.ping.android.activity;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-
 public class PuzzleActivity extends CoreActivity implements View.OnClickListener {
-
-    private FirebaseStorage storage;
 
     private ImageView btBack;
     private ToggleButton btPuzzle;
     private ImageView ivPuzzle;
 
     private String conversationID, messageID;
-    private String imageURL, imageLocalName, imageLocalPath, imageLocalFolder;
+    private String imageURL;
     private Boolean puzzledstatus;
 
     private Bitmap originalBitmap;
@@ -64,46 +56,21 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     private void init() {
-        storage = FirebaseStorage.getInstance();
-        imageLocalPath = this.getExternalFilesDir(null).getAbsolutePath();
-        imageLocalName = CommonMethod.getFileNameFromFirebase(imageURL);
-        imageLocalPath = imageLocalPath + File.separator + imageLocalName;
-        File imageLocal = new File(imageLocalPath);
-        imageLocalName = imageLocal.getName();
-        imageLocalFolder = imageLocal.getParent();
-        CommonMethod.createFolder(imageLocalFolder);
-
-        if (imageLocal.exists()) {
-            originalBitmap = BitmapFactory.decodeFile(imageLocalPath);
-            puzzledBitmap = CommonMethod.puzzleImage(originalBitmap, 3);
-            btPuzzle.setChecked(!puzzledstatus);
-            if (puzzledstatus) {
-                ivPuzzle.setImageBitmap(puzzledBitmap);
+        UiUtils.loadImage(ivPuzzle, imageURL, (error, data) -> {
+            if (error == null) {
+                originalBitmap = (Bitmap) data[0];
+                puzzledBitmap = CommonMethod.puzzleImage(originalBitmap, 3);
+                btPuzzle.setChecked(!puzzledstatus);
+                if (puzzledstatus) {
+                    ivPuzzle.setImageBitmap(puzzledBitmap);
+                } else {
+                    ivPuzzle.setImageBitmap(originalBitmap);
+                }
+                //ivPuzzle.postInvalidate();
             } else {
-                ivPuzzle.setImageBitmap(originalBitmap);
+                ivPuzzle.setImageResource(R.drawable.ic_avatar_gray);
             }
-        } else {
-            StorageReference imageReference = storage.getReferenceFromUrl(imageURL);
-            imageReference.getFile(imageLocal).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    originalBitmap = BitmapFactory.decodeFile(imageLocalPath);
-                    puzzledBitmap = CommonMethod.puzzleImage(originalBitmap, 3);
-                    btPuzzle.setChecked(!puzzledstatus);
-                    if (puzzledstatus) {
-                        ivPuzzle.setImageBitmap(puzzledBitmap);
-                    } else {
-                        ivPuzzle.setImageBitmap(originalBitmap);
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
-        }
-
+        });
     }
 
     @Override
@@ -128,9 +95,9 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         } else {
             ivPuzzle.setImageBitmap(puzzledBitmap);
         }
+        //ivPuzzle.postInvalidate();
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
         }
     }
-
 }

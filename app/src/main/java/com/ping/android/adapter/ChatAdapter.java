@@ -3,13 +3,13 @@ package com.ping.android.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,12 +32,11 @@ import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -97,7 +96,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         } else {
             updateMessage(message);
         }
-
+        // TODO should not notify all data here
         Collections.sort(displayMessages, this);
         notifyDataSetChanged();
     }
@@ -245,8 +244,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
             viewHolder.setIvChatProfile();
             viewHolder.setInfo();
-            if (model.photoUrl != null) {
-                viewHolder.setIvChatPhoto(model.photoUrl);
+            if (!TextUtils.isEmpty(model.thumbUrl)) {
+                viewHolder.setIvChatPhoto(model.thumbUrl);
             } else if (model.gameUrl != null) {
                 viewHolder.setIvChatPhoto(model.gameUrl);
             } else if (model.audioUrl != null) {
@@ -479,7 +478,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     onImageClick(false);
                     break;
                 case R.id.item_chat_message:
-                    if (StringUtils.isNotEmpty(message.message)) {
+                    if (!TextUtils.isEmpty(message.message)) {
                         onMarkTest();
                     }
                     break;
@@ -493,22 +492,22 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (markStatus) {
                 text = ServiceManager.getInstance().encodeMessage(activity, text);
             }
-            if (StringUtils.isNotEmpty(conversationID)) {
+            if (!TextUtils.isEmpty(conversationID)) {
                 ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
             }
             tvText.setText(text);
         }
 
         private void onImageClick(Boolean isPuzzled) {
-            if (!StringUtils.isEmpty(message.photoUrl) && message.photoUrl.startsWith("PPhtotoMessageIdentifier")) {
+            if (!TextUtils.isEmpty(message.photoUrl) && message.photoUrl.startsWith("PPhtotoMessageIdentifier")) {
                 return;
             }
-            if (!StringUtils.isEmpty(message.gameUrl) && message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
+            if (!TextUtils.isEmpty(message.gameUrl) && message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
                 return;
             }
-            if (!StringUtils.isEmpty(message.photoUrl)) {
+            if (!TextUtils.isEmpty(message.photoUrl)) {
                 unPuzzleImage(message.photoUrl, isPuzzled);
-            } else if (!StringUtils.isEmpty(message.gameUrl)) {
+            } else if (!TextUtils.isEmpty(message.gameUrl)) {
                 if (currentUserID.equals(message.senderId)) {
                     unPuzzleImage(message.gameUrl, isPuzzled);
                 } else {
@@ -527,7 +526,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void unPuzzleGame(String imageURL, Boolean isPuzzled) {
-            if (StringUtils.isEmpty(message.gameUrl)) {
+            if (TextUtils.isEmpty(message.gameUrl)) {
                 return;
             }
             // Only play game for player
@@ -588,52 +587,27 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         public void setIvChatPhoto(String imageURL) {
             if (ivChatPhoto == null) return;
-            if (StringUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
                 ivChatPhoto.setImageResource(R.drawable.img_loading);
                 return;
             }
             Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (StringUtils.isNotEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
+            if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
                     status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                 ivChatPhoto.setImageResource(R.drawable.img_game_over);
-                //ivChatPhoto.setVisibility(View.GONE);
                 return;
             }
 
-            String imageLocalPath = activity.getExternalFilesDir(null).getAbsolutePath();
-            String imageLocalName = CommonMethod.getFileNameFromFirebase(imageURL);
-            imageLocalPath = imageLocalPath + File.separator + imageLocalName;
-            final String imageStoragePath = imageLocalPath;
-
-            File imageLocal = new File(imageLocalPath);
-            String imageLocalFolder = imageLocal.getParent();
-            CommonMethod.createFolder(imageLocalFolder);
-
-            if (imageLocal.exists()) {
-                setImage(imageLocalPath);
-            } else {
-                Log.d("imageURL = " + imageURL);
-                try {
-                    StorageReference imageReference = storage.getReferenceFromUrl(imageURL);
-                    imageReference.getFile(imageLocal).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            setImage(imageStoragePath);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle any errors
-                        }
-                    });
-                } catch (Exception ex) {
-                    Log.e(ex);
+            UiUtils.loadImage(ivChatPhoto, imageURL, (error, data) -> {
+                if (error == null) {
+                    Bitmap bitmap = (Bitmap) data[0];
+                    setChatImage(bitmap);
                 }
-            }
+            });
         }
 
         public void setAudioSrc(String audioUrl) {
-            if (StringUtils.isEmpty(audioUrl)) {
+            if (TextUtils.isEmpty(audioUrl)) {
                 return;
             }
 
@@ -698,15 +672,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setImage(String imageLocalPath) {
-            Boolean bitmapMark = markStatus;
+        private void setChatImage(Bitmap originalBitmap) {
+            boolean bitmapMark = markStatus;
             // Game: always  puzzle image for player
-            Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (StringUtils.isNotEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
+            long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
                     status != Constant.MESSAGE_STATUS_GAME_PASS) {
                 bitmapMark = true;
             }
-            Bitmap originalBitmap = BitmapFactory.decodeFile(imageLocalPath);
 
             DisplayMetrics displaymetrics = new DisplayMetrics();
             ((Activity)ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -756,7 +729,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 status = "Game Delivered";
             }
 
-            if (StringUtils.isNotEmpty(status)) {
+            if (!TextUtils.isEmpty(status)) {
                 tvStatus.setText(status);
                 tvStatus.setVisibility(View.VISIBLE);
             }
