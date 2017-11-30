@@ -8,6 +8,8 @@ import com.ping.android.model.QbConfigs;
 import com.ping.android.utils.configs.CoreConfigUtils;
 import com.quickblox.auth.session.QBSettings;
 import com.quickblox.core.ServiceZone;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.ios.IosEmojiProvider;
 
 
 public class CoreApp extends Application {
@@ -26,6 +28,7 @@ public class CoreApp extends Application {
         instance = this;
         initQbConfigs();
         initCredentials();
+        EmojiManager.install(new IosEmojiProvider());
     }
 
     private void initQbConfigs() {

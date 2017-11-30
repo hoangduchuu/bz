@@ -20,12 +20,9 @@ public class LoadingActivity extends CoreActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
 
-        final Fabric fabric = new Fabric.Builder(this)
-                .kits(new Crashlytics())
-                .debuggable(BuildConfig.DEBUG)
-                .build();
-        Fabric.with(fabric);
+
 
         setContentView(R.layout.activity_loading);
 

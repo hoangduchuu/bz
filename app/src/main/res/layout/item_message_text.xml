@@ -63,7 +63,7 @@
                         tools:text="01-06-2017-06:54" />
                 </RelativeLayout>
 
-                <TextView
+                <com.vanniktech.emoji.EmojiTextView
                     android:id="@+id/message_item_message"
                     style="@style/AppTextAppearance.Small.Grey"
                     android:layout_width="match_parent"
