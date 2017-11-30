@@ -2,10 +2,12 @@ package com.ping.android.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,13 +16,19 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
+import com.ping.android.ultility.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.jivesoftware.smack.util.StringUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.Random;
@@ -97,11 +105,11 @@ public class UiUtils {
 
             Log.d(user.profile);
 
-            Picasso.with(context)
-                    .load(user.profile)
-                    .transform(new CircleTransform())
-                    .error(IMG_DEFAULT)
-                    .placeholder(IMG_DEFAULT)
+            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
+            GlideApp.with(imageView.getContext())
+                    .load(gsReference)
+                    .error(R.drawable.ic_avatar_gray)
+                    .apply(RequestOptions.circleCropTransform())
                     .into(imageView);
         } else {
             imageView.setImageResource(IMG_DEFAULT);
@@ -113,25 +121,45 @@ public class UiUtils {
             imageView.setImageResource(IMG_DEFAULT);
             return;
         }
-        Picasso.with(imageView.getContext())
+        GlideApp.with(imageView.getContext())
                 .load(filePath)
-                .transform(new CircleTransform())
-                .error(IMG_DEFAULT)
-                .placeholder(IMG_DEFAULT)
+                .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
     }
 
-    public static void displayProfileAvatar(ImageView imageView, String imageProfile) {
-        if (TextUtils.isEmpty(imageProfile)) {
+    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl) {
+        if (TextUtils.isEmpty(firebaseUrl)) {
             imageView.setImageResource(IMG_DEFAULT);
             return;
         }
-        Picasso.with(imageView.getContext())
-                .load(imageProfile)
-                .transform(new CircleTransform())
-                .error(IMG_DEFAULT)
-                .placeholder(IMG_DEFAULT)
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
+        GlideApp.with(imageView.getContext())
+                .load(gsReference)
+                .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
+    }
+
+    public static void loadImage(ImageView imageView, String imageUrl, Callback callback) {
+        if (TextUtils.isEmpty(imageUrl)) {
+            return;
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        GlideApp.with(imageView.getContext())
+                .asBitmap()
+                .load(gsReference)
+                .override(512)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                        Log.d("Image loaded " + imageUrl);
+                        callback.complete(null, resource);
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        callback.complete(new Error());
+                    }
+                });
     }
 
     public static void hideSoftKeyboard(Activity activity) {

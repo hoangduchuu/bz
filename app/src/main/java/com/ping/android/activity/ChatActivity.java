@@ -1,22 +1,17 @@
 package com.ping.android.activity;
 
-import android.*;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -69,10 +64,8 @@ import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -359,7 +352,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
-        findViewById(R.id.chat_image_btn).setOnClickListener(this);
+        findViewById(R.id.chat_camera_btn).setOnClickListener(this);
         findViewById(R.id.chat_voice_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
         findViewById(R.id.chat_send_message_btn).setOnClickListener(this);
@@ -625,7 +618,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
             });
         }
-        if (!StringUtils.isEmpty(sendNewMsg)) {
+        if (!TextUtils.isEmpty(sendNewMsg)) {
             onSentMessage(sendNewMsg);
             sendNewMsg = "";
         }
@@ -880,7 +873,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void onSentMessage(String text) {
         loadMoreChats();
-        if (StringUtils.isEmpty(text)) {
+        if (TextUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -901,18 +894,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
-        //Create or Update Conversation
-        mDatabase.child("conversations").child(conversationID).updateChildren(conversation.toMap());
+        String messageKey = messageRepository.generateMessageKey();
+        messageRepository.updateMessage(messageKey, message);
 
-
-        //Create fragment_message on Message by ConversationID was created before
-        String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
-        mDatabase.child("messages").child(conversationID).child(messageKey).setValue(message);
-
+        // Update conversations
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("conversations/" + conversationID, conversation.toMap());
         for (User toUser : orginalConversation.members) {
             if (checkMessageBlocked(toUser)) continue;
-            mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
+            updateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
+        messageRepository.updateBatchData(updateData, null);
     }
 
     private void onSendCamera() {
@@ -925,10 +917,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
 
         imagePickerHelper = ImagePickerHelper.from(this)
-                .setCallback(new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-
+                .setCrop(false)
+                .setScale(true)
+                .setGenerateThumbnail(true)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        File thumbnail = (File) data[1];
+                        sendImageFirebase(file, thumbnail);
                     }
                 });
         imagePickerHelper.openCamera();
@@ -952,14 +948,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback(new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        if (error == null) {
-                            File file = (File) data[0];
-                            File thumbnail = (File) data[1];
-                            sendImageFirebase(file, thumbnail, Constant.MSG_TYPE_IMAGE);
-                        }
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        File thumbnail = (File) data[1];
+                        sendImageFirebase(file, thumbnail);
                     }
                 });
         imagePickerHelper.openPicker();
@@ -974,10 +967,21 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setCrop(false)
+                .setScale(true)
+                .setGenerateThumbnail(true)
+                .setCallback((error, data) -> {
+                    if (error == null) {
+                        File file = (File) data[0];
+                        sendGameFirebase(file);
+                    }
+                });
+        imagePickerHelper.openPicker();
+//        Intent intent = new Intent();
+//        intent.setType("image/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
     }
 
     private void onStartRecord() {
@@ -1147,7 +1151,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return deleteStatuses;
     }
 
-    private void sendImageFirebase(File file, File thumbnail, int msgType) {
+    private void sendImageFirebase(File file, File thumbnail) {
         // upload thumbnail first first
         bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
             if (error != null) {
@@ -1155,15 +1159,23 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 return;
             }
             String thumbnailUrl = (String) data[0];
-
             // Upload image
             bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
                 String imageUrl = thumbnailUrl;
                 if (error1 == null) {
                     imageUrl = (String) data1[0];
                 }
-                sendImageMessage(imageUrl, thumbnailUrl, msgType);
+                sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
             });
+        });
+    }
+
+    private void sendGameFirebase(File file) {
+        bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
+            if (error1 == null) {
+                String imageUrl = (String) data1[0];
+                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME);
+            }
         });
     }
 
@@ -1189,7 +1201,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         messageRepository.updateMessage(messageKey, message);
         for (User toUser : orginalConversation.members) {
             if (checkMessageBlocked(toUser)) continue;
-            conversationUpdateData.put("users/conversations/" + conversationID, conversation.toMap());
+            conversationUpdateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
         messageRepository.updateBatchData(conversationUpdateData, (error, data) -> {
             if (error != null) {

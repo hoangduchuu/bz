@@ -27,6 +27,8 @@ import com.ping.android.ultility.Constant;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -35,6 +37,7 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class ImagePickerHelper {
+    private static final int TAKE_PICTURE_REQUEST_CODE = 123;
     private static final int MAX_DIMENSION = 1200;
     private static final int MAX_THUMB_DIMENSION = 250;
 
@@ -108,9 +111,14 @@ public class ImagePickerHelper {
                     tuningFinalImage(file);
                 }
             }
-        }
-
-        if (requestCode == Constant.CROP_IMAGE_REQUEST) {
+        } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                File file = new File(getFilePath());
+                if (file.exists()) {
+                    tuningFinalImage(file);
+                }
+            }
+        } else if (requestCode == Constant.CROP_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Bundle extras = data.getExtras();
                 if (data.hasExtra("data")) {
@@ -190,8 +198,8 @@ public class ImagePickerHelper {
 
     public void openPicker() {
         isOpeningCamera = false;
-        if (!isPermissionGrant()) {
-            requestPermission();
+        if (!isPermissionGrant(false)) {
+            requestPermissions(false);
             return;
         }
         Intent intent = new Intent();
@@ -207,16 +215,16 @@ public class ImagePickerHelper {
 
     public void openCamera() {
         isOpeningCamera = true;
-        if (!isPermissionGrant()) {
-            requestPermission();
+        if (!isPermissionGrant(true)) {
+            requestPermissions(true);
             return;
         }
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, getFilePath());
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(getFilePath())));
         if (activity != null) {
-            activity.startActivityForResult(Intent.createChooser(intent, "Take photo"), Constant.SELECT_IMAGE_REQUEST);
+            activity.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
         } else if (fragment != null) {
-            fragment.startActivityForResult(Intent.createChooser(intent, "Take photo"), Constant.SELECT_IMAGE_REQUEST);
+            fragment.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
         }
     }
 
@@ -253,16 +261,28 @@ public class ImagePickerHelper {
 
     // region Permissions
 
-    private boolean isPermissionGrant() {
-        return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    private boolean isPermissionGrant(boolean isCamera) {
+        boolean isPermissionGrant = ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        if (isCamera && ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            isPermissionGrant = false;
+        }
+        return isPermissionGrant;
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private void requestPermission() {
+    private void requestPermissions(boolean isCamera) {
+        List<String> permissions = new ArrayList<>();
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (isCamera) {
+            permissions.add(Manifest.permission.CAMERA);
+        }
+        String[] array = permissions.toArray(new String[permissions.size()]);
         if (activity != null) {
-            activity.requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, 123);
+            activity.requestPermissions(array, 123);
         } else if (fragment != null) {
-            fragment.requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, 123);
+            fragment.requestPermissions(array, 123);
         }
     }
 

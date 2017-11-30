@@ -69,7 +69,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public void addOrUpdateConversation(Conversation conversation) {
-        Boolean isAdd = true;
+        boolean isAdd = true;
         for (int i = 0; i < originalConversations.size(); i++) {
             if (originalConversations.get(i).key.equals(conversation.key)) {
                 isAdd = false;
@@ -215,63 +215,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
         boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
-        holder.setConversation(model);
-        if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            holder.setTvSender(model.opponentUser.getDisplayName());
-        } else {
-            holder.setTvSender(model.group.groupName);
-        }
-
-        holder.setTvTime(CommonMethod.convertTimestampToTime(model.timesstamps).toString());
-        if (model.messageType == Constant.MSG_TYPE_TEXT) {
-            if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
-                holder.setTvMessage(ServiceManager.getInstance().encodeMessage(activity, model.message));
-            } else {
-                holder.setTvMessage(model.message);
-            }
-        } else if (model.messageType == Constant.MSG_TYPE_IMAGE) {
-            holder.setTvMessage("[Picture]");
-        } else if (model.messageType == Constant.MSG_TYPE_VOICE) {
-            holder.setTvMessage("[Voice]");
-        } else if (model.messageType == Constant.MSG_TYPE_GAME) {
-            holder.setTvMessage("[Game]");
-        }
-        if(!ServiceManager.getInstance().getCurrentReadStatus(model.readStatuses)){
-            holder.setReadStatus(false);
-        } else {
-            holder.setReadStatus(true);
-        }
-        holder.setEditMode(isEditMode);
-        if (selectConversations.contains(model)) {
-            holder.setSelect(true);
-        } else {
-            holder.setSelect(false);
-        }
-
-        if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            UiUtils.displayProfileImage(activity, holder.ivProfileImage, model.opponentUser);
-
-            holder.ivProfileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(activity, UserDetailActivity.class);
-                    intent.putExtra(Constant.START_ACTIVITY_USER_ID, model.opponentUser.key);
-                    activity.startActivity(intent);
-                }
-            });
-
-        } else {
-            holder.ivProfileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(activity, GroupProfileActivity.class);
-                    intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, model.groupID);
-                    activity.startActivity(intent);
-                }
-            });
-
-            UiUtils.displayProfileAvatar(holder.ivProfileImage, model.group.groupAvatar);
-        }
+        holder.bindData(model);
     }
 
     @Override
@@ -318,22 +262,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             rbSelect = (RadioButton) itemView.findViewById(R.id.message_item_select);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
-        }
-
-        public void setTvTime(String time) {
-            this.tvTime.setText(time);
-        }
-
-        public void setTvMessage(String message) {
-            this.tvMessage.setText(message);
-        }
-
-        public void setTvSender(String sender) {
-            this.tvSender.setText(sender);
-        }
-
-        public void setConversation(Conversation conversation) {
-            this.conversation = conversation;
         }
 
         public void setReadStatus(Boolean readStatus) {
@@ -396,6 +324,52 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 selectConversations.remove(conversation);
             }
             clickListener.onSelect(selectConversations);
+        }
+
+        public void bindData(Conversation model) {
+            this.conversation = model;
+            String conversationName = "";
+            if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                conversationName = model.opponentUser.getDisplayName();
+            } else {
+                conversationName = model.group.groupName;
+            }
+            this.tvSender.setText(conversationName);
+            this.tvTime.setText(CommonMethod.convertTimestampToTime(model.timesstamps));
+            String message = "";
+            if (model.messageType == Constant.MSG_TYPE_TEXT) {
+                if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
+                    message = ServiceManager.getInstance().encodeMessage(activity, model.message);
+                } else {
+                    message = model.message;
+                }
+            } else if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+                message = "[Picture]";
+            } else if (model.messageType == Constant.MSG_TYPE_VOICE) {
+                message = "[Voice]";
+            } else if (model.messageType == Constant.MSG_TYPE_GAME) {
+                message = "[Game]";
+            }
+            this.tvMessage.setText(message);
+            this.setReadStatus(ServiceManager.getInstance().getCurrentReadStatus(model.readStatuses));
+            this.setEditMode(isEditMode);
+            this.setSelect(selectConversations.contains(model));
+
+            if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                UiUtils.displayProfileImage(activity, ivProfileImage, model.opponentUser);
+                ivProfileImage.setOnClickListener(v -> {
+                    Intent intent = new Intent(activity, UserDetailActivity.class);
+                    intent.putExtra(Constant.START_ACTIVITY_USER_ID, model.opponentUser.key);
+                    activity.startActivity(intent);
+                });
+            } else {
+                ivProfileImage.setOnClickListener(v -> {
+                    Intent intent = new Intent(activity, GroupProfileActivity.class);
+                    intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, model.groupID);
+                    activity.startActivity(intent);
+                });
+                UiUtils.displayProfileAvatar(ivProfileImage, model.group.groupAvatar);
+            }
         }
     }
 }
