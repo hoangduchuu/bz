@@ -196,7 +196,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
             public void complete(Object error, Object... data) {
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
                 User user = ServiceManager.getInstance().getCurrentUser();
-                if (user.quickBloxID == null || user.quickBloxID == 0) {
+                if (user.quickBloxID <= 0 || user.quickBloxID <= 0) {
                     ServiceManager.getInstance().signUpNewUserQB();
                 } else {
                     ServiceManager.getInstance().signInQB();

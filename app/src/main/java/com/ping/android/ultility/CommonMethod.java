@@ -132,6 +132,13 @@ public class CommonMethod {
         return null;
     }
 
+    public static int getIntOf(Object object) {
+        if (object != null) {
+            return Integer.valueOf(object.toString());
+        }
+        return -1;
+    }
+
     public static long longValue(Object object, long defaultValue) {
         if (object != null) {
             return 1;

@@ -18,6 +18,7 @@ import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.UsersUtils;
@@ -142,7 +143,7 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
             } else {
                 currentSession.startCall(userInfo);
                 String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
-                ServiceManager.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
+                NotificationHelper.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
             }
             isMessageProcessed = true;
         }

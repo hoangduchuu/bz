@@ -48,11 +48,6 @@ import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
 import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.helper.StringifyArrayList;
-import com.quickblox.messages.QBPushNotifications;
-import com.quickblox.messages.model.QBEnvironment;
-import com.quickblox.messages.model.QBEvent;
-import com.quickblox.messages.model.QBEventType;
-import com.quickblox.messages.model.QBNotificationType;
 import com.quickblox.users.model.QBUser;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -279,7 +274,7 @@ public class ServiceManager {
         mDatabase.child("users").child(currentUser.key).child("profile").setValue(profile);
     }
 
-    public void updateQuickBlox(Long quickBloxID) {
+    public void updateQuickBlox(int quickBloxID) {
         currentUser.quickBloxID = quickBloxID;
         mDatabase.child("users").child(currentUser.key).child("quickBloxID").setValue(quickBloxID);
     }
@@ -868,6 +863,32 @@ public class ServiceManager {
         return returnMessage;
     }
 
+    public String encodeMessage(Map<String, String> mappings, String message) {
+        if (StringUtils.isEmpty(message))
+            return message;
+
+        String modifyMessage = message;
+        modifyMessage = StringUtils.stripAccents(modifyMessage.toUpperCase());
+
+        String returnMessage = "";
+        String[] chars = message.split("");
+        String[] modifyChars = modifyMessage.split("");
+        for (int i = 0; i < modifyChars.length; i++) {
+            Pattern p = Pattern.compile(emojiRegex);
+            if (p.matcher(chars[i]).matches()) {
+                returnMessage += chars[i];
+                continue;
+            }
+            String key = modifyChars[i];
+            if (mappings.containsKey(key) && !StringUtils.isEmpty(mappings.get(key))) {
+                returnMessage += mappings.get(key);
+            } else {
+                returnMessage += chars[i];
+            }
+        }
+        return returnMessage;
+    }
+
     public String replaceSpecialChar(Context context, String msg) {
         if (StringUtils.isEmpty(msg)) {
             return msg;
@@ -933,7 +954,7 @@ public class ServiceManager {
         requestExecutor.signUpNewUser(qbUser, new QBEntityCallback<QBUser>() {
                     @Override
                     public void onSuccess(QBUser result, Bundle params) {
-                        updateQuickBlox(result.getId().longValue());
+                        updateQuickBlox(result.getId());
                         qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
                         signInCreatedUser(qbUser, true);
                     }
@@ -961,7 +982,7 @@ public class ServiceManager {
         QBUser qbUser = new QBUser();
         StringifyArrayList<String> userTags = new StringifyArrayList<>();
         userTags.add(Constant.QB_PING_ROOM);
-        qbUser.setId(currentUser.quickBloxID.intValue());
+        qbUser.setId(currentUser.quickBloxID);
 //        qbUser.setFullName(currentUser.pingID);
 //        qbUser.setEmail(currentUser.email);
         qbUser.setLogin(currentUser.pingID);
@@ -1050,47 +1071,14 @@ public class ServiceManager {
 //        return null;
 //    }
 //
-    public User getUserByQBId(Integer ID) {
+    public User getUserByQBId(Integer qbID) {
 
         for (User user : allUsers) {
-            if (user.quickBloxID != null && user.quickBloxID.equals(ID.longValue())) {
+            if (user.quickBloxID > 0 && user.quickBloxID == qbID) {
                 return user;
             }
         }
         return null;
-    }
-
-    public void sendCallingNotificationToUser(int quickBloxId, String callType){
-        String messageData = String.format("%s is %s calling", ServiceManager.getInstance().currentUser.getDisplayName(), callType);
-        JsonObject object = new JsonObject();
-        object.addProperty("message", messageData);
-        object.addProperty("ios_badge", "1");
-        object.addProperty("ios_sound", "default");
-        object.addProperty("notificationType", "incoming_call");
-        QBEvent event = new QBEvent();
-        event.setNotificationType(QBNotificationType.PUSH);
-        event.addUserIds(quickBloxId);
-        //event.setUserId(quickBloxId);
-        event.setType(QBEventType.ONE_SHOT);
-        event.setMessage(object.toString());
-        //add more props
-        //event.setPushType(QBPushType.APNS);
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
-        QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
-            @Override
-            public void onSuccess(QBEvent qbEvent, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onError(QBResponseException e) {
-                Log.e(e);
-            }
-        });
-
-
-
-
     }
 }
 

@@ -36,7 +36,7 @@ public class LoadingActivity extends CoreActivity {
                 @Override
                 public void complete(Object error, Object... data) {
                     User currentUser = ServiceManager.getInstance().getCurrentUser();
-                    if (currentUser.quickBloxID == null || currentUser.quickBloxID == 0) {
+                    if (currentUser.quickBloxID <=0 || currentUser.quickBloxID <= 0) {
                         ServiceManager.getInstance().signUpNewUserQB();
                     } else {
                         ServiceManager.getInstance().loadQBUser();

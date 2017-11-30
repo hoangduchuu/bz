@@ -6,8 +6,8 @@ import android.util.Log;
 import com.ping.android.utils.ActivityLifecycle;
 import com.quickblox.messages.services.gcm.QBGcmPushListenerService;
 
-public abstract class CoreGcmPushListenerService extends QBGcmPushListenerService {
-    private static final String TAG = CoreGcmPushListenerService.class.getSimpleName();
+public abstract class PGcmPushListenerService extends QBGcmPushListenerService {
+    private static final String TAG = PGcmPushListenerService.class.getSimpleName();
 
     @Override
     public void sendPushMessage(Bundle data, String from, String message) {
@@ -20,5 +20,14 @@ public abstract class CoreGcmPushListenerService extends QBGcmPushListenerServic
         }
     }
 
-    protected abstract void showNotification(String message);
+    private static final int NOTIFICATION_ID = 1;
+
+    @Override
+    protected void showNotification(String message) {
+        Log.d("aaaaa")
+    }
+
+
+
+
 }

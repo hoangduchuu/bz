@@ -55,6 +55,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -902,12 +903,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         //Create fragment_message on Message by ConversationID was created before
         String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
+        message.key = messageKey;
         mDatabase.child("messages").child(conversationID).child(messageKey).setValue(message);
 
         for (User toUser : orginalConversation.members) {
             if (checkMessageBlocked(toUser)) continue;
             mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
         }
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
     private void onSendImage() {
@@ -1028,7 +1031,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + metadata.getPath();
                     Message message = Message.createAudioMessage(downloadUrl,
                             fromUser.key, fromUser.pingID, timestamp, getStatuses(), null, getMessageDeleteStatuses());
-
+                    message.key = messageKey;
                     Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                             downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
@@ -1040,6 +1043,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                         if (checkMessageBlocked(toUser)) continue;
                         mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
                     }
+                    NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
                 }
             }
         });
@@ -1144,6 +1148,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     message = Message.createGameMessage(downloadUrl,
                             fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
                 }
+                message.key = messageKey;
 
                 Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, downloadUrl,
                         orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
@@ -1156,6 +1161,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     if (checkMessageBlocked(toUser)) continue;
                     mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
                 }
+                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
             }
         });
     }
