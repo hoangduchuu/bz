@@ -85,9 +85,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public void addOrUpdate(Message message) {
         Boolean isAdd = true;
         for (int i = 0; i < displayMessages.size(); i++) {
-            if (displayMessages.get(i).key.equals(message.key)) {
-                isAdd = false;
-                break;
+            Message displayMessage = displayMessages.get(i);
+            if (displayMessage.messageType != Constant.MSG_TYPE_TYPING) {
+                if (displayMessages.get(i).key.equals(message.key)) {
+                    isAdd = false;
+                    break;
+                }
             }
         }
 
