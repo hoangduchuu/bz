@@ -363,7 +363,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                updateLoadMoreButtonStatus(pastVisibleItems == 0 && !isEndOfConvesation);
+                Log.d("pastVisibleItems " + pastVisibleItems);
+                updateLoadMoreButtonStatus(pastVisibleItems <= 3 && !isEndOfConvesation);
                 isScrollToTop = pastVisibleItems == 0;
             }
         });
@@ -1178,7 +1179,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         long status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
-            messageRepository.updateMessageStatus(message.key, orginalConversation.memberIDs, status);
+            messageRepository.updateMessageStatus(message.key, orginalConversation.members, status);
         }
     }
 

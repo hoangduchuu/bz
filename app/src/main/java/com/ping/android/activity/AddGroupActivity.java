@@ -312,6 +312,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
+                .setCrop(true)
                 .setCallback((error, data) -> {
                     if (error == null) {
                         groupProfileImage = (File) data[0];

@@ -2,7 +2,9 @@ package com.ping.android.service.firebase;
 
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.model.Message;
+import com.ping.android.model.User;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,9 +32,10 @@ public class MessageRepository extends BaseFirebaseDatabase {
         databaseReference.child(key).updateChildren(message.toMap());
     }
 
-    public void updateMessageStatus(String key, Map<String, Boolean> memberIDs, long status) {
-        for (String userId : memberIDs.keySet()) {
-            databaseReference.child(key).child("status").child(userId).setValue(status);
+    public void updateMessageStatus(String key, List<User> members, long status) {
+        if (members == null) return;
+        for (User user : members) {
+            databaseReference.child(key).child("status").child(user.key).setValue(status);
         }
     }
 }
