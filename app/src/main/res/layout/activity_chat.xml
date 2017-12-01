@@ -139,27 +139,30 @@
                     style="@style/ActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:button="@null"
                     android:checked="true"
-                    android:drawableLeft="@drawable/toggle_mask_msg"
-                    android:gravity="center"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:drawableStart="@drawable/toggle_mask_msg"
+                    android:padding="10dp"/>
 
                 <com.vanniktech.emoji.EmojiEditText
-                android:id="@+id/chat_message_tv"
+                    android:id="@+id/chat_message_tv"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="New Message"
-                    android:inputType="textCapSentences"
-                    android:textSize="@dimen/text_size_medium" />
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:scrollHorizontally="false"
+                    android:maxLines="5"
+                    android:textSize="@dimen/text_size_medium"
+                    tools:text=""/>
 
                 <Button
                     android:id="@+id/chat_send_message_btn"
                     style="@style/ActionButton"
-                    android:layout_centerVertical="true"
+                    android:layout_gravity="bottom"
                     android:text="Send"
                     android:textAllCaps="true" />
 
