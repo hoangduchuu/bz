@@ -3,6 +3,8 @@ package com.ping.android.service.firebase;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.model.Message;
 
+import java.util.Map;
+
 /**
  * Created by tuanluong on 11/29/17.
  */
@@ -26,5 +28,11 @@ public class MessageRepository extends BaseFirebaseDatabase {
 
     public void updateMessage(String key, Message message) {
         databaseReference.child(key).updateChildren(message.toMap());
+    }
+
+    public void updateMessageStatus(String key, Map<String, Boolean> memberIDs, long status) {
+        for (String userId : memberIDs.keySet()) {
+            databaseReference.child(key).child("status").child(userId).setValue(status);
+        }
     }
 }

@@ -1,5 +1,8 @@
 package com.ping.android.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -16,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class User {
+public class User implements Parcelable {
 
     public String key;
     public String firstName;
@@ -79,6 +82,39 @@ public class User {
         this.settings = ServiceManager.getInstance().getDefaultSetting();
     }
 
+    protected User(Parcel in) {
+        key = in.readString();
+        firstName = in.readString();
+        lastName = in.readString();
+        pingID = in.readString();
+        if (in.readByte() == 0) {
+            quickBloxID = null;
+        } else {
+            quickBloxID = in.readLong();
+        }
+        password = in.readString();
+        email = in.readString();
+        phone = in.readString();
+        profile = in.readString();
+        byte tmpLoginStatus = in.readByte();
+        loginStatus = tmpLoginStatus == 0 ? null : tmpLoginStatus == 1;
+        byte tmpShowMappingConfirm = in.readByte();
+        showMappingConfirm = tmpShowMappingConfirm == 0 ? null : tmpShowMappingConfirm == 1;
+        friendList = in.createTypedArrayList(User.CREATOR);
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -139,5 +175,31 @@ public class User {
         this.blocks = user.blocks;
 
         initFriendList();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(key);
+        parcel.writeString(firstName);
+        parcel.writeString(lastName);
+        parcel.writeString(pingID);
+        if (quickBloxID == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeLong(quickBloxID);
+        }
+        parcel.writeString(password);
+        parcel.writeString(email);
+        parcel.writeString(phone);
+        parcel.writeString(profile);
+        parcel.writeByte((byte) (loginStatus == null ? 0 : loginStatus ? 1 : 2));
+        parcel.writeByte((byte) (showMappingConfirm == null ? 0 : showMappingConfirm ? 1 : 2));
+        parcel.writeTypedList(friendList);
     }
 }

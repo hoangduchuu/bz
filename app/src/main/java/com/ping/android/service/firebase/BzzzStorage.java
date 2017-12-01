@@ -3,9 +3,14 @@ package com.ping.android.service.firebase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.ping.android.model.Conversation;
+import com.ping.android.model.Message;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 
@@ -49,5 +54,24 @@ public class BzzzStorage {
             String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
             callback.complete(null, downloadUrl);
         });
+    }
+
+    public void uploadFile(String storagePath, File file, @NonNull Callback callback) {
+        StorageReference reference = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(storagePath);
+        UploadTask uploadTask = reference.putFile(Uri.fromFile(file));
+        uploadTask
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    callback.complete(e);
+                })
+                .addOnSuccessListener(taskSnapshot -> {
+                    StorageMetadata metadata = taskSnapshot.getMetadata();
+                    if (metadata != null) {
+                        String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + metadata.getPath();
+                        callback.complete(null, downloadUrl);
+                    } else {
+                        callback.complete(new Error());
+                    }
+                });
     }
 }
