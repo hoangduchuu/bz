@@ -620,10 +620,35 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
-        messageRepository.getDatabaseReference()
-                .orderByChild("timestamp")
+        // Load data for first time
+        messageRepository.getDatabaseReference().orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES)
-                .addChildEventListener(observeChatEvent);
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                processAddChild(child);
+                            }
+                        }
+
+                        if (dataSnapshot.getChildrenCount() < Constant.LATEST_RECENT_MESSAGES) {
+                            isEndOfConvesation = true;
+                            updateLoadMoreButtonStatus(false);
+                        }
+
+                        // Listen for data changes
+                        messageRepository.getDatabaseReference()
+                                .orderByChild("timestamp")
+                                .limitToLast(Constant.LATEST_RECENT_MESSAGES)
+                                .addChildEventListener(observeChatEvent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
     }
