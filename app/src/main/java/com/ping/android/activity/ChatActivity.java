@@ -450,13 +450,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         mDatabase = database.getReference();
         storage = FirebaseStorage.getInstance();
 
-        fromUserID = auth.getCurrentUser().getUid();
-
         RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         messages = new ArrayList<>();
         fromUser = ServiceManager.getInstance().getCurrentUser();
+        fromUserID = fromUser.key;
 
         initConversationData();
 
@@ -763,12 +762,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
         if (isEditAllMode) {
             btDelete.setEnabled(false);
-            btMask.setText("MASK ALL");
-            btUnMask.setText("UNMASK ALL");
+            btMask.setText(R.string.chat_mark_all);
+            btUnMask.setText(R.string.chat_unmark_all);
         } else {
             btDelete.setEnabled(true);
-            btMask.setText("MASK");
-            btUnMask.setText("UNMASK");
+            btMask.setText(R.string.chat_mark);
+            btUnMask.setText(R.string.chat_unmark);
         }
     }
 
@@ -894,7 +893,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
-        String messageKey = messageRepository.generateMessageKey();
+        String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
 
         // Update conversations
@@ -1180,7 +1179,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
-        String messageKey = messageRepository.generateMessageKey();
+        String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
         if (msgType == Constant.MSG_TYPE_IMAGE) {

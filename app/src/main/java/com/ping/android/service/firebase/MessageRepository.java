@@ -24,10 +24,6 @@ public class MessageRepository extends BaseFirebaseDatabase {
         return repository;
     }
 
-    public String generateMessageKey() {
-        return databaseReference.push().getKey();
-    }
-
     public void updateMessage(String key, Message message) {
         databaseReference.child(key).updateChildren(message.toMap());
     }

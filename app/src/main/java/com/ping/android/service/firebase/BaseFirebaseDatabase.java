@@ -28,7 +28,15 @@ public abstract class BaseFirebaseDatabase {
         initializeReference(database);
     }
 
+    protected String currentUserId() {
+        return auth.getCurrentUser().getUid();
+    }
+
     protected abstract void initializeReference(FirebaseDatabase database);
+
+    public String generateKey() {
+        return databaseReference.push().getKey();
+    }
 
     public void updateBatchData(@NonNull Map<String, Object> data, Callback callback) {
         database.getReference().updateChildren(data)

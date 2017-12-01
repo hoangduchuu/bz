@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,41 +14,32 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.ping.android.activity.AddGroupActivity;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.GroupAdapter;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.ConversationRepository;
+import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GroupFragment extends Fragment implements View.OnClickListener, GroupAdapter.ClickListener {
-
-    private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-
     private RelativeLayout bottomMenu;
     private RecyclerView listGroup;
     private LinearLayoutManager linearLayoutManager;
@@ -58,11 +50,16 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     private GroupAdapter adapter;
     private boolean loadData, loadGUI, isEditMode;
 
+    private ConversationRepository conversationRepository;
+    private GroupRepository groupRepository;
+
     private ChildEventListener groupListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        conversationRepository = new ConversationRepository();
+        groupRepository = new GroupRepository();
         ServiceManager.getInstance().initUserData(new Callback() {
             @Override
             public void complete(Object error, Object... data) {
@@ -137,10 +134,6 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void init() {
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
         currentUser = ServiceManager.getInstance().getCurrentUser();
         adapter = new GroupAdapter(getContext(), this);
         getGroup();
@@ -273,13 +266,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
 
     @Override
     public void onSendMessage(Group group) {
-        if (StringUtils.isEmpty(group.conversationID)) {
-            ServiceManager.getInstance().createConversationForGroupChat(currentUser.key, group, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    group.conversationID = data[0].toString();
-                    sendMessage(group);
-                }
+        if (TextUtils.isEmpty(group.conversationID)) {
+            Conversation conversation = Conversation.createNewGroupConversation(currentUser.key, group);
+            String conversationKey = conversationRepository.generateKey();
+            conversation.key = conversationKey;
+            conversationRepository.createConversation(conversationKey, conversation, (error, data) -> {
+                groupRepository.updateConversationId(group, conversationKey);
+                group.conversationID = conversationKey;
+                sendMessage(group);
             });
         } else {
             sendMessage(group);

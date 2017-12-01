@@ -826,18 +826,6 @@ public class ServiceManager {
         });
     }
 
-    public void createConversationForGroupChat(String fromUserId, Group group, Callback completion) {
-        Conversation conversation = Conversation.createNewGroupConversation(fromUserId, group);
-        String conversationKey = mDatabase.child("conversations").push().getKey();
-        mDatabase.child("conversations").child(conversationKey).setValue(conversation);
-        mDatabase.child("groups").child(group.key).child("conversationID").setValue(conversationKey);
-        for (String userKey : group.memberIDs.keySet()) {
-            mDatabase.child("users").child(userKey).child("groups").child(group.key).child("conversationID").setValue(conversationKey);
-            mDatabase.child("users").child(userKey).child("conversations").child(conversationKey).setValue(conversation);
-        }
-        completion.complete(null, conversationKey);
-    }
-
     public String encodeMessage(Context context, String message) {
         if (StringUtils.isEmpty(message))
             return message;
