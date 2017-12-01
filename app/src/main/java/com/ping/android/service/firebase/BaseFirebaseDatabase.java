@@ -6,8 +6,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.ultility.Callback;
 
 import java.util.Map;
@@ -28,24 +30,30 @@ public abstract class BaseFirebaseDatabase {
         initializeReference(database);
     }
 
+    public DatabaseReference getDatabaseReference() {
+        return databaseReference;
+    }
+
+    protected String currentUserId() {
+        return auth.getCurrentUser().getUid();
+    }
+
     protected abstract void initializeReference(FirebaseDatabase database);
+
+    public String generateKey() {
+        return databaseReference.push().getKey();
+    }
 
     public void updateBatchData(@NonNull Map<String, Object> data, Callback callback) {
         database.getReference().updateChildren(data)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (callback != null) {
-                            callback.complete(null, "Update successfully");
-                        }
+                .addOnCompleteListener(task -> {
+                    if (callback != null) {
+                        callback.complete(null, "Update successfully");
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (callback != null) {
-                            callback.complete(e);
-                        }
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.complete(e);
                     }
                 });
     }

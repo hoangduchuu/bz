@@ -1,0 +1,69 @@
+package com.ping.android.service.firebase;
+
+import com.google.firebase.database.FirebaseDatabase;
+import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.Callback;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by tuanluong on 12/1/17.
+ */
+
+public class ConversationRepository extends BaseFirebaseDatabase {
+    @Override
+    protected void initializeReference(FirebaseDatabase database) {
+        databaseReference = database.getReference().child("conversations");
+    }
+
+    public void createConversation(String key, Conversation conversation, Callback callback) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s", key), conversation.toMap());
+        for (String userKey : conversation.memberIDs.keySet()) {
+            updateValue.put(String.format("users/%s/conversations/%s", userKey, key), conversation.toMap());
+        }
+        updateBatchData(updateValue, callback);
+    }
+
+    public void updateUserReadStatus(String conversationID, String userId, boolean value) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/readStatuses/%s", conversationID, userId), value);
+        updateValue.put(String.format("users/%s/conversations/%s/readStatuses/%s", userId, conversationID, userId), value);
+        updateBatchData(updateValue, null);
+    }
+
+    public void updateTypingIndicatorForUser(String conversationId, String userId, boolean typing) {
+        databaseReference.child(conversationId).child("typingIndicator").child(userId).setValue(typing);
+    }
+
+    public void updateConversation(String conversationID, Conversation conversation, String senderId) {
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
+        // Update message for conversation for each user
+        for (User toUser : conversation.members) {
+            if (checkMessageBlocked(toUser, senderId)) continue;
+            updateData.put(String.format("users/%s/conversations/%s", toUser.key, conversationID), conversation.toMap());
+        }
+        updateBatchData(updateData, null);
+    }
+
+    private boolean checkMessageBlocked(User toUser, String senderId) {
+        boolean isBlocked = false;
+
+        if (!toUser.key.equals(senderId) && isBlockBy(toUser, senderId)) {
+            isBlocked = true;
+        }
+        return isBlocked;
+    }
+
+    private boolean isBlockBy(User contact, String senderId) {
+        boolean isBlocked = false;
+        if (contact != null && contact.blocks != null && contact.blocks.containsKey(senderId)) {
+            isBlocked = contact.blocks.get(senderId);
+        }
+        return isBlocked;
+    }
+}

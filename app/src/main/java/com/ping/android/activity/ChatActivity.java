@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,20 +30,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageMetadata;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -53,7 +42,9 @@ import com.ping.android.model.User;
 import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
+import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.MessageRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -74,14 +65,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
-
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private final int REPEAT_INTERVAL = 40;
-    private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-    private FirebaseStorage storage;
+
+    public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
 
     //Views UI
     private RecyclerView recycleChatView;
@@ -121,6 +108,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private ImagePickerHelper imagePickerHelper;
     private BzzzStorage bzzzStorage;
     private MessageRepository messageRepository;
+    private ConversationRepository conversationRepository;
+    private UserRepository userRepository;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
@@ -155,7 +144,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            orginalConversation = bundle.getParcelable(CONVERSATION_KEY);
+        }
+
         init();
+        if (orginalConversation != null) {
+            startChat();
+        } else {
+            initConversationData();
+        }
     }
 
     @Override
@@ -171,7 +171,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount);
         prefs.registerOnSharedPreferenceChangeListener(listener);
-        initConversationData();
+        //initConversationData();
     }
 
     @Override
@@ -204,12 +204,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDatabase.child("messages").child(conversationID).removeEventListener(observeChatEvent);
+        messageRepository.getDatabaseReference().removeEventListener(observeChatEvent);
         if (orginalConversation != null && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            mDatabase.child("users").child(orginalConversation.opponentUser.key).child("loginStatus").removeEventListener(observeStatusEvent);
+            userRepository.getDatabaseReference().child(orginalConversation.opponentUser.key)
+                    .child("loginStatus").removeEventListener(observeStatusEvent);
         }
 
-        mDatabase.child("conversations").child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
+        conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
     }
 
     @Override
@@ -320,13 +321,32 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    private boolean isPermissionGrant() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-    }
+    private void initConversationData() {
+        conversationRepository.getDatabaseReference().child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                orginalConversation = Conversation.from(dataSnapshot);
+                ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
+                    @Override
+                    public void complete(Object error, Object... data) {
+                        orginalConversation.members = (List<User>) data[0];
+                        for (User user : orginalConversation.members) {
+                            if (!user.key.equals(fromUserID)) {
+                                orginalConversation.opponentUser = user;
+                                if (adapter != null)
+                                    adapter.setOrginalConversation(orginalConversation);
+                                break;
+                            }
+                        }
+                    }
+                });
+                startChat();
+            }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void requestPermission() {
-        this.requestPermissions(new String[] { android.Manifest.permission.READ_EXTERNAL_STORAGE }, 123);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
     private void bindViews() {
@@ -343,7 +363,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                updateLoadMoreButtonStatus(pastVisibleItems == 0 && !isEndOfConvesation);
+                Log.d("pastVisibleItems " + pastVisibleItems);
+                updateLoadMoreButtonStatus(pastVisibleItems <= 3 && !isEndOfConvesation);
                 isScrollToTop = pastVisibleItems == 0;
             }
         });
@@ -415,8 +436,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void loadMoreChats() {
-        mDatabase.child("messages")
-                .child(conversationID)
+        messageRepository.getDatabaseReference()
                 .orderByChild("timestamp")
                 .endAt(getLatestMessageTimeStamp())
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
@@ -445,20 +465,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void init() {
         bzzzStorage = new BzzzStorage();
         messageRepository = MessageRepository.from(conversationID);
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        storage = FirebaseStorage.getInstance();
-
-        fromUserID = auth.getCurrentUser().getUid();
+        conversationRepository = new ConversationRepository();
+        userRepository = new UserRepository();
 
         RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         messages = new ArrayList<>();
         fromUser = ServiceManager.getInstance().getCurrentUser();
-
-        initConversationData();
+        fromUserID = fromUser.key;
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -569,34 +584,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    private void initConversationData() {
-        mDatabase.child("users").child(fromUserID).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                orginalConversation = Conversation.from(dataSnapshot);
-                ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        orginalConversation.members = (List<User>) data[0];
-                        for (User user : orginalConversation.members) {
-                            if (!user.key.equals(fromUserID)) {
-                                orginalConversation.opponentUser = user;
-                                if (adapter != null)
-                                    adapter.setOrginalConversation(orginalConversation);
-                                break;
-                            }
-                        }
-                    }
-                });
-                startChat();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
     private void startChat() {
         observeChats();
         observeStatus();
@@ -629,25 +616,29 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeChats() {
-        adapter = new ChatAdapter(conversationID, auth.getCurrentUser().getUid(), messages, this, this);
+        adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
-        mDatabase.child("messages").child(conversationID).orderByChild("timestamp").limitToLast(Constant.LATEST_RECENT_MESSAGES).addChildEventListener(observeChatEvent);
+        messageRepository.getDatabaseReference()
+                .orderByChild("timestamp")
+                .limitToLast(Constant.LATEST_RECENT_MESSAGES)
+                .addChildEventListener(observeChatEvent);
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
     }
 
     private void observeStatus() {
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            mDatabase.child("users").child(orginalConversation.opponentUser.key).child("loginStatus").addValueEventListener(observeStatusEvent);
+            userRepository.getDatabaseReference().child(orginalConversation.opponentUser.key)
+                    .child("loginStatus").addValueEventListener(observeStatusEvent);
         } else {
             tvChatStatus.setVisibility(View.GONE);
         }
     }
 
     private void observeTyping() {
-        mDatabase.child("conversations").child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
+        conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
     }
 
     private void notifyTyping() {
@@ -763,12 +754,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
         if (isEditAllMode) {
             btDelete.setEnabled(false);
-            btMask.setText("MASK ALL");
-            btUnMask.setText("UNMASK ALL");
+            btMask.setText(R.string.chat_mark_all);
+            btUnMask.setText(R.string.chat_unmark_all);
         } else {
             btDelete.setEnabled(true);
-            btMask.setText("MASK");
-            btUnMask.setText("UNMASK");
+            btMask.setText(R.string.chat_mark);
+            btUnMask.setText(R.string.chat_unmark);
         }
     }
 
@@ -894,7 +885,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
-        String messageKey = messageRepository.generateMessageKey();
+        String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
 
         // Update conversations
@@ -931,11 +922,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSendImage() {
-
-        if(!isPermissionGrant()){
-            requestPermission();
-            return;
-        }
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
@@ -1047,24 +1033,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         double timestamp = System.currentTimeMillis() / 1000L;
 
-        //Create fragment_message on Message by ConversationID was created before
-        String messageKey = mDatabase.child("messages").child(conversationID).push().getKey();
-
         File audioFile = new File(currentOutFile);
         String audioName = audioFile.getName();
         String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(pathAudio);
-        UploadTask uploadTask = photoRef.putFile(Uri.fromFile(audioFile));
-        uploadTask.addOnFailureListener(new OnFailureListener() {
+        bzzzStorage.uploadFile(pathAudio, audioFile, new Callback() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                StorageMetadata metadata = taskSnapshot.getMetadata();
-                if (metadata != null) {
-                    String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + metadata.getPath();
+            public void complete(Object error, Object... data) {
+                if (error == null) {
+                    String downloadUrl = (String) data[0];
                     Message message = Message.createAudioMessage(downloadUrl,
                             fromUser.key, fromUser.pingID, timestamp, getStatuses(), null, getMessageDeleteStatuses());
 
@@ -1072,17 +1048,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                             downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
 
+                    String messageKey = messageRepository.generateKey();
                     //Create or Update Conversation
-                    mDatabase.child("conversations").child(conversationID).updateChildren(conversation.toMap());
-                    mDatabase.child("messages").child(conversationID).child(messageKey).updateChildren(message.toMap());
-                    for (User toUser : orginalConversation.members) {
-                        if (checkMessageBlocked(toUser)) continue;
-                        mDatabase.child("users").child(toUser.key).child("conversations").child(conversationID).updateChildren(conversation.toMap());
-                    }
+                    messageRepository.updateMessage(messageKey, message);
+                    conversationRepository.updateConversation(conversationID, conversation, fromUserID);
                 }
             }
         });
-
         //btSendRecord.setEnabled(false);
         visualizerView.clear();
         setRecordMode(false);
@@ -1180,7 +1152,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
-        String messageKey = messageRepository.generateMessageKey();
+        String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
         if (msgType == Constant.MSG_TYPE_IMAGE) {
@@ -1196,33 +1168,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
 
         //Create or Update Conversation
-        Map<String, Object> conversationUpdateData = new HashMap<>();
-        conversationUpdateData.put("conversations/" + conversationID, conversation.toMap());
         messageRepository.updateMessage(messageKey, message);
-        for (User toUser : orginalConversation.members) {
-            if (checkMessageBlocked(toUser)) continue;
-            conversationUpdateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
-        }
-        messageRepository.updateBatchData(conversationUpdateData, (error, data) -> {
-            if (error != null) {
-                if (error instanceof Exception) {
-                    ((Exception) error).printStackTrace();
-                }
-            }
-        });
+        conversationRepository.updateConversation(conversationID, conversation, fromUserID);
     }
 
     private void updateMessageStatus(Message message) {
         if (message.senderId.equals(fromUserID)) {
             return;
         }
-        Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+        long status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
-            for (String userId : orginalConversation.memberIDs.keySet()) {
-                mDatabase.child("messages").child(conversationID).child(message.key).child("status").
-                        child(userId).setValue(status);
-            }
+            messageRepository.updateMessageStatus(message.key, orginalConversation.members, status);
         }
     }
 
@@ -1233,8 +1190,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (!visibleStatus) {
             return;
         }
-        mDatabase.child("conversations").child(conversationID).child("readStatuses").child(fromUser.key).setValue(true);
-        mDatabase.child("users").child(fromUser.key).child("conversations").child(conversationID).child("readStatuses").child(fromUser.key).setValue(true);
+        conversationRepository.updateUserReadStatus(conversationID, fromUser.key, true);
     }
 
     private void updateMessageMarkStatus(Message message) {
@@ -1249,11 +1205,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView.scrollToPosition(adapter.getItemCount() - 1);
     }
 
-    private void updateConversationTyping(Boolean typing) {
+    private void updateConversationTyping(boolean typing) {
         if (CollectionUtils.isEmpty(messages)) {
             return;
         }
-        mDatabase.child("conversations").child(conversationID).child("typingIndicator").child(fromUserID).setValue(typing);
+        conversationRepository.updateTypingIndicatorForUser(conversationID, fromUserID, typing);
     }
 
     private boolean checkBlocked() {

@@ -1,13 +1,10 @@
 package com.ping.android.activity;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,16 +15,16 @@ import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.ContactAutoCompleteAdapter;
 import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.fragment.LoadingDialog;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
+import com.ping.android.service.firebase.BzzzStorage;
+import com.ping.android.service.firebase.ConversationRepository;
+import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
@@ -54,6 +51,9 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     private TextWatcher textWatcher;
 
+    private BzzzStorage bzzzStorage;
+    private GroupRepository groupRepository;
+    private ConversationRepository conversationRepository;
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage = null;
 
@@ -108,6 +108,9 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void init() {
+        bzzzStorage = new BzzzStorage();
+        groupRepository = new GroupRepository();
+        conversationRepository = new ConversationRepository();
         fromUser = ServiceManager.getInstance().getCurrentUser();
         allUsers = ServiceManager.getInstance().getAllUsers();
         ContactAutoCompleteAdapter autoCompleteAdapter = new ContactAutoCompleteAdapter(this, R.layout.item_auto_complete_contact, fromUser.friendList);
@@ -250,19 +253,16 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
         toUsers.add(fromUser);
         toUserID.add(fromUser.key);
-        String groupKey = ServiceManager.getInstance().getGroupKey();
+        String groupKey = groupRepository.generateKey();
 
         showLoading();
         if (groupProfileImage != null) {
-            ServiceManager.getInstance().uploadGroupAvatar(groupKey, groupProfileImage, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    String profileImage = "";
-                    if (error == null) {
-                        profileImage = (String) data[0];
-                    }
-                    createGroup(toUsers, groupKey, msg, profileImage);
+            bzzzStorage.uploadGroupAvatar(groupKey, groupProfileImage, (error, data) -> {
+                String profileImage = "";
+                if (error == null) {
+                    profileImage = (String) data[0];
                 }
+                createGroup(toUsers, groupKey, msg, profileImage);
             });
         } else {
             createGroup(toUsers, groupKey, msg, "");
@@ -281,16 +281,21 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             group.memberIDs.put(user.key, true);
         }
         group.key = groupKey;
-        ServiceManager.getInstance().createGroup(group);
-        ServiceManager.getInstance().createConversationForGroupChat(fromUser.key, group, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error != null) {
-                    group.conversationID = data[0].toString();
-                    onSendMessage(group, msg);
-                }
+        groupRepository.createGroup(groupKey, group, (error, data) -> {
+            if (error == null) {
+                Conversation conversation = Conversation.createNewGroupConversation(fromUser.key, group);
+                String conversationKey = conversationRepository.generateKey();
+                conversation.key = conversationKey;
+                conversationRepository.createConversation(conversationKey, conversation, (error1, data1) -> {
+                    hideLoading();
+                    if (error1 == null) {
+                        groupRepository.updateConversationId(group, conversationKey);
+                        group.conversationID = conversationKey;
+                        onSendMessage(group, msg);
+                    }
+                });
+            } else {
                 hideLoading();
-                finish();
             }
         });
     }
@@ -307,6 +312,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
+                .setCrop(true)
                 .setCallback((error, data) -> {
                     if (error == null) {
                         groupProfileImage = (File) data[0];
@@ -336,6 +342,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         intent.putExtra("CONVERSATION_ID", group.conversationID);
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
+        finish();
     }
 
     DialogFragment loadingDialog;

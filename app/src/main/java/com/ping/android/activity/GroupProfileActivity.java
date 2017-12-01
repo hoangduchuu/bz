@@ -1,6 +1,5 @@
 package com.ping.android.activity;
 
-import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ping.android.adapter.GroupProfileAdapter;
@@ -19,6 +17,9 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.BzzzStorage;
+import com.ping.android.service.firebase.ConversationRepository;
+import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
@@ -47,6 +48,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private Conversation conversation;
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
+    private BzzzStorage bzzzStorage;
+    private GroupRepository groupRepository;
+    private ConversationRepository conversationRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +60,11 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         currentUser = ServiceManager.getInstance().getCurrentUser();
 
         bindViews();
+        bzzzStorage = new BzzzStorage();
+        groupRepository = new GroupRepository();
+        conversationRepository = new ConversationRepository();
 
-        ServiceManager.getInstance().getGroup(groupID, new Callback() {
+        groupRepository.loadGroup(groupID, new Callback() {
             @Override
             public void complete(Object error, Object... data) {
                 group = (Group) data[0];
@@ -73,11 +80,15 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void initConversationData() {
-        if (StringUtils.isEmpty(group.conversationID)) {
-            ServiceManager.getInstance().createConversationForGroupChat(currentUser.key, group, new Callback() {
+        if (TextUtils.isEmpty(group.conversationID)) {
+            Conversation conversation = Conversation.createNewGroupConversation(currentUser.key, group);
+            String conversationKey = conversationRepository.generateKey();
+            conversation.key = conversationKey;
+            conversationRepository.createConversation(conversationKey, conversation, new Callback() {
                 @Override
                 public void complete(Object error, Object... data) {
-                    group.conversationID = data[0].toString();
+                    groupRepository.updateConversationId(group, conversationKey);
+                    group.conversationID = conversationKey;
                     initConversationSetting();
                 }
             });
@@ -214,11 +225,12 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
+                .setCrop(true)
                 .setCallback((error, data) -> {
                     if (error == null) {
                         groupProfileImage = (File) data[0];
                         UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
-                        ServiceManager.getInstance().uploadGroupAvatar(groupID, groupProfileImage, new Callback() {
+                        bzzzStorage.uploadGroupAvatar(groupID, groupProfileImage, new Callback() {
                             @Override
                             public void complete(Object error, Object... data) {
                                 if (error == null) {

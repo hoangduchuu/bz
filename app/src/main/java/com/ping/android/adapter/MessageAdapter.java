@@ -3,6 +3,7 @@ package com.ping.android.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.support.transition.TransitionManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -295,8 +296,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 onClickEditMode(view);
                 return;
             }
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(ChatActivity.CONVERSATION_KEY, conversation);
             Intent intent = new Intent(activity, ChatActivity.class);
             intent.putExtra("CONVERSATION_ID", conversation.key);
+            intent.putExtras(bundle);
             activity.startActivity(intent);
         }
 
