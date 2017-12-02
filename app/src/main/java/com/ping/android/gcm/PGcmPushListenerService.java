@@ -22,12 +22,10 @@ public abstract class PGcmPushListenerService extends QBGcmPushListenerService {
 
     private static final int NOTIFICATION_ID = 1;
 
-    @Override
-    protected void showNotification(String message) {
-        Log.d("aaaaa")
+
+    public void showNotification(String message){
+        Log.e("ee", message);
     }
-
-
 
 
 }

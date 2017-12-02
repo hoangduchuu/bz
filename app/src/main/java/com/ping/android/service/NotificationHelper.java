@@ -22,6 +22,7 @@ import com.quickblox.messages.model.QBNotificationType;
 import com.quickblox.messages.model.QBSubscription;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by bzzz on 11/29/17.
@@ -32,14 +33,15 @@ public class NotificationHelper {
     private static NotificationHelper instance = new NotificationHelper();
     private static Context context;
 
-    private NotificationHelper(){
+    private NotificationHelper() {
 
     }
 
-    public static NotificationHelper getInstance(){
-        return  instance;
+    public static NotificationHelper getInstance() {
+        return instance;
     }
-    public void sendCallingNotificationToUser(int quickBloxId, String callType){
+
+    public void sendCallingNotificationToUser(int quickBloxId, String callType) {
         String messageData = String.format("%s is %s calling", ServiceManager.getInstance().getCurrentUser().getDisplayName(), callType);
         JsonObject object = new JsonObject();
         object.addProperty("message", messageData);
@@ -65,11 +67,11 @@ public class NotificationHelper {
         });
     }
 
-    public static void setContext(Context context){
+    public static void setContext(Context context) {
         NotificationHelper.context = context;
     }
 
-    public void sendNotificationForConversation(Conversation conversation, Message fmessage){
+    public void sendNotificationForConversation(Conversation conversation, Message fmessage) {
         QBEntityCallback<QBEvent> eventCallback = new QBEntityCallback<QBEvent>() {
             @Override
             public void onSuccess(QBEvent qbEvent, Bundle bundle) {
@@ -81,25 +83,25 @@ public class NotificationHelper {
                 Log.e(e);
             }
         };
-        for (User user :conversation.members){
-            if (user.quickBloxID > 0 && user.key != ServiceManager.getInstance().getCurrentUser().key){
-                if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)){
+        for (User user : conversation.members) {
+            if (user.quickBloxID > 0 && user.key != ServiceManager.getInstance().getCurrentUser().key) {
+                if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
                     continue;
                     //need to check notification enabled for this conversation also
                 }
                 //get incoming mask of target user
                 boolean incomingMask = false;
                 String body, senderName;
-                if (conversation.group != null){
+                if (conversation.group != null) {
                     senderName = String.format("%s to %s", user.getDisplayName(), conversation.group.groupName);
-                }else{
+                } else {
                     senderName = user.getDisplayName();
                 }
 
                 switch (conversation.messageType) {
                     case Constant.MSG_TYPE_TEXT:
-                        body = String.format("%s %s", senderName, incomingMask && user.mappings != null && user.mappings.size() > 0 ?
-                                ServiceManager.getInstance().encodeMessage(user.mappings, fmessage.message): fmessage.message);
+                        body = String.format("%s: %s", senderName, incomingMask && user.mappings != null && user.mappings.size() > 0 ?
+                                ServiceManager.getInstance().encodeMessage(user.mappings, fmessage.message) : fmessage.message);
                         break;
                     case Constant.MSG_TYPE_VOICE:
                         body = senderName + ": sent a voice message.";
@@ -115,8 +117,21 @@ public class NotificationHelper {
                 }
 
                 JsonObject object = new JsonObject();
-                object.addProperty("message", body);
+                JsonObject notifcation = new JsonObject();
+                JsonObject data = new JsonObject();
+
+
+                notifcation.addProperty("body", body);
+                notifcation.addProperty("title", "test title");
+                object.addProperty("notification", notifcation.toString());
+
+                data.addProperty("senderId", fmessage.senderId);
+                data.addProperty("senderName", fmessage.senderName);
+                object.addProperty("data", data.toString());
+
+
                 object.addProperty("ios_badge", "1");
+                object.addProperty("message", body);
                 object.addProperty("ios_sound", "default");
                 object.addProperty("ios_content_available", 1);
                 object.addProperty("notificationType", "incoming_message");
@@ -126,41 +141,18 @@ public class NotificationHelper {
                 object.addProperty("thumbUrl", fmessage.thumbUrl);
                 object.addProperty("audioUrl", fmessage.audioUrl);
                 object.addProperty("gameUrl", fmessage.gameUrl);
-                object.addProperty("message", fmessage.message);
                 object.addProperty("senderId", ServiceManager.getInstance().getCurrentUser().key);
-                object.addProperty("message_type", fmessage.messageType);
+                object.addProperty("messageType", fmessage.messageType);
                 QBEvent event = new QBEvent();
                 event.setNotificationType(QBNotificationType.PUSH);
                 event.addUserIds(user.quickBloxID);
                 event.setType(QBEventType.ONE_SHOT);
                 event.setMessage(object.toString());
                 event.setEnvironment(QBEnvironment.DEVELOPMENT);
+                //this notification will send to both android and ios
                 QBPushNotifications.createEvent(event).performAsync(eventCallback);
 
             }
         }
     }
-
-    //
-// Subscribe to Push Notifications
-//    public void subscribeToPushNotifications(Context context, String registrationID) {
-//        QBSubscription subscription = new QBSubscription(QBNotificationChannel.GCM);
-//        subscription.setEnvironment(QBEnvironment.DEVELOPMENT);
-//        //
-//        String deviceId;
-//        final TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(
-//                Context.TELEPHONY_SERVICE);
-//        if (mTelephony.getDeviceId() != null) {
-//            deviceId = mTelephony.getDeviceId(); //*** use for mobiles
-//        } else {
-//            deviceId = Settings.Secure.getString(context.getContentResolver(),
-//                    Settings.Secure.ANDROID_ID); //*** use for tablets
-//        }
-//        subscription.setDeviceUdid(deviceId);
-//        //
-//        subscription.setRegistrationID(registrationID);
-//        //
-//        QBPushNotifications.createSubscription(subscription);
-//    }
-
 }
