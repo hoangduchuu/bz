@@ -84,6 +84,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private Runnable showIncomingCallWindowTask;
     private Handler showIncomingCallWindowTaskHandler;
     private boolean closeByWifiStateAllow = true;
+    private RingtonePlayer ringtonePlayer;
     private String hangUpReason;
     private boolean isInCommingCall;
     private QBRTCClient rtcClient;
@@ -91,7 +92,6 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private ConnectionListener connectionListener;
     private boolean wifiEnabled = true;
     private SharedPreferences sharedPref;
-    private RingtonePlayer ringtonePlayer;
     //private LinearLayout connectionView;
     private AppRTCAudioManager audioManager;
     private NetworkConnectionChecker networkConnectionChecker;
@@ -205,6 +205,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         initWiFiManagerListener();
 
         ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
+
         //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
         checker = new PermissionsChecker(getApplicationContext());
 
