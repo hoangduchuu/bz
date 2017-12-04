@@ -46,8 +46,8 @@ public class Constant {
     public static final String QB_PING_ROOM = "mnb";
     public static final String QB_ACC_PASS = "QB_ACC_PASS";
 
-    public static final int LATEST_RECENT_MESSAGES = 10;
-    public static final int LOAD_MORE_MESSAGE_AMOUNT = 10;
+    public static final int LATEST_RECENT_MESSAGES = 50;
+    public static final int LOAD_MORE_MESSAGE_AMOUNT = 20;
 
     public enum TYPE_FRIEND {
         NON_FRIEND,
