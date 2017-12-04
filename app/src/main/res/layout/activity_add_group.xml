@@ -87,7 +87,6 @@
         </LinearLayout>
 
         <View
-            android:layout_marginTop="@dimen/default_padding"
             style="@style/horizontal_divider"/>
 
         <FrameLayout
@@ -111,8 +110,8 @@
             android:id="@+id/new_group_layout_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/main_background_gray"
-            android:padding="10dp"
+            android:background="@drawable/background_top_border_gray"
+            android:padding="7dp"
             android:orientation="horizontal">
 
             <EditText
