@@ -737,8 +737,10 @@ public class ServiceManager {
         }
         conversation.maskOutputs.put(currentUser.key, data);
         mDatabase.child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
-        for(String userID: conversation.memberIDs.keySet()) {
-            mDatabase.child("users").child(userID).child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
+        if (conversation.members != null) {
+            for (User user : conversation.members) {
+                mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
+            }
         }
     }
 
@@ -874,7 +876,7 @@ public class ServiceManager {
         return msg;
     }
 
-    public void updateMarkStatus(String conversationID, String messageID, Boolean markStatus) {
+    public void updateMarkStatus(String conversationID, String messageID, boolean markStatus) {
         mDatabase.child("messages").child(conversationID).child(messageID).child("markStatuses").child(currentUser.key).setValue(markStatus);
         mDatabase.child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
         mDatabase.child("users").child(currentUser.key).child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
@@ -888,12 +890,6 @@ public class ServiceManager {
     public void deleteMessage(String conversationID, List<Message> messages) {
         for (Message message : messages) {
             mDatabase.child("messages").child(conversationID).child(message.key).child("deleteStatuses").child(currentUser.key).setValue(true);
-        }
-    }
-
-    public void updateMessageMark(String conversationID, List<Message> messages, boolean mark) {
-        for (Message message : messages) {
-            mDatabase.child("messages").child(conversationID).child(message.key).child("markStatuses").child(currentUser.key).setValue(mark);
         }
     }
 

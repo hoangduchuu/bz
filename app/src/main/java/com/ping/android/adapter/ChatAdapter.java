@@ -145,6 +145,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
     public void showTyping(boolean show) {
+        if (isEditMode) return;
         int typingPosition = -1;
         for (int i = 0; i < displayMessages.size(); i++) {
             if (displayMessages.get(i).messageType == Constant.MSG_TYPE_TYPING) {
@@ -169,6 +170,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public List<Message> getSelectMessage() {
         return selectMessages;
+    }
+
+    public Message getLastMessage() {
+        if (displayMessages.size() > 2) {
+            return displayMessages.get(getItemCount() - 1);
+        }
+        return null;
     }
 
     @Override
@@ -306,6 +314,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public interface ClickListener {
         void onSelect(List<Message> selectMessages);
+
+        void onDoubleTap(Message message, boolean markStatus);
     }
 
     public static class TypingViewHolder extends RecyclerView.ViewHolder {
@@ -496,7 +506,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 text = ServiceManager.getInstance().encodeMessage(activity, text);
             }
             if (!TextUtils.isEmpty(conversationID)) {
-                ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
+                if (clickListener != null) {
+                    clickListener.onDoubleTap(message, markStatus);
+                }
+                //ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
             }
             tvText.setText(text);
         }

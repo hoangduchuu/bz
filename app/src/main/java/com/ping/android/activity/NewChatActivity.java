@@ -62,7 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NewChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
+public class NewChatActivity extends CoreActivity implements View.OnClickListener {
 
     private final String TAG = NewChatActivity.class.getSimpleName();
     private final int REPEAT_INTERVAL = 40;
@@ -164,10 +164,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }
     }
 
-    @Override
-    public void onSelect(List<Message> selectMessages) {
-    }
-
     private void init() {
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -186,7 +182,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void observeChats() {
-        adapter = new ChatAdapter(null, auth.getCurrentUser().getUid(), messages, this, this);
+        adapter = new ChatAdapter(null, auth.getCurrentUser().getUid(), messages, this, null);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
