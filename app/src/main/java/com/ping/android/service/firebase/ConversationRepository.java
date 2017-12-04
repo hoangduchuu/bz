@@ -1,6 +1,9 @@
 package com.ping.android.service.firebase;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -17,6 +20,28 @@ public class ConversationRepository extends BaseFirebaseDatabase {
     @Override
     protected void initializeReference(FirebaseDatabase database) {
         databaseReference = database.getReference().child("conversations");
+    }
+
+    public void getMaskOutput(String conversationId, String userId, Callback callback) {
+        databaseReference.child(conversationId).child("maskOutputs").child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null) {
+                    Boolean value = dataSnapshot.getValue(Boolean.class);
+                    if (value != null) {
+                        callback.complete(null, value);
+                    } else {
+                        callback.complete(new Error());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.complete(databaseError);
+            }
+        });
     }
 
     public void createConversation(String key, Conversation conversation, Callback callback) {

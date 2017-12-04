@@ -281,13 +281,13 @@
             <Button
                 android:id="@+id/chat_mask"
                 style="@style/ActionButton"
-                android:text="@string/chat_mark_all" />
+                android:text="@string/chat_mask_all" />
 
             <Button
                 android:id="@+id/chat_unmask"
                 style="@style/ActionButton"
                 android:layout_alignParentRight="true"
-                android:text="@string/chat_unmark_all" />
+                android:text="@string/chat_unmask_all" />
         </RelativeLayout>
     </LinearLayout>
 
