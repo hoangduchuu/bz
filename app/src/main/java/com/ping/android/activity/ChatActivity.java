@@ -1112,12 +1112,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     String downloadUrl = (String) data[0];
                     Message message = Message.createAudioMessage(downloadUrl,
                             fromUser.key, fromUser.pingID, timestamp, getStatuses(), null, getMessageDeleteStatuses());
-                    message.key = messageKey;
+
                     Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                             downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
                     conversation.members = orginalConversation.members;
                     String messageKey = messageRepository.generateKey();
+                    message.key = messageKey;
                     //Create or Update Conversation
                     messageRepository.updateMessage(messageKey, message);
                     conversationRepository.updateConversation(conversationID, conversation, fromUserID);

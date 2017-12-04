@@ -87,11 +87,8 @@ public class User implements Parcelable {
         firstName = in.readString();
         lastName = in.readString();
         pingID = in.readString();
-        if (in.readByte() == 0) {
-            quickBloxID = null;
-        } else {
-            quickBloxID = in.readLong();
-        }
+        quickBloxID = in.readInt();
+
         password = in.readString();
         email = in.readString();
         phone = in.readString();
@@ -188,12 +185,8 @@ public class User implements Parcelable {
         parcel.writeString(firstName);
         parcel.writeString(lastName);
         parcel.writeString(pingID);
-        if (quickBloxID == null) {
-            parcel.writeByte((byte) 0);
-        } else {
-            parcel.writeByte((byte) 1);
-            parcel.writeLong(quickBloxID);
-        }
+        parcel.writeInt(quickBloxID);
+
         parcel.writeString(password);
         parcel.writeString(email);
         parcel.writeString(phone);
