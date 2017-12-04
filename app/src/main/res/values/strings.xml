@@ -190,8 +190,8 @@
     <string name="forgot_password">Forgot Password?</string>
 
     <!-- Chat activity -->
-    <string name="chat_mark">MARK</string>
-    <string name="chat_unmark">UNMARK</string>
-    <string name="chat_mark_all">MARK ALL</string>
-    <string name="chat_unmark_all">UNMARK ALL</string>
+    <string name="chat_mask">MASK</string>
+    <string name="chat_unmask">UNMASK</string>
+    <string name="chat_mask_all">MASK ALL</string>
+    <string name="chat_unmask_all">UNMASK ALL</string>
 </resources>

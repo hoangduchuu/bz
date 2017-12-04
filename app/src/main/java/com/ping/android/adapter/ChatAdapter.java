@@ -32,7 +32,6 @@ import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
@@ -86,9 +85,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public void addOrUpdate(Message message) {
         Boolean isAdd = true;
         for (int i = 0; i < displayMessages.size(); i++) {
-            if (message.key.equals(displayMessages.get(i).key)) {
-                isAdd = false;
-                break;
+            Message displayMessage = displayMessages.get(i);
+            if (displayMessage.messageType != Constant.MSG_TYPE_TYPING) {
+                if (message.key.equals(displayMessages.get(i).key)) {
+                    isAdd = false;
+                    break;
+                }
             }
         }
 
@@ -150,6 +152,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
     public void showTyping(boolean show) {
+        if (isEditMode) return;
         int typingPosition = -1;
         for (int i = 0; i < displayMessages.size(); i++) {
             if (displayMessages.get(i).messageType == Constant.MSG_TYPE_TYPING) {
@@ -174,6 +177,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public List<Message> getSelectMessage() {
         return selectMessages;
+    }
+
+    public Message getLastMessage() {
+        if (displayMessages.size() > 2) {
+            return displayMessages.get(getItemCount() - 1);
+        }
+        return null;
     }
 
     @Override
@@ -326,6 +336,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public interface ClickListener {
         void onSelect(List<Message> selectMessages);
+
+        void onDoubleTap(Message message, boolean markStatus);
     }
 
     public static class TypingViewHolder extends RecyclerView.ViewHolder {
@@ -523,7 +535,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 text = ServiceManager.getInstance().encodeMessage(activity, text);
             }
             if (!TextUtils.isEmpty(conversationID)) {
-                ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
+                if (clickListener != null) {
+                    clickListener.onDoubleTap(message, markStatus);
+                }
+                //ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
             }
             tvText.setText(text);
         }

@@ -10,6 +10,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +29,8 @@ import com.ping.android.ultility.Constant;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,22 +104,39 @@ public class ImagePickerHelper {
         return imagePickerHelper;
     }
 
+    private Uri getUriFromFile(File file) {
+        Uri photoUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            photoUri = FileProvider.getUriForFile(getContext(),
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    file);
+            getContext().grantUriPermission("com.android.camera", photoUri,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            photoUri = Uri.fromFile(file);
+        }
+        return photoUri;
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constant.SELECT_IMAGE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = data.getData();
                 File file = getMediaFileFromUri(getContext(), selectedImageUri);
+                if (file == null) return;
+                Uri photoUri = getUriFromFile(file);
                 if (isCrop) {
-                    performCrop(file);
+                    performCrop(photoUri);
                 } else {
-                    tuningFinalImage(file);
+                    tuningFinalImage(photoUri, file.getName());
                 }
             }
         } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 File file = new File(getFilePath());
+                Uri photoUri = getUriFromFile(file);
                 if (file.exists()) {
-                    tuningFinalImage(file);
+                    tuningFinalImage(photoUri, file.getName());
                 }
             }
         } else if (requestCode == Constant.CROP_IMAGE_REQUEST) {
@@ -132,45 +153,36 @@ public class ImagePickerHelper {
         }
     }
 
-    private void tuningFinalImage(File file) {
+    private void tuningFinalImage(Uri photoUri, String fileName) {
         File selectedImage = null;
         File thumbnailFile = null;
-        String originFileName = file.getName();
         if (isScale) {
-            String filePath = getCacheFolder() + File.separator + originFileName;
-            Bitmap scaleBitmap = decodeSampledBitmap(file, MAX_DIMENSION, MAX_DIMENSION);
-            saveImage(filePath, scaleBitmap);
-            selectedImage = new File(filePath);
+            String filePath = getCacheFolder() + File.separator + fileName;
+            Bitmap scaleBitmap = decodeSampledBitmap(getContext(), photoUri, MAX_DIMENSION, MAX_DIMENSION);
+            if (scaleBitmap != null) {
+                saveImage(filePath, scaleBitmap);
+                selectedImage = new File(filePath);
+            }
         }
         if (isGenerateThumbnail) {
-            String filePath = getCacheFolder() + File.separator + "thumbnail_" + originFileName;
-            Bitmap thumbnail = decodeSampledBitmap(file, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
-            saveImage(filePath, thumbnail);
-            thumbnailFile = new File(filePath);
+            String filePath = getCacheFolder() + File.separator + "thumbnail_" + fileName;
+            Bitmap thumbnail = decodeSampledBitmap(getContext(), photoUri, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
+            if (thumbnail != null) {
+                saveImage(filePath, thumbnail);
+                thumbnailFile = new File(filePath);
+            }
         }
         if (callback != null) {
             callback.complete(null, selectedImage, thumbnailFile);
         }
     }
 
-    private void performCrop(File file) {
+    private void performCrop(Uri photoUri) {
         try {
-            if (file == null) {
-                return;
-            }
-            Uri photoURI;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                photoURI = FileProvider.getUriForFile(getContext(),
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        file);
-                getContext().grantUriPermission("com.android.camera", photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else {
-                photoURI = Uri.fromFile(file);
-            }
             //Start Crop Activity
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
 
-            cropIntent.setDataAndType(photoURI, "image/*");
+            cropIntent.setDataAndType(photoUri, "image/*");
             cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             cropIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             // set crop properties
@@ -220,7 +232,14 @@ public class ImagePickerHelper {
             return;
         }
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(getFilePath())));
+        Uri uri = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider",
+                    new File(getFilePath()));
+        } else {
+            uri = Uri.fromFile(new File(getFilePath()));
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         if (activity != null) {
             activity.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
         } else if (fragment != null) {
@@ -380,17 +399,26 @@ public class ImagePickerHelper {
         }
     }
 
-    public static Bitmap decodeSampledBitmap(File file, int reqWidth, int reqHeight) {
-        // Decode with inJustDecodeBounds = true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+    public static Bitmap decodeSampledBitmap(Context context, Uri photoUri, int reqWidth, int reqHeight) {
+        try {
+            // Decode with inJustDecodeBounds = true to check dimensions
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            InputStream imageStream = context.getContentResolver().openInputStream(photoUri);
+            BitmapFactory.decodeStream(imageStream, null, options);
+            imageStream.close();
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
-        // Decode bitmap with inSampleSize
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            // Decode bitmap with inSampleSize
+            options.inJustDecodeBounds = false;
+            imageStream = context.getContentResolver().openInputStream(photoUri);
+            Bitmap bitmap = BitmapFactory.decodeStream(imageStream, null, options);
+            return rotateImageIfRequired(context, bitmap, photoUri);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -423,6 +451,36 @@ public class ImagePickerHelper {
         Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
                 height, filter);
         return newBitmap;
+    }
+
+    private static Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+        InputStream input = context.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+        if (Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
+
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 
     // endregion
