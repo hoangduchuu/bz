@@ -189,4 +189,9 @@
     <string name="copyright">©2017 ver %s</string>
     <string name="forgot_password">Forgot Password?</string>
     <string name="sender_id">5791510531</string>
+    <!-- Chat activity -->
+    <string name="chat_mask">MASK</string>
+    <string name="chat_unmask">UNMASK</string>
+    <string name="chat_mask_all">MASK ALL</string>
+    <string name="chat_unmask_all">UNMASK ALL</string>
 </resources>

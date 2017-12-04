@@ -334,6 +334,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
+                .setCrop(true)
                 .setCallback((error, data) -> {
                     if (error == null) {
                         File imagePath = (File) data[0];

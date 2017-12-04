@@ -11,6 +11,7 @@ import android.widget.SearchView;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.model.User;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -324,5 +326,70 @@ public class CommonMethod {
         searchTextContent.setTextSize(15); //Set the text size
         searchTextContent.setGravity(Gravity.BOTTOM); //Set its gravity to bottom
     }
+
+//    public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses) {
+//        if (MapUtils.isEmpty(markStatuses) || !markStatuses.containsKey(currentUser.key)) {
+//            //TODO get current setting
+//            return false;
+//        }
+//        return markStatuses.get(currentUser.key);
+//    }
+//
+//    public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses, Map<String, Boolean> maskMessages) {
+//        if (MapUtils.isEmpty(markStatuses) || !markStatuses.containsKey(currentUser.key)) {
+//            return getMaskSetting(maskMessages);
+//        }
+//
+//        return markStatuses.get(currentUser.key);
+//    }
+//
+//    public Boolean getCurrentDeleteStatus(Map<String, Boolean> deleteStatuses) {
+//        if (MapUtils.isEmpty(deleteStatuses) || !deleteStatuses.containsKey(currentUser.key)) {
+//            return false;
+//        }
+//        return deleteStatuses.get(currentUser.key);
+//    }
+
+    public static boolean getCurrentReadStatus(String userId, Map<String, Boolean> readStatuses) {
+        if (MapUtils.isEmpty(readStatuses) || !readStatuses.containsKey(userId)) {
+            return false;
+        }
+        return readStatuses.get(userId);
+    }
+
+    public static long getCurrentStatus(String userId, Map<String, Long> statuses) {
+        if (MapUtils.isEmpty(statuses) || !statuses.containsKey(userId)) {
+            return Constant.MESSAGE_STATUS_SENT;
+        }
+        return statuses.get(userId);
+    }
+
+//    public Boolean getNotificationsSetting(Map<String, Boolean> notifications) {
+//        if (MapUtils.isEmpty(notifications) || !notifications.containsKey(currentUser.key)) {
+//            return currentUser.settings.notification;
+//        }
+//        return notifications.get(currentUser.key);
+//    }
+//
+//    public Boolean getMaskSetting(Map<String, Boolean> maskMessages) {
+//        if (MapUtils.isEmpty(maskMessages) || !maskMessages.containsKey(currentUser.key)) {
+//            return false;
+//        }
+//        return maskMessages.get(currentUser.key);
+//    }
+//
+//    public Boolean getPuzzleSetting(Map<String, Boolean> puzzleMessages) {
+//        if (MapUtils.isEmpty(puzzleMessages) || !puzzleMessages.containsKey(currentUser.key)) {
+//            return false;
+//        }
+//        return puzzleMessages.get(currentUser.key);
+//    }
+//
+//    public Boolean getMaskOutputSetting(Map<String, Boolean> maskOutputs) {
+//        if (MapUtils.isEmpty(maskOutputs) || !maskOutputs.containsKey(currentUser.key)) {
+//            return false;
+//        }
+//        return maskOutputs.get(currentUser.key);
+//    }
 
 }
