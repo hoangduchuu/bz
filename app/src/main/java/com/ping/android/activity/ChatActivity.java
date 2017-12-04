@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -55,6 +56,7 @@ import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -177,6 +179,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     protected void onResume() {
         super.onResume();
+        setButtonsState(0);
     }
 
     @Override
@@ -215,7 +218,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
+        int viewId = view.getId();
+
+        setButtonsState(viewId);
+        switch (viewId) {
             case R.id.chat_header_center:
             case R.id.chat_person_name:
                 onOpenProfile();
@@ -284,6 +290,20 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 isScrollToTop = true;
                 break;
         }
+    }
+
+    private void setButtonsState(int selectedViewId) {
+        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
+                , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
+        if (!ArrayUtils.contains(buttonIDs, selectedViewId) && selectedViewId != 0)
+        {
+            return;
+        }
+        for (int viewId: buttonIDs) {
+            ImageButton imageButton = findViewById(viewId);
+            imageButton.setSelected(viewId == selectedViewId);
+        }
+
     }
 
     @Override
@@ -700,6 +720,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
         edMessage.addTextChangedListener(textWatcher);
+        edMessage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                setButtonsState(R.id.chat_text_btn);
+                return false;
+            }
+        });
     }
 
     private void updateMessageCount(int messageCount) {
@@ -1058,6 +1085,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //btSendRecord.setEnabled(false);
         visualizerView.clear();
         setRecordMode(false);
+        //setButtonsState(0);
     }
 
     private void onVoiceCall() {
