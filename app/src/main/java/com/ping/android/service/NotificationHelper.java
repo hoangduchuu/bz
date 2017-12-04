@@ -87,7 +87,10 @@ public class NotificationHelper {
             if (user.quickBloxID > 0 && user.key != ServiceManager.getInstance().getCurrentUser().key) {
                 if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
                     continue;
-                    //need to check notification enabled for this conversation also
+                }
+                //check if target user enable notification
+                if (conversation.notifications == null || !conversation.notifications.containsKey(user.key) || !conversation.notifications.get(user.key)){
+                    continue;
                 }
                 //get incoming mask of target user
                 boolean incomingMask = false;
