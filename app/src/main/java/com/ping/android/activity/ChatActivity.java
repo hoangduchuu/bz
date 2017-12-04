@@ -1208,7 +1208,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             if (checkMessageBlocked(toUser)) continue;
             conversationUpdateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
-                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+
         messageRepository.updateBatchData(conversationUpdateData, (error, data) -> {
             if (error != null) {
                 if (error instanceof Exception) {
@@ -1216,6 +1216,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
             }
         });
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
     private void updateMessageStatus(Message message) {

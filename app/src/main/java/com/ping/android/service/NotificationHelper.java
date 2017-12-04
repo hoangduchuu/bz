@@ -137,7 +137,8 @@ public class NotificationHelper {
                 object.addProperty("notificationType", "incoming_message");
                 object.addProperty("timestamp", fmessage.timestamp);
                 object.addProperty("senderName", fmessage.senderName);
-                object.addProperty("senderName", fmessage.photoUrl);
+                object.addProperty("conversationId", conversation.key);
+                object.addProperty("photoUrl", fmessage.photoUrl);
                 object.addProperty("thumbUrl", fmessage.thumbUrl);
                 object.addProperty("audioUrl", fmessage.audioUrl);
                 object.addProperty("gameUrl", fmessage.gameUrl);
