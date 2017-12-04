@@ -30,7 +30,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
                     Conversation from = Conversation.from(dataSnapshot);
                     callback.complete(null, from);
                 } else {
-                    callback.complete(null, null);
+                    callback.complete(null);
                 }
             }
 
@@ -54,6 +54,13 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s/readStatuses/%s", conversationID, userId), value);
         updateValue.put(String.format("users/%s/conversations/%s/readStatuses/%s", userId, conversationID, userId), value);
+        updateBatchData(updateValue, null);
+    }
+
+    public void updateNotificationSetting(String conversationId, String userId, boolean value) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
+        updateValue.put(String.format("users/%s/conversations/%s/notifications/%s", userId, conversationId, userId), value);
         updateBatchData(updateValue, null);
     }
 
