@@ -314,6 +314,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         return displayMessages.get(position);
     }
 
+    public void appendHistoryItems(List<Message> messages) {
+        Collections.sort(messages, this);
+        Log.d("First: " + messages.get(0).timestamp);
+        Log.d("Last: " + messages.get(messages.size() - 1).timestamp);
+        int startIndex = displayMessages.size() > 1 ? 1 : 0;
+        int endIndex = messages.size();
+        displayMessages.addAll(startIndex, messages);
+        notifyItemRangeInserted(startIndex, endIndex);
+    }
+
     public interface ClickListener {
         void onSelect(List<Message> selectMessages);
     }

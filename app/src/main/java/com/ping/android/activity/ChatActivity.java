@@ -1,18 +1,13 @@
 package com.ping.android.activity;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -425,29 +420,46 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         onUpdateEditMode();
     }
 
-    private double getLatestMessageTimeStamp() {
+    private Message getLastMessage() {
         if (adapter == null || adapter.getItemCount() < 2) {
-            return 0;
+            return null;
         }
 
         // The first item is padding. So we should get item at pos 1
-        Message message = adapter.getItem(1);
+        return adapter.getItem(1);
+    }
 
-        return message == null ? 0 : message.timestamp;
+    private User getSender(String senderId) {
+        for (User user : orginalConversation.members) {
+            if (user.key.equals(senderId)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private void loadMoreChats() {
+        Message lastMessage = getLastMessage();
+        if (lastMessage == null) return;
         messageRepository.getDatabaseReference()
                 .orderByChild("timestamp")
-                .endAt(getLatestMessageTimeStamp())
+                .endAt(lastMessage.timestamp)
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getChildrenCount() > 0) {
+                            List<Message> messages = new ArrayList<>();
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                processAddChild(child);
+                                //processAddChild(child);
+                                Message message = Message.from(child);
+                                if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+                                    continue;
+                                }
+                                message.sender = getSender(message.senderId);
+                                messages.add(message);
                             }
+                            adapter.appendHistoryItems(messages);
                         }
 
                         if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
@@ -578,7 +590,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateMessageMarkStatus(message);
                     updateMessageStatus(message);
                     adapter.addOrUpdate(message);
-                    recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
+                    //recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
                     updateConversationReadStatus();
                 }
             }
@@ -889,7 +901,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSentMessage(String text) {
-        loadMoreChats();
+        //loadMoreChats();
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
