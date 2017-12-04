@@ -34,6 +34,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
@@ -957,10 +958,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         // Update conversations
         Map<String, Object> updateData = new HashMap<>();
         updateData.put("conversations/" + conversationID, conversation.toMap());
+        message.key = messageKey;
         for (User toUser : orginalConversation.members) {
             if (checkMessageBlocked(toUser)) continue;
             updateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
         }
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
         messageRepository.updateBatchData(updateData, null);
     }
 
@@ -1109,7 +1112,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     String downloadUrl = (String) data[0];
                     Message message = Message.createAudioMessage(downloadUrl,
                             fromUser.key, fromUser.pingID, timestamp, getStatuses(), null, getMessageDeleteStatuses());
-
+                    message.key = messageKey;
                     Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                             downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
@@ -1118,6 +1121,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     //Create or Update Conversation
                     messageRepository.updateMessage(messageKey, message);
                     conversationRepository.updateConversation(conversationID, conversation, fromUserID);
+                    NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
                 }
             }
         });
@@ -1228,6 +1232,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             message = Message.createGameMessage(imageUrl,
                     fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
         }
+                message.key = messageKey;
 
         Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
                 orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
@@ -1236,6 +1241,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);
+
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
     private void updateMessageStatus(Message message) {

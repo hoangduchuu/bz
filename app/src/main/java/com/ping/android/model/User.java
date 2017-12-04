@@ -25,7 +25,7 @@ public class User implements Parcelable {
     public String firstName;
     public String lastName;
     public String pingID;
-    public Long quickBloxID;
+    public int quickBloxID;
     public String password;
     public String email;
     public String phone;
@@ -46,7 +46,7 @@ public class User implements Parcelable {
         this.firstName = CommonMethod.getStringOf(dataSnapshot.child("first_name").getValue());
         this.lastName = CommonMethod.getStringOf(dataSnapshot.child("last_name").getValue());
         this.pingID = CommonMethod.getStringOf(dataSnapshot.child("ping_id").getValue());
-        this.quickBloxID = CommonMethod.getLongOf(dataSnapshot.child("quickBloxID").getValue());
+        this.quickBloxID = CommonMethod.getIntOf(dataSnapshot.child("quickBloxID").getValue());
         this.email = CommonMethod.getStringOf(dataSnapshot.child("email").getValue());
         this.password = CommonMethod.getStringOf(dataSnapshot.child("password").getValue());
         this.phone = CommonMethod.getStringOf(dataSnapshot.child("phone").getValue());

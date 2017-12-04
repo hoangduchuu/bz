@@ -120,6 +120,7 @@ public class Conversation implements Parcelable {
             this.maskMessages = originalConversation.maskMessages;
             this.puzzleMessages = originalConversation.puzzleMessages;
             this.maskOutputs = originalConversation.maskOutputs;
+            this.members = originalConversation.members;
         }
     }
 
