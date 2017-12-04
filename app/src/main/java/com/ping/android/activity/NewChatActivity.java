@@ -39,9 +39,12 @@ import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.adapter.ContactAutoCompleteAdapter;
 import com.ping.android.form.ToInfo;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.ConversationRepository;
+import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -94,6 +97,9 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     private MediaRecorder myAudioRecorder;
     private boolean isRecording;
     private RecorderVisualizerView visualizerView;
+
+    private ConversationRepository conversationRepository;
+    private GroupRepository groupRepository;
 
     private TextWatcher textWatcher;
     private Handler handler = new Handler(); // Handler for updating the visualizer
@@ -169,6 +175,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
+        conversationRepository = new ConversationRepository();
+        groupRepository = new GroupRepository();
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
@@ -407,22 +415,77 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (toInfos == null) {
             return;
         }
-        double timestamp = toInfos.get(0).timestamp;
-        Message displayMessage = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
-                timestamp, getStatuses(toInfos.get(0).toUser), getMessageMarkStatuses(toInfos.get(0).toUser),
-                getMessageDeleteStatuses(toInfos.get(0).toUser));
-        adapter.addMessage(displayMessage);
-        edMessage.setText(null);
-        for (ToInfo toInfo : toInfos) {
-            ServiceManager.getInstance().createConversationIDForPVPChat(fromUser.key, toInfo.toUser.key, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    toInfo.conversationID = data[0].toString();
-                    sentMessage(text, toInfo);
-                    continueExistingConversation();
-                }
-            });
+        //double timestamp = toInfos.get(0).timestamp;
+        double timestamp = System.currentTimeMillis() / 1000L;
+        if (toInfos.size() > 1) {
+            // TODO create group then send message
+            List<User> toUsers = new ArrayList<>(toInfos.size());
+            for (ToInfo toInfo : toInfos) {
+                toUsers.add(toInfo.toUser);
+            }
+            toUsers.add(fromUser);
+            createGroup(toUsers, edMessage.getText().toString());
+        } else {
+            // TODO create individual message
+            User toUser = toInfos.get(0).toUser;
+            String conversationID = fromUser.key.compareTo(toUser.key) > 0 ? fromUser.key + toUser.key : toUser.key + fromUser.key;
         }
+//        Message displayMessage = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
+//                timestamp, getStatuses(toInfos.get(0).toUser), getMessageMarkStatuses(toInfos.get(0).toUser),
+//                getMessageDeleteStatuses(toInfos.get(0).toUser));
+//        adapter.addMessage(displayMessage);
+//        edMessage.setText(null);
+//        for (ToInfo toInfo : toInfos) {
+//            ServiceManager.getInstance().createConversationIDForPVPChat(fromUser.key, toInfo.toUser.key, new Callback() {
+//                @Override
+//                public void complete(Object error, Object... data) {
+//                    toInfo.conversationID = data[0].toString();
+//                    sentMessage(text, toInfo);
+//                    continueExistingConversation();
+//                }
+//            });
+//        }
+    }
+
+    private void createGroup(List<User> toUsers, String msg) {
+        List<String> displayNames = new ArrayList<>();
+        for (User user : toUsers) {
+            displayNames.add(user.getDisplayName());
+        }
+        displayNames.add(fromUser.getDisplayName());
+        double timestamp = System.currentTimeMillis() / 1000L;
+        Group group = new Group();
+        group.timestamp = timestamp;
+        group.groupName = TextUtils.join(", ", displayNames);
+        group.groupAvatar = "";
+
+        for (User user : toUsers) {
+            group.memberIDs.put(user.key, true);
+        }
+        String groupKey = groupRepository.generateKey();
+        group.key = groupKey;
+        groupRepository.createGroup(groupKey, group, (error, data) -> {
+            if (error == null) {
+                Conversation conversation = Conversation.createNewGroupConversation(fromUser.key, group);
+                String conversationKey = conversationRepository.generateKey();
+                conversation.key = conversationKey;
+                conversationRepository.createConversation(conversationKey, conversation, (error1, data1) -> {
+                    if (error1 == null) {
+                        groupRepository.updateConversationId(group, conversationKey);
+                        group.conversationID = conversationKey;
+                        onSendMessage(group, msg);
+                    }
+                });
+            }
+        });
+    }
+
+    private void onSendMessage(Group group, String msg) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("CONVERSATION_ID", group.conversationID);
+        intent.putExtra("SEND_MESSAGE", msg);
+        startActivity(intent);
+        finish();
     }
 
     private void sentMessage(String text, ToInfo toInfo) {
