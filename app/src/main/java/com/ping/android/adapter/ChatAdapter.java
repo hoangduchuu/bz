@@ -76,6 +76,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         storage = FirebaseStorage.getInstance();
+        this.addPadding();
     }
 
     public void setOrginalConversation(Conversation orginalConversation) {
@@ -85,7 +86,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public void addOrUpdate(Message message) {
         Boolean isAdd = true;
         for (int i = 0; i < displayMessages.size(); i++) {
-            if (displayMessages.get(i).key.equals(message.key)) {
+            if (message.key.equals(displayMessages.get(i).key)) {
                 isAdd = false;
                 break;
             }
@@ -141,6 +142,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
+    public void addPadding() {
+        Message message = new Message();
+        message.messageType = Constant.MSG_TYPE_PADDING;
+        // Add to start
+        this.displayMessages.add(0, message);
+    }
+
     public void showTyping(boolean show) {
         int typingPosition = -1;
         for (int i = 0; i < displayMessages.size(); i++) {
@@ -171,9 +179,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        if (viewType == (int) Constant.MSG_TYPE_TYPING) {
+        if (viewType == Constant.MSG_TYPE_TYPING) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_left_typing, parent, false);
             return new TypingViewHolder(view);
+        } else if (viewType == Constant.MSG_TYPE_PADDING) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_padding, parent, false);
+            return new PaddingViewHolder(view);
         } else if (viewType == RIGHT_MSG) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_right_msg, parent, false);
             return new ChatAdapter.ChatViewHolder(view);
@@ -207,6 +218,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         Message model = displayMessages.get(position);
         if (model.messageType == Constant.MSG_TYPE_TYPING) {
             return Constant.MSG_TYPE_TYPING;
+        } else if (model.messageType == Constant.MSG_TYPE_PADDING) {
+            return Constant.MSG_TYPE_PADDING;
         }
         if (model.photoUrl != null) {
             if (model.senderId.equals(currentUserID)) {
@@ -313,6 +326,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             ImageView imageView = itemView.findViewById(R.id.typing);
             rocketAnimation = (AnimationDrawable) imageView.getDrawable();
             rocketAnimation.start();
+        }
+    }
+
+    public static class PaddingViewHolder extends RecyclerView.ViewHolder {
+
+        public PaddingViewHolder(View itemView) {
+            super(itemView);
         }
     }
 

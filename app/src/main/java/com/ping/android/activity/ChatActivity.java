@@ -426,11 +426,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private double getLatestMessageTimeStamp() {
-        if (adapter == null || adapter.getItemCount() == 0) {
+        if (adapter == null || adapter.getItemCount() < 2) {
             return 0;
         }
 
-        Message message = adapter.getItem(0);
+        // The first item is padding. So we should get item at pos 1
+        Message message = adapter.getItem(1);
 
         return message == null ? 0 : message.timestamp;
     }
