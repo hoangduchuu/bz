@@ -427,6 +427,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             switch (message.messageType) {
                 case Constant.MSG_TYPE_IMAGE:
                     openImage(markStatus);
+            boolean isPuzzled = false;
+            if (message.markStatuses != null && message.markStatuses.containsKey(currentUserID)){
+                isPuzzled = message.markStatuses.get(currentUserID);
+            }
                     break;
                 case Constant.MSG_TYPE_VOICE:
                     playAudio(message.audioUrl);
@@ -554,6 +558,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         public void setIvChatPhoto(String imageURL) {
+            boolean bitmapMark = markStatus;
             if (callback != null) callback = null;
             if (ivChatPhoto == null) return;
             if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
@@ -561,12 +566,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
             Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
-                    status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                ivChatPhoto.setImageResource(R.drawable.img_game_over);
-                return;
-            }
+            if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId)) {
 
+                if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    ivChatPhoto.setImageResource(R.drawable.img_game_over);
+                    return;
+                } else if (status != Constant.MESSAGE_STATUS_GAME_PASS) {
+                    bitmapMark = true;
+                }
+            }
             callback = new Callback() {
                 @Override
                 public void complete(Object error, Object... data) {
@@ -576,7 +584,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     }
                 }
             };
-            UiUtils.loadImage(ivChatPhoto, imageURL, callback);
+            UiUtils.loadImage(ivChatPhoto, imageURL, message.key, bitmapMark, callback);
         }
 
         public void setAudioSrc(String audioUrl) {
@@ -646,13 +654,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setChatImage(Bitmap originalBitmap) {
-            boolean bitmapMark = markStatus;
-            // Game: always  puzzle image for player
-            long status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId) &&
-                    status != Constant.MESSAGE_STATUS_GAME_PASS) {
-                bitmapMark = true;
-            }
+
 
             DisplayMetrics displaymetrics = new DisplayMetrics();
             ((Activity) ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
@@ -667,15 +669,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 ivChatPhoto.getLayoutParams().height = maxEdgeLength;
                 ivChatPhoto.getLayoutParams().width = Math.round((float) (maxEdgeLength * originalBitmap.getWidth() / originalBitmap.getHeight()));
             }
+            ivChatPhoto.setImageBitmap(originalBitmap);
 
-            if (!bitmapMark) {
-                ivChatPhoto.setImageBitmap(originalBitmap);
-            } else {
-                Bitmap puzzledBitmap = CommonMethod.puzzleImage(originalBitmap, 3);
-                if (puzzledBitmap != null) {
-                    ivChatPhoto.setImageBitmap(puzzledBitmap);
-                }
-            }
             ivChatPhoto.setClipToOutline(true);
         }
 

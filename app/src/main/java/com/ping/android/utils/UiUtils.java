@@ -15,7 +15,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -137,7 +138,8 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, Callback callback) {
+    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
+
         if (TextUtils.isEmpty(imageUrl)) {
             return null;
         }
@@ -156,9 +158,12 @@ public class UiUtils {
         };
         GlideApp.with(imageView.getContext())
                 .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .load(gsReference)
                 .placeholder(R.drawable.img_loading_bottom)
                 .override(512)
+                .transform(new BitmapEncode(imageView.getContext(), bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
                 .into(target);
         return target;
     }
