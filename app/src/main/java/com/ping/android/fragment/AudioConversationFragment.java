@@ -107,16 +107,14 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
     public void enableDynamicToggle(boolean plugged, boolean previousDeviceEarPiece) {
         headsetPlugged = plugged;
 
-        if (isStarted) {
-            audioSwitchToggleButton.setEnabled(!plugged);
-
-            if (plugged) {
-                audioSwitchToggleButton.setChecked(true);
-            } else if (previousDeviceEarPiece) {
-                audioSwitchToggleButton.setChecked(true);
-            } else {
-                audioSwitchToggleButton.setChecked(false);
-            }
+        audioSwitchToggleButton.setEnabled(!plugged);
+        if (plugged) {
+            audioSwitchToggleButton.setChecked(true);
+        } else if (previousDeviceEarPiece) {
+            audioSwitchToggleButton.setChecked(true);
+        } else {
+            audioSwitchToggleButton.setChecked(false);
         }
+
     }
 }

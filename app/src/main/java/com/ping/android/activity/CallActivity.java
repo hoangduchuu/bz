@@ -203,9 +203,11 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         initQBRTCClient();
         initAudioManager();
         initWiFiManagerListener();
-
-        ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
-
+        if (isInCommingCall){
+            ringtonePlayer = new RingtonePlayer(this);
+        }else {
+            ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
+        }
         //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
         checker = new PermissionsChecker(getApplicationContext());
 
@@ -768,7 +770,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     public void sendHeadsetState() {
         if (isInCommingCall) {
-            onChangeDynamicCallback.enableDynamicToggle(headsetPlugged, previousDeviceEarPiece);
+            onChangeDynamicCallback.enableDynamicToggle(headsetPlugged, false);
         }
     }
 
