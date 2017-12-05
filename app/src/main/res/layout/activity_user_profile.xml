@@ -117,6 +117,7 @@
                         <TextView
                             android:enabled="false"
                             style="@style/ItemSettingText"
+                            android:textColor="@color/color_grey"
                             android:text="Nickname" />
 
                         <ImageView style="@style/ItemSettingIconRight" />

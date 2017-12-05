@@ -63,6 +63,21 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         });
     }
 
+    public void getMaskMessageSetting(String conversationId, Callback callback) {
+        databaseReference.child(conversationId).child("maskMessages")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void createConversation(String key, Conversation conversation, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s", key), conversation.toMap());

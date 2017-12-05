@@ -40,6 +40,14 @@ public class MessageRepository extends BaseFirebaseDatabase {
         }
     }
 
+    public void updateThumbnailUrl(String messageKey, String thumbnailUrl) {
+        databaseReference.child(messageKey).child("thumbUrl").setValue(thumbnailUrl);
+    }
+
+    public void updatePhotoUrl(String messageKey, String photoUrl) {
+        databaseReference.child(messageKey).child("photoUrl").setValue(photoUrl);
+    }
+
     public void updateMessageMask(List<Message> messages, String conversationId, String userId, boolean isLastMessage, boolean value) {
         Map<String, Object> updateValue = new HashMap<>();
         for (Message message : messages) {
