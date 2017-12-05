@@ -17,6 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.signature.ObjectKey;
+
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -31,6 +34,7 @@ import com.squareup.picasso.Picasso;
 import org.jivesoftware.smack.util.StringUtils;
 
 import java.io.File;
+import java.security.MessageDigest;
 import java.util.Random;
 
 public class UiUtils {
@@ -139,20 +143,25 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static void loadImage(ImageView imageView, String imageUrl, Callback callback) {
+    public static void loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
         if (TextUtils.isEmpty(imageUrl)) {
             return;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
         GlideApp.with(imageView.getContext())
                 .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .load(gsReference)
                 .override(512)
+                .transform(new BitmapEncode(imageView.getContext(), bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
                         Log.d("Image loaded " + imageUrl);
+
                         callback.complete(null, resource);
+
                     }
 
                     @Override

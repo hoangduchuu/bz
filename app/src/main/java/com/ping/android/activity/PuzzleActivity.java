@@ -56,17 +56,11 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     private void init() {
-        UiUtils.loadImage(ivPuzzle, imageURL, (error, data) -> {
+        UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, (error, data) -> {
             if (error == null) {
                 originalBitmap = (Bitmap) data[0];
-                puzzledBitmap = CommonMethod.puzzleImage(originalBitmap, 3);
                 btPuzzle.setChecked(!puzzledstatus);
-                if (puzzledstatus) {
-                    ivPuzzle.setImageBitmap(puzzledBitmap);
-                } else {
-                    ivPuzzle.setImageBitmap(originalBitmap);
-                }
-                //ivPuzzle.postInvalidate();
+                ivPuzzle.setImageBitmap(originalBitmap);
             } else {
                 ivPuzzle.setImageResource(R.drawable.ic_avatar_gray);
             }
@@ -90,11 +84,14 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     public void puzzleImage() {
-        if (btPuzzle.isChecked()) {
-            ivPuzzle.setImageBitmap(originalBitmap);
-        } else {
-            ivPuzzle.setImageBitmap(puzzledBitmap);
-        }
+
+        UiUtils.loadImage(ivPuzzle, imageURL, messageID, !btPuzzle.isChecked(), (error, data) -> {
+            if (error == null) {
+                Bitmap bitmap = (Bitmap) data[0];
+                ivPuzzle.setImageBitmap(bitmap);
+            }
+        });
+
         //ivPuzzle.postInvalidate();
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
