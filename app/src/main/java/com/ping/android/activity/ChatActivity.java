@@ -914,6 +914,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             Intent intent = new Intent(this, UserProfileActivity.class);
             intent.putExtra(Constant.START_ACTIVITY_USER_ID, orginalConversation.opponentUser.key);
+            intent.putExtra(UserProfileActivity.CONVERSATION_ID_KEY, conversationID);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, GroupProfileActivity.class);
