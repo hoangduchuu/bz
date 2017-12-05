@@ -16,6 +16,7 @@ public class Constant {
     public static final int MSG_TYPE_VOICE = 3;
     public static final int MSG_TYPE_GAME = 4;
     public static final int MSG_TYPE_TYPING = 10;
+    public static final int MSG_TYPE_PADDING = 11;
 
     public static final int CONVERSATION_TYPE_INDIVIDUAL = 1;
     public static final int CONVERSATION_TYPE_GROUP = 2;

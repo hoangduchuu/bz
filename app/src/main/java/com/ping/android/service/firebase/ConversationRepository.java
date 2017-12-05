@@ -41,6 +41,28 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         });
     }
 
+    public void getMaskOutput(String conversationId, String userId, Callback callback) {
+        databaseReference.child(conversationId).child("maskOutputs").child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot != null) {
+                    Boolean value = dataSnapshot.getValue(Boolean.class);
+                    if (value != null) {
+                        callback.complete(null, value);
+                    } else {
+                        callback.complete(new Error());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.complete(databaseError);
+            }
+        });
+    }
+
     public void createConversation(String key, Conversation conversation, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s", key), conversation.toMap());

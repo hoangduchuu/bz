@@ -1,18 +1,13 @@
 package com.ping.android.activity;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -49,6 +44,7 @@ import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
@@ -292,6 +288,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     @Override
+    public void onDoubleTap(Message message, boolean maskStatus) {
+        Message lastMessage = adapter.getLastMessage();
+        boolean isLastMessage = lastMessage.key.equals(message.key);
+        List<Message> messages = new ArrayList<>(1);
+        messages.add(message);
+        messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);
@@ -425,28 +430,46 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         onUpdateEditMode();
     }
 
-    private double getLatestMessageTimeStamp() {
-        if (adapter == null || adapter.getItemCount() == 0) {
-            return 0;
+    private Message getLastMessage() {
+        if (adapter == null || adapter.getItemCount() < 2) {
+            return null;
         }
 
-        Message message = adapter.getItem(0);
+        // The first item is padding. So we should get item at pos 1
+        return adapter.getItem(1);
+    }
 
-        return message == null ? 0 : message.timestamp;
+    private User getSender(String senderId) {
+        for (User user : orginalConversation.members) {
+            if (user.key.equals(senderId)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private void loadMoreChats() {
+        Message lastMessage = getLastMessage();
+        if (lastMessage == null) return;
         messageRepository.getDatabaseReference()
                 .orderByChild("timestamp")
-                .endAt(getLatestMessageTimeStamp())
+                .endAt(lastMessage.timestamp)
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getChildrenCount() > 0) {
+                            List<Message> messages = new ArrayList<>();
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                processAddChild(child);
+                                //processAddChild(child);
+                                Message message = Message.from(child);
+                                if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+                                    continue;
+                                }
+                                message.sender = getSender(message.senderId);
+                                messages.add(message);
                             }
+                            adapter.appendHistoryItems(messages);
                         }
 
                         if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
@@ -577,7 +600,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateMessageMarkStatus(message);
                     updateMessageStatus(message);
                     adapter.addOrUpdate(message);
-                    recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
+                    //recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
                     updateConversationReadStatus();
                 }
             }
@@ -612,7 +635,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void bindConversationSetting() {
-        tgMarkOut.setChecked(ServiceManager.getInstance().getMaskOutputSetting(orginalConversation.maskOutputs));
+        conversationRepository.getMaskOutput(conversationID, fromUser.key, (error, data) -> {
+            if (error == null) {
+                tgMarkOut.setChecked((boolean) data[0]);
+            }
+        });
     }
 
     private void observeChats() {
@@ -620,10 +647,35 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
         mLinearLayoutManager.setStackFromEnd(true);
-        messageRepository.getDatabaseReference()
-                .orderByChild("timestamp")
+        // Load data for first time
+        messageRepository.getDatabaseReference().orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES)
-                .addChildEventListener(observeChatEvent);
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                processAddChild(child);
+                            }
+                        }
+
+                        if (dataSnapshot.getChildrenCount() < Constant.LATEST_RECENT_MESSAGES) {
+                            isEndOfConvesation = true;
+                            updateLoadMoreButtonStatus(false);
+                        }
+
+                        // Listen for data changes
+                        messageRepository.getDatabaseReference()
+                                .orderByChild("timestamp")
+                                .limitToLast(Constant.LATEST_RECENT_MESSAGES)
+                                .addChildEventListener(observeChatEvent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
     }
@@ -638,7 +690,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeTyping() {
-        conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator").addValueEventListener(observeTypingEvent);
+        conversationRepository.getDatabaseReference()
+                .child(conversationID)
+                .child("typingIndicator")
+                .addValueEventListener(observeTypingEvent);
     }
 
     private void notifyTyping() {
@@ -718,6 +773,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onUpdateEditMode() {
+        // Hide keyboard
+        KeyboardHelpers.hideSoftInputKeyboard(this);
         if (isEditMode) {
             layoutBottomMenu.setVisibility(View.VISIBLE);
             btDelete.setVisibility(View.VISIBLE);
@@ -754,12 +811,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
         if (isEditAllMode) {
             btDelete.setEnabled(false);
-            btMask.setText(R.string.chat_mark_all);
-            btUnMask.setText(R.string.chat_unmark_all);
+            btMask.setText(R.string.chat_mask_all);
+            btUnMask.setText(R.string.chat_unmask_all);
         } else {
             btDelete.setEnabled(true);
-            btMask.setText(R.string.chat_mark);
-            btUnMask.setText(R.string.chat_unmark);
+            btMask.setText(R.string.chat_mask);
+            btUnMask.setText(R.string.chat_unmask);
         }
     }
 
@@ -785,9 +842,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void onUpdateMaskMessage(boolean mask) {
         if (isEditAllMode) {
-            ServiceManager.getInstance().updateMessageMark(conversationID, messages, mask);
+            messageRepository.updateMessageMask(messages, conversationID, fromUser.key, true, mask);
         } else {
-            ServiceManager.getInstance().updateMessageMark(conversationID, adapter.getSelectMessage(), mask);
+            List<Message> selectedMessages = adapter.getSelectMessage();
+            Message lastMessage = adapter.getLastMessage();
+            boolean isLastMessage = false;
+            for (Message msg : selectedMessages) {
+                if (msg.key.equals(lastMessage.key)) {
+                    isLastMessage = true;
+                    break;
+                }
+            }
+            messageRepository.updateMessageMask(adapter.getSelectMessage(), conversationID, fromUser.key, isLastMessage, mask);
         }
     }
 
@@ -863,7 +929,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onSentMessage(String text) {
-        loadMoreChats();
+        //loadMoreChats();
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
@@ -1047,7 +1113,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                             downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
-
+                    conversation.members = orginalConversation.members;
                     String messageKey = messageRepository.generateKey();
                     //Create or Update Conversation
                     messageRepository.updateMessage(messageKey, message);
@@ -1166,7 +1232,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
                 orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
-
+        conversation.members = orginalConversation.members;
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);

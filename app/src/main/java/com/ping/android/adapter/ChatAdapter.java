@@ -32,7 +32,6 @@ import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
@@ -76,6 +75,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         storage = FirebaseStorage.getInstance();
+        this.addPadding();
     }
 
     public void setOrginalConversation(Conversation orginalConversation) {
@@ -87,7 +87,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         for (int i = 0; i < displayMessages.size(); i++) {
             Message displayMessage = displayMessages.get(i);
             if (displayMessage.messageType != Constant.MSG_TYPE_TYPING) {
-                if (displayMessages.get(i).key.equals(message.key)) {
+                if (message.key.equals(displayMessages.get(i).key)) {
                     isAdd = false;
                     break;
                 }
@@ -144,7 +144,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
+    public void addPadding() {
+        Message message = new Message();
+        message.messageType = Constant.MSG_TYPE_PADDING;
+        // Add to start
+        this.displayMessages.add(0, message);
+    }
+
     public void showTyping(boolean show) {
+        if (isEditMode) return;
         int typingPosition = -1;
         for (int i = 0; i < displayMessages.size(); i++) {
             if (displayMessages.get(i).messageType == Constant.MSG_TYPE_TYPING) {
@@ -171,12 +179,22 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         return selectMessages;
     }
 
+    public Message getLastMessage() {
+        if (displayMessages.size() > 2) {
+            return displayMessages.get(getItemCount() - 1);
+        }
+        return null;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        if (viewType == (int) Constant.MSG_TYPE_TYPING) {
+        if (viewType == Constant.MSG_TYPE_TYPING) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_left_typing, parent, false);
             return new TypingViewHolder(view);
+        } else if (viewType == Constant.MSG_TYPE_PADDING) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_padding, parent, false);
+            return new PaddingViewHolder(view);
         } else if (viewType == RIGHT_MSG) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chat_right_msg, parent, false);
             return new ChatAdapter.ChatViewHolder(view);
@@ -210,6 +228,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         Message model = displayMessages.get(position);
         if (model.messageType == Constant.MSG_TYPE_TYPING) {
             return Constant.MSG_TYPE_TYPING;
+        } else if (model.messageType == Constant.MSG_TYPE_PADDING) {
+            return Constant.MSG_TYPE_PADDING;
         }
         if (model.photoUrl != null) {
             if (model.senderId.equals(currentUserID)) {
@@ -304,8 +324,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         return displayMessages.get(position);
     }
 
+    public void appendHistoryItems(List<Message> messages) {
+        Collections.sort(messages, this);
+        Log.d("First: " + messages.get(0).timestamp);
+        Log.d("Last: " + messages.get(messages.size() - 1).timestamp);
+        int startIndex = displayMessages.size() > 1 ? 1 : 0;
+        int endIndex = messages.size();
+        displayMessages.addAll(startIndex, messages);
+        notifyItemRangeInserted(startIndex, endIndex);
+    }
+
     public interface ClickListener {
         void onSelect(List<Message> selectMessages);
+
+        void onDoubleTap(Message message, boolean markStatus);
     }
 
     public static class TypingViewHolder extends RecyclerView.ViewHolder {
@@ -316,6 +348,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             ImageView imageView = itemView.findViewById(R.id.typing);
             rocketAnimation = (AnimationDrawable) imageView.getDrawable();
             rocketAnimation.start();
+        }
+    }
+
+    public static class PaddingViewHolder extends RecyclerView.ViewHolder {
+
+        public PaddingViewHolder(View itemView) {
+            super(itemView);
         }
     }
 
@@ -496,7 +535,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 text = ServiceManager.getInstance().encodeMessage(activity, text);
             }
             if (!TextUtils.isEmpty(conversationID)) {
-                ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
+                if (clickListener != null) {
+                    clickListener.onDoubleTap(message, markStatus);
+                }
+                //ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
             }
             tvText.setText(text);
         }

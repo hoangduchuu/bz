@@ -65,7 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NewChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
+public class NewChatActivity extends CoreActivity implements View.OnClickListener {
     private final String TAG = NewChatActivity.class.getSimpleName();
     //Views UI
     private RecyclerView recycleChatView;
@@ -110,10 +110,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }
     }
 
-    @Override
-    public void onSelect(List<Message> selectMessages) {
-    }
-
     private void init() {
         conversationRepository = new ConversationRepository();
         groupRepository = new GroupRepository();
@@ -121,17 +117,9 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         messages = new ArrayList<>();
         fromUser = ServiceManager.getInstance().getCurrentUser();
         allUsers = ServiceManager.getInstance().getAllUsers();
-        observeChats();
         ContactAutoCompleteAdapter autoCompleteAdapter = new ContactAutoCompleteAdapter(this, R.layout.item_auto_complete_contact, fromUser.friendList);
         suggestContactView.setAdapter(autoCompleteAdapter);
         suggestContactView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-    }
-
-    private void observeChats() {
-        adapter = new ChatAdapter(null, fromUser.key, messages, this, this);
-        recycleChatView.setLayoutManager(mLinearLayoutManager);
-        recycleChatView.setAdapter(adapter);
-        mLinearLayoutManager.setStackFromEnd(true);
     }
 
     private void bindViews() {
