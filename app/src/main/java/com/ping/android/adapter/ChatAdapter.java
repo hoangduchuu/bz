@@ -159,7 +159,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         notifyDataSetChanged();
     }
 
-    public void addPadding() {
+    private void addPadding() {
         Message message = new Message();
         message.messageType = Constant.MSG_TYPE_PADDING;
         // Add to start
