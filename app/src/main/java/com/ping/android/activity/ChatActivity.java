@@ -367,7 +367,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                         }
                     }
                 });
-                startChat();
             }
 
             @Override
