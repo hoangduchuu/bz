@@ -11,12 +11,13 @@ import android.widget.Toast;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 public class UserProfileActivity extends CoreActivity implements View.OnClickListener{
-
+    public final static String CONVERSATION_ID_KEY = "CONVERSATION_ID";
     private ImageView userProfile;
     private TextView userName;
     private Switch swNotification;
@@ -27,32 +28,32 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     private String userID;
     private User user, currentUser;
     private Conversation conversation;
+    private ConversationRepository conversationRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
+        String conversationId = getIntent().getStringExtra(CONVERSATION_ID_KEY);
         bindViews();
+
+        conversationRepository = new ConversationRepository();
 
         currentUser = ServiceManager.getInstance().getCurrentUser();
 
-        ServiceManager.getInstance().getUser(userID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    user = (User) data[0];
-                    bindData();
-                }
+        ServiceManager.getInstance().getUser(userID, (error, data) -> {
+            if (error == null) {
+                user = (User) data[0];
+                bindData();
             }
         });
-        ServiceManager.getInstance().getConversationData(currentUser.key, userID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    conversation = (Conversation) data[0];
-                    bindConversationSetting();
-                }
+
+        conversationRepository.getConversation(conversationId, (error, data) -> {
+            if (error == null) {
+                conversation = (Conversation) data[0];
+                conversation.key = conversationId;
+                bindConversationSetting();
             }
         });
     }
@@ -146,7 +147,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     }
 
     private void onNotificationSetting() {
-        ServiceManager.getInstance().changeNotificationConversation(conversation, swNotification.isChecked());
+        conversationRepository.updateNotificationSetting(conversation.key, currentUser.key, swNotification.isChecked());
     }
 
     private void onMaskSetting() {

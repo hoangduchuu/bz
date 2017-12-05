@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -32,10 +31,12 @@ import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.view.DoubleClickListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,43 +84,57 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     }
 
     public void addOrUpdate(Message message) {
-        Boolean isAdd = true;
-        for (int i = 0; i < displayMessages.size(); i++) {
+        boolean isAdd = true;
+        int size = displayMessages.size();
+        int index = displayMessages.size();
+        for (int i = size - 1; i >= 0; i--) {
             Message displayMessage = displayMessages.get(i);
-            if (displayMessage.messageType != Constant.MSG_TYPE_TYPING) {
+            if (displayMessage.messageType != Constant.MSG_TYPE_TYPING
+                    && displayMessage.messageType != Constant.MSG_TYPE_PADDING) {
                 if (message.key.equals(displayMessages.get(i).key)) {
+                    index = i;
                     isAdd = false;
                     break;
                 }
+                if (message.timestamp > displayMessage.timestamp) {
+                    index = i + 1;
+                    break;
+                }
+
             }
         }
 
         if (isAdd) {
-            addMessage(message);
+            this.displayMessages.add(index, message);
+            notifyItemInserted(index);
+            // If new message has come, add to list then update previous message to hide its status
+            if (index == this.displayMessages.size() - 1 && index > 0) {
+                notifyItemChanged(index - 1);
+            }
         } else {
-            updateMessage(message);
+            displayMessages.set(index, message);
+            notifyItemChanged(index);
+//            notifyDataSetChanged();
         }
-        // TODO should not notify all data here
-        Collections.sort(displayMessages, this);
-        notifyDataSetChanged();
+//        // TODO should not notify all data here
+//        Collections.sort(displayMessages, this);
+//        notifyDataSetChanged();
     }
 
     public void addMessage(Message message) {
-        this.displayMessages.add(message);
-        notifyItemInserted(displayMessages.size() - 1);
-        if (displayMessages.size() >= 2) {
-            notifyItemChanged(displayMessages.size() - 2);
-        }
-    }
-
-    public void updateMessage(Message message) {
-        for (int i = 0; i < displayMessages.size(); i++) {
-            if (displayMessages.get(i).key != null && displayMessages.get(i).key.equals(message.key)) {
-                displayMessages.set(i, message);
-                notifyItemChanged(i);
-                break;
+        int index = displayMessages.size();
+        if (index > 0) {
+            Message msg = displayMessages.get(index - 1);
+            if (msg.messageType == Constant.MSG_TYPE_TYPING) {
+                index = index > 1 ? index - 1 : 0;
             }
         }
+        this.displayMessages.add(index, message);
+        //this.displayMessages.add(message);
+        notifyItemInserted(index);
+//        if (displayMessages.size() >= 2) {
+//            notifyItemChanged(displayMessages.size() - 2);
+//        }
     }
 
     public void deleteMessage(String messageID) {
@@ -224,7 +239,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public int getItemViewType(int position) {
-
         Message model = displayMessages.get(position);
         if (model.messageType == Constant.MSG_TYPE_TYPING) {
             return Constant.MSG_TYPE_TYPING;
@@ -261,42 +275,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         if (holder instanceof ChatViewHolder) {
             ChatViewHolder viewHolder = (ChatViewHolder) holder;
             Message model = displayMessages.get(position);
-            viewHolder.setModel(model);
-            viewHolder.setChatText(model.message);
-            Long status = ServiceManager.getInstance().getCurrentStatus(model.status);
-
-            viewHolder.setIvChatProfile();
-            viewHolder.setInfo();
-            if (!TextUtils.isEmpty(model.thumbUrl)) {
-                viewHolder.setIvChatPhoto(model.thumbUrl);
-            } else if (model.gameUrl != null) {
-                viewHolder.setIvChatPhoto(model.gameUrl);
-            } else if (model.audioUrl != null) {
-                viewHolder.setAudioSrc(model.audioUrl);
-            }
-
-            if (model.gameUrl != null) {
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    viewHolder.setStatus(status);
-                } else if (getItemViewType(position) == LEFT_MSG_GAME) {
-                    viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
-                } else {
-                    viewHolder.setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
-                }
-            } else {
-                if (model.senderId.equals(currentUserID) && position == displayMessages.size() - 1) {
-                    viewHolder.setStatus(status);
-                } else {
-                    viewHolder.setStatus(Constant.MESSAGE_STATUS_HIDE);
-                }
-            }
-
-            viewHolder.setEditMode(isEditMode);
-            if (selectMessages.contains(model)) {
-                viewHolder.setSelect(true);
-            } else {
-                viewHolder.setSelect(false);
-            }
+            viewHolder.bindData(model, position == getItemCount() - 1);
         }
     }
 
@@ -326,9 +305,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public void appendHistoryItems(List<Message> messages) {
         Collections.sort(messages, this);
-        Log.d("First: " + messages.get(0).timestamp);
-        Log.d("Last: " + messages.get(messages.size() - 1).timestamp);
-        int startIndex = displayMessages.size() > 1 ? 1 : 0;
+        int startIndex = displayMessages.size() >= 1 ? 1 : 0;
         int endIndex = messages.size();
         displayMessages.addAll(startIndex, messages);
         notifyItemRangeInserted(startIndex, endIndex);
@@ -358,11 +335,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
     }
 
-    public class ChatViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-        private final static int DOUBLE_TAP = 2;
-        private final static int SINGLE_TAP = 1;
-        private final static int DELAY = 300;
-        LinearLayout chatMessageView;
+    public class ChatViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
         TextView tvText, tvStatus, tvInfo;
         ImageView ivChatProfile;
         ImageView ivChatPhoto;
@@ -370,26 +343,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         Boolean markStatus = false;
         RadioButton rbSelect;
         Message message;
-        int clickViewID = 0;
-        private boolean mTookFirstEvent = false;
-
-        private android.os.Message mMessage = null;
-        private Handler mHandler = new Handler() {
-            @Override
-            public void handleMessage(android.os.Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what) {
-                    case SINGLE_TAP:
-                        mTookFirstEvent = false;
-                        handleClick(msg);
-                        break;
-                    case DOUBLE_TAP:
-                        handleDoubleClick(msg);
-                        break;
-                }
-            }
-
-        };
+        private Callback callback;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
@@ -397,29 +351,37 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         protected void initView() {
-            tvInfo = (TextView) itemView.findViewById(R.id.item_chat_info);
-            tvText = (TextView) itemView.findViewById(R.id.item_chat_text);
-            if (tvText != null) {
-                tvText.setOnClickListener(this);
-            }
-            ivChatPhoto = (ImageView) itemView.findViewById(R.id.item_chat_image);
-            if (ivChatPhoto != null)
-                ivChatPhoto.setOnClickListener(this);
-            ivChatProfile = (ImageView) itemView.findViewById(R.id.item_chat_user_profile);
+            itemView.setOnClickListener(new DoubleClickListener() {
+                @Override
+                public void onSingleClick(View v) {
+                    handleClick(v);
+                }
+
+                @Override
+                public void onDoubleClick(View v) {
+                    handleDoubleClick(v);
+                }
+
+                @Override
+                public boolean shouldHandleDoubleClick() {
+                    return message.messageType == Constant.MSG_TYPE_TEXT ||
+                            message.messageType == Constant.MSG_TYPE_IMAGE;
+                }
+            });
+            tvInfo = itemView.findViewById(R.id.item_chat_info);
+            tvText = itemView.findViewById(R.id.item_chat_text);
+            ivChatPhoto = itemView.findViewById(R.id.item_chat_image);
+            ivChatProfile = itemView.findViewById(R.id.item_chat_user_profile);
 
 
-            btPlaySong = (ImageButton) itemView.findViewById(R.id.item_chat_audio);
+            btPlaySong = itemView.findViewById(R.id.item_chat_audio);
             if (btPlaySong != null)
-                btPlaySong.setOnClickListener(this);
-            tvStatus = (TextView) itemView.findViewById(R.id.item_chat_status);
+                btPlaySong.setOnClickListener(this::handleClick);
+            tvStatus = itemView.findViewById(R.id.item_chat_status);
             tvStatus.setVisibility(View.GONE);
-            chatMessageView = (LinearLayout) itemView.findViewById(R.id.item_chat_message);
-            if (chatMessageView != null) {
-                chatMessageView.setOnClickListener(this);
-            }
 
-            rbSelect = (RadioButton) itemView.findViewById(R.id.item_chat_select);
-            rbSelect.setOnClickListener(this);
+            rbSelect = itemView.findViewById(R.id.item_chat_select);
+            rbSelect.setOnClickListener(view -> onClickEditMode(view));
         }
 
         public void setEditMode(Boolean isEditMode) {
@@ -433,35 +395,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         public void setSelect(Boolean isSelect) {
             rbSelect.setChecked(isSelect);
             rbSelect.setSelected(isSelect);
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (message.messageType == Constant.MSG_TYPE_TYPING) {
-                return;
-            }
-            if (isEditMode) {
-                onClickEditMode(view);
-                return;
-            }
-            clickViewID = view.getId();
-            if (!mTookFirstEvent) {
-                mTookFirstEvent = true;
-                mMessage = mMessage == null ? new android.os.Message() : mHandler.obtainMessage();
-                /*"Recycling" the message, instead creating new instance we get the old one */
-                mHandler.removeMessages(SINGLE_TAP);
-                mMessage.arg1 = clickViewID;
-                mMessage.what = SINGLE_TAP;
-                mHandler.sendMessageDelayed(mMessage, DELAY);
-            } else {
-                mHandler.removeMessages(SINGLE_TAP);
-                mMessage = mHandler.obtainMessage();
-                /*obtaining old message instead creating new one */
-                mMessage.arg1 = clickViewID;
-                mMessage.what = DOUBLE_TAP;
-                mHandler.sendMessageAtFrontOfQueue(mMessage);
-                mTookFirstEvent = false;
-            }
         }
 
         private void onClickEditMode(View view) {
@@ -490,41 +423,38 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             clickListener.onSelect(selectMessages);
         }
 
-        private void handleClick(android.os.Message msg) {
-            int position = getAdapterPosition();
-            if (position < 0) {
-                return;
-            }
-            Message model = displayMessages.get(position);
-            switch (msg.arg1) {
-                case R.id.item_chat_image:
-                    onImageClick(true);
+        private void handleClick(View view) {
+            switch (message.messageType) {
+                case Constant.MSG_TYPE_IMAGE:
+                    openImage(markStatus);
                     break;
-                case R.id.item_chat_audio:
-                    playAudio(model.audioUrl);
+                case Constant.MSG_TYPE_VOICE:
+                    playAudio(message.audioUrl);
+                    break;
+                case Constant.MSG_TYPE_GAME:
+                    onGameClick(markStatus);
                     break;
             }
         }
 
-        private void handleDoubleClick(android.os.Message msg) {
-            int position = getAdapterPosition();
-            if (position < 0) {
-                return;
-            }
-            Message model = displayMessages.get(position);
-            switch (msg.arg1) {
-                case R.id.item_chat_text:
+        private void handleDoubleClick(View view) {
+            switch (message.messageType) {
+                case Constant.MSG_TYPE_TEXT:
                     onMarkTest();
                     break;
-                case R.id.item_chat_image:
-                    onImageClick(false);
-                    break;
-                case R.id.item_chat_message:
-                    if (!TextUtils.isEmpty(message.message)) {
-                        onMarkTest();
+                case Constant.MSG_TYPE_IMAGE:
+                    markStatus = !markStatus;
+                    if (clickListener != null) {
+                        clickListener.onDoubleTap(message, markStatus);
                     }
                     break;
             }
+        }
+
+        private void openImage(boolean isPuzzled) {
+            String photoUrl = !TextUtils.isEmpty(message.photoUrl) ? message.photoUrl : message.thumbUrl;
+            if (TextUtils.isEmpty(photoUrl)) return;
+            unPuzzleImage(photoUrl, isPuzzled);
         }
 
         private void onMarkTest() {
@@ -538,26 +468,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 if (clickListener != null) {
                     clickListener.onDoubleTap(message, markStatus);
                 }
-                //ServiceManager.getInstance().updateMarkStatus(conversationID, message.key, markStatus);
             }
             tvText.setText(text);
         }
 
-        private void onImageClick(Boolean isPuzzled) {
-            if (!TextUtils.isEmpty(message.photoUrl) && message.photoUrl.startsWith("PPhtotoMessageIdentifier")) {
-                return;
-            }
+        private void onGameClick(boolean isPuzzled) {
             if (!TextUtils.isEmpty(message.gameUrl) && message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
                 return;
             }
-            if (!TextUtils.isEmpty(message.photoUrl)) {
-                unPuzzleImage(message.photoUrl, isPuzzled);
-            } else if (!TextUtils.isEmpty(message.gameUrl)) {
-                if (currentUserID.equals(message.senderId)) {
-                    unPuzzleImage(message.gameUrl, isPuzzled);
-                } else {
-                    unPuzzleGame(message.gameUrl, isPuzzled);
-                }
+
+            if (currentUserID.equals(message.senderId)) {
+                unPuzzleImage(message.gameUrl, isPuzzled);
+            } else {
+                unPuzzleGame(message.gameUrl, isPuzzled);
             }
         }
 
@@ -631,6 +554,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         public void setIvChatPhoto(String imageURL) {
+            if (callback != null) callback = null;
             if (ivChatPhoto == null) return;
             if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
                 ivChatPhoto.setImageResource(R.drawable.img_loading);
@@ -643,12 +567,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
-            UiUtils.loadImage(ivChatPhoto, imageURL, (error, data) -> {
-                if (error == null) {
-                    Bitmap bitmap = (Bitmap) data[0];
-                    setChatImage(bitmap);
+            callback = new Callback() {
+                @Override
+                public void complete(Object error, Object... data) {
+                    if (error == null) {
+                        Bitmap bitmap = (Bitmap) data[0];
+                        setChatImage(bitmap);
+                    }
                 }
-            });
+            };
+            UiUtils.loadImage(ivChatPhoto, imageURL, callback);
         }
 
         public void setAudioSrc(String audioUrl) {
@@ -727,17 +655,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
 
             DisplayMetrics displaymetrics = new DisplayMetrics();
-            ((Activity)ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int maxEdgeLength = Math.round((float)(displaymetrics.widthPixels * .6));
+            ((Activity) ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int maxEdgeLength = Math.round((float) (displaymetrics.widthPixels * .6));
 
             if (originalBitmap.getWidth() > originalBitmap.getHeight()) {
 
-                ivChatPhoto.getLayoutParams().height = Math.round((float)(maxEdgeLength * originalBitmap.getHeight()/originalBitmap.getWidth()));
+                ivChatPhoto.getLayoutParams().height = Math.round((float) (maxEdgeLength * originalBitmap.getHeight() / originalBitmap.getWidth()));
                 ivChatPhoto.getLayoutParams().width = maxEdgeLength;
             } else {
 
                 ivChatPhoto.getLayoutParams().height = maxEdgeLength;
-                ivChatPhoto.getLayoutParams().width = Math.round((float)(maxEdgeLength * originalBitmap.getWidth()/ originalBitmap.getHeight()));
+                ivChatPhoto.getLayoutParams().width = Math.round((float) (maxEdgeLength * originalBitmap.getWidth() / originalBitmap.getHeight()));
             }
 
             if (!bitmapMark) {
@@ -783,6 +711,38 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         @Override
         public boolean onLongClick(View v) {
             return false;
+        }
+
+        public void bindData(Message model, boolean isLastMessage) {
+            setModel(model);
+            setChatText(model.message);
+            long status = ServiceManager.getInstance().getCurrentStatus(model.status);
+
+            setIvChatProfile();
+            setInfo();
+            if (message.messageType == Constant.MSG_TYPE_IMAGE) {
+                setIvChatPhoto(model.thumbUrl);
+            } else if (message.messageType == Constant.MSG_TYPE_GAME) {
+                setIvChatPhoto(model.gameUrl);
+                if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    setStatus(status);
+                } else if (message.senderId.equals(currentUserID)) {
+                    setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
+                } else {
+                    setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
+                }
+            } else if (message.messageType == Constant.MSG_TYPE_VOICE) {
+                setAudioSrc(model.audioUrl);
+            }
+
+            if (message.senderId.equals(currentUserID) && isLastMessage) {
+                setStatus(status);
+            } else {
+                setStatus(Constant.MESSAGE_STATUS_HIDE);
+            }
+
+            setEditMode(isEditMode);
+            setSelect(selectMessages.contains(model));
         }
     }
 }

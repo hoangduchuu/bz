@@ -22,6 +22,25 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         databaseReference = database.getReference().child("conversations");
     }
 
+    public void getConversation(String key, Callback callback) {
+        databaseReference.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Conversation from = Conversation.from(dataSnapshot);
+                    callback.complete(null, from);
+                } else {
+                    callback.complete(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.complete(databaseError);
+            }
+        });
+    }
+
     public void getMaskOutput(String conversationId, String userId, Callback callback) {
         databaseReference.child(conversationId).child("maskOutputs").child(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -44,6 +63,21 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         });
     }
 
+    public void getMaskMessageSetting(String conversationId, Callback callback) {
+        databaseReference.child(conversationId).child("maskMessages")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void createConversation(String key, Conversation conversation, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s", key), conversation.toMap());
@@ -57,6 +91,13 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s/readStatuses/%s", conversationID, userId), value);
         updateValue.put(String.format("users/%s/conversations/%s/readStatuses/%s", userId, conversationID, userId), value);
+        updateBatchData(updateValue, null);
+    }
+
+    public void updateNotificationSetting(String conversationId, String userId, boolean value) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
+        updateValue.put(String.format("users/%s/conversations/%s/notifications/%s", userId, conversationId, userId), value);
         updateBatchData(updateValue, null);
     }
 

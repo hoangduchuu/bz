@@ -16,7 +16,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -26,7 +25,6 @@ import com.ping.android.CoreApp;
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
-import com.squareup.picasso.Picasso;
 
 import org.jivesoftware.smack.util.StringUtils;
 
@@ -139,27 +137,30 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static void loadImage(ImageView imageView, String imageUrl, Callback callback) {
+    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, Callback callback) {
         if (TextUtils.isEmpty(imageUrl)) {
-            return;
+            return null;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                Log.d("Image loaded " + imageUrl);
+                callback.complete(null, resource);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                callback.complete(new Error());
+            }
+        };
         GlideApp.with(imageView.getContext())
                 .asBitmap()
                 .load(gsReference)
+                .placeholder(R.drawable.img_loading_bottom)
                 .override(512)
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                        Log.d("Image loaded " + imageUrl);
-                        callback.complete(null, resource);
-                    }
-
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        callback.complete(new Error());
-                    }
-                });
+                .into(target);
+        return target;
     }
 
     public static void hideSoftKeyboard(Activity activity) {

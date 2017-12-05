@@ -314,6 +314,19 @@ public class ImagePickerHelper {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
+                    boolean isGrant = true;
+                    for (int result : grantResults) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            isGrant = false;
+                            break;
+                        }
+                    }
+                    if (!isGrant) {
+                        if (callback != null) {
+                            callback.complete(new IllegalStateException("Permissions is not granted"));
+                        }
+                        return;
+                    }
                     if (isOpeningCamera) {
                         openCamera();
                     } else {

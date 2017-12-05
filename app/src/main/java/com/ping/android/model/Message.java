@@ -31,7 +31,7 @@ public class Message {
     public Map<String, Long> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
-    public long messageType;
+    public int messageType;
 
     // Local variable, don't store on Firebase
     public User sender;

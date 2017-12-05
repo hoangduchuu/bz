@@ -1,13 +1,18 @@
 package com.ping.android.activity;
 
+import android.*;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -54,6 +59,7 @@ import com.vanniktech.emoji.EmojiPopup;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.File;
+import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -150,9 +156,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         init();
         if (orginalConversation != null) {
             startChat();
-        } else {
-            initConversationData();
         }
+        initConversationData();
     }
 
     @Override
@@ -290,11 +295,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     @Override
     public void onDoubleTap(Message message, boolean maskStatus) {
-        Message lastMessage = adapter.getLastMessage();
-        boolean isLastMessage = lastMessage.key.equals(message.key);
-        List<Message> messages = new ArrayList<>(1);
-        messages.add(message);
-        messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
+        if (message.messageType == Constant.MSG_TYPE_TEXT) {
+            Message lastMessage = adapter.getLastMessage();
+            boolean isLastMessage = lastMessage.key.equals(message.key);
+            List<Message> messages = new ArrayList<>(1);
+            messages.add(message);
+            messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
+        } else if (message.messageType == Constant.MSG_TYPE_IMAGE) {
+            List<Message> messages = new ArrayList<>(1);
+            messages.add(message);
+            messageRepository.updateMessageMask(messages, conversationID, fromUser.key, false, maskStatus);
+        }
     }
 
     @Override
@@ -324,7 +335,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (imagePickerHelper != null) {
             imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        if (requestCode == 111) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                onStartRecord();
+            }
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private boolean isMicroPermissionGrant() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void initConversationData() {
@@ -369,8 +390,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                Log.d("pastVisibleItems " + pastVisibleItems);
-                updateLoadMoreButtonStatus(pastVisibleItems <= 3 && !isEndOfConvesation);
+                boolean loadMoreVisibility = pastVisibleItems <= 3 && pastVisibleItems >= 0 && !isEndOfConvesation;
+                updateLoadMoreButtonStatus(loadMoreVisibility);
                 isScrollToTop = pastVisibleItems == 0;
             }
         });
@@ -521,17 +542,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     adapter.deleteMessage(message.key);
                     return;
                 }
-                ServiceManager.getInstance().getUser(message.senderId, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        if (error == null) {
-                            message.sender = (User) data[0];
-                            updateMessageStatus(message);
-                            adapter.addOrUpdate(message);
-                            updateConversationReadStatus();
-                        }
-                    }
-                });
+                message.sender = getUser(message.senderId);
+                updateMessageMarkStatus(message);
+                updateMessageStatus(message);
+                adapter.addOrUpdate(message);
             }
 
             @Override
@@ -550,7 +564,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeTypingEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Boolean> typingIndicator =  (Map<String, Boolean>) dataSnapshot.getValue();
+                Map<String, Boolean> typingIndicator = (Map<String, Boolean>) dataSnapshot.getValue();
                 boolean isTyping = false;
                 if (typingIndicator != null) {
                     for (String key : typingIndicator.keySet()) {
@@ -641,6 +655,21 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 tgMarkOut.setChecked((boolean) data[0]);
             }
         });
+        conversationRepository.getMaskMessageSetting(conversationID, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+
+            }
+        });
+    }
+
+    private User getUser(String userId) {
+        for (User user : orginalConversation.members) {
+            if (user.key.equals(userId)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private void observeChats() {
@@ -655,9 +684,19 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.getChildrenCount() > 0) {
+                            List<Message> messages = new ArrayList<>();
                             for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                processAddChild(child);
+                                Message message = Message.from(child);
+
+                                if (message == null
+                                        || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+                                    continue;
+                                }
+                                message.sender = getUser(message.senderId);
+                                messages.add(message);
+//                                processAddChild(child);
                             }
+                            adapter.appendHistoryItems(messages);
                         }
 
                         if (dataSnapshot.getChildrenCount() < Constant.LATEST_RECENT_MESSAGES) {
@@ -679,6 +718,56 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 });
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(orginalConversation);
+        conversationRepository.getDatabaseReference().child(conversationID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Conversation conversation = Conversation.from(dataSnapshot);
+                        conversation.members = orginalConversation.members;
+                        conversation.opponentUser = orginalConversation.opponentUser;
+                        orginalConversation = conversation;
+                        if (adapter != null) {
+                            adapter.setOrginalConversation(conversation);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+        conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                            Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
+                            orginalConversation.maskMessages = maskMessages;
+                            adapter.setOrginalConversation(orginalConversation);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+        conversationRepository.getDatabaseReference().child(conversationID).child("puzzleMessages")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                            Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
+                            orginalConversation.puzzleMessages = puzzleMessages;
+                            adapter.setOrginalConversation(orginalConversation);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void observeStatus() {
@@ -825,6 +914,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             Intent intent = new Intent(this, UserProfileActivity.class);
             intent.putExtra(Constant.START_ACTIVITY_USER_ID, orginalConversation.opponentUser.key);
+            intent.putExtra(UserProfileActivity.CONVERSATION_ID_KEY, conversationID);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, GroupProfileActivity.class);
@@ -884,10 +974,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
     }
 
-    private void showEmojiEditor(){
+    private void showEmojiEditor() {
         layoutText.setVisibility(View.VISIBLE);
         layoutVoice.setVisibility(View.GONE);
-        if(!emojiPopup.isShowing()){
+        if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
     }
@@ -951,20 +1041,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_TEXT,
                 text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
                 getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
-
+        conversation.members = orginalConversation.members;
         String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
 
-        // Update conversations
-        Map<String, Object> updateData = new HashMap<>();
-        updateData.put("conversations/" + conversationID, conversation.toMap());
-        message.key = messageKey;
-        for (User toUser : orginalConversation.members) {
-            if (checkMessageBlocked(toUser)) continue;
-            updateData.put("users/" + toUser.key + "/conversations/" + conversationID, conversation.toMap());
-        }
+        conversationRepository.updateConversation(conversationID, conversation, null);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-        messageRepository.updateBatchData(updateData, null);
     }
 
     private void onSendCamera() {
@@ -1040,6 +1122,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onStartRecord() {
+        if (!isMicroPermissionGrant()) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 111);
+            return;
+        }
         if (isRecording) {
             return;
         }
@@ -1149,19 +1235,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Boolean> getMessageMarkStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
-        //TODO update out mapping flag
-//        for (User toUser : orginalConversation.members) {
-//            markStatuses.put(toUser.key, true);
-//        }
+        if (orginalConversation.maskMessages != null) {
+            markStatuses.putAll(orginalConversation.maskMessages);
+        }
         markStatuses.put(fromUser.key, tgMarkOut.isChecked());
         return markStatuses;
     }
 
     private Map<String, Boolean> getImageMarkStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
-        //TODO update out mapping flag
-        for (User toUser : orginalConversation.members) {
-            markStatuses.put(toUser.key, true);
+        if (orginalConversation.puzzleMessages != null) {
+            markStatuses.putAll(orginalConversation.puzzleMessages);
         }
         markStatuses.put(fromUser.key, tgMarkOut.isChecked());
         return markStatuses;
@@ -1195,6 +1279,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
+        String key = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
         // upload thumbnail first first
         bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
             if (error != null) {
@@ -1202,13 +1287,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 return;
             }
             String thumbnailUrl = (String) data[0];
+            messageRepository.updateThumbnailUrl(key, thumbnailUrl);
             // Upload image
             bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
                 String imageUrl = thumbnailUrl;
                 if (error1 == null) {
                     imageUrl = (String) data1[0];
                 }
-                sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
+                messageRepository.updatePhotoUrl(key, imageUrl);
+                //sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
             });
         });
     }
@@ -1222,7 +1309,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    private void sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
+    private String sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
         String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
@@ -1233,7 +1320,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             message = Message.createGameMessage(imageUrl,
                     fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
         }
-                message.key = messageKey;
+        if (message == null) throw new NullPointerException("Message must not be null " + msgType);
+        message.key = messageKey;
 
         Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
                 orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
@@ -1242,8 +1330,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);
-
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+        return messageKey;
     }
 
     private void updateMessageStatus(Message message) {
