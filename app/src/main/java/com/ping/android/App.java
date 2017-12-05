@@ -3,11 +3,8 @@ package com.ping.android;
 import android.content.Context;
 
 import com.google.firebase.database.FirebaseDatabase;
-import com.jakewharton.picasso.OkHttp3Downloader;
 import com.ping.android.util.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
-import com.ping.android.utils.FireBaseRequestHandler;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
@@ -29,12 +26,6 @@ public class App extends CoreApp {
         ActivityLifecycle.init(this);
         initApplication();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
-        Picasso picasso = new Picasso.Builder(getApplicationContext())
-//                .addRequestHandler(new FireBaseRequestHandler())
-                .downloader(new OkHttp3Downloader(createCacheClient(this)))
-                .build();
-        Picasso.setSingletonInstance(picasso);
     }
 
     private OkHttpClient createCacheClient(Context context){

@@ -143,6 +143,7 @@ public class Conversation implements Parcelable {
         conversation.markStatuses = defaultTrueValues;
         conversation.readStatuses = defaultFalseValues;
         conversation.deleteStatuses = defaultFalseValues;
+        conversation.notifications = defaultTrueValues;
 
         return conversation;
     }
@@ -166,6 +167,7 @@ public class Conversation implements Parcelable {
         conversation.markStatuses = defaultTrueValues;
         conversation.readStatuses = defaultFalseValues;
         conversation.deleteStatuses = defaultFalseValues;
+        conversation.notifications = defaultTrueValues;
 
         return conversation;
     }

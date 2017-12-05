@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:button="@null"
-                    android:checked="true"
+                    android:checked="false"
                     android:drawableStart="@drawable/toggle_mask_msg"
                     android:padding="10dp"/>
 
@@ -188,42 +188,42 @@
                 <ImageButton
                     android:id="@+id/chat_text_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_text" />
+                    android:src="@drawable/chat_text_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_emoji_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_emoji" />
+                    android:src="@drawable/chat_emoji_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_camera_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_camera" />
+                    android:src="@drawable/chat_camera_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_image_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_picture" />
+                    android:src="@drawable/chat_picture_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_game_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_game" />
+                    android:src="@drawable/chat_game_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_voice_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_voice" />
+                    android:src="@drawable/chat_voice_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_voice_call_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_call" />
+                    android:src="@drawable/chat_call_selector" />
 
                 <ImageButton
                     android:id="@+id/chat_video_call_btn"
                     style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_video" />
+                    android:src="@drawable/chat_video_selector" />
 
             </LinearLayout>
 
