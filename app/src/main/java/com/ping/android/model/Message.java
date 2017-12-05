@@ -67,6 +67,7 @@ public class Message {
         message.status = status;
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_TEXT;
         return message;
     }
 
@@ -82,6 +83,7 @@ public class Message {
         message.status = status;
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_IMAGE;
         return message;
     }
 
@@ -95,6 +97,7 @@ public class Message {
         message.status = status;
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_VOICE;
         return message;
     }
 
@@ -108,6 +111,7 @@ public class Message {
         message.status = status;
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_GAME;
         return message;
     }
 
@@ -126,6 +130,7 @@ public class Message {
         result.put("status", status);
         result.put("markStatuses", markStatuses);
         result.put("deleteStatuses", deleteStatuses);
+        result.put("messageType", messageType);
         return result;
     }
 }

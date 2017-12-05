@@ -39,6 +39,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
@@ -1044,6 +1045,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         messageRepository.updateMessage(messageKey, message);
 
         conversationRepository.updateConversation(conversationID, conversation, null);
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
     private void onSendCamera() {
@@ -1201,9 +1203,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                             getMessageDeleteStatuses(), timestamp, orginalConversation);
                     conversation.members = orginalConversation.members;
                     String messageKey = messageRepository.generateKey();
+                    message.key = messageKey;
                     //Create or Update Conversation
                     messageRepository.updateMessage(messageKey, message);
                     conversationRepository.updateConversation(conversationID, conversation, fromUserID);
+                    NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
                 }
             }
         });
@@ -1315,6 +1319,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             message = Message.createGameMessage(imageUrl,
                     fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
         }
+        if (message == null) throw new NullPointerException("Message must not be null " + msgType);
+        message.key = messageKey;
 
         Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
                 orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
@@ -1323,6 +1329,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
         return messageKey;
     }
 

@@ -84,6 +84,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private Runnable showIncomingCallWindowTask;
     private Handler showIncomingCallWindowTaskHandler;
     private boolean closeByWifiStateAllow = true;
+    private RingtonePlayer ringtonePlayer;
     private String hangUpReason;
     private boolean isInCommingCall;
     private QBRTCClient rtcClient;
@@ -91,7 +92,6 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private ConnectionListener connectionListener;
     private boolean wifiEnabled = true;
     private SharedPreferences sharedPref;
-    private RingtonePlayer ringtonePlayer;
     //private LinearLayout connectionView;
     private AppRTCAudioManager audioManager;
     private NetworkConnectionChecker networkConnectionChecker;
@@ -119,7 +119,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private boolean isSendHistory = false;
 
     public static void start(Context context, User otherUser, Boolean isVideoCall) {
-        Long userQBID = otherUser.quickBloxID;
+        int userQBID = otherUser.quickBloxID;
         User currentUser = ServiceManager.getInstance().getCurrentUser();
 
         if (!ServiceManager.getInstance().getNetworkStatus(context)) {
@@ -139,18 +139,18 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
             return;
         }
 
-        if (currentUser.quickBloxID == null || currentUser.quickBloxID == 0) {
+        if (currentUser.quickBloxID <= 0 || currentUser.quickBloxID <= 0) {
             Toaster.shortToast(context.getString(R.string.msg_current_user_empty_quickbloxID));
             return;
         }
 
-        if (userQBID == null || userQBID == 0) {
+        if (userQBID <=0 || userQBID <= 0) {
             Toaster.shortToast(context.getString(R.string.msg_opponent_user_empty_quickbloxID));
             return;
         }
         //QBUser opponentQBUser = ServiceManager.getInstance().getQBUserByPingID(userID);
         ArrayList<Integer> opponentsList = new ArrayList<>();
-        opponentsList.add(userQBID.intValue());
+        opponentsList.add(userQBID);
         if (opponentsList.size() == 0) {
             return;
         }
@@ -205,6 +205,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         initWiFiManagerListener();
 
         ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
+
         //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
         checker = new PermissionsChecker(getApplicationContext());
 
@@ -270,9 +271,10 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         if (isInComingCall) {
             initIncomingCallTask();
             startLoadAbsentUsers();
-            addIncomeCallFragment();
             checkPermission();
+            addIncomeCallFragment();
         } else {
+            checkPermission();
             addConversationFragment(isInComingCall);
         }
     }

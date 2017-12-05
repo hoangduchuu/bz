@@ -1,13 +1,20 @@
 package com.ping.android;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.ping.android.model.QbConfigs;
+import com.ping.android.service.NotificationBroadcastReceiver;
+import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.CoreConfigUtils;
 import com.quickblox.auth.session.QBSettings;
 import com.quickblox.core.ServiceZone;
+import com.quickblox.core.SubscribePushStrategy;
+import com.quickblox.messages.services.QBPushManager;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.ios.IosEmojiProvider;
 
@@ -28,7 +35,12 @@ public class CoreApp extends Application {
         instance = this;
         initQbConfigs();
         initCredentials();
+        initPushManager();
         EmojiManager.install(new IosEmojiProvider());
+
+        Intent intent = new Intent(this, NotificationBroadcastReceiver.class);
+        intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        sendBroadcast(intent);
     }
 
     private void initQbConfigs() {
@@ -40,12 +52,35 @@ public class CoreApp extends Application {
         if (qbConfigs != null) {
             QBSettings.getInstance().init(getApplicationContext(), qbConfigs.getAppId(), qbConfigs.getAuthKey(), qbConfigs.getAuthSecret());
             QBSettings.getInstance().setAccountKey(qbConfigs.getAccountKey());
+            QBSettings.getInstance().setEnablePushNotification(true);
+            QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.ALWAYS);
 
             if (!TextUtils.isEmpty(qbConfigs.getApiDomain()) && !TextUtils.isEmpty(qbConfigs.getChatDomain())) {
-                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.PRODUCTION);
-                QBSettings.getInstance().setZone(ServiceZone.PRODUCTION);
+                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
+                QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
             }
         }
+    }
+
+    private void initPushManager() {
+        QBPushManager.getInstance().addListener(new QBPushManager.QBSubscribeListener() {
+            @Override
+            public void onSubscriptionCreated() {
+                Toaster.shortToast("Subscription Created");
+                Log.d(TAG, "SubscriptionCreated");
+            }
+
+            @Override
+            public void onSubscriptionError(Exception e, int resultCode) {
+                Log.d(TAG, "SubscriptionError" + e.getLocalizedMessage());
+                if (resultCode >= 0) {
+                    String error = GoogleApiAvailability.getInstance().getErrorString(resultCode);
+                    Log.d(TAG, "SubscriptionError playServicesAbility: " + error);
+                }
+                Toaster.shortToast(e.getLocalizedMessage());
+            }
+        });
+
     }
 
     public QbConfigs getQbConfigs() {
