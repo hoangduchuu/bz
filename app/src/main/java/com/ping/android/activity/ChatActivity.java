@@ -401,8 +401,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         tvChatName.setOnClickListener(this);
         tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
-        mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setStackFromEnd(true);
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -411,6 +410,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 boolean loadMoreVisibility = pastVisibleItems <= 3 && pastVisibleItems >= 0 && !isEndOfConvesation;
                 updateLoadMoreButtonStatus(loadMoreVisibility);
                 isScrollToTop = pastVisibleItems == 0;
+            }
+        });
+
+        recycleChatView.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom) {
+                recycleChatView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recycleChatView.smoothScrollToPosition(
+                                adapter.getItemCount() - 1);
+                    }
+                }, 100);
             }
         });
 
@@ -633,7 +644,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateMessageMarkStatus(message);
                     updateMessageStatus(message);
                     adapter.addOrUpdate(message);
-                    //recycleChatView.scrollToPosition(isScrollToTop ? 0 : adapter.getItemCount() - 1);
                     updateConversationReadStatus();
                 }
             }
@@ -694,7 +704,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         recycleChatView.setAdapter(adapter);
-        mLinearLayoutManager.setStackFromEnd(true);
         // Load data for first time
         messageRepository.getDatabaseReference().orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES)
