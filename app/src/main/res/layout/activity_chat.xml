@@ -151,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:button="@null"
-                    android:checked="true"
+                    android:checked="false"
                     android:drawableStart="@drawable/toggle_mask_msg"
                     android:padding="10dp"/>
 

@@ -51,7 +51,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
                     if (value != null) {
                         callback.complete(null, value);
                     } else {
-                        callback.complete(new Error());
+                        callback.complete(null, false);
                     }
                 }
             }
