@@ -259,21 +259,10 @@ public class ImagePickerHelper {
             requestPermissions(true);
             return;
         }
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider",
-                    new File(getFilePath()));
-        } else {
-            uri = Uri.fromFile(new File(getFilePath()));
-        }
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         MaterialCamera materialCamera = null;
         if (activity != null) {
-            //activity.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
             materialCamera = new MaterialCamera(activity);
         } else if (fragment != null) {
-            //fragment.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
             materialCamera = new MaterialCamera(fragment);
         }
         materialCamera
@@ -389,6 +378,9 @@ public class ImagePickerHelper {
     // region utilities methods
 
     private File getMediaFileFromUri(Context context, Uri uri) {
+        if (uri.getScheme().equals("file")) {
+            return new File(uri.getPath());
+        }
         String selection = null;
         String[] selectionArgs = null;
         String[] projection;
