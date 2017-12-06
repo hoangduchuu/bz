@@ -14,6 +14,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.BlockAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -85,7 +86,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         adapter = new BlockAdapter(blockContacts, this, this);
         rvListBlock.setAdapter(adapter);
         rvListBlock.setLayoutManager(mLinearLayoutManager);

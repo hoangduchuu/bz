@@ -24,10 +24,9 @@ import com.ping.android.fragment.ContactFragment;
 import com.ping.android.fragment.GroupFragment;
 import com.ping.android.fragment.MessageFragment;
 import com.ping.android.fragment.ProfileFragment;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UsersUtils;
 
@@ -48,7 +47,7 @@ public class MainActivity extends CoreActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
 
         init();
         observeBadgeNumber();
@@ -61,8 +60,6 @@ public class MainActivity extends CoreActivity {
     }
 
     private void init() {
-        currentUser = ServiceManager.getInstance().getCurrentUser();
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
@@ -71,39 +68,27 @@ public class MainActivity extends CoreActivity {
         setupTabIcons();
         onChangeTab();
 
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                currentUser = ServiceManager.getInstance().getCurrentUser();
+        if (currentUser != null && (StringUtils.isBlank(currentUser.phone) || StringUtils.isEmpty(currentUser.phone))) {
+            startActivity(new Intent(MainActivity.this, PhoneActivity.class));
+        }
+        if (currentUser != null && (currentUser.showMappingConfirm == null || !currentUser.showMappingConfirm)) {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("NOTICE")
+                    .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                if (currentUser != null && (StringUtils.isBlank(currentUser.phone) || StringUtils.isEmpty(currentUser.phone))) {
-                    startActivity(new Intent(MainActivity.this, PhoneActivity.class));
-                }
-                if (currentUser != null && (currentUser.showMappingConfirm == null || !currentUser.showMappingConfirm)) {
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("NOTICE")
-                            .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
-                                }
-                            })
-                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    UsersUtils.randomizeTransphabet();
-                                }
-                            }).show();
-                    ServiceManager.getInstance().updateShowMappingConfirm(true);
-                }
-            }
-        });
-
-        //TODO enable notification
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("OBSERVE_FLAG", true);
-        startService(intent);
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            UsersUtils.randomizeTransphabet();
+                        }
+                    }).show();
+            ServiceManager.getInstance().updateShowMappingConfirm(true);
+        }
     }
 
     public void onEditMode(Boolean isEditMode) {

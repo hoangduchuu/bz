@@ -27,6 +27,7 @@ import com.ping.android.fragment.IncomeCallFragment;
 import com.ping.android.fragment.IncomeCallFragmentCallbackListener;
 import com.ping.android.fragment.OnCallEventsController;
 import com.ping.android.fragment.VideoConversationFragment;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -120,7 +121,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     public static void start(Context context, User otherUser, Boolean isVideoCall) {
         int userQBID = otherUser.quickBloxID;
-        User currentUser = ServiceManager.getInstance().getCurrentUser();
+        User currentUser = UserManager.getInstance().getUser();
 
         if (!ServiceManager.getInstance().getNetworkStatus(context)) {
             Toast.makeText(context, "Please check network connection", Toast.LENGTH_SHORT).show();
@@ -220,7 +221,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         if (isInCommingCall) {
             otherUser = ServiceManager.getInstance().getUserByQBId(currentSession.getCallerID());
         } else {

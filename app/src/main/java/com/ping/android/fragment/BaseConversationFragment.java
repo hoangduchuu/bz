@@ -17,6 +17,7 @@ import android.widget.ToggleButton;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.db.QbUsersDbManager;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
@@ -131,7 +132,7 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 
         }
 
-        User currentUser = ServiceManager.getInstance().getCurrentUser();
+        User currentUser = UserManager.getInstance().getUser();
         Map<String, String> userInfo = new HashMap();
         userInfo.put("ping_id", currentUser.pingID);
         userInfo.put("user_id", currentUser.key);

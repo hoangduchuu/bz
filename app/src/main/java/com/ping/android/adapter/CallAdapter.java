@@ -11,6 +11,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -38,7 +39,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         displayCalls = (ArrayList<Call>) calls.clone();
         selectCalls = new ArrayList<>();
         this.clickListener = clickListener;
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
     }
 
     @Override

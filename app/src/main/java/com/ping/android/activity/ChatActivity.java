@@ -35,12 +35,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.ChatAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
-import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
@@ -142,10 +142,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversationID = getIntent().getStringExtra("CONVERSATION_ID");
         sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
 
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
-        startService(intent);
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
 
@@ -164,11 +160,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     protected void onStart() {
         super.onStart();
-
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
-        startService(intent);
-
         visibleStatus = true;
 
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
@@ -188,10 +179,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onStop();
         isTyping = false;
         updateConversationTyping(false);
-
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", "");
-        startService(intent);
 
         visibleStatus = false;
 
@@ -560,7 +547,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         messages = new ArrayList<>();
-        fromUser = ServiceManager.getInstance().getCurrentUser();
+        fromUser = UserManager.getInstance().getUser();
         fromUserID = fromUser.key;
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {

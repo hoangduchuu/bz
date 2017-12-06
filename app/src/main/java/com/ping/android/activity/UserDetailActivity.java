@@ -9,6 +9,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -33,7 +34,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
         bindViews();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
 
         ServiceManager.getInstance().getUser(userID, new Callback() {
             @Override

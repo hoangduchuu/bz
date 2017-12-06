@@ -34,7 +34,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <!--</service>-->
-        <service android:name="com.ping.android.service.NotificationService"/>
         <service android:name="com.ping.android.service.CallService" />
 
         <!--<service-->

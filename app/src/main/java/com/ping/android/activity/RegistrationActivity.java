@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -259,14 +260,15 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                                     Toast.LENGTH_SHORT).show();
                             firebaseUser.delete();
                         } else {
-                            ServiceManager.getInstance().initUserData(new Callback() {
+                            UserManager.getInstance().initialize(new Callback() {
                                 @Override
                                 public void complete(Object error, Object... data) {
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    ServiceManager.getInstance().signUpNewUserQB();
-                                    ServiceManager.getInstance().updateLoginStatus(true);
-                                    startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
-                                    finish();
+                                    if (error != null) {
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        ServiceManager.getInstance().updateLoginStatus(true);
+                                        startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
+                                        finish();
+                                    }
                                 }
                             });
                         }

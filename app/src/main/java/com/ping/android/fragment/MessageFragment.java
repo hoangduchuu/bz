@@ -1,7 +1,9 @@
 package com.ping.android.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +25,7 @@ import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.MessageAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -33,9 +36,12 @@ import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ClickListener {
 
@@ -58,16 +64,11 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -120,7 +121,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void init() {
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();

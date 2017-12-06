@@ -8,6 +8,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -40,7 +41,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
 
         conversationRepository = new ConversationRepository();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
 
         ServiceManager.getInstance().getUser(userID, (error, data) -> {
             if (error == null) {

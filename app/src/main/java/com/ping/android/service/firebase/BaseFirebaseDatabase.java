@@ -19,7 +19,7 @@ import java.util.Map;
  */
 
 public abstract class BaseFirebaseDatabase {
-    private FirebaseAuth auth;
+    protected FirebaseAuth auth;
     private FirebaseDatabase database;
 
     protected DatabaseReference databaseReference;

@@ -172,8 +172,8 @@ public class ServiceManager {
         });
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
     }
 
     public FirebaseUser getFirebaseUserUser() {
@@ -359,11 +359,9 @@ public class ServiceManager {
     private void updateTypeFriend(User user) {
         user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
         if (currentUser != null && MapUtils.isNotEmpty(currentUser.friends)) {
-            for (Object request : currentUser.friends.keySet()) {
-                if (request.toString().equals(user.key)) {
-                    user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
-                    break;
-                }
+            Boolean isFriend = currentUser.friends.get(user.key);
+            if (isFriend != null && isFriend) {
+                user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
             }
         }
     }

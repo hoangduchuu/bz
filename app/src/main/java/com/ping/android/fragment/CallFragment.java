@@ -22,6 +22,7 @@ import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.CallAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -61,16 +62,11 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -163,7 +159,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         calls = new ArrayList<>();
         adapter = new CallAdapter(calls, this);
         observeCalls();
