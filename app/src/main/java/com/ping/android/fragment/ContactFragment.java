@@ -24,6 +24,7 @@ import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.ContactAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -48,26 +49,11 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-//                timer.schedule(new TimerTask() {
-//                    public void run() {
-//                        handler.post(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                adapter.updateStatus();
-//                            }
-//                        });
-//                    }
-//                }, 0, 1000);
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -153,7 +139,7 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         adapter = new ContactAdapter(getActivity(), this);
         observeContacts();
     }

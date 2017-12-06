@@ -23,6 +23,7 @@ import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.GroupAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -60,16 +61,11 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
         super.onCreate(savedInstanceState);
         conversationRepository = new ConversationRepository();
         groupRepository = new GroupRepository();
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -134,7 +130,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void init() {
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         adapter = new GroupAdapter(getContext(), this);
         getGroup();
     }

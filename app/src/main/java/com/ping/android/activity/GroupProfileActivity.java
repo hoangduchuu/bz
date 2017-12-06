@@ -13,6 +13,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.adapter.GroupProfileAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -57,7 +58,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_profile);
         groupID = getIntent().getStringExtra(Constant.START_ACTIVITY_GROUP_ID);
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
 
         bindViews();
         bzzzStorage = new BzzzStorage();

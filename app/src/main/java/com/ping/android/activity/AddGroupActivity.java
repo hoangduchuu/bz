@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.ping.android.adapter.ContactAutoCompleteAdapter;
 import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.fragment.LoadingDialog;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -111,7 +112,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         bzzzStorage = new BzzzStorage();
         groupRepository = new GroupRepository();
         conversationRepository = new ConversationRepository();
-        fromUser = ServiceManager.getInstance().getCurrentUser();
+        fromUser = UserManager.getInstance().getUser();
         allUsers = ServiceManager.getInstance().getAllUsers();
         ContactAutoCompleteAdapter autoCompleteAdapter = new ContactAutoCompleteAdapter(this, R.layout.item_auto_complete_contact, fromUser.friendList);
         suggestContactView.setAdapter(autoCompleteAdapter);

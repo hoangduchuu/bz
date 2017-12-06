@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
@@ -90,7 +91,7 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         mContacts = new ArrayList<>();
         ArrayList<User> friendList = currentUser.friendList;
         List<String> selectedIDLst = Arrays.asList(selectedId.split(","));

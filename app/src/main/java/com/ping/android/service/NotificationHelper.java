@@ -6,6 +6,7 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
 import com.google.gson.JsonObject;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -42,7 +43,7 @@ public class NotificationHelper {
     }
 
     public void sendCallingNotificationToUser(int quickBloxId, String callType) {
-        String messageData = String.format("%s is %s calling", ServiceManager.getInstance().getCurrentUser().getDisplayName(), callType);
+        String messageData = String.format("%s is %s calling", UserManager.getInstance().getUser().getDisplayName(), callType);
         JsonObject object = new JsonObject();
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
@@ -84,7 +85,7 @@ public class NotificationHelper {
             }
         };
         for (User user : conversation.members) {
-            if (user.quickBloxID > 0 && user.key != ServiceManager.getInstance().getCurrentUser().key) {
+            if (user.quickBloxID > 0 && user.key != UserManager.getInstance().getUser().key) {
                 if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
                     continue;
                 }
@@ -145,7 +146,7 @@ public class NotificationHelper {
                 object.addProperty("thumbUrl", fmessage.thumbUrl);
                 object.addProperty("audioUrl", fmessage.audioUrl);
                 object.addProperty("gameUrl", fmessage.gameUrl);
-                object.addProperty("senderId", ServiceManager.getInstance().getCurrentUser().key);
+                object.addProperty("senderId", UserManager.getInstance().getUser().key);
                 object.addProperty("messageType", fmessage.messageType);
                 QBEvent event = new QBEvent();
                 event.setNotificationType(QBNotificationType.PUSH);
