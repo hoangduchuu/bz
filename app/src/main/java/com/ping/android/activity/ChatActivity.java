@@ -66,6 +66,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
@@ -99,7 +100,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false, isEditAllMode = true;
     private RecorderVisualizerView visualizerView;
-
+    private AtomicBoolean isSettingStackFromEnd = new AtomicBoolean(false);
     private String originalText = "";
     private int selectPosition = 0;
     private boolean visibleStatus;
@@ -401,7 +402,24 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         tvChatName.setOnClickListener(this);
         tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
-        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
+            @Override
+            public void onLayoutCompleted(RecyclerView.State state) {
+                super.onLayoutCompleted(state);
+                if (isSettingStackFromEnd.get()) return;
+
+                int contentView = recycleChatView.computeVerticalScrollRange();
+                int listHeight = recycleChatView.getMeasuredHeight();
+                if (contentView > listHeight) {
+                    if (mLinearLayoutManager.getStackFromEnd()) return;
+                    setLinearStackFromEnd(true);
+                } else {
+                    if (!mLinearLayoutManager.getStackFromEnd()) return;
+                    isSettingStackFromEnd.set(true);
+                    setLinearStackFromEnd(false);
+                }
+            }
+        };
         recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -413,20 +431,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         });
 
-        recycleChatView.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (bottom < oldBottom) {
-                recycleChatView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recycleChatView.smoothScrollToPosition(
-                                adapter.getItemCount() - 1);
-                    }
-                }, 100);
-            }
-        });
-
         findViewById(R.id.chat_person_name).setOnClickListener(this);
-
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
@@ -479,6 +484,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
+    }
+
+    private void setLinearStackFromEnd(boolean value) {
+        isSettingStackFromEnd.set(true);
+        // Set stack from end
+        recycleChatView.post(() -> {
+            mLinearLayoutManager.setStackFromEnd(value);
+            isSettingStackFromEnd.set(false);
+        });
     }
 
     private Message getLastMessage() {
