@@ -11,15 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
@@ -27,7 +24,6 @@ import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
 
@@ -181,13 +177,16 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private void searchUsers(String text) {
         userList.clear();
-        userRepository.searchUsersWithText(text, "ping_id", new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    DataSnapshot snapshot = (DataSnapshot) data[0];
-                    handleUsersData(snapshot);
-                }
+        userRepository.searchUsersWithText(text, "ping_id", (error, data) -> {
+            if (error == null) {
+                DataSnapshot snapshot = (DataSnapshot) data[0];
+                handleUsersData(snapshot);
+            }
+        });
+        userRepository.searchUsersWithText(text, "phone", (error, data) -> {
+            if (error == null) {
+                DataSnapshot snapshot = (DataSnapshot) data[0];
+                handleUsersData(snapshot);
             }
         });
     }
@@ -237,7 +236,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         i.putParcelableArrayListExtra("SELECTED_USERS", selectedUsers);
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
-
 
     private void sendNewMessage() {
         if (selectedUsers.size() <= 0) {

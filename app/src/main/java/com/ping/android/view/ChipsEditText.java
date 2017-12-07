@@ -17,9 +17,11 @@ import android.widget.TextView;
 
 import com.ping.android.activity.R;
 import com.ping.android.ultility.Callback;
+import com.ping.android.utils.Log;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -46,12 +48,23 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
     }
 
     private String textDeleted = "";
+    private ArrayList<ImageSpan> spansToBeRemove = new ArrayList<>();
 
     private void init() {
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (i2 < 1) {
+                if (i1 > 0) {
+                    int end = i + i1;
+                    Editable editable = getEditableText();
+                    ImageSpan[] spans = editable.getSpans(i, end, ImageSpan.class);
+                    for (ImageSpan span : spans) {
+                        int spanStart = editable.getSpanStart(span);
+                        int spanEnd = editable.getSpanEnd(span);
+                        if (spanStart < end && spanEnd > i) {
+                            spansToBeRemove.add(span);
+                        }
+                    }
                     // Text may deleted
                     textDeleted = charSequence.subSequence(i, i + i1).toString();
                 } else {
@@ -75,26 +88,32 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
                 if (timer != null) {
                     timer.cancel();
                 }
-                if (TextUtils.isEmpty(textDeleted)) {
-                    timer = new Timer();
-                    TimerTask task = new TimerTask() {
-                        @Override
-                        public void run() {
-                            // Trigger task after delaying
-                            if (listener != null) {
-                                String[] text = getText().toString().split(",");
-                                if (text.length > 0) {
-                                    listener.onSearchText(text[text.length - 1]);
-                                }
+                if (spansToBeRemove.size() > 0) {
+                    for (ImageSpan span : spansToBeRemove) {
+                        if (listener != null) {
+                            listener.onDeleteChip(span.getSource());
+                        }
+                    }
+                    spansToBeRemove.clear();
+                    return;
+                }
+
+                if (",".equals(textDeleted)) return;
+
+                timer = new Timer();
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        // Trigger task after delaying
+                        if (listener != null) {
+                            String[] text = getText().toString().split(",");
+                            if (text.length > 0) {
+                                listener.onSearchText(text[text.length - 1]);
                             }
                         }
-                    };
-                    timer.schedule(task, DELAY);
-                } else if (!textDeleted.equals(",")) {
-                    if (listener != null) {
-                        listener.onDeleteChip(textDeleted);
                     }
-                }
+                };
+                timer.schedule(task, DELAY);
             }
         };
         addTextChangedListener(textWatcher);
@@ -159,7 +178,8 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
                 BitmapDrawable bmpDrawable = new BitmapDrawable(viewBmp);
                 bmpDrawable.setBounds(0, 0, bmpDrawable.getIntrinsicWidth(), bmpDrawable.getIntrinsicHeight());
                 // create and set imagespan
-                ssb.setSpan(new ImageSpan(bmpDrawable), x, x + c.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                ImageSpan imageSpan = new ImageSpan(bmpDrawable, c);
+                ssb.setSpan(imageSpan, x, x + c.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 x = x + c.length() + 1;
             }
             // set chips span
