@@ -19,8 +19,8 @@ import java.util.List;
 
 public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdapter.ViewHolder> {
 
-    private static ArrayList<String> selectPingIDs;
-    private static ClickListener mClickListener;
+    private ArrayList<String> selectPingIDs;
+    private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
     private Context mContext;
@@ -31,6 +31,12 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         selectPingIDs = new ArrayList<>();
         mContext = context;
         mClickListener = clickListener;
+    }
+
+    public void updateData(ArrayList<User> users) {
+        this.originalContacts = users;
+        this.displayContacts = (ArrayList<User>) users.clone();
+        notifyDataSetChanged();
     }
 
     public void addContact(User contact) {
@@ -76,6 +82,19 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         User contact = displayContacts.get(position);
+        holder.setClickListener((contact1, isSelected1) -> {
+            boolean currentStatus = selectPingIDs.contains(contact1.pingID);
+            holder.rbSelect.setChecked(!currentStatus);
+            boolean isSelected = !currentStatus;
+            if (isSelected) {
+                selectPingIDs.add(contact1.pingID);
+            } else {
+                selectPingIDs.remove(contact1.pingID);
+            }
+            if (mClickListener != null) {
+                mClickListener.onSelect(contact1, isSelected);
+            }
+        });
         holder.tvName.setText(contact.getDisplayName());
         holder.contact = contact;
 
@@ -102,6 +121,7 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         public RadioButton rbSelect;
         public User contact;
         public ImageView ivProfileImage;
+        public ClickListener mClickListener;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -120,17 +140,15 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
             }
         }
 
+        public void setClickListener(ClickListener clickListener) {
+            this.mClickListener = clickListener;
+        }
+
         private void selectContact() {
+//            boolean isSelect = !rbSelect.isSelected();
+//            rbSelect.setChecked(isSelect);
+//            rbSelect.setSelected(isSelect);
 
-            boolean isSelect = !rbSelect.isSelected();
-            rbSelect.setChecked(isSelect);
-            rbSelect.setSelected(isSelect);
-
-            if (rbSelect.isSelected()) {
-                selectPingIDs.add(contact.pingID);
-            } else {
-                selectPingIDs.remove(contact.pingID);
-            }
             if (mClickListener != null)
                 mClickListener.onSelect(contact, rbSelect.isChecked());
         }

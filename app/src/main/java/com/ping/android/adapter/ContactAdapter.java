@@ -74,13 +74,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    public void updateStatus() {
-        for (User contact : originalContacts) {
-            contact.loginStatus = ServiceManager.getInstance().getLoginStatus(contact.key);
-        }
-        notifyDataSetChanged();
-    }
-
     public void filter(String text) {
         displayContacts = new ArrayList<>();
         for (User contact : originalContacts) {

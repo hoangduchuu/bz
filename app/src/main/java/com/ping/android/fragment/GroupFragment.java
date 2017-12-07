@@ -30,6 +30,7 @@ import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -39,6 +40,7 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GroupFragment extends Fragment implements View.OnClickListener, GroupAdapter.ClickListener {
     private RelativeLayout bottomMenu;
@@ -53,14 +55,13 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
 
     private ConversationRepository conversationRepository;
     private GroupRepository groupRepository;
+    private UserRepository userRepository;
 
     private ChildEventListener groupListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        conversationRepository = new ConversationRepository();
-        groupRepository = new GroupRepository();
         init();
         loadData = true;
         if (loadGUI) {
@@ -130,6 +131,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void init() {
+        conversationRepository = new ConversationRepository();
+        groupRepository = new GroupRepository();
+        userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
         adapter = new GroupAdapter(getContext(), this);
         getGroup();
@@ -200,12 +204,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
             }
             return;
         }
-        ServiceManager.getInstance().initMembers(new ArrayList<String>(group.memberIDs.keySet()), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                group.members = (List<User>) data[0];
-                adapter.addOrUpdateConversation(group);
-            }
+        userRepository.initMemberList(group.memberIDs, (error, data) -> {
+            group.members = (List<User>) data[0];
+            adapter.addOrUpdateConversation(group);
         });
     }
 

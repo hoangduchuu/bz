@@ -27,6 +27,7 @@ import com.ping.android.activity.R;
 import com.ping.android.adapter.OpponentsFromCallAdapter;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCSession;
@@ -91,6 +92,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     private boolean isLocalVideoFullScreen;
 
     private User opponentUser;
+    private UserRepository userRepository;
 
 
     @Override
@@ -113,6 +115,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     @Override
     protected void initFields() {
         super.initFields();
+        userRepository = new UserRepository();
         localViewOnClickListener = new LocalViewOnClickListener();
         amountOpponents = opponents.size();
         allOpponents = Collections.synchronizedList(new ArrayList<QBUser>(opponents.size()));
@@ -184,11 +187,14 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
 
         ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
-        opponentUser = ServiceManager.getInstance().getUserByQBId(opponents.get(0).getId());
 
-        UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
+        userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
+            if (error != null) return;
+            opponentUser = (User) data[0];
+            UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
 
-        allOpponentsTextView.setText(opponentUser.getDisplayName());
+            allOpponentsTextView.setText(opponentUser.getDisplayName());
+        });
 
         actionButtonsEnabled(false);
         restoreSession();

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/edtTxt1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/chips_edittext_bg"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:shadowColor="#FFFFFF"
+    android:shadowDy="1"
+    android:shadowRadius="0.01"
+    android:textColor="#000000"
+    android:textSize="38sp"
+    android:textStyle="bold"
+    tools:text="Tuan Luong" />

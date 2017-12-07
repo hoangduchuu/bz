@@ -30,6 +30,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -40,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
 
@@ -60,6 +62,8 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private MessageAdapter adapter;
     private ArrayList<Conversation> conversations;
     private boolean loadData, loadGUI, isEditMode;
+
+    private UserRepository userRepository;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,6 +125,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void init() {
+        userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -268,27 +273,24 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
             return;
         }
 
-        ServiceManager.getInstance().initMembers(conversation.memberIDs, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                conversation.members = (List<User>) data[0];
-                for (User user : conversation.members) {
-                    if (!user.key.equals(currentUser.key)) {
-                        conversation.opponentUser = user;
-                        break;
+        userRepository.initMemberList(conversation.memberIDs, (error, data) -> {
+            conversation.members = (List<User>) data[0];
+            for (User user : conversation.members) {
+                if (!user.key.equals(currentUser.key)) {
+                    conversation.opponentUser = user;
+                    break;
+                }
+            }
+            if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                adapter.addOrUpdateConversation(conversation);
+            } else {
+                ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
+                    @Override
+                    public void complete(Object error, Object... data) {
+                        conversation.group = (Group) data[0];
+                        adapter.addOrUpdateConversation(conversation);
                     }
-                }
-                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                    adapter.addOrUpdateConversation(conversation);
-                } else {
-                    ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
-                        @Override
-                        public void complete(Object error, Object... data) {
-                            conversation.group = (Group) data[0];
-                            adapter.addOrUpdateConversation(conversation);
-                        }
-                    });
-                }
+                });
             }
         });
     }
