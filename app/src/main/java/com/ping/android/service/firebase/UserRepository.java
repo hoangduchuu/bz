@@ -51,4 +51,21 @@ public class UserRepository extends BaseFirebaseDatabase {
     public void updateQBId(String userId, int id) {
         databaseReference.child(userId).child("quickBloxID").setValue(id);
     }
+
+    public void searchUsersWithText(String text, String child, Callback callback) {
+        databaseReference.orderByChild(child)
+                .startAt(text)
+                .endAt(text + "\uf8ff")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        callback.complete(null, dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
 }

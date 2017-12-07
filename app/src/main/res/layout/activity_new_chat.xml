@@ -47,7 +47,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="" />
+                android:hint=""
+                android:visibility="gone"/>
+
+            <com.ping.android.view.ChipsEditText
+                android:id="@+id/edt_to"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"/>
 
             <ImageView
                 android:id="@+id/new_chat_select_contact"
