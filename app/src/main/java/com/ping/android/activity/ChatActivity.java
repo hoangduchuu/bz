@@ -359,9 +359,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 orginalConversation = Conversation.from(dataSnapshot);
-                ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
+                userRepository.initMemberList(orginalConversation.memberIDs, (error, data) -> {
+                    if (error == null) {
                         orginalConversation.members = (List<User>) data[0];
                         for (User user : orginalConversation.members) {
                             if (!user.key.equals(fromUserID)) {
@@ -371,9 +370,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                 break;
                             }
                         }
+                        startChat();
                     }
                 });
-                startChat();
             }
 
             @Override
@@ -637,7 +636,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        ServiceManager.getInstance().getUser(message.senderId, new Callback() {
+        userRepository.getUser(message.senderId, new Callback() {
             @Override
             public void complete(Object error, Object... data) {
                 if (error == null) {
@@ -646,6 +645,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateMessageStatus(message);
                     adapter.addOrUpdate(message);
                     updateConversationReadStatus();
+                    recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
                 }
             }
         });

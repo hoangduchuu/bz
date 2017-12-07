@@ -9,11 +9,17 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.quickblox.users.model.QBUser;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Created by tuanluong on 12/6/17.
  */
 
 public class UserManager {
+    private ArrayList<User> friendList;
     private User user;
     private UserRepository userRepository;
     private QuickBloxRepository quickBloxRepository;
@@ -21,7 +27,7 @@ public class UserManager {
     private static UserManager instance;
 
     public static UserManager getInstance() {
-        if (instance ==  null) {
+        if (instance == null) {
             instance = new UserManager();
         }
         return instance;
@@ -39,8 +45,7 @@ public class UserManager {
                 user.quickBloxID = qbUser.getId();
                 userRepository.updateQBId(user.key, qbUser.getId());
                 setUser(user);
-                // FIXME
-                user.initFriendList();
+                initFriendList(user.friends.keySet());
             }
             callback.complete(error, data);
         };
@@ -58,11 +63,23 @@ public class UserManager {
         });
     }
 
+    public void initFriendList(Set<String> keys) {
+        friendList = new ArrayList<>();
+        for (String userID : keys) {
+            userRepository.getUser(userID, (error, data) -> {
+                if (error == null) {
+                    User user = (User) data[0];
+                    friendList.add(user);
+                    user.friendList = friendList;
+                }
+            });
+        }
+    }
+
     private void setUser(User user) {
         this.user = user;
         // TODO Temporary set user for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
-        ServiceManager.getInstance().initAllUsers();
     }
 
     public User getUser() {

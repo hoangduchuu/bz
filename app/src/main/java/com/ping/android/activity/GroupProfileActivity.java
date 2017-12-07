@@ -21,6 +21,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
@@ -52,6 +53,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private BzzzStorage bzzzStorage;
     private GroupRepository groupRepository;
     private ConversationRepository conversationRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         bzzzStorage = new BzzzStorage();
         groupRepository = new GroupRepository();
         conversationRepository = new ConversationRepository();
+        userRepository = new UserRepository();
 
         groupRepository.loadGroup(groupID, new Callback() {
             @Override
@@ -190,12 +193,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindMemberData() {
-        ServiceManager.getInstance().initMembers(new ArrayList<String>(group.memberIDs.keySet()), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                group.members = (List<User>) data[0];
-                adapter.initContact(group.members);
-            }
+        userRepository.initMemberList(group.memberIDs, (error, data) -> {
+            group.members = (List<User>) data[0];
+            adapter.initContact(group.members);
         });
     }
 

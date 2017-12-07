@@ -27,6 +27,7 @@ import com.ping.android.adapter.ContactAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -37,7 +38,6 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     private LinearLayoutManager mLinearLayoutManager;
     private SearchView searchView;
     private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private DatabaseReference mContactDatabase;
@@ -45,6 +45,8 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     private ContactAdapter adapter;
     private boolean loadData, loadGUI;
     private ChildEventListener observeContactEvent;
+
+    private UserRepository userRepository;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,8 +137,8 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     }
 
     private void init() {
+        userRepository = new UserRepository();
         auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         currentUser = UserManager.getInstance().getUser();
@@ -171,19 +173,15 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
 
     private void observeContacts() {
         observeContactEvent = new ChildEventListener() {
-
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String contactID = dataSnapshot.getKey();
                 Boolean exist = Boolean.valueOf(dataSnapshot.getValue().toString());
                 if (exist) {
-                    ServiceManager.getInstance().getUser(contactID, new Callback() {
-                        @Override
-                        public void complete(Object error, Object... data) {
-                            if (error == null) {
-                                User contact = (User) data[0];
-                                adapter.addContact(contact);
-                            }
+                    userRepository.getUser(contactID, (error, data) -> {
+                        if (error == null) {
+                            User contact = (User) data[0];
+                            adapter.addContact(contact);
                         }
                     });
                 }
@@ -194,13 +192,10 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
                 String contactID = dataSnapshot.getKey();
                 Boolean exist = Boolean.valueOf(dataSnapshot.getValue().toString());
                 if (exist) {
-                    ServiceManager.getInstance().getUser(contactID, new Callback() {
-                        @Override
-                        public void complete(Object error, Object... data) {
-                            if (error == null) {
-                                User contact = (User) data[0];
-                                adapter.updateContact(contact);
-                            }
+                    userRepository.getUser(contactID, (error, data) -> {
+                        if (error == null) {
+                            User contact = (User) data[0];
+                            adapter.updateContact(contact);
                         }
                     });
                 } else {
@@ -224,7 +219,7 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
 
             }
         };
-        mContactDatabase = mDatabase.child("users").child(mFirebaseUser.getUid()).child("friends");
+        mContactDatabase = mDatabase.child("users").child(currentUser.key).child("friends");
         mContactDatabase.addChildEventListener(observeContactEvent);
     }
 

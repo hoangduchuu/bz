@@ -30,7 +30,6 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
 
     private List<Mapping> mMappings;
 
-    private FirebaseUser mFirebaseUser;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
@@ -69,7 +68,6 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
 
     private void init() {
         currentUser = UserManager.getInstance().getUser();
-        mFirebaseUser = ServiceManager.getInstance().getFirebaseUserUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 

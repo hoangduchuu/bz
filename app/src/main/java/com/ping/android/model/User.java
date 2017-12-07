@@ -141,39 +141,6 @@ public class User implements Parcelable {
         }
     }
 
-    public void initFriendList() {
-        friendList = new ArrayList<>();
-        for(String userID : friends.keySet()) {
-            ServiceManager.getInstance().getUser(userID, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    if (error == null) {
-                        User user = (User) data[0];
-                        friendList.add(user);
-                    }
-                }
-            });
-        }
-    }
-
-    public void updateData(User user) {
-        this.firstName = user.firstName;
-        this.lastName = user.lastName;
-        this.quickBloxID = user.quickBloxID;
-        this.password = user.password;
-        this.email = user.email;
-        this.phone = user.phone;
-        this.profile = user.profile;
-        this.loginStatus= user.loginStatus;
-        this.showMappingConfirm = user.showMappingConfirm;
-        this.mappings = user.mappings;
-        this.settings = user.settings;
-        this.friends = user.friends;
-        this.blocks = user.blocks;
-
-        initFriendList();
-    }
-
     @Override
     public int describeContents() {
         return 0;

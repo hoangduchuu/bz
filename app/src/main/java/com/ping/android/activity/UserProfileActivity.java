@@ -13,6 +13,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
@@ -30,6 +31,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     private User user, currentUser;
     private Conversation conversation;
     private ConversationRepository conversationRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +44,8 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
         conversationRepository = new ConversationRepository();
 
         currentUser = UserManager.getInstance().getUser();
-
-        ServiceManager.getInstance().getUser(userID, (error, data) -> {
+        userRepository = new UserRepository();
+        userRepository.getUser(userID, (error, data) -> {
             if (error == null) {
                 user = (User) data[0];
                 bindData();

@@ -26,6 +26,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.view.CustomSwitch;
@@ -33,7 +34,9 @@ import com.ping.android.view.CustomSwitch;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CallFragment extends Fragment implements View.OnClickListener, CallAdapter.ClickListener {
 
@@ -58,6 +61,8 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     private boolean isAll = true;
     private String search = "";
     private Button btnCancel;
+
+    private UserRepository userRepository;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,6 +160,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     }
 
     private void init() {
+        userRepository = new UserRepository();
         auth = FirebaseAuth.getInstance();
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
@@ -266,21 +272,19 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
             }
             return;
         }
-        ArrayList<String> memberIDs = new ArrayList<>();
-        memberIDs.add(call.senderId);
-        memberIDs.add(call.receiveId);
-        ServiceManager.getInstance().initMembers(memberIDs, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                call.members = (List<User>) data[0];
-                for (User user : call.members) {
-                    if (!user.key.equals(currentUser.key)) {
-                        call.opponentUser = user;
-                        break;
-                    }
+
+        Map<String, Boolean> memberIDs = new HashMap<>();
+        memberIDs.put(call.senderId, true);
+        memberIDs.put(call.receiveId, true);
+        userRepository.initMemberList(memberIDs, (error, data) -> {
+            call.members = (List<User>) data[0];
+            for (User user : call.members) {
+                if (!user.key.equals(currentUser.key)) {
+                    call.opponentUser = user;
+                    break;
                 }
-                adapter.addOrUpdateCall(call);
             }
+            adapter.addOrUpdateCall(call);
         });
     }
 

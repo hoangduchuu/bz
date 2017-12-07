@@ -31,6 +31,8 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
 import com.ping.android.util.NetworkConnectionChecker;
@@ -116,6 +118,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private Call callHistory;
     private User currentUser;
     private User otherUser;
+    private UserRepository userRepository;
 
     private boolean isSendHistory = false;
 
@@ -187,7 +190,6 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         setContentView(R.layout.activity_call);
 
         parseIntentExtras();
-
         sessionManager = WebRtcSessionManager.getInstance(this);
         if (!currentSessionExist()) {
 //            we have already currentSession == null, so it's no reason to do further initialization
@@ -218,17 +220,21 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     }
 
     private void initData() {
+        userRepository = new UserRepository();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
         currentUser = UserManager.getInstance().getUser();
-        if (isInCommingCall) {
-            otherUser = ServiceManager.getInstance().getUserByQBId(currentSession.getCallerID());
-        } else {
-            otherUser = ServiceManager.getInstance().getUserByQBId(currentSession.getOpponents().get(0));
-        }
-        double timestamp = System.currentTimeMillis() / 1000L;
-        callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, getCallDeleteStatuses(), timestamp);
+        userRepository.getUserByQbId(isInCommingCall ? currentSession.getCallerID() : currentSession.getOpponents().get(0), new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                if (error == null) {
+                    otherUser = (User) data[0];
+                    double timestamp = System.currentTimeMillis() / 1000L;
+                    callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, getCallDeleteStatuses(), timestamp);
+                }
+            }
+        });
     }
 
     private void insertCallHistory(int status) {
