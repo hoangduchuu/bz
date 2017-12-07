@@ -40,11 +40,11 @@
                     <LinearLayout
                         style="@style/ItemSetting"
                         android:layout_height="wrap_content"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp"
-                        android:orientation="horizontal"
                         android:descendantFocusability="beforeDescendants"
-                        android:focusableInTouchMode="true" >
+                        android:focusableInTouchMode="true"
+                        android:orientation="horizontal"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp">
 
                         <ImageView
                             android:id="@+id/group_profile_image"
@@ -55,31 +55,33 @@
                             android:src="@drawable/ic_avatar_gray" />
 
                         <LinearLayout
-                            android:focusable="true"
-                            android:focusableInTouchMode="true"
                             android:layout_width="0px"
-                            android:layout_height="0px"/>
+                            android:layout_height="0px"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true" />
 
 
                         <EditText
-                            android:lines="1"
                             android:id="@+id/group_profile_name"
-                            style="@style/MatchParent"
-                            android:ellipsize="end"
-                            android:layout_marginRight="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
                             android:background="@null"
+                            android:ellipsize="end"
                             android:maxLines="1"
-                            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse egestas, risus a placerat fermentum, massa nisl luctus lorem, eget vehicula orci velit sed lectus. Maecenas in scelerisque sem. Curabitur tincidunt auctor lectus, eget congue ex faucibus at. Sed suscipit dictum ligula bibendum semper. Mauris ipsum mauris, mattis a tellus sed, cursus viverra mauris. In mollis facilisis feugiat. Mauris semper tempus lectus nec tempus. Curabitur interdum leo eu elementum convallis. Sed non est pharetra, tincidunt neque a, vulputate tellus. Mauris cursus nisl in efficitur fringilla. Donec et lobortis eros. Nullam nibh ante, lobortis et purus eu, facilisis ultrices augue. Nam eu vehicula arcu, eget egestas dolor. Aliquam risus ex, blandit eu ligula vel, mollis egestas felis."
+                            android:inputType="text"
+                            android:nextFocusLeft="@id/group_profile_name"
                             android:nextFocusUp="@id/group_profile_name"
-                            android:nextFocusLeft="@id/group_profile_name"/>
+                            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse egestas, risus a placerat fermentum, massa nisl luctus lorem, eget vehicula orci velit sed lectus. Maecenas in scelerisque sem. Curabitur tincidunt auctor lectus, eget congue ex faucibus at. Sed suscipit dictum ligula bibendum semper. Mauris ipsum mauris, mattis a tellus sed, cursus viverra mauris. In mollis facilisis feugiat. Mauris semper tempus lectus nec tempus. Curabitur interdum leo eu elementum convallis. Sed non est pharetra, tincidunt neque a, vulputate tellus. Mauris cursus nisl in efficitur fringilla. Donec et lobortis eros. Nullam nibh ante, lobortis et purus eu, facilisis ultrices augue. Nam eu vehicula arcu, eget egestas dolor. Aliquam risus ex, blandit eu ligula vel, mollis egestas felis." />
                     </LinearLayout>
 
                     <View style="@style/ItemViewSeparate" />
 
                     <LinearLayout
                         style="@style/MatchWidth"
-                        android:orientation="vertical"
-                        android:background="@color/white">
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
@@ -107,8 +109,8 @@
 
                             <TextView
                                 style="@style/ItemSettingText"
-                                android:textColor="@color/color_grey"
-                                android:text="Nickname" />
+                                android:text="Nickname"
+                                android:textColor="@color/color_grey" />
 
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>
@@ -152,15 +154,16 @@
                     <View style="@style/ItemViewSeparate" />
 
                     <LinearLayout
-                        style="@style/ItemSetting"
-                        android:id="@+id/group_profile_add_member">
+                        android:id="@+id/group_profile_add_member"
+                        style="@style/ItemSetting">
+
                         <TextView
                             style="@style/ItemSettingText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="ADD NEW"
-                            android:textColor="@color/orange"/>
+                            android:textColor="@color/orange" />
                     </LinearLayout>
 
                     <View style="@style/ItemViewSeparate" />
@@ -169,19 +172,20 @@
                         android:id="@+id/group_profile_list_member"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/white"/>
+                        android:background="@color/white" />
 
                     <View style="@style/ItemViewSeparate" />
 
                     <LinearLayout
-                        style="@style/ItemSetting"
-                        android:id="@+id/group_profile_leave_group" >
+                        android:id="@+id/group_profile_leave_group"
+                        style="@style/ItemSetting">
+
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="LEAVE GROUP"
-                            android:textColor="@color/orange"/>
+                            android:textColor="@color/orange" />
                     </LinearLayout>
                 </LinearLayout>
 

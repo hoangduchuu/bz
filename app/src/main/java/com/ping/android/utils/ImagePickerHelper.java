@@ -13,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -23,7 +24,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
+import com.afollestad.materialcamera.MaterialCamera;
 import com.ping.android.activity.BuildConfig;
+import com.ping.android.activity.R;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 
@@ -133,7 +136,8 @@ public class ImagePickerHelper {
             }
         } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                File file = new File(getFilePath());
+                //File file = new File(getFilePath());
+                final File file = new File(data.getData().getPath());
                 Uri photoUri = getUriFromFile(file);
                 if (file.exists()) {
                     tuningFinalImage(photoUri, file.getName());
@@ -153,28 +157,52 @@ public class ImagePickerHelper {
         }
     }
 
+    private class TuningImage extends AsyncTask<Void, Void, List<File>> {
+
+        private final Uri photoUri;
+        private final String fileName;
+
+        public TuningImage(Uri photoUri, String fileName) {
+            this.photoUri = photoUri;
+            this.fileName = fileName;
+        }
+
+        @Override
+        protected List<File> doInBackground(Void... voids) {
+            List<File> ret = new ArrayList<>();
+            if (isScale) {
+                String filePath = getCacheFolder() + File.separator + fileName;
+                Bitmap scaleBitmap = decodeSampledBitmap(getContext(), photoUri, MAX_DIMENSION, MAX_DIMENSION);
+                if (scaleBitmap != null) {
+                    saveImage(filePath, scaleBitmap);
+                    ret.add(new File(filePath));
+                }
+            }
+            if (isGenerateThumbnail) {
+                String filePath = getCacheFolder() + File.separator + "thumbnail_" + fileName;
+                Bitmap thumbnail = decodeSampledBitmap(getContext(), photoUri, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
+                if (thumbnail != null) {
+                    saveImage(filePath, thumbnail);
+                    ret.add(new File(filePath));
+                }
+            }
+            return ret;
+        }
+
+        @Override
+        protected void onPostExecute(List<File> results) {
+            super.onPostExecute(results);
+            File selectedImage = results.size() > 0 ? results.get(0) : null;
+            File thumbnailFile = results.size() > 1 ? results.get(1) : null;
+            if (callback != null) {
+                callback.complete(null, selectedImage, thumbnailFile);
+            }
+        }
+    }
+
     private void tuningFinalImage(Uri photoUri, String fileName) {
-        File selectedImage = null;
-        File thumbnailFile = null;
-        if (isScale) {
-            String filePath = getCacheFolder() + File.separator + fileName;
-            Bitmap scaleBitmap = decodeSampledBitmap(getContext(), photoUri, MAX_DIMENSION, MAX_DIMENSION);
-            if (scaleBitmap != null) {
-                saveImage(filePath, scaleBitmap);
-                selectedImage = new File(filePath);
-            }
-        }
-        if (isGenerateThumbnail) {
-            String filePath = getCacheFolder() + File.separator + "thumbnail_" + fileName;
-            Bitmap thumbnail = decodeSampledBitmap(getContext(), photoUri, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
-            if (thumbnail != null) {
-                saveImage(filePath, thumbnail);
-                thumbnailFile = new File(filePath);
-            }
-        }
-        if (callback != null) {
-            callback.complete(null, selectedImage, thumbnailFile);
-        }
+        TuningImage task = new TuningImage(photoUri, fileName);
+        task.execute();
     }
 
     private void performCrop(Uri photoUri) {
@@ -231,20 +259,17 @@ public class ImagePickerHelper {
             requestPermissions(true);
             return;
         }
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider",
-                    new File(getFilePath()));
-        } else {
-            uri = Uri.fromFile(new File(getFilePath()));
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        MaterialCamera materialCamera = null;
         if (activity != null) {
-            activity.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
+            materialCamera = new MaterialCamera(activity);
         } else if (fragment != null) {
-            fragment.startActivityForResult(intent, TAKE_PICTURE_REQUEST_CODE);
+            materialCamera = new MaterialCamera(fragment);
         }
+        materialCamera
+                .saveDir(getFilePath())
+                .stillShot()
+                .labelConfirm(R.string.gen_ok)
+                .start(TAKE_PICTURE_REQUEST_CODE);
     }
 
     private String getFilePath() {
@@ -353,6 +378,9 @@ public class ImagePickerHelper {
     // region utilities methods
 
     private File getMediaFileFromUri(Context context, Uri uri) {
+        if (uri.getScheme().equals("file")) {
+            return new File(uri.getPath());
+        }
         String selection = null;
         String[] selectionArgs = null;
         String[] projection;

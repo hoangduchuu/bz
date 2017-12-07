@@ -185,6 +185,13 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity2"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6adab05c8d640a679fc4d84fbd8f8047827b4d1c" />

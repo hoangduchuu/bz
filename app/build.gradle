@@ -12,6 +12,8 @@ apply plugin: 'com.android.application'
 repositories {
     maven { url 'https://maven.fabric.io/public' }
     mavenCentral()
+    jcenter()
+    maven { url "https://dl.bintray.com/drummer-aidan/maven" }
 }
 
 apply plugin: 'io.fabric'
@@ -81,6 +83,9 @@ dependencies {
     //compile 'com.firebaseui:firebase-ui-database:1.0.1'
     //STORAGE FIREBASE
     implementation 'com.google.firebase:firebase-storage:11.6.2'
+    implementation("com.firebaseui:firebase-ui-storage:3.1.0") {
+        exclude group: 'com.android.support'
+    }
     //Places SERVICES
     //compile 'com.google.android.gms:play-services-places:10.0.1'
 
@@ -108,12 +113,14 @@ dependencies {
     //Emoji
     implementation 'com.vanniktech:emoji-ios:0.5.1'
 
-    implementation 'com.firebaseui:firebase-ui-storage:3.1.0'
     implementation 'com.github.bumptech.glide:glide:4.3.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
     implementation 'jp.wasabeef:glide-transformations:3.0.1'
     // If you want to use the GPU Filters
     implementation 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
+    implementation("com.afollestad:material-camera:0.4.4") {
+        exclude group: 'com.android.support'
+    }
 }
 
 apply plugin: 'com.google.gms.google-services'
