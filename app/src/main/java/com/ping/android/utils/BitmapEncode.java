@@ -1,16 +1,13 @@
 package com.ping.android.utils;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
-import com.ping.android.model.Message;
 import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 /**
@@ -18,13 +15,12 @@ import java.security.MessageDigest;
  */
 
 public class BitmapEncode extends BitmapTransformation {
+    private static final String ID = "com.ping.android.utils.BitmapEncode";
 
-    private Context context;
     private boolean bitmapMark;
 
-    public BitmapEncode(Context context, boolean bitmapMark){
+    public BitmapEncode(boolean bitmapMark){
         super();
-        this.context = context;
         this.bitmapMark = bitmapMark;
 
     }
@@ -37,7 +33,22 @@ public class BitmapEncode extends BitmapTransformation {
     }
 
     @Override
-    public void updateDiskCacheKey(MessageDigest messageDigest) {
-
+    public boolean equals(Object obj) {
+        return obj instanceof BitmapEncode;
     }
+
+    @Override
+    public int hashCode() {
+        return ID.hashCode();
+    }
+
+    @Override
+    public void updateDiskCacheKey(MessageDigest messageDigest) {
+        try {
+            messageDigest.update(ID.getBytes(STRING_CHARSET_NAME));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

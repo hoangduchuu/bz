@@ -50,7 +50,7 @@ public class ImagePickerHelper {
 
     private String filePath;
     private String thumbnailFilePath;
-    private Callback callback;
+    private ImagePickerListener listener;
 
     private Activity activity;
     private Fragment fragment;
@@ -87,8 +87,8 @@ public class ImagePickerHelper {
         return imagePickerHelper;
     }
 
-    public ImagePickerHelper setCallback(Callback callback) {
-        this.callback = callback;
+    public ImagePickerHelper setListener(ImagePickerListener listener) {
+        this.listener = listener;
         return imagePickerHelper;
     }
 
@@ -131,6 +131,9 @@ public class ImagePickerHelper {
                 if (isCrop) {
                     performCrop(photoUri);
                 } else {
+                    if (listener != null) {
+                        listener.onImageReceived(file);
+                    }
                     tuningFinalImage(photoUri, file.getName());
                 }
             }
@@ -140,6 +143,9 @@ public class ImagePickerHelper {
                 final File file = new File(data.getData().getPath());
                 Uri photoUri = getUriFromFile(file);
                 if (file.exists()) {
+                    if (listener != null) {
+                        listener.onImageReceived(file);
+                    }
                     tuningFinalImage(photoUri, file.getName());
                 }
             }
@@ -149,8 +155,8 @@ public class ImagePickerHelper {
                 if (data.hasExtra("data")) {
                     Bitmap selectedBitmap = extras.getParcelable("data");
                     saveImage(getFilePath(), selectedBitmap);
-                    if (callback != null) {
-                        callback.complete(null, new File(filePath));
+                    if (listener != null) {
+                        listener.onFinalImage(new File(filePath));
                     }
                 }
             }
@@ -194,8 +200,8 @@ public class ImagePickerHelper {
             super.onPostExecute(results);
             File selectedImage = results.size() > 0 ? results.get(0) : null;
             File thumbnailFile = results.size() > 1 ? results.get(1) : null;
-            if (callback != null) {
-                callback.complete(null, selectedImage, thumbnailFile);
+            if (listener != null) {
+                listener.onFinalImage(selectedImage, thumbnailFile);
             }
         }
     }
@@ -347,9 +353,7 @@ public class ImagePickerHelper {
                         }
                     }
                     if (!isGrant) {
-                        if (callback != null) {
-                            callback.complete(new IllegalStateException("Permissions is not granted"));
-                        }
+                        // TODO show error
                         return;
                     }
                     if (isOpeningCamera) {
@@ -361,9 +365,7 @@ public class ImagePickerHelper {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    if (callback != null) {
-                        callback.complete(new IllegalStateException("Permissions is not granted"));
-                    }
+                    // TODO show error
                 }
                 return;
             }
@@ -525,4 +527,9 @@ public class ImagePickerHelper {
     }
 
     // endregion
+
+    public interface ImagePickerListener {
+        void onImageReceived(File file);
+        void onFinalImage(File... files);
+    }
 }

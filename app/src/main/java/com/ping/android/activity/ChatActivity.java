@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -388,6 +389,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         tvChatName.setOnClickListener(this);
         tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
+        ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
             @Override
             public void onLayoutCompleted(RecyclerView.State state) {
@@ -1084,6 +1086,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
+    Message cacheMessage = null;
+
     private void onSendCamera() {
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
@@ -1097,10 +1101,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
-                        File thumbnail = (File) data[1];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+                        // FIXME: should improve this way
+                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
+                        File thumbnail = files[1];
                         sendImageFirebase(file, thumbnail);
                     }
                 });
@@ -1120,10 +1131,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
-                        File thumbnail = (File) data[1];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
+                        File thumbnail = files[1];
                         sendImageFirebase(file, thumbnail);
                     }
                 });
@@ -1143,9 +1160,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
                         sendGameFirebase(file);
                     }
                 });
@@ -1315,7 +1338,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
-        String key = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
+        if (cacheMessage == null) {
+            cacheMessage = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
+        }
+        //adapter.addOrUpdate(message);
         // upload thumbnail first first
         bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
             if (error != null) {
@@ -1323,14 +1349,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 return;
             }
             String thumbnailUrl = (String) data[0];
-            messageRepository.updateThumbnailUrl(key, thumbnailUrl);
+            messageRepository.updateThumbnailUrl(cacheMessage.key, thumbnailUrl);
             // Upload image
             bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
                 String imageUrl = thumbnailUrl;
                 if (error1 == null) {
                     imageUrl = (String) data1[0];
                 }
-                messageRepository.updatePhotoUrl(key, imageUrl);
+                messageRepository.updatePhotoUrl(cacheMessage.key, imageUrl);
                 //sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
             });
         });
@@ -1345,7 +1371,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    private String sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
+    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
         String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
@@ -1367,7 +1393,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-        return messageKey;
+        return message;
     }
 
     private void updateMessageStatus(Message message) {
