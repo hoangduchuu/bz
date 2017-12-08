@@ -53,7 +53,15 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     private void init() {
-        UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, null);
+        UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, (error, data) -> {
+            if (error == null) {
+                originalBitmap = (Bitmap) data[0];
+                btPuzzle.setChecked(!puzzledstatus);
+                ivPuzzle.setImageBitmap(originalBitmap);
+            } else {
+                ivPuzzle.setImageResource(R.drawable.ic_avatar_gray);
+            }
+        });
     }
 
     @Override
@@ -73,8 +81,12 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     public void puzzleImage() {
-
-        UiUtils.loadImage(ivPuzzle, imageURL, messageID, !btPuzzle.isChecked(), null);
+        UiUtils.loadImage(ivPuzzle, imageURL, messageID, !btPuzzle.isChecked(), (error, data) -> {
+            if (error == null) {
+                Bitmap bitmap = (Bitmap) data[0];
+                ivPuzzle.setImageBitmap(bitmap);
+            }
+        });
 
         //ivPuzzle.postInvalidate();
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {

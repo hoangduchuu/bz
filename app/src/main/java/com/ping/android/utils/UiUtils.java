@@ -143,13 +143,10 @@ public class UiUtils {
 
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
         ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
-        Log.d("HEHEHE 1" + key.toString());
         GlideApp.with(imageView.getContext())
                 .load(filePath)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                //.placeholder(R.drawable.img_loading_bottom)
                 .override(512)
-//                .thumbnail(0.5f)
                 .transform(new BitmapEncode(bitmapMark))
                 .signature(key)
                 .dontAnimate()
@@ -163,27 +160,10 @@ public class UiUtils {
         if (placeholder == null) {
             placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_bottom);
         }
-////        GlideApp.
-//        imageView.setImageDrawable(placeholder);
-//        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
-//            @Override
-//            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-////                Log.d("Image loaded " + imageUrl);
-////                imageView.setImageBitmap(resource);
-//            }
-//
-//            @Override
-//            public void onLoadFailed(@Nullable Drawable errorDrawable) {
-////                callback.complete(new Error());
-//                imageView.setImageResource(R.drawable.img_loading_bottom);
-//            }
-//        };
 
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
         ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
-        Log.d("HEHEHE " + key.toString());
         GlideApp.with(imageView.getContext())
-//                .asBitmap()
                 .load(gsReference)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(placeholder)
@@ -192,6 +172,36 @@ public class UiUtils {
                 .signature(key)
                 .dontAnimate()
                 .into(imageView);
+    }
+
+    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
+
+        if (TextUtils.isEmpty(imageUrl)) {
+            return null;
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                Log.d("Image loaded " + imageUrl);
+                callback.complete(null, resource);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                callback.complete(new Error());
+            }
+        };
+        GlideApp.with(imageView.getContext())
+                .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .load(gsReference)
+                .placeholder(R.drawable.img_loading_bottom)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
+                .into(target);
+        return target;
     }
 
     public static void hideSoftKeyboard(Activity activity) {
