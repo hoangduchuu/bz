@@ -98,7 +98,7 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
         if (!headsetPlugged) {
             audioSwitchToggleButton.setEnabled(inability);
         }
-        audioSwitchToggleButton.setActivated(inability);
+        audioSwitchToggleButton.setActivated(false);
     }
 
     @Override
