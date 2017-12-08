@@ -154,6 +154,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     }
 
     public void searchUsers(String text) {
+        Log.d("search users with " + text);
         userList.clear();
         userRepository.searchUsersWithText(text, "ping_id", (error, data) -> {
             if (error == null) {

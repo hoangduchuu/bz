@@ -56,9 +56,12 @@ public class UserRepository extends BaseFirebaseDatabase {
         databaseReference.orderByChild("quickBloxID").equalTo(qbId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    User user = new User(dataSnapshot);
-                    callback.complete(null, user);
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        User user = new User(snapshot);
+                        callback.complete(null, user);
+                        break;
+                    }
                 } else {
                     callback.complete(new Error());
                 }

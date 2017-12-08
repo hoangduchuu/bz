@@ -68,6 +68,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         holder.tvName.setText(contact.getDisplayName());
         holder.tvDetail.setText(contact.pingID);
         holder.contact = contact;
+        holder.setClickListener(mClickListener);
 
         if (contact.typeFriend != null && contact.typeFriend == Constant.TYPE_FRIEND.IS_FRIEND) {
             holder.tgAddFriend.setChecked(false);
@@ -96,6 +97,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         public ToggleButton tgAddFriend;
         public ImageView ivSendMessage;
         public ImageView ivProfileImage;
+        private ClickListener clickListener;
 
         public User contact;
 
@@ -110,6 +112,10 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
             ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
         }
 
+        public void setClickListener(ClickListener clickListener) {
+            this.clickListener = clickListener;
+        }
+
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
@@ -120,10 +126,10 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
                     }
                     tgAddFriend.setChecked(false);
                     tgAddFriend.setEnabled(false);
-                    //mClickListener.onAddFriend(contact);
+                    clickListener.onAddFriend(contact);
                     break;
                 case R.id.contact_send_message:
-                    //mClickListener.onSendMessage(contact);
+                    clickListener.onSendMessage(contact);
                     break;
             }
         }
