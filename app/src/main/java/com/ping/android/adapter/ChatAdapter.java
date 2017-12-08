@@ -460,9 +460,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void openImage(boolean isPuzzled) {
-            String photoUrl = !TextUtils.isEmpty(message.photoUrl) && !"PPhtotoMessageIdentifier".equals(message.photoUrl)
+            String photoUrl = !TextUtils.isEmpty(message.photoUrl) && message.photoUrl.startsWith(Constant.IMAGE_PREFIX)
                     ? message.photoUrl : message.thumbUrl;
-            if (TextUtils.isEmpty(photoUrl) || "PPhtotoMessageIdentifier".equals(photoUrl)) return;
+            if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith(Constant.IMAGE_PREFIX)) return;
             unPuzzleImage(photoUrl, isPuzzled);
         }
 

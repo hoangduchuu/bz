@@ -21,6 +21,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
@@ -48,11 +49,9 @@ import me.leolin.shortcutbadger.ShortcutBadger;
 public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ClickListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase, mMessageDatabase;
+    private DatabaseReference mMessageDatabase;
     private ChildEventListener observeConversationEvent;
-    private ChildEventListener groupEventListener;
+
     private LinearLayoutManager linearLayoutManager;
     private SearchView searchView;
     private RecyclerView listChat;
@@ -61,36 +60,18 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private User currentUser;
     private MessageAdapter adapter;
     private ArrayList<Conversation> conversations;
-    private boolean loadData, loadGUI, isEditMode;
+    private boolean isEditMode;
 
     private UserRepository userRepository;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        init();
-        loadData = true;
-        if (loadGUI) {
-            bindData();
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_message, container, false);
         bindViews(view);
-        if (loadData & !loadGUI) {
-            bindData();
-        }
-        loadGUI = true;
+        init();
+        bindData();
         return view;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        loadGUI = false;
     }
 
     @Override
@@ -98,9 +79,6 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         super.onDestroy();
         if (mMessageDatabase != null) {
             mMessageDatabase.removeEventListener(observeConversationEvent);
-        }
-        if (groupEventListener != null) {
-            ServiceManager.getInstance().stopListenGroupChange(currentUser.key, groupEventListener);
         }
     }
 
@@ -127,11 +105,9 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private void init() {
         userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
         conversations = new ArrayList<>();
         adapter = new MessageAdapter(conversations, getActivity(), this);
+        // Load data
         observeMessages();
     }
 
@@ -165,12 +141,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
         updateEditMode();
     }
 
@@ -227,38 +198,10 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
 
             }
         };
-        mMessageDatabase = mDatabase.child("users").child(auth.getCurrentUser().getUid()).child("conversations");
-        mMessageDatabase.addChildEventListener(observeConversationEvent);
-
-        groupEventListener = new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Group group = Group.from(dataSnapshot);
-                adapter.onGroupChange(group);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ServiceManager.getInstance().listenGroupChange(currentUser.key, groupEventListener);
+        mMessageDatabase = userRepository.getDatabaseReference()
+                .child(currentUser.key)
+                .child("conversations");
+        mMessageDatabase.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
     }
 
     private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
@@ -283,16 +226,22 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
             }
             if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                 adapter.addOrUpdateConversation(conversation);
+                scrollToTop();
             } else {
                 ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
                     @Override
                     public void complete(Object error, Object... data) {
                         conversation.group = (Group) data[0];
                         adapter.addOrUpdateConversation(conversation);
+                        scrollToTop();
                     }
                 });
             }
         });
+    }
+
+    private void scrollToTop() {
+        listChat.scrollToPosition(0);
     }
 
     private void onNewChat() {
