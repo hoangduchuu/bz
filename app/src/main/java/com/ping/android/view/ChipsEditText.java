@@ -113,7 +113,7 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
                         }
                     }
                 };
-                timer.schedule(task, DELAY);
+                timer.schedule(task, delayTime);
             }
         };
         addTextChangedListener(textWatcher);

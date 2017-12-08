@@ -53,7 +53,7 @@ public class UserManager {
                 user.quickBloxID = qbUser.getId();
                 userRepository.updateQBId(user.key, qbUser.getId());
                 setUser(user);
-                initFriendList(user.friends.keySet());
+                initFriendList(user.friends);
             }
             callback.complete(error, data);
         };
@@ -78,7 +78,7 @@ public class UserManager {
 
     private void onFriendsUpdated(Map<String, Boolean> friends) {
         friendList = new ArrayList<>();
-        initFriendList(friends.keySet());
+        initFriendList(friends);
     }
 
     private void addValueEventListener() {
@@ -112,16 +112,13 @@ public class UserManager {
         }
     }
 
-    private void initFriendList(Set<String> keys) {
-        for (String userID : keys) {
-            userRepository.getUser(userID, (error, data) -> {
-                if (error == null) {
-                    User user = (User) data[0];
-                    friendList.add(user);
-                    user.friendList = friendList;
-                }
-            });
-        }
+    private void initFriendList(Map<String, Boolean> keys) {
+        userRepository.initMemberList(keys, (error, data) -> {
+            if (error == null) {
+                friendList = (ArrayList<User>) data[0];
+                user.friendList = friendList;
+            }
+        });
     }
 
     private void initBlocksList(Map<String, Boolean> keys) {

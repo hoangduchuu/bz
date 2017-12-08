@@ -89,6 +89,7 @@ public class UserRepository extends BaseFirebaseDatabase {
         databaseReference.orderByChild(child)
                 .startAt(text)
                 .endAt(text + "\uf8ff")
+                .limitToFirst(10)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
