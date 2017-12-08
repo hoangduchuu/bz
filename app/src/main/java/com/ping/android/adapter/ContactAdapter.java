@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
 
-    private static ClickListener mClickListener;
+    private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
     private Context mContext;

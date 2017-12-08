@@ -24,6 +24,7 @@ import java.util.Set;
 
 public class UserManager {
     private ArrayList<User> friendList;
+    private ArrayList<User> blockList;
     private User user;
     private UserRepository userRepository;
     private QuickBloxRepository quickBloxRepository;
@@ -42,6 +43,7 @@ public class UserManager {
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
         friendList = new ArrayList<>();
+        blockList = new ArrayList<>();
     }
 
     public void initialize(@NonNull Callback callback) {
@@ -55,6 +57,7 @@ public class UserManager {
             }
             callback.complete(error, data);
         };
+        removeValueEventListener();
         userRepository.initializeUser((error, data) -> {
             if (error == null) {
                 user = (User) data[0];
@@ -70,21 +73,24 @@ public class UserManager {
     }
 
     private void onBlocksUpdated(Map<String, Object> blocks) {
-
+        blockList = new ArrayList<>();
     }
 
-    private void onFriendsUpdated(Map<String, Object> friends) {
-        List<User> friendList = new ArrayList<>();
-        //if
+    private void onFriendsUpdated(Map<String, Boolean> friends) {
+        friendList = new ArrayList<>();
+        initFriendList(friends.keySet());
     }
 
-    private void listenUserValueChange() {
+    private void addValueEventListener() {
+        if (user == null) return;
+
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User updateUser = new User(dataSnapshot);
                 if (user.friendList.size() != updateUser.friendList.size()) {
                     // Handle friends updated
+                    onFriendsUpdated(updateUser.friends);
                 }
                 if (user.blocks.size() != updateUser.blocks.size()) {
                     // Handle blocks updated
@@ -100,6 +106,12 @@ public class UserManager {
                 .addValueEventListener(valueEventListener);
     }
 
+    private void removeValueEventListener() {
+        if (valueEventListener != null && user != null) {
+            userRepository.getDatabaseReference().child(user.key).removeEventListener(valueEventListener);
+        }
+    }
+
     private void initFriendList(Set<String> keys) {
         for (String userID : keys) {
             userRepository.getUser(userID, (error, data) -> {
@@ -112,8 +124,17 @@ public class UserManager {
         }
     }
 
+    private void initBlocksList(Map<String, Boolean> keys) {
+        userRepository.initMemberList(keys, (error, data) -> {
+            if (error == null) {
+                blockList = (ArrayList<User>) data[0];;
+            }
+        });
+    }
+
     private void setUser(User user) {
         this.user = user;
+        this.addValueEventListener();
         // TODO Temporary set user for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
     }
