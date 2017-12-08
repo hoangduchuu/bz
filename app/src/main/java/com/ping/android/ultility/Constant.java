@@ -38,6 +38,8 @@ public class Constant {
     public static final int IMAGE_LIMIT_WIDTH = 512;
     public static final int GAME_LIMIT_TIME = 30000;
 
+    public static final String IMAGE_PREFIX = "PPhtotoMessageIdentifier";
+
     public static final String URL_STORAGE_REFERENCE = "gs://ping-android-dev.appspot.com";
 
     public static final String PREFS_NAME = "PingPrefsFile";

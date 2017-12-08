@@ -34,7 +34,6 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.QBResRequestExecutor;
@@ -325,9 +324,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File imagePath = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File imagePath = files[0];
                         UiUtils.displayProfileAvatar(profileImage, imagePath);
                         uploadProfile();
                     }

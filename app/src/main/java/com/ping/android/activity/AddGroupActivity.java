@@ -370,9 +370,15 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        groupProfileImage = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
                         UiUtils.displayProfileAvatar(groupAvatar, groupProfileImage);
                     }
                 });

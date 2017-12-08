@@ -227,9 +227,15 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        groupProfileImage = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
                         UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
                         bzzzStorage.uploadGroupAvatar(groupID, groupProfileImage, new Callback() {
                             @Override

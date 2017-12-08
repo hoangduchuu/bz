@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,9 +24,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.Consts;
+import com.ping.android.utils.ActivityLifecycle;
+import com.quickblox.users.model.QBUser;
 
 public class LoginActivity extends CoreActivity implements View.OnClickListener {
 
@@ -194,11 +199,21 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
                 if (error == null) {
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     ServiceManager.getInstance().updateLoginStatus(true);
+
+                    QBUser qbUser = (QBUser) data[0];
+                    startCallService(qbUser);
+
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
             }
         });
+    }
+
+    private void startCallService(QBUser qbUser) {
+        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
+        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
+        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
     private void onForgetPassword() {

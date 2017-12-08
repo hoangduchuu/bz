@@ -2,6 +2,9 @@ package com.ping.android.managers;
 
 import android.support.annotation.NonNull;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.model.User;
 import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
@@ -12,6 +15,7 @@ import com.quickblox.users.model.QBUser;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,6 +27,7 @@ public class UserManager {
     private User user;
     private UserRepository userRepository;
     private QuickBloxRepository quickBloxRepository;
+    private ValueEventListener valueEventListener;
 
     private static UserManager instance;
 
@@ -36,6 +41,7 @@ public class UserManager {
     private UserManager() {
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
+        friendList = new ArrayList<>();
     }
 
     public void initialize(@NonNull Callback callback) {
@@ -55,7 +61,7 @@ public class UserManager {
                 if (user.quickBloxID <= 0) {
                     quickBloxRepository.signUpNewUserQB(user, qbCallback);
                 } else {
-                    quickBloxRepository.getQBUser(user, qbCallback);
+                    quickBloxRepository.signInCreatedUser(user, qbCallback);
                 }
             } else {
                 callback.complete(error, data);
@@ -63,8 +69,38 @@ public class UserManager {
         });
     }
 
-    public void initFriendList(Set<String> keys) {
-        friendList = new ArrayList<>();
+    private void onBlocksUpdated(Map<String, Object> blocks) {
+
+    }
+
+    private void onFriendsUpdated(Map<String, Object> friends) {
+        List<User> friendList = new ArrayList<>();
+        //if
+    }
+
+    private void listenUserValueChange() {
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User updateUser = new User(dataSnapshot);
+                if (user.friendList.size() != updateUser.friendList.size()) {
+                    // Handle friends updated
+                }
+                if (user.blocks.size() != updateUser.blocks.size()) {
+                    // Handle blocks updated
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        userRepository.getDatabaseReference().child(user.key)
+                .addValueEventListener(valueEventListener);
+    }
+
+    private void initFriendList(Set<String> keys) {
         for (String userID : keys) {
             userRepository.getUser(userID, (error, data) -> {
                 if (error == null) {

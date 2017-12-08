@@ -14,6 +14,7 @@ import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
 import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.helper.StringifyArrayList;
+import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 
 /**
@@ -21,24 +22,15 @@ import com.quickblox.users.model.QBUser;
  */
 
 public class QuickBloxRepository {
-    private QBResRequestExecutor requestExecutor;
 
-    public QuickBloxRepository() {
-        requestExecutor = new QBResRequestExecutor();
-    }
-
-    public void getQBUser(User user, @NonNull Callback callback) {
+    public QBUser getQBUser(User user) {
         QBUser qbUser = new QBUser();
         StringifyArrayList<String> userTags = new StringifyArrayList<>();
         userTags.add(Constant.QB_PING_ROOM);
         qbUser.setId(user.quickBloxID);
-//        qbUser.setFullName(currentUser.pingID);
-//        qbUser.setEmail(currentUser.email);
         qbUser.setLogin(user.pingID);
         qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-//        qbUser.setTags(userTags);
-
-        callback.complete(null, qbUser);
+        return qbUser;
     }
 
     public void signUpNewUserQB(@NonNull User user, @NonNull Callback callback) {
@@ -46,24 +38,19 @@ public class QuickBloxRepository {
 
         StringifyArrayList<String> userTags = new StringifyArrayList<>();
         userTags.add(Constant.QB_PING_ROOM);
-//        qbUser.setFullName(currentUser.pingID);
-//        qbUser.setEmail(currentUser.email);
         qbUser.setLogin(user.pingID);
         qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-//        qbUser.setTags(userTags);
-
-        requestExecutor.signUpNewUser(qbUser, new QBEntityCallback<QBUser>() {
+        QBUsers.signUpSignInTask(qbUser).performAsync(new QBEntityCallback<QBUser>() {
                     @Override
                     public void onSuccess(QBUser result, Bundle params) {
-                        //updateQuickBlox(result.getId());
-                        qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                        signInCreatedUser(qbUser, callback);
+                        result.setPassword(Consts.DEFAULT_USER_PASSWORD);
+                        callback.complete(null, result);
                     }
 
                     @Override
                     public void onError(QBResponseException e) {
                         if (e.getHttpStatusCode() == Consts.ERR_LOGIN_ALREADY_TAKEN_HTTP_STATUS) {
-                            signInCreatedUser(qbUser, callback);
+                            signInCreatedUser(user, callback);
                         } else {
                             Toaster.longToast(R.string.sign_up_error);
                             callback.complete(new Error());
@@ -73,23 +60,18 @@ public class QuickBloxRepository {
         );
     }
 
-    private void signInCreatedUser(final QBUser user, Callback callback) {
-        requestExecutor.signInUser(user, new QBEntityCallbackImpl<QBUser>() {
+    public void signInCreatedUser(final User user, Callback callback) {
+        QBUser qbUser = getQBUser(user);
+        QBUsers.signIn(qbUser).performAsync(new QBEntityCallback<QBUser>() {
             @Override
-            public void onSuccess(QBUser result, Bundle params) {
-                //currentQBUser = result;
-                //result.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                //saveQBUserData(result);
-                result.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                //startCallService(result);
-                //getAllQBUsers();
-                callback.complete(null, user);
+            public void onSuccess(QBUser qbUser, Bundle bundle) {
+                qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
+                callback.complete(null, qbUser);
             }
 
             @Override
-            public void onError(QBResponseException responseException) {
-                Toaster.longToast(R.string.sign_up_error);
-                callback.complete(new Error());
+            public void onError(QBResponseException e) {
+                callback.complete(e);
             }
         });
     }

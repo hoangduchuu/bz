@@ -56,7 +56,9 @@ public class User implements Parcelable {
         this.mappings = (Map<String, String>) dataSnapshot.child("mappings").getValue();
         this.settings = new Setting(dataSnapshot.child("settings"));
         this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
+        if (friends == null) friends = new HashMap<>();
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
+        if (blocks == null) blocks = new HashMap<>();
         if (this.mappings == null) {
             this.mappings = ServiceManager.getInstance().getDefaultMapping();
         }
