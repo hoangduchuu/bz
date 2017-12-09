@@ -3,7 +3,10 @@ package com.ping.android.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -15,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,6 +27,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.joooonho.SelectableRoundedImageView;
 import com.ping.android.activity.GameActivity;
 import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
@@ -345,7 +348,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         Boolean markStatus = false;
         RadioButton rbSelect;
         Message message;
-        private Callback callback;
+
+        private boolean isUpdated = false;
         private ImageView mPlayMedia;
         private ImageView mPauseMedia;
         private SeekBar mMediaSeekBar;
@@ -531,8 +535,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void openImage(boolean isPuzzled) {
-            String photoUrl = !TextUtils.isEmpty(message.photoUrl) ? message.photoUrl : message.thumbUrl;
-            if (TextUtils.isEmpty(photoUrl)) return;
+            String photoUrl = !TextUtils.isEmpty(message.photoUrl) && !"PPhtotoMessageIdentifier".equals(message.photoUrl)
+                    ? message.photoUrl : message.thumbUrl;
+            if (TextUtils.isEmpty(photoUrl) || "PPhtotoMessageIdentifier".equals(photoUrl)) return;
             unPuzzleImage(photoUrl, isPuzzled);
         }
 
@@ -613,15 +618,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         public void setIvChatPhoto(String imageURL) {
             boolean bitmapMark = markStatus;
-            if (callback != null) callback = null;
             if (ivChatPhoto == null) return;
-            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+            if (TextUtils.isEmpty(imageURL)) {
                 ivChatPhoto.setImageResource(R.drawable.img_loading);
                 return;
             }
             Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId)) {
-
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     ivChatPhoto.setImageResource(R.drawable.img_game_over);
                     return;
@@ -629,16 +632,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     bitmapMark = true;
                 }
             }
-            callback = new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    if (error == null) {
-                        Bitmap bitmap = (Bitmap) data[0];
-                        setChatImage(bitmap);
-                    }
-                }
-            };
-            UiUtils.loadImage(ivChatPhoto, imageURL, message.key, bitmapMark, callback);
+            String url = imageURL;
+            if (imageURL.startsWith(Constant.IMAGE_PREFIX)) {
+                url = imageURL.substring(Constant.IMAGE_PREFIX.length());
+                UiUtils.loadImageFromFile(ivChatPhoto, url, message.key, bitmapMark);
+                return;
+            }
+            Drawable placeholder = null;
+            if (isUpdated) {
+                placeholder = ivChatPhoto.getDrawable();
+            }
+            UiUtils.loadImage(ivChatPhoto, url, message.key, bitmapMark, placeholder);
         }
 
         public void setAudioSrc(String audioUrl) {
@@ -703,8 +707,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setChatImage(Bitmap originalBitmap) {
-
-
             DisplayMetrics displaymetrics = new DisplayMetrics();
             ((Activity) ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
             int maxEdgeLength = Math.round((float) (displaymetrics.widthPixels * .6));
@@ -758,6 +760,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         public void bindData(Message model, boolean isLastMessage) {
+            isUpdated = false;
+            if (message != null) {
+                isUpdated = model.key.equals(message.key);
+            }
             setModel(model);
             setChatText(model.message);
             long status = ServiceManager.getInstance().getCurrentStatus(model.status);

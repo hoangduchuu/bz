@@ -6,10 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
-import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +81,6 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     public void puzzleImage() {
-
         UiUtils.loadImage(ivPuzzle, imageURL, messageID, !btPuzzle.isChecked(), (error, data) -> {
             if (error == null) {
                 Bitmap bitmap = (Bitmap) data[0];

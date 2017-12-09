@@ -56,7 +56,9 @@ public class User implements Parcelable {
         this.mappings = (Map<String, String>) dataSnapshot.child("mappings").getValue();
         this.settings = new Setting(dataSnapshot.child("settings"));
         this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
+        if (friends == null) friends = new HashMap<>();
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
+        if (blocks == null) blocks = new HashMap<>();
         if (this.mappings == null) {
             this.mappings = ServiceManager.getInstance().getDefaultMapping();
         }
@@ -139,39 +141,6 @@ public class User implements Parcelable {
         } else {
             return String.format("%s %s", firstName, lastName).trim();
         }
-    }
-
-    public void initFriendList() {
-        friendList = new ArrayList<>();
-        for(String userID : friends.keySet()) {
-            ServiceManager.getInstance().getUser(userID, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    if (error == null) {
-                        User user = (User) data[0];
-                        friendList.add(user);
-                    }
-                }
-            });
-        }
-    }
-
-    public void updateData(User user) {
-        this.firstName = user.firstName;
-        this.lastName = user.lastName;
-        this.quickBloxID = user.quickBloxID;
-        this.password = user.password;
-        this.email = user.email;
-        this.phone = user.phone;
-        this.profile = user.profile;
-        this.loginStatus= user.loginStatus;
-        this.showMappingConfirm = user.showMappingConfirm;
-        this.mappings = user.mappings;
-        this.settings = user.settings;
-        this.friends = user.friends;
-        this.blocks = user.blocks;
-
-        initFriendList();
     }
 
     @Override

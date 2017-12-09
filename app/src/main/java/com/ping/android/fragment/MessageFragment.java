@@ -1,7 +1,9 @@
 package com.ping.android.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,19 +25,25 @@ import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.MessageAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ClickListener {
 
@@ -55,19 +63,16 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private ArrayList<Conversation> conversations;
     private boolean loadData, loadGUI, isEditMode;
 
+    private UserRepository userRepository;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -120,7 +125,8 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void init() {
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        userRepository = new UserRepository();
+        currentUser = UserManager.getInstance().getUser();
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
@@ -267,27 +273,24 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
             return;
         }
 
-        ServiceManager.getInstance().initMembers(conversation.memberIDs, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                conversation.members = (List<User>) data[0];
-                for (User user : conversation.members) {
-                    if (!user.key.equals(currentUser.key)) {
-                        conversation.opponentUser = user;
-                        break;
+        userRepository.initMemberList(conversation.memberIDs, (error, data) -> {
+            conversation.members = (List<User>) data[0];
+            for (User user : conversation.members) {
+                if (!user.key.equals(currentUser.key)) {
+                    conversation.opponentUser = user;
+                    break;
+                }
+            }
+            if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                adapter.addOrUpdateConversation(conversation);
+            } else {
+                ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
+                    @Override
+                    public void complete(Object error, Object... data) {
+                        conversation.group = (Group) data[0];
+                        adapter.addOrUpdateConversation(conversation);
                     }
-                }
-                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                    adapter.addOrUpdateConversation(conversation);
-                } else {
-                    ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
-                        @Override
-                        public void complete(Object error, Object... data) {
-                            conversation.group = (Group) data[0];
-                            adapter.addOrUpdateConversation(conversation);
-                        }
-                    });
-                }
+                });
             }
         });
     }

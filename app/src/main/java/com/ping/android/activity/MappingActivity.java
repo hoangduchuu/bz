@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.form.Mapping;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 
@@ -29,7 +30,6 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
 
     private List<Mapping> mMappings;
 
-    private FirebaseUser mFirebaseUser;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
@@ -67,8 +67,7 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
-        currentUser = ServiceManager.getInstance().getCurrentUser();
-        mFirebaseUser = ServiceManager.getInstance().getFirebaseUserUser();
+        currentUser = UserManager.getInstance().getUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 

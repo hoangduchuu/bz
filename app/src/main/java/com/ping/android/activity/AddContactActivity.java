@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
@@ -11,18 +12,30 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.AddContactAdapter;
+import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
+
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener {
+    private static final int DELAY = 300;
 
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
@@ -30,13 +43,16 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     private ImageView btBack;
 
     private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
     private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
 
     private User currentUser;
-    private ArrayList<User> mContacts;
     private AddContactAdapter adapter;
+
+    private UserRepository userRepository;
+    private ArrayList<User> selectedUsers = new ArrayList<>();
+    private Map<String, User> userList = new HashMap<>();
+    private Timer timer;
+    private String textToSearch = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +79,19 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
+                if (timer != null) {
+                    timer.cancel();
+                }
+                textToSearch = newText;
+                timer = new Timer();
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                    // Trigger task after delaying
+                    searchUsers(textToSearch);
+                    }
+                };
+                timer.schedule(task, DELAY);
                 return true;
             }
         });
@@ -77,14 +105,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     private void init() {
         auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
+        userRepository = new UserRepository();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
-        mContacts = ServiceManager.getInstance().getAllUsers();
+        currentUser = UserManager.getInstance().getUser();
 
-        adapter = new AddContactAdapter(this, mContacts, this);
+        adapter = new AddContactAdapter(this, new ArrayList<>(), this);
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
         adapter.filter("");
@@ -124,6 +150,42 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
             case R.id.add_contact_back:
                 onExitAddContact();
                 break;
+        }
+    }
+
+    private Callback searchCallback = null;
+
+    public void searchUsers(String text) {
+        userList.clear();
+        searchCallback = (error, data) -> {
+            if (error == null && text.equals(textToSearch)) {
+                DataSnapshot snapshot = (DataSnapshot) data[0];
+                handleUsersData(snapshot);
+            }
+        };
+        userRepository.searchUsersWithText(text, "first_name", searchCallback);
+    }
+
+    private void handleUsersData(DataSnapshot dataSnapshot) {
+        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            if (!userList.containsKey(snapshot.getKey())
+                    && !snapshot.getKey().equals(currentUser.key)) {
+                User user = new User(snapshot);
+                userList.put(snapshot.getKey(), user);
+                updateTypeFriend(user);
+            }
+        }
+
+        adapter.updateData(new ArrayList<>(userList.values()));
+    }
+
+    private void updateTypeFriend(User user) {
+        user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
+        if (currentUser != null && MapUtils.isNotEmpty(currentUser.friends)) {
+            Boolean isFriend = currentUser.friends.get(user.key);
+            if (isFriend != null && isFriend) {
+                user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
+            }
         }
     }
 

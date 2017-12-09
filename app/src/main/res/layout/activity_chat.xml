@@ -126,7 +126,7 @@
                 <ImageView
                     android:id="@+id/load_more"
                     style="@style/LoadMoreButton"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
             </LinearLayout>
         </RelativeLayout>
 

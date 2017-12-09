@@ -19,6 +19,8 @@ import com.ping.android.activity.R;
 import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
+import com.ping.android.ultility.Callback;
 import com.ping.android.utils.CollectionsUtils;
 import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
@@ -53,6 +55,8 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
     private QBRTCSession currentSession;
     private QbUsersDbManager qbUserDbManager;
+
+    private UserRepository userRepository;
 
     @Override
     public void onAttach(Activity activity) {
@@ -113,6 +117,8 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     }
 
     private void initUI(View view) {
+        userRepository = new UserRepository();
+
         callTypeTextView = (TextView) view.findViewById(R.id.call_type);
 
         ImageView callerAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
@@ -127,11 +133,13 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
         takeButton = (ImageButton) view.findViewById(R.id.image_button_accept_call);
 
         ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
-        User opponentUser = ServiceManager.getInstance().getUserByQBId(currentSession.getCallerID());
 
-        UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
-
-        callerNameTextView.setText(opponentUser.getDisplayName());
+        userRepository.getUserByQbId(currentSession.getCallerID(), (error, data) -> {
+            if (error != null) return;
+            User opponentUser = (User) data[0];
+            UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
+            callerNameTextView.setText(opponentUser.getDisplayName());
+        });
     }
 
     private Drawable getBackgroundForCallerAvatar(int callerId) {

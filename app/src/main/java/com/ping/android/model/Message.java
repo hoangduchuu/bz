@@ -14,6 +14,7 @@ import junit.framework.Assert;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 

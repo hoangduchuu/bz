@@ -13,6 +13,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.adapter.GroupProfileAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -20,6 +21,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
@@ -51,18 +53,20 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private BzzzStorage bzzzStorage;
     private GroupRepository groupRepository;
     private ConversationRepository conversationRepository;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_profile);
         groupID = getIntent().getStringExtra(Constant.START_ACTIVITY_GROUP_ID);
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
 
         bindViews();
         bzzzStorage = new BzzzStorage();
         groupRepository = new GroupRepository();
         conversationRepository = new ConversationRepository();
+        userRepository = new UserRepository();
 
         groupRepository.loadGroup(groupID, new Callback() {
             @Override
@@ -189,12 +193,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindMemberData() {
-        ServiceManager.getInstance().initMembers(new ArrayList<String>(group.memberIDs.keySet()), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                group.members = (List<User>) data[0];
-                adapter.initContact(group.members);
-            }
+        userRepository.initMemberList(group.memberIDs, (error, data) -> {
+            group.members = (List<User>) data[0];
+            adapter.initContact(group.members);
         });
     }
 
@@ -226,9 +227,15 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        groupProfileImage = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
                         UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
                         bzzzStorage.uploadGroupAvatar(groupID, groupProfileImage, new Callback() {
                             @Override

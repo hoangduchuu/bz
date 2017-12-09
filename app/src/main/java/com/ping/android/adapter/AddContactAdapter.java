@@ -18,11 +18,11 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.ViewHolder> {
-
-    private static Context mContext;
-    private static ClickListener mClickListener;
+    private Context mContext;
+    private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
 
@@ -31,6 +31,12 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         this.displayContacts = (ArrayList<User>) mContacts.clone();
         mContext = context;
         mClickListener = clickListener;
+    }
+
+    public void updateData(ArrayList<User> users) {
+        this.originalContacts = users;
+        this.displayContacts = (ArrayList<User>) users.clone();
+        notifyDataSetChanged();
     }
 
     public void addContact(User contact) {
@@ -62,6 +68,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         holder.tvName.setText(contact.getDisplayName());
         holder.tvDetail.setText(contact.pingID);
         holder.contact = contact;
+        holder.setClickListener(mClickListener);
 
         if (contact.typeFriend != null && contact.typeFriend == Constant.TYPE_FRIEND.IS_FRIEND) {
             holder.tgAddFriend.setChecked(false);
@@ -90,6 +97,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         public ToggleButton tgAddFriend;
         public ImageView ivSendMessage;
         public ImageView ivProfileImage;
+        private ClickListener clickListener;
 
         public User contact;
 
@@ -104,21 +112,24 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
             ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
         }
 
+        public void setClickListener(ClickListener clickListener) {
+            this.clickListener = clickListener;
+        }
+
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.contact_add_friend:
-                    if (!ServiceManager.getInstance().getNetworkStatus(mContext)) {
-                        Toast.makeText(mContext, "Please check network connection", Toast.LENGTH_SHORT).show();
+                    if (!ServiceManager.getInstance().getNetworkStatus(itemView.getContext())) {
                         tgAddFriend.setChecked(true);
                         return;
                     }
                     tgAddFriend.setChecked(false);
                     tgAddFriend.setEnabled(false);
-                    mClickListener.onAddFriend(contact);
+                    clickListener.onAddFriend(contact);
                     break;
                 case R.id.contact_send_message:
-                    mClickListener.onSendMessage(contact);
+                    clickListener.onSendMessage(contact);
                     break;
             }
         }

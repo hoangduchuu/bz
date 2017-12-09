@@ -1,15 +1,7 @@
 package com.ping.android.activity;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -19,48 +11,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.ping.android.adapter.ChatAdapter;
-import com.ping.android.adapter.ContactAutoCompleteAdapter;
-import com.ping.android.form.ToInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
-import com.ping.android.view.RecorderVisualizerView;
+import com.ping.android.view.ChipsEditText;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,22 +41,20 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     //Views UI
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
-    private MultiAutoCompleteTextView suggestContactView;
-    private LinearLayout layoutAddress;
     private ImageView btBack, btSelectContact;
     private Button btSendMessage;
-    private TextView tvToDisplay;
+    private ChipsEditText edtTo;
     private EditText edMessage;
     private User fromUser;
-    private ArrayList<User> allUsers;
-    private List<ToInfo> toInfos;
-    private ChatAdapter adapter;
-    private List<Message> messages;
 
     private ConversationRepository conversationRepository;
     private GroupRepository groupRepository;
+    private UserRepository userRepository;
 
     private TextWatcher textWatcher;
+    private SelectContactAdapter adapter;
+    private ArrayList<User> selectedUsers = new ArrayList<>();
+    private Map<String, User> userList = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,18 +80,40 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
+        userRepository = new UserRepository();
         conversationRepository = new ConversationRepository();
         groupRepository = new GroupRepository();
 
-        messages = new ArrayList<>();
-        fromUser = ServiceManager.getInstance().getCurrentUser();
-        allUsers = ServiceManager.getInstance().getAllUsers();
-        ContactAutoCompleteAdapter autoCompleteAdapter = new ContactAutoCompleteAdapter(this, R.layout.item_auto_complete_contact, fromUser.friendList);
-        suggestContactView.setAdapter(autoCompleteAdapter);
-        suggestContactView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+        fromUser = UserManager.getInstance().getUser();
+
+        adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
+            if (isSelected) {
+                selectedUsers.add(contact);
+                updateChips();
+            } else {
+                for (User user : selectedUsers) {
+                    if (user.key.equals(contact.key)) {
+                        selectedUsers.remove(user);
+                        updateChips();
+                        break;
+                    }
+                }
+            }
+        });
+        recycleChatView.setAdapter(adapter);
+    }
+
+    private void updateChips() {
+        StringBuilder builder = new StringBuilder();
+        for (User user : selectedUsers) {
+            builder.append(user.getDisplayName());
+            builder.append(",");
+        }
+        edtTo.updateText(builder.toString());
     }
 
     private void bindViews() {
+        edtTo = findViewById(R.id.edt_to);
         btBack = (ImageView) findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
 
@@ -131,18 +122,38 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
-        mLinearLayoutManager.setStackFromEnd(true);
-
-        suggestContactView = (MultiAutoCompleteTextView) findViewById(R.id.new_chat_suggest_view);
-
-
-        layoutAddress = (LinearLayout) findViewById(R.id.new_chat_address_layout);
+        recycleChatView.setLayoutManager(mLinearLayoutManager);
 
         edMessage = (EditText) findViewById(R.id.chat_message_tv);
         btSendMessage = (Button) findViewById(R.id.chat_send_message_btn);
         btSendMessage.setOnClickListener(this);
 
-        tvToDisplay = (TextView) findViewById(R.id.new_chat_to);
+        edMessage.setOnFocusChangeListener((view, b) -> {
+            if (b) {
+                adapter.updateData(new ArrayList<>());
+            }
+        });
+        edtTo.setListener(new ChipsEditText.ChipsListener() {
+            @Override
+            public void onSearchText(String text) {
+                if (!TextUtils.isEmpty(text)) {
+                    searchUsers(text);
+                } else {
+                    recycleChatView.post(() -> adapter.updateData(new ArrayList<>()));
+                }
+            }
+
+            @Override
+            public void onDeleteChip(String text) {
+                for (User user : selectedUsers) {
+                    if (user.getDisplayName().equals(text)) {
+                        selectedUsers.remove(user);
+                        adapter.setSelectPingIDs(getSelectedPingId());
+                        break;
+                    }
+                }
+            }
+        }, 500);
 
         textWatcher = new TextWatcher() {
 
@@ -162,13 +173,66 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             }
         };
 
-        suggestContactView.addTextChangedListener(textWatcher);
         edMessage.addTextChangedListener(textWatcher);
         checkReadySend();
     }
 
+    private Callback searchCallback = null;
+    private String textToSearch = "";
+
+    private void searchUsers(String text) {
+        Log.d(text);
+        textToSearch = text;
+        userList.clear();
+        searchCallback = (error, data) -> {
+            if (error == null && text.equals(textToSearch)) {
+                DataSnapshot snapshot = (DataSnapshot) data[0];
+                handleUsersData(snapshot);
+            }
+        };
+        localSearch(text);
+        userRepository.searchUsersWithText(text, "first_name", searchCallback);
+        //userRepository.searchUsersWithText(text, "phone", searchCallback);
+    }
+
+    private void localSearch(String text) {
+        for (User user : fromUser.friendList) {
+            if (CommonMethod.isContain(CommonMethod.getSearchString(user), text)) {
+                if (!userList.containsKey(user.key)) {
+                    userList.put(user.key, user);
+                }
+            }
+        }
+        recycleChatView.post(() -> {
+            adapter.setSelectPingIDs(getSelectedPingId());
+            adapter.updateData(new ArrayList<>(userList.values()));
+        });
+    }
+
+    private void handleUsersData(DataSnapshot dataSnapshot) {
+        Log.d("Search results: " + dataSnapshot.getChildrenCount());
+        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            if (!userList.containsKey(snapshot.getKey())
+                    && !snapshot.getKey().equals(fromUser.key)) {
+                User user = new User(snapshot);
+                userList.put(snapshot.getKey(), user);
+            }
+        }
+
+        adapter.setSelectPingIDs(getSelectedPingId());
+        adapter.updateData(new ArrayList<>(userList.values()));
+    }
+
+    private List<String> getSelectedPingId() {
+        List<String> selectedPingId = new ArrayList<>();
+        for (User user : selectedUsers) {
+            selectedPingId.add(user.pingID);
+        }
+        return selectedPingId;
+    }
+
     private void checkReadySend() {
-        if (StringUtils.isEmpty(edMessage.getText().toString().trim()) || StringUtils.isEmpty(suggestContactView.getText().toString().trim())) {
+        if (StringUtils.isEmpty(edMessage.getText().toString().trim()) || selectedUsers.size() <= 0) {
             btSendMessage.setEnabled(false);
         } else {
             btSendMessage.setEnabled(true);
@@ -179,97 +243,21 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
-                ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_PING_IDS");
-                addToContact(selectContacts);
+                selectedUsers = data.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY);
+                updateChips();
+                adapter.setSelectPingIDs(getSelectedPingId());
             }
         }
     }
 
     private void selectContact() {
         Intent i = new Intent(this, SelectContactActivity.class);
-        i.putExtra("SELECTED_ID", suggestContactView.getText().toString().trim());
+        i.putParcelableArrayListExtra("SELECTED_USERS", selectedUsers);
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
 
-    private void addToContact(ArrayList<String> selectContacts) {
-        String addContact = TextUtils.join(", ", selectContacts);
-        String currentTo = suggestContactView.getText().toString().trim();
-
-        if (StringUtils.isEmpty(currentTo)) {
-            currentTo = addContact;
-        } else if (currentTo.endsWith(",")) {
-            currentTo = currentTo + " " + addContact;
-        } else {
-            currentTo = currentTo + ", " + addContact;
-        }
-
-        if (StringUtils.isNotEmpty(addContact)) {
-            currentTo += ", ";
-        }
-        suggestContactView.setText(currentTo);
-        suggestContactView.setSelection(currentTo.length());
-    }
-
-    private void getToContact() {
-        if (toInfos != null) {
-            return;
-        }
-        List<User> toUsers = new ArrayList<>();
-        List<String> toUserPingID = Arrays.asList(suggestContactView.getText().toString().trim().split(","));
-        List<String> unknownPingID = new ArrayList<>();
-        List<String> blockedPingID = new ArrayList<>();
-        for (String id : toUserPingID) {
-            id = id.trim();
-            User contact = getUserByAnyID(id);
-            if (contact == null) {
-                unknownPingID.add(id);
-            } else {
-                toUsers.add(contact);
-                if(ServiceManager.getInstance().isBlockBy(contact)){
-                    blockedPingID.add(id);
-                }
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(unknownPingID) || !CollectionUtils.isEmpty(blockedPingID)) {
-            String message = getString(R.string.validate_invalid_user);
-            Toaster.shortToast(message);
-            return;
-        }
-
-        double timestamp = System.currentTimeMillis() / 1000L;
-        toInfos = new ArrayList<>();
-        ArrayList<String> displayNames = new ArrayList<>();
-        for (User contact : toUsers) {
-            displayNames.add(contact.getDisplayName());
-            ToInfo toInfo = new ToInfo();
-            toInfo.toUser = contact;
-            toInfo.timestamp = timestamp;
-            toInfos.add(toInfo);
-        }
-        tvToDisplay.setText(TextUtils.join(", ", displayNames));
-        layoutAddress.setVisibility(View.GONE);
-        btSelectContact.setEnabled(false);
-        suggestContactView.setEnabled(false);
-    }
-
-    private User getUserByAnyID(String id) {
-        for (User contact : allUsers) {
-            if (contact.pingID.equals(id)) {
-                return contact;
-            }
-            if (contact.email.equals(id)) {
-                return contact;
-            }
-            if (StringUtils.isNotEmpty(contact.phone) && contact.phone.equals(id)) {
-                return contact;
-            }
-        }
-        return null;
-    }
-
     private void sendNewMessage() {
-        if (StringUtils.isEmpty(suggestContactView.getText().toString())) {
+        if (selectedUsers.size() <= 0) {
             return;
         }
 
@@ -283,21 +271,16 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             Toaster.shortToast("Please check network connection.");
             return;
         }
-
-        getToContact();
-        if (toInfos == null) {
-            return;
-        }
-        if (toInfos.size() > 1) {
+        if (selectedUsers.size() > 1) {
             // TODO create group then send message
-            List<User> toUsers = new ArrayList<>(toInfos.size());
-            for (ToInfo toInfo : toInfos) {
-                toUsers.add(toInfo.toUser);
+            List<User> toUsers = new ArrayList<>(selectedUsers.size());
+            for (User user : selectedUsers) {
+                toUsers.add(user);
             }
             toUsers.add(fromUser);
             createGroup(toUsers, edMessage.getText().toString());
         } else {
-            User toUser = toInfos.get(0).toUser;
+            User toUser = selectedUsers.get(0);
             List<User> members = new ArrayList<>();
             members.add(fromUser);
             members.add(toUser);
@@ -335,7 +318,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         for (User user : toUsers) {
             displayNames.add(user.getDisplayName());
         }
-        displayNames.add(fromUser.getDisplayName());
         double timestamp = System.currentTimeMillis() / 1000L;
         Group group = new Group();
         group.timestamp = timestamp;

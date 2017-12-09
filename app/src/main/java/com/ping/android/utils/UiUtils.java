@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.signature.ObjectKey;
 import com.bumptech.glide.request.RequestOptions;
@@ -138,6 +141,39 @@ public class UiUtils {
                 .into(imageView);
     }
 
+    public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        GlideApp.with(imageView.getContext())
+                .load(filePath)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(key)
+                .dontAnimate()
+                .into(imageView);
+    }
+
+    public static void loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder) {
+        if (TextUtils.isEmpty(imageUrl) || !imageUrl.startsWith("gs")) {
+            return;
+        }
+        if (placeholder == null) {
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_bottom);
+        }
+
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        GlideApp.with(imageView.getContext())
+                .load(gsReference)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(placeholder)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(key)
+                .dontAnimate()
+                .into(imageView);
+    }
+
     public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
 
         if (TextUtils.isEmpty(imageUrl)) {
@@ -162,7 +198,7 @@ public class UiUtils {
                 .load(gsReference)
                 .placeholder(R.drawable.img_loading_bottom)
                 .override(512)
-                .transform(new BitmapEncode(imageView.getContext(), bitmapMark))
+                .transform(new BitmapEncode(bitmapMark))
                 .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
                 .into(target);
         return target;

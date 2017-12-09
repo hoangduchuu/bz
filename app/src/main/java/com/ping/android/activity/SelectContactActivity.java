@@ -3,7 +3,6 @@ package com.ping.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -16,17 +15,16 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class SelectContactActivity extends CoreActivity implements View.OnClickListener {
+    public static final String SELECTED_USERS_KEY = "SELECTED_USERS";
 
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
@@ -43,12 +41,14 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     private User currentUser;
     private ArrayList<User> mContacts;
     private SelectContactAdapter adapter;
+    private ArrayList<User> selectedUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_contact);
         selectedId = getIntent().getStringExtra("SELECTED_ID");
+        selectedUsers = getIntent().getParcelableArrayListExtra(SELECTED_USERS_KEY);
         bindViews();
         init();
     }
@@ -90,34 +90,61 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
-        mContacts = new ArrayList<>();
-        ArrayList<User> friendList = currentUser.friendList;
-        List<String> selectedIDLst = Arrays.asList(selectedId.split(","));
-        for (int i = 0; i<selectedIDLst.size(); i++) {
-            selectedIDLst.set(i, selectedIDLst.get(i).trim());
-        }
-
-        for (User contact : friendList) {
-            if (selectedIDLst.contains(contact.key)) {
-                continue;
-            }
-            if (selectedIDLst.contains(contact.pingID)) {
-                continue;
-            }
-            if (selectedIDLst.contains(contact.email)) {
-                continue;
-            }
-            if (StringUtils.isNotEmpty(contact.phone) && selectedIDLst.contains(contact.phone)) {
-                continue;
-            }
-            mContacts.add(contact);
-        }
+        currentUser = UserManager.getInstance().getUser();
+        mContacts = new ArrayList<>(currentUser.friendList);
+//        ArrayList<User> friendList = currentUser.friendList;
+//        List<String> selectedIDLst = Arrays.asList(selectedId.split(","));
+//        for (int i = 0; i<selectedIDLst.size(); i++) {
+//            selectedIDLst.set(i, selectedIDLst.get(i).trim());
+//        }
+//
+//        for (User contact : friendList) {
+//            if (selectedIDLst.contains(contact.key)) {
+//                continue;
+//            }
+//            if (selectedIDLst.contains(contact.pingID)) {
+//                continue;
+//            }
+//            if (selectedIDLst.contains(contact.email)) {
+//                continue;
+//            }
+//            if (StringUtils.isNotEmpty(contact.phone) && selectedIDLst.contains(contact.phone)) {
+//                continue;
+//            }
+//            mContacts.add(contact);
+//        }
 
         // TODO SelectContactAdapter
-        adapter = new SelectContactAdapter(this, mContacts, null);
+        adapter = new SelectContactAdapter(this, mContacts, new SelectContactAdapter.ClickListener() {
+            @Override
+            public void onSelect(User contact, Boolean isSelected) {
+                if (isSelected) {
+                    selectedUsers.add(contact);
+                } else {
+                    for (User user : selectedUsers) {
+                        if (user.key.equals(contact.key)) {
+                            selectedUsers.remove(user);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+        adapter.setSelectPingIDs(getSelectedPingId());
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
+    }
+
+    private List<String> getSelectedPingId() {
+        if (selectedUsers != null) {
+            List<String> selectedPingId = new ArrayList<>();
+            for (User user : selectedUsers) {
+                selectedPingId.add(user.pingID);
+            }
+            return selectedPingId;
+        } else {
+            return Arrays.asList(selectedId.split(","));
+        }
     }
 
     @Override
@@ -142,6 +169,7 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         Intent returnIntent = new Intent();
         returnIntent.putExtra("SELECT_CONTACT_PING_IDS", adapter.getSelectPingIDs());
         returnIntent.putExtra("SELECT_CONTACT_USER_IDS", adapter.getSelectUserIDs());
+        returnIntent.putParcelableArrayListExtra(SELECTED_USERS_KEY, selectedUsers);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }

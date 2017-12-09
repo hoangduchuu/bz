@@ -34,7 +34,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <!--</service>-->
-        <service android:name="com.ping.android.service.NotificationService"/>
         <service android:name="com.ping.android.service.CallService" />
 
         <!--<service-->
@@ -185,6 +184,13 @@
         <activity android:name=".PrivacyAndTermActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
+        <activity
+            android:name="com.afollestad.materialcamera.CaptureActivity2"
+            android:theme="@style/MaterialCamera.CaptureActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

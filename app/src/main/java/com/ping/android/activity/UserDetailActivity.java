@@ -9,8 +9,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
@@ -25,6 +27,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
     private String userID;
     private User user, currentUser;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +36,12 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
         bindViews();
 
-        currentUser = ServiceManager.getInstance().getCurrentUser();
-
-        ServiceManager.getInstance().getUser(userID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    user = (User) data[0];
-                    bindData();
-                }
+        currentUser = UserManager.getInstance().getUser();
+        userRepository = new UserRepository();
+        userRepository.getUser(userID, (error, data) -> {
+            if (error == null) {
+                user = (User) data[0];
+                bindData();
             }
         });
     }

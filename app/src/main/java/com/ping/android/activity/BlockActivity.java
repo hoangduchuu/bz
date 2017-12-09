@@ -14,8 +14,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.BlockAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 
@@ -41,6 +43,8 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     private User currentUser;
     private ArrayList<User> blockContacts = new ArrayList<>();
     private List<String> blockIds = new ArrayList<>();
+
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +85,12 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     }
 
     private void init() {
+        userRepository = new UserRepository();
         auth = FirebaseAuth.getInstance();
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         adapter = new BlockAdapter(blockContacts, this, this);
         rvListBlock.setAdapter(adapter);
         rvListBlock.setLayoutManager(mLinearLayoutManager);
@@ -98,14 +103,11 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String blockID = dataSnapshot.getKey();
-                ServiceManager.getInstance().getUser(blockID, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        if (error == null) {
-                            User blockContact = (User) data[0];
-                            adapter.addContact(blockContact);
-                            blockIds.add(blockID);
-                        }
+                userRepository.getUser(blockID, (error, data) -> {
+                    if (error == null) {
+                        User blockContact = (User) data[0];
+                        adapter.addContact(blockContact);
+                        blockIds.add(blockID);
                     }
                 });
             }

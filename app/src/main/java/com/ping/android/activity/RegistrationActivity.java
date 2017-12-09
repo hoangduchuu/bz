@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,12 +25,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.ultility.Consts;
+import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.UiUtils;
+import com.quickblox.users.model.QBUser;
 
 public class RegistrationActivity extends CoreActivity implements View.OnClickListener {
 
@@ -259,19 +265,30 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                                     Toast.LENGTH_SHORT).show();
                             firebaseUser.delete();
                         } else {
-                            ServiceManager.getInstance().initUserData(new Callback() {
+                            UserManager.getInstance().initialize(new Callback() {
                                 @Override
                                 public void complete(Object error, Object... data) {
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                    ServiceManager.getInstance().signUpNewUserQB();
-                                    ServiceManager.getInstance().updateLoginStatus(true);
-                                    startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
-                                    finish();
+                                    if (error == null) {
+                                        progressBar.setVisibility(View.INVISIBLE);
+                                        ServiceManager.getInstance().updateLoginStatus(true);
+
+                                        QBUser qbUser = (QBUser) data[0];
+                                        startCallService(qbUser);
+
+                                        startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
+                                        finish();
+                                    }
                                 }
                             });
                         }
                     }
                 });
+    }
+
+    private void startCallService(QBUser qbUser) {
+        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
+        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
+        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
     private void exitRegistration() {

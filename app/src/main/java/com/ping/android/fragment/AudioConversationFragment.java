@@ -14,6 +14,8 @@ import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
+import com.ping.android.ultility.Callback;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
 
@@ -25,10 +27,12 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
     private ToggleButton audioSwitchToggleButton;
     private boolean headsetPlugged;
     private User opponentUser;
+    private UserRepository userRepository;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userRepository = new UserRepository();
     }
 
     @Override
@@ -55,10 +59,14 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
         timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
 
         ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
-        opponentUser = ServiceManager.getInstance().getUserByQBId(opponents.get(0).getId());
-        UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
+        userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
+            if (error == null) {
+                opponentUser = (User) data[0];
+                UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
 
-        allOpponentsTextView.setText(opponentUser.getDisplayName());
+                allOpponentsTextView.setText(opponentUser.getDisplayName());
+            }
+        });
 
         audioSwitchToggleButton = (ToggleButton) view.findViewById(R.id.toggle_speaker);
         audioSwitchToggleButton.setVisibility(View.VISIBLE);
@@ -90,7 +98,7 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
         if (!headsetPlugged) {
             audioSwitchToggleButton.setEnabled(inability);
         }
-        audioSwitchToggleButton.setActivated(inability);
+        audioSwitchToggleButton.setActivated(false);
     }
 
     @Override

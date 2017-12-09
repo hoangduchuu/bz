@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,9 +22,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.Consts;
+import com.ping.android.utils.ActivityLifecycle;
+import com.quickblox.users.model.QBUser;
 
 public class LoginActivity extends CoreActivity implements View.OnClickListener {
 
@@ -33,6 +40,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     private ProgressBar progressBar;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
+
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +80,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void init() {
+        userRepository = new UserRepository();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
     }
@@ -183,30 +193,27 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void checkEmailVerified() {
-        // TODO enable check confirm email
-        FirebaseUser firebaseUser = auth.getCurrentUser();
-//        if (!firebaseUser.isEmailVerified()) {
-//            Toast.makeText(LoginActivity.this, "Please verify register email", Toast.LENGTH_SHORT).show();
-//            progressBar.setVisibility(ProgressBar.INVISIBLE);
-//            auth.signOut();
-//            return;
-//        }
-        ServiceManager.getInstance().initUserData(new Callback() {
+        UserManager.getInstance().initialize(new Callback() {
             @Override
             public void complete(Object error, Object... data) {
-                progressBar.setVisibility(ProgressBar.INVISIBLE);
-                User user = ServiceManager.getInstance().getCurrentUser();
-                if (user.quickBloxID <= 0 || user.quickBloxID <= 0) {
-                    ServiceManager.getInstance().signUpNewUserQB();
-                } else {
-                    ServiceManager.getInstance().signInQB();
-                }
+                if (error == null) {
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    ServiceManager.getInstance().updateLoginStatus(true);
 
-                ServiceManager.getInstance().updateLoginStatus(true);
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                finish();
+                    QBUser qbUser = (QBUser) data[0];
+                    startCallService(qbUser);
+
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                }
             }
         });
+    }
+
+    private void startCallService(QBUser qbUser) {
+        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
+        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
+        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
     private void onForgetPassword() {

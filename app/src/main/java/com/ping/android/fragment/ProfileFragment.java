@@ -30,11 +30,10 @@ import com.ping.android.activity.MappingActivity;
 import com.ping.android.activity.PrivacyAndTermActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.TransphabetActivity;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
-import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.QBResRequestExecutor;
@@ -69,16 +68,11 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -138,7 +132,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         storage = FirebaseStorage.getInstance();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         profileFileFolder = getActivity().getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + currentUser.key;
         CommonMethod.createFolder(profileFileFolder);
@@ -272,11 +266,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
         auth.signOut();
 
-        //TODO enable notification
-        Intent intent = new Intent(getContext(), NotificationService.class);
-        intent.putExtra("OBSERVE_FLAG", false);
-        getContext().startService(intent);
-
         CallService.logout(getContext());
         UsersUtils.removeUserData(getActivity().getApplicationContext());
         //ServiceManager.getInstance().logoutQB();
@@ -335,9 +324,15 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File imagePath = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File imagePath = files[0];
                         UiUtils.displayProfileAvatar(profileImage, imagePath);
                         uploadProfile();
                     }

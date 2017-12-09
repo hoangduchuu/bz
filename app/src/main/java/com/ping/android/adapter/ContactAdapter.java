@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHolder> {
 
-    private static ClickListener mClickListener;
+    private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
     private Context mContext;
@@ -70,13 +70,6 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
                 displayContacts.remove(i);
                 break;
             }
-        }
-        notifyDataSetChanged();
-    }
-
-    public void updateStatus() {
-        for (User contact : originalContacts) {
-            contact.loginStatus = ServiceManager.getInstance().getLoginStatus(contact.key);
         }
         notifyDataSetChanged();
     }

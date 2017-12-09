@@ -66,198 +66,41 @@ import java.util.regex.Pattern;
 
 public class ServiceManager {
     private static final String TAG = ServiceManager.class.getSimpleName();
-    public static final int IMG_DEFAULT = R.drawable.ic_avatar_gray;
     private static ServiceManager ourInstance = new ServiceManager();
     private final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
-    boolean isGettingUser = false;
-    private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private FirebaseStorage storage;
     private User currentUser;
-    private ArrayList<User> allUsers;
-    private ArrayList<Callback> getUserCallbacks;
-    private ArrayList<Callback> updateProfileCallbacks;
-    private SharedPrefsHelper sharedPrefsHelper;
     //private QBUser currentQBUser;
     //ArrayList<QBUser> allQBUsers;
     private QBResRequestExecutor requestExecutor;
-    private QbUsersDbManager dbManager;
-    private Bitmap defaultProfileImage;
 
-    private Map<String, Bitmap> profileImages = new HashMap();
 
     private ServiceManager() {
-        getUserCallbacks = new ArrayList<>();
-        updateProfileCallbacks = new ArrayList<>();
-        allUsers = new ArrayList<>();
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         storage = FirebaseStorage.getInstance();
 
-        sharedPrefsHelper = SharedPrefsHelper.getInstance();
         requestExecutor = App.getInstance().getQbResRequestExecutor();
-        dbManager = QbUsersDbManager.getInstance(App.getInstance().getBaseContext());
-
-        defaultProfileImage = BitmapFactory.decodeResource(App.getInstance().getApplicationContext().getResources(),
-                R.drawable.ic_avatar_gray);
     }
 
     public static ServiceManager getInstance() {
         return ourInstance;
     }
 
-    public void resetData() {
-        mDatabase.child("users").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String userID = postSnapshot.getKey();
-                    mDatabase.child("users").child(userID).child("conversations").setValue(null);
-                    mDatabase.child("users").child(userID).child("groups").setValue(null);
-                    mDatabase.child("users").child(userID).child("friends").setValue(null);
-                    mDatabase.child("users").child(userID).child("calls").setValue(null);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w("loadPost:onCancelled", databaseError.toException());
-                // ...
-            }
-        });
-
-    }
-
     //-------------------------------------------------------
     // Start User region
     //-------------------------------------------------------
-    public void initUserData(Callback completion) {
-        if (currentUser != null) {
-            completion.complete(null);
-            return;
-        }
-        if (isGettingUser) {
-            getUserCallbacks.add(completion);
-            return;
-        }
-        getUserCallbacks.add(completion);
-        isGettingUser = true;
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        mDatabase.child("users").child(mFirebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i(String.format("users.%s addListenerForSingleValueEvent onDataChange key: %s",
-                        mFirebaseUser.getUid(), dataSnapshot.getKey()));
-                isGettingUser = false;
-                currentUser = new User(dataSnapshot);
-                initAllUsers();
-                for (Callback callback : getUserCallbacks) {
-                    callback.complete(null);
-                }
-                getUserCallbacks.clear();
-                currentUser.initFriendList();
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e("Get data error: " + databaseError.getDetails());
-                completion.complete("Get data error");
-            }
-        });
-    }
-
-    public User getCurrentUser() {
-        return currentUser;
-    }
-
-    public FirebaseUser getFirebaseUserUser() {
-        return mFirebaseUser;
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
     }
 
     public String getFirstName(User user) {
         return !StringUtils.isEmpty(user.firstName) ? user.firstName : user.pingID;
     }
 
-    public void initAllUsers() {
-        allUsers = new ArrayList<>();
-        mDatabase.child("users").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                User user = new User(dataSnapshot);
-                if (StringUtils.isEmpty(user.pingID)) {
-                    return;
-                }
-                if (!user.key.equals(mFirebaseUser.getUid())) {
-                    updateTypeFriend(user);
-                    allUsers.add(user);
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                User user = new User(dataSnapshot);
-                for (int i = 0; i < allUsers.size(); i++) {
-                    if (allUsers.get(i).key.equals(user.key)) {
-                        allUsers.set(i, user);
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    public ArrayList<User> getAllUsers() {
-        for (User user : allUsers) {
-            updateTypeFriend(user);
-        }
-        return allUsers;
-    }
-
-    public void getUser(String id, Callback completion) {
-        for (User user : allUsers) {
-            if (user.key.equals(id)) {
-                completion.complete(null, user);
-                return;
-            }
-        }
-
-        if (currentUser != null && currentUser.key.equals(id)) {
-            completion.complete(null, currentUser);
-            return;
-        }
-
-        mDatabase.child("users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i(String.format("users.%s addListenerForSingleValueEvent onDataChange key: %s",
-                        id, dataSnapshot.getKey()));
-                User user = new User(dataSnapshot);
-                completion.complete(null, user);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                completion.complete("Get data error");
-            }
-        });
-    }
 
     public void updateShowMappingConfirm(Boolean value) {
         currentUser.showMappingConfirm = value;
@@ -287,17 +130,6 @@ public class ServiceManager {
         if (!status) {
             currentUser = null;
         }
-    }
-
-    public Boolean getLoginStatus(String userID) {
-        for (User user : allUsers) {
-            if (user.key.equals(userID)) {
-                if (user.loginStatus != null)
-                    return user.loginStatus;
-                return false;
-            }
-        }
-        return false;
     }
 
 
@@ -359,11 +191,9 @@ public class ServiceManager {
     private void updateTypeFriend(User user) {
         user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
         if (currentUser != null && MapUtils.isNotEmpty(currentUser.friends)) {
-            for (Object request : currentUser.friends.keySet()) {
-                if (request.toString().equals(user.key)) {
-                    user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
-                    break;
-                }
+            Boolean isFriend = currentUser.friends.get(user.key);
+            if (isFriend != null && isFriend) {
+                user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
             }
         }
     }
@@ -756,51 +586,6 @@ public class ServiceManager {
     }
 
     // Chat region
-    public void initMembers(Map<String, Boolean> memberIDs, Callback completion) {
-        List<User> members = new ArrayList<>();
-        List<String> finishIDs = new ArrayList<>();
-        List<String> getIDs = new ArrayList<>();
-
-        for (Map.Entry<String, Boolean> entry : memberIDs.entrySet()) {
-            String id = entry.getKey();
-            Boolean exist = entry.getValue();
-            if (exist)
-                getIDs.add(id);
-        }
-
-        for (String id : getIDs) {
-            getUser(id, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    User user = (User) data[0];
-                    members.add(user);
-                    finishIDs.add(user.key);
-                    if (finishIDs.size() == memberIDs.size()) {
-                        completion.complete(null, members);
-                    }
-                }
-            });
-        }
-    }
-
-    public void initMembers(List<String> memberIDs, Callback completion) {
-        List<User> members = new ArrayList<>();
-        List<String> finishIDs = new ArrayList<>();
-
-        for (String id : memberIDs) {
-            getUser(id, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    User user = (User) data[0];
-                    members.add(user);
-                    finishIDs.add(user.key);
-                    if (finishIDs.size() == memberIDs.size()) {
-                        completion.complete(null, members);
-                    }
-                }
-            });
-        }
-    }
 
     public void createConversationIDForPVPChat(String fromUserId, String toUserId, Callback completion) {
         String conversationID = fromUserId.compareTo(toUserId) > 0 ? fromUserId + toUserId : toUserId + fromUserId;
@@ -995,74 +780,10 @@ public class ServiceManager {
         });
     }
 
-//    private void saveQBUserData(QBUser qbUser) {
-//        SharedPrefsHelper sharedPrefsHelper = SharedPrefsHelper.getInstance();
-//        sharedPrefsHelper.save(Constant.QB_PING_ROOM, qbUser.getTags().get(0));
-//        sharedPrefsHelper.saveQbUser(qbUser);
-//    }
-
-    public void loadQBUser() {
-        startCallService(getQBUser());
-//        if (sharedPrefsHelper.hasQbUser()) {
-//            //currentQBUser = sharedPrefsHelper.getQbUser();
-//            //allQBUsers = dbManager.getAllUsers();
-//            //getAllQBUsers();
-//            startCallService(sharedPrefsHelper.getQbUser());
-//        }
-    }
-
-//    private void getAllQBUsers() {
-//        requestExecutor.loadUsersByTag(Constant.QB_PING_ROOM, new QBEntityCallback<ArrayList<QBUser>>() {
-//            @Override
-//            public void onSuccess(ArrayList<QBUser> result, Bundle params) {
-//                //allQBUsers = new ArrayList<QBUser>(result);
-//                dbManager.saveAllUsers(result, true);
-//            }
-//
-//            @Override
-//            public void onError(QBResponseException responseException) {
-//            }
-//        });
-//    }
-
     private void startCallService(QBUser qbUser) {
         Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
         PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
         CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
-    }
-
-//    public void logoutQB() {
-//        UsersUtils.removeUserData(App.getInstance().getApplicationContext());
-////        requestExecutor.deleteCurrentUser(currentQBUser.getId(), new QBEntityCallback<Void>() {
-////            @Override
-////            public void onSuccess(Void aVoid, Bundle bundle) {
-////                CallService.logout(App.getInstance().getApplicationContext());
-////                Log.d(TAG, "Current user was deleted from QB");
-////            }
-////
-////            @Override
-////            public void onError(QBResponseException e) {
-////                Log.e(TAG, "Current user wasn't deleted from QB " + e);
-////            }
-////        });
-//    }
-
-    //    public QBUser getQBUserByPingID(String pingID) {
-//        for (QBUser qbUser : allQBUsers) {
-//            if (qbUser.getFullName().equals(pingID))
-//                return qbUser;
-//        }
-//        return null;
-//    }
-//
-    public User getUserByQBId(Integer qbID) {
-
-        for (User user : allUsers) {
-            if (user.quickBloxID > 0 && user.quickBloxID == qbID) {
-                return user;
-            }
-        }
-        return null;
     }
 }
 

@@ -22,9 +22,11 @@ import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.CallAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.view.CustomSwitch;
@@ -32,7 +34,9 @@ import com.ping.android.view.CustomSwitch;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CallFragment extends Fragment implements View.OnClickListener, CallAdapter.ClickListener {
 
@@ -58,19 +62,16 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     private String search = "";
     private Button btnCancel;
 
+    private UserRepository userRepository;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ServiceManager.getInstance().initUserData(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                init();
-                loadData = true;
-                if (loadGUI) {
-                    bindData();
-                }
-            }
-        });
+        init();
+        loadData = true;
+        if (loadGUI) {
+            bindData();
+        }
     }
 
     @Override
@@ -159,11 +160,12 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     }
 
     private void init() {
+        userRepository = new UserRepository();
         auth = FirebaseAuth.getInstance();
         mFirebaseUser = auth.getCurrentUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        currentUser = ServiceManager.getInstance().getCurrentUser();
+        currentUser = UserManager.getInstance().getUser();
         calls = new ArrayList<>();
         adapter = new CallAdapter(calls, this);
         observeCalls();
@@ -270,21 +272,19 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
             }
             return;
         }
-        ArrayList<String> memberIDs = new ArrayList<>();
-        memberIDs.add(call.senderId);
-        memberIDs.add(call.receiveId);
-        ServiceManager.getInstance().initMembers(memberIDs, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                call.members = (List<User>) data[0];
-                for (User user : call.members) {
-                    if (!user.key.equals(currentUser.key)) {
-                        call.opponentUser = user;
-                        break;
-                    }
+
+        Map<String, Boolean> memberIDs = new HashMap<>();
+        memberIDs.put(call.senderId, true);
+        memberIDs.put(call.receiveId, true);
+        userRepository.initMemberList(memberIDs, (error, data) -> {
+            call.members = (List<User>) data[0];
+            for (User user : call.members) {
+                if (!user.key.equals(currentUser.key)) {
+                    call.opponentUser = user;
+                    break;
                 }
-                adapter.addOrUpdateCall(call);
             }
+            adapter.addOrUpdateCall(call);
         });
     }
 

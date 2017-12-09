@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -35,12 +36,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.ChatAdapter;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
-import com.ping.android.service.NotificationService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
@@ -66,6 +67,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
@@ -99,7 +101,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false, isEditAllMode = true;
     private RecorderVisualizerView visualizerView;
-
+    private AtomicBoolean isSettingStackFromEnd = new AtomicBoolean(false);
     private String originalText = "";
     private int selectPosition = 0;
     private boolean visibleStatus;
@@ -141,10 +143,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversationID = getIntent().getStringExtra("CONVERSATION_ID");
         sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
 
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
-        startService(intent);
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
 
@@ -163,11 +161,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     protected void onStart() {
         super.onStart();
-
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
-        startService(intent);
-
         visibleStatus = true;
 
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
@@ -187,10 +180,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onStop();
         isTyping = false;
         updateConversationTyping(false);
-
-        Intent intent = new Intent(this, NotificationService.class);
-        intent.putExtra("CONVERSATION_ID", "");
-        startService(intent);
 
         visibleStatus = false;
 
@@ -371,9 +360,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 orginalConversation = Conversation.from(dataSnapshot);
-                ServiceManager.getInstance().initMembers(orginalConversation.memberIDs, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
+                userRepository.initMemberList(orginalConversation.memberIDs, (error, data) -> {
+                    if (error == null) {
                         orginalConversation.members = (List<User>) data[0];
                         for (User user : orginalConversation.members) {
                             if (!user.key.equals(fromUserID)) {
@@ -383,9 +371,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                 break;
                             }
                         }
+                        startChat();
                     }
                 });
-                startChat();
             }
 
             @Override
@@ -401,7 +389,25 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         tvChatName.setOnClickListener(this);
         tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
-        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
+            @Override
+            public void onLayoutCompleted(RecyclerView.State state) {
+                super.onLayoutCompleted(state);
+                if (isSettingStackFromEnd.get()) return;
+
+                int contentView = recycleChatView.computeVerticalScrollRange();
+                int listHeight = recycleChatView.getMeasuredHeight();
+                if (contentView > listHeight) {
+                    if (mLinearLayoutManager.getStackFromEnd()) return;
+                    setLinearStackFromEnd(true);
+                } else {
+                    if (!mLinearLayoutManager.getStackFromEnd()) return;
+                    isSettingStackFromEnd.set(true);
+                    setLinearStackFromEnd(false);
+                }
+            }
+        };
         recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -413,20 +419,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         });
 
-        recycleChatView.addOnLayoutChangeListener((view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (bottom < oldBottom) {
-                recycleChatView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recycleChatView.smoothScrollToPosition(
-                                adapter.getItemCount() - 1);
-                    }
-                }, 100);
-            }
-        });
-
         findViewById(R.id.chat_person_name).setOnClickListener(this);
-
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
@@ -479,6 +472,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
+    }
+
+    private void setLinearStackFromEnd(boolean value) {
+        isSettingStackFromEnd.set(true);
+        // Set stack from end
+        recycleChatView.post(() -> {
+            mLinearLayoutManager.setStackFromEnd(value);
+            isSettingStackFromEnd.set(false);
+        });
     }
 
     private Message getLastMessage() {
@@ -546,7 +548,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         messages = new ArrayList<>();
-        fromUser = ServiceManager.getInstance().getCurrentUser();
+        fromUser = UserManager.getInstance().getUser();
         fromUserID = fromUser.key;
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -636,7 +638,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        ServiceManager.getInstance().getUser(message.senderId, new Callback() {
+        userRepository.getUser(message.senderId, new Callback() {
             @Override
             public void complete(Object error, Object... data) {
                 if (error == null) {
@@ -645,6 +647,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateMessageStatus(message);
                     adapter.addOrUpdate(message);
                     updateConversationReadStatus();
+                    recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
                 }
             }
         });
@@ -1083,6 +1086,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
+    Message cacheMessage = null;
+
     private void onSendCamera() {
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
@@ -1096,10 +1101,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
-                        File thumbnail = (File) data[1];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+                        // FIXME: should improve this way
+                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
+                        File thumbnail = files[1];
                         sendImageFirebase(file, thumbnail);
                     }
                 });
@@ -1119,10 +1131,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
-                        File thumbnail = (File) data[1];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
+                        File thumbnail = files[1];
                         sendImageFirebase(file, thumbnail);
                     }
                 });
@@ -1142,9 +1160,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
-                .setCallback((error, data) -> {
-                    if (error == null) {
-                        File file = (File) data[0];
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        File file = files[0];
                         sendGameFirebase(file);
                     }
                 });
@@ -1314,7 +1338,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
-        String key = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
+        if (cacheMessage == null) {
+            cacheMessage = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
+        }
+        //adapter.addOrUpdate(message);
         // upload thumbnail first first
         bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
             if (error != null) {
@@ -1322,14 +1349,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 return;
             }
             String thumbnailUrl = (String) data[0];
-            messageRepository.updateThumbnailUrl(key, thumbnailUrl);
+            messageRepository.updateThumbnailUrl(cacheMessage.key, thumbnailUrl);
             // Upload image
             bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
                 String imageUrl = thumbnailUrl;
                 if (error1 == null) {
                     imageUrl = (String) data1[0];
                 }
-                messageRepository.updatePhotoUrl(key, imageUrl);
+                messageRepository.updatePhotoUrl(cacheMessage.key, imageUrl);
                 //sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
             });
         });
@@ -1344,7 +1371,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    private String sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
+    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
         String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
@@ -1366,7 +1393,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         messageRepository.updateMessage(messageKey, message);
         conversationRepository.updateConversation(conversationID, conversation, fromUserID);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-        return messageKey;
+        return message;
     }
 
     private void updateMessageStatus(Message message) {
