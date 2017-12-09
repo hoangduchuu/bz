@@ -27,8 +27,10 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
@@ -225,22 +227,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return displayConversations.size();
     }
 
-    public void onGroupChange(Group group) {
-        for (int i = 0, size = displayConversations.size(); i < size; i++) {
-            Conversation conversation = displayConversations.get(i);
-            if (group.key.equals(conversation.groupID)) {
-                conversation.group = group;
-                notifyItemChanged(i);
-                break;
-            }
-        }
-        for (int i = 0, size = originalConversations.size(); i < size; i++) {
-            Conversation conversation = originalConversations.get(i);
-            if (group.key.equals(conversation.groupID)) {
-                conversation.group = group;
-                break;
-            }
-        }
+    public void updateData(ArrayList<Conversation> conversations) {
+        this.originalConversations = conversations;
+        this.displayConversations = (ArrayList<Conversation>) conversations.clone();
+        notifyDataSetChanged();
     }
 
     public interface ClickListener {
