@@ -30,8 +30,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 10
-        versionName "0.0.10"
+        versionCode 14
+        versionName "0.0.14"
         multiDexEnabled true
     }
     buildTypes {

@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -16,9 +17,9 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,6 +38,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.AudioMessagePlayer;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.DoubleClickListener;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Comparator<Message> {
 
@@ -342,19 +345,22 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         TextView tvText, tvStatus, tvInfo;
         ImageView ivChatProfile;
         ImageView ivChatPhoto;
-        ImageButton btPlaySong;
         Boolean markStatus = false;
         RadioButton rbSelect;
         Message message;
 
         private boolean isUpdated = false;
+        private ImageView mPlayMedia;
+        private ImageView mPauseMedia;
+        private SeekBar mMediaSeekBar;
+        private TextView mRunTime;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
-            initView();
+            initView(itemView);
         }
 
-        protected void initView() {
+        protected void initView(View itemView) {
             itemView.setOnClickListener(new DoubleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
@@ -377,10 +383,50 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             ivChatPhoto = itemView.findViewById(R.id.item_chat_image);
             ivChatProfile = itemView.findViewById(R.id.item_chat_user_profile);
 
+            // initialize the player controls
+            mPlayMedia = itemView.findViewById(R.id.play);
+            mPauseMedia = itemView.findViewById(R.id.pause);
+            mMediaSeekBar = (SeekBar) itemView.findViewById(R.id.media_seekbar);
+            mRunTime = (TextView) itemView.findViewById(R.id.playback_time);
+            if(mRunTime != null){
+                mRunTime.setText("00:00");
+            }
 
-            btPlaySong = itemView.findViewById(R.id.item_chat_audio);
-            if (btPlaySong != null)
-                btPlaySong.setOnClickListener(this::handleClick);
+            if (mPlayMedia != null) {
+                mMediaSeekBar.setProgress(0);
+                mMediaSeekBar.setOnSeekBarChangeListener(AudioMessagePlayer.getInstance());
+                mPlayMedia.setOnClickListener(view -> {
+                    AudioMessagePlayer player = AudioMessagePlayer.getInstance();
+                    player.initPlayer(itemView, message);
+                    mMediaSeekBar.setMax((int) player.getTotalTime());
+                    player.play();
+                    setPausable();
+                    AudioMessagePlayer.getInstance().setOnProgressChangedListener((currentTime, isFromSeekBar) -> {
+                        StringBuilder playbackStr = new StringBuilder();
+
+                        // set the current time
+                        // its ok to show 00:00 in the UI
+                        playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) currentTime), TimeUnit.MILLISECONDS.toSeconds((long) currentTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) currentTime))));
+                        if (mRunTime != null) {
+                            mRunTime.setText(playbackStr.toString());
+                        }
+                        if (!isFromSeekBar && mMediaSeekBar != null) {
+                            mMediaSeekBar.setProgress(currentTime);
+                        }
+
+                        if (currentTime == 0){
+                            setPlayable();
+                        }
+                    });
+                });
+            }
+            if(mPauseMedia != null) {
+                mPauseMedia.setOnClickListener(view -> {
+                    AudioMessagePlayer.getInstance().initPlayer(itemView, message).pause();
+                    setPlayable();
+                });
+            }
+
             tvStatus = itemView.findViewById(R.id.item_chat_status);
             tvStatus.setVisibility(View.GONE);
 
@@ -393,6 +439,36 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 rbSelect.setVisibility(View.VISIBLE);
             } else {
                 rbSelect.setVisibility(View.GONE);
+            }
+        }
+
+        /***
+         * Changes audiowife state to enable play functionality.
+         */
+        private void setPlayable() {
+            mPlayMedia = itemView.findViewById(R.id.play);
+            mPauseMedia = itemView.findViewById(R.id.pause);
+            if (mPlayMedia != null) {
+                mPlayMedia.setVisibility(View.VISIBLE);
+            }
+
+            if (mPauseMedia != null) {
+                mPauseMedia.setVisibility(View.GONE);
+            }
+        }
+
+        /****
+         * Changes audio wife to enable pause functionality.
+         */
+        private void setPausable() {
+            mPlayMedia = itemView.findViewById(R.id.play);
+            mPauseMedia = itemView.findViewById(R.id.pause);
+            if (mPlayMedia != null) {
+                mPlayMedia.setVisibility(View.GONE);
+            }
+
+            if (mPauseMedia != null) {
+                mPauseMedia.setVisibility(View.VISIBLE);
             }
         }
 
@@ -437,7 +513,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
                     break;
                 case Constant.MSG_TYPE_VOICE:
-                    playAudio(message.audioUrl);
                     break;
                 case Constant.MSG_TYPE_GAME:
                     onGameClick(markStatus);
@@ -528,27 +603,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             unPuzzleImage(imageURL, isPuzzled);
         }
 
-        private void playAudio(String audioURL) {
-            try {
-                Log.d(audioURL);
-                String audioLocalPath = activity.getExternalFilesDir(null).getAbsolutePath();
-                String audioLocalName = CommonMethod.getFileNameFromFirebase(audioURL);
-                audioLocalPath = audioLocalPath + File.separator + audioLocalName;
-                File audioLocal = new File(audioLocalPath);
-
-                if (audioLocal.exists()) {
-                    mMediaPlayer.reset();
-                    mMediaPlayer.setDataSource(audioLocalPath);
-                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                }
-
-            } catch (Exception e) {
-                Log.e(e);
-            }
-        }
-
         public void setModel(Message message) {
             this.message = message;
             markStatus = ServiceManager.getInstance().getCurrentMarkStatus(message.markStatuses);
@@ -596,28 +650,23 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
-            String audioLocalPath = activity.getExternalFilesDir(null).getAbsolutePath();
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
-            audioLocalPath = audioLocalPath + File.separator + audioLocalName;
+            final String audioLocalPath = activity.getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
 
             File audioLocal = new File(audioLocalPath);
             String imageLocalFolder = audioLocal.getParent();
             CommonMethod.createFolder(imageLocalFolder);
 
             if (audioLocal.exists()) {
+                //mMediaSeekBar.setMax((int) AudioMessagePlayer.getInstance().initPlayer(activity, message).getTotalTime());
             } else {
                 Log.d("audioUrl = " + audioUrl);
                 try {
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
-                    audioReference.getFile(audioLocal).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle any errors
-                        }
+                    audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
+                        //mMediaSeekBar.setMax((int) AudioMessagePlayer.getInstance().initPlayer(activity, message).getTotalTime());
+                    }).addOnFailureListener(exception -> {
+                        // Handle any errors
                     });
                 } catch (Exception ex) {
                     Log.e(ex);
