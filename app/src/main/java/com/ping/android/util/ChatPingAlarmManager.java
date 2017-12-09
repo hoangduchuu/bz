@@ -85,7 +85,6 @@ public class ChatPingAlarmManager {
      * @param context
      */
     public static void onCreate(Context context) {
-        sContext = context;
         context.registerReceiver(ALARM_BROADCAST_RECEIVER, new IntentFilter(PING_ALARM_ACTION));
         sAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         sPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(PING_ALARM_ACTION), 0);

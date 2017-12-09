@@ -68,6 +68,17 @@ public class CommonMethod {
         return encryptedPassword;
     }
 
+    public static String getSearchString(User user) {
+        return String.format("%s %s %s %s", user.getDisplayName(), user.phone, user.email, user.pingID).toLowerCase();
+    }
+
+    public static boolean isContain(String source, String subItem) {
+        String pattern = subItem;
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(source);
+        return m.find();
+    }
+
     public static boolean isFilteredContact(User contact, String text) {
         if (StringUtils.isEmpty(text)) {
             return false;
@@ -178,9 +189,9 @@ public class CommonMethod {
         String formatDate = "";
         if (DateUtils.isToday(milliSeconds)) {
             formatDate = DateFormat.format("h:mm a", milliSeconds).toString();
-        } else if(isXDateFromToday(milliSeconds, 1)) {
+        } else if (isXDateFromToday(milliSeconds, 1)) {
             formatDate = "Yesterday" + " " + time;
-        } else if(isXDateFromToday(milliSeconds, 7)) {
+        } else if (isXDateFromToday(milliSeconds, 7)) {
             formatDate = DateFormat.format("EEE", milliSeconds).toString() + " " + time;
         } else {
             formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds).toString() + " " + time;
@@ -194,9 +205,9 @@ public class CommonMethod {
         String formatDate = "";
         if (DateUtils.isToday(milliSeconds)) {
             formatDate = DateFormat.format("h:mm a", milliSeconds).toString();
-        } else if(isXDateFromToday(milliSeconds, 1)) {
+        } else if (isXDateFromToday(milliSeconds, 1)) {
             formatDate = "Yesterday";
-        } else if(isXDateFromToday(milliSeconds, 7)) {
+        } else if (isXDateFromToday(milliSeconds, 7)) {
             formatDate = DateFormat.format("EEE", milliSeconds).toString();
         } else {
             formatDate = DateFormat.format("MM/dd/yyyy", milliSeconds).toString();
@@ -205,7 +216,7 @@ public class CommonMethod {
     }
 
     public static boolean isXDateFromToday(long milliSeconds, int x) {
-        for(int i = 0; i<= x; i++) {
+        for (int i = 0; i <= x; i++) {
             long diff = i * 24 * 3600 * 1000;
             if (DateUtils.isToday(milliSeconds + diff)) {
                 return true;

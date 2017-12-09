@@ -26,8 +26,11 @@ import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.service.firebase.UserRepository;
+import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.ChipsEditText;
@@ -64,6 +67,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers = new ArrayList<>();
     private Map<String, User> userList = new HashMap<>();
+    private String textToSearch = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,18 +147,29 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void searchUsers(String text) {
+        textToSearch = text;
         userList.clear();
-        userRepository.searchUsersWithText(text, "ping_id", (error, data) -> {
-            if (error == null) {
+        Callback searchCallback = (error, data) -> {
+            if (error == null && text.equals(textToSearch)) {
                 DataSnapshot snapshot = (DataSnapshot) data[0];
                 handleUsersData(snapshot);
             }
-        });
-        userRepository.searchUsersWithText(text, "phone", (error, data) -> {
-            if (error == null) {
-                DataSnapshot snapshot = (DataSnapshot) data[0];
-                handleUsersData(snapshot);
+        };
+        localSearch(text);
+        userRepository.searchUsersWithText(text, "first_name", searchCallback);
+    }
+
+    private void localSearch(String text) {
+        for (User user : fromUser.friendList) {
+            if (CommonMethod.isContain(CommonMethod.getSearchString(user), text)) {
+                if (!userList.containsKey(user.key)) {
+                    userList.put(user.key, user);
+                }
             }
+        }
+        recycleChatView.post(() -> {
+            adapter.setSelectPingIDs(getSelectedPingId());
+            adapter.updateData(new ArrayList<>(userList.values()));
         });
     }
 

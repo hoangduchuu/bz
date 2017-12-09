@@ -153,15 +153,17 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         }
     }
 
+    private Callback searchCallback = null;
+
     public void searchUsers(String text) {
-        Log.d("search users with " + text);
         userList.clear();
-        userRepository.searchUsersWithText(text, "ping_id", (error, data) -> {
-            if (error == null) {
+        searchCallback = (error, data) -> {
+            if (error == null && text.equals(textToSearch)) {
                 DataSnapshot snapshot = (DataSnapshot) data[0];
                 handleUsersData(snapshot);
             }
-        });
+        };
+        userRepository.searchUsersWithText(text, "first_name", searchCallback);
     }
 
     private void handleUsersData(DataSnapshot dataSnapshot) {

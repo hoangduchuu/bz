@@ -6,9 +6,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,11 @@ public class UserRepository extends BaseFirebaseDatabase {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     User user = new User(dataSnapshot);
+                    user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
+                    User currentUser = UserManager.getInstance().getUser();
+                    if (currentUser != null && currentUser.friends.containsKey(user.key)) {
+                        user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
+                    }
                     callback.complete(null, user);
                 } else {
                     callback.complete(new Error());
@@ -82,10 +89,12 @@ public class UserRepository extends BaseFirebaseDatabase {
         databaseReference.orderByChild(child)
                 .startAt(text)
                 .endAt(text + "\uf8ff")
+                .limitToFirst(10)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        callback.complete(null, dataSnapshot);
+                        if (callback != null)
+                            callback.complete(null, dataSnapshot);
                     }
 
                     @Override
