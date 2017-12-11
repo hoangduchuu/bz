@@ -407,17 +407,4 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         startActivity(intent);
         finish();
     }
-
-    DialogFragment loadingDialog;
-
-    private void showLoading() {
-        loadingDialog = new LoadingDialog();
-        loadingDialog.show(getSupportFragmentManager(), "LOADING");
-    }
-
-    private void hideLoading() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
-    }
 }

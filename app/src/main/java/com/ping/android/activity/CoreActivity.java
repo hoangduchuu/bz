@@ -1,11 +1,13 @@
 package com.ping.android.activity;
 
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.NetworkConnectionChecker;
 
@@ -80,5 +82,18 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
 
     protected void exit() {
         finish();
+    }
+
+    DialogFragment loadingDialog;
+
+    protected void showLoading() {
+        loadingDialog = new LoadingDialog();
+        loadingDialog.show(getSupportFragmentManager(), "LOADING");
+    }
+
+    protected void hideLoading() {
+        if (loadingDialog != null) {
+            loadingDialog.dismiss();
+        }
     }
 }

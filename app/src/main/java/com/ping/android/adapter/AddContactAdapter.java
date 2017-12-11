@@ -35,7 +35,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
 
     public void updateData(ArrayList<User> users) {
         this.originalContacts = users;
-        this.displayContacts = (ArrayList<User>) users.clone();
+        this.displayContacts = new ArrayList<>();
         notifyDataSetChanged();
     }
 
@@ -48,7 +48,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
     public void filter(String text) {
         displayContacts = new ArrayList<>();
         for (User contact : originalContacts) {
-            if (CommonMethod.isFilteredContact(contact, text)) {
+            if (CommonMethod.isContain(CommonMethod.getSearchString(contact), text)) {
                 displayContacts.add(contact);
             }
         }

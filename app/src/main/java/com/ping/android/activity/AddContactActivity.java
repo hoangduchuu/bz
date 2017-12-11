@@ -13,8 +13,10 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.AddContactAdapter;
 import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.managers.UserManager;
@@ -25,6 +27,7 @@ import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.Toaster;
 
 import org.apache.commons.collections4.MapUtils;
 
@@ -49,7 +52,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     private AddContactAdapter adapter;
 
     private UserRepository userRepository;
-    private ArrayList<User> selectedUsers = new ArrayList<>();
+    private ArrayList<User> allUsers = new ArrayList<>();
     private Map<String, User> userList = new HashMap<>();
     private Timer timer;
     private String textToSearch = "";
@@ -87,20 +90,15 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
                 TimerTask task = new TimerTask() {
                     @Override
                     public void run() {
-                    // Trigger task after delaying
-                    searchUsers(textToSearch);
+                        // Trigger task after delaying
+                        searchUsers(textToSearch);
                     }
                 };
                 timer.schedule(task, DELAY);
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
     }
 
     private void init() {
@@ -114,6 +112,33 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
         adapter.filter("");
+
+        loadAllUsers();
+    }
+
+    private void loadAllUsers() {
+        showLoading();
+        userRepository.getDatabaseReference()
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()){
+                                User user = new User(snapshot);
+                                updateTypeFriend(user);
+                                allUsers.add(user);
+                            }
+                            adapter.updateData(allUsers);
+                            hideLoading();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        hideLoading();
+                        Toaster.longToast("Could not load users data");
+                    }
+                });
     }
 
     @Override
@@ -133,14 +158,11 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
             return;
         }
         ServiceManager.getInstance().createConversationIDForPVPChat(currentUser.key, contact.key,
-                new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        String conversationID = data[0].toString();
-                        Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
-                        intent.putExtra("CONVERSATION_ID", conversationID);
-                        startActivity(intent);
-                    }
+                (error, data) -> {
+                    String conversationID = data[0].toString();
+                    Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
+                    intent.putExtra("CONVERSATION_ID", conversationID);
+                    startActivity(intent);
                 });
     }
 
@@ -153,30 +175,8 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         }
     }
 
-    private Callback searchCallback = null;
-
     public void searchUsers(String text) {
-        userList.clear();
-        searchCallback = (error, data) -> {
-            if (error == null && text.equals(textToSearch)) {
-                DataSnapshot snapshot = (DataSnapshot) data[0];
-                handleUsersData(snapshot);
-            }
-        };
-        userRepository.searchUsersWithText(text, "first_name", searchCallback);
-    }
-
-    private void handleUsersData(DataSnapshot dataSnapshot) {
-        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            if (!userList.containsKey(snapshot.getKey())
-                    && !snapshot.getKey().equals(currentUser.key)) {
-                User user = new User(snapshot);
-                userList.put(snapshot.getKey(), user);
-                updateTypeFriend(user);
-            }
-        }
-
-        adapter.updateData(new ArrayList<>(userList.values()));
+        rvListContact.post(() -> adapter.filter(text));
     }
 
     private void updateTypeFriend(User user) {
