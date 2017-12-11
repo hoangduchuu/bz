@@ -16,6 +16,9 @@
     <string name="msg_empty_password">Please enter your password.</string>
     <string name="msg_empty_new_password">Please enter new password.</string>
     <string name="msg_empty_confirm_password">Please enter confirm password.</string>
+    <string name="msg_empty_name">Please enter name.</string>
+    <string name="msg_empty_last_name">Please enter last name.</string>
+    <string name="msg_valid_name">Please enter valid name.</string>
     <string name="msg_empty_ping_id">Please enter username.</string>
     <string name="msg_empty_email">Please enter email.</string>
     <string name="msg_empty_phone">Please enter phone.</string>

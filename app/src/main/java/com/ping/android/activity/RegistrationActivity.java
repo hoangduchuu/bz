@@ -104,10 +104,22 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void register() {
+        String firstName = txtFirstName.getText().toString().trim();
+        String lastName = txtLastName.getText().toString().trim();
         final String pingId = txtPingId.getText().toString().trim();
         final String email = txtEmail.getText().toString().trim();
         final String password = txtPassword.getText().toString().trim();
         String retypePassword = txtRetypePassword.getText().toString().trim();
+
+        if (TextUtils.isEmpty(firstName) || TextUtils.isEmpty(lastName)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_name), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!CommonMethod.isValidName(firstName) || !CommonMethod.isValidName(lastName)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_valid_name), Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (TextUtils.isEmpty(pingId)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_ping_id), Toast.LENGTH_SHORT).show();
