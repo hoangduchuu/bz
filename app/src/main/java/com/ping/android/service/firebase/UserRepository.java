@@ -104,6 +104,28 @@ public class UserRepository extends BaseFirebaseDatabase {
                 });
     }
 
+    public void matchUserWithText(String text, String child, Callback callback) {
+        databaseReference.orderByChild(child)
+                .equalTo(text)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (callback != null) {
+                            if (dataSnapshot.exists()) {
+                                callback.complete(null, dataSnapshot);
+                            } else {
+                                callback.complete(new Error());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
     public void initMemberList(Map<String, Boolean> memberIds, Callback callback) {
         List<User> members = new ArrayList<>();
         List<String> finishIDs = new ArrayList<>();

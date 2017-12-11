@@ -177,22 +177,20 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         checkReadySend();
     }
 
-    private Callback searchCallback = null;
     private String textToSearch = "";
 
     private void searchUsers(String text) {
         Log.d(text);
         textToSearch = text;
         userList.clear();
-        searchCallback = (error, data) -> {
+        Callback searchCallback = (error, data) -> {
             if (error == null && text.equals(textToSearch)) {
                 DataSnapshot snapshot = (DataSnapshot) data[0];
                 handleUsersData(snapshot);
             }
         };
         localSearch(text);
-        userRepository.searchUsersWithText(text, "first_name", searchCallback);
-        //userRepository.searchUsersWithText(text, "phone", searchCallback);
+        userRepository.matchUserWithText(text, "ping_id", searchCallback);
     }
 
     private void localSearch(String text) {

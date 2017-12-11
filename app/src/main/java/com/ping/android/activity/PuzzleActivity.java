@@ -24,9 +24,6 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     private String localImage;
     private Boolean puzzledstatus;
 
-    private Bitmap originalBitmap;
-    private Bitmap puzzledBitmap;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
