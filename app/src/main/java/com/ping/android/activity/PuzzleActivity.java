@@ -1,7 +1,9 @@
 package com.ping.android.activity;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
@@ -19,10 +21,8 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
 
     private String conversationID, messageID;
     private String imageURL;
+    private String localImage;
     private Boolean puzzledstatus;
-
-    private Bitmap originalBitmap;
-    private Bitmap puzzledBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +31,10 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         conversationID = getIntent().getStringExtra("CONVERSATION_ID");
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
+        localImage = getIntent().getStringExtra("LOCAL_IMAGE");
         puzzledstatus = getIntent().getBooleanExtra("PUZZLE_STATUS", true);
         bindViews();
-        init();
+        displayImage();
     }
 
     @Override
@@ -45,23 +46,32 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     private void bindViews() {
-        btBack = (ImageView) findViewById(R.id.puzzle_back);
+        btBack = findViewById(R.id.puzzle_back);
         btBack.setOnClickListener(this);
-        btPuzzle = (ToggleButton) findViewById(R.id.puzzle_toggle);
+        btPuzzle = findViewById(R.id.puzzle_toggle);
         btPuzzle.setOnClickListener(this);
-        ivPuzzle = (ImageView) findViewById(R.id.puzzle_image);
+        ivPuzzle = findViewById(R.id.puzzle_image);
     }
 
-    private void init() {
-        UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, (error, data) -> {
-            if (error == null) {
-                originalBitmap = (Bitmap) data[0];
-                btPuzzle.setChecked(!puzzledstatus);
-                ivPuzzle.setImageBitmap(originalBitmap);
-            } else {
-                ivPuzzle.setImageResource(R.drawable.ic_avatar_gray);
-            }
-        });
+    private void displayImage() {
+        if (TextUtils.isEmpty(localImage)) {
+            Drawable drawable = null;
+            UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, (error, data) -> {
+                if (error == null) {
+                    Bitmap bitmap = (Bitmap) data[0];
+                    ivPuzzle.setImageBitmap(bitmap);
+                    btPuzzle.setChecked(!puzzledstatus);
+                }
+            });
+        } else {
+            UiUtils.loadImageFromFile(ivPuzzle, localImage, messageID, puzzledstatus, (error, data) -> {
+                if (error == null) {
+                    Bitmap bitmap = (Bitmap) data[0];
+                    ivPuzzle.setImageBitmap(bitmap);
+                    btPuzzle.setChecked(!puzzledstatus);
+                }
+            });
+        }
     }
 
     @Override
@@ -81,12 +91,8 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     public void puzzleImage() {
-        UiUtils.loadImage(ivPuzzle, imageURL, messageID, !btPuzzle.isChecked(), (error, data) -> {
-            if (error == null) {
-                Bitmap bitmap = (Bitmap) data[0];
-                ivPuzzle.setImageBitmap(bitmap);
-            }
-        });
+        puzzledstatus = !btPuzzle.isChecked();
+        displayImage();
 
         //ivPuzzle.postInvalidate();
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {

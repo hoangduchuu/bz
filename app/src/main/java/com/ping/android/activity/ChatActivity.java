@@ -1113,7 +1113,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     @Override
                     public void onImageReceived(File file) {
                         // FIXME: should improve this way
-                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
+                        cacheMessage.localImage = file.getAbsolutePath();
+                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1142,7 +1144,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setListener(new ImagePickerHelper.ImagePickerListener() {
                     @Override
                     public void onImageReceived(File file) {
-                        cacheMessage = sendImageMessage(Constant.IMAGE_PREFIX, Constant.IMAGE_PREFIX + file.getAbsolutePath(), Constant.MSG_TYPE_IMAGE);
+                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
+                        cacheMessage.localImage = file.getAbsolutePath();
+                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1347,7 +1351,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void sendImageFirebase(File file, File thumbnail) {
         if (cacheMessage == null) {
-            cacheMessage = sendImageMessage("PPhtotoMessageIdentifier", "PPhtotoMessageIdentifier", Constant.MSG_TYPE_IMAGE);
+            cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
         }
         //adapter.addOrUpdate(message);
         // upload thumbnail first first

@@ -156,7 +156,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             }
         };
         localSearch(text);
-        userRepository.searchUsersWithText(text, "first_name", searchCallback);
+        userRepository.matchUserWithText(text, "first_name", searchCallback);
     }
 
     private void localSearch(String text) {

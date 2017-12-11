@@ -43,6 +43,8 @@ import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.DoubleClickListener;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,8 +99,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             Message displayMessage = displayMessages.get(i);
             if (displayMessage.messageType != Constant.MSG_TYPE_TYPING
                     && displayMessage.messageType != Constant.MSG_TYPE_PADDING) {
-                if (message.key.equals(displayMessages.get(i).key)) {
+                if (message.key.equals(displayMessage.key)) {
                     index = i;
+                    if (!TextUtils.isEmpty(displayMessage.localImage)) {
+                        // Keep local image
+                        message.localImage = displayMessage.localImage;
+                    }
                     isAdd = false;
                     break;
                 }
@@ -535,10 +541,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void openImage(boolean isPuzzled) {
-            String photoUrl = !TextUtils.isEmpty(message.photoUrl) && message.photoUrl.startsWith(Constant.IMAGE_PREFIX)
-                    ? message.photoUrl : message.thumbUrl;
-            if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith(Constant.IMAGE_PREFIX)) return;
-            unPuzzleImage(photoUrl, isPuzzled);
+            if (TextUtils.isEmpty(message.localImage)) {
+                String photoUrl = !TextUtils.isEmpty(message.photoUrl)
+                        ? message.photoUrl : message.thumbUrl;
+                if (TextUtils.isEmpty(photoUrl))
+                    return;
+                unPuzzleImage(photoUrl, "", isPuzzled);
+            } else {
+                unPuzzleImage("", message.localImage, isPuzzled);
+            }
         }
 
         private void onMarkTest() {
@@ -562,17 +573,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
 
             if (currentUserID.equals(message.senderId)) {
-                unPuzzleImage(message.gameUrl, isPuzzled);
+                unPuzzleImage(message.gameUrl, "", isPuzzled);
             } else {
                 unPuzzleGame(message.gameUrl, isPuzzled);
             }
         }
 
-        private void unPuzzleImage(String imageURL, Boolean isPuzzled) {
+        private void unPuzzleImage(String imageURL, String localImage, boolean isPuzzled) {
             Intent intent = new Intent(activity, PuzzleActivity.class);
             intent.putExtra("CONVERSATION_ID", conversationID);
             intent.putExtra("MESSAGE_ID", message.key);
             intent.putExtra("IMAGE_URL", imageURL);
+            intent.putExtra("LOCAL_IMAGE", localImage);
             intent.putExtra("PUZZLE_STATUS", isPuzzled);
             activity.startActivity(intent);
         }
@@ -589,7 +601,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     return;
                 } else if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
-                    unPuzzleImage(imageURL, isPuzzled);
+                    unPuzzleImage(imageURL, "", isPuzzled);
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     Intent intent = new Intent(activity, GameActivity.class);
                     intent.putExtra("CONVERSATION_ID", conversationID);
@@ -600,7 +612,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 }
             }
             // Show image for current User
-            unPuzzleImage(imageURL, isPuzzled);
+            unPuzzleImage(imageURL, "", isPuzzled);
         }
 
         public void setModel(Message message) {
@@ -616,7 +628,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvText.setText(text);
         }
 
-        public void setIvChatPhoto(String imageURL) {
+        private void setLocalImage(String filePath) {
+            UiUtils.loadImageFromFile(ivChatPhoto, filePath, message.key, markStatus);
+        }
+
+        private void setIvChatPhoto(String imageURL) {
             boolean bitmapMark = markStatus;
             if (ivChatPhoto == null) return;
             if (TextUtils.isEmpty(imageURL)) {
@@ -645,7 +661,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             UiUtils.loadImage(ivChatPhoto, url, message.key, bitmapMark, placeholder);
         }
 
-        public void setAudioSrc(String audioUrl) {
+        private void setAudioSrc(String audioUrl) {
             if (TextUtils.isEmpty(audioUrl)) {
                 return;
             }
@@ -706,25 +722,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setChatImage(Bitmap originalBitmap) {
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            ((Activity) ivChatPhoto.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int maxEdgeLength = Math.round((float) (displaymetrics.widthPixels * .6));
-
-            if (originalBitmap.getWidth() > originalBitmap.getHeight()) {
-
-                ivChatPhoto.getLayoutParams().height = Math.round((float) (maxEdgeLength * originalBitmap.getHeight() / originalBitmap.getWidth()));
-                ivChatPhoto.getLayoutParams().width = maxEdgeLength;
-            } else {
-
-                ivChatPhoto.getLayoutParams().height = maxEdgeLength;
-                ivChatPhoto.getLayoutParams().width = Math.round((float) (maxEdgeLength * originalBitmap.getWidth() / originalBitmap.getHeight()));
-            }
-            ivChatPhoto.setImageBitmap(originalBitmap);
-
-            ivChatPhoto.setClipToOutline(true);
-        }
-
         private void setStatus(long messageStatus) {
             if (tvStatus == null) return;
             if (messageStatus == Constant.MESSAGE_STATUS_HIDE) {
@@ -771,7 +768,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             setIvChatProfile();
             setInfo();
             if (message.messageType == Constant.MSG_TYPE_IMAGE) {
-                setIvChatPhoto(model.thumbUrl);
+                if (!TextUtils.isEmpty(message.localImage)) {
+                    setLocalImage(message.localImage);
+                } else {
+                    setIvChatPhoto(model.thumbUrl);
+                }
             } else if (message.messageType == Constant.MSG_TYPE_GAME) {
                 setIvChatPhoto(model.gameUrl);
                 if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
