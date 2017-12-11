@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -394,9 +395,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             mPauseMedia = itemView.findViewById(R.id.pause);
             mMediaSeekBar = (SeekBar) itemView.findViewById(R.id.media_seekbar);
             mRunTime = (TextView) itemView.findViewById(R.id.playback_time);
-            if(mRunTime != null){
-                mRunTime.setText("00:00");
-            }
 
             if (mPlayMedia != null) {
                 mMediaSeekBar.setProgress(0);
@@ -406,30 +404,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     player.initPlayer(itemView, message);
                     mMediaSeekBar.setMax((int) player.getTotalTime());
                     player.play();
-                    setPausable();
-                    AudioMessagePlayer.getInstance().setOnProgressChangedListener((currentTime, isFromSeekBar) -> {
-                        StringBuilder playbackStr = new StringBuilder();
-
-                        // set the current time
-                        // its ok to show 00:00 in the UI
-                        playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) currentTime), TimeUnit.MILLISECONDS.toSeconds((long) currentTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) currentTime))));
-                        if (mRunTime != null) {
-                            mRunTime.setText(playbackStr.toString());
-                        }
-                        if (!isFromSeekBar && mMediaSeekBar != null) {
-                            mMediaSeekBar.setProgress(currentTime);
-                        }
-
-                        if (currentTime == 0){
-                            setPlayable();
-                        }
-                    });
                 });
             }
             if(mPauseMedia != null) {
                 mPauseMedia.setOnClickListener(view -> {
                     AudioMessagePlayer.getInstance().initPlayer(itemView, message).pause();
-                    setPlayable();
                 });
             }
 
@@ -445,36 +424,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 rbSelect.setVisibility(View.VISIBLE);
             } else {
                 rbSelect.setVisibility(View.GONE);
-            }
-        }
-
-        /***
-         * Changes audiowife state to enable play functionality.
-         */
-        private void setPlayable() {
-            mPlayMedia = itemView.findViewById(R.id.play);
-            mPauseMedia = itemView.findViewById(R.id.pause);
-            if (mPlayMedia != null) {
-                mPlayMedia.setVisibility(View.VISIBLE);
-            }
-
-            if (mPauseMedia != null) {
-                mPauseMedia.setVisibility(View.GONE);
-            }
-        }
-
-        /****
-         * Changes audio wife to enable pause functionality.
-         */
-        private void setPausable() {
-            mPlayMedia = itemView.findViewById(R.id.play);
-            mPauseMedia = itemView.findViewById(R.id.pause);
-            if (mPlayMedia != null) {
-                mPlayMedia.setVisibility(View.GONE);
-            }
-
-            if (mPauseMedia != null) {
-                mPauseMedia.setVisibility(View.VISIBLE);
             }
         }
 
@@ -674,13 +623,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             CommonMethod.createFolder(imageLocalFolder);
 
             if (audioLocal.exists()) {
-                //mMediaSeekBar.setMax((int) AudioMessagePlayer.getInstance().initPlayer(activity, message).getTotalTime());
+                AudioMessagePlayer.getInstance().initPlayer(itemView, message);
             } else {
                 Log.d("audioUrl = " + audioUrl);
                 try {
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
-                        //mMediaSeekBar.setMax((int) AudioMessagePlayer.getInstance().initPlayer(activity, message).getTotalTime());
+                        AudioMessagePlayer.getInstance().initPlayer(itemView, message);
                     }).addOnFailureListener(exception -> {
                         // Handle any errors
                     });
