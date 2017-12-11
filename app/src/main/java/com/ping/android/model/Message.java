@@ -36,6 +36,7 @@ public class Message {
 
     // Local variable, don't store on Firebase
     public User sender;
+    public String localImage;
 
     public Message() {
     }

@@ -153,6 +153,31 @@ public class UiUtils {
                 .into(imageView);
     }
 
+    public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark, Callback callback) {
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                Log.d("Image loaded " + filePath);
+                callback.complete(null, resource);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                callback.complete(new Error());
+            }
+        };
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        GlideApp.with(imageView.getContext())
+                .asBitmap()
+                .load(filePath)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(key)
+                .dontAnimate()
+                .into(target);
+    }
+
     public static void loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder) {
         if (TextUtils.isEmpty(imageUrl) || !imageUrl.startsWith("gs")) {
             return;
