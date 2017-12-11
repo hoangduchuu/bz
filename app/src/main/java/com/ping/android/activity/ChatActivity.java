@@ -616,12 +616,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeStatusEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Boolean status = CommonMethod.getBooleanOf(dataSnapshot.getValue());
-                if (status == null) status = false;
-                if (status)
+                if (dataSnapshot.exists()) {
                     tvChatStatus.setText("Online");
-                else
+                } else {
                     tvChatStatus.setText("Offline");
+                }
             }
 
             @Override
@@ -803,7 +802,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void observeStatus() {
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             userRepository.getDatabaseReference().child(orginalConversation.opponentUser.key)
-                    .child("loginStatus").addValueEventListener(observeStatusEvent);
+                    .child("connections").addValueEventListener(observeStatusEvent);
         } else {
             tvChatStatus.setVisibility(View.GONE);
         }

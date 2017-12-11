@@ -6,6 +6,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -24,12 +25,14 @@ public abstract class BaseFirebaseDatabase {
     protected FirebaseAuth auth;
     private FirebaseDatabase database;
     protected User currentUser;
+    protected FirebaseUser firebaseUser;
 
     protected DatabaseReference databaseReference;
 
     public BaseFirebaseDatabase() {
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         initializeReference(database);
     }
 

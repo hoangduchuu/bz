@@ -8,15 +8,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.ping.android.model.User;
 import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.PresenceRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.quickblox.users.model.QBUser;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -27,8 +25,9 @@ public class UserManager {
     private ArrayList<User> blockList;
     private User user;
     private UserRepository userRepository;
+    private PresenceRepository presenceRepository;
     private QuickBloxRepository quickBloxRepository;
-    private ValueEventListener valueEventListener;
+    private ValueEventListener userUpdateListener;
 
     private static UserManager instance;
 
@@ -42,8 +41,13 @@ public class UserManager {
     private UserManager() {
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
+        presenceRepository = new PresenceRepository();
         friendList = new ArrayList<>();
         blockList = new ArrayList<>();
+    }
+
+    public void listenAuthChange() {
+
     }
 
     public void initialize(@NonNull Callback callback) {
@@ -70,6 +74,11 @@ public class UserManager {
                 callback.complete(error, data);
             }
         });
+        presenceRepository.listenStatusChange((error, data) -> {
+            if (error == null) {
+                userRepository.registerUserPresence();
+            }
+        });
     }
 
     private void onBlocksUpdated(Map<String, Object> blocks) {
@@ -84,7 +93,7 @@ public class UserManager {
     private void addValueEventListener() {
         if (user == null) return;
 
-        valueEventListener = new ValueEventListener() {
+        userUpdateListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User updateUser = new User(dataSnapshot);
@@ -103,12 +112,12 @@ public class UserManager {
             }
         };
         userRepository.getDatabaseReference().child(user.key)
-                .addValueEventListener(valueEventListener);
+                .addValueEventListener(userUpdateListener);
     }
 
     private void removeValueEventListener() {
-        if (valueEventListener != null && user != null) {
-            userRepository.getDatabaseReference().child(user.key).removeEventListener(valueEventListener);
+        if (userUpdateListener != null && user != null) {
+            userRepository.getDatabaseReference().child(user.key).removeEventListener(userUpdateListener);
         }
     }
 
