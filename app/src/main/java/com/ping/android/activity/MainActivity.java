@@ -63,7 +63,7 @@ public class MainActivity extends CoreActivity {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
         onChangeTab();
@@ -123,7 +123,7 @@ public class MainActivity extends CoreActivity {
     }
 
     private void setupTabIcons() {
-        tabLayout.getTabAt(0).setCustomView(getTabIcon(0, false));
+        tabLayout.getTabAt(0).setCustomView(getTabIcon(0, true));
         tabLayout.getTabAt(1).setCustomView(getTabIcon(1, false));
         tabLayout.getTabAt(2).setCustomView(getTabIcon(2, false));
         tabLayout.getTabAt(3).setCustomView(getTabIcon(3, false));
