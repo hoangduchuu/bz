@@ -49,6 +49,9 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         setContentView(R.layout.activity_select_contact);
         selectedId = getIntent().getStringExtra("SELECTED_ID");
         selectedUsers = getIntent().getParcelableArrayListExtra(SELECTED_USERS_KEY);
+        if (selectedUsers == null) {
+            selectedUsers = new ArrayList<>();
+        }
         bindViews();
         init();
     }
@@ -92,27 +95,6 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
 
         currentUser = UserManager.getInstance().getUser();
         mContacts = new ArrayList<>(currentUser.friendList);
-//        ArrayList<User> friendList = currentUser.friendList;
-//        List<String> selectedIDLst = Arrays.asList(selectedId.split(","));
-//        for (int i = 0; i<selectedIDLst.size(); i++) {
-//            selectedIDLst.set(i, selectedIDLst.get(i).trim());
-//        }
-//
-//        for (User contact : friendList) {
-//            if (selectedIDLst.contains(contact.key)) {
-//                continue;
-//            }
-//            if (selectedIDLst.contains(contact.pingID)) {
-//                continue;
-//            }
-//            if (selectedIDLst.contains(contact.email)) {
-//                continue;
-//            }
-//            if (StringUtils.isNotEmpty(contact.phone) && selectedIDLst.contains(contact.phone)) {
-//                continue;
-//            }
-//            mContacts.add(contact);
-//        }
 
         // TODO SelectContactAdapter
         adapter = new SelectContactAdapter(this, mContacts, new SelectContactAdapter.ClickListener() {

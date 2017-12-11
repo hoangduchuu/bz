@@ -68,9 +68,11 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
-                ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_USER_IDS");
-                blockContact(selectContacts);
+                //ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_USER_IDS");
+                //blockContact(selectContacts);
                 //blockIds.addAll(selectContacts);
+                List<User> selectedUsers = data.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY);
+                blockContact(selectedUsers);
             }
         }
     }
@@ -158,9 +160,9 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
 
-    private void blockContact(List<String> blockIds) {
-        for (String blockID : blockIds) {
-            ServiceManager.getInstance().updateBlock(blockID, true);
+    private void blockContact(List<User> contacts) {
+        for (User contact : contacts) {
+            ServiceManager.getInstance().updateBlock(contact.key, true);
         }
     }
 }

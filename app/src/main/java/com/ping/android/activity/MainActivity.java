@@ -228,6 +228,7 @@ public class MainActivity extends CoreActivity {
         adapter.addFrag(contactFragment, "Contact");
         adapter.addFrag(profileFragment, "Profile");
         viewPager.setAdapter(adapter);
+        viewPager.setOffscreenPageLimit(5);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
