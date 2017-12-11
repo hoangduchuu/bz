@@ -1,11 +1,14 @@
 package com.ping.android.utils;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
@@ -21,11 +24,12 @@ import java.util.concurrent.TimeUnit;
  * Created by bzzz on 12/6/17.
  */
 
-public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View.OnClickListener{
     private final String TAG = this.getClass().getSimpleName();
 
     private static final int AUDIO_PROGRESS_UPDATE_TIME = 100;
     private static Message message;
+    private static int totalTime = 0;
     private static View itemView;
 
     // TODO: externalize the error messages.
@@ -39,13 +43,27 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
 
     private static AudioMessagePlayer mAudioMessagePlayer;
 
-    public interface OnProgressChangeListener{
+    public void onProgressChange(int currentTime, int totalTime, boolean isFromSeekBar) {
+        TextView mRunTime = itemView.findViewById(R.id.playback_time);
+        SeekBar mMediaSeekBar = itemView.findViewById(R.id.media_seekbar);
+        StringBuilder playbackStr = new StringBuilder();
+        int remainingTime = totalTime - currentTime;
 
-        void onProgressChange(int currentTime, boolean isFromSeekBar);
+        // set the current time
+        // its ok to show 00:00 in the UI
+        playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) remainingTime),
+                TimeUnit.MILLISECONDS.toSeconds((long) remainingTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) remainingTime))));
+        if (mRunTime != null) {
+            mRunTime.setText(playbackStr.toString());
+        }
+        if (!isFromSeekBar && mMediaSeekBar != null) {
+            mMediaSeekBar.setProgress(currentTime);
+        }
 
+        if (currentTime == totalTime){
+            setPlayable(true);
+        }
     }
-
-    private OnProgressChangeListener progressChangeListener;
 
     private AudioMessagePlayer(){
     }
@@ -65,9 +83,8 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         public void run() {
 
             if (mProgressUpdateHandler != null && mMediaPlayer.isPlaying()) {
-                if(progressChangeListener != null){
-                    progressChangeListener.onProgressChange(mMediaPlayer.getCurrentPosition(), false);
-                }
+                onProgressChange(mMediaPlayer.getCurrentPosition(), totalTime, false);
+
                 // repeat the process
                 mProgressUpdateHandler.postDelayed(this, AUDIO_PROGRESS_UPDATE_TIME);
             } else {
@@ -89,6 +106,7 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
 
         mMediaPlayer.start();
+        setPausable();
     }
 
     public void pause() {
@@ -100,29 +118,7 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         if (mMediaPlayer.isPlaying()) {
             mMediaPlayer.pause();
         }
-    }
-
-    public long getTotalTime() {
-
-        long totalDuration = 0;
-
-        // by this point the media player is brought to ready state
-        // by the call to init().
-        if (mMediaPlayer != null) {
-            try {
-                totalDuration = mMediaPlayer.getDuration();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (totalDuration < 0) {
-            throw new IllegalArgumentException(ERROR_PLAYTIME_TOTAL_NEGATIVE);
-        }
-
-        return totalDuration;
+        setPlayable(false);
     }
 
     public AudioMessagePlayer initPlayer(View itemView, Message message) {
@@ -133,12 +129,15 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
 
         //if media is play then stop, move seekbar to start
         if(this.itemView != null) {
-            setPlayable();
+            setPlayable(true);
         }
 
+        //change current audio record
         this.itemView = itemView;
 
         this.message = message;
+        this.totalTime = getTotalTime();
+        setPlayable(true);
 
         if(mMediaPlayer != null) {
             release();
@@ -174,15 +173,17 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
             e.printStackTrace();
         }
 
-        mMediaPlayer.setOnCompletionListener(mOnCompletion);
+        mMediaPlayer.setOnCompletionListener(mediaPlayer -> {
+            onProgressChange(totalTime, totalTime, false);
+        });
         return this;
     }
 
-    private void setPlayable() {
+    private void setPlayable(boolean resetPlayedTime) {
         ImageView mPlayMedia = itemView.findViewById(R.id.play);
         ImageView mPauseMedia = itemView.findViewById(R.id.pause);
         SeekBar mMediaSeekBar = itemView.findViewById(R.id.media_seekbar);
-        TextView mRunTime = itemView.findViewById(R.id.playback_time);
+
         if (mPlayMedia != null) {
             mPlayMedia.setVisibility(View.VISIBLE);
         }
@@ -190,20 +191,25 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         if (mPauseMedia != null) {
             mPauseMedia.setVisibility(View.GONE);
         }
-        if(mMediaSeekBar != null){
+        if(mMediaSeekBar != null && resetPlayedTime){
             mMediaSeekBar.setProgress(0);
         }
-        if(mRunTime != null){
-            mRunTime.setText("00:00");
+        if(resetPlayedTime) {
+            setTotalTime();
         }
     }
 
-    private MediaPlayer.OnCompletionListener mOnCompletion = mp -> {
-        // set UI when audio finished playing
-        if(progressChangeListener != null){
-            progressChangeListener.onProgressChange(0, false);
+    private void setPausable() {
+        ImageView mPlayMedia = itemView.findViewById(R.id.play);
+        ImageView mPauseMedia = itemView.findViewById(R.id.pause);
+        if (mPlayMedia != null) {
+            mPlayMedia.setVisibility(View.GONE);
         }
-    };
+
+        if (mPauseMedia != null) {
+            mPauseMedia.setVisibility(View.VISIBLE);
+        }
+    }
 
     public void release() {
 
@@ -223,9 +229,8 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
 
         mMediaPlayer.seekTo(seekBar.getProgress());
 
-        if(progressChangeListener != null){
-            progressChangeListener.onProgressChange(mMediaPlayer.getCurrentPosition(), true);
-        }
+        onProgressChange(mMediaPlayer.getCurrentPosition(), totalTime, true);
+
     }
 
     @Override
@@ -250,18 +255,25 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         }
     }
 
-    public void setOnProgressChangedListener(OnProgressChangeListener listener){
-        this.progressChangeListener = listener;
+    public void setTotalTime(){
+        // set total time as the audio is being played
+        StringBuilder playbackStr = new StringBuilder();
+        if (totalTime != 0) {
+            playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) totalTime), TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
+        }
+
+        TextView mRunTime = itemView.findViewById(R.id.playback_time);
+        mRunTime.setText(playbackStr);
     }
 
-    public void setTotalTimeTo(TextView textView){
-        long totalDuration = getTotalTime();
-        StringBuilder playbackStr = new StringBuilder();
-        // set total time as the audio is being played
-        if (totalDuration != 0) {
-            playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) totalDuration), TimeUnit.MILLISECONDS.toSeconds((long) totalDuration) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalDuration))));
-        }
-        textView.setText(playbackStr);
+    public int getTotalTime(){
+        String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
+                + CommonMethod.getFileNameFromFirebase(message.audioUrl);
+        Uri uri = Uri.parse(audioLocalPath);
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(itemView.getContext(), uri);
+        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        return Integer.parseInt(durationStr);
     }
 
 }
