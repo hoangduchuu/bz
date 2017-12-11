@@ -89,6 +89,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
     private EditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
+    private Button btnSend;
+    private Button btCancelRecord;
 
     private String conversationID, fromUserID, sendNewMsg;
     private User fromUser;
@@ -134,7 +136,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         }
     };
-    private Button btCancelRecord;
+    Message cacheMessage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -425,7 +427,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
         findViewById(R.id.chat_voice_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
-        findViewById(R.id.chat_send_message_btn).setOnClickListener(this);
+        btnSend = findViewById(R.id.chat_send_message_btn);
+        btnSend.setOnClickListener(this);
+        btnSend.setEnabled(false);
 
         btVoiceCall = (ImageButton) findViewById(R.id.chat_voice_call_btn);
         btVoiceCall.setOnClickListener(this);
@@ -499,43 +503,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         }
         return null;
-    }
-
-    private void loadMoreChats() {
-        Message lastMessage = getLastMessage();
-        if (lastMessage == null) return;
-        messageRepository.getDatabaseReference()
-                .orderByChild("timestamp")
-                .endAt(lastMessage.timestamp)
-                .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getChildrenCount() > 0) {
-                            List<Message> messages = new ArrayList<>();
-                            for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                //processAddChild(child);
-                                Message message = Message.from(child);
-                                if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                                    continue;
-                                }
-                                message.sender = getSender(message.senderId);
-                                messages.add(message);
-                            }
-                            adapter.appendHistoryItems(messages);
-                        }
-
-                        if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
-                            isEndOfConvesation = true;
-                            updateLoadMoreButtonStatus(false);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
     }
 
     private void init() {
@@ -629,6 +596,24 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         };
     }
 
+    private void bindConversationSetting() {
+        conversationRepository.getMaskOutput(conversationID, fromUser.key, (error, data) -> {
+            if (error == null) {
+                tgMarkOut.setChecked((boolean) data[0]);
+            }
+        });
+        conversationRepository.getMaskMessageSetting(conversationID, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+
+            }
+        });
+    }
+
+    private void updateSendButtonStatus(boolean isEnable) {
+        btnSend.setEnabled(isEnable);
+    }
+
     private void processAddChild(DataSnapshot dataSnapshot) {
         //Message message = new Message(dataSnapshot);
         Message message = Message.from(dataSnapshot);
@@ -650,6 +635,43 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
             }
         });
+    }
+
+    private void loadMoreChats() {
+        Message lastMessage = getLastMessage();
+        if (lastMessage == null) return;
+        messageRepository.getDatabaseReference()
+                .orderByChild("timestamp")
+                .endAt(lastMessage.timestamp)
+                .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            List<Message> messages = new ArrayList<>();
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                //processAddChild(child);
+                                Message message = Message.from(child);
+                                if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+                                    continue;
+                                }
+                                message.sender = getSender(message.senderId);
+                                messages.add(message);
+                            }
+                            adapter.appendHistoryItems(messages);
+                        }
+
+                        if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
+                            isEndOfConvesation = true;
+                            updateLoadMoreButtonStatus(false);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void startChat() {
@@ -677,20 +699,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             onSentMessage(sendNewMsg);
             sendNewMsg = "";
         }
-    }
-
-    private void bindConversationSetting() {
-        conversationRepository.getMaskOutput(conversationID, fromUser.key, (error, data) -> {
-            if (error == null) {
-                tgMarkOut.setChecked((boolean) data[0]);
-            }
-        });
-        conversationRepository.getMaskMessageSetting(conversationID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-
-            }
-        });
     }
 
     private User getUser(String userId) {
@@ -828,9 +836,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                updateSendButtonStatus(!TextUtils.isEmpty(charSequence.toString()));
                 if (!tgMarkOut.isChecked()) {
                     return;
                 }
+
                 String newOriginalText = "";
                 String displayText = charSequence.toString();
                 if (i1 < i2) {
@@ -1084,8 +1094,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversationRepository.updateConversation(conversationID, conversation, null);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
-
-    Message cacheMessage = null;
 
     private void onSendCamera() {
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
