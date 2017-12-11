@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
@@ -11,6 +12,7 @@ import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +85,15 @@ public class UserRepository extends BaseFirebaseDatabase {
 
     public void updateQBId(String userId, int id) {
         databaseReference.child(userId).child("quickBloxID").setValue(id);
+    }
+
+    public void registerUserPresence() {
+        if (firebaseUser != null) {
+            Log.d(firebaseUser.getUid());
+            DatabaseReference con = databaseReference.child(firebaseUser.getUid()).child("connections").push();
+            con.onDisconnect().removeValue();
+            con.setValue(true);
+        }
     }
 
     public void searchUsersWithText(String text, String child, Callback callback) {
