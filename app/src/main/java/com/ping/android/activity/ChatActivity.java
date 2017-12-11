@@ -1091,7 +1091,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversation.members = orginalConversation.members;
         String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
-
+        message.key = messageKey;
         conversationRepository.updateConversation(conversationID, conversation, null);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }

@@ -116,6 +116,7 @@ public class Conversation implements Parcelable {
         this.timesstamps = timestamp;
 
         if (originalConversation != null) {
+            this.key = originalConversation.key;
             this.notifications = originalConversation.notifications;
             this.maskMessages = originalConversation.maskMessages;
             this.puzzleMessages = originalConversation.puzzleMessages;

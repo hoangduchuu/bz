@@ -43,12 +43,38 @@ public class NotificationHelper {
     }
 
     public void sendCallingNotificationToUser(int quickBloxId, String callType) {
-        String messageData = String.format("%s is %s calling", UserManager.getInstance().getUser().getDisplayName(), callType);
+        String messageData = String.format("%s is %s calling.", UserManager.getInstance().getUser().getDisplayName(), callType);
         JsonObject object = new JsonObject();
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
         object.addProperty("notificationType", "incoming_call");
+        QBEvent event = new QBEvent();
+        event.setNotificationType(QBNotificationType.PUSH);
+        event.addUserIds(quickBloxId);
+        event.setType(QBEventType.ONE_SHOT);
+        event.setMessage(object.toString());
+        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
+            @Override
+            public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onError(QBResponseException e) {
+                Log.e(e);
+            }
+        });
+    }
+
+    public void sendNotificationForMissedCall(int quickBloxId, String callType){
+        String messageData = String.format("You missed a %s call from %s.", UserManager.getInstance().getUser().getDisplayName(), callType);
+        JsonObject object = new JsonObject();
+        object.addProperty("message", messageData);
+        object.addProperty("ios_badge", "1");
+        object.addProperty("ios_sound", "default");
+        object.addProperty("notificationType", "missed_call");
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(quickBloxId);
@@ -90,7 +116,7 @@ public class NotificationHelper {
                     continue;
                 }
                 //check if target user enable notification
-                if (conversation.notifications == null || !conversation.notifications.containsKey(user.key) || !conversation.notifications.get(user.key)){
+                if (conversation.notifications != null && conversation.notifications.containsKey(user.key) && !conversation.notifications.get(user.key)){
                     continue;
                 }
                 //get incoming mask of target user
@@ -106,6 +132,9 @@ public class NotificationHelper {
                     case Constant.MSG_TYPE_TEXT:
                         body = String.format("%s: %s", senderName, incomingMask && user.mappings != null && user.mappings.size() > 0 ?
                                 ServiceManager.getInstance().encodeMessage(user.mappings, fmessage.message) : fmessage.message);
+                        if (!body.endsWith(".")){
+                            body += ".";
+                        }
                         break;
                     case Constant.MSG_TYPE_VOICE:
                         body = senderName + ": sent a voice message.";
@@ -126,7 +155,7 @@ public class NotificationHelper {
 
 
                 notifcation.addProperty("body", body);
-                notifcation.addProperty("title", "test title");
+                notifcation.addProperty("title", "BZZZ");
                 object.addProperty("notification", notifcation.toString());
 
                 data.addProperty("senderId", fmessage.senderId);

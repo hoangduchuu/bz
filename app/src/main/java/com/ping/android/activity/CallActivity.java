@@ -239,6 +239,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     private void insertCallHistory(int status) {
         if(isSendHistory) return;
+        if (callHistory == null) return;
         isSendHistory = true;
         callHistory.status = status;
         String historyKey = mDatabase.child("calls").push().getKey();
