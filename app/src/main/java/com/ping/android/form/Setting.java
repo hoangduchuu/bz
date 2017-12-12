@@ -10,6 +10,8 @@ public class Setting {
     public Boolean notification;
     public Boolean private_profile;
 
+    public Setting() {}
+
     public Setting(DataSnapshot dataSnapshot) {
         this.notification = CommonMethod.getBooleanOf(dataSnapshot.child("notification").getValue());
         this.private_profile = CommonMethod.getBooleanOf(dataSnapshot.child("private_profile").getValue());

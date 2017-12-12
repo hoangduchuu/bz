@@ -94,7 +94,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private String conversationID, fromUserID, sendNewMsg;
     private User fromUser;
-    private Conversation orginalConversation;
+    private Conversation originalConversation;
     private ChatAdapter adapter;
     private List<Message> messages;
     private ChildEventListener observeChatEvent;
@@ -120,6 +120,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
+
+    private Callback userUpdated;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
@@ -150,7 +152,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            orginalConversation = bundle.getParcelable("CONVERSATION");
+            originalConversation = bundle.getParcelable("CONVERSATION");
         }
 
         init();
@@ -175,13 +177,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount);
         prefs.registerOnSharedPreferenceChangeListener(listener);
-        //initConversationData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setButtonsState(0);
+        fromUser = UserManager.getInstance().getUser();
+        if (userUpdated != null) {
+            UserManager.getInstance().addUserUpdated(userUpdated);
+        }
     }
 
     @Override
@@ -200,14 +205,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onPause();
         isTyping = false;
         updateConversationTyping(false);
+        if (userUpdated != null) {
+            UserManager.getInstance().removeUserUpdated(userUpdated);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         messageRepository.getDatabaseReference().removeEventListener(observeChatEvent);
-        if (orginalConversation != null && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            userRepository.getDatabaseReference().child(orginalConversation.opponentUser.key)
+        if (originalConversation != null && originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
                     .child("loginStatus").removeEventListener(observeStatusEvent);
         }
 
@@ -293,11 +301,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void setButtonsState(int selectedViewId) {
         int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
                 , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
-        if (!ArrayUtils.contains(buttonIDs, selectedViewId) && selectedViewId != 0)
-        {
+        if (!ArrayUtils.contains(buttonIDs, selectedViewId) && selectedViewId != 0) {
             return;
         }
-        for (int viewId: buttonIDs) {
+        for (int viewId : buttonIDs) {
             ImageButton imageButton = findViewById(viewId);
             imageButton.setSelected(viewId == selectedViewId);
         }
@@ -368,15 +375,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversationRepository.getDatabaseReference().child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                orginalConversation = Conversation.from(dataSnapshot);
-                userRepository.initMemberList(orginalConversation.memberIDs, (error, data) -> {
+                originalConversation = Conversation.from(dataSnapshot);
+                userRepository.initMemberList(originalConversation.memberIDs, (error, data) -> {
                     if (error == null) {
-                        orginalConversation.members = (List<User>) data[0];
-                        for (User user : orginalConversation.members) {
+                        originalConversation.members = (List<User>) data[0];
+                        for (User user : originalConversation.members) {
                             if (!user.key.equals(fromUserID)) {
-                                orginalConversation.opponentUser = user;
+                                originalConversation.opponentUser = user;
                                 if (adapter != null)
-                                    adapter.setOrginalConversation(orginalConversation);
+                                    adapter.setOrginalConversation(originalConversation);
                                 break;
                             }
                         }
@@ -504,7 +511,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private User getSender(String senderId) {
-        for (User user : orginalConversation.members) {
+        for (User user : originalConversation.members) {
             if (user.key.equals(senderId)) {
                 return user;
             }
@@ -573,7 +580,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 boolean isTyping = false;
                 if (typingIndicator != null) {
                     for (String key : typingIndicator.keySet()) {
-                        if (!key.equals(fromUser.key) && typingIndicator.get(key)) {
+                        if (!key.equals(fromUser.key) && typingIndicator.get(key)
+                                && !fromUser.blocks.containsKey(key)
+                                && !fromUser.blockBys.containsKey(key)) {
                             isTyping = true;
                             break;
                         }
@@ -599,6 +608,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+
+        userUpdated = (error, data) -> {
+            if (error == null) {
+                User user = (User) data[0];
+                fromUser = user;
             }
         };
     }
@@ -628,6 +644,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
             return;
         }
+        if (message.readAllowed != null && message.readAllowed.size() > 0
+                && !message.readAllowed.containsKey(fromUserID))
+            return;
 
         userRepository.getUser(message.senderId, new Callback() {
             @Override
@@ -689,16 +708,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         updateConversationReadStatus();
         bindConversationSetting();
 
-        if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            tvChatName.setText(orginalConversation.opponentUser.getDisplayName());
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            tvChatName.setText(originalConversation.opponentUser.getDisplayName());
         } else {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
-            ServiceManager.getInstance().getGroup(orginalConversation.groupID, new Callback() {
+            ServiceManager.getInstance().getGroup(originalConversation.groupID, new Callback() {
                 @Override
                 public void complete(Object error, Object... data) {
-                    orginalConversation.group = (Group) data[0];
-                    tvChatName.setText(orginalConversation.group.groupName);
+                    originalConversation.group = (Group) data[0];
+                    tvChatName.setText(originalConversation.group.groupName);
                 }
             });
         }
@@ -709,7 +728,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private User getUser(String userId) {
-        for (User user : orginalConversation.members) {
+        for (User user : originalConversation.members) {
             if (user.key.equals(userId)) {
                 return user;
             }
@@ -736,9 +755,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                         || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
                                     continue;
                                 }
+
+                                if (message.readAllowed != null && message.readAllowed.size() > 0
+                                        && !message.readAllowed.containsKey(fromUserID))
+                                    continue;
+
                                 message.sender = getUser(message.senderId);
                                 messages.add(message);
-//                                processAddChild(child);
                             }
                             adapter.appendHistoryItems(messages);
                         }
@@ -761,15 +784,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     }
                 });
         adapter.setEditMode(isEditMode);
-        adapter.setOrginalConversation(orginalConversation);
+        adapter.setOrginalConversation(originalConversation);
         conversationRepository.getDatabaseReference().child(conversationID)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Conversation conversation = Conversation.from(dataSnapshot);
-                        conversation.members = orginalConversation.members;
-                        conversation.opponentUser = orginalConversation.opponentUser;
-                        orginalConversation = conversation;
+                        conversation.members = originalConversation.members;
+                        conversation.opponentUser = originalConversation.opponentUser;
+                        originalConversation = conversation;
                         if (adapter != null) {
                             adapter.setOrginalConversation(conversation);
                         }
@@ -786,8 +809,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                             Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                            orginalConversation.maskMessages = maskMessages;
-                            adapter.setOrginalConversation(orginalConversation);
+                            originalConversation.maskMessages = maskMessages;
+                            adapter.setOrginalConversation(originalConversation);
                         }
                     }
 
@@ -802,8 +825,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                             Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                            orginalConversation.puzzleMessages = puzzleMessages;
-                            adapter.setOrginalConversation(orginalConversation);
+                            originalConversation.puzzleMessages = puzzleMessages;
+                            adapter.setOrginalConversation(originalConversation);
                         }
                     }
 
@@ -815,8 +838,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeStatus() {
-        if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            userRepository.getDatabaseReference().child(orginalConversation.opponentUser.key)
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
                     .child("connections").addValueEventListener(observeStatusEvent);
         } else {
             tvChatStatus.setVisibility(View.GONE);
@@ -964,14 +987,14 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onOpenProfile() {
-        if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             Intent intent = new Intent(this, UserProfileActivity.class);
-            intent.putExtra(Constant.START_ACTIVITY_USER_ID, orginalConversation.opponentUser.key);
+            intent.putExtra(Constant.START_ACTIVITY_USER_ID, originalConversation.opponentUser.key);
             intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, GroupProfileActivity.class);
-            intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, orginalConversation.group.key);
+            intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, originalConversation.group.key);
             startActivity(intent);
         }
     }
@@ -1046,7 +1069,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onChangeTypingMark() {
-        ServiceManager.getInstance().changeMaskOutputConversation(orginalConversation, tgMarkOut.isChecked());
+        ServiceManager.getInstance().changeMaskOutputConversation(originalConversation, tgMarkOut.isChecked());
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {
@@ -1082,23 +1105,24 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (checkBlocked()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
         edMessage.setText(null);
         double timestamp = System.currentTimeMillis() / 1000L;
+        Map<String, Boolean> allowance = getAllowance();
         Message message = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
-                timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses());
+                timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
 
-        Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_TEXT,
-                text, orginalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
-        conversation.members = orginalConversation.members;
+        Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
+                text, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
+                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+        conversation.members = originalConversation.members;
         String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
         message.key = messageKey;
-        conversationRepository.updateConversation(conversationID, conversation, null);
+        conversationRepository.updateConversation(conversationID, conversation, allowance);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
@@ -1107,7 +1131,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (checkBlocked()) {
+        if (beAbleToSendMessage()) {
             return;
         }
 
@@ -1139,7 +1163,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (checkBlocked()) {
+        if (beAbleToSendMessage()) {
             return;
         }
 
@@ -1170,7 +1194,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (checkBlocked()) {
+        if (beAbleToSendMessage()) {
             return;
         }
 
@@ -1258,7 +1282,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (checkBlocked()) {
+        if (beAbleToSendMessage()) {
             return;
         }
 
@@ -1267,25 +1291,24 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         File audioFile = new File(currentOutFile);
         String audioName = audioFile.getName();
         String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;
-        bzzzStorage.uploadFile(pathAudio, audioFile, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    String downloadUrl = (String) data[0];
-                    Message message = Message.createAudioMessage(downloadUrl,
-                            fromUser.key, fromUser.pingID, timestamp, getStatuses(), null, getMessageDeleteStatuses());
+        bzzzStorage.uploadFile(pathAudio, audioFile, (error, data) -> {
+            if (error == null) {
+                String downloadUrl = (String) data[0];
+                Map<String, Boolean> allowance = getAllowance();
+                Message message = Message.createAudioMessage(downloadUrl,
+                        fromUser.key, fromUser.pingID, timestamp, getStatuses(), null,
+                        getMessageDeleteStatuses(), allowance);
 
-                    Conversation conversation = new Conversation(orginalConversation.conversationType, Constant.MSG_TYPE_VOICE,
-                            downloadUrl, orginalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
-                            getMessageDeleteStatuses(), timestamp, orginalConversation);
-                    conversation.members = orginalConversation.members;
-                    String messageKey = messageRepository.generateKey();
-                    message.key = messageKey;
-                    //Create or Update Conversation
-                    messageRepository.updateMessage(messageKey, message);
-                    conversationRepository.updateConversation(conversationID, conversation, fromUserID);
-                    NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-                }
+                Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
+                        downloadUrl, originalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
+                        getMessageDeleteStatuses(), timestamp, originalConversation);
+                conversation.members = originalConversation.members;
+                String messageKey = messageRepository.generateKey();
+                message.key = messageKey;
+                //Create or Update Conversation
+                messageRepository.updateMessage(messageKey, message);
+                conversationRepository.updateConversation(conversationID, conversation, allowance);
+                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
             }
         });
         //btSendRecord.setEnabled(false);
@@ -1295,16 +1318,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onVoiceCall() {
-        CallActivity.start(this, orginalConversation.opponentUser, false);
+        CallActivity.start(this, originalConversation.opponentUser, false);
     }
 
     private void onVideoCall() {
-        CallActivity.start(this, orginalConversation.opponentUser, true);
+        CallActivity.start(this, originalConversation.opponentUser, true);
     }
 
     private Map<String, Boolean> getMemberIDs() {
         Map<String, Boolean> memberIDs = new HashMap<>();
-        for (User toUser : orginalConversation.members) {
+        for (User toUser : originalConversation.members) {
             memberIDs.put(toUser.key, true);
         }
         return memberIDs;
@@ -1312,8 +1335,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Boolean> getMessageMarkStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
-        if (orginalConversation.maskMessages != null) {
-            markStatuses.putAll(orginalConversation.maskMessages);
+        if (originalConversation.maskMessages != null) {
+            markStatuses.putAll(originalConversation.maskMessages);
         }
         markStatuses.put(fromUser.key, tgMarkOut.isChecked());
         return markStatuses;
@@ -1321,8 +1344,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Boolean> getImageMarkStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
-        if (orginalConversation.puzzleMessages != null) {
-            markStatuses.putAll(orginalConversation.puzzleMessages);
+        if (originalConversation.puzzleMessages != null) {
+            markStatuses.putAll(originalConversation.puzzleMessages);
         }
         markStatuses.put(fromUser.key, tgMarkOut.isChecked());
         return markStatuses;
@@ -1330,7 +1353,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Boolean> getMessageReadStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
-        for (User toUser : orginalConversation.members) {
+        for (User toUser : originalConversation.members) {
             markStatuses.put(toUser.key, false);
         }
         markStatuses.put(fromUser.key, true);
@@ -1339,7 +1362,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Boolean> getMessageDeleteStatuses() {
         Map<String, Boolean> deleteStatuses = new HashMap<>();
-        for (User toUser : orginalConversation.members) {
+        for (User toUser : originalConversation.members) {
             deleteStatuses.put(toUser.key, false);
         }
         deleteStatuses.put(fromUser.key, false);
@@ -1348,7 +1371,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private Map<String, Long> getStatuses() {
         Map<String, Long> deleteStatuses = new HashMap<>();
-        for (User toUser : orginalConversation.members) {
+        for (User toUser : originalConversation.members) {
             deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
         }
         deleteStatuses.put(fromUser.key, Constant.MESSAGE_STATUS_SENT);
@@ -1393,23 +1416,26 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
+        Map<String, Boolean> allowance = getAllowance();
         if (msgType == Constant.MSG_TYPE_IMAGE) {
             message = Message.createImageMessage(imageUrl, thumbnailUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
+                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    getMessageDeleteStatuses(), allowance);
         } else if (msgType == Constant.MSG_TYPE_GAME) {
             message = Message.createGameMessage(imageUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses());
+                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    getMessageDeleteStatuses(), allowance);
         }
         if (message == null) throw new NullPointerException("Message must not be null " + msgType);
         message.key = messageKey;
 
-        Conversation conversation = new Conversation(orginalConversation.conversationType, msgType, imageUrl,
-                orginalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, orginalConversation);
-        conversation.members = orginalConversation.members;
+        Conversation conversation = new Conversation(originalConversation.conversationType, msgType, imageUrl,
+                originalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
+                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+        conversation.members = originalConversation.members;
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
-        conversationRepository.updateConversation(conversationID, conversation, fromUserID);
+        conversationRepository.updateConversation(conversationID, conversation, allowance);
         NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
         return message;
     }
@@ -1421,7 +1447,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         long status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
-            messageRepository.updateMessageStatus(message.key, orginalConversation.members, status);
+            messageRepository.updateMessageStatus(message.key, originalConversation.members, status);
         }
     }
 
@@ -1438,7 +1464,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void updateMessageMarkStatus(Message message) {
         if (message.markStatuses == null || !message.markStatuses.containsKey(fromUser.key)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, message.key,
-                    (ServiceManager.getInstance().getMaskSetting(orginalConversation.maskMessages)));
+                    (ServiceManager.getInstance().getMaskSetting(originalConversation.maskMessages)));
         }
     }
 
@@ -1454,27 +1480,34 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         conversationRepository.updateTypingIndicatorForUser(conversationID, fromUserID, typing);
     }
 
-    private boolean checkBlocked() {
-        boolean isBlocked = false;
-        if (orginalConversation.members.size() == 2) {
-            for (User toUser : orginalConversation.members) {
-                if (toUser.key != fromUser.key && ServiceManager.getInstance().isBlock(toUser.key)) {
-                    String username = ServiceManager.getInstance().getFirstName(toUser);
-                    Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
-                    isBlocked = true;
-                }
+    private boolean beAbleToSendMessage() {
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            if (fromUser.blocks.containsKey(originalConversation.opponentUser.key)) {
+                String username = originalConversation.opponentUser.firstName;
+                Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
+                return false;
             }
         }
-        return isBlocked;
+        return true;
     }
 
-    private boolean checkMessageBlocked(User toUser) {
-        boolean isBlocked = false;
-
-        if (toUser.key != fromUser.key && ServiceManager.getInstance().isBlockBy(toUser)) {
-            isBlocked = true;
+    private Map<String, Boolean> getAllowance() {
+        Map<String, Boolean> ret = new HashMap<>();
+        ret.put(fromUserID, true);
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            // Check whether sender is in block list of receiver
+            if (!fromUser.blockBys.containsKey(originalConversation.opponentUser.key)) {
+                ret.put(originalConversation.opponentUser.key, true);
+            }
+        } else {
+            for (User toUser : originalConversation.members) {
+                if (toUser.key.equals(fromUser.key)
+                        || fromUser.blocks.containsKey(toUser.key)
+                        || fromUser.blockBys.containsKey(toUser.key)) continue;
+                ret.put(toUser.key, true);
+            }
         }
-        return isBlocked;
+        return ret;
     }
 
     private void updateLoadMoreButtonStatus(boolean isShow) {

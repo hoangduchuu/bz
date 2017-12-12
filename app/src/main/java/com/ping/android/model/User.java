@@ -36,10 +36,13 @@ public class User implements Parcelable {
     public Setting settings;
     public Map<String, Boolean> friends;
     public Map<String, Boolean> blocks;
+    public Map<String, Boolean> blockBys;
 
     // Local variable
     public ArrayList<User> friendList  = new ArrayList<>();
     public Constant.TYPE_FRIEND typeFriend;
+
+    public User() {}
 
     public User(DataSnapshot dataSnapshot) {
         this.key = dataSnapshot.getKey();
@@ -59,6 +62,8 @@ public class User implements Parcelable {
         if (friends == null) friends = new HashMap<>();
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
         if (blocks == null) blocks = new HashMap<>();
+        this.blockBys = (Map<String, Boolean>) dataSnapshot.child("blockBys").getValue();
+        if (this.blockBys == null) this.blockBys = new HashMap<>();
         if (this.mappings == null) {
             this.mappings = ServiceManager.getInstance().getDefaultMapping();
         }

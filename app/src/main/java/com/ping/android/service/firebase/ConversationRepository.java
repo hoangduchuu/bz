@@ -105,31 +105,15 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         databaseReference.child(conversationId).child("typingIndicator").child(userId).setValue(typing);
     }
 
-    public void updateConversation(String conversationID, Conversation conversation, String senderId) {
+    public void updateConversation(String conversationID, Conversation conversation,
+                                   Map<String, Boolean> readAllowance) {
         Map<String, Object> updateData = new HashMap<>();
         updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
         // Update message for conversation for each user
         for (User toUser : conversation.members) {
-            if (checkMessageBlocked(toUser, senderId)) continue;
+            if (!readAllowance.containsKey(toUser.key)) continue;
             updateData.put(String.format("users/%s/conversations/%s", toUser.key, conversationID), conversation.toMap());
         }
         updateBatchData(updateData, null);
-    }
-
-    private boolean checkMessageBlocked(User toUser, String senderId) {
-        boolean isBlocked = false;
-
-        if (!toUser.key.equals(senderId) && isBlockBy(toUser, senderId)) {
-            isBlocked = true;
-        }
-        return isBlocked;
-    }
-
-    private boolean isBlockBy(User contact, String senderId) {
-        boolean isBlocked = false;
-        if (contact != null && contact.blocks != null && contact.blocks.containsKey(senderId)) {
-            isBlocked = contact.blocks.get(senderId);
-        }
-        return isBlocked;
     }
 }

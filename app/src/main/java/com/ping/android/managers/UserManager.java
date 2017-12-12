@@ -29,6 +29,7 @@ public class UserManager {
     private PresenceRepository presenceRepository;
     private QuickBloxRepository quickBloxRepository;
     private ValueEventListener userUpdateListener;
+    private List<Callback> userUpdated;
 
     private static UserManager instance;
     private ArrayList<User> allUsers = new ArrayList<>();
@@ -41,6 +42,7 @@ public class UserManager {
     }
 
     private UserManager() {
+        userUpdated = new ArrayList<>();
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
         presenceRepository = new PresenceRepository();
@@ -48,8 +50,16 @@ public class UserManager {
         blockList = new ArrayList<>();
     }
 
-    public void listenAuthChange() {
+    public void addUserUpdated(Callback callback) {
+        if (callback != null) {
+            userUpdated.add(callback);
+        }
+    }
 
+    public void removeUserUpdated(Callback callback) {
+        if (callback != null) {
+            userUpdated.remove(callback);
+        }
     }
 
     public void initialize(@NonNull Callback callback) {
@@ -63,7 +73,6 @@ public class UserManager {
             }
             callback.complete(error, data);
         };
-        removeValueEventListener();
         userRepository.initializeUser((error, data) -> {
             if (error == null) {
                 user = (User) data[0];
@@ -92,19 +101,24 @@ public class UserManager {
         initFriendList(friends);
     }
 
-    private void addValueEventListener() {
+    public void addValueEventListener() {
         if (user == null) return;
 
         userUpdateListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User updateUser = new User(dataSnapshot);
+                boolean shouldUpdateFriends = false;
                 if (user.friendList.size() != updateUser.friendList.size()) {
                     // Handle friends updated
-                    onFriendsUpdated(updateUser.friends);
+                    shouldUpdateFriends = true;
                 }
                 if (user.blocks.size() != updateUser.blocks.size()) {
                     // Handle blocks updated
+                }
+                setUser(updateUser);
+                if (shouldUpdateFriends) {
+                    onFriendsUpdated(updateUser.friends);
                 }
             }
 
@@ -117,7 +131,7 @@ public class UserManager {
                 .addValueEventListener(userUpdateListener);
     }
 
-    private void removeValueEventListener() {
+    public void removeValueEventListener() {
         if (userUpdateListener != null && user != null) {
             userRepository.getDatabaseReference().child(user.key).removeEventListener(userUpdateListener);
         }
@@ -142,10 +156,17 @@ public class UserManager {
 
     private void setUser(User user) {
         this.user = user;
-        this.addValueEventListener();
+        this.notifyUserUpdated();
         // TODO Temporary set user for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
     }
+
+    private void notifyUserUpdated() {
+        for (Callback callback : userUpdated) {
+            callback.complete(null, user);
+        }
+    }
+
 
     public User getUser() {
         return user;

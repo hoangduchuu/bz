@@ -161,7 +161,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     }
 
     private void onBlock() {
-        ServiceManager.getInstance().updateBlock(user, swBlock.isChecked());
+        userRepository.toggleBlockUser(user.key, swBlock.isChecked());
     }
 
 
