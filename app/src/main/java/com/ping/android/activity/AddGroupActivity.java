@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.adapter.SelectContactAdapter;
@@ -34,6 +35,7 @@ import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.ChipsEditText;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,6 +53,8 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private ImageView groupAvatar;
     private ChipsEditText edtTo;
     private RecyclerView recycleChatView;
+    private LinearLayout noResultsView;
+    private AVLoadingIndicatorView avi;
 
     private User fromUser;
 
@@ -86,6 +90,9 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         btSave.setOnClickListener(this);
         groupAvatar = findViewById(R.id.profile_image);
         groupAvatar.setOnClickListener(this);
+
+        avi = findViewById(R.id.avi);
+        noResultsView = findViewById(R.id.no_results);
 
         edMessage = (EditText) findViewById(R.id.new_group_message_tv);
         btSendMessage = (Button) findViewById(R.id.new_group_send_message_btn);
@@ -147,6 +154,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void searchUsers(String text) {
+        hideNoResults();
         textToSearch = text;
         userList.clear();
         Callback searchCallback = (error, data) -> {
@@ -154,9 +162,18 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
                 DataSnapshot snapshot = (DataSnapshot) data[0];
                 handleUsersData(snapshot);
             }
+            hideSearching();
+            if (userList.isEmpty()) {
+                showNoResults();
+            }
         };
         localSearch(text);
-        userRepository.matchUserWithText(text, "first_name", searchCallback);
+        if (userList.isEmpty()) {
+            showSearching();
+        } else {
+            hideSearching();
+        }
+        userRepository.matchUserWithText(text, "ping_id", searchCallback);
     }
 
     private void localSearch(String text) {
@@ -398,6 +415,28 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
                     }
                 });
         imagePickerHelper.openPicker();
+    }
+
+    private void showSearching() {
+        avi.post(() -> {
+            avi.setVisibility(View.VISIBLE);
+            avi.show();
+        });
+    }
+
+    private void hideSearching() {
+        avi.post(() -> {
+            avi.hide();
+            avi.setVisibility(View.GONE);
+        });
+    }
+
+    private void showNoResults() {
+        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
+    }
+
+    private void hideNoResults() {
+        noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
     private void onSendMessage(Group group, String msg) {
