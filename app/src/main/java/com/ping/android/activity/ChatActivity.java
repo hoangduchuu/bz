@@ -634,8 +634,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
             return;
         }
-        if (message.readAllowance != null && message.readAllowance.size() > 0
-                && !message.readAllowance.containsKey(fromUserID))
+        if (message.readAllowed != null && message.readAllowed.size() > 0
+                && !message.readAllowed.containsKey(fromUserID))
             return;
 
         userRepository.getUser(message.senderId, new Callback() {
@@ -746,8 +746,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                     continue;
                                 }
 
-                                if (message.readAllowance != null && message.readAllowance.size() > 0
-                                        && !message.readAllowance.containsKey(fromUserID))
+                                if (message.readAllowed != null && message.readAllowed.size() > 0
+                                        && !message.readAllowed.containsKey(fromUserID))
                                     continue;
 
                                 message.sender = getUser(message.senderId);
