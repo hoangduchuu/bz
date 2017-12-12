@@ -2,6 +2,7 @@ package com.ping.android.ultility;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.view.Gravity;
@@ -22,13 +23,14 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class CommonMethod {
     private static final String EMAIL_PATTERN =
             "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PING_ID_PATTERN = "^[a-zA-Z0-9]*$";
-    private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢§¶•ªº«\\\\/<>?:;|=.,0-9]{1,20}$";
+    private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢§¶•ªº«\\\\/<>?:;|=., 0-9]{1,20}$";
     private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
 
     public static boolean isValidName(String name) {
@@ -50,7 +52,7 @@ public class CommonMethod {
     }
 
     public static boolean isValidPassword(String password) {
-        return password != null && password.length() >= 10;
+        return password != null && password.length() >= 8 && password.length() <= 14;
     }
 
     public static boolean isValidPhone(String phone) {
@@ -80,10 +82,17 @@ public class CommonMethod {
     }
 
     public static boolean isContain(String source, String subItem) {
-        String pattern = subItem;
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(source);
-        return m.find();
+        try {
+            Pattern p = Pattern.compile(subItem);
+            Matcher m = p.matcher(source);
+            return m.find();
+        } catch (PatternSyntaxException ex) {
+            return false;
+        }
+    }
+
+    public static String capitalFirstLetter(String text) {
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
 
     public static boolean isFilteredContact(User contact, String text) {

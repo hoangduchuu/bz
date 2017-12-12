@@ -117,6 +117,11 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     }
 
     private void loadAllUsers() {
+        allUsers = UserManager.getInstance().getAllUsers();
+        if (allUsers.size() > 0) {
+            adapter.updateData(allUsers);
+            return;
+        }
         showLoading();
         userRepository.getDatabaseReference()
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -128,6 +133,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
                                 updateTypeFriend(user);
                                 allUsers.add(user);
                             }
+                            UserManager.getInstance().setAllUsers(allUsers);
                             adapter.updateData(allUsers);
                             hideLoading();
                         }
@@ -161,7 +167,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
                 (error, data) -> {
                     String conversationID = data[0].toString();
                     Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
-                    intent.putExtra("CONVERSATION_ID", conversationID);
+                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                     startActivity(intent);
                 });
     }

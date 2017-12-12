@@ -29,6 +29,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.joooonho.SelectableRoundedImageView;
+import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GameActivity;
 import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
@@ -530,7 +531,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         private void unPuzzleImage(String imageURL, String localImage, boolean isPuzzled) {
             Intent intent = new Intent(activity, PuzzleActivity.class);
-            intent.putExtra("CONVERSATION_ID", conversationID);
+            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
             intent.putExtra("MESSAGE_ID", message.key);
             intent.putExtra("IMAGE_URL", imageURL);
             intent.putExtra("LOCAL_IMAGE", localImage);
@@ -553,7 +554,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     unPuzzleImage(imageURL, "", isPuzzled);
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     Intent intent = new Intent(activity, GameActivity.class);
-                    intent.putExtra("CONVERSATION_ID", conversationID);
+                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                     intent.putExtra("MESSAGE_ID", message.key);
                     intent.putExtra("IMAGE_URL", imageURL);
                     activity.startActivity(intent);

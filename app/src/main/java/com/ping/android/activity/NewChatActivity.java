@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.adapter.SelectContactAdapter;
@@ -28,8 +29,10 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +48,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     private Button btSendMessage;
     private ChipsEditText edtTo;
     private EditText edMessage;
+    private LinearLayout noResultsView;
+    private AVLoadingIndicatorView avi;
     private User fromUser;
 
     private ConversationRepository conversationRepository;
@@ -114,19 +119,22 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private void bindViews() {
         edtTo = findViewById(R.id.edt_to);
-        btBack = (ImageView) findViewById(R.id.chat_back);
+        btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
 
-        btSelectContact = (ImageView) findViewById(R.id.new_chat_select_contact);
+        btSelectContact = findViewById(R.id.new_chat_select_contact);
         btSelectContact.setOnClickListener(this);
 
-        recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
+        recycleChatView = findViewById(R.id.chat_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
 
-        edMessage = (EditText) findViewById(R.id.chat_message_tv);
-        btSendMessage = (Button) findViewById(R.id.chat_send_message_btn);
+        edMessage = findViewById(R.id.chat_message_tv);
+        btSendMessage = findViewById(R.id.chat_send_message_btn);
         btSendMessage.setOnClickListener(this);
+
+        avi = findViewById(R.id.avi);
+        noResultsView = findViewById(R.id.no_results);
 
         edMessage.setOnFocusChangeListener((view, b) -> {
             if (b) {
@@ -181,6 +189,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private void searchUsers(String text) {
         Log.d(text);
+        hideNoResults();
         textToSearch = text;
         userList.clear();
         Callback searchCallback = (error, data) -> {
@@ -188,8 +197,17 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                 DataSnapshot snapshot = (DataSnapshot) data[0];
                 handleUsersData(snapshot);
             }
+            hideSearching();
+            if (userList.isEmpty()) {
+                showNoResults();
+            }
         };
         localSearch(text);
+        if (userList.isEmpty()) {
+            showSearching();
+        } else {
+            hideSearching();
+        }
         userRepository.matchUserWithText(text, "ping_id", searchCallback);
     }
 
@@ -201,6 +219,9 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                 }
             }
         }
+        if (!userList.isEmpty()) {
+            hideSearching();
+        }
         recycleChatView.post(() -> {
             adapter.setSelectPingIDs(getSelectedPingId());
             adapter.updateData(new ArrayList<>(userList.values()));
@@ -208,7 +229,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void handleUsersData(DataSnapshot dataSnapshot) {
-        Log.d("Search results: " + dataSnapshot.getChildrenCount());
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
             if (!userList.containsKey(snapshot.getKey())
                     && !snapshot.getKey().equals(fromUser.key)) {
@@ -216,7 +236,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                 userList.put(snapshot.getKey(), user);
             }
         }
-
         adapter.setSelectPingIDs(getSelectedPingId());
         adapter.updateData(new ArrayList<>(userList.values()));
     }
@@ -230,7 +249,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void checkReadySend() {
-        if (StringUtils.isEmpty(edMessage.getText().toString().trim()) || selectedUsers.size() <= 0) {
+        if (TextUtils.isEmpty(edMessage.getText().toString().trim()) || selectedUsers.size() <= 0) {
             btSendMessage.setEnabled(false);
         } else {
             btSendMessage.setEnabled(true);
@@ -343,9 +362,31 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         });
     }
 
+    private void showSearching() {
+        avi.post(() -> {
+            avi.setVisibility(View.VISIBLE);
+            avi.show();
+        });
+    }
+
+    private void hideSearching() {
+        avi.post(() -> {
+            avi.hide();
+            avi.setVisibility(View.GONE);
+        });
+    }
+
+    private void showNoResults() {
+        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
+    }
+
+    private void hideNoResults() {
+        noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
+    }
+
     private void onSendMessage(String conversationID, String msg) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
         finish();

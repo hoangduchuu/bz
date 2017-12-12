@@ -2,6 +2,7 @@ package com.ping.android.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,9 +48,11 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
 
     public void filter(String text) {
         displayContacts = new ArrayList<>();
-        for (User contact : originalContacts) {
-            if (CommonMethod.isContain(CommonMethod.getSearchString(contact), text)) {
-                displayContacts.add(contact);
+        if (!TextUtils.isEmpty(text)) {
+            for (User contact : originalContacts) {
+                if (CommonMethod.isContain(CommonMethod.getSearchString(contact), text)) {
+                    displayContacts.add(contact);
+                }
             }
         }
         notifyDataSetChanged();

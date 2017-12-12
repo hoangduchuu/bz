@@ -46,6 +46,12 @@ public class MainActivity extends CoreActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
+        if (StringUtils.isNotEmpty(conversationId)){
+            Intent intent1 = new Intent(MainActivity.this, ChatActivity.class);
+            intent1.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+            startActivity(intent1);
+        }
         setContentView(R.layout.activity_main);
         currentUser = UserManager.getInstance().getUser();
 
@@ -59,7 +65,6 @@ public class MainActivity extends CoreActivity {
         super.onDestroy();
         UserManager.getInstance().removeValueEventListener();
     }
-
     @Override
     public void onBackPressed() {
         return;
