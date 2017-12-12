@@ -270,6 +270,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     private void createUserProfile(final FirebaseUser firebaseUser, String firstName, String lastName,
                                    String pingId, String email, String password) {
 
+        firstName = CommonMethod.capitalFirstLetter(firstName);
+        lastName = CommonMethod.capitalFirstLetter(lastName);
         User user = new User(firstName, lastName, pingId, email, CommonMethod.encryptPassword(password));
 
         mDatabase.child("users").child(firebaseUser.getUid()).setValue(user.toMap())

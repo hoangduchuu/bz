@@ -2,6 +2,7 @@ package com.ping.android.ultility;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.view.Gravity;
@@ -84,6 +85,11 @@ public class CommonMethod {
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(source);
         return m.find();
+    }
+
+    public static String capitalFirstLetter(String text) {
+        return text.substring(0, 1).toUpperCase() +
+                text.substring(1);
     }
 
     public static boolean isFilteredContact(User contact, String text) {
