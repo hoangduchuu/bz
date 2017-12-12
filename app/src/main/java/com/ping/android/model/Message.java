@@ -32,6 +32,7 @@ public class Message {
     public Map<String, Long> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
+    public Map<String, Boolean> readAllowance;
     public int messageType;
 
     // Local variable, don't store on Firebase
@@ -60,7 +61,9 @@ public class Message {
     }
 
     public static Message createTextMessage(String text, String senderId, String senderName,
-                                            double timestamp, Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                            double timestamp, Map<String, Long> status,
+                                            Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
+                                            Map<String, Boolean> readAllowance) {
         Message message = new Message();
         message.message = text;
         message.senderId = senderId;
@@ -70,12 +73,14 @@ public class Message {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_TEXT;
+        message.readAllowance = readAllowance;
         return message;
     }
 
     public static Message createImageMessage(String photoUrl, String thumbUrl, String senderId,
                                              String senderName, double timestamp, Map<String, Long> status,
-                                             Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                             Map<String, Boolean> markStatuses,
+                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowance) {
         Message message = new Message();
         message.photoUrl = photoUrl;
         message.thumbUrl = thumbUrl;
@@ -86,11 +91,13 @@ public class Message {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_IMAGE;
+        message.readAllowance = readAllowance;
         return message;
     }
 
     public static Message createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
-                                             Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                             Map<String, Long> status, Map<String, Boolean> markStatuses,
+                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowance) {
         Message message = new Message();
         message.audioUrl = audioUrl;
         message.senderId = senderId;
@@ -100,11 +107,13 @@ public class Message {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VOICE;
+        message.readAllowance = readAllowance;
         return message;
     }
 
     public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
-                                            Map<String, Long> status, Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses) {
+                                            Map<String, Long> status, Map<String, Boolean> markStatuses,
+                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowance) {
         Message message = new Message();
         message.gameUrl = gameUrl;
         message.senderId = senderId;
@@ -114,6 +123,7 @@ public class Message {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_GAME;
+        message.readAllowance = readAllowance;
         return message;
     }
 
@@ -133,6 +143,7 @@ public class Message {
         result.put("markStatuses", markStatuses);
         result.put("deleteStatuses", deleteStatuses);
         result.put("messageType", messageType);
+        result.put("readAllowance", readAllowance);
         return result;
     }
 }

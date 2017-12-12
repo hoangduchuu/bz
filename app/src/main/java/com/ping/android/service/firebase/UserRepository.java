@@ -160,4 +160,14 @@ public class UserRepository extends BaseFirebaseDatabase {
             });
         }
     }
+
+    public void toggleBlockUser(String blockId, boolean value) {
+        if (value) {
+            databaseReference.child(currentUserId()).child("blocks").child(blockId).setValue(true);
+            databaseReference.child(blockId).child("blockBys").child(currentUserId()).setValue(true);
+        } else {
+            databaseReference.child(currentUserId()).child("blocks").child(blockId).removeValue();
+            databaseReference.child(blockId).child("blockBys").child(currentUserId()).removeValue();
+        }
+    }
 }

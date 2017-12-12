@@ -158,20 +158,6 @@ public class ServiceManager {
         currentUser.friendList.remove(contact);
     }
 
-    public void updateBlock(User user, Boolean block) {
-        updateBlock(user.key, block);
-    }
-
-    public void updateBlock(String userID, Boolean block) {
-        if(block) {
-            mDatabase.child("users").child(currentUser.key).child("blocks").child(userID).setValue(true);
-            currentUser.blocks.put(userID, true);
-        } else {
-            mDatabase.child("users").child(currentUser.key).child("blocks").child(userID).setValue(null);
-            currentUser.blocks.remove(userID);
-        }
-    }
-
     public boolean isBlockBy(User contact) {
         boolean isBlocked = false;
         String currentUserId = currentUser.key;
@@ -186,16 +172,6 @@ public class ServiceManager {
             return currentUser.blocks.get(userID);
         }
         return false;
-    }
-
-    private void updateTypeFriend(User user) {
-        user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
-        if (currentUser != null && MapUtils.isNotEmpty(currentUser.friends)) {
-            Boolean isFriend = currentUser.friends.get(user.key);
-            if (isFriend != null && isFriend) {
-                user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
-            }
-        }
     }
 
     //-------------------------------------------------------

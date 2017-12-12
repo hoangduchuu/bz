@@ -51,8 +51,14 @@ public class MainActivity extends CoreActivity {
 
         init();
         observeBadgeNumber();
+        UserManager.getInstance().addValueEventListener();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UserManager.getInstance().removeValueEventListener();
+    }
 
     @Override
     public void onBackPressed() {

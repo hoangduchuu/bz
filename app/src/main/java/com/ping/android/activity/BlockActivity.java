@@ -162,7 +162,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
     private void blockContact(List<User> contacts) {
         for (User contact : contacts) {
-            ServiceManager.getInstance().updateBlock(contact.key, true);
+            userRepository.toggleBlockUser(contact.key, true);
         }
     }
 }

@@ -156,7 +156,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onBlock() {
-        ServiceManager.getInstance().updateBlock(user, swUserBlock.isChecked());
+        userRepository.toggleBlockUser(user.key, swUserBlock.isChecked());
     }
 
     private void onBack() {

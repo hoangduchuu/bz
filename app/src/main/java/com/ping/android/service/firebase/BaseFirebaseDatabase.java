@@ -24,7 +24,6 @@ import java.util.Map;
 public abstract class BaseFirebaseDatabase {
     protected FirebaseAuth auth;
     private FirebaseDatabase database;
-    protected User currentUser;
     protected FirebaseUser firebaseUser;
 
     protected DatabaseReference databaseReference;
