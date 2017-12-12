@@ -18,7 +18,8 @@
     <string name="msg_empty_confirm_password">Please enter confirm password.</string>
     <string name="msg_empty_name">Please enter name.</string>
     <string name="msg_empty_last_name">Please enter last name.</string>
-    <string name="msg_valid_name">Please enter valid name.</string>
+    <string name="msg_invalid_first_name"><![CDATA[Invalid first name format. (Example: No space, number . # & @ etc…)]]></string>
+    <string name="msg_invalid_last_name"><![CDATA[Invalid last name format. (Example: No space, number . # & @ etc…)]]></string>
     <string name="msg_empty_ping_id">Please enter username.</string>
     <string name="msg_empty_email">Please enter email.</string>
     <string name="msg_empty_phone">Please enter phone.</string>

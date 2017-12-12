@@ -116,8 +116,13 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
             return;
         }
 
-        if (!CommonMethod.isValidName(firstName) || !CommonMethod.isValidName(lastName)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.msg_valid_name), Toast.LENGTH_SHORT).show();
+        if (!CommonMethod.isValidName(firstName)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_invalid_first_name), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!CommonMethod.isValidName(lastName)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_invalid_last_name), Toast.LENGTH_SHORT).show();
             return;
         }
 
