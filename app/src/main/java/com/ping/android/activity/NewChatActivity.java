@@ -345,7 +345,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private void onSendMessage(String conversationID, String msg) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("CONVERSATION_ID", conversationID);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
         finish();

@@ -28,7 +28,7 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle);
-        conversationID = getIntent().getStringExtra("CONVERSATION_ID");
+        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
         localImage = getIntent().getStringExtra("LOCAL_IMAGE");

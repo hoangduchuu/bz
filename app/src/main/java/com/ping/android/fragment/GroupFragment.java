@@ -292,7 +292,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
 
     private void sendMessage(Group group) {
         Intent intent = new Intent(getContext(), ChatActivity.class);
-        intent.putExtra("CONVERSATION_ID", group.conversationID);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, group.conversationID);
         getContext().startActivity(intent);
     }
 }

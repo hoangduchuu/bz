@@ -73,7 +73,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private final int REPEAT_INTERVAL = 40;
 
-    public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
+    public static final String CONVERSATION_ID = "CONVERSATION_ID";
 
     //Views UI
     private RecyclerView recycleChatView;
@@ -142,7 +142,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        conversationID = getIntent().getStringExtra("CONVERSATION_ID");
+        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -150,13 +150,20 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            orginalConversation = bundle.getParcelable(CONVERSATION_KEY);
+            orginalConversation = bundle.getParcelable("CONVERSATION");
         }
 
         init();
-//        if (orginalConversation != null) {
-//            startChat();
-//        }
+        initConversationData();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
+        bindViews();
+
+        init();
         initConversationData();
     }
 
@@ -960,7 +967,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (orginalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             Intent intent = new Intent(this, UserProfileActivity.class);
             intent.putExtra(Constant.START_ACTIVITY_USER_ID, orginalConversation.opponentUser.key);
-            intent.putExtra(UserProfileActivity.CONVERSATION_ID_KEY, conversationID);
+            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
             startActivity(intent);
         } else {
             Intent intent = new Intent(this, GroupProfileActivity.class);
