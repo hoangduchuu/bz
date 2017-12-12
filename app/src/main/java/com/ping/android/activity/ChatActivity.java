@@ -152,7 +152,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            orginalConversation = bundle.getParcelable("CONVERSATION");
+            originalConversation = bundle.getParcelable("CONVERSATION");
         }
 
         init();
