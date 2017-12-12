@@ -17,7 +17,10 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.Log;
 import com.quickblox.users.model.QBUser;
+
+import org.apache.commons.lang3.StringUtils;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -32,6 +35,15 @@ public class LoadingActivity extends CoreActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
+        if(UserManager.getInstance().getUser() != null && StringUtils.isNotEmpty(conversationId)){
+            Intent intent2 = new Intent(LoadingActivity.this, MainActivity.class);
+            intent2.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+            conversationId = "";
+            startActivity(intent2);
+        }
+        Log.d("loading created");
+
         setContentView(R.layout.activity_loading);
 
         // Set up Crashlytics, disabled for debug builds
@@ -44,18 +56,20 @@ public class LoadingActivity extends CoreActivity {
 
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
-        initialize();
-        //load();
+        if(UserManager.getInstance().getUser() == null) {
+            initialize(conversationId);
+        }
+
     }
 
-    private void initialize() {
+    private void initialize(String conversationId) {
         Callback qbCallback = (error, data) -> {
             if (error == null) {
                 QBUser qbUser = (QBUser) data[0];
                 isLogin = true;
                 startCallService(qbUser);
             }
-            start();
+            start(conversationId);
         };
         UserManager.getInstance().initialize(qbCallback);
     }
@@ -66,20 +80,23 @@ public class LoadingActivity extends CoreActivity {
         CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
-    private void start() {
+    private void start(String conversationId) {
         new CountDownTimer(1000, 100) {
 
             public void onTick(long millisUntilFinished) {
             }
 
             public void onFinish() {
+                Intent intent;
                 if (isLogin) {
-                    startActivity(new Intent(LoadingActivity.this, MainActivity.class));
-                    finish();
+                    intent = new Intent(LoadingActivity.this, MainActivity.class);
+
                 } else {
-                    startActivity(new Intent(LoadingActivity.this, BeforeLoginActivity.class));
-                    finish();
+                    intent = new Intent(LoadingActivity.this, BeforeLoginActivity.class);
                 }
+                intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+                startActivity(intent);
+                finish();
             }
         }.start();
     }

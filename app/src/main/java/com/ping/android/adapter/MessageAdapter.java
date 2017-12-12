@@ -288,9 +288,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 return;
             }
             Bundle bundle = new Bundle();
-            bundle.putParcelable(ChatActivity.CONVERSATION_KEY, conversation);
+            bundle.putParcelable("CONVERSATION", conversation);
             Intent intent = new Intent(activity, ChatActivity.class);
-            intent.putExtra("CONVERSATION_ID", conversation.key);
+            intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
             intent.putExtras(bundle);
             activity.startActivity(intent);
         }

@@ -105,7 +105,7 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
                     public void complete(Object error, Object... data) {
                         String conversationID = data[0].toString();
                         Intent intent = new Intent(getActivity(), ChatActivity.class);
-                        intent.putExtra("CONVERSATION_ID", conversationID);
+                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                         startActivity(intent);
                     }
                 });
