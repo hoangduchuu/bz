@@ -51,7 +51,7 @@ public class CommonMethod {
     }
 
     public static boolean isValidPassword(String password) {
-        return password != null && password.length() >= 10;
+        return password != null && password.length() >= 8 && password.length() <= 14;
     }
 
     public static boolean isValidPhone(String phone) {
@@ -88,8 +88,7 @@ public class CommonMethod {
     }
 
     public static String capitalFirstLetter(String text) {
-        return text.substring(0, 1).toUpperCase() +
-                text.substring(1);
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
 
     public static boolean isFilteredContact(User contact, String text) {

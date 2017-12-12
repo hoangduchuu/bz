@@ -17,4 +17,11 @@ public class CommonMethodTest extends TestCase {
         String result1 = CommonMethod.capitalFirstLetter(before1);
         Assert.assertEquals(result1, "TUan");
     }
+
+    public void testValidPassword() {
+        Assert.assertFalse(CommonMethod.isValidPassword("123456"));
+        Assert.assertTrue(CommonMethod.isValidPassword("12345678"));
+        Assert.assertTrue(CommonMethod.isValidPassword("123TuanLuong"));
+        Assert.assertFalse(CommonMethod.isValidPassword("123TuanLuong123"));
+    }
 }

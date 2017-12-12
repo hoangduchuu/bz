@@ -30,7 +30,7 @@
     <string name="msg_invalid_ping_id"><![CDATA[Invalid username format. (Example: No space , . $ # @ & etc…)]]></string>
     <string name="msg_invalid_email">Please enter email with correct format.</string>
     <string name="msg_invalid_phone">Please enter phone with correct format.</string>
-    <string name="msg_invalid_password">Password too short, enter minimum 10 characters.</string>
+    <string name="msg_invalid_password">Password must be between 8 to 14 characters long.</string>
     <string name="msg_mismatch_password">Password does not match</string>
     <string name="msg_wrong_password">Password does not correct</string>
     <string name="msg_mismatch_new_password">New Password does not match.</string>
