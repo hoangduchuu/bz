@@ -571,7 +571,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (typingIndicator != null) {
                     for (String key : typingIndicator.keySet()) {
                         if (!key.equals(fromUser.key) && typingIndicator.get(key)
-                                && !fromUser.blocks.containsKey(key)) {
+                                && !fromUser.blocks.containsKey(key)
+                                && !fromUser.blockBys.containsKey(key)) {
                             isTyping = true;
                             break;
                         }
@@ -1490,22 +1491,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         } else {
             for (User toUser : originalConversation.members) {
-                if (toUser.key.equals(fromUser.key)) continue;
-                if (!fromUser.blockBys.containsKey(toUser.key)) {
-                    ret.put(toUser.key, true);
-                }
+                if (toUser.key.equals(fromUser.key)
+                        || fromUser.blocks.containsKey(toUser.key)
+                        || fromUser.blockBys.containsKey(toUser.key)) continue;
+                ret.put(toUser.key, true);
             }
         }
         return ret;
-    }
-
-    private boolean checkMessageBlocked(User toUser) {
-        boolean isBlocked = false;
-
-        if (toUser.key != fromUser.key && ServiceManager.getInstance().isBlockBy(toUser)) {
-            isBlocked = true;
-        }
-        return isBlocked;
     }
 
     private void updateLoadMoreButtonStatus(boolean isShow) {
