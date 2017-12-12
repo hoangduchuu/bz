@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class CommonMethod {
     private static final String EMAIL_PATTERN =
@@ -81,10 +82,13 @@ public class CommonMethod {
     }
 
     public static boolean isContain(String source, String subItem) {
-        String pattern = subItem;
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(source);
-        return m.find();
+        try {
+            Pattern p = Pattern.compile(subItem);
+            Matcher m = p.matcher(source);
+            return m.find();
+        } catch (PatternSyntaxException ex) {
+            return false;
+        }
     }
 
     public static String capitalFirstLetter(String text) {

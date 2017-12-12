@@ -14,6 +14,7 @@ import com.ping.android.ultility.Callback;
 import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +31,7 @@ public class UserManager {
     private ValueEventListener userUpdateListener;
 
     private static UserManager instance;
+    private ArrayList<User> allUsers = new ArrayList<>();
 
     public static UserManager getInstance() {
         if (instance == null) {
@@ -147,5 +149,13 @@ public class UserManager {
 
     public User getUser() {
         return user;
+    }
+
+    public void setAllUsers(ArrayList<User> allUsers) {
+        this.allUsers = allUsers;
+    }
+
+    public ArrayList<User> getAllUsers() {
+        return allUsers;
     }
 }
