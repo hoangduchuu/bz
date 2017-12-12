@@ -19,7 +19,6 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 public class UserProfileActivity extends CoreActivity implements View.OnClickListener{
-    public final static String CONVERSATION_ID_KEY = "CONVERSATION_ID";
     private ImageView userProfile;
     private TextView userName;
     private Switch swNotification;
@@ -38,7 +37,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
-        String conversationId = getIntent().getStringExtra(CONVERSATION_ID_KEY);
+        String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         bindViews();
 
         conversationRepository = new ConversationRepository();
@@ -135,7 +134,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
                     public void complete(Object error, Object... data) {
                         String conversationID = data[0].toString();
                         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                        intent.putExtra("CONVERSATION_ID", conversationID);
+                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                         startActivity(intent);
                     }
                 });

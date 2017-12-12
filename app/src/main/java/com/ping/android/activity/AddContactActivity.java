@@ -167,7 +167,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
                 (error, data) -> {
                     String conversationID = data[0].toString();
                     Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
-                    intent.putExtra("CONVERSATION_ID", conversationID);
+                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                     startActivity(intent);
                 });
     }

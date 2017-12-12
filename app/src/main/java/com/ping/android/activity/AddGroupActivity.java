@@ -441,7 +441,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     private void onSendMessage(Group group, String msg) {
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("CONVERSATION_ID", group.conversationID);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, group.conversationID);
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
         finish();

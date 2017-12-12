@@ -133,7 +133,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
                     public void complete(Object error, Object... data) {
                         String conversationID = data[0].toString();
                         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                        intent.putExtra("CONVERSATION_ID", conversationID);
+                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                         startActivity(intent);
                     }
                 });

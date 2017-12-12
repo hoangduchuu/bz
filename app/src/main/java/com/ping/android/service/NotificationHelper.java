@@ -150,13 +150,13 @@ public class NotificationHelper {
                 }
 
                 JsonObject object = new JsonObject();
-                JsonObject notifcation = new JsonObject();
+                JsonObject notification = new JsonObject();
                 JsonObject data = new JsonObject();
 
 
-                notifcation.addProperty("body", body);
-                notifcation.addProperty("title", "BZZZ");
-                object.addProperty("notification", notifcation.toString());
+                notification.addProperty("body", body);
+                notification.addProperty("title", "BZZZ");
+                object.addProperty("notification", notification.toString());
 
                 data.addProperty("senderId", fmessage.senderId);
                 data.addProperty("senderName", fmessage.senderName);
