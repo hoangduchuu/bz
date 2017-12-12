@@ -27,7 +27,7 @@
     <string name="msg_duplicate_ping_id">This username is already registered by other user</string>
     <string name="msg_duplicate_email">This email is already registered by other user</string>
     <string name="msg_duplicate_phone">This phone is already registered by other user</string>
-    <string name="msg_invalid_ping_id">Please enter username with correct format.</string>
+    <string name="msg_invalid_ping_id"><![CDATA[Invalid username format. (Example: No space , . $ # @ & etc…)]]></string>
     <string name="msg_invalid_email">Please enter email with correct format.</string>
     <string name="msg_invalid_phone">Please enter phone with correct format.</string>
     <string name="msg_invalid_password">Password too short, enter minimum 10 characters.</string>
