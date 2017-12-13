@@ -15,6 +15,7 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -161,13 +162,15 @@ public class UserRepository extends BaseFirebaseDatabase {
         }
     }
 
-    public void toggleBlockUser(String blockId, boolean value) {
+    public void toggleBlockUser(String blockId, boolean value, Callback callback) {
+        Map<String, Object> updateValue = new HashMap<>();
         if (value) {
-            databaseReference.child(currentUserId()).child("blocks").child(blockId).setValue(true);
-            databaseReference.child(blockId).child("blockBys").child(currentUserId()).setValue(true);
+            updateValue.put(String.format("users/%s/blocks/%s", currentUserId(), blockId), true);
+            updateValue.put(String.format("users/%s/blockBys/%s", blockId, currentUserId()), true);
         } else {
-            databaseReference.child(currentUserId()).child("blocks").child(blockId).removeValue();
-            databaseReference.child(blockId).child("blockBys").child(currentUserId()).removeValue();
+            updateValue.put(String.format("users/%s/blocks/%s", currentUserId(), blockId), null);
+            updateValue.put(String.format("users/%s/blockBys/%s", blockId, currentUserId()), null);
         }
+        updateBatchData(updateValue, callback);
     }
 }
