@@ -28,6 +28,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private String userID;
     private User user, currentUser;
     private UserRepository userRepository;
+    private Callback userUpdated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,24 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
                 bindData();
             }
         });
+        userUpdated = (error, data) -> {
+            if (error == null) {
+                currentUser = (User) data[0];
+                swUserBlock.setChecked(currentUser.blocks.containsKey(userID));
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        UserManager.getInstance().addUserUpdated(userUpdated);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UserManager.getInstance().removeUserUpdated(userUpdated);
     }
 
     @Override
@@ -156,7 +175,13 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onBlock() {
-        userRepository.toggleBlockUser(user.key, swUserBlock.isChecked());
+        showLoading();
+        userRepository.toggleBlockUser(user.key, swUserBlock.isChecked(), new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                hideLoading();
+            }
+        });
     }
 
     private void onBack() {

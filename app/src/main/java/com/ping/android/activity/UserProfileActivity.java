@@ -32,6 +32,8 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
 
+    private Callback userUpdated;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +60,24 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
                 bindConversationSetting();
             }
         });
+        userUpdated = (error, data) -> {
+            if (error == null) {
+                currentUser = (User) data[0];
+                swBlock.setChecked(currentUser.blocks.containsKey(userID));
+            }
+        };
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        UserManager.getInstance().addUserUpdated(userUpdated);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        UserManager.getInstance().removeUserUpdated(userUpdated);
     }
 
     @Override
@@ -111,7 +131,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
 
     private void bindData() {
         userName.setText(user.getDisplayName());
-        swBlock.setChecked(ServiceManager.getInstance().isBlock(userID));
+        swBlock.setChecked(currentUser.blocks.containsKey(userID));
 
         UiUtils.displayProfileImage(this, userProfile, user);
     }
@@ -161,7 +181,13 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     }
 
     private void onBlock() {
-        userRepository.toggleBlockUser(user.key, swBlock.isChecked());
+        showLoading();
+        userRepository.toggleBlockUser(user.key, swBlock.isChecked(), new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                hideLoading();
+            }
+        });
     }
 
 
