@@ -369,23 +369,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         protected void initView(View itemView) {
-            itemView.setOnClickListener(new DoubleClickListener() {
-                @Override
-                public void onSingleClick(View v) {
-                    handleClick(v);
-                }
-
-                @Override
-                public void onDoubleClick(View v) {
-                    handleDoubleClick(v);
-                }
-
-                @Override
-                public boolean shouldHandleDoubleClick() {
-                    return message.messageType == Constant.MSG_TYPE_TEXT ||
-                            message.messageType == Constant.MSG_TYPE_IMAGE;
-                }
-            });
             tvInfo = itemView.findViewById(R.id.item_chat_info);
             tvText = itemView.findViewById(R.id.item_chat_text);
             ivChatPhoto = itemView.findViewById(R.id.item_chat_image);
@@ -407,7 +390,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     player.play();
                 });
             }
-            if(mPauseMedia != null) {
+            if (mPauseMedia != null) {
                 mPauseMedia.setOnClickListener(view -> {
                     AudioMessagePlayer.getInstance().initPlayer(itemView, message).pause();
                 });
@@ -418,6 +401,44 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
             rbSelect = itemView.findViewById(R.id.item_chat_select);
             rbSelect.setOnClickListener(view -> onClickEditMode(view));
+        }
+
+        private View getContentView() {
+            if (message == null) return itemView;
+            switch (message.messageType) {
+                case Constant.MSG_TYPE_TEXT:
+                    return itemView.findViewById(R.id.item_chat_message);
+                case Constant.MSG_TYPE_IMAGE:
+                case Constant.MSG_TYPE_GAME:
+                    return ivChatPhoto;
+                default:
+                    return itemView;
+            }
+        }
+
+        private void setupClickListener() {
+            if (message != null &&
+                    (message.messageType == Constant.MSG_TYPE_TEXT ||
+                            message.messageType == Constant.MSG_TYPE_IMAGE ||
+                            message.messageType == Constant.MSG_TYPE_GAME)) {
+                getContentView().setOnClickListener(new DoubleClickListener() {
+                    @Override
+                    public void onSingleClick(View v) {
+                        handleClick(v);
+                    }
+
+                    @Override
+                    public void onDoubleClick(View v) {
+                        handleDoubleClick(v);
+                    }
+
+                    @Override
+                    public boolean shouldHandleDoubleClick() {
+                        return message.messageType == Constant.MSG_TYPE_TEXT ||
+                                message.messageType == Constant.MSG_TYPE_IMAGE;
+                    }
+                });
+            }
         }
 
         public void setEditMode(Boolean isEditMode) {
@@ -463,10 +484,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             switch (message.messageType) {
                 case Constant.MSG_TYPE_IMAGE:
                     openImage(markStatus);
-            boolean isPuzzled = false;
-            if (message.markStatuses != null && message.markStatuses.containsKey(currentUserID)){
-                isPuzzled = message.markStatuses.get(currentUserID);
-            }
+                    boolean isPuzzled = false;
+                    if (message.markStatuses != null && message.markStatuses.containsKey(currentUserID)) {
+                        isPuzzled = message.markStatuses.get(currentUserID);
+                    }
                     break;
                 case Constant.MSG_TYPE_VOICE:
                     break;
@@ -712,6 +733,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 isUpdated = model.key.equals(message.key);
             }
             setModel(model);
+            setupClickListener();
             setChatText(model.message);
             long status = ServiceManager.getInstance().getCurrentStatus(model.status);
 
