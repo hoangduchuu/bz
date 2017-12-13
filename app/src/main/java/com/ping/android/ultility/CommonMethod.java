@@ -92,6 +92,7 @@ public class CommonMethod {
     }
 
     public static String capitalFirstLetter(String text) {
+        text = text.toLowerCase();
         return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
 
