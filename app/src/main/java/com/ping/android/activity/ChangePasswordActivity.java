@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -73,16 +74,20 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_password), Toast.LENGTH_SHORT).show();
             return;
         }
+        if (!currentUser.password.equals(encryptedPassword)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_wrong_password), Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (TextUtils.isEmpty(newPassword)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_new_password), Toast.LENGTH_SHORT).show();
             return;
         }
-        if (TextUtils.isEmpty(confirmPassword)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_confirm_password), Toast.LENGTH_SHORT).show();
+        if (!CommonMethod.isValidPassword(newPassword)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_invalid_password), Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!currentUser.password.equals(encryptedPassword)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.msg_wrong_password), Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(confirmPassword)) {
+            Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_confirm_password), Toast.LENGTH_SHORT).show();
             return;
         }
         if (!newPassword.equals(confirmPassword)) {
@@ -90,6 +95,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
             return;
         }
 
+        showLoading();
         AuthCredential credential = EmailAuthProvider.getCredential(currentUser.email, password);
         auth.getCurrentUser().reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -100,6 +106,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            hideLoading();
                                             if (task.isSuccessful()) {
                                                 String encryptedNewPassword = CommonMethod.encryptPassword(newPassword);
                                                 mDatabase.child("users").child(currentUser.key).child("password").setValue(encryptedNewPassword);
@@ -112,9 +119,11 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
                                         }
                                     });
                         } else {
+                            hideLoading();
                             Toast.makeText(getApplicationContext(), getString(R.string.msg_update_password_fail), Toast.LENGTH_SHORT).show();
                         }
                     }
-                });
+                })
+                .addOnFailureListener(e -> hideLoading());
     }
 }

@@ -74,6 +74,7 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_phone_4n), Toast.LENGTH_SHORT).show();
             return;
         }
+        showLoading();
         mDatabase.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -81,12 +82,14 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
                     User user = new User(dataSnapshot.getChildren().iterator().next());
                     checkResetPassword(user);
                 } else {
+                    hideLoading();
                     Toast.makeText(getApplicationContext(), getString(R.string.msg_wrong_reset_info), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                hideLoading();
             }
         });
     }
@@ -120,21 +123,20 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
         }
 
         if (!resetInfoFlg) {
+            hideLoading();
             Toast.makeText(getApplicationContext(), getString(R.string.msg_wrong_reset_info), Toast.LENGTH_SHORT).show();
             return;
         }
 
         auth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(), getString(R.string.msg_reset_info_success), Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.msg_reset_info_fail), Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    hideLoading();
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.msg_reset_info_success), Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(getApplicationContext(), getString(R.string.msg_reset_info_fail), Toast.LENGTH_SHORT).show();
                     }
-                });
+                }).addOnFailureListener(e -> hideLoading());
     }
 }
