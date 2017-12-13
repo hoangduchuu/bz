@@ -26,6 +26,14 @@
                 android:id="@+id/new_chat_to"
                 style="@style/TextTitle"
                 android:text="NEW CHAT" />
+
+            <Button
+                android:id="@+id/btn_done"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:visibility="gone"
+                android:text="DONE" />
         </RelativeLayout>
 
         <LinearLayout

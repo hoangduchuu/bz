@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.adapter.SelectContactAdapter;
@@ -44,12 +46,15 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     //Views UI
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
+    private TextView tvTitle;
     private ImageView btBack, btSelectContact;
     private Button btSendMessage;
     private ChipsEditText edtTo;
     private EditText edMessage;
     private LinearLayout noResultsView;
     private AVLoadingIndicatorView avi;
+    private Button btnDone;
+
     private User fromUser;
 
     private ConversationRepository conversationRepository;
@@ -61,10 +66,14 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     private ArrayList<User> selectedUsers = new ArrayList<>();
     private Map<String, User> userList = new HashMap<>();
 
+    private boolean isAddMember = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_chat);
+
+        isAddMember = getIntent().getBooleanExtra("ADD_MEMBER", false);
         bindViews();
         init();
     }
@@ -81,7 +90,17 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             case R.id.chat_send_message_btn:
                 sendNewMessage();
                 break;
+            case R.id.btn_done:
+                handleDonePress();
+                break;
         }
+    }
+
+    private void handleDonePress() {
+        Intent returnIntent = new Intent();
+        returnIntent.putParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY, selectedUsers);
+        setResult(Activity.RESULT_OK, returnIntent);
+        finish();
     }
 
     private void init() {
@@ -115,9 +134,12 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             builder.append(",");
         }
         edtTo.updateText(builder.toString());
+        btnDone.setEnabled(selectedUsers.size() > 0);
     }
 
     private void bindViews() {
+        tvTitle = findViewById(R.id.new_chat_to);
+        btnDone = findViewById(R.id.btn_done);
         edtTo = findViewById(R.id.edt_to);
         btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
@@ -135,6 +157,13 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
         avi = findViewById(R.id.avi);
         noResultsView = findViewById(R.id.no_results);
+
+        LinearLayout bottomLayout = findViewById(R.id.chat_layout_text);
+        bottomLayout.setVisibility(isAddMember ? View.GONE : View.VISIBLE);
+        tvTitle.setText(isAddMember ? "ADD MEMBER" : "NEW CHAT");
+        btnDone.setVisibility(isAddMember ? View.VISIBLE : View.GONE);
+        btnDone.setOnClickListener(this);
+        btnDone.setEnabled(selectedUsers.size() > 0);
 
         edMessage.setOnFocusChangeListener((view, b) -> {
             if (b) {
@@ -157,6 +186,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                     if (user.getDisplayName().equals(text)) {
                         selectedUsers.remove(user);
                         adapter.setSelectPingIDs(getSelectedPingId());
+                        btnDone.setEnabled(selectedUsers.size() > 0);
                         break;
                     }
                 }

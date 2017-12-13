@@ -147,8 +147,14 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         }
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
-                ArrayList<String> selectContacts = data.getStringArrayListExtra("SELECT_CONTACT_USER_IDS");
-                onAddMemberResult(selectContacts);
+                List<User> selectedUsers = data.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY);
+                ArrayList<String> ret = new ArrayList<>();
+                for (User user : selectedUsers) {
+                    if (!group.memberIDs.containsKey(user.key)) {
+                        ret.add(user.key);
+                    }
+                }
+                onAddMemberResult(ret);
             }
         }
     }
@@ -264,8 +270,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onAddMember() {
-        Intent i = new Intent(this, SelectContactActivity.class);
-        i.putExtra("SELECTED_ID", TextUtils.join(", ", group.memberIDs.keySet()));
+        Intent i = new Intent(this, NewChatActivity.class);
+        //i.putExtra("SELECTED_ID", TextUtils.join(", ", group.memberIDs.keySet()));
+        i.putExtra("ADD_MEMBER", true);
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
 
