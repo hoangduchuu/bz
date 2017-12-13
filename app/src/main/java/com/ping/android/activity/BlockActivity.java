@@ -5,20 +5,18 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.adapter.BlockAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,22 +27,20 @@ import java.util.List;
 public class BlockActivity extends CoreActivity implements View.OnClickListener, BlockAdapter.ClickListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-    private DatabaseReference mBlockDatabase;
     private ChildEventListener observeBlockEvent;
-    private FirebaseUser mFirebaseUser;
 
     private RecyclerView rvListBlock;
     private LinearLayoutManager mLinearLayoutManager;
+    private Button actionButton;
+    private LinearLayout bottomLayout;
+    private TextView bottomText;
 
     private BlockAdapter adapter;
     private User currentUser;
-    private ArrayList<User> blockContacts = new ArrayList<>();
     private List<String> blockIds = new ArrayList<>();
 
     private UserRepository userRepository;
+    private DatabaseReference mBlockDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,18 +78,17 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
         mLinearLayoutManager = new LinearLayoutManager(this);
 
         findViewById(R.id.iv_back).setOnClickListener(this);
-        findViewById(R.id.block_save).setOnClickListener(this);
-        findViewById(R.id.block_add).setOnClickListener(this);
+        actionButton = findViewById(R.id.block_save);
+        actionButton.setOnClickListener(this);
+        bottomLayout = findViewById(R.id.block_add);
+        bottomLayout.setOnClickListener(this);
+        bottomText = findViewById(R.id.bottom_text);
     }
 
     private void init() {
         userRepository = new UserRepository();
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
         currentUser = UserManager.getInstance().getUser();
-        adapter = new BlockAdapter(blockContacts, this, this);
+        adapter = new BlockAdapter(new ArrayList<>(), this, this);
         rvListBlock.setAdapter(adapter);
         rvListBlock.setLayoutManager(mLinearLayoutManager);
         observeBlocks();
@@ -109,6 +104,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
                     if (error == null) {
                         User blockContact = (User) data[0];
                         adapter.addContact(blockContact);
+                        actionButton.setEnabled(true);
                         blockIds.add(blockID);
                     }
                 });
@@ -120,6 +116,11 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String blockID = dataSnapshot.getKey();
+                adapter.removeContact(blockID);
+                if (adapter.getItemCount() == 0) {
+                    actionButton.setEnabled(false);
+                }
             }
 
             @Override
@@ -130,7 +131,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        mBlockDatabase = mDatabase.child("users").child(mFirebaseUser.getUid()).child("blocks");
+        mBlockDatabase = userRepository.getDatabaseReference().child(currentUser.key).child("blocks");
         mBlockDatabase.addChildEventListener(observeBlockEvent);
     }
 
@@ -141,17 +142,29 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
                 exit();
                 break;
             case R.id.block_save:
-                save();
+                onEditPress();
                 break;
             case R.id.block_add:
-                add();
+                if (adapter.isInEditMode()) {
+                    unBlockContact(adapter.getSelectedContact());
+                    rvListBlock.postDelayed(this::onEditPress, 500);
+                } else {
+                    add();
+                }
                 break;
         }
     }
 
 
-    private void save() {
-        finish();
+    private void onEditPress() {
+        adapter.toggleEditMode();
+        this.refreshView(adapter.isInEditMode());
+    }
+
+    private void refreshView(boolean isEditMode) {
+        actionButton.setText(isEditMode ? "CANCEL" : "EDIT");
+        bottomText.setText(isEditMode ? "UNBLOCK" : "ADD NEW");
+
     }
 
     private void add() {
@@ -163,6 +176,12 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     private void blockContact(List<User> contacts) {
         for (User contact : contacts) {
             userRepository.toggleBlockUser(contact.key, true);
+        }
+    }
+
+    private void unBlockContact(List<User> contacts) {
+        for (User contact : contacts) {
+            userRepository.toggleBlockUser(contact.key, false);
         }
     }
 }

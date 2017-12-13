@@ -27,7 +27,8 @@
                 style="@style/ActionButton.TopMenu"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:text="SAVE" />
+                android:enabled="false"
+                android:text="EDIT" />
         </RelativeLayout>
 
         <View style="@style/ViewSeparate" />
@@ -60,6 +61,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/bottom_text"
                 style="@style/ItemSettingText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
