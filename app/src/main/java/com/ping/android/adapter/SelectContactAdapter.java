@@ -82,18 +82,16 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         User contact = displayContacts.get(position);
-        holder.setClickListener((contact1, isSelected1) -> {
-            boolean currentStatus = selectPingIDs.contains(contact1.pingID);
+        holder.itemView.setOnClickListener(view -> {
+            boolean currentStatus = selectPingIDs.contains(holder.contact.pingID);
             holder.rbSelect.setChecked(!currentStatus);
             boolean isSelected = !currentStatus;
             if (isSelected) {
-                selectPingIDs.add(contact1.pingID);
+                selectPingIDs.add(holder.contact.pingID);
             } else {
-                selectPingIDs.remove(contact1.pingID);
+                selectPingIDs.remove(holder.contact.pingID);
             }
-            if (mClickListener != null) {
-                mClickListener.onSelect(contact1, isSelected);
-            }
+            mClickListener.onSelect(contact, !currentStatus);
         });
         holder.tvName.setText(contact.getDisplayName());
         holder.contact = contact;
@@ -116,41 +114,17 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         void onSelect(User contact, Boolean isSelected);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvName;
         public RadioButton rbSelect;
         public User contact;
         public ImageView ivProfileImage;
-        public ClickListener mClickListener;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = (TextView) itemView.findViewById(R.id.contact_item_name);
             rbSelect = (RadioButton) itemView.findViewById(R.id.contact_item_select);
-            rbSelect.setOnClickListener(this);
             ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
-        }
-
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.contact_item_select:
-                    selectContact();
-                    break;
-            }
-        }
-
-        public void setClickListener(ClickListener clickListener) {
-            this.mClickListener = clickListener;
-        }
-
-        private void selectContact() {
-//            boolean isSelect = !rbSelect.isSelected();
-//            rbSelect.setChecked(isSelect);
-//            rbSelect.setSelected(isSelect);
-
-            if (mClickListener != null)
-                mClickListener.onSelect(contact, rbSelect.isChecked());
         }
     }
 }
