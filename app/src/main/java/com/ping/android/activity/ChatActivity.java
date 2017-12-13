@@ -1131,7 +1131,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1163,7 +1163,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1194,7 +1194,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1282,7 +1282,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
