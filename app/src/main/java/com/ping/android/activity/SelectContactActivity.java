@@ -32,11 +32,6 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     private ImageView btBack;
     private Button btSelect;
 
-    private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-
     private String selectedId;
     private User currentUser;
     private ArrayList<User> mContacts;
@@ -88,11 +83,6 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     }
 
     private void init() {
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-
         currentUser = UserManager.getInstance().getUser();
         mContacts = new ArrayList<>(currentUser.friendList);
 
