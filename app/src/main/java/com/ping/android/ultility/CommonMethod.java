@@ -192,11 +192,11 @@ public class CommonMethod {
         return null;
     }
 
-    public static Boolean getBooleanOf(Object object) {
+    public static boolean getBooleanOf(Object object) {
         if (object != null) {
             return Boolean.valueOf(object.toString());
         }
-        return null;
+        return false;
     }
 
     public static String convertTimestampToTime(double seconds) {
