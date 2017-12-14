@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.GroupProfileAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -21,6 +24,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
+import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
@@ -31,7 +35,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupProfileActivity extends CoreActivity implements View.OnClickListener, GroupProfileAdapter.ClickListener{
 
@@ -54,6 +60,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private GroupRepository groupRepository;
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
+    private MessageRepository messageRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,13 +109,11 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void initConversationSetting() {
-        ServiceManager.getInstance().getConversationData(group.conversationID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    conversation = (Conversation) data[0];
-                    bindData();
-                }
+        conversationRepository.getConversation(group.conversationID, (error, data) -> {
+            if (error == null) {
+                conversation = (Conversation) data[0];
+                messageRepository = MessageRepository.from(conversation.key);
+                bindData();
             }
         });
     }
@@ -277,8 +282,33 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onAddMemberResult(ArrayList<String> selectContacts) {
-        ServiceManager.getInstance().addMember(group, selectContacts);
+        for (String userId : selectContacts) {
+            group.memberIDs.put(userId, true);
+        }
+        conversation.memberIDs = group.memberIDs;
+        groupRepository.addNewMembersToGroup(group, conversation, selectContacts);
+        //enableUsersToSeeMessages(selectContacts);
         bindMemberData();
+    }
+
+    private void enableUsersToSeeMessages(ArrayList<String> selectContacts) {
+        if (messageRepository == null) return;
+        messageRepository.getDatabaseReference().child(conversation.key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Map<String, Object> updateValue = new HashMap<>();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void onLeaveGroup() {

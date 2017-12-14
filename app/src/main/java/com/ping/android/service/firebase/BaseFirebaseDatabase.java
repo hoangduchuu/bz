@@ -12,9 +12,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -62,4 +64,5 @@ public abstract class BaseFirebaseDatabase {
                     }
                 });
     }
+
 }

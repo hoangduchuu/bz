@@ -6,9 +6,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,5 +58,23 @@ public class GroupRepository extends BaseFirebaseDatabase {
                 callback.complete("Get data error");
             }
         });
+    }
+
+    public void addNewMembersToGroup(Group group, Conversation conversation, ArrayList<String> newMembers) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("groups/%s", group.key), group.toMap());
+        updateValue.put(String.format("conversations/%s/memberIDs", conversation.key), conversation.memberIDs);
+        conversation.message = "";
+        for (String userId : newMembers) {
+            updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
+            updateValue.put(String.format("users/%s/conversations/%s", userId, conversation.key), conversation.toMap());
+        }
+        for (String userId: group.memberIDs.keySet()) {
+            if (!newMembers.contains(userId)) {
+                updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
+                updateValue.put(String.format("users/%s/conversations/%s/memberIDs", userId, conversation.key), group.memberIDs);
+            }
+        }
+        updateBatchData(updateValue, null);
     }
 }
