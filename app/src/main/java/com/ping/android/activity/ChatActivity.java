@@ -398,6 +398,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
+    public String getConversationId(){
+        return conversationID;
+    }
+
     private void bindViews() {
         btBack = (ImageView) findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
