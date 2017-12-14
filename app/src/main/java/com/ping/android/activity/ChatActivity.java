@@ -408,6 +408,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
         recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
+        recycleChatView.setOnTouchListener((view, motionEvent) -> {
+            KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
+            return false;
+        });
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
             @Override
             public void onLayoutCompleted(RecyclerView.State state) {
@@ -1147,7 +1151,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1179,7 +1183,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1210,7 +1214,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 
@@ -1298,7 +1302,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (beAbleToSendMessage()) {
+        if (!beAbleToSendMessage()) {
             return;
         }
 

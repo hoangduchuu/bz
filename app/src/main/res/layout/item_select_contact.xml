@@ -36,7 +36,7 @@
                     style="@style/AppTextAppearance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
+                    android:ellipsize="end"
                     android:maxLines="1"
                     android:textStyle="bold"
                     tools:text="John Doe" />

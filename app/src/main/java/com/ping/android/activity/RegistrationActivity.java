@@ -42,7 +42,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     private EditText txtFirstName, txtLastName, txtPingId, txtEmail, txtPassword, txtRetypePassword;
     private TextView tvAgreeTermOfService;
     private CheckBox termCheckBox;
-    private ProgressBar progressBar;
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
@@ -58,13 +57,10 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-        progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void onClick(View view) {
-        if (progressBar.isShown())
-            return;
         switch (view.getId()) {
             case R.id.registration_back:
                 exitRegistration();
@@ -92,7 +88,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         termCheckBox = (CheckBox) findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.registration_back).setOnClickListener(this);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         UiUtils.setUpHideSoftKeyboard(this, findViewById(R.id.viewRoot));
     }
@@ -164,9 +159,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        progressBar.setVisibility(View.VISIBLE);
+        showLoading();
         checkDuplicatePingID();
-
     }
 
     private void checkDuplicatePingID() {
@@ -201,6 +195,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                hideLoading();
             }
         });
     }
@@ -216,7 +211,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            progressBar.setVisibility(View.GONE);
+                            hideLoading();
                             Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -228,8 +223,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void checkDuplicateFail(String errorMsg) {
+        hideLoading();
         Toast.makeText(RegistrationActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
-        progressBar.setVisibility(View.GONE);
     }
 
     private void sendVerificationEmail(FirebaseUser firebaseUser) {
@@ -258,8 +253,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
+                            hideLoading();
                             Toast.makeText(RegistrationActivity.this, getString(R.string.msg_auth_failed), Toast.LENGTH_LONG).show();
-                            progressBar.setVisibility(ProgressBar.INVISIBLE);
                         } else {
                             createUserProfile(auth.getCurrentUser(), firstName, lastName, pingId, email, password);
                         }
@@ -279,7 +274,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
-                            progressBar.setVisibility(View.GONE);
+                            hideLoading();
                             Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
                                     Toast.LENGTH_SHORT).show();
                             firebaseUser.delete();
@@ -288,7 +283,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                                 @Override
                                 public void complete(Object error, Object... data) {
                                     if (error == null) {
-                                        progressBar.setVisibility(View.INVISIBLE);
+                                        hideLoading();
                                         ServiceManager.getInstance().updateLoginStatus(true);
 
                                         QBUser qbUser = (QBUser) data[0];

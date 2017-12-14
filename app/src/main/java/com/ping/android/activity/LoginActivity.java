@@ -37,7 +37,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private FirebaseAuth auth;
     private EditText inputName, inputPassword;
-    private ProgressBar progressBar;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
@@ -54,8 +53,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        if (progressBar.isShown())
-            return;
         switch (view.getId()) {
             case R.id.login_back:
                 onBack();
@@ -76,7 +73,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
 
         inputName = (EditText) findViewById(R.id.login_name);
         inputPassword = (EditText) findViewById(R.id.login_password);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
 
     private void init() {
@@ -112,11 +108,11 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
             return;
         }
 
-        progressBar.setVisibility(ProgressBar.VISIBLE);
         openLoginByPingId(name);
     }
 
     private void openLoginByPingId(String name) {
+        showLoading();
         mDatabase.child("users").orderByChild("ping_id").equalTo(name).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -166,12 +162,13 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                openLoginFail();
             }
         });
     }
 
     private void openLoginFail() {
-        progressBar.setVisibility(ProgressBar.INVISIBLE);
+        hideLoading();
         Toast.makeText(getApplicationContext(), getString(R.string.msg_auth_info_incorrect), Toast.LENGTH_SHORT).show();
     }
 
@@ -184,7 +181,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, getString(R.string.msg_auth_failed), Toast.LENGTH_LONG).show();
-                            progressBar.setVisibility(ProgressBar.INVISIBLE);
+                            hideLoading();
                         } else {
                             checkEmailVerified();
                         }
@@ -196,8 +193,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
         UserManager.getInstance().initialize(new Callback() {
             @Override
             public void complete(Object error, Object... data) {
+                hideLoading();
                 if (error == null) {
-                    progressBar.setVisibility(ProgressBar.INVISIBLE);
                     ServiceManager.getInstance().updateLoginStatus(true);
 
                     QBUser qbUser = (QBUser) data[0];
