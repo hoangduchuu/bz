@@ -79,7 +79,7 @@ public class App extends CoreApp {
         });
     }
 
-    public static Activity getActiveAtivity(){
+    public static Activity getActiveActivity(){
         return activeActivity;
     }
 }

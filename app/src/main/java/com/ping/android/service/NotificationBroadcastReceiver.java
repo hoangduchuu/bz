@@ -72,8 +72,8 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     }
 
     private boolean needDisplayNotification(String conversationId){
-        Activity activeActivity = App.getActiveAtivity();
-        if (activeActivity instanceof ChatActivity){
+        Activity activeActivity = App.getActiveActivity();
+        if (activeActivity != null && activeActivity instanceof ChatActivity){
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
             if (StringUtils.equals(chatActivity.getConversationId(), conversationId)){
