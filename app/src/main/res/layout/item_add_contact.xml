@@ -37,7 +37,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
-                    android:maxLines="1"
+                    android:singleLine="true"
                     android:textStyle="bold"
                     tools:text="John Doe" />
 
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:ellipsize="marquee"
-                    android:maxLines="1"
+                    android:singleLine="true"
                     tools:text="This is the comment text.." />
 
             </LinearLayout>
