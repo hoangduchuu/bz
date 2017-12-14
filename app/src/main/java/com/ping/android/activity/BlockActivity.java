@@ -181,7 +181,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
     private void unBlockContact(List<User> contacts) {
         for (User contact : contacts) {
-            userRepository.toggleBlockUser(contact.key, false);
+            userRepository.toggleBlockUser(contact.key, false, null);
         }
     }
 }
