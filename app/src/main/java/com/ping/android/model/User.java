@@ -31,7 +31,7 @@ public class User implements Parcelable {
     public String phone;
     public String profile;
     public Boolean loginStatus;
-    public Boolean showMappingConfirm;
+    public boolean showMappingConfirm;
     public Map<String, String> mappings;
     public Setting settings;
     public Map<String, Boolean> friends;
@@ -103,7 +103,7 @@ public class User implements Parcelable {
         byte tmpLoginStatus = in.readByte();
         loginStatus = tmpLoginStatus == 0 ? null : tmpLoginStatus == 1;
         byte tmpShowMappingConfirm = in.readByte();
-        showMappingConfirm = tmpShowMappingConfirm == 0 ? null : tmpShowMappingConfirm == 1;
+        showMappingConfirm = tmpShowMappingConfirm == 1;
         friendList = in.createTypedArrayList(User.CREATOR);
     }
 
@@ -166,7 +166,7 @@ public class User implements Parcelable {
         parcel.writeString(phone);
         parcel.writeString(profile);
         parcel.writeByte((byte) (loginStatus == null ? 0 : loginStatus ? 1 : 2));
-        parcel.writeByte((byte) (showMappingConfirm == null ? 0 : showMappingConfirm ? 1 : 2));
+        parcel.writeByte((byte) (showMappingConfirm ? 1 : 2));
         parcel.writeTypedList(friendList);
     }
 }
