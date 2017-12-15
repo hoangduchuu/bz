@@ -53,7 +53,7 @@ public abstract class BaseFirebaseDatabase {
 
     public void updateBatchData(@NonNull Map<String, Object> data, Callback callback) {
         database.getReference().updateChildren(data)
-                .addOnCompleteListener(task -> {
+                .addOnSuccessListener(task -> {
                     if (callback != null) {
                         callback.complete(null, "Update successfully");
                     }

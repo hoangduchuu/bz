@@ -94,11 +94,37 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         updateBatchData(updateValue, null);
     }
 
-    public void updateNotificationSetting(String conversationId, String userId, boolean value) {
+    public void updateNotificationSetting(String conversationId, String userId, boolean value, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
         updateValue.put(String.format("users/%s/conversations/%s/notifications/%s", userId, conversationId, userId), value);
-        updateBatchData(updateValue, null);
+        updateBatchData(updateValue, callback);
+    }
+
+    public void changeMaskConversation(Conversation conversation, boolean data, Callback callback) {
+        if(conversation.maskMessages == null) {
+            conversation.maskMessages = new HashMap<>();
+        }
+        conversation.maskMessages.put(currentUserId(), data);
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/maskMessages/%s", conversation.key, currentUserId()), data);
+        for(String userID: conversation.memberIDs.keySet()) {
+            updateValue.put(String.format("users/%s/conversations/%s/maskMessages/%s", userID, conversation.key, currentUserId()), data);
+        }
+        updateBatchData(updateValue, callback);
+    }
+
+    public void changePuzzleConversation(Conversation conversation, boolean data, Callback callback) {
+        if(conversation.puzzleMessages == null) {
+            conversation.puzzleMessages = new HashMap<>();
+        }
+        conversation.puzzleMessages.put(currentUserId(), data);
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/puzzleMessages/%s", conversation.key, currentUserId()), data);
+        for(String userID: conversation.memberIDs.keySet()) {
+            updateValue.put(String.format("users/%s/conversations/%s/puzzleMessages/%s", userID, conversation.key, currentUserId()), data);
+        }
+        updateBatchData(updateValue, callback);
     }
 
     public void updateTypingIndicatorForUser(String conversationId, String userId, boolean typing) {

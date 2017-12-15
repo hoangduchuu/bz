@@ -49,7 +49,7 @@ import java.io.File;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
 
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends BaseFragment implements View.OnClickListener {
     private ImagePickerHelper imagePickerHelper;
 
     private ImageView profileImage;
@@ -236,13 +236,31 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void onNotificationClick() {
+        showLoading();
+        boolean isEnable = rbNotification.isChecked();
         currentUser.settings.notification = rbNotification.isChecked();
-        userRepository.updateSetting(currentUser.settings);
+        userRepository.updateSetting(currentUser.settings, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                rbNotification.setChecked(!isEnable);
+                currentUser.settings.notification = !isEnable;
+            }
+            hideLoading();
+        });
     }
 
     private void onShowProfileClick() {
+        showLoading();
+        boolean isEnable = rbShowProfile.isChecked();
         currentUser.settings.private_profile = rbShowProfile.isChecked();
-        ServiceManager.getInstance().updateSetting(currentUser.settings);
+        userRepository.updateSetting(currentUser.settings, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                rbShowProfile.setChecked(!isEnable);
+                currentUser.settings.private_profile = !isEnable;
+            }
+            hideLoading();
+        });
     }
 
     private void onOpenHelp() {
