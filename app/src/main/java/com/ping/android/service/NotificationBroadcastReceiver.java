@@ -59,14 +59,16 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        notificationBuilder.setContentTitle(title).
+        notificationBuilder.
                 setContentText(body).
                 setContentIntent(contentIntent).
                 setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
         }else{
-            notificationBuilder.setPriority(Notification.PRIORITY_HIGH)
+            notificationBuilder
+                    .setContentTitle(title)
+                    .setPriority(Notification.PRIORITY_HIGH)
                     .setDefaults(Notification.DEFAULT_ALL);
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
