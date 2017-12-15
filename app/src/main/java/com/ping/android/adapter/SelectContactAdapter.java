@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -82,17 +83,8 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         User contact = displayContacts.get(position);
-        holder.itemView.setOnClickListener(view -> {
-            boolean currentStatus = selectPingIDs.contains(holder.contact.pingID);
-            holder.rbSelect.setChecked(!currentStatus);
-            boolean isSelected = !currentStatus;
-            if (isSelected) {
-                selectPingIDs.add(holder.contact.pingID);
-            } else {
-                selectPingIDs.remove(holder.contact.pingID);
-            }
-            mClickListener.onSelect(contact, !currentStatus);
-        });
+        holder.itemView.setOnClickListener(view -> toggleSelect(holder));
+        holder.rbSelect.setOnClickListener(view -> toggleSelect(holder));
         holder.tvName.setText(contact.getDisplayName());
         holder.contact = contact;
 
@@ -103,6 +95,18 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         }
 
         UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
+    }
+
+    private void toggleSelect(ViewHolder holder) {
+        boolean currentStatus = selectPingIDs.contains(holder.contact.pingID);
+        holder.rbSelect.setChecked(!currentStatus);
+        boolean isSelected = !currentStatus;
+        if (isSelected) {
+            selectPingIDs.add(holder.contact.pingID);
+        } else {
+            selectPingIDs.remove(holder.contact.pingID);
+        }
+        mClickListener.onSelect(holder.contact, !currentStatus);
     }
 
     @Override
@@ -122,9 +126,9 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvName = (TextView) itemView.findViewById(R.id.contact_item_name);
-            rbSelect = (RadioButton) itemView.findViewById(R.id.contact_item_select);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
+            tvName = itemView.findViewById(R.id.contact_item_name);
+            rbSelect = itemView.findViewById(R.id.contact_item_select);
+            ivProfileImage = itemView.findViewById(R.id.contact_item_profile);
         }
     }
 }

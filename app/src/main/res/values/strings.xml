@@ -196,9 +196,15 @@
 
     <!-- General strings -->
     <string name="gen_ok">OK</string>
+    <string name="gen_cancel">CANCEL</string>
+
     <!-- Chat activity -->
     <string name="chat_mask">MASK</string>
     <string name="chat_unmask">UNMASK</string>
     <string name="chat_mask_all">MASK ALL</string>
     <string name="chat_unmask_all">UNMASK ALL</string>
+
+    <!-- Group -->
+    <string name="warning_leave_group">You will no longer receive any messages from this group.</string>
+    <string name="Warning_leave_group_leave">LEAVE</string>
 </resources>
