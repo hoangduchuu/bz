@@ -37,13 +37,12 @@ public class LoadingActivity extends CoreActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
+        //app running and logged-in, notification touched
         if(UserManager.getInstance().getUser() != null && StringUtils.isNotEmpty(conversationId)){
             Intent intent2 = new Intent(LoadingActivity.this, MainActivity.class);
             intent2.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-            conversationId = "";
             startActivity(intent2);
         }
-        Log.d("loading created");
 
         setContentView(R.layout.activity_loading);
 
@@ -57,8 +56,15 @@ public class LoadingActivity extends CoreActivity {
 
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
-        if(UserManager.getInstance().getUser() == null || TextUtils.isEmpty(conversationId)) {
+        //app not running or not logged-in, notification touched or user start app
+        if(UserManager.getInstance().getUser() == null) {
             initialize(conversationId);
+        }
+        //app running and logged in, user start app
+        else if (TextUtils.isEmpty(conversationId)){
+            Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
 
     }
@@ -66,20 +72,14 @@ public class LoadingActivity extends CoreActivity {
     private void initialize(String conversationId) {
         Callback qbCallback = (error, data) -> {
             if (error == null) {
-                QBUser qbUser = (QBUser) data[0];
                 isLogin = true;
-                startCallService(qbUser);
             }
             start(conversationId);
         };
         UserManager.getInstance().initialize(qbCallback);
     }
 
-    private void startCallService(QBUser qbUser) {
-        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
-        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
-    }
+
 
     private void start(String conversationId) {
         new CountDownTimer(1000, 100) {
