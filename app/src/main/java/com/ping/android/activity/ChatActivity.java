@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.managers.UserManager;
@@ -98,7 +99,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private ChatAdapter adapter;
     private List<Message> messages;
     private ChildEventListener observeChatEvent;
-    private ValueEventListener observeTypingEvent, observeStatusEvent;
+    private ValueEventListener observeStatusEvent;
     private String RECORDING_PATH, currentOutFile;
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false, isEditAllMode = true;
@@ -218,8 +219,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
                     .child("loginStatus").removeEventListener(observeStatusEvent);
         }
-
-        conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator").removeEventListener(observeTypingEvent);
+        for (DatabaseReference reference : databaseReferences.keySet()) {
+            reference.removeEventListener(databaseReferences.get(reference));
+        }
     }
 
     @Override
@@ -581,29 +583,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
 
-        observeTypingEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Boolean> typingIndicator = (Map<String, Boolean>) dataSnapshot.getValue();
-                boolean isTyping = false;
-                if (typingIndicator != null) {
-                    for (String key : typingIndicator.keySet()) {
-                        if (!key.equals(fromUser.key) && typingIndicator.get(key)
-                                && !fromUser.blocks.containsKey(key)
-                                && !fromUser.blockBys.containsKey(key)) {
-                            isTyping = true;
-                            break;
-                        }
-                    }
-                }
-                showTyping(isTyping);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-
         observeStatusEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -711,7 +690,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void startChat() {
         observeChats();
         observeStatus();
-        observeTyping();
         notifyTyping();
         updateConversationReadStatus();
         bindConversationSetting();
@@ -793,56 +771,101 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 });
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(originalConversation);
-        conversationRepository.getDatabaseReference().child(conversationID)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Conversation conversation = Conversation.from(dataSnapshot);
-                        conversation.members = originalConversation.members;
-                        conversation.opponentUser = originalConversation.opponentUser;
-                        originalConversation = conversation;
-                        if (adapter != null) {
-                            adapter.setOrginalConversation(conversation);
+
+        initConversationListeners();
+    }
+
+    Map<DatabaseReference, ValueEventListener> databaseReferences = new HashMap<>();
+
+    private void initConversationListeners() {
+        ValueEventListener maskMessageListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
+                    originalConversation.maskMessages = maskMessages;
+                    adapter.setOrginalConversation(originalConversation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener puzzleMessageListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
+                    Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
+                    originalConversation.puzzleMessages = puzzleMessages;
+                    adapter.setOrginalConversation(originalConversation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener memberIdsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Map<String, Boolean> memberIds = (Map<String, Boolean>) dataSnapshot.getValue();
+                    originalConversation.memberIDs = memberIds;
+                    userRepository.initMemberList(memberIds, (error, data) -> {
+                        if (error == null) {
+                            List<User> users = (List<User>) data[0];
+                            originalConversation.members = users;
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener observeTypingEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Boolean> typingIndicator = (Map<String, Boolean>) dataSnapshot.getValue();
+                boolean isTyping = false;
+                if (typingIndicator != null) {
+                    for (String key : typingIndicator.keySet()) {
+                        if (!key.equals(fromUser.key) && typingIndicator.get(key)
+                                && !fromUser.blocks.containsKey(key)
+                                && !fromUser.blockBys.containsKey(key)) {
+                            isTyping = true;
+                            break;
                         }
                     }
+                }
+                showTyping(isTyping);
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
 
-                    }
-                });
-        conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
-                            Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                            originalConversation.maskMessages = maskMessages;
-                            adapter.setOrginalConversation(originalConversation);
-                        }
-                    }
+        DatabaseReference maskReference = conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages");
+        maskReference.addValueEventListener(maskMessageListener);
+        databaseReferences.put(maskReference, maskMessageListener);
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+        DatabaseReference puzzleReference = conversationRepository.getDatabaseReference().child(conversationID).child("puzzleMessages");
+        puzzleReference.addValueEventListener(puzzleMessageListener);
+        databaseReferences.put(puzzleReference, puzzleMessageListener);
 
-                    }
-                });
-        conversationRepository.getDatabaseReference().child(conversationID).child("puzzleMessages")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
-                            Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                            originalConversation.puzzleMessages = puzzleMessages;
-                            adapter.setOrginalConversation(originalConversation);
-                        }
-                    }
+        DatabaseReference memberIdsReference = conversationRepository.getDatabaseReference().child(conversationID).child("memberIDs");
+        memberIdsReference.addValueEventListener(memberIdsListener);
+        databaseReferences.put(memberIdsReference, memberIdsListener);
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+        DatabaseReference typingReference = conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator");
+        typingReference.addValueEventListener(observeTypingEvent);
+        databaseReferences.put(typingReference, observeTypingEvent);
     }
 
     private void observeStatus() {
@@ -852,13 +875,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         } else {
             tvChatStatus.setVisibility(View.GONE);
         }
-    }
-
-    private void observeTyping() {
-        conversationRepository.getDatabaseReference()
-                .child(conversationID)
-                .child("typingIndicator")
-                .addValueEventListener(observeTypingEvent);
     }
 
     private void notifyTyping() {

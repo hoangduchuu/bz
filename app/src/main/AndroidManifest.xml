@@ -189,11 +189,13 @@
             android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
-            android:name="com.afollestad.materialcamera.CaptureActivity"
-            android:theme="@style/MaterialCamera.CaptureActivity" />
+            android:name="com.ping.android.cameraview.CameraActivity"
+            android:theme="@style/AppTheme.Fullscreen"
+            android:screenOrientation="portrait" />
         <activity
-            android:name="com.afollestad.materialcamera.CaptureActivity2"
-            android:theme="@style/MaterialCamera.CaptureActivity" />
+            android:name="com.ping.android.cameraview.PicturePreviewActivity"
+            android:theme="@style/AppTheme.Fullscreen"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

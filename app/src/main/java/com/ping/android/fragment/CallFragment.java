@@ -285,6 +285,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
                 }
             }
             adapter.addOrUpdateCall(call);
+            rvListCall.scrollToPosition(0);
         });
     }
 

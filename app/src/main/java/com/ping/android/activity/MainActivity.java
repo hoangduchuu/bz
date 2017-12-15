@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -79,26 +80,28 @@ public class MainActivity extends CoreActivity {
         setupTabIcons();
         onChangeTab();
 
-        if (currentUser != null && (StringUtils.isBlank(currentUser.phone) || StringUtils.isEmpty(currentUser.phone))) {
+        if (currentUser != null && TextUtils.isEmpty(currentUser.phone)) {
             startActivity(new Intent(MainActivity.this, PhoneActivity.class));
         }
-        if (currentUser != null && (currentUser.showMappingConfirm == null || !currentUser.showMappingConfirm)) {
+        if (currentUser != null && !currentUser.showMappingConfirm) {
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle("NOTICE")
                     .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
+                    .setCancelable(false)
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
                         public void onClick(DialogInterface dialog, int whichButton) {
                             startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
+                            ServiceManager.getInstance().updateShowMappingConfirm(true);
                         }
                     })
                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             UsersUtils.randomizeTransphabet();
+                            ServiceManager.getInstance().updateShowMappingConfirm(true);
                         }
                     }).show();
-            ServiceManager.getInstance().updateShowMappingConfirm(true);
         }
     }
 

@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -56,7 +57,7 @@ public class LoadingActivity extends CoreActivity {
 
         userRepository = new UserRepository();
         quickBloxRepository = new QuickBloxRepository();
-        if(UserManager.getInstance().getUser() == null) {
+        if(UserManager.getInstance().getUser() == null || TextUtils.isEmpty(conversationId)) {
             initialize(conversationId);
         }
 
