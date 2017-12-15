@@ -68,7 +68,7 @@ public class User implements Parcelable {
             this.mappings = ServiceManager.getInstance().getDefaultMapping();
         }
         if (this.settings == null) {
-            this.settings = ServiceManager.getInstance().getDefaultSetting();
+            this.settings = Setting.defaultSetting();
         }
         if (this.friends == null) {
             this.friends = new HashMap();
@@ -86,7 +86,7 @@ public class User implements Parcelable {
         this.password = password;
         this.showMappingConfirm = false;
         this.mappings = ServiceManager.getInstance().getDefaultMapping();
-        this.settings = ServiceManager.getInstance().getDefaultSetting();
+        this.settings = Setting.defaultSetting();
     }
 
     protected User(Parcel in) {

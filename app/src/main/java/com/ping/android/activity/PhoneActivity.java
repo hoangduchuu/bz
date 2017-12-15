@@ -81,10 +81,12 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void checkDuplicatePhone() {
+        showLoading();
         final String phone = countryCodePicker.getSelectedCountryCode() + "-" + etPhone.getText().toString().trim();
         mDatabase.child("users").orderByChild("email").equalTo(phone).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                hideLoading();
                 if (dataSnapshot.exists()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.msg_duplicate_phone), Toast.LENGTH_SHORT).show();
                 } else {
@@ -97,6 +99,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                hideLoading();
             }
         });
     }

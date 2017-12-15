@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.form.Setting;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
@@ -86,6 +87,14 @@ public class UserRepository extends BaseFirebaseDatabase {
 
     public void updateQBId(String userId, int id) {
         databaseReference.child(userId).child("quickBloxID").setValue(id);
+    }
+
+    public void updateProfilePicture(String profileImage) {
+        databaseReference.child(currentUserId()).child("profile").setValue(profileImage);
+    }
+
+    public void updateSetting(Setting setting) {
+        databaseReference.child(currentUserId()).child("settings").setValue(setting.toMap());
     }
 
     public void registerUserPresence() {
