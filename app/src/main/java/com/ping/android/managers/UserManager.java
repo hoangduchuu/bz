@@ -1,6 +1,8 @@
 package com.ping.android.managers;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -16,6 +18,8 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.PresenceRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.Consts;
+import com.ping.android.utils.ActivityLifecycle;
 import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
@@ -76,6 +80,7 @@ public class UserManager {
                 userRepository.updateQBId(user.key, qbUser.getId());
                 setUser(user);
                 initFriendList(user.friends);
+                startCallService(qbUser);
             }
             callback.complete(error, data);
         };
@@ -106,6 +111,12 @@ public class UserManager {
     private void onFriendsUpdated(Map<String, Boolean> friends) {
         friendList = new ArrayList<>();
         initFriendList(friends);
+    }
+
+    private void startCallService(QBUser qbUser) {
+        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
+        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
+        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
     public void addValueEventListener() {
