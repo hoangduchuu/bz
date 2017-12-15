@@ -408,7 +408,7 @@ public class ServiceManager {
 
     // Setting region
     public Setting getDefaultSetting() {
-        Setting setting = new Setting(false, false);
+        Setting setting = new Setting(true, false);
         return setting;
     }
 

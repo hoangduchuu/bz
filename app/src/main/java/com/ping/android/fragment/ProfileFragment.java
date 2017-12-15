@@ -34,6 +34,9 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.BzzzStorage;
+import com.ping.android.service.firebase.UserRepository;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.QBResRequestExecutor;
@@ -47,13 +50,6 @@ import java.io.File;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class ProfileFragment extends Fragment implements View.OnClickListener {
-
-    private FirebaseAuth auth;
-    private QBResRequestExecutor requestExecutor;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-    private FirebaseStorage storage;
     private ImagePickerHelper imagePickerHelper;
 
     private ImageView profileImage;
@@ -64,6 +60,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
+
+    private UserRepository userRepository;
+    private BzzzStorage bzzzStorage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,12 +125,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init() {
-        requestExecutor = App.getInstance().getQbResRequestExecutor();
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        storage = FirebaseStorage.getInstance();
+        bzzzStorage = new BzzzStorage();
+        userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
         profileFileFolder = getActivity().getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + currentUser.key;
@@ -242,7 +237,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private void onNotificationClick() {
         currentUser.settings.notification = rbNotification.isChecked();
-        ServiceManager.getInstance().updateSetting(currentUser.settings);
+        userRepository.updateSetting(currentUser.settings);
     }
 
     private void onShowProfileClick() {
@@ -261,15 +256,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     }
 
     private void onLogout() {
-        if (auth == null) {
-            auth = FirebaseAuth.getInstance();
-        }
-        auth.signOut();
+        UserManager.getInstance().logout(getContext());
 
-        CallService.logout(getContext());
-        UsersUtils.removeUserData(getActivity().getApplicationContext());
-        //ServiceManager.getInstance().logoutQB();
-
+        UsersUtils.removeUserData(getContext());
         ServiceManager.getInstance().updateLoginStatus(false);
         ShortcutBadger.applyCount(getActivity(), 0);
         getActivity().finish();
@@ -342,18 +331,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
 
     private void uploadProfile() {
         String imageStoragePath = "profiles" + File.separator + currentUser.key + File.separator + profileFileName;
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
-        UploadTask uploadTask = photoRef.putFile(Uri.fromFile(new File(profileFilePath)));
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                e.printStackTrace();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
-                ServiceManager.getInstance().updateProfile(downloadUrl);
+        bzzzStorage.uploadFile(imageStoragePath, new File(profileFilePath), (error, data) -> {
+            if (error == null) {
+                userRepository.updateProfilePicture((String) data[0]);
             }
         });
     }

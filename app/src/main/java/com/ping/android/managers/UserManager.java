@@ -1,11 +1,16 @@
 package com.ping.android.managers;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.model.User;
+import com.ping.android.service.CallService;
 import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.PresenceRepository;
@@ -25,6 +30,7 @@ public class UserManager {
     private ArrayList<User> friendList;
     private ArrayList<User> blockList;
     private User user;
+    private DatabaseReference userDatabaseReference;
     private UserRepository userRepository;
     private PresenceRepository presenceRepository;
     private QuickBloxRepository quickBloxRepository;
@@ -107,6 +113,7 @@ public class UserManager {
         userUpdateListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (user == null) return;
                 User updateUser = new User(dataSnapshot);
                 boolean shouldUpdateFriends = false;
                 if (user.friendList.size() != updateUser.friendList.size()) {
@@ -127,13 +134,13 @@ public class UserManager {
 
             }
         };
-        userRepository.getDatabaseReference().child(user.key)
-                .addValueEventListener(userUpdateListener);
+        userDatabaseReference = userRepository.getDatabaseReference().child(user.key);
+        userDatabaseReference.addValueEventListener(userUpdateListener);
     }
 
     public void removeValueEventListener() {
         if (userUpdateListener != null && user != null) {
-            userRepository.getDatabaseReference().child(user.key).removeEventListener(userUpdateListener);
+            userDatabaseReference.removeEventListener(userUpdateListener);
         }
     }
 
@@ -178,5 +185,14 @@ public class UserManager {
 
     public ArrayList<User> getAllUsers() {
         return allUsers;
+    }
+
+    public void logout(Context context) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signOut();
+        CallService.logout(context);
+
+        removeValueEventListener();
+        user = null;
     }
 }
