@@ -12,6 +12,8 @@ import com.ping.android.utils.Log;
  */
 
 public class PresenceRepository extends BaseFirebaseDatabase {
+    private boolean isOnline = false;
+
     @Override
     protected void initializeReference(FirebaseDatabase database) {
         databaseReference = database.getReference(".info/connected");
@@ -21,8 +23,8 @@ public class PresenceRepository extends BaseFirebaseDatabase {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean connected = dataSnapshot.getValue(Boolean.class);
-                if (connected) {
+                isOnline = dataSnapshot.getValue(Boolean.class);
+                if (isOnline) {
                     Log.d("connected");
                     if (callback != null) {
                         callback.complete(null);
@@ -37,5 +39,9 @@ public class PresenceRepository extends BaseFirebaseDatabase {
 
             }
         });
+    }
+
+    public boolean isOnline() {
+        return isOnline;
     }
 }

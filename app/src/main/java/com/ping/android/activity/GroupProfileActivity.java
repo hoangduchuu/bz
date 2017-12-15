@@ -266,15 +266,39 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onNotificationSetting() {
-        ServiceManager.getInstance().changeNotificationConversation(conversation, swNotification.isChecked());
+        showLoading();
+        boolean isEnable = swNotification.isChecked();
+        conversationRepository.updateNotificationSetting(conversation.key, currentUser.key, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swNotification.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onMaskSetting() {
-        ServiceManager.getInstance().changeMaskConversation(conversation, swMask.isChecked());
+        showLoading();
+        boolean isEnable = swMask.isChecked();
+        conversationRepository.changeMaskConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swMask.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onPuzzleSetting() {
-        ServiceManager.getInstance().changePuzzleConversation(conversation, cbPuzzle.isChecked());
+        showLoading();
+        boolean isEnable = cbPuzzle.isChecked();
+        conversationRepository.changePuzzleConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                cbPuzzle.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onAddMember() {

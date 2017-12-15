@@ -169,25 +169,44 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
     }
 
     private void onNotificationSetting() {
-        conversationRepository.updateNotificationSetting(conversation.key, currentUser.key, swNotification.isChecked());
+        showLoading();
+        boolean isEnable = swNotification.isChecked();
+        conversationRepository.updateNotificationSetting(conversation.key, currentUser.key, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swNotification.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onMaskSetting() {
-        ServiceManager.getInstance().changeMaskConversation(conversation, swMask.isChecked());
+        showLoading();
+        boolean isEnable = swMask.isChecked();
+        conversationRepository.changeMaskConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swMask.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onPuzzleSetting() {
-        ServiceManager.getInstance().changePuzzleConversation(conversation, swPuzzle.isChecked());
+        showLoading();
+        boolean isEnable = swPuzzle.isChecked();
+        conversationRepository.changePuzzleConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swPuzzle.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onBlock() {
         showLoading();
-        userRepository.toggleBlockUser(user.key, swBlock.isChecked(), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-            }
-        });
+        userRepository.toggleBlockUser(user.key, swBlock.isChecked(), (error, data) -> hideLoading());
     }
 
 

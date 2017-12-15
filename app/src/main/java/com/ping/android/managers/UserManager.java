@@ -82,6 +82,7 @@ public class UserManager {
         userRepository.initializeUser((error, data) -> {
             if (error == null) {
                 user = (User) data[0];
+                userRepository.registerUserPresence();
                 if (user.quickBloxID <= 0) {
                     quickBloxRepository.signUpNewUserQB(user, qbCallback);
                 } else {
@@ -173,7 +174,6 @@ public class UserManager {
             callback.complete(null, user);
         }
     }
-
 
     public User getUser() {
         return user;
