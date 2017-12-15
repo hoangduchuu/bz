@@ -7,26 +7,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Setting {
-    public Boolean notification;
-    public Boolean private_profile;
+    public boolean notification;
+    public boolean private_profile;
 
     public Setting() {}
+
+    public static Setting defaultSetting() {
+        return new Setting(true, false);
+    }
 
     public Setting(DataSnapshot dataSnapshot) {
         this.notification = CommonMethod.getBooleanOf(dataSnapshot.child("notification").getValue());
         this.private_profile = CommonMethod.getBooleanOf(dataSnapshot.child("private_profile").getValue());
-
-        if (this.notification == null) {
-            this.notification = false;
-        }
-
-        if (this.private_profile == null) {
-            this.private_profile = false;
-        }
     }
 
 
-    public Setting(Boolean chat_notification, Boolean profile_picture) {
+    public Setting(boolean chat_notification, boolean profile_picture) {
         this.notification = chat_notification;
         this.private_profile = profile_picture;
     }

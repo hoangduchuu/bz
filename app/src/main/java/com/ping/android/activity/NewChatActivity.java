@@ -339,7 +339,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                         conversation.opponentUser = toUser;
                         conversation.members = members;
                         // Turn notifications on for this user
-                        conversationRepository.updateNotificationSetting(conversationID, fromUser.key, true);
+                        conversationRepository.updateNotificationSetting(conversationID, fromUser.key, true, null);
                         onSendMessage(conversationID, edMessage.getText().toString());
                     } else {
                         Conversation conversation = Conversation.createNewConversation(fromUser.key, toUser.key);

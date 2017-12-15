@@ -850,6 +850,20 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onCancelled(DatabaseError databaseError) {
             }
         };
+        ValueEventListener notificationsEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Map<String, Boolean> notifications = (Map<String, Boolean>) dataSnapshot.getValue();
+                    originalConversation.notifications = notifications;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
 
         DatabaseReference maskReference = conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages");
         maskReference.addValueEventListener(maskMessageListener);
@@ -866,6 +880,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         DatabaseReference typingReference = conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator");
         typingReference.addValueEventListener(observeTypingEvent);
         databaseReferences.put(typingReference, observeTypingEvent);
+
+        DatabaseReference notificationReference = conversationRepository.getDatabaseReference().child(conversationID).child("notifications");
+        notificationReference.addValueEventListener(notificationsEvent);
+        databaseReferences.put(notificationReference, notificationsEvent);
     }
 
     private void observeStatus() {

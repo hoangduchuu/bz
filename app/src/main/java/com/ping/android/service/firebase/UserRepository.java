@@ -2,11 +2,15 @@ package com.ping.android.service.firebase;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.form.Setting;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
@@ -86,6 +90,25 @@ public class UserRepository extends BaseFirebaseDatabase {
 
     public void updateQBId(String userId, int id) {
         databaseReference.child(userId).child("quickBloxID").setValue(id);
+    }
+
+    public void updateProfilePicture(String profileImage) {
+        databaseReference.child(currentUserId()).child("profile").setValue(profileImage);
+    }
+
+    public void updateSetting(Setting setting, Callback callback) {
+        databaseReference.child(currentUserId()).child("settings")
+                .setValue(setting.toMap())
+                .addOnSuccessListener(task -> {
+                    if (callback != null) {
+                        callback.complete(null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (callback != null) {
+                        callback.complete(e);
+                    }
+                });
     }
 
     public void registerUserPresence() {

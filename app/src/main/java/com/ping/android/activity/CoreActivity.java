@@ -86,12 +86,12 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
 
     DialogFragment loadingDialog;
 
-    protected void showLoading() {
+    public void showLoading() {
         loadingDialog = new LoadingDialog();
         loadingDialog.show(getSupportFragmentManager(), "LOADING");
     }
 
-    protected void hideLoading() {
+    public void hideLoading() {
         if (loadingDialog != null) {
             loadingDialog.dismiss();
         }

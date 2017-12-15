@@ -1,8 +1,10 @@
 package com.ping.android.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -30,6 +32,7 @@ import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.UsersUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -263,15 +266,39 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onNotificationSetting() {
-        ServiceManager.getInstance().changeNotificationConversation(conversation, swNotification.isChecked());
+        showLoading();
+        boolean isEnable = swNotification.isChecked();
+        conversationRepository.updateNotificationSetting(conversation.key, currentUser.key, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swNotification.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onMaskSetting() {
-        ServiceManager.getInstance().changeMaskConversation(conversation, swMask.isChecked());
+        showLoading();
+        boolean isEnable = swMask.isChecked();
+        conversationRepository.changeMaskConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                swMask.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onPuzzleSetting() {
-        ServiceManager.getInstance().changePuzzleConversation(conversation, cbPuzzle.isChecked());
+        showLoading();
+        boolean isEnable = cbPuzzle.isChecked();
+        conversationRepository.changePuzzleConversation(conversation, isEnable, (error, data) -> {
+            if (error != null) {
+                // Revert state if something went wrong
+                cbPuzzle.setChecked(!isEnable);
+            }
+            hideLoading();
+        });
     }
 
     private void onAddMember() {
@@ -312,9 +339,17 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onLeaveGroup() {
-        List<Group> groups = new ArrayList<Group>();
-        groups.add(group);
-        ServiceManager.getInstance().leaveGroup(groups);
-        finish();
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.warning_leave_group)
+                .setCancelable(false)
+                .setPositiveButton(R.string.Warning_leave_group_leave, (dialog, whichButton) -> {
+                    List<Group> groups = new ArrayList<Group>();
+                    groups.add(group);
+                    ServiceManager.getInstance().leaveGroup(groups);
+                    finish();
+                })
+                .setNegativeButton(R.string.gen_cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                }).show();
     }
 }
