@@ -1,10 +1,11 @@
 package com.ping.android.fragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,16 +16,15 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
+import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.MessageAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -38,15 +38,12 @@ import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import me.leolin.shortcutbadger.ShortcutBadger;
-
-public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ClickListener {
+public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private DatabaseReference mMessageDatabase;
@@ -97,16 +94,12 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         }
     }
 
-    @Override
-    public void onSelect(ArrayList<Conversation> selectConversations) {
-        updateEditMode();
-    }
-
     private void init() {
         userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
-        adapter = new MessageAdapter(conversations, getActivity(), this);
+        adapter = new MessageAdapter(conversations);
+        adapter.setListener(this);
         // Load data
         observeMessages();
     }
@@ -280,5 +273,41 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();
+    }
+
+    @Override
+    public void onOpenUserProfile(Conversation conversation, List<Pair<View, String>> sharedElements) {
+        Intent intent = new Intent(getContext(), UserDetailActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, conversation.opponentUser.key);
+
+//        Pair[] pairs = new Pair[sharedElements.size()];
+//        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+//                getActivity(),
+//                sharedElements.toArray(pairs)
+//        );
+//        ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onOpenGroupProfile(Conversation conversation, List<Pair<View, String>> sharedElement) {
+//        Intent intent = new Intent(activity, GroupProfileActivity.class);
+//        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, model.groupID);
+//        activity.startActivity(intent);
+    }
+
+    @Override
+    public void onOpenChatScreen(Conversation conversation, List<Pair<View, String>> sharedElement) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("CONVERSATION", conversation);
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onSelect(Conversation conversation) {
+        updateEditMenu();
     }
 }

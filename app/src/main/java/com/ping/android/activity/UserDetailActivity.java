@@ -2,6 +2,7 @@ package com.ping.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,9 +35,11 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_detail);
-        userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
         bindViews();
+        userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
+        ViewCompat.setTransitionName(ivAvatar, userID);
 
+        postponeEnterTransition();
         currentUser = UserManager.getInstance().getUser();
         userRepository = new UserRepository();
         userRepository.getUser(userID, (error, data) -> {
@@ -128,7 +131,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
         updateContactLayout();
 
-        UiUtils.displayProfileImage(this, ivAvatar, user);
+        UiUtils.displayProfileImage(ivAvatar, user, (error, data) -> startPostponedEnterTransition());
     }
 
     private void updateContactLayout() {
