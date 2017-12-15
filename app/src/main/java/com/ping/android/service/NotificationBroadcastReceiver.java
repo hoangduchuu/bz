@@ -2,11 +2,14 @@ package com.ping.android.service;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -58,7 +61,6 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
         notificationBuilder.setContentTitle(title).
                 setContentText(body).
-                setSmallIcon(R.mipmap.ic_launcher).
                 setContentIntent(contentIntent).
                 setAutoCancel(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -67,7 +69,29 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             notificationBuilder.setPriority(Notification.PRIORITY_HIGH)
                     .setDefaults(Notification.DEFAULT_ALL);
         }
-        ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(0, notificationBuilder.build());
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            notificationBuilder.
+                    setSmallIcon(R.drawable.ic_notification).
+                    setColor(context.getResources().getColor(R.color.colorAccent)).
+                    setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+        }else{
+            notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        }
+        NotificationManager notificationManager = ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel =
+                notificationManager.getNotificationChannel("channel0");
+            if (channel == null){
+                channel = new NotificationChannel("channel0", "channel0", NotificationManager.IMPORTANCE_HIGH);
+                channel.enableLights(true);
+                channel.setLightColor(Color.GREEN);
+                channel.enableVibration(true);
+                notificationManager.createNotificationChannel(channel);
+            }
+            notificationBuilder.setChannelId("channel0");
+        }
+
+        notificationManager.notify(0, notificationBuilder.build());
 
     }
 
