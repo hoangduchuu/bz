@@ -576,6 +576,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     Intent intent = new Intent(activity, GameActivity.class);
                     intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+                    intent.putExtra("CONVERSATION", orginalConversation);
+                    intent.putExtra("SENDER", message.sender);
                     intent.putExtra("MESSAGE_ID", message.key);
                     intent.putExtra("IMAGE_URL", imageURL);
                     activity.startActivity(intent);

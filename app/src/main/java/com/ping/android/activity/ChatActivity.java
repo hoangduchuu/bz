@@ -854,8 +854,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Map<String, Boolean> notifications = (Map<String, Boolean>) dataSnapshot.getValue();
+                    HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.notifications = notifications;
+                    adapter.setOrginalConversation(originalConversation);
                 }
             }
 
