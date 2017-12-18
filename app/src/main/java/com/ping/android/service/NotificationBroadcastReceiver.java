@@ -67,9 +67,13 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
         }else{
             notificationBuilder
-                    .setContentTitle(title)
                     .setPriority(Notification.PRIORITY_HIGH)
                     .setDefaults(Notification.DEFAULT_ALL);
+        }
+        //do not show double BZZZ, will change if use title for other meaning
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N){
+            notificationBuilder
+                    .setContentTitle(title);
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             notificationBuilder.
