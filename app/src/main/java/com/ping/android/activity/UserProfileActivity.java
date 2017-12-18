@@ -43,7 +43,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
         bindViews();
 
         conversationRepository = new ConversationRepository();
-
+        showLoading();
         currentUser = UserManager.getInstance().getUser();
         userRepository = new UserRepository();
         userRepository.getUser(userID, (error, data) -> {
@@ -59,6 +59,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
                 conversation.key = conversationId;
                 bindConversationSetting();
             }
+            hideLoading();
         });
         userUpdated = (error, data) -> {
             if (error == null) {

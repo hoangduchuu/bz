@@ -187,6 +187,7 @@ public class NotificationHelper {
     }
 
     private boolean needSendNotification(Conversation conversation, User user) {
+        if (user == null) return false;
         if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
             return false;
         }

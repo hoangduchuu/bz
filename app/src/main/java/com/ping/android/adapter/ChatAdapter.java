@@ -688,7 +688,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (orginalConversation != null
                     && !currentUserID.equals(message.senderId)
                     && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                tvInfo.setText(message.sender.getDisplayName() + " " + time);
+                tvInfo.setText(message.sender != null? message.sender.getDisplayName(): message.senderName + " " + time);
             } else {
                 tvInfo.setText(time);
             }
