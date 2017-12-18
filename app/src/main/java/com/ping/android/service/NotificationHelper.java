@@ -121,6 +121,9 @@ public class NotificationHelper {
                 }
                 //get incoming mask of target user
                 boolean incomingMask = false;
+                if(conversation.maskMessages != null && conversation.maskMessages.containsKey(user.key)){
+                    incomingMask = conversation.maskMessages.get(user.key);
+                }
                 String body, senderName;
                 if (conversation.group != null) {
                     senderName = String.format("%s to %s", user.getDisplayName(), conversation.group.groupName);
