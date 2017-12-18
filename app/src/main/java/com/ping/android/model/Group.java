@@ -31,6 +31,7 @@ public class Group {
     public static Group from(DataSnapshot dataSnapshot) {
         Group group = dataSnapshot.getValue(Group.class);
         Assert.assertNotNull(group);
+        if (group.deleteStatuses == null) group.deleteStatuses = new HashMap<>();
         group.key = dataSnapshot.getKey();
         return group;
     }

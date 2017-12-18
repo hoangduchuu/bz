@@ -447,7 +447,7 @@ public class ServiceManager {
             if(StringUtils.isEmpty(group.conversationID))
                 continue;
             mDatabase.child("conversations").child(group.conversationID).child("deleteStatuses").child(currentUser.key).setValue(true);
-            mDatabase.child("messages").child(group.conversationID).setValue(null);
+            //mDatabase.child("messages").child(group.conversationID).setValue(null);
             for (User user : group.members) {
                 mDatabase.child("users").child(user.key).child("conversations").child(group.conversationID).
                         child("deleteStatuses").child(currentUser.key).setValue(true);

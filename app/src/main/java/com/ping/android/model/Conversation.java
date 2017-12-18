@@ -103,7 +103,7 @@ public class Conversation implements Parcelable {
     }
 
     public Conversation(int conversationType, int messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
-                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, double timestamp,
+                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, double timestamp,
                         Conversation originalConversation
     ) {
         this.conversationType = conversationType;
@@ -114,7 +114,6 @@ public class Conversation implements Parcelable {
         this.memberIDs = memberIDs;
         this.markStatuses = markStatuses;
         this.readStatuses = readStatuses;
-        this.deleteStatuses = deleteStatuses;
         this.timesstamps = timestamp;
 
         if (originalConversation != null) {
@@ -123,6 +122,7 @@ public class Conversation implements Parcelable {
             this.maskMessages = originalConversation.maskMessages;
             this.puzzleMessages = originalConversation.puzzleMessages;
             this.maskOutputs = originalConversation.maskOutputs;
+            this.deleteStatuses = originalConversation.deleteStatuses;
             this.members = originalConversation.members;
             this.group = originalConversation.group;
         }

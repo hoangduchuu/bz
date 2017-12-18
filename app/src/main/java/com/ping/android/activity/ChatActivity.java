@@ -219,9 +219,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
                     .child("loginStatus").removeEventListener(observeStatusEvent);
         }
-        for (DatabaseReference reference : databaseReferences.keySet()) {
-            reference.removeEventListener(databaseReferences.get(reference));
-        }
     }
 
     @Override
@@ -775,8 +772,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         initConversationListeners();
     }
 
-    Map<DatabaseReference, ValueEventListener> databaseReferences = new HashMap<>();
-
     private void initConversationListeners() {
         ValueEventListener maskMessageListener = new ValueEventListener() {
             @Override
@@ -865,6 +860,21 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             }
         };
+        ValueEventListener deleteStatusesEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    originalConversation.deleteStatuses = (Map<String, Boolean>) dataSnapshot.getValue();
+                } else {
+                    originalConversation.deleteStatuses = new HashMap<>();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
 
         DatabaseReference maskReference = conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages");
         maskReference.addValueEventListener(maskMessageListener);
@@ -885,6 +895,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         DatabaseReference notificationReference = conversationRepository.getDatabaseReference().child(conversationID).child("notifications");
         notificationReference.addValueEventListener(notificationsEvent);
         databaseReferences.put(notificationReference, notificationsEvent);
+
+        DatabaseReference deleteStatusReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteStatuses");
+        deleteStatusReference.addValueEventListener(deleteStatusesEvent);
+        databaseReferences.put(deleteStatusReference, deleteStatusesEvent);
     }
 
     private void observeStatus() {
@@ -1160,7 +1174,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
                 text, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+                getMessageReadStatuses(), timestamp, originalConversation);
         conversation.members = originalConversation.members;
         String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
@@ -1344,7 +1358,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
                 Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                         downloadUrl, originalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
-                        getMessageDeleteStatuses(), timestamp, originalConversation);
+                        timestamp, originalConversation);
                 conversation.members = originalConversation.members;
                 String messageKey = messageRepository.generateKey();
                 message.key = messageKey;
@@ -1474,7 +1488,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Conversation conversation = new Conversation(originalConversation.conversationType, msgType, imageUrl,
                 originalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+                getMessageReadStatuses(), timestamp, originalConversation);
         conversation.members = originalConversation.members;
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
@@ -1546,7 +1560,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             for (User toUser : originalConversation.members) {
                 if (toUser.key.equals(fromUser.key)
                         || fromUser.blocks.containsKey(toUser.key)
-                        || fromUser.blockBys.containsKey(toUser.key)) continue;
+                        || fromUser.blockBys.containsKey(toUser.key)
+                        || CommonMethod.isTrueValue(originalConversation.deleteStatuses, toUser.key)) continue;
                 ret.put(toUser.key, true);
             }
         }
