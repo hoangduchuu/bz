@@ -7,13 +7,19 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.ultility.Constant;
 import com.ping.android.util.NetworkConnectionChecker;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
 
     private NetworkConnectionChecker networkConnectionChecker;
+    protected Map<DatabaseReference, ValueEventListener> databaseReferences = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,14 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
     protected void onPause() {
         super.onPause();
         networkConnectionChecker.unregisterListener(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (DatabaseReference reference : databaseReferences.keySet()) {
+            reference.removeEventListener(databaseReferences.get(reference));
+        }
     }
 
     @Override

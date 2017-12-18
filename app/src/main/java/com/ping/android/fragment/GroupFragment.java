@@ -41,8 +41,9 @@ import org.apache.commons.collections4.MapUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class GroupFragment extends Fragment implements View.OnClickListener, GroupAdapter.ClickListener {
+public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener {
     private RelativeLayout bottomMenu;
     private RecyclerView listGroup;
     private LinearLayoutManager linearLayoutManager;
@@ -180,6 +181,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String key = dataSnapshot.getKey();
+                adapter.removeGroup(key);
             }
 
             @Override
@@ -225,10 +228,20 @@ public class GroupFragment extends Fragment implements View.OnClickListener, Gro
     }
 
     private void onLeave() {
+        showLoading();
         List<Group> selectedGroups = adapter.getSelectGroup();
-        ServiceManager.getInstance().leaveGroup(selectedGroups);
-        adapter.cleanSelectGroup();
-        updateEditMode();
+        AtomicInteger counter = new AtomicInteger(0);
+        Callback callback = (error, data) -> {
+            counter.incrementAndGet();
+            if (counter.get() == selectedGroups.size()) {
+                hideLoading();
+                adapter.cleanSelectGroup();
+                updateEditMode();
+            }
+        };
+        for (Group group : selectedGroups) {
+            groupRepository.leaveGroup(group, callback);
+        }
     }
 
     private void onDelete() {

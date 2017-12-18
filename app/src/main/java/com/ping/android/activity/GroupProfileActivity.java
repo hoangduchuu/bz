@@ -1,8 +1,9 @@
 package com.ping.android.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.adapter.GroupProfileAdapter;
 import com.ping.android.managers.UserManager;
@@ -29,10 +31,10 @@ import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.utils.UsersUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -78,13 +80,25 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         conversationRepository = new ConversationRepository();
         userRepository = new UserRepository();
 
-        groupRepository.loadGroup(groupID, new Callback() {
+        ValueEventListener listener = new ValueEventListener() {
             @Override
-            public void complete(Object error, Object... data) {
-                group = (Group) data[0];
-                initConversationData();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                group = Group.from(dataSnapshot);
+                if (conversation == null) {
+                    initConversationData();
+                } else {
+                    bindMemberData();
+                }
             }
-        });
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        DatabaseReference groupReference = groupRepository.getDatabaseReference().child(groupID);
+        groupReference.addValueEventListener(listener);
+        databaseReferences.put(groupReference, listener);
     }
 
     @Override
@@ -158,11 +172,17 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                 List<User> selectedUsers = data.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY);
                 ArrayList<String> ret = new ArrayList<>();
                 for (User user : selectedUsers) {
-                    if (!group.memberIDs.containsKey(user.key)) {
+                    if (!group.memberIDs.containsKey(user.key)
+                            || CommonMethod.isTrueValue(group.deleteStatuses, user.key)) {
                         ret.add(user.key);
                     }
                 }
-                onAddMemberResult(ret);
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        onAddMemberResult(ret);
+                    }
+                }, 500);
             }
         }
     }
@@ -208,7 +228,12 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
 
     private void bindMemberData() {
         userRepository.initMemberList(group.memberIDs, (error, data) -> {
-            group.members = (List<User>) data[0];
+            List<User> users = (List<User>) data[0];
+            group.members = new ArrayList<>();
+            for (User user : users) {
+                if (CommonMethod.isTrueValue(group.deleteStatuses, user.key)) continue;
+                group.members.add(user);
+            }
             adapter.initContact(group.members);
         });
     }
@@ -309,13 +334,20 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onAddMemberResult(ArrayList<String> selectContacts) {
+        showLoading();
         for (String userId : selectContacts) {
             group.memberIDs.put(userId, true);
         }
-        conversation.memberIDs = group.memberIDs;
-        groupRepository.addNewMembersToGroup(group, conversation, selectContacts);
-        //enableUsersToSeeMessages(selectContacts);
-        bindMemberData();
+        //conversation.memberIDs = group.memberIDs;
+        groupRepository.addNewMembersToGroup(group, conversation, selectContacts, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                hideLoading();
+                if (error == null) {
+                    bindMemberData();
+                }
+            }
+        });
     }
 
     private void enableUsersToSeeMessages(ArrayList<String> selectContacts) {
@@ -343,10 +375,13 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                 .setMessage(R.string.warning_leave_group)
                 .setCancelable(false)
                 .setPositiveButton(R.string.Warning_leave_group_leave, (dialog, whichButton) -> {
-                    List<Group> groups = new ArrayList<Group>();
-                    groups.add(group);
-                    ServiceManager.getInstance().leaveGroup(groups);
-                    finish();
+                    showLoading();
+                    groupRepository.leaveGroup(group, (error, data) -> {
+                        hideLoading();
+                        Intent intent = new Intent(GroupProfileActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    });
                 })
                 .setNegativeButton(R.string.gen_cancel, (dialog, which) -> {
                     dialog.dismiss();
