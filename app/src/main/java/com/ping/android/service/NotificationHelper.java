@@ -38,6 +38,18 @@ public class NotificationHelper {
 
     }
 
+    private static QBEntityCallback<QBEvent> eventCallback = new QBEntityCallback<QBEvent>() {
+        @Override
+        public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onError(QBResponseException e) {
+            Log.e(e);
+        }
+    };
+
     public static NotificationHelper getInstance() {
         return instance;
     }
@@ -99,26 +111,10 @@ public class NotificationHelper {
     }
 
     public void sendNotificationForConversation(Conversation conversation, Message fmessage) {
-        QBEntityCallback<QBEvent> eventCallback = new QBEntityCallback<QBEvent>() {
-            @Override
-            public void onSuccess(QBEvent qbEvent, Bundle bundle) {
 
-            }
-
-            @Override
-            public void onError(QBResponseException e) {
-                Log.e(e);
-            }
-        };
         for (User user : conversation.members) {
             if (user.quickBloxID > 0 && user.key != UserManager.getInstance().getUser().key) {
-                if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
-                    continue;
-                }
-                //check if target user enable notification
-                if (conversation.notifications != null && conversation.notifications.containsKey(user.key) && !conversation.notifications.get(user.key)){
-                    continue;
-                }
+                if (!needSendNotification(conversation, user)) continue;
                 //get incoming mask of target user
                 boolean incomingMask = false;
                 if(conversation.maskMessages != null && conversation.maskMessages.containsKey(user.key)){
@@ -191,5 +187,55 @@ public class NotificationHelper {
 
             }
         }
+    }
+
+    private boolean needSendNotification(Conversation conversation, User user) {
+        if (user == null) return false;
+        if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
+            return false;
+        }
+        //check if target user enable notification
+        if (conversation.notifications != null && conversation.notifications.containsKey(user.key) && !conversation.notifications.get(user.key)){
+            return false;
+        }
+        return true;
+    }
+
+    public void sendGameStatusNotificationToSender(User user, Conversation conversation, boolean passed){
+        if(!needSendNotification(conversation, user)) return;
+
+        User currentUser = UserManager.getInstance().getUser();
+        String body = currentUser.getDisplayName() + (passed ? " passed a game you sent.": " failed to complete a game you sent.");
+        JsonObject object = new JsonObject();
+        JsonObject notification = new JsonObject();
+        JsonObject data = new JsonObject();
+
+
+        notification.addProperty("body", body);
+        notification.addProperty("title", "BZZZ");
+        object.addProperty("notification", notification.toString());
+
+        data.addProperty("senderId", currentUser.key);
+        data.addProperty("senderName", currentUser.getDisplayName());
+        object.addProperty("data", data.toString());
+
+
+        object.addProperty("ios_badge", "1");
+        object.addProperty("message", body);
+        object.addProperty("ios_sound", "default");
+        object.addProperty("ios_content_available", 1);
+        object.addProperty("notificationType", "incoming_message");
+        object.addProperty("senderName", currentUser.getDisplayName());
+        object.addProperty("conversationId", conversation.key);
+        object.addProperty("senderId", currentUser.key);
+
+        QBEvent event = new QBEvent();
+        event.setNotificationType(QBNotificationType.PUSH);
+        event.addUserIds(user.quickBloxID);
+        event.setType(QBEventType.ONE_SHOT);
+        event.setMessage(object.toString());
+        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        //this notification will send to both android and ios
+        QBPushNotifications.createEvent(event).performAsync(eventCallback);
     }
 }

@@ -854,8 +854,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Map<String, Boolean> notifications = (Map<String, Boolean>) dataSnapshot.getValue();
+                    HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.notifications = notifications;
+                    adapter.setOrginalConversation(originalConversation);
                 }
             }
 
@@ -1154,7 +1155,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         edMessage.setText(null);
         double timestamp = System.currentTimeMillis() / 1000L;
         Map<String, Boolean> allowance = getAllowance();
-        Message message = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
+        Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
                 timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
 
         Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
@@ -1338,7 +1339,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 String downloadUrl = (String) data[0];
                 Map<String, Boolean> allowance = getAllowance();
                 Message message = Message.createAudioMessage(downloadUrl,
-                        fromUser.key, fromUser.pingID, timestamp, getStatuses(), null,
+                        fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), null,
                         getMessageDeleteStatuses(), allowance);
 
                 Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
@@ -1461,11 +1462,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         Map<String, Boolean> allowance = getAllowance();
         if (msgType == Constant.MSG_TYPE_IMAGE) {
             message = Message.createImageMessage(imageUrl, thumbnailUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
                     getMessageDeleteStatuses(), allowance);
         } else if (msgType == Constant.MSG_TYPE_GAME) {
             message = Message.createGameMessage(imageUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
                     getMessageDeleteStatuses(), allowance);
         }
         if (message == null) throw new NullPointerException("Message must not be null " + msgType);

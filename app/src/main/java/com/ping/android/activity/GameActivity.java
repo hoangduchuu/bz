@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -18,6 +19,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -37,7 +41,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
 
     private String conversationID, messageID;
     private String imageURL, imageLocalName, imageLocalPath, imageLocalFolder;
-
+    private Conversation conversation;
+    private User sender;
     private int puzzleFirst;
 
     private Bitmap originalBitmap;
@@ -55,6 +60,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
+        conversation = getIntent().getParcelableExtra("CONVERSATION");
+        sender = getIntent().getParcelableExtra("SENDER");
         bindViews();
         init();
     }
@@ -105,6 +112,10 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         } else {
             ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         }
+
+        //send game status to sender
+        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+
         originalBitmap.recycle();
         originalBitmap = null;
         for (Bitmap bitmap : chunkedImages) {
@@ -216,12 +227,7 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
 
             public void onTick(long millisUntilFinished) {
                 int remainTime = (int) millisUntilFinished / 1000;
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvTimer.setText("" + remainTime);
-                    }
-                });
+                handler.post(() -> tvTimer.setText("" + remainTime));
             }
 
             public void onFinish() {
@@ -231,6 +237,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
                 } else {
                     ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
                 }
+                //send game status to sender
+                NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
                 finish();
             }
         }.start();
