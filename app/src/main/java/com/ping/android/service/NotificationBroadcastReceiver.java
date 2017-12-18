@@ -18,6 +18,7 @@ import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.LoadingActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
+import com.ping.android.managers.UserManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jivesoftware.smack.chat.Chat;
@@ -49,6 +50,9 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void postNotification(JSONObject notification, String conversationId, Context context) throws JSONException {
 
+        if (UserManager.getInstance().getUser() == null){
+            return;
+        }
         String title = notification.getString("title");
         String body = notification.getString("body");
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
