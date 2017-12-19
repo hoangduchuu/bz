@@ -59,4 +59,12 @@ public class MessageRepository extends BaseFirebaseDatabase {
         }
         updateBatchData(updateValue, null);
     }
+
+    public void deleteMessage(String conversationID, List<Message> messages) {
+        Map<String, Object> updateValue = new HashMap<>();
+        for (Message message : messages) {
+            updateValue.put(String.format("messages/%s/%s/deleteStatuses/%s", conversationID, message.key, currentUserId()), true);
+        }
+        updateBatchData(updateValue, null);
+    }
 }
