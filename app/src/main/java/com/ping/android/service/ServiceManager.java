@@ -208,7 +208,7 @@ public class ServiceManager {
         return readStatuses.get(currentUser.key);
     }
 
-    public Long getCurrentStatus(Map<String, Long> statuses) {
+    public int getCurrentStatus(Map<String, Integer> statuses) {
         if (MapUtils.isEmpty(statuses) || !statuses.containsKey(currentUser.key)) {
             return Constant.MESSAGE_STATUS_SENT;
         }
@@ -664,7 +664,7 @@ public class ServiceManager {
         mDatabase.child("users").child(currentUser.key).child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
     }
 
-    public void updateMessageStatus(String conversationID, String messageID, Long messageStatus) {
+    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
         mDatabase.child("messages").child(conversationID).child(messageID).child("status").
                 child(currentUser.key).setValue(messageStatus);
     }

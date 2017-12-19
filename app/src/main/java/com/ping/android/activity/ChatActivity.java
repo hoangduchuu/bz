@@ -1426,8 +1426,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return deleteStatuses;
     }
 
-    private Map<String, Long> getStatuses() {
-        Map<String, Long> deleteStatuses = new HashMap<>();
+    private Map<String, Integer> getStatuses() {
+        Map<String, Integer> deleteStatuses = new HashMap<>();
         for (User toUser : originalConversation.members) {
             deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
         }
@@ -1501,7 +1501,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (message.senderId.equals(fromUserID)) {
             return;
         }
-        long status = CommonMethod.getCurrentStatus(fromUserID, message.status);
+        int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
             messageRepository.updateMessageStatus(message.key, originalConversation.members, status);
