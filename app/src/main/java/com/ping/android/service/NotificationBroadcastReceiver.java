@@ -53,6 +53,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         if (UserManager.getInstance().getUser() == null){
             return;
         }
+        boolean soundNotification = UserManager.getInstance().getUser().settings.notification;
         String title = notification.getString("title");
         String body = notification.getString("body");
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
@@ -67,12 +68,16 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 setContentText(body).
                 setContentIntent(contentIntent).
                 setAutoCancel(true);
+        if (App.getActiveActivity() != null && !soundNotification){
+            notificationBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
+        }else{
+            notificationBuilder.setDefaults(Notification.DEFAULT_ALL);
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
         }else{
             notificationBuilder
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setDefaults(Notification.DEFAULT_ALL);
+                    .setPriority(Notification.PRIORITY_HIGH);
         }
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N){

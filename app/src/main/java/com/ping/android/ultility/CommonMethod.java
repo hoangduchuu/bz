@@ -391,7 +391,7 @@ public class CommonMethod {
         return readStatuses.get(userId);
     }
 
-    public static long getCurrentStatus(String userId, Map<String, Long> statuses) {
+    public static int getCurrentStatus(String userId, Map<String, Integer> statuses) {
         if (MapUtils.isEmpty(statuses) || !statuses.containsKey(userId)) {
             return Constant.MESSAGE_STATUS_SENT;
         }

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Comparator<Message> {
@@ -565,7 +566,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
             // Only play game for player
-            Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!currentUserID.equals(message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     // Game fail don't do anything
@@ -612,7 +613,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 ivChatPhoto.setImageResource(R.drawable.img_loading);
                 return;
             }
-            Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     ivChatPhoto.setImageResource(R.drawable.img_game_over);
@@ -695,33 +696,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setStatus(long messageStatus) {
+        private void setStatus(String messageStatus) {
             if (tvStatus == null) return;
-            if (messageStatus == Constant.MESSAGE_STATUS_HIDE) {
+            if (TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setVisibility(View.GONE);
                 return;
             }
-            String status = "";
-            if (messageStatus == Constant.MESSAGE_STATUS_SENT) {
-                status = "Delivered";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_DELIVERED) {
-                status = "Delivered";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_ERROR) {
-                status = "Error";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_PASS) {
-                status = "Game Passed";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                status = "Game Failed";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_INIT) {
-                status = "Game";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_DELIVERED) {
-                status = "Game Delivered";
-            }
-
-            if (!TextUtils.isEmpty(status)) {
-                tvStatus.setText(status);
-                tvStatus.setVisibility(View.VISIBLE);
-            }
+            tvStatus.setText(messageStatus);
+            tvStatus.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -737,37 +719,85 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             setModel(model);
             setupClickListener();
             setChatText(model.message);
-            long status = ServiceManager.getInstance().getCurrentStatus(model.status);
 
             setIvChatProfile();
             setInfo();
-            if (message.messageType == Constant.MSG_TYPE_IMAGE) {
-                if (!TextUtils.isEmpty(message.localImage)) {
-                    setLocalImage(message.localImage);
+            if (model.messageType == Constant.MSG_TYPE_VOICE) {
+                setAudioSrc(model.audioUrl);
+            }
+            if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+                if (!TextUtils.isEmpty(model.localImage)) {
+                    setLocalImage(model.localImage);
                 } else {
                     setIvChatPhoto(model.thumbUrl);
                 }
-            } else if (message.messageType == Constant.MSG_TYPE_GAME) {
-                setIvChatPhoto(model.gameUrl);
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    setStatus(status);
-                } else if (message.senderId.equals(currentUserID)) {
-                    setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
-                } else {
-                    setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
-                }
-            } else if (message.messageType == Constant.MSG_TYPE_VOICE) {
-                setAudioSrc(model.audioUrl);
             }
-
-            if (message.senderId.equals(currentUserID) && isLastMessage) {
-                setStatus(status);
-            } else {
-                setStatus(Constant.MESSAGE_STATUS_HIDE);
+            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                setIvChatPhoto(message.gameUrl);
             }
+            setMessageStatus(model, isLastMessage);
 
             setEditMode(isEditMode);
             setSelect(selectMessages.contains(model));
+        }
+
+        private void setMessageStatus(Message message, boolean isLastMessage) {
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            String messageStatus = "";
+            if (TextUtils.equals(message.senderId, currentUserID)){
+                if(isLastMessage && message.messageType != Constant.MSG_TYPE_GAME){
+                    switch (status){
+                        case Constant.MESSAGE_STATUS_SENT:
+                        case Constant.MESSAGE_STATUS_DELIVERED:
+                            messageStatus = "Delivered";
+                            break;
+                        default:
+                            messageStatus = "";
+                    }
+                }
+                else{
+                    if (message.messageType == Constant.MSG_TYPE_GAME){
+                        if (!TextUtils.isEmpty(orginalConversation.groupID)){
+                            int passedCount = 0, failedCount = 0;
+                            for (Map.Entry<String, Integer> entry: message.status.entrySet()) {
+                                if(TextUtils.equals(entry.getKey(), currentUserID)){
+                                    continue;
+                                }
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS){
+                                    passedCount += 1;
+                                }
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL){
+                                    failedCount += 1;
+                                }
+                            }
+                            if (passedCount == 0 && failedCount == 0){
+                                messageStatus = "Game Delivered";
+                            }else{
+                                messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
+                            }
+                        }else {
+                            status = orginalConversation.opponentUser != null && message.status.containsKey(orginalConversation.opponentUser.key)?
+                                    message.status.get(orginalConversation.opponentUser.key): Constant.MESSAGE_STATUS_GAME_DELIVERED;
+                            switch (status) {
+                                case Constant.MESSAGE_STATUS_GAME_PASS:
+                                    messageStatus = "Game Passed";
+                                    break;
+                                case Constant.MESSAGE_STATUS_GAME_FAIL:
+                                    messageStatus = "Game Failed";
+                                    break;
+                                default:
+                                    messageStatus = "Game Delivered";
+
+                            }
+                        }
+                    }
+                }
+            }else{
+                if (message.messageType == Constant.MSG_TYPE_GAME){
+                    messageStatus = "Game";
+                }
+            }
+            setStatus(messageStatus);
         }
     }
 }
