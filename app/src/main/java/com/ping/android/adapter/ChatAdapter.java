@@ -12,10 +12,15 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -44,6 +49,7 @@ import com.ping.android.utils.AudioMessagePlayer;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.DoubleClickListener;
+import com.ping.android.view.GestureDetectorListener;
 
 import org.w3c.dom.Text;
 
@@ -155,14 +161,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public void deleteMessage(String messageID) {
         Message deletedMessage = null;
         for (Message message : displayMessages) {
-            if (message.key.equals(messageID)) {
+            if (messageID.equals(message.key)) {
                 deletedMessage = message;
+                break;
             }
         }
         if (deletedMessage != null) {
+            int index = displayMessages.indexOf(deletedMessage);
             displayMessages.remove(deletedMessage);
             selectMessages.remove(deletedMessage);
-            notifyDataSetChanged();
+            notifyItemRemoved(index);
         }
     }
 
@@ -330,6 +338,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         void onSelect(List<Message> selectMessages);
 
         void onDoubleTap(Message message, boolean markStatus);
+
+        void onLongPress(Message message);
     }
 
     public static class TypingViewHolder extends RecyclerView.ViewHolder {
@@ -363,6 +373,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         private ImageView mPauseMedia;
         private SeekBar mMediaSeekBar;
         private TextView mRunTime;
+        private GestureDetectorListener gestureDetectorListener;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
@@ -418,26 +429,36 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setupClickListener() {
-            if (message != null &&
-                    (message.messageType == Constant.MSG_TYPE_TEXT ||
-                            message.messageType == Constant.MSG_TYPE_IMAGE ||
-                            message.messageType == Constant.MSG_TYPE_GAME)) {
-                getContentView().setOnClickListener(new DoubleClickListener() {
-                    @Override
-                    public void onSingleClick(View v) {
-                        handleClick(v);
+            gestureDetectorListener = new GestureDetectorListener(new GestureDetectorListener.GestureDetectorCallback() {
+                @Override
+                public void onSingleTap() {
+                    if (message != null &&
+                            (message.messageType == Constant.MSG_TYPE_TEXT ||
+                                    message.messageType == Constant.MSG_TYPE_IMAGE ||
+                                    message.messageType == Constant.MSG_TYPE_GAME)) {
+                        handleClick();
                     }
+                }
 
-                    @Override
-                    public void onDoubleClick(View v) {
-                        handleDoubleClick(v);
+                @Override
+                public void onDoubleTap() {
+                    if (message != null &&
+                            (message.messageType == Constant.MSG_TYPE_TEXT ||
+                                    message.messageType == Constant.MSG_TYPE_IMAGE)) {
+                        handleDoubleClick();
                     }
+                }
 
-                    @Override
-                    public boolean shouldHandleDoubleClick() {
-                        return message.messageType == Constant.MSG_TYPE_TEXT ||
-                                message.messageType == Constant.MSG_TYPE_IMAGE;
-                    }
+                @Override
+                public void onLongPress() {
+                    handleLongPress();
+                }
+            });
+            GestureDetectorCompat mDetector = new GestureDetectorCompat(itemView.getContext(), gestureDetectorListener);
+            View contentView = getContentView();
+            if (contentView != null) {
+                contentView.setOnTouchListener((view, motionEvent) -> {
+                    return mDetector.onTouchEvent(motionEvent);
                 });
             }
         }
@@ -481,7 +502,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             clickListener.onSelect(selectMessages);
         }
 
-        private void handleClick(View view) {
+        private void handleClick() {
             switch (message.messageType) {
                 case Constant.MSG_TYPE_IMAGE:
                     openImage(markStatus);
@@ -498,7 +519,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
         }
 
-        private void handleDoubleClick(View view) {
+        private void handleDoubleClick() {
             switch (message.messageType) {
                 case Constant.MSG_TYPE_TEXT:
                     onMarkTest();
@@ -509,6 +530,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         clickListener.onDoubleTap(message, markStatus);
                     }
                     break;
+            }
+        }
+
+        private void handleLongPress() {
+            rbSelect.setChecked(true);
+            itemView.postDelayed(() -> {
+                TransitionManager.endTransitions((ViewGroup) itemView);
+                TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+                rbSelect.setVisibility(View.VISIBLE);
+            }, 10);
+            if (clickListener != null) {
+                clickListener.onLongPress(message);
             }
         }
 
