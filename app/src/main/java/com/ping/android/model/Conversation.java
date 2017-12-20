@@ -33,7 +33,7 @@ public class Conversation implements Parcelable {
     public Map<String, Boolean> deleteStatuses;
 
     //Conversation setting
-    public Map<String, Boolean> notifications;
+    public HashMap<String, Boolean> notifications;
     public Map<String, Boolean> maskMessages;
     public Map<String, Boolean> puzzleMessages;
     public Map<String, Boolean> maskOutputs;
@@ -57,6 +57,7 @@ public class Conversation implements Parcelable {
         timesstamps = in.readDouble();
         members = in.createTypedArrayList(User.CREATOR);
         opponentUser = in.readParcelable(User.class.getClassLoader());
+        notifications = (HashMap<String, Boolean>) in.readSerializable();
     }
 
     @Override
@@ -70,6 +71,7 @@ public class Conversation implements Parcelable {
         dest.writeDouble(timesstamps);
         dest.writeTypedList(members);
         dest.writeParcelable(opponentUser, flags);
+        dest.writeSerializable(notifications);
     }
 
     @Override
@@ -101,7 +103,7 @@ public class Conversation implements Parcelable {
     }
 
     public Conversation(int conversationType, int messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
-                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, Map<String, Boolean> deleteStatuses, double timestamp,
+                        Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, double timestamp,
                         Conversation originalConversation
     ) {
         this.conversationType = conversationType;
@@ -112,7 +114,6 @@ public class Conversation implements Parcelable {
         this.memberIDs = memberIDs;
         this.markStatuses = markStatuses;
         this.readStatuses = readStatuses;
-        this.deleteStatuses = deleteStatuses;
         this.timesstamps = timestamp;
 
         if (originalConversation != null) {
@@ -121,7 +122,9 @@ public class Conversation implements Parcelable {
             this.maskMessages = originalConversation.maskMessages;
             this.puzzleMessages = originalConversation.puzzleMessages;
             this.maskOutputs = originalConversation.maskOutputs;
+            this.deleteStatuses = originalConversation.deleteStatuses;
             this.members = originalConversation.members;
+            this.group = originalConversation.group;
         }
     }
 
@@ -132,11 +135,11 @@ public class Conversation implements Parcelable {
         conversation.senderId = fromUserId;
         conversation.timesstamps = System.currentTimeMillis() / 1000L;
 
-        Map<String, Boolean> defaultTrueValues = new HashMap<>();
+        HashMap<String, Boolean> defaultTrueValues = new HashMap<>();
         defaultTrueValues.put(fromUserId, true);
         defaultTrueValues.put(toUserId, true);
 
-        Map<String, Boolean> defaultFalseValues = new HashMap<>();
+        HashMap<String, Boolean> defaultFalseValues = new HashMap<>();
         defaultFalseValues.put(fromUserId, true);
         defaultFalseValues.put(toUserId, true);
 
@@ -157,8 +160,8 @@ public class Conversation implements Parcelable {
         conversation.senderId = fromUserId;
         conversation.timesstamps = System.currentTimeMillis() / 1000L;
 
-        Map<String, Boolean> defaultTrueValues = new HashMap<>();
-        Map<String, Boolean> defaultFalseValues = new HashMap<>();
+        HashMap<String, Boolean> defaultTrueValues = new HashMap<>();
+        HashMap<String, Boolean> defaultFalseValues = new HashMap<>();
         for (String userKey : group.memberIDs.keySet()) {
             defaultTrueValues.put(userKey, true);
             defaultFalseValues.put(userKey, false);

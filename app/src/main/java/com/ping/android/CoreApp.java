@@ -66,7 +66,7 @@ public class CoreApp extends Application {
         QBPushManager.getInstance().addListener(new QBPushManager.QBSubscribeListener() {
             @Override
             public void onSubscriptionCreated() {
-                Toaster.shortToast("Subscription Created");
+                //Toaster.shortToast("Subscription Created");
                 Log.d(TAG, "SubscriptionCreated");
             }
 
@@ -77,7 +77,7 @@ public class CoreApp extends Application {
                     String error = GoogleApiAvailability.getInstance().getErrorString(resultCode);
                     Log.d(TAG, "SubscriptionError playServicesAbility: " + error);
                 }
-                Toaster.shortToast(e.getLocalizedMessage());
+                //Toaster.shortToast(e.getLocalizedMessage());
             }
         });
 

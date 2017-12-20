@@ -21,14 +21,14 @@ public class Constant {
     public static final int CONVERSATION_TYPE_INDIVIDUAL = 1;
     public static final int CONVERSATION_TYPE_GROUP = 2;
 
-    public static final long MESSAGE_STATUS_HIDE = -1L;
-    public static final long MESSAGE_STATUS_SENT = 0L;
-    public static final long MESSAGE_STATUS_DELIVERED = 1L;
-    public static final long MESSAGE_STATUS_ERROR = 2L;
-    public static final long MESSAGE_STATUS_GAME_PASS = 3L;
-    public static final long MESSAGE_STATUS_GAME_FAIL = 4L;
-    public static final long MESSAGE_STATUS_GAME_INIT = 5L;
-    public static final long MESSAGE_STATUS_GAME_DELIVERED = 6L;
+    public static final int MESSAGE_STATUS_HIDE = -1;
+    public static final int MESSAGE_STATUS_SENT = 0;
+    public static final int MESSAGE_STATUS_DELIVERED = 1;
+    public static final int MESSAGE_STATUS_ERROR = 2;
+    public static final int MESSAGE_STATUS_GAME_PASS = 3;
+    public static final int MESSAGE_STATUS_GAME_FAIL = 4;
+    public static final int MESSAGE_STATUS_GAME_INIT = 5;
+    public static final int MESSAGE_STATUS_GAME_DELIVERED = 6;
 
     public static final int CALL_STATUS_SUCCESS = 0;
     public static final int CALL_STATUS_MISS = 1;

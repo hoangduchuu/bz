@@ -355,6 +355,12 @@ public class CommonMethod {
         searchTextContent.setGravity(Gravity.BOTTOM); //Set its gravity to bottom
     }
 
+    public static boolean isTrueValue(Map<String, Boolean> source, String keyToCheck) {
+        if (source == null || !source.containsKey(keyToCheck)) return false;
+        Boolean value = source.get(keyToCheck);
+        return value != null && value;
+    }
+
 //    public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses) {
 //        if (MapUtils.isEmpty(markStatuses) || !markStatuses.containsKey(currentUser.key)) {
 //            //TODO get current setting
@@ -385,7 +391,7 @@ public class CommonMethod {
         return readStatuses.get(userId);
     }
 
-    public static long getCurrentStatus(String userId, Map<String, Long> statuses) {
+    public static int getCurrentStatus(String userId, Map<String, Integer> statuses) {
         if (MapUtils.isEmpty(statuses) || !statuses.containsKey(userId)) {
             return Constant.MESSAGE_STATUS_SENT;
         }

@@ -1,11 +1,14 @@
 package com.ping.android.activity;
 
+import android.app.NotificationManager;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,6 +21,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -37,7 +43,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
 
     private String conversationID, messageID;
     private String imageURL, imageLocalName, imageLocalPath, imageLocalFolder;
-
+    private Conversation conversation;
+    private User sender;
     private int puzzleFirst;
 
     private Bitmap originalBitmap;
@@ -55,6 +62,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
+        conversation = getIntent().getParcelableExtra("CONVERSATION");
+        sender = getIntent().getParcelableExtra("SENDER");
         bindViews();
         init();
     }
@@ -105,6 +114,10 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         } else {
             ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         }
+
+        //send game status to sender
+        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+
         originalBitmap.recycle();
         originalBitmap = null;
         for (Bitmap bitmap : chunkedImages) {
@@ -212,28 +225,26 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         for (int i = 0; i < puzzleItems.size(); i++) {
             puzzleItems.get(i).setImageBitmap(chunkedImages.get(displayOrders.get(i)));
         }
+
         gameCountDown = new CountDownTimer(Constant.GAME_LIMIT_TIME, 1000) {
 
             public void onTick(long millisUntilFinished) {
                 int remainTime = (int) millisUntilFinished / 1000;
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        tvTimer.setText("" + remainTime);
-                    }
-                });
+                handler.post(() -> tvTimer.setText("" + remainTime));
             }
 
             public void onFinish() {
-                boolean gameWin = checkGameStatus();
-                if (gameWin) {
-                    ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
-                } else {
-                    ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
-                }
-                finish();
+                updateGameStatus(true);
             }
-        }.start();
+        };
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("Start", (dialogInterface, i) -> {
+                    gameCountDown.start();
+                }).setMessage("You have 30 seconds to complete this game.")
+                .setTitle("PUZZLE GAME");
+        alertDialogBuilder.create().show();
     }
 
     private void choosePuzzle(View view, int index) {
@@ -255,13 +266,7 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
             puzzleSelect.setBackgroundDrawable(null);
             puzzleSelect = null;
         }
-        boolean gameWin = checkGameStatus();
-        if (gameWin) {
-            gameCountDown.cancel();
-            puzzleView.setVisibility(View.GONE);
-            imageView.setVisibility(View.VISIBLE);
-            imageView.setImageBitmap(originalBitmap);
-        }
+        updateGameStatus(false);
     }
 
     private boolean checkGameStatus() {
@@ -272,5 +277,33 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
             }
         }
         return win;
+    }
+
+    private void updateGameStatus(boolean isTimeOut){
+
+        boolean gameWin = checkGameStatus();
+        if(gameWin || isTimeOut){
+            //send game status to sender
+            NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+        }
+
+        if (gameWin){
+            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
+            gameCountDown.cancel();
+            puzzleView.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageBitmap(originalBitmap);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(tvTimer.getContext());
+            alertDialogBuilder.setCancelable(false)
+                    .setPositiveButton("OK", (dialogInterface, i) -> {
+
+                    }).setMessage("Congratulations! You won.")
+                    .setTitle("PUZZLE GAME");
+            alertDialogBuilder.create().show();
+        }else if (isTimeOut){
+            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
+            finish();
+        }
     }
 }

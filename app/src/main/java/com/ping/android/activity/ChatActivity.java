@@ -1,6 +1,8 @@
 package com.ping.android.activity;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,8 +10,10 @@ import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,6 +40,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.mikepenz.community_material_typeface_library.CommunityMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.view.IconicsImageView;
 import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -92,6 +99,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
     private Button btCancelRecord;
+    private BottomSheetBehavior bottomSheetBehavior;
 
     private String conversationID, fromUserID, sendNewMsg;
     private User fromUser;
@@ -140,6 +148,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
     };
     Message cacheMessage = null;
+    private Message selectedMessage;
+    private boolean shouldDispatchOnTouch = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,9 +229,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
                     .child("loginStatus").removeEventListener(observeStatusEvent);
         }
-        for (DatabaseReference reference : databaseReferences.keySet()) {
-            reference.removeEventListener(databaseReferences.get(reference));
-        }
     }
 
     @Override
@@ -297,6 +304,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 loadMoreChats();
                 isScrollToTop = true;
                 break;
+            case R.id.btn_copy:
+                onCopyText(selectedMessage);
+                break;
+            case R.id.btn_delete:
+                onDeleteMessage(selectedMessage);
+                break;
         }
     }
 
@@ -331,6 +344,35 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             messages.add(message);
             messageRepository.updateMessageMask(messages, conversationID, fromUser.key, false, maskStatus);
         }
+    }
+
+    @Override
+    public void onLongPress(Message message) {
+        KeyboardHelpers.hideSoftInputKeyboard(this);
+        shouldDispatchOnTouch = false;
+        selectedMessage = message;
+        findViewById(R.id.btn_copy).setVisibility(message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                shouldDispatchOnTouch = true;
+            }
+        }, 800);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (shouldDispatchOnTouch) {
+            if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                if (selectedMessage != null) {
+                    adapter.addOrUpdate(selectedMessage);
+                }
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                //return false;
+            }
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -498,6 +540,25 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         btEmoji = findViewById(R.id.chat_emoji_btn);
         btEmoji.setOnClickListener(this);
 
+        IconicsDrawable drawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_content_copy)
+                .sizeDp(24)
+                .color(ContextCompat.getColor(this, R.color.colorAccent));
+        IconicsImageView copyImageView = findViewById(R.id.img_copy);
+        copyImageView.setIcon(drawable);
+
+        IconicsDrawable deleteDrawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_delete)
+                .sizeDp(24)
+                .color(ContextCompat.getColor(this, R.color.colorAccent));
+        IconicsImageView deleteImageView = findViewById(R.id.img_delete);
+        deleteImageView.setIcon(deleteDrawable);
+
+        LinearLayout llBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        findViewById(R.id.btn_copy).setOnClickListener(this);
+        findViewById(R.id.btn_delete).setOnClickListener(this);
+
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
     }
@@ -562,6 +623,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 Message message = Message.from(dataSnapshot);
                 if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
                     adapter.deleteMessage(message.key);
+                    updateConversationLastMessage();
                     return;
                 }
                 message.sender = getUser(message.senderId);
@@ -775,8 +837,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         initConversationListeners();
     }
 
-    Map<DatabaseReference, ValueEventListener> databaseReferences = new HashMap<>();
-
     private void initConversationListeners() {
         ValueEventListener maskMessageListener = new ValueEventListener() {
             @Override
@@ -854,8 +914,24 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    Map<String, Boolean> notifications = (Map<String, Boolean>) dataSnapshot.getValue();
+                    HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.notifications = notifications;
+                    adapter.setOrginalConversation(originalConversation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener deleteStatusesEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    originalConversation.deleteStatuses = (Map<String, Boolean>) dataSnapshot.getValue();
+                } else {
+                    originalConversation.deleteStatuses = new HashMap<>();
                 }
             }
 
@@ -884,6 +960,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         DatabaseReference notificationReference = conversationRepository.getDatabaseReference().child(conversationID).child("notifications");
         notificationReference.addValueEventListener(notificationsEvent);
         databaseReferences.put(notificationReference, notificationsEvent);
+
+        DatabaseReference deleteStatusReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteStatuses");
+        deleteStatusReference.addValueEventListener(deleteStatusesEvent);
+        databaseReferences.put(deleteStatusReference, deleteStatusesEvent);
     }
 
     private void observeStatus() {
@@ -1043,10 +1123,44 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void onDeleteMessage() {
         if (isEditAllMode) {
-            ServiceManager.getInstance().deleteMessage(conversationID, messages);
+            messageRepository.deleteMessage(conversationID, messages);
         } else {
-            ServiceManager.getInstance().deleteMessage(conversationID, adapter.getSelectMessage());
+            messageRepository.deleteMessage(conversationID, adapter.getSelectMessage());
         }
+    }
+
+    private void onCopyText(Message selectedMessage) {
+        hideBottomSheet();
+        if (selectedMessage == null) return;
+        ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText("message", selectedMessage.message);
+        clipboardManager.setPrimaryClip(clipData);
+    }
+
+    private void onDeleteMessage(Message selectedMessage) {
+        hideBottomSheet();
+        if (selectedMessage == null) return;
+        List<Message> messagesToDelete = new ArrayList<>();
+        messagesToDelete.add(selectedMessage);
+        messageRepository.deleteMessage(conversationID, messagesToDelete);
+    }
+
+    private void updateConversationLastMessage() {
+        Message message = adapter.getLastMessage();
+        if (message != null) {
+            Conversation conversation = new Conversation(originalConversation.conversationType, message.messageType,
+                    message.message, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
+                    getMessageReadStatuses(), message.timestamp, originalConversation);
+            conversation.key = originalConversation.key;
+            HashMap<String, Boolean> allowance = new HashMap<>();
+            allowance.put(fromUser.key, true);
+            conversationRepository.updateConversation(conversation.key, conversation, allowance);
+        }
+    }
+
+    private void hideBottomSheet() {
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        selectedMessage = null;
     }
 
     private void onUpdateMaskMessage(boolean mask) {
@@ -1154,12 +1268,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         edMessage.setText(null);
         double timestamp = System.currentTimeMillis() / 1000L;
         Map<String, Boolean> allowance = getAllowance();
-        Message message = Message.createTextMessage(text, fromUser.key, fromUser.pingID,
+        Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
                 timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
 
         Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
                 text, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+                getMessageReadStatuses(), timestamp, originalConversation);
         conversation.members = originalConversation.members;
         String messageKey = messageRepository.generateKey();
         messageRepository.updateMessage(messageKey, message);
@@ -1338,12 +1452,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 String downloadUrl = (String) data[0];
                 Map<String, Boolean> allowance = getAllowance();
                 Message message = Message.createAudioMessage(downloadUrl,
-                        fromUser.key, fromUser.pingID, timestamp, getStatuses(), null,
+                        fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), null,
                         getMessageDeleteStatuses(), allowance);
 
                 Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
                         downloadUrl, originalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
-                        getMessageDeleteStatuses(), timestamp, originalConversation);
+                        timestamp, originalConversation);
                 conversation.members = originalConversation.members;
                 String messageKey = messageRepository.generateKey();
                 message.key = messageKey;
@@ -1411,8 +1525,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return deleteStatuses;
     }
 
-    private Map<String, Long> getStatuses() {
-        Map<String, Long> deleteStatuses = new HashMap<>();
+    private Map<String, Integer> getStatuses() {
+        Map<String, Integer> deleteStatuses = new HashMap<>();
         for (User toUser : originalConversation.members) {
             deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
         }
@@ -1461,11 +1575,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         Map<String, Boolean> allowance = getAllowance();
         if (msgType == Constant.MSG_TYPE_IMAGE) {
             message = Message.createImageMessage(imageUrl, thumbnailUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
                     getMessageDeleteStatuses(), allowance);
         } else if (msgType == Constant.MSG_TYPE_GAME) {
             message = Message.createGameMessage(imageUrl,
-                    fromUser.key, fromUser.pingID, timestamp, getStatuses(), getImageMarkStatuses(),
+                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
                     getMessageDeleteStatuses(), allowance);
         }
         if (message == null) throw new NullPointerException("Message must not be null " + msgType);
@@ -1473,7 +1587,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
         Conversation conversation = new Conversation(originalConversation.conversationType, msgType, imageUrl,
                 originalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                getMessageReadStatuses(), getMessageDeleteStatuses(), timestamp, originalConversation);
+                getMessageReadStatuses(), timestamp, originalConversation);
         conversation.members = originalConversation.members;
         //Create or Update Conversation
         messageRepository.updateMessage(messageKey, message);
@@ -1486,7 +1600,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (message.senderId.equals(fromUserID)) {
             return;
         }
-        long status = CommonMethod.getCurrentStatus(fromUserID, message.status);
+        int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (status == Constant.MESSAGE_STATUS_SENT) {
             status = Constant.MESSAGE_STATUS_DELIVERED;
             messageRepository.updateMessageStatus(message.key, originalConversation.members, status);
@@ -1545,7 +1659,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             for (User toUser : originalConversation.members) {
                 if (toUser.key.equals(fromUser.key)
                         || fromUser.blocks.containsKey(toUser.key)
-                        || fromUser.blockBys.containsKey(toUser.key)) continue;
+                        || fromUser.blockBys.containsKey(toUser.key)
+                        || CommonMethod.isTrueValue(originalConversation.deleteStatuses, toUser.key)) continue;
                 ret.put(toUser.key, true);
             }
         }

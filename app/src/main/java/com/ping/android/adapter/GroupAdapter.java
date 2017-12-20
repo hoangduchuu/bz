@@ -159,6 +159,21 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         return displayGroups.size();
     }
 
+    public void removeGroup(String key) {
+        Group removedGroup = null;
+        for (int i = 0, size = displayGroups.size(); i < size; i++) {
+            if (displayGroups.get(i).key.equals(key)) {
+                removedGroup = displayGroups.get(i);
+                displayGroups.remove(i);
+                notifyItemRemoved(i);
+                break;
+            }
+        }
+        if (removedGroup != null) {
+            originalGroups.remove(removedGroup);
+        }
+    }
+
     public interface ClickListener {
         void onSendMessage(Group group);
         void onViewProfile(Group group);
@@ -238,6 +253,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             tvGroupName.setText(group.groupName);
             List<String> displayNames = new ArrayList<>();
             for (User contact : group.members) {
+                if (group.deleteStatuses.containsKey(contact.key)) continue;
                 displayNames.add(ServiceManager.getInstance().getFirstName(contact));
             }
             tvGroupMember.setText(TextUtils.join(", ", displayNames));

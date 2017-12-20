@@ -8,7 +8,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
 import java.util.ArrayList;
@@ -60,10 +59,16 @@ public class GroupRepository extends BaseFirebaseDatabase {
         });
     }
 
-    public void addNewMembersToGroup(Group group, Conversation conversation, ArrayList<String> newMembers) {
+    public void addNewMembersToGroup(Group group, Conversation conversation, ArrayList<String> newMembers, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
+        conversation.memberIDs.putAll(group.memberIDs);
+        for (String userId : newMembers) {
+            group.deleteStatuses.put(userId, null);
+        }
+        conversation.deleteStatuses = group.deleteStatuses;
         updateValue.put(String.format("groups/%s", group.key), group.toMap());
         updateValue.put(String.format("conversations/%s/memberIDs", conversation.key), conversation.memberIDs);
+        updateValue.put(String.format("conversations/%s/deleteStatuses", conversation.key), conversation.deleteStatuses);
         conversation.message = "";
         for (String userId : newMembers) {
             updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
@@ -72,9 +77,30 @@ public class GroupRepository extends BaseFirebaseDatabase {
         for (String userId: group.memberIDs.keySet()) {
             if (!newMembers.contains(userId)) {
                 updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
-                updateValue.put(String.format("users/%s/conversations/%s/memberIDs", userId, conversation.key), group.memberIDs);
+                updateValue.put(String.format("users/%s/conversations/%s/memberIDs", userId, conversation.key), conversation.memberIDs);
+                updateValue.put(String.format("users/%s/conversations/%s/deleteStatuses", userId, conversation.key), conversation.deleteStatuses);
             }
         }
-        updateBatchData(updateValue, null);
+        updateBatchData(updateValue, callback);
+    }
+
+    public void leaveGroup(Group group, Callback callback) {
+        Map<String, Object> updateValue = new HashMap<>();
+        //group.memberIDs.remove(currentUserId());
+        group.deleteStatuses.put(currentUserId(), true);
+
+        // 1. Remove group and conversation for current user
+        updateValue.put(String.format("users/%s/groups/%s", currentUserId(), group.key), null);
+        updateValue.put(String.format("users/%s/conversations/%s", currentUserId(), group.conversationID), null);
+
+        // 2. Update members for group & conversation
+        updateValue.put(String.format("groups/%s/deleteStatuses", group.key), group.deleteStatuses);
+        updateValue.put(String.format("conversations/%s/deleteStatuses", group.conversationID), group.deleteStatuses);
+        for (String userId : group.memberIDs.keySet()) {
+            if (userId.equals(currentUserId())) continue;
+            updateValue.put(String.format("users/%s/groups/%s/deleteStatuses", userId, group.key), group.deleteStatuses);
+            updateValue.put(String.format("users/%s/conversations/%s/deleteStatuses", userId, group.conversationID), group.deleteStatuses);
+        }
+        updateBatchData(updateValue, callback);
     }
 }

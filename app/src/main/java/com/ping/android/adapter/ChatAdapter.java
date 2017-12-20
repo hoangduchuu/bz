@@ -12,10 +12,15 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -44,6 +49,7 @@ import com.ping.android.utils.AudioMessagePlayer;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.DoubleClickListener;
+import com.ping.android.view.GestureDetectorListener;
 
 import org.w3c.dom.Text;
 
@@ -52,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Comparator<Message> {
@@ -154,14 +161,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public void deleteMessage(String messageID) {
         Message deletedMessage = null;
         for (Message message : displayMessages) {
-            if (message.key.equals(messageID)) {
+            if (messageID.equals(message.key)) {
                 deletedMessage = message;
+                break;
             }
         }
         if (deletedMessage != null) {
+            int index = displayMessages.indexOf(deletedMessage);
             displayMessages.remove(deletedMessage);
             selectMessages.remove(deletedMessage);
-            notifyDataSetChanged();
+            notifyItemRemoved(index);
         }
     }
 
@@ -329,6 +338,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         void onSelect(List<Message> selectMessages);
 
         void onDoubleTap(Message message, boolean markStatus);
+
+        void onLongPress(Message message);
     }
 
     public static class TypingViewHolder extends RecyclerView.ViewHolder {
@@ -362,6 +373,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         private ImageView mPauseMedia;
         private SeekBar mMediaSeekBar;
         private TextView mRunTime;
+        private GestureDetectorListener gestureDetectorListener;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
@@ -417,26 +429,36 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setupClickListener() {
-            if (message != null &&
-                    (message.messageType == Constant.MSG_TYPE_TEXT ||
-                            message.messageType == Constant.MSG_TYPE_IMAGE ||
-                            message.messageType == Constant.MSG_TYPE_GAME)) {
-                getContentView().setOnClickListener(new DoubleClickListener() {
-                    @Override
-                    public void onSingleClick(View v) {
-                        handleClick(v);
+            gestureDetectorListener = new GestureDetectorListener(new GestureDetectorListener.GestureDetectorCallback() {
+                @Override
+                public void onSingleTap() {
+                    if (message != null &&
+                            (message.messageType == Constant.MSG_TYPE_TEXT ||
+                                    message.messageType == Constant.MSG_TYPE_IMAGE ||
+                                    message.messageType == Constant.MSG_TYPE_GAME)) {
+                        handleClick();
                     }
+                }
 
-                    @Override
-                    public void onDoubleClick(View v) {
-                        handleDoubleClick(v);
+                @Override
+                public void onDoubleTap() {
+                    if (message != null &&
+                            (message.messageType == Constant.MSG_TYPE_TEXT ||
+                                    message.messageType == Constant.MSG_TYPE_IMAGE)) {
+                        handleDoubleClick();
                     }
+                }
 
-                    @Override
-                    public boolean shouldHandleDoubleClick() {
-                        return message.messageType == Constant.MSG_TYPE_TEXT ||
-                                message.messageType == Constant.MSG_TYPE_IMAGE;
-                    }
+                @Override
+                public void onLongPress() {
+                    handleLongPress();
+                }
+            });
+            GestureDetectorCompat mDetector = new GestureDetectorCompat(itemView.getContext(), gestureDetectorListener);
+            View contentView = getContentView();
+            if (contentView != null) {
+                contentView.setOnTouchListener((view, motionEvent) -> {
+                    return mDetector.onTouchEvent(motionEvent);
                 });
             }
         }
@@ -480,7 +502,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             clickListener.onSelect(selectMessages);
         }
 
-        private void handleClick(View view) {
+        private void handleClick() {
             switch (message.messageType) {
                 case Constant.MSG_TYPE_IMAGE:
                     openImage(markStatus);
@@ -497,7 +519,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
         }
 
-        private void handleDoubleClick(View view) {
+        private void handleDoubleClick() {
             switch (message.messageType) {
                 case Constant.MSG_TYPE_TEXT:
                     onMarkTest();
@@ -508,6 +530,18 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         clickListener.onDoubleTap(message, markStatus);
                     }
                     break;
+            }
+        }
+
+        private void handleLongPress() {
+            rbSelect.setChecked(true);
+            itemView.postDelayed(() -> {
+                TransitionManager.endTransitions((ViewGroup) itemView);
+                TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+                rbSelect.setVisibility(View.VISIBLE);
+            }, 10);
+            if (clickListener != null) {
+                clickListener.onLongPress(message);
             }
         }
 
@@ -565,7 +599,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
             // Only play game for player
-            Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!currentUserID.equals(message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     // Game fail don't do anything
@@ -576,6 +610,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     Intent intent = new Intent(activity, GameActivity.class);
                     intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+                    intent.putExtra("CONVERSATION", orginalConversation);
+                    intent.putExtra("SENDER", message.sender);
                     intent.putExtra("MESSAGE_ID", message.key);
                     intent.putExtra("IMAGE_URL", imageURL);
                     activity.startActivity(intent);
@@ -610,7 +646,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 ivChatPhoto.setImageResource(R.drawable.img_loading);
                 return;
             }
-            Long status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!TextUtils.isEmpty(message.gameUrl) && !currentUserID.equals(message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     ivChatPhoto.setImageResource(R.drawable.img_game_over);
@@ -686,40 +722,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (orginalConversation != null
                     && !currentUserID.equals(message.senderId)
                     && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                tvInfo.setText(message.sender.getDisplayName() + " " + time);
+                tvInfo.setText(message.sender != null? message.sender.getDisplayName(): message.senderName + " " + time);
             } else {
                 tvInfo.setText(time);
             }
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setStatus(long messageStatus) {
+        private void setStatus(String messageStatus) {
             if (tvStatus == null) return;
-            if (messageStatus == Constant.MESSAGE_STATUS_HIDE) {
+            if (TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setVisibility(View.GONE);
                 return;
             }
-            String status = "";
-            if (messageStatus == Constant.MESSAGE_STATUS_SENT) {
-                status = "Delivered";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_DELIVERED) {
-                status = "Delivered";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_ERROR) {
-                status = "Error";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_PASS) {
-                status = "Game Passed";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                status = "Game Failed";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_INIT) {
-                status = "Game";
-            } else if (messageStatus == Constant.MESSAGE_STATUS_GAME_DELIVERED) {
-                status = "Game Delivered";
-            }
-
-            if (!TextUtils.isEmpty(status)) {
-                tvStatus.setText(status);
-                tvStatus.setVisibility(View.VISIBLE);
-            }
+            tvStatus.setText(messageStatus);
+            tvStatus.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -735,37 +752,85 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             setModel(model);
             setupClickListener();
             setChatText(model.message);
-            long status = ServiceManager.getInstance().getCurrentStatus(model.status);
 
             setIvChatProfile();
             setInfo();
-            if (message.messageType == Constant.MSG_TYPE_IMAGE) {
-                if (!TextUtils.isEmpty(message.localImage)) {
-                    setLocalImage(message.localImage);
+            if (model.messageType == Constant.MSG_TYPE_VOICE) {
+                setAudioSrc(model.audioUrl);
+            }
+            if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+                if (!TextUtils.isEmpty(model.localImage)) {
+                    setLocalImage(model.localImage);
                 } else {
                     setIvChatPhoto(model.thumbUrl);
                 }
-            } else if (message.messageType == Constant.MSG_TYPE_GAME) {
-                setIvChatPhoto(model.gameUrl);
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS || status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    setStatus(status);
-                } else if (message.senderId.equals(currentUserID)) {
-                    setStatus(Constant.MESSAGE_STATUS_GAME_DELIVERED);
-                } else {
-                    setStatus(Constant.MESSAGE_STATUS_GAME_INIT);
-                }
-            } else if (message.messageType == Constant.MSG_TYPE_VOICE) {
-                setAudioSrc(model.audioUrl);
             }
-
-            if (message.senderId.equals(currentUserID) && isLastMessage) {
-                setStatus(status);
-            } else {
-                setStatus(Constant.MESSAGE_STATUS_HIDE);
+            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                setIvChatPhoto(message.gameUrl);
             }
+            setMessageStatus(model, isLastMessage);
 
             setEditMode(isEditMode);
             setSelect(selectMessages.contains(model));
+        }
+
+        private void setMessageStatus(Message message, boolean isLastMessage) {
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            String messageStatus = "";
+            if (TextUtils.equals(message.senderId, currentUserID)){
+                if(isLastMessage && message.messageType != Constant.MSG_TYPE_GAME){
+                    switch (status){
+                        case Constant.MESSAGE_STATUS_SENT:
+                        case Constant.MESSAGE_STATUS_DELIVERED:
+                            messageStatus = "Delivered";
+                            break;
+                        default:
+                            messageStatus = "";
+                    }
+                }
+                else{
+                    if (message.messageType == Constant.MSG_TYPE_GAME){
+                        if (!TextUtils.isEmpty(orginalConversation.groupID)){
+                            int passedCount = 0, failedCount = 0;
+                            for (Map.Entry<String, Integer> entry: message.status.entrySet()) {
+                                if(TextUtils.equals(entry.getKey(), currentUserID)){
+                                    continue;
+                                }
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS){
+                                    passedCount += 1;
+                                }
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL){
+                                    failedCount += 1;
+                                }
+                            }
+                            if (passedCount == 0 && failedCount == 0){
+                                messageStatus = "Game Delivered";
+                            }else{
+                                messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
+                            }
+                        }else {
+                            status = orginalConversation.opponentUser != null && message.status.containsKey(orginalConversation.opponentUser.key)?
+                                    message.status.get(orginalConversation.opponentUser.key): Constant.MESSAGE_STATUS_GAME_DELIVERED;
+                            switch (status) {
+                                case Constant.MESSAGE_STATUS_GAME_PASS:
+                                    messageStatus = "Game Passed";
+                                    break;
+                                case Constant.MESSAGE_STATUS_GAME_FAIL:
+                                    messageStatus = "Game Failed";
+                                    break;
+                                default:
+                                    messageStatus = "Game Delivered";
+
+                            }
+                        }
+                    }
+                }
+            }else{
+                if (message.messageType == Constant.MSG_TYPE_GAME){
+                    messageStatus = "Game";
+                }
+            }
+            setStatus(messageStatus);
         }
     }
 }

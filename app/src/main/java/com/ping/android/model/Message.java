@@ -24,7 +24,7 @@ public class Message {
     public String senderId;
     public String senderName;
     public double timestamp;
-    public Map<String, Long> status;
+    public Map<String, Integer> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
     public Map<String, Boolean> readAllowed;
@@ -56,7 +56,7 @@ public class Message {
     }
 
     public static Message createTextMessage(String text, String senderId, String senderName,
-                                            double timestamp, Map<String, Long> status,
+                                            double timestamp, Map<String, Integer> status,
                                             Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
                                             Map<String, Boolean> readAllowed) {
         Message message = new Message();
@@ -73,7 +73,7 @@ public class Message {
     }
 
     public static Message createImageMessage(String photoUrl, String thumbUrl, String senderId,
-                                             String senderName, double timestamp, Map<String, Long> status,
+                                             String senderName, double timestamp, Map<String, Integer> status,
                                              Map<String, Boolean> markStatuses,
                                              Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
         Message message = new Message();
@@ -91,7 +91,7 @@ public class Message {
     }
 
     public static Message createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
-                                             Map<String, Long> status, Map<String, Boolean> markStatuses,
+                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
                                              Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
         Message message = new Message();
         message.audioUrl = audioUrl;
@@ -107,7 +107,7 @@ public class Message {
     }
 
     public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
-                                            Map<String, Long> status, Map<String, Boolean> markStatuses,
+                                            Map<String, Integer> status, Map<String, Boolean> markStatuses,
                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
         Message message = new Message();
         message.gameUrl = gameUrl;
