@@ -21,6 +21,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.ping.android.activity.ChatActivity;
+import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
@@ -276,24 +277,24 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     @Override
-    public void onOpenUserProfile(Conversation conversation, List<Pair<View, String>> sharedElements) {
+    public void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements) {
         Intent intent = new Intent(getContext(), UserDetailActivity.class);
         intent.putExtra(Constant.START_ACTIVITY_USER_ID, conversation.opponentUser.key);
-
-//        Pair[] pairs = new Pair[sharedElements.size()];
-//        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-//                getActivity(),
-//                sharedElements.toArray(pairs)
-//        );
-//        ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
-        startActivity(intent);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, conversation.opponentUser);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, sharedElements[1].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
+        startActivity(intent, options.toBundle());
     }
 
     @Override
     public void onOpenGroupProfile(Conversation conversation, List<Pair<View, String>> sharedElement) {
-//        Intent intent = new Intent(activity, GroupProfileActivity.class);
-//        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, model.groupID);
-//        activity.startActivity(intent);
+        Intent intent = new Intent(getContext(), GroupProfileActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, conversation.groupID);
+        startActivity(intent);
     }
 
     @Override

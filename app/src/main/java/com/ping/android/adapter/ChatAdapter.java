@@ -702,13 +702,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
-            ivChatProfile.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(activity, UserDetailActivity.class);
-                    intent.putExtra(Constant.START_ACTIVITY_USER_ID, message.sender.key);
-                    activity.startActivity(intent);
-                }
+            ivChatProfile.setOnClickListener(v -> {
+                Intent intent = new Intent(activity, UserDetailActivity.class);
+                intent.putExtra(Constant.START_ACTIVITY_USER_ID, message.sender.key);
+                intent.putExtra(UserDetailActivity.EXTRA_USER, message.sender);
+                activity.startActivity(intent);
             });
 
             UiUtils.displayProfileImage(activity, ivChatProfile, message.sender);

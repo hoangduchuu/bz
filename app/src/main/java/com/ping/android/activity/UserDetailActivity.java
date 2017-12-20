@@ -19,6 +19,9 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 public class UserDetailActivity extends CoreActivity implements View.OnClickListener{
+    public static final String EXTRA_USER = "EXTRA_USER";
+    public static final String EXTRA_USER_IMAGE = "EXTRA_USER_IMAGE";
+    public static final String EXTRA_USER_NAME = "EXTRA_USER_NAME";
 
     private ImageView ivAvatar;
     private TextView userName;
@@ -37,17 +40,16 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         setContentView(R.layout.activity_user_detail);
         bindViews();
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
-        ViewCompat.setTransitionName(ivAvatar, userID);
+        user = getIntent().getParcelableExtra(EXTRA_USER);
+        String imageName = getIntent().getStringExtra(EXTRA_USER_IMAGE);
+        ivAvatar.setTransitionName(imageName);
+        String userName = getIntent().getStringExtra(EXTRA_USER_NAME);
+        tvDisplayName.setTransitionName(userName);
+        //ViewCompat.setTransitionName(ivAvatar, imageName);
 
-        postponeEnterTransition();
+        bindData();
         currentUser = UserManager.getInstance().getUser();
         userRepository = new UserRepository();
-        userRepository.getUser(userID, (error, data) -> {
-            if (error == null) {
-                user = (User) data[0];
-                bindData();
-            }
-        });
         userUpdated = (error, data) -> {
             if (error == null) {
                 currentUser = (User) data[0];
@@ -131,7 +133,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
         updateContactLayout();
 
-        UiUtils.displayProfileImage(ivAvatar, user, (error, data) -> startPostponedEnterTransition());
+        UiUtils.displayProfileImage(ivAvatar, user, null);
     }
 
     private void updateContactLayout() {
@@ -188,6 +190,6 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onBack() {
-        finish();
+        supportFinishAfterTransition();
     }
 }
