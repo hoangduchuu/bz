@@ -335,9 +335,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.setEditMode(isEditMode);
             this.setSelect(isSelected);
 
+            String imageTransitionKey = "transitionImage" + getAdapterPosition();
+            ivProfileImage.setTransitionName(imageTransitionKey);
             if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                String imageTransitionKey = "transitionImage" + getAdapterPosition();
-                ivProfileImage.setTransitionName(imageTransitionKey);
                 String nameTransitionKey = "transitionName" + getAdapterPosition();
                 tvSender.setTransitionName(nameTransitionKey);
                 UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, model.opponentUser);
@@ -352,7 +352,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 ViewCompat.setTransitionName(ivProfileImage, model.groupID);
                 ivProfileImage.setOnClickListener(v -> {
                     if (listener != null) {
-                        listener.onOpenGroupProfile(conversation, null);
+                        Pair imagePair = Pair.create(ivProfileImage, imageTransitionKey);
+                        listener.onOpenGroupProfile(conversation, imagePair);
                     }
                 });
                 UiUtils.displayProfileAvatar(ivProfileImage, model.group.groupAvatar);
@@ -366,7 +367,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public interface ConversationItemListener {
         void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements);
-        void onOpenGroupProfile(Conversation conversation, List<Pair<View, String>> sharedElements);
+        void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements);
         void onOpenChatScreen(Conversation conversation, List<Pair<View, String>> sharedElements);
         void onSelect(Conversation conversation);
     }

@@ -182,6 +182,35 @@ public class UiUtils {
                 .into(imageView);
     }
 
+    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, Callback callback) {
+        if (TextUtils.isEmpty(firebaseUrl)) {
+            imageView.setImageResource(IMG_DEFAULT);
+            if (callback != null) {
+                callback.complete(null);
+            }
+            return;
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
+        GlideApp.with(imageView.getContext())
+                .load(gsReference)
+                .apply(RequestOptions.circleCropTransform())
+                .dontAnimate()
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        callback.complete(e);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        callback.complete(null);
+                        return false;
+                    }
+                })
+                .into(imageView);
+    }
+
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
         ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
         GlideApp.with(imageView.getContext())
