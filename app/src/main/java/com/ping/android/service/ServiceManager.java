@@ -3,18 +3,11 @@ package com.ping.android.service;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -24,11 +17,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializer;
 import com.ping.android.App;
 import com.ping.android.activity.R;
-import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.form.Mapping;
 import com.ping.android.form.Setting;
 import com.ping.android.model.Call;
@@ -39,10 +29,8 @@ import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
-import com.ping.android.util.QBResRequestExecutor;
+import com.ping.android.utils.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
-import com.ping.android.utils.Log;
-import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
@@ -330,20 +318,6 @@ public class ServiceManager {
         for (String userId : memberIDs) {
             mDatabase.child("users").child(userId).child("groups").child(groupId).child("groupAvatar").setValue(value);
         }
-    }
-
-    public void uploadGroupAvatar(String groupId, File file, Callback callback) {
-        String fileName = System.currentTimeMillis() + groupId + ".png";
-        String imageStoragePath = "groups" + File.separator + groupId + File.separator + fileName;
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
-        UploadTask uploadTask = photoRef.putFile(Uri.fromFile(file));
-        uploadTask.addOnFailureListener(e -> {
-            e.printStackTrace();
-            callback.complete(e);
-        }).addOnSuccessListener(taskSnapshot -> {
-            String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
-            callback.complete(null, downloadUrl);
-        });
     }
 
     //-------------------------------------------------------

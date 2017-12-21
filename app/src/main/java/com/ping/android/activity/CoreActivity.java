@@ -11,7 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.ultility.Constant;
-import com.ping.android.util.NetworkConnectionChecker;
+import com.ping.android.utils.NetworkConnectionChecker;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.google.firebase.database.FirebaseDatabase;
-import com.ping.android.util.QBResRequestExecutor;
+import com.ping.android.utils.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
 
 import java.io.File;

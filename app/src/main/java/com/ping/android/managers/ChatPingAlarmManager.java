@@ -1,4 +1,4 @@
-package com.ping.android.util;
+package com.ping.android.managers;
 
 
 import android.app.AlarmManager;

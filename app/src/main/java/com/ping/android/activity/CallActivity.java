@@ -35,7 +35,7 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
-import com.ping.android.util.NetworkConnectionChecker;
+import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.FragmentExecuotr;
 import com.ping.android.utils.PermissionsChecker;
 import com.ping.android.utils.RingtonePlayer;

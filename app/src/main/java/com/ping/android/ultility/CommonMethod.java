@@ -10,6 +10,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.SearchView;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.model.User;
 
 import org.apache.commons.collections4.MapUtils;
@@ -257,20 +258,8 @@ public class CommonMethod {
     }
 
     public static String getFileNameFromFirebase(String url) {
-//        String fileName = "";
-//        String namePattern = ".*ping-android-dev.appspot.com/o/(.*)\\?alt.*";
-//        Pattern pattern = Pattern.compile(namePattern);
-//        Matcher matcher = pattern.matcher(url);
-//        if (matcher.matches()) {
-//            fileName = matcher.group(1);
-//            try {
-//                fileName = URLDecoder.decode(fileName, "UTF-8");
-//            } catch (Exception e) {
-//
-//            }
-//        }
         //Change from https:// to gs://
-        String fileName = url.replace(Constant.URL_STORAGE_REFERENCE + "/", "");
+        String fileName = url.replace(String.format("gs://%s/", FirebaseStorage.getInstance().getReference().getBucket()), "");
         return fileName;
     }
 

@@ -1,4 +1,4 @@
-package com.ping.android.util;
+package com.ping.android.utils;
 
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.request.QBPagedRequestBuilder;
