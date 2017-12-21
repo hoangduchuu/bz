@@ -2,25 +2,15 @@ package com.ping.android.adapter;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.transition.TransitionManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,12 +18,8 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.joooonho.SelectableRoundedImageView;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GameActivity;
 import com.ping.android.activity.PuzzleActivity;
@@ -42,16 +28,12 @@ import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.AudioMessagePlayer;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.view.DoubleClickListener;
 import com.ping.android.view.GestureDetectorListener;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,7 +41,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Comparator<Message> {
 
@@ -444,7 +425,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 public void onDoubleTap() {
                     if (message != null &&
                             (message.messageType == Constant.MSG_TYPE_TEXT ||
-                                    message.messageType == Constant.MSG_TYPE_IMAGE)) {
+                                    message.messageType == Constant.MSG_TYPE_IMAGE ||
+                                    message.messageType == Constant.MSG_TYPE_GAME)) {
                         handleDoubleClick();
                     }
                 }
@@ -530,6 +512,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         clickListener.onDoubleTap(message, markStatus);
                     }
                     break;
+                case Constant.MSG_TYPE_GAME:
+                    int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+                    if (currentUserID.equals(message.senderId) || status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                        markStatus = !markStatus;
+                        if (clickListener != null) {
+                            clickListener.onDoubleTap(message, markStatus);
+                        }
+                    }
+                    break;
             }
         }
 
@@ -577,11 +568,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
-            if (currentUserID.equals(message.senderId)) {
-                unPuzzleImage(message.gameUrl, "", isPuzzled);
-            } else {
-                unPuzzleGame(message.gameUrl, isPuzzled);
-            }
+            unPuzzleGame(message.gameUrl, isPuzzled);
         }
 
         private void unPuzzleImage(String imageURL, String localImage, boolean isPuzzled) {
@@ -601,10 +588,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             // Only play game for player
             int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!currentUserID.equals(message.senderId)) {
-                if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    // Game fail don't do anything
-                    return;
-                } else if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
                     unPuzzleImage(imageURL, "", isPuzzled);
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
@@ -615,11 +599,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     intent.putExtra("MESSAGE_ID", message.key);
                     intent.putExtra("IMAGE_URL", imageURL);
                     activity.startActivity(intent);
-                    return;
                 }
+            } else {
+                // Show image for current User
+                unPuzzleImage(imageURL, "", isPuzzled);
             }
-            // Show image for current User
-            unPuzzleImage(imageURL, "", isPuzzled);
         }
 
         public void setModel(Message message) {
@@ -720,7 +704,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (orginalConversation != null
                     && !currentUserID.equals(message.senderId)
                     && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                tvInfo.setText(message.sender != null? message.sender.getDisplayName(): message.senderName + " " + time);
+                tvInfo.setText(message.sender != null ? message.sender.getDisplayName() : message.senderName + " " + time);
             } else {
                 tvInfo.setText(time);
             }
@@ -775,9 +759,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         private void setMessageStatus(Message message, boolean isLastMessage) {
             int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             String messageStatus = "";
-            if (TextUtils.equals(message.senderId, currentUserID)){
-                if(isLastMessage && message.messageType != Constant.MSG_TYPE_GAME){
-                    switch (status){
+            if (TextUtils.equals(message.senderId, currentUserID)) {
+                if (isLastMessage && message.messageType != Constant.MSG_TYPE_GAME) {
+                    switch (status) {
                         case Constant.MESSAGE_STATUS_SENT:
                         case Constant.MESSAGE_STATUS_DELIVERED:
                             messageStatus = "Delivered";
@@ -785,30 +769,29 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         default:
                             messageStatus = "";
                     }
-                }
-                else{
-                    if (message.messageType == Constant.MSG_TYPE_GAME){
-                        if (!TextUtils.isEmpty(orginalConversation.groupID)){
+                } else {
+                    if (message.messageType == Constant.MSG_TYPE_GAME) {
+                        if (!TextUtils.isEmpty(orginalConversation.groupID)) {
                             int passedCount = 0, failedCount = 0;
-                            for (Map.Entry<String, Integer> entry: message.status.entrySet()) {
-                                if(TextUtils.equals(entry.getKey(), currentUserID)){
+                            for (Map.Entry<String, Integer> entry : message.status.entrySet()) {
+                                if (TextUtils.equals(entry.getKey(), currentUserID)) {
                                     continue;
                                 }
-                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS){
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS) {
                                     passedCount += 1;
                                 }
-                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL){
+                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL) {
                                     failedCount += 1;
                                 }
                             }
-                            if (passedCount == 0 && failedCount == 0){
+                            if (passedCount == 0 && failedCount == 0) {
                                 messageStatus = "Game Delivered";
-                            }else{
+                            } else {
                                 messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
                             }
-                        }else {
-                            status = orginalConversation.opponentUser != null && message.status.containsKey(orginalConversation.opponentUser.key)?
-                                    message.status.get(orginalConversation.opponentUser.key): Constant.MESSAGE_STATUS_GAME_DELIVERED;
+                        } else {
+                            status = orginalConversation.opponentUser != null && message.status.containsKey(orginalConversation.opponentUser.key) ?
+                                    message.status.get(orginalConversation.opponentUser.key) : Constant.MESSAGE_STATUS_GAME_DELIVERED;
                             switch (status) {
                                 case Constant.MESSAGE_STATUS_GAME_PASS:
                                     messageStatus = "Game Passed";
@@ -823,8 +806,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         }
                     }
                 }
-            }else{
-                if (message.messageType == Constant.MSG_TYPE_GAME){
+            } else {
+                if (message.messageType == Constant.MSG_TYPE_GAME) {
                     messageStatus = "Game";
                 }
             }

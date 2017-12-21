@@ -339,7 +339,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             List<Message> messages = new ArrayList<>(1);
             messages.add(message);
             messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
-        } else if (message.messageType == Constant.MSG_TYPE_IMAGE) {
+        } else if (message.messageType == Constant.MSG_TYPE_IMAGE || message.messageType == Constant.MSG_TYPE_GAME) {
             List<Message> messages = new ArrayList<>(1);
             messages.add(message);
             messageRepository.updateMessageMask(messages, conversationID, fromUser.key, false, maskStatus);
