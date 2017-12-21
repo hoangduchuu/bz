@@ -1,10 +1,12 @@
 package com.ping.android.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,22 +17,23 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.ping.android.activity.ChatActivity;
+import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NewChatActivity;
 import com.ping.android.activity.R;
+import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.MessageAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
@@ -38,15 +41,12 @@ import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import me.leolin.shortcutbadger.ShortcutBadger;
-
-public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ClickListener {
+public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private DatabaseReference mMessageDatabase;
@@ -63,6 +63,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     private boolean isEditMode;
 
     private UserRepository userRepository;
+    private ConversationRepository conversationRepository;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -97,16 +98,13 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         }
     }
 
-    @Override
-    public void onSelect(ArrayList<Conversation> selectConversations) {
-        updateEditMode();
-    }
-
     private void init() {
         userRepository = new UserRepository();
+        conversationRepository = new ConversationRepository();
         currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
-        adapter = new MessageAdapter(conversations, getActivity(), this);
+        adapter = new MessageAdapter(conversations);
+        adapter.setListener(this);
         // Load data
         observeMessages();
     }
@@ -174,12 +172,20 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         observeConversationEvent = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateMessage(dataSnapshot, true);
+                Conversation conversation = Conversation.from(dataSnapshot);
+                if (MapUtils.isEmpty(conversation.memberIDs)) {
+                    return;
+                }
+                insertOrUpdateMessage(conversation, true);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateMessage(dataSnapshot, false);
+                Conversation conversation = Conversation.from(dataSnapshot);
+                if (MapUtils.isEmpty(conversation.memberIDs)) {
+                    return;
+                }
+                insertOrUpdateMessage(conversation, false);
             }
 
             @Override
@@ -204,11 +210,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         mMessageDatabase.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
     }
 
-    private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Conversation conversation = Conversation.from(dataSnapshot);
-        if (MapUtils.isEmpty(conversation.memberIDs)) {
-            return;
-        }
+    private void insertOrUpdateMessage(Conversation conversation, Boolean isAddNew) {
         if(ServiceManager.getInstance().getCurrentDeleteStatus(conversation.deleteStatuses)) {
             if (!isAddNew) {
                 adapter.deleteConversation(conversation.key);
@@ -280,5 +282,69 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();
+    }
+
+    @Override
+    public void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements) {
+        Intent intent = new Intent(getContext(), UserDetailActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, conversation.opponentUser.key);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, conversation.opponentUser);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, sharedElements[1].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
+        startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements) {
+        Intent intent = new Intent(getContext(), GroupProfileActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, conversation.groupID);
+        intent.putExtra(GroupProfileActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
+        startActivityForResult(intent, 123, options.toBundle());
+    }
+
+    @Override
+    public void onOpenChatScreen(Conversation conversation, List<Pair<View, String>> sharedElement) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("CONVERSATION", conversation);
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onSelect(Conversation conversation) {
+        updateEditMenu();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 123) {
+            if (resultCode == Activity.RESULT_OK) {
+                String conversationKey = data.getStringExtra("conversationId");
+                updateConversationWithKey(conversationKey);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void updateConversationWithKey(String conversationKey) {
+        conversationRepository.getConversation(conversationKey, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                if (error == null) {
+                    Conversation conversation = (Conversation) data[0];
+                    insertOrUpdateMessage(conversation, false);
+                }
+            }
+        });
     }
 }

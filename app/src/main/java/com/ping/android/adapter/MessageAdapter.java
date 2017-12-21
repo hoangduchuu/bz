@@ -1,10 +1,9 @@
 package com.ping.android.adapter;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.support.transition.TransitionManager;
+import android.support.v4.util.Pair;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,20 +13,15 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.ping.android.activity.ChatActivity;
-import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,22 +29,21 @@ import java.util.Set;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
+    private static boolean isEditMode = false;
     private ArrayList<Conversation> originalConversations;
     private ArrayList<Conversation> displayConversations;
     private ArrayList<Conversation> selectConversations;
     private User currentUser;
-    private Boolean isEditMode = false;
-    private Activity activity;
-    private ClickListener clickListener;
     private RecyclerView recyclerView;
     private Set<MessageViewHolder> boundsViewHolder = new HashSet<>();
 
-    public MessageAdapter(ArrayList<Conversation> conversations, Activity activity, ClickListener clickListener) {
+    private ConversationItemListener listener;
+
+    public MessageAdapter(ArrayList<Conversation> conversations) {
+        isEditMode = false;
         this.originalConversations = conversations;
         this.displayConversations = (ArrayList<Conversation>) conversations.clone();
         selectConversations = new ArrayList<>();
-        this.activity = activity;
-        this.clickListener = clickListener;
         currentUser = UserManager.getInstance().getUser();
     }
 
@@ -150,9 +143,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyDataSetChanged();
     }
 
-    public void setEditMode(boolean isEditMode) {
-        if (this.isEditMode != isEditMode) {
-            this.isEditMode = isEditMode;
+    public void setEditMode(boolean isOn) {
+        if (isEditMode != isOn) {
+            isEditMode = isOn;
             if (!isEditMode) {
                 selectConversations.clear();
             }
@@ -193,20 +186,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public MessageAdapter.MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_text, parent, false);
-        return new MessageAdapter.MessageViewHolder(view);
-//        if (viewType == Constant.MSG_TYPE_TEXT.intValue()){
-//            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_text,parent,false);
-//            return new MessageAdapter.MessageViewHolder(view);
-//        }else if (viewType == Constant.MSG_TYPE_IMAGE.intValue()){
-//            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_img,parent,false);
-//            return new MessageAdapter.MessageViewHolder(view);
-//        }else if (viewType == Constant.MSG_TYPE_VOICE.intValue()){
-//            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_voice,parent,false);
-//            return new MessageAdapter.MessageViewHolder(view);
-//        }else {
-//            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_game,parent,false);
-//            return new MessageAdapter.MessageViewHolder(view);
-//        }
+        return new MessageAdapter.MessageViewHolder(view, listener);
     }
 
     @Override
@@ -219,7 +199,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
         boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
-        holder.bindData(model);
+        holder.bindData(model, selectConversations.contains(model));
+        holder.setClickListener(conversation -> {
+            boolean status = selectConversations.contains(conversation);
+            if (status) {
+                selectConversations.remove(conversation);
+                holder.rbSelect.setChecked(false);
+            } else {
+                selectConversations.add(conversation);
+                holder.rbSelect.setChecked(true);
+            }
+            if (listener != null) {
+                listener.onSelect(holder.conversation);
+            }
+        });
     }
 
     @Override
@@ -227,24 +220,20 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return displayConversations.size();
     }
 
-    public void updateData(ArrayList<Conversation> conversations) {
-        this.originalConversations = conversations;
-        this.displayConversations = (ArrayList<Conversation>) conversations.clone();
-        notifyDataSetChanged();
+    public void setListener(ConversationItemListener listener) {
+        this.listener = listener;
     }
 
-    public interface ClickListener {
-        void onSelect(ArrayList<Conversation> selectConversations);
-    }
-
-    public class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
         LinearLayout messageItem;
         TextView tvSender, tvMessage, tvTime;
         RadioButton rbSelect;
         Conversation conversation;
+        private ConversationItemListener listener;
+        private ClickListener clickListener;
 
-        public MessageViewHolder(View itemView) {
+        public MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
             messageItem = (LinearLayout) itemView;
             ivProfileImage = (ImageView) itemView.findViewById(R.id.message_item_profile);
@@ -254,6 +243,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             rbSelect = (RadioButton) itemView.findViewById(R.id.message_item_select);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
+            this.listener = listener;
         }
 
         public void setReadStatus(Boolean readStatus) {
@@ -273,6 +263,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 rbSelect.setVisibility(View.VISIBLE);
             } else {
                 rbSelect.setVisibility(View.GONE);
+                rbSelect.setChecked(false);
             }
         }
 
@@ -287,12 +278,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 onClickEditMode(view);
                 return;
             }
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("CONVERSATION", conversation);
-            Intent intent = new Intent(activity, ChatActivity.class);
-            intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
-            intent.putExtras(bundle);
-            activity.startActivity(intent);
+            if (listener != null) {
+                listener.onOpenChatScreen(this.conversation, null);
+            }
         }
 
         private void onClickEditMode(View view) {
@@ -309,19 +297,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     rbSelect.setSelected(isSelect);
                     break;
             }
-            selectConversation();
-        }
-
-        private void selectConversation() {
-            if (rbSelect.isSelected()) {
-                selectConversations.add(conversation);
-            } else {
-                selectConversations.remove(conversation);
+            if (clickListener != null) {
+                clickListener.onSelect(conversation);
             }
-            clickListener.onSelect(selectConversations);
         }
 
-        public void bindData(Conversation model) {
+        public void setClickListener(ClickListener clickListener) {
+            this.clickListener = clickListener;
+        }
+
+        public void bindData(Conversation model, boolean isSelected) {
             this.conversation = model;
             String conversationName = "";
             if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
@@ -334,7 +319,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             String message = "";
             if (model.messageType == Constant.MSG_TYPE_TEXT) {
                 if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
-                    message = ServiceManager.getInstance().encodeMessage(activity, model.message);
+                    message = ServiceManager.getInstance().encodeMessage(itemView.getContext(), model.message);
                 } else {
                     message = model.message;
                 }
@@ -348,23 +333,42 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.tvMessage.setText(message);
             this.setReadStatus(ServiceManager.getInstance().getCurrentReadStatus(model.readStatuses));
             this.setEditMode(isEditMode);
-            this.setSelect(selectConversations.contains(model));
+            this.setSelect(isSelected);
 
+            String imageTransitionKey = "transitionImage" + getAdapterPosition();
+            ivProfileImage.setTransitionName(imageTransitionKey);
             if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                UiUtils.displayProfileImage(activity, ivProfileImage, model.opponentUser);
+                String nameTransitionKey = "transitionName" + getAdapterPosition();
+                tvSender.setTransitionName(nameTransitionKey);
+                UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, model.opponentUser);
                 ivProfileImage.setOnClickListener(v -> {
-                    Intent intent = new Intent(activity, UserDetailActivity.class);
-                    intent.putExtra(Constant.START_ACTIVITY_USER_ID, model.opponentUser.key);
-                    activity.startActivity(intent);
+                    if (listener != null) {
+                        Pair imagePair = Pair.create(ivProfileImage, imageTransitionKey);
+                        Pair namePair = Pair.create(tvSender, nameTransitionKey);
+                        listener.onOpenUserProfile(conversation, imagePair, namePair);
+                    }
                 });
             } else {
+                ViewCompat.setTransitionName(ivProfileImage, model.groupID);
                 ivProfileImage.setOnClickListener(v -> {
-                    Intent intent = new Intent(activity, GroupProfileActivity.class);
-                    intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, model.groupID);
-                    activity.startActivity(intent);
+                    if (listener != null) {
+                        Pair imagePair = Pair.create(ivProfileImage, imageTransitionKey);
+                        listener.onOpenGroupProfile(conversation, imagePair);
+                    }
                 });
                 UiUtils.displayProfileAvatar(ivProfileImage, model.group.groupAvatar);
             }
         }
+    }
+
+    public interface ClickListener {
+        void onSelect(Conversation conversation);
+    }
+
+    public interface ConversationItemListener {
+        void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements);
+        void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements);
+        void onOpenChatScreen(Conversation conversation, List<Pair<View, String>> sharedElements);
+        void onSelect(Conversation conversation);
     }
 }

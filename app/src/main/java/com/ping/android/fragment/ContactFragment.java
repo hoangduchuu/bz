@@ -125,6 +125,7 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     public void onOpenProfile(User contact) {
         Intent intent = new Intent(getActivity(), UserDetailActivity.class);
         intent.putExtra(Constant.START_ACTIVITY_USER_ID, contact.key);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, contact);
         getActivity().startActivity(intent);
     }
 

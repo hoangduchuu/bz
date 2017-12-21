@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupProfileActivity extends CoreActivity implements View.OnClickListener, GroupProfileAdapter.ClickListener{
-
+    public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
     private ImageView groupProfile;
     private EditText groupName;
     private RecyclerView rvListMember;
@@ -67,14 +67,18 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private UserRepository userRepository;
     private MessageRepository messageRepository;
 
+    private boolean shouldUpdate = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_profile);
+        postponeEnterTransition();
         groupID = getIntent().getStringExtra(Constant.START_ACTIVITY_GROUP_ID);
         currentUser = UserManager.getInstance().getUser();
 
         bindViews();
+
         bzzzStorage = new BzzzStorage();
         groupRepository = new GroupRepository();
         conversationRepository = new ConversationRepository();
@@ -99,12 +103,6 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         DatabaseReference groupReference = groupRepository.getDatabaseReference().child(groupID);
         groupReference.addValueEventListener(listener);
         databaseReferences.put(groupReference, listener);
-    }
-
-    @Override
-    protected void onPause() {
-        updateGroupName();
-        super.onPause();
     }
 
     private void initConversationData() {
@@ -195,6 +193,11 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    @Override
+    public void onBackPressed() {
+        onBack();
+    }
+
     private void bindViews() {
         groupProfile = (ImageView) findViewById(R.id.group_profile_image);
         groupProfile.setOnClickListener(this);
@@ -212,6 +215,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         findViewById(R.id.group_profile_back).setOnClickListener(this);
         findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
+
+        String transitionName = getIntent().getStringExtra(EXTRA_IMAGE_KEY);
+        groupProfile.setTransitionName(transitionName);
     }
 
     private void bindData() {
@@ -219,7 +225,12 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
         groupName.setText(group.groupName);
-        UiUtils.displayProfileAvatar(groupProfile, group.groupAvatar);
+        UiUtils.displayProfileAvatar(groupProfile, group.groupAvatar, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                startPostponedEnterTransition();
+            }
+        });
         swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         cbPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
@@ -239,8 +250,14 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void onBack() {
-        if(updateGroupName())
-            finish();
+        if(updateGroupName()) {
+            if (shouldUpdate) {
+                Intent data = new Intent();
+                data.putExtra("conversationId", conversation.key);
+                setResult(RESULT_OK, data);
+            }
+            supportFinishAfterTransition();
+        }
     }
 
     private boolean updateGroupName() {
@@ -252,8 +269,10 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
             return false;
         }
 
-        if(!group.groupName.equals(groupName.getText().toString()))
+        if(!group.groupName.equals(groupName.getText().toString())) {
             ServiceManager.getInstance().renameGroup(group, groupName.getText().toString());
+            shouldUpdate = true;
+        }
         return true;
     }
 
@@ -282,6 +301,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                                 if (error == null) {
                                     String profileImage = (String) data[0];
                                     ServiceManager.getInstance().updateGroupAvatar(groupID, group.memberIDs.keySet(), profileImage);
+                                    shouldUpdate = true;
                                 }
                             }
                         });

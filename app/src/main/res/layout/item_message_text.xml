@@ -24,6 +24,7 @@
             android:id="@+id/message_item_profile"
             android:layout_width="@dimen/user_profile_icon_width"
             android:layout_height="@dimen/user_profile_icon_height"
+            android:transitionName="profile"
             android:src="@drawable/ic_avatar_gray" />
 
         <RelativeLayout

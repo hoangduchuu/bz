@@ -18,7 +18,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.ObjectKey;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -118,6 +122,43 @@ public class UiUtils {
         }
     }
 
+    public static void displayProfileImage(final ImageView imageView, User user, Callback callback) {
+        boolean showProfile = true;
+        if (user != null && user.settings != null && user.settings.private_profile) {
+            showProfile = false;
+        }
+        if (user != null && StringUtils.isNotEmpty(user.profile) && showProfile) {
+            Log.d(user.profile);
+
+            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
+            GlideApp.with(imageView.getContext())
+                    .load(gsReference)
+                    .error(R.drawable.ic_avatar_gray)
+                    .apply(RequestOptions.circleCropTransform())
+                    .dontAnimate()
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            if (callback != null) {
+                                callback.complete(null);
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            if (callback != null) {
+                                callback.complete(null);
+                            }
+                            return false;
+                        }
+                    })
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(IMG_DEFAULT);
+        }
+    }
+
     public static void displayProfileAvatar(ImageView imageView, File filePath) {
         if (filePath == null) {
             imageView.setImageResource(IMG_DEFAULT);
@@ -138,6 +179,35 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
+                .into(imageView);
+    }
+
+    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, Callback callback) {
+        if (TextUtils.isEmpty(firebaseUrl)) {
+            imageView.setImageResource(IMG_DEFAULT);
+            if (callback != null) {
+                callback.complete(null);
+            }
+            return;
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
+        GlideApp.with(imageView.getContext())
+                .load(gsReference)
+                .apply(RequestOptions.circleCropTransform())
+                .dontAnimate()
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        callback.complete(e);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        callback.complete(null);
+                        return false;
+                    }
+                })
                 .into(imageView);
     }
 
