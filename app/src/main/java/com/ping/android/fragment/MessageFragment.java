@@ -3,7 +3,6 @@ package com.ping.android.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -42,15 +41,12 @@ import com.ping.android.ultility.Constant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageFragment extends Fragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
+public class MessageFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private DatabaseReference mMessageDatabase;
-    private ChildEventListener observeConversationEvent;
 
     private LinearLayoutManager linearLayoutManager;
     private SearchView searchView;
@@ -73,14 +69,6 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
         init();
         bindData();
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mMessageDatabase != null) {
-            mMessageDatabase.removeEventListener(observeConversationEvent);
-        }
     }
 
     @Override
@@ -169,7 +157,7 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void observeMessages() {
-        observeConversationEvent = new ChildEventListener() {
+        ChildEventListener observeConversationEvent = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Conversation conversation = Conversation.from(dataSnapshot);
@@ -204,10 +192,44 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
 
             }
         };
-        mMessageDatabase = userRepository.getDatabaseReference()
+        DatabaseReference conversationRef = userRepository.getDatabaseReference()
                 .child(currentUser.key)
                 .child("conversations");
-        mMessageDatabase.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
+        conversationRef.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
+        databaseReferences.put(conversationRef, observeConversationEvent);
+
+        ChildEventListener groupEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Group group = Group.from(dataSnapshot);
+                adapter.updateGroupConversation(group);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        DatabaseReference groupRef = userRepository.getDatabaseReference()
+                .child(currentUser.key)
+                .child("groups");
+        groupRef.addChildEventListener(groupEventListener);
+        databaseReferences.put(groupRef, groupEventListener);
     }
 
     private void insertOrUpdateMessage(Conversation conversation, Boolean isAddNew) {
@@ -323,28 +345,5 @@ public class MessageFragment extends Fragment implements View.OnClickListener, M
     @Override
     public void onSelect(Conversation conversation) {
         updateEditMenu();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 123) {
-            if (resultCode == Activity.RESULT_OK) {
-                String conversationKey = data.getStringExtra("conversationId");
-                updateConversationWithKey(conversationKey);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void updateConversationWithKey(String conversationKey) {
-        conversationRepository.getConversation(conversationKey, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    Conversation conversation = (Conversation) data[0];
-                    insertOrUpdateMessage(conversation, false);
-                }
-            }
-        });
     }
 }

@@ -67,8 +67,6 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private UserRepository userRepository;
     private MessageRepository messageRepository;
 
-    private boolean shouldUpdate = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,11 +249,6 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
 
     private void onBack() {
         if(updateGroupName()) {
-            if (shouldUpdate) {
-                Intent data = new Intent();
-                data.putExtra("conversationId", conversation.key);
-                setResult(RESULT_OK, data);
-            }
             supportFinishAfterTransition();
         }
     }
@@ -271,7 +264,6 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
 
         if(!group.groupName.equals(groupName.getText().toString())) {
             ServiceManager.getInstance().renameGroup(group, groupName.getText().toString());
-            shouldUpdate = true;
         }
         return true;
     }
@@ -301,7 +293,6 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                                 if (error == null) {
                                     String profileImage = (String) data[0];
                                     ServiceManager.getInstance().updateGroupAvatar(groupID, group.memberIDs.keySet(), profileImage);
-                                    shouldUpdate = true;
                                 }
                             }
                         });

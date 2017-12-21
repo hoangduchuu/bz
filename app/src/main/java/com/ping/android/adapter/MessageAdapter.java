@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
@@ -222,6 +223,28 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void setListener(ConversationItemListener listener) {
         this.listener = listener;
+    }
+
+    public void updateGroupConversation(Group group) {
+        Conversation updateConversation = null;
+        int index = -1;
+        for (int i = 0, size = originalConversations.size(); i < size; i++) {
+            if (originalConversations.get(i).key.equals(group.conversationID)) {
+                updateConversation = originalConversations.get(i);
+                index = i;
+                break;
+            }
+        }
+        if (updateConversation != null) {
+            int displayIndex = displayConversations.indexOf(updateConversation);
+            // Update data for original list
+            updateConversation.group = group;
+            originalConversations.set(index, updateConversation);
+            if (displayIndex >= 0 && displayIndex < displayConversations.size()) {
+                displayConversations.set(displayIndex, updateConversation);
+                notifyItemChanged(displayIndex);
+            }
+        }
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
