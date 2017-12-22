@@ -19,6 +19,8 @@ import com.ping.android.activity.LoadingActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
+import com.ping.android.utils.SharedPrefsHelper;
+import com.quickblox.chat.QBChatService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jivesoftware.smack.chat.Chat;
@@ -50,7 +52,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void postNotification(JSONObject notification, String conversationId, Context context) throws JSONException {
 
-        if (UserManager.getInstance().getUser() == null){
+        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
             return;
         }
         boolean soundNotification = UserManager.getInstance().getUser().settings.notification;

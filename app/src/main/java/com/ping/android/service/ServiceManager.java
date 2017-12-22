@@ -31,6 +31,7 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
@@ -118,6 +119,7 @@ public class ServiceManager {
         if (!status) {
             currentUser = null;
         }
+        SharedPrefsHelper.getInstance().save("isLoggedIn", status);
     }
 
 
