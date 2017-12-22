@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.transition.Fade;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
@@ -14,7 +15,6 @@ import com.ping.android.utils.UiUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class PuzzleActivity extends CoreActivity implements View.OnClickListener {
-
     private ImageView btBack;
     private ToggleButton btPuzzle;
     private ImageView ivPuzzle;
@@ -33,6 +33,7 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         imageURL = getIntent().getStringExtra("IMAGE_URL");
         localImage = getIntent().getStringExtra("LOCAL_IMAGE");
         puzzledstatus = getIntent().getBooleanExtra("PUZZLE_STATUS", true);
+        supportPostponeEnterTransition();
         bindViews();
         displayImage();
     }
@@ -51,17 +52,19 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         btPuzzle = findViewById(R.id.puzzle_toggle);
         btPuzzle.setOnClickListener(this);
         ivPuzzle = findViewById(R.id.puzzle_image);
+        ivPuzzle.setTransitionName(messageID);
     }
 
     private void displayImage() {
         if (TextUtils.isEmpty(localImage)) {
-            Drawable drawable = null;
             UiUtils.loadImage(ivPuzzle, imageURL, messageID, puzzledstatus, (error, data) -> {
                 if (error == null) {
                     Bitmap bitmap = (Bitmap) data[0];
                     ivPuzzle.setImageBitmap(bitmap);
                     btPuzzle.setChecked(!puzzledstatus);
+                    ivPuzzle.requestLayout();
                 }
+                supportStartPostponedEnterTransition();
             });
         } else {
             UiUtils.loadImageFromFile(ivPuzzle, localImage, messageID, puzzledstatus, (error, data) -> {
@@ -69,7 +72,9 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
                     Bitmap bitmap = (Bitmap) data[0];
                     ivPuzzle.setImageBitmap(bitmap);
                     btPuzzle.setChecked(!puzzledstatus);
+                    ivPuzzle.requestLayout();
                 }
+                supportStartPostponedEnterTransition();
             });
         }
     }
@@ -87,14 +92,13 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     }
 
     public void exit() {
-        finish();
+        supportFinishAfterTransition();
     }
 
     public void puzzleImage() {
         puzzledstatus = !btPuzzle.isChecked();
         displayImage();
 
-        //ivPuzzle.postInvalidate();
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
         }

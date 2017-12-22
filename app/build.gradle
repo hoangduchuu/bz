@@ -27,8 +27,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 22
-        versionName "0.1.7"
+        versionCode 24
+        versionName "0.1.9"
         multiDexEnabled true
     }
     buildTypes {
@@ -91,6 +91,7 @@ dependencies {
     implementation('com.firebaseui:firebase-ui-storage:3.1.0') {
         exclude group: 'com.android.support'
     }
+    implementation 'com.google.firebase:firebase-config:11.6.2'
 
     //Places SERVICES
 

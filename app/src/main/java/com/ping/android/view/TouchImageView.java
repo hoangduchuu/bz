@@ -15,6 +15,7 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -156,9 +157,14 @@ public class TouchImageView extends android.support.v7.widget.AppCompatImageView
 
     @Override
     public void setImageBitmap(Bitmap bm) {
-        super.setImageBitmap(bm);
         bmWidth = bm.getWidth();
         bmHeight = bm.getHeight();
+        super.setImageBitmap(bm);
+    }
+
+    @Override
+    public void setImageDrawable(@Nullable Drawable drawable) {
+        super.setImageDrawable(drawable);
     }
 
     public void setMaxZoom(float x) {

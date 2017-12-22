@@ -7,9 +7,11 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.support.transition.TransitionManager;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -578,7 +580,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             intent.putExtra("IMAGE_URL", imageURL);
             intent.putExtra("LOCAL_IMAGE", localImage);
             intent.putExtra("PUZZLE_STATUS", isPuzzled);
-            activity.startActivity(intent);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, ivChatPhoto, message.key);
+            activity.startActivity(intent, options.toBundle());
         }
 
         private void unPuzzleGame(String imageURL, Boolean isPuzzled) {
@@ -686,13 +689,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
+            String imageName = "imageProfile" + getAdapterPosition();
             ivChatProfile.setOnClickListener(v -> {
                 Intent intent = new Intent(activity, UserDetailActivity.class);
                 intent.putExtra(Constant.START_ACTIVITY_USER_ID, message.sender.key);
                 intent.putExtra(UserDetailActivity.EXTRA_USER, message.sender);
-                activity.startActivity(intent);
+                intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, imageName);
+                intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "");
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        activity,
+                        ivChatProfile, imageName
+                );
+                activity.startActivity(intent, options.toBundle());
             });
-
+            ivChatProfile.setTransitionName(imageName);
             UiUtils.displayProfileImage(activity, ivChatProfile, message.sender);
         }
 
@@ -704,7 +714,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (orginalConversation != null
                     && !currentUserID.equals(message.senderId)
                     && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                tvInfo.setText(message.sender != null ? message.sender.getDisplayName() : message.senderName + " " + time);
+                String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
+                tvInfo.setText(senderName + ", " + time);
             } else {
                 tvInfo.setText(time);
             }
@@ -739,6 +750,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             setInfo();
             if (model.messageType == Constant.MSG_TYPE_VOICE) {
                 setAudioSrc(model.audioUrl);
+            }
+            if (ivChatPhoto != null) {
+                ivChatPhoto.setTransitionName(message.key);
             }
             if (model.messageType == Constant.MSG_TYPE_IMAGE) {
                 if (!TextUtils.isEmpty(model.localImage)) {
