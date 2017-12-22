@@ -2,7 +2,9 @@ package com.ping.android.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -122,11 +124,17 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     }
 
     @Override
-    public void onOpenProfile(User contact) {
+    public void onOpenProfile(User contact, Pair<View, String>... sharedElements) {
         Intent intent = new Intent(getActivity(), UserDetailActivity.class);
         intent.putExtra(Constant.START_ACTIVITY_USER_ID, contact.key);
         intent.putExtra(UserDetailActivity.EXTRA_USER, contact);
-        getActivity().startActivity(intent);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, sharedElements[1].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
+        startActivity(intent, options.toBundle());
     }
 
     private void bindViews(View view) {
