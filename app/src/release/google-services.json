@@ -1,30 +1,27 @@
 {
   "project_info": {
-    "project_number": "5791510531",
-    "firebase_url": "https://ping-android-dev.firebaseio.com",
-    "project_id": "ping-android-dev",
-    "storage_bucket": "ping-android-dev.appspot.com"
+    "project_number": "676042012239",
+    "firebase_url": "https://bzzz-551b5.firebaseio.com",
+    "project_id": "bzzz-551b5",
+    "storage_bucket": "bzzz-551b5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:5791510531:android:4b6b74714f52fb73",
+        "mobilesdk_app_id": "1:676042012239:android:4b6b74714f52fb73",
         "android_client_info": {
           "package_name": "com.ping.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "5791510531-5luhb0aupa0vmadeiv6v0oaj94pkb0di.apps.googleusercontent.com",
+          "client_id": "676042012239-h6jkfqcdqji98h0uhb2r0llnkk8sdqpk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyChT_BI0Jm7Ab131knmrOeBnXUCaOqyvcQ"
-        },
-        {
-          "current_key": "AIzaSyB2UMNYq4n2hWgOwJyiOOLTfBo_WRsBrR4"
+          "current_key": "AIzaSyB6TLOvtKoNLoz_GeSYQm3nSjo3-K417Cs"
         }
       ],
       "services": {
