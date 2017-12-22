@@ -2,7 +2,8 @@ package com.ping.android.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -136,7 +137,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         groupRepository = new GroupRepository();
         userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
-        adapter = new GroupAdapter(getContext(), this);
+        adapter = new GroupAdapter(this);
         getGroup();
     }
 
@@ -292,10 +293,13 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     @Override
-    public void onViewProfile(Group group) {
+    public void onViewProfile(Group group, Pair<View, String>... sharedElements) {
         Intent intent = new Intent(getContext(), GroupProfileActivity.class);
         intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, group.key);
-        getContext().startActivity(intent);
+        intent.putExtra(GroupProfileActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat
+                .makeSceneTransitionAnimation(getActivity(), sharedElements);
+        startActivity(intent, options.toBundle());
     }
 
     @Override

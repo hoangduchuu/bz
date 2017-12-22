@@ -31,12 +31,19 @@
 
         </RelativeLayout>
 
-        <com.ping.android.view.TouchImageView
-            android:id="@+id/puzzle_image"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center"/>
+            android:gravity="center">
 
+            <com.ping.android.view.TouchImageView
+                android:id="@+id/puzzle_image"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:src="@drawable/img_loading_bottom"
+                android:adjustViewBounds="true"/>
+        </LinearLayout>
     </LinearLayout>
 
     <include layout="@layout/notify_network_other" />

@@ -1,6 +1,7 @@
 package com.ping.android.adapter;
 
 import android.content.Context;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -28,14 +29,12 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     private ArrayList<Group> displayGroups;
     private ArrayList<Group> selectGroups;
     private Boolean isEditMode = false;
-    private Context mContext;
     private ClickListener clickListener;
 
-    public GroupAdapter(Context context, ClickListener clickListener) {
+    public GroupAdapter(ClickListener clickListener) {
         originalGroups = new ArrayList<>();
         displayGroups = new ArrayList<>();
         selectGroups = new ArrayList<>();
-        mContext = context;
         this.clickListener = clickListener;
     }
 
@@ -176,7 +175,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     public interface ClickListener {
         void onSendMessage(Group group);
-        void onViewProfile(Group group);
+        void onViewProfile(Group group, Pair<View, String>... sharedElements);
         void onSelect(ArrayList<Group> groups);
     }
 
@@ -206,7 +205,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             }
 
             if (view.getId() == R.id.group_item_profile) {
-                clickListener.onViewProfile(group);
+                Pair imagePair = Pair.create(ivProfileImage, "imageProfile" + getAdapterPosition());
+                clickListener.onViewProfile(group, imagePair);
             }
             else {
                 clickListener.onSendMessage(group);
@@ -257,6 +257,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 displayNames.add(ServiceManager.getInstance().getFirstName(contact));
             }
             tvGroupMember.setText(TextUtils.join(", ", displayNames));
+            ivProfileImage.setTransitionName("imageProfile" + getAdapterPosition());
             UiUtils.displayProfileAvatar(ivProfileImage, group.groupAvatar);
             tvCreateTime.setText("Created: " + CommonMethod.convertTimestampToDate(group.timestamp).toString());
             setEditMode(isEditMode);

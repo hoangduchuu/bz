@@ -1,6 +1,7 @@
 package com.ping.android.adapter;
 
 import android.content.Context;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,6 +97,8 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         holder.tvName.setText(contact.getDisplayName());
         holder.contact = contact;
         //holder.tgStatus.setChecked(contact.loginStatus);
+        holder.tvName.setTransitionName("contactName" + position);
+        holder.ivProfileImage.setTransitionName("imageProfile" + position);
         UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
     }
 
@@ -108,7 +111,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         void onSendMessage(User contact);
         void onVoiceCall(User contact);
         void onVideoCall(User contact);
-        void onOpenProfile(User contact);
+        void onOpenProfile(User contact, Pair<View, String>... sharedElements);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -141,7 +144,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
                     mClickListener.onSendMessage(contact);
                     break;
                 default:
-                    mClickListener.onOpenProfile(contact);
+                    Pair imagePair = Pair.create(ivProfileImage, "imageProfile" + getAdapterPosition());
+                    Pair namePair = Pair.create(tvName, "contactName" + getAdapterPosition());
+                    mClickListener.onOpenProfile(contact, imagePair, namePair);
             }
         }
     }
