@@ -52,9 +52,6 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void postNotification(JSONObject notification, String conversationId, Context context) throws JSONException {
 
-        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
-            return;
-        }
         boolean soundNotification = UserManager.getInstance().getUser().settings.notification;
         String title = notification.getString("title");
         String body = notification.getString("body");
@@ -114,6 +111,11 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private boolean needDisplayNotification(String conversationId){
         Activity activeActivity = App.getActiveActivity();
+        //do not display notification if user already logged out
+        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
+            return false;
+        }
+        //do not display notification if user is opening same conversation
         if (activeActivity != null && activeActivity instanceof ChatActivity){
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
