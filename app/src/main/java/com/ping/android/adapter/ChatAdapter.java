@@ -7,9 +7,11 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.support.transition.TransitionManager;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -578,7 +580,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             intent.putExtra("IMAGE_URL", imageURL);
             intent.putExtra("LOCAL_IMAGE", localImage);
             intent.putExtra("PUZZLE_STATUS", isPuzzled);
-            activity.startActivity(intent);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, ivChatPhoto, message.key);
+            activity.startActivity(intent, options.toBundle());
         }
 
         private void unPuzzleGame(String imageURL, Boolean isPuzzled) {
@@ -739,6 +742,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             setInfo();
             if (model.messageType == Constant.MSG_TYPE_VOICE) {
                 setAudioSrc(model.audioUrl);
+            }
+            if (ivChatPhoto != null) {
+                ivChatPhoto.setTransitionName(message.key);
             }
             if (model.messageType == Constant.MSG_TYPE_IMAGE) {
                 if (!TextUtils.isEmpty(model.localImage)) {
