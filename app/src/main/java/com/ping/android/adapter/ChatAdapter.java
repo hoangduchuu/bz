@@ -689,13 +689,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 return;
             }
 
+            String imageName = "imageProfile" + getAdapterPosition();
             ivChatProfile.setOnClickListener(v -> {
                 Intent intent = new Intent(activity, UserDetailActivity.class);
                 intent.putExtra(Constant.START_ACTIVITY_USER_ID, message.sender.key);
                 intent.putExtra(UserDetailActivity.EXTRA_USER, message.sender);
-                activity.startActivity(intent);
+                intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, imageName);
+                intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "");
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        activity,
+                        ivChatProfile, imageName
+                );
+                activity.startActivity(intent, options.toBundle());
             });
-
+            ivChatProfile.setTransitionName(imageName);
             UiUtils.displayProfileImage(activity, ivChatProfile, message.sender);
         }
 
