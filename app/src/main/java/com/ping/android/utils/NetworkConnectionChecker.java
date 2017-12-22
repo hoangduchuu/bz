@@ -1,4 +1,4 @@
-package com.ping.android.util;
+package com.ping.android.utils;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;

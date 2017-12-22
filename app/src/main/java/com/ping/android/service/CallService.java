@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.ping.android.ultility.Consts;
-import com.ping.android.util.ChatPingAlarmManager;
+import com.ping.android.managers.ChatPingAlarmManager;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.WebRtcSessionManager;
 import com.quickblox.chat.QBChatService;

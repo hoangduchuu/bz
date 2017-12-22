@@ -29,7 +29,7 @@ public class BzzzStorage {
 
     public void uploadImageForConversation(String conversationId, @NonNull File file, @NonNull Callback callback) {
         String conversationImagePath = "conversations/" + conversationId + "/" + System.currentTimeMillis() + file.getName();
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(conversationImagePath);
+        StorageReference photoRef = storage.getReference().child(conversationImagePath);
         UploadTask uploadTask = photoRef.putFile(Uri.fromFile(file));
         uploadTask
                 .addOnFailureListener(e -> {
@@ -37,7 +37,7 @@ public class BzzzStorage {
                     callback.complete(e);
                 })
                 .addOnSuccessListener(taskSnapshot -> {
-                    String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
+                    String downloadUrl = getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath();
                     callback.complete(null, downloadUrl);
                 });
     }
@@ -45,19 +45,19 @@ public class BzzzStorage {
     public void uploadGroupAvatar(String groupId, File file, Callback callback) {
         String fileName = System.currentTimeMillis() + file.getName();
         String imageStoragePath = "groups" + File.separator + groupId + File.separator + fileName;
-        StorageReference photoRef = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(imageStoragePath);
+        StorageReference photoRef = storage.getReference().child(imageStoragePath);
         UploadTask uploadTask = photoRef.putFile(Uri.fromFile(file));
         uploadTask.addOnFailureListener(e -> {
             e.printStackTrace();
             callback.complete(e);
         }).addOnSuccessListener(taskSnapshot -> {
-            String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + taskSnapshot.getMetadata().getPath();
+            String downloadUrl = getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath();
             callback.complete(null, downloadUrl);
         });
     }
 
     public void uploadFile(String storagePath, File file, @NonNull Callback callback) {
-        StorageReference reference = storage.getReferenceFromUrl(Constant.URL_STORAGE_REFERENCE).child(storagePath);
+        StorageReference reference = storage.getReference().child(storagePath);
         UploadTask uploadTask = reference.putFile(Uri.fromFile(file));
         uploadTask
                 .addOnFailureListener(e -> {
@@ -67,11 +67,15 @@ public class BzzzStorage {
                 .addOnSuccessListener(taskSnapshot -> {
                     StorageMetadata metadata = taskSnapshot.getMetadata();
                     if (metadata != null) {
-                        String downloadUrl = Constant.URL_STORAGE_REFERENCE + "/" + metadata.getPath();
+                        String downloadUrl = getStorageRoot() + "/" + metadata.getPath();
                         callback.complete(null, downloadUrl);
                     } else {
                         callback.complete(new Error());
                     }
                 });
+    }
+
+    public String getStorageRoot(){
+        return String.format("gs://%s", storage.getReference().getBucket());
     }
 }

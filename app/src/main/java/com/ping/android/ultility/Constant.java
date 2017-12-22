@@ -40,7 +40,7 @@ public class Constant {
 
     public static final String IMAGE_PREFIX = "PPhtotoMessageIdentifier";
 
-    public static final String URL_STORAGE_REFERENCE = "gs://ping-android-dev.appspot.com";
+    //public static final String URL_STORAGE_REFERENCE = "gs://ping-android-dev.appspot.com";
 
     public static final String PREFS_NAME = "PingPrefsFile";
     public static final String PREFS_KEY_MESSAGE_COUNT = "MESSAGE_COUNT";

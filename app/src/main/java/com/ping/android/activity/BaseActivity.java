@@ -10,7 +10,7 @@ import android.view.View;
 import com.ping.android.App;
 import com.ping.android.gcm.GooglePlayServicesHelper;
 import com.ping.android.ultility.Constant;
-import com.ping.android.util.QBResRequestExecutor;
+import com.ping.android.utils.QBResRequestExecutor;
 import com.ping.android.utils.ErrorUtils;
 import com.ping.android.utils.SharedPrefsHelper;
 

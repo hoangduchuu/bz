@@ -16,8 +16,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.ping.android.activity.BuildConfig;
 import com.ping.android.activity.R;
-import com.ping.android.util.QBResRequestExecutor;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.QBResRequestExecutor;
 
 import java.io.File;
 import java.util.HashMap;

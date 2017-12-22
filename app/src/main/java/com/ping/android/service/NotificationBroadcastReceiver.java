@@ -19,6 +19,8 @@ import com.ping.android.activity.LoadingActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
+import com.ping.android.utils.SharedPrefsHelper;
+import com.quickblox.chat.QBChatService;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jivesoftware.smack.chat.Chat;
@@ -50,9 +52,6 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void postNotification(JSONObject notification, String conversationId, Context context) throws JSONException {
 
-        if (UserManager.getInstance().getUser() == null){
-            return;
-        }
         boolean soundNotification = UserManager.getInstance().getUser().settings.notification;
         String title = notification.getString("title");
         String body = notification.getString("body");
@@ -112,6 +111,11 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private boolean needDisplayNotification(String conversationId){
         Activity activeActivity = App.getActiveActivity();
+        //do not display notification if user already logged out
+        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
+            return false;
+        }
+        //do not display notification if user is opening same conversation
         if (activeActivity != null && activeActivity instanceof ChatActivity){
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
