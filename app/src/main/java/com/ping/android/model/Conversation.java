@@ -140,8 +140,8 @@ public class Conversation implements Parcelable {
         defaultTrueValues.put(toUserId, true);
 
         HashMap<String, Boolean> defaultFalseValues = new HashMap<>();
-        defaultFalseValues.put(fromUserId, true);
-        defaultFalseValues.put(toUserId, true);
+        defaultFalseValues.put(fromUserId, false);
+        defaultFalseValues.put(toUserId, false);
 
         conversation.memberIDs = defaultTrueValues;
         conversation.markStatuses = defaultTrueValues;
