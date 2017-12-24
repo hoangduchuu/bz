@@ -14,7 +14,7 @@ android {
         config {
             keyAlias 'key0'
             keyPassword '123456'
-            storeFile file('/Users/macbook/bzzz-android-key')
+            storeFile file('./bzzz-android-key')
             storePassword '123456'
         }
     }
@@ -27,8 +27,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 24
-        versionName "0.1.9"
+        versionCode 27
+        versionName "1.0.1"
         multiDexEnabled true
     }
     buildTypes {

@@ -3,6 +3,7 @@ package com.ping.android.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -17,8 +18,6 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class PhoneActivity extends CoreActivity implements View.OnClickListener {
 
@@ -61,7 +60,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
     private void setDefaultCountryCode() {
         TelephonyManager tm = (TelephonyManager) getSystemService(getApplicationContext().TELEPHONY_SERVICE);
         String countryCode = tm.getNetworkCountryIso().toUpperCase();
-        if (StringUtils.isNoneBlank(countryCode)) {
+        if (!TextUtils.isEmpty(countryCode)) {
             countryCodePicker.setDefaultCountryUsingNameCode(countryCode);
             countryCodePicker.resetToDefaultCountry();
         }
@@ -69,7 +68,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
 
     private void registerPhone() {
         String phone = etPhone.getText().toString().trim();
-        if (StringUtils.isEmpty(phone)) {
+        if (TextUtils.isEmpty(phone)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_phone), Toast.LENGTH_SHORT).show();
             return;
         }

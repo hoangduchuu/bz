@@ -268,35 +268,37 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         firstName = CommonMethod.capitalFirstLetter(firstName);
         lastName = CommonMethod.capitalFirstLetter(lastName);
         User user = new User(firstName, lastName, pingId, email, CommonMethod.encryptPassword(password));
+        mDatabase.child("ping_id_lookup").child(pingId).setValue(firebaseUser.getUid()).addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                hideLoading();
+                Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
+                        Toast.LENGTH_SHORT).show();
+                firebaseUser.delete();
+            } else {
+                mDatabase.child("users").child(firebaseUser.getUid()).setValue(user.toMap()).addOnCompleteListener(RegistrationActivity.this, task1 -> {
+                    if (!task1.isSuccessful()) {
+                        hideLoading();
+                        Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
+                                Toast.LENGTH_SHORT).show();
+                        firebaseUser.delete();
+                    } else {
+                        UserManager.getInstance().initialize((error, data) -> {
+                            if (error == null) {
+                                hideLoading();
+                                ServiceManager.getInstance().updateLoginStatus(true);
 
-        mDatabase.child("users").child(firebaseUser.getUid()).setValue(user.toMap())
-                .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            hideLoading();
-                            Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
-                                    Toast.LENGTH_SHORT).show();
-                            firebaseUser.delete();
-                        } else {
-                            UserManager.getInstance().initialize(new Callback() {
-                                @Override
-                                public void complete(Object error, Object... data) {
-                                    if (error == null) {
-                                        hideLoading();
-                                        ServiceManager.getInstance().updateLoginStatus(true);
+                                QBUser qbUser = (QBUser) data[0];
+                                startCallService(qbUser);
 
-                                        QBUser qbUser = (QBUser) data[0];
-                                        startCallService(qbUser);
-
-                                        startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
-                                        finish();
-                                    }
-                                }
-                            });
-                        }
+                                startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
+                                finish();
+                            }
+                        });
                     }
                 });
+            }
+        });
+
     }
 
     private void startCallService(QBUser qbUser) {
