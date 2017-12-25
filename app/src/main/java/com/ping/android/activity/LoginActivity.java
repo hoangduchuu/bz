@@ -221,6 +221,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
                 hideLoading();
                 if (error == null) {
                     ServiceManager.getInstance().updateLoginStatus(true);
+                    userRepository.updateRefreshToken();
 
                     QBUser qbUser = (QBUser) data[0];
                     startCallService(qbUser);

@@ -206,6 +206,8 @@
             android:theme="@style/AppTheme.Fullscreen"
             android:screenOrientation="portrait" />
 
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6adab05c8d640a679fc4d84fbd8f8047827b4d1c" />

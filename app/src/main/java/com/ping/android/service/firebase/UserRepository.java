@@ -111,6 +111,14 @@ public class UserRepository extends BaseFirebaseDatabase {
                 });
     }
 
+    public void updateRefreshToken() {
+        databaseReference.child(currentUserId()).child("refreshedToken").setValue(currentUserId());
+    }
+
+    public void deleteRefreshToken() {
+        databaseReference.child(currentUserId()).child("refreshedToken").removeValue();
+    }
+
     public void registerUserPresence() {
         if (firebaseUser != null) {
             Log.d(firebaseUser.getUid());

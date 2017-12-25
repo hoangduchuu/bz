@@ -88,7 +88,7 @@ public class UserManager {
         userRepository.initializeUser((error, data) -> {
             if (error == null) {
                 user = (User) data[0];
-                userRepository.registerUserPresence();
+                //userRepository.registerUserPresence();
                 if (user.quickBloxID <= 0) {
                     quickBloxRepository.signUpNewUserQB(user, qbCallback);
                 } else {
@@ -98,11 +98,11 @@ public class UserManager {
                 callback.complete(error, data);
             }
         });
-        presenceRepository.listenStatusChange((error, data) -> {
-            if (error == null) {
-                userRepository.registerUserPresence();
-            }
-        });
+//        presenceRepository.listenStatusChange((error, data) -> {
+//            if (error == null) {
+//                userRepository.registerUserPresence();
+//            }
+//        });
     }
 
     private void onBlocksUpdated(Map<String, Object> blocks) {
@@ -200,6 +200,7 @@ public class UserManager {
     }
 
     public void logout(Context context) {
+        userRepository.deleteRefreshToken();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
         SubscribeService.unSubscribeFromPushes(context);

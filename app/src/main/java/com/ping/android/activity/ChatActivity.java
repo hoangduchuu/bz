@@ -222,16 +222,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        messageRepository.getDatabaseReference().removeEventListener(observeChatEvent);
-        if (originalConversation != null && originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
-                    .child("loginStatus").removeEventListener(observeStatusEvent);
-        }
-    }
-
-    @Override
     public void onClick(View view) {
         int viewId = view.getId();
 
@@ -648,11 +638,13 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeStatusEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean isOnline = false;
                 if (dataSnapshot.exists()) {
-                    tvChatStatus.setText("Online");
-                } else {
-                    tvChatStatus.setText("Offline");
+                    String value = (String) dataSnapshot.getValue();
+                    isOnline = !TextUtils.isEmpty(value);
+
                 }
+                tvChatStatus.setText(isOnline ? "Online" : "Offline");
             }
 
             @Override
@@ -820,10 +812,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                         }
 
                         // Listen for data changes
-                        messageRepository.getDatabaseReference()
-                                .orderByChild("timestamp")
+                        DatabaseReference messageReference = messageRepository.getDatabaseReference();
+                        messageReference.orderByChild("timestamp")
                                 .limitToLast(Constant.LATEST_RECENT_MESSAGES)
                                 .addChildEventListener(observeChatEvent);
+                        databaseReferences.put(messageReference, observeChatEvent);
                     }
 
                     @Override
@@ -968,8 +961,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void observeStatus() {
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
-                    .child("connections").addValueEventListener(observeStatusEvent);
+            DatabaseReference statusRef = userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
+                    .child("refreshedToken");
+            statusRef.addValueEventListener(observeStatusEvent);
+            databaseReferences.put(statusRef, observeStatusEvent);
         } else {
             tvChatStatus.setVisibility(View.GONE);
         }

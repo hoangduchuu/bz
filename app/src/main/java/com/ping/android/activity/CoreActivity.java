@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.fragment.LoadingDialog;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
 
     private NetworkConnectionChecker networkConnectionChecker;
-    protected Map<DatabaseReference, ValueEventListener> databaseReferences = new HashMap<>();
+    protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,12 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
     protected void onDestroy() {
         super.onDestroy();
         for (DatabaseReference reference : databaseReferences.keySet()) {
-            reference.removeEventListener(databaseReferences.get(reference));
+            Object listener = databaseReferences.get(reference);
+            if (listener instanceof ChildEventListener) {
+                reference.removeEventListener((ChildEventListener) listener);
+            } else if (listener instanceof ValueEventListener) {
+                reference.removeEventListener((ValueEventListener) listener);
+            }
         }
     }
 

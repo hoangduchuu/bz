@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import com.ping.android.activity.BuildConfig;
 import com.ping.android.cameraview.CameraActivity;
 import com.ping.android.ultility.Constant;
+import com.soundcloud.android.crop.Crop;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -146,15 +147,13 @@ public class ImagePickerHelper {
                     tuningFinalImage(file, file.getName());
                 }
             }
-        } else if (requestCode == Constant.CROP_IMAGE_REQUEST) {
+        } else if (requestCode == Crop.REQUEST_CROP) {
             if (resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                if (data.hasExtra("data")) {
-                    Bitmap selectedBitmap = extras.getParcelable("data");
-                    saveImage(getFilePath(), selectedBitmap);
-                    if (listener != null) {
-                        listener.onFinalImage(new File(filePath));
-                    }
+                Uri croppedUri = Crop.getOutput(data);
+                Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
+                saveImage(getFilePath(), scaleBitmap);
+                if (listener != null) {
+                    listener.onFinalImage(new File(getFilePath()));
                 }
             }
         }
@@ -211,33 +210,11 @@ public class ImagePickerHelper {
     }
 
     private void performCrop(Uri photoUri) {
-        try {
-            //Start Crop Activity
-            Intent cropIntent = new Intent("com.android.camera.action.CROP");
-
-            cropIntent.setDataAndType(photoUri, "image/*");
-            cropIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            cropIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            // set crop properties
-            cropIntent.putExtra("crop", "true");
-            // indicate aspect of desired crop
-            cropIntent.putExtra("aspectX", 1);
-            cropIntent.putExtra("aspectY", 1);
-            // indicate output X and Y
-            cropIntent.putExtra("outputX", 280);
-            cropIntent.putExtra("outputY", 280);
-
-            // retrieve data on return
-            cropIntent.putExtra("return-data", true);
-            // start the activity - we handle returning in onActivityResult
-            if (activity != null) {
-                activity.startActivityForResult(cropIntent, Constant.CROP_IMAGE_REQUEST);
-            } else if (fragment != null) {
-                fragment.startActivityForResult(cropIntent, Constant.CROP_IMAGE_REQUEST);
-            }
-        }
-        // respond to users whose devices do not support the crop action
-        catch (ActivityNotFoundException exception) {
+        File file = new File(getFilePath());
+        if (activity != null) {
+            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(activity);
+        } else {
+            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(getContext(), fragment);
         }
     }
 
