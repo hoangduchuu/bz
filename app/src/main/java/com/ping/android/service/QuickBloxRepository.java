@@ -1,5 +1,4 @@
 package com.ping.android.service;
-
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -8,12 +7,17 @@ import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
+import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.Toaster;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.helper.StringifyArrayList;
+import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -65,6 +69,7 @@ public class QuickBloxRepository {
             public void onSuccess(QBUser qbUser, Bundle bundle) {
                 qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
                 callback.complete(null, qbUser);
+                SubscribeService.subscribeToPushes(ActivityLifecycle.getForegroundActivity(), true);
             }
 
             @Override
@@ -72,5 +77,9 @@ public class QuickBloxRepository {
                 callback.complete(e);
             }
         });
+    }
+
+    public void loadUsersByIds(final Collection<Integer> usersIDs, final QBEntityCallback<ArrayList<QBUser>> callback) {
+        QBUsers.getUsersByIDs(usersIDs, null).performAsync(callback);
     }
 }

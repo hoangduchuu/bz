@@ -38,7 +38,32 @@ public class Message {
     }
 
     public static Message from(DataSnapshot dataSnapshot) {
-        Message message = dataSnapshot.getValue(Message.class);
+        Message message = new Message();
+        message.message = dataSnapshot.child("message").getValue(String.class);
+        message.photoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
+        message.thumbUrl = dataSnapshot.child("thumbUrl").getValue(String.class);
+        message.audioUrl = dataSnapshot.child("audioUrl").getValue(String.class);
+        message.gameUrl = dataSnapshot.child("gameUrl").getValue(String.class);
+        message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
+        message.senderId = dataSnapshot.child("senderId").getValue(String.class);
+        message.senderName = dataSnapshot.child("senderName").getValue(String.class);
+
+        message.status = new HashMap<>();
+        Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
+        for (String k:status.keySet()
+             ) {
+            Object value = status.get(k);
+            int intValue = 0;
+            if (value instanceof Long){
+                intValue = ((Long)value).intValue();
+            }
+            message.status.put(k, intValue);
+        }
+
+        message.markStatuses = (HashMap<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
+        message.deleteStatuses = (HashMap<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
+        message.readAllowed = (HashMap<String, Boolean>) dataSnapshot.child("readAllowed").getValue();
+
         Assert.assertNotNull(message);
         message.key = dataSnapshot.getKey();
         if (message.messageType == 0) {

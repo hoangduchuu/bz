@@ -131,9 +131,7 @@ public class NotificationHelper {
                     case Constant.MSG_TYPE_TEXT:
                         body = String.format("%s: %s", senderName, incomingMask && user.mappings != null && user.mappings.size() > 0 ?
                                 ServiceManager.getInstance().encodeMessage(user.mappings, fmessage.message) : fmessage.message);
-                        if (!body.endsWith(".")){
-                            body += ".";
-                        }
+
                         break;
                     case Constant.MSG_TYPE_VOICE:
                         body = senderName + ": sent a voice message.";

@@ -10,7 +10,6 @@ import android.view.View;
 import com.ping.android.App;
 import com.ping.android.gcm.GooglePlayServicesHelper;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.QBResRequestExecutor;
 import com.ping.android.utils.ErrorUtils;
 import com.ping.android.utils.SharedPrefsHelper;
 
@@ -21,15 +20,12 @@ import com.ping.android.utils.SharedPrefsHelper;
 public abstract class BaseActivity extends CoreBaseActivity {
 
     protected GooglePlayServicesHelper googlePlayServicesHelper;
-    protected QBResRequestExecutor requestExecutor;
     SharedPrefsHelper sharedPrefsHelper;
     private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        requestExecutor = App.getInstance().getQbResRequestExecutor();
         sharedPrefsHelper = SharedPrefsHelper.getInstance();
         googlePlayServicesHelper = new GooglePlayServicesHelper();
     }

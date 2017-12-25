@@ -1,12 +1,8 @@
 package com.ping.android.service;
 
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Bundle;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -15,8 +11,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.ping.android.App;
 import com.ping.android.activity.R;
 import com.ping.android.form.Mapping;
@@ -24,26 +18,15 @@ import com.ping.android.form.Setting;
 import com.ping.android.model.Call;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
-import com.ping.android.ultility.Consts;
-import com.ping.android.utils.QBResRequestExecutor;
-import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.SharedPrefsHelper;
-import com.ping.android.utils.Toaster;
-import com.quickblox.core.QBEntityCallback;
-import com.quickblox.core.QBEntityCallbackImpl;
-import com.quickblox.core.exception.QBResponseException;
-import com.quickblox.core.helper.StringifyArrayList;
-import com.quickblox.users.model.QBUser;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,15 +46,11 @@ public class ServiceManager {
     private User currentUser;
     //private QBUser currentQBUser;
     //ArrayList<QBUser> allQBUsers;
-    private QBResRequestExecutor requestExecutor;
-
 
     private ServiceManager() {
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         storage = FirebaseStorage.getInstance();
-
-        requestExecutor = App.getInstance().getQbResRequestExecutor();
     }
 
     public static ServiceManager getInstance() {
@@ -475,39 +454,6 @@ public class ServiceManager {
         });
     }
 
-    public void changeNotificationConversation(Conversation conversation, Boolean data) {
-        if(conversation.notifications == null) {
-            conversation.notifications = new HashMap<>();
-        }
-        conversation.notifications.put(currentUser.key, data);
-        mDatabase.child("conversations").child(conversation.key).child("notifications").child(currentUser.key).setValue(data);
-        for(String userID: conversation.memberIDs.keySet()) {
-            mDatabase.child("users").child(userID).child("conversations").child(conversation.key).child("notifications").child(currentUser.key).setValue(data);
-        }
-    }
-
-    public void changeMaskConversation(Conversation conversation, Boolean data) {
-        if(conversation.maskMessages == null) {
-            conversation.maskMessages = new HashMap<>();
-        }
-        conversation.maskMessages.put(currentUser.key, data);
-        mDatabase.child("conversations").child(conversation.key).child("maskMessages").child(currentUser.key).setValue(data);
-        for(String userID: conversation.memberIDs.keySet()) {
-            mDatabase.child("users").child(userID).child("conversations").child(conversation.key).child("maskMessages").child(currentUser.key).setValue(data);
-        }
-    }
-
-    public void changePuzzleConversation(Conversation conversation, Boolean data) {
-        if(conversation.puzzleMessages == null) {
-            conversation.puzzleMessages = new HashMap<>();
-        }
-        conversation.puzzleMessages.put(currentUser.key, data);
-        mDatabase.child("conversations").child(conversation.key).child("puzzleMessages").child(currentUser.key).setValue(data);
-        for(String userID: conversation.memberIDs.keySet()) {
-            mDatabase.child("users").child(userID).child("conversations").child(conversation.key).child("puzzleMessages").child(currentUser.key).setValue(data);
-        }
-    }
-
     public void changeMaskOutputConversation(Conversation conversation, Boolean data) {
         if(conversation.maskOutputs == null) {
             conversation.maskOutputs = new HashMap<>();
@@ -645,12 +591,6 @@ public class ServiceManager {
                 child(currentUser.key).setValue(messageStatus);
     }
 
-    public void deleteMessage(String conversationID, List<Message> messages) {
-        for (Message message : messages) {
-            mDatabase.child("messages").child(conversationID).child(message.key).child("deleteStatuses").child(currentUser.key).setValue(true);
-        }
-    }
-
     // Network
     public boolean getNetworkStatus(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -658,84 +598,6 @@ public class ServiceManager {
         boolean isConnected = activeNetwork != null
                 && activeNetwork.isConnectedOrConnecting();
         return isConnected;
-    }
-
-    // Quick Box
-    public void signUpNewUserQB() {
-        QBUser qbUser = new QBUser();
-
-        StringifyArrayList<String> userTags = new StringifyArrayList<>();
-        userTags.add(Constant.QB_PING_ROOM);
-//        qbUser.setFullName(currentUser.pingID);
-//        qbUser.setEmail(currentUser.email);
-        qbUser.setLogin(currentUser.pingID);
-        qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-//        qbUser.setTags(userTags);
-
-        requestExecutor.signUpNewUser(qbUser, new QBEntityCallback<QBUser>() {
-                    @Override
-                    public void onSuccess(QBUser result, Bundle params) {
-                        updateQuickBlox(result.getId());
-                        qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                        signInCreatedUser(qbUser, true);
-                    }
-
-                    @Override
-                    public void onError(QBResponseException e) {
-                        if (e.getHttpStatusCode() == Consts.ERR_LOGIN_ALREADY_TAKEN_HTTP_STATUS) {
-                            signInCreatedUser(qbUser, true);
-                        } else {
-                            Toaster.longToast(R.string.sign_up_error);
-                        }
-                    }
-                }
-        );
-    }
-
-    public void signInQB() {
-        signInCreatedUser(getQBUser(), true);
-    }
-
-    private QBUser getQBUser() {
-        if (currentUser == null) {
-            return null;
-        }
-        QBUser qbUser = new QBUser();
-        StringifyArrayList<String> userTags = new StringifyArrayList<>();
-        userTags.add(Constant.QB_PING_ROOM);
-        qbUser.setId(currentUser.quickBloxID);
-//        qbUser.setFullName(currentUser.pingID);
-//        qbUser.setEmail(currentUser.email);
-        qbUser.setLogin(currentUser.pingID);
-        qbUser.setPassword(Consts.DEFAULT_USER_PASSWORD);
-//        qbUser.setTags(userTags);
-
-        return qbUser;
-    }
-
-    private void signInCreatedUser(final QBUser user, final boolean deleteCurrentUser) {
-        requestExecutor.signInUser(user, new QBEntityCallbackImpl<QBUser>() {
-            @Override
-            public void onSuccess(QBUser result, Bundle params) {
-                //currentQBUser = result;
-                //result.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                //saveQBUserData(result);
-                result.setPassword(Consts.DEFAULT_USER_PASSWORD);
-                startCallService(result);
-                //getAllQBUsers();
-            }
-
-            @Override
-            public void onError(QBResponseException responseException) {
-                Toaster.longToast(R.string.sign_up_error);
-            }
-        });
-    }
-
-    private void startCallService(QBUser qbUser) {
-        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
-        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 }
 
