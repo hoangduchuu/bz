@@ -2,22 +2,17 @@ package com.ping.android;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.ping.android.activity.BuildConfig;
-import com.ping.android.activity.R;
 import com.ping.android.utils.ActivityLifecycle;
-import com.ping.android.utils.QBResRequestExecutor;
 
 import java.io.File;
 import java.util.HashMap;
@@ -28,7 +23,6 @@ import okhttp3.OkHttpClient;
 public class App extends CoreApp {
 
     private static App instance;
-    private QBResRequestExecutor qbResRequestExecutor;
     private FirebaseRemoteConfig remoteConfig;
 
     public static App getInstance() {
@@ -109,12 +103,6 @@ public class App extends CoreApp {
             return true;
         }
         return false;
-    }
-
-    public synchronized QBResRequestExecutor getQbResRequestExecutor() {
-        return qbResRequestExecutor == null
-                ? qbResRequestExecutor = new QBResRequestExecutor()
-                : qbResRequestExecutor;
     }
 
     private void setupActivityListener() {
