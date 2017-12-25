@@ -70,6 +70,7 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         conversation = getIntent().getParcelableExtra("CONVERSATION");
         sender = getIntent().getParcelableExtra("SENDER");
         bindViews();
+        showLoading();
         init();
     }
 
@@ -174,6 +175,7 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
                 originalBitmap = (Bitmap) data[0];
                 displayPuzzle();
             }
+            hideLoading();
         });
     }
 
