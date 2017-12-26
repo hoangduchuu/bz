@@ -310,7 +310,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             return;
         }
 
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
 

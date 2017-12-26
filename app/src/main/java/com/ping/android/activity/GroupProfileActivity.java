@@ -271,7 +271,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     private void openPicker() {
         String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + currentUser.key;
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         String profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)

@@ -125,22 +125,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 //        notifyDataSetChanged();
     }
 
-    public void addMessage(Message message) {
-        int index = displayMessages.size();
-        if (index > 0) {
-            Message msg = displayMessages.get(index - 1);
-            if (msg.messageType == Constant.MSG_TYPE_TYPING) {
-                index = index > 1 ? index - 1 : 0;
-            }
-        }
-        this.displayMessages.add(index, message);
-        //this.displayMessages.add(message);
-        notifyItemInserted(index);
-//        if (displayMessages.size() >= 2) {
-//            notifyItemChanged(displayMessages.size() - 2);
-//        }
-    }
-
     public void deleteMessage(String messageID) {
         Message deletedMessage = null;
         for (Message message : displayMessages) {

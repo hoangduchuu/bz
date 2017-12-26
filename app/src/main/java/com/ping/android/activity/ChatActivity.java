@@ -66,6 +66,7 @@ import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
@@ -605,7 +606,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         observeChatEvent = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                processAddChild(dataSnapshot);
+
+                Message message = Message.from(dataSnapshot);
+                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                    return;
+                }
+                processAddChild(message);
             }
 
             @Override
@@ -614,6 +620,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
                     adapter.deleteMessage(message.key);
                     updateConversationLastMessage();
+                    return;
+                }
+                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
                     return;
                 }
                 message.sender = getUser(message.senderId);
@@ -678,9 +687,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         btnSend.setEnabled(isEnable);
     }
 
-    private void processAddChild(DataSnapshot dataSnapshot) {
-        //Message message = new Message(dataSnapshot);
-        Message message = Message.from(dataSnapshot);
+    private void processAddChild(Message message) {
 
         if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
             return;
@@ -720,6 +727,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                 //processAddChild(child);
                                 Message message = Message.from(child);
                                 if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
+                                    continue;
+                                }
+                                if(message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
                                     continue;
                                 }
                                 message.sender = getSender(message.senderId);
@@ -799,6 +809,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                 if (message.readAllowed != null && message.readAllowed.size() > 0
                                         && !message.readAllowed.containsKey(fromUserID))
                                     continue;
+
+                                if(message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                                    continue;
+                                }
 
                                 message.sender = getUser(message.senderId);
                                 messages.add(message);
@@ -934,6 +948,20 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
 
+        ValueEventListener deleteTimestampsEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    originalConversation.deleteTimestamps = (Map<String, Double>) dataSnapshot.getValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
         DatabaseReference maskReference = conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages");
         maskReference.addValueEventListener(maskMessageListener);
         databaseReferences.put(maskReference, maskMessageListener);
@@ -957,6 +985,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         DatabaseReference deleteStatusReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteStatuses");
         deleteStatusReference.addValueEventListener(deleteStatusesEvent);
         databaseReferences.put(deleteStatusReference, deleteStatusesEvent);
+
+        DatabaseReference deleteTimestampsReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteTimestamps");
+        deleteTimestampsReference.addValueEventListener(deleteTimestampsEvent);
+        databaseReferences.put(deleteTimestampsReference, deleteTimestampsEvent);
     }
 
     private void observeStatus() {
@@ -1261,7 +1293,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
 
         edMessage.setText(null);
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         Map<String, Boolean> allowance = getAllowance();
         Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
                 timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
@@ -1437,7 +1469,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             return;
         }
 
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
 
         File audioFile = new File(currentOutFile);
         String audioName = audioFile.getName();
@@ -1654,8 +1686,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             for (User toUser : originalConversation.members) {
                 if (toUser.key.equals(fromUser.key)
                         || fromUser.blocks.containsKey(toUser.key)
-                        || fromUser.blockBys.containsKey(toUser.key)
-                        || CommonMethod.isTrueValue(originalConversation.deleteStatuses, toUser.key)) continue;
+                        || fromUser.blockBys.containsKey(toUser.key)) continue;
                 ret.put(toUser.key, true);
             }
         }
