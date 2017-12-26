@@ -19,6 +19,7 @@ import com.quickblox.chat.QBWebRTCSignaling;
 import com.quickblox.chat.listeners.QBVideoChatSignalingManagerListener;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
+import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCClient;
 import com.quickblox.videochat.webrtc.QBRTCConfig;
@@ -128,6 +129,7 @@ public class CallService extends Service {
     private void startActionsOnSuccessLogin() {
         initPingListener();
         initQBRTCClient();
+        SubscribeService.subscribeToPushes(getApplicationContext(), false);
         sendResultToActivity(true, null);
     }
 

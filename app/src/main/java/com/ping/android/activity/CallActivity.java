@@ -30,6 +30,7 @@ import com.ping.android.fragment.VideoConversationFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
+import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
@@ -119,6 +120,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private User currentUser;
     private User otherUser;
     private UserRepository userRepository;
+    private QuickBloxRepository quickBloxRepository;
 
     private boolean isSendHistory = false;
 
@@ -221,6 +223,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     private void initData() {
         userRepository = new UserRepository();
+        quickBloxRepository = new QuickBloxRepository();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
@@ -310,7 +313,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
         ArrayList<Integer> idsUsersNeedLoad = UsersUtils.getIdsNotLoadedUsers(usersFromDb, allParticipantsOfCall);
         if (!idsUsersNeedLoad.isEmpty()) {
-            requestExecutor.loadUsersByIds(idsUsersNeedLoad, new QBEntityCallbackImpl<ArrayList<QBUser>>() {
+            quickBloxRepository.loadUsersByIds(idsUsersNeedLoad, new QBEntityCallbackImpl<ArrayList<QBUser>>() {
                 @Override
                 public void onSuccess(ArrayList<QBUser> result, Bundle params) {
                     dbManager.saveAllUsers(result, false);

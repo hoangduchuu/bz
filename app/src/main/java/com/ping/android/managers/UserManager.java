@@ -20,6 +20,7 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
+import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
@@ -202,8 +203,8 @@ public class UserManager {
         userRepository.deleteRefreshToken();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
+        SubscribeService.unSubscribeFromPushes(context);
         CallService.logout(context);
-
         removeValueEventListener();
         user = null;
     }

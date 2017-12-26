@@ -83,6 +83,7 @@ public class User implements Parcelable {
         this.lastName = lastName;
         this.pingID = pingID;
         this.email = email;
+        this.phone = "";
         this.password = password;
         this.showMappingConfirm = false;
         this.mappings = ServiceManager.getInstance().getDefaultMapping();

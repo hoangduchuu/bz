@@ -9,18 +9,17 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
@@ -32,6 +31,8 @@ import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
 import com.quickblox.users.model.QBUser;
 
+import java.util.ArrayList;
+
 public class LoginActivity extends CoreActivity implements View.OnClickListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
@@ -39,7 +40,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     private EditText inputName, inputPassword;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
-
+    private int timesRead = 0;
+    ValueEventListener eventListener = null;
     private UserRepository userRepository;
 
     @Override
@@ -112,22 +114,45 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void openLoginByPingId(String name) {
+        timesRead = 0;
         showLoading();
-        mDatabase.child("users").orderByChild("ping_id").equalTo(name).addListenerForSingleValueEvent(new ValueEventListener() {
+        ArrayList<Query> queries = new ArrayList<>();
+        queries.add(mDatabase.child("users").orderByChild("ping_id").equalTo(name));
+        queries.add(mDatabase.child("users").orderByChild("email").equalTo(name));
+        queries.add(mDatabase.child("users").orderByChild("phone").equalTo(name));
+        eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                timesRead++;
                 if (dataSnapshot.exists()) {
                     User user = new User(dataSnapshot.getChildren().iterator().next());
+                    if(eventListener != null) {
+                        for (Query query: queries
+                             ) {
+                            query.removeEventListener(eventListener);
+                        }
+                    }
                     openLogin(user.email);
-                } else {
-                    openLoginByEmail(name);
+                } else if (timesRead == 3) {
+                    if(eventListener != null) {
+                        for (Query query: queries
+                                ) {
+                            query.removeEventListener(eventListener);
+                        }
+                    }
+                    openLoginFail();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                openLoginFail();
             }
-        });
+        };
+        for (Query query: queries
+             ) {
+            query.addValueEventListener(eventListener);
+        }
     }
 
     private void openLoginByEmail(String name) {
