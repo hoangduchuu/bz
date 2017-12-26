@@ -1,6 +1,7 @@
 package com.ping.android.adapter;
 
 import android.support.transition.TransitionManager;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +15,6 @@ import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
@@ -193,6 +193,11 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         boundsViewHolder.add(holder);
         Call call = displayCalls.get(position);
         holder.bindData(call);
+        holder.ivProfileImage.setOnClickListener(view -> {
+            Pair imagePair = Pair.create(holder.ivProfileImage, "imageProfile" + position);
+            Pair namePair = Pair.create(holder.tvName, "contactName" + position);
+            clickListener.onViewProfile(call.opponentUser, imagePair, namePair);
+        });
     }
 
     @Override
@@ -206,6 +211,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         void onDeleteCall(Call call);
 
         void onSelect(ArrayList<Call> selectCalls);
+
+        void onViewProfile(User user, Pair<View, String>... sharedElements);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -317,6 +324,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             setEditMode(isEditMode);
             setSelect(selectCalls.contains(call));
             UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, call.opponentUser);
+            ivProfileImage.setTransitionName("imageProfile" + getAdapterPosition());
+            tvName.setTransitionName("contactName" + getAdapterPosition());
         }
     }
 }
