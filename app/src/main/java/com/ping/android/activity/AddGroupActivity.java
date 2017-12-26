@@ -360,7 +360,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void createGroup(List<User> toUsers, String groupKey, String msg, String profileImage) {
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         Group group = new Group();
         group.timestamp = timestamp;
         group.groupName = etGroupName.getText().toString().trim();
@@ -396,7 +396,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private void openPicker() {
         String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + fromUser.key;
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         String profileFileName = "" + timestamp + "-" + fromUser.key + ".png";
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)

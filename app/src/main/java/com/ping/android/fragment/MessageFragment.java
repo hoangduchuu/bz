@@ -245,7 +245,7 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void insertOrUpdateMessage(Conversation conversation, Boolean isAddNew) {
-        if(ServiceManager.getInstance().getCurrentDeleteStatus(conversation.deleteStatuses)) {
+        if(ServiceManager.getInstance().getDeleteStatusConversation(conversation)) {
             if (!isAddNew) {
                 adapter.deleteConversation(conversation.key);
             }

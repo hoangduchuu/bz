@@ -44,7 +44,11 @@ public class Message {
         message.thumbUrl = dataSnapshot.child("thumbUrl").getValue(String.class);
         message.audioUrl = dataSnapshot.child("audioUrl").getValue(String.class);
         message.gameUrl = dataSnapshot.child("gameUrl").getValue(String.class);
-        message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
+        if(dataSnapshot.child("timestamp").exists()) {
+            message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
+        }else{
+            message.timestamp = 0.0d;
+        }
         message.senderId = dataSnapshot.child("senderId").getValue(String.class);
         message.senderName = dataSnapshot.child("senderName").getValue(String.class);
 

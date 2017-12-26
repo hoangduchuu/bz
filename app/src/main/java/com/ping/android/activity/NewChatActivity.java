@@ -365,7 +365,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         for (User user : toUsers) {
             displayNames.add(user.getDisplayName());
         }
-        double timestamp = System.currentTimeMillis() / 1000L;
+        double timestamp = System.currentTimeMillis() / 1000d;
         Group group = new Group();
         group.timestamp = timestamp;
         group.groupName = TextUtils.join(", ", displayNames);

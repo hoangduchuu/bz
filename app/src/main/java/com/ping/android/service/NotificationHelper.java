@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import com.google.gson.JsonObject;
 import com.ping.android.managers.UserManager;
@@ -112,6 +113,14 @@ public class NotificationHelper {
 
     public void sendNotificationForConversation(Conversation conversation, Message fmessage) {
 
+        String body, senderName;
+        User sender = UserManager.getInstance().getUser();
+        if (conversation.group != null) {
+            senderName = String.format("%s to %s", sender.getDisplayName(), conversation.group.groupName);
+        } else {
+            senderName = sender.getDisplayName();
+        }
+
         for (User user : conversation.members) {
             if (user.quickBloxID > 0 && user.key != UserManager.getInstance().getUser().key) {
                 if (!needSendNotification(conversation, user)) continue;
@@ -119,12 +128,6 @@ public class NotificationHelper {
                 boolean incomingMask = false;
                 if(conversation.maskMessages != null && conversation.maskMessages.containsKey(user.key)){
                     incomingMask = conversation.maskMessages.get(user.key);
-                }
-                String body, senderName;
-                if (conversation.group != null) {
-                    senderName = String.format("%s to %s", user.getDisplayName(), conversation.group.groupName);
-                } else {
-                    senderName = user.getDisplayName();
                 }
 
                 switch (conversation.messageType) {

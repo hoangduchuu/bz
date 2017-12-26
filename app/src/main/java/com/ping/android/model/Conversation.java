@@ -7,7 +7,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import junit.framework.Assert;
@@ -31,6 +30,7 @@ public class Conversation implements Parcelable {
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> readStatuses;
     public Map<String, Boolean> deleteStatuses;
+    public Map<String, Double> deleteTimestamps;
 
     //Conversation setting
     public HashMap<String, Boolean> notifications;
@@ -123,6 +123,7 @@ public class Conversation implements Parcelable {
             this.puzzleMessages = originalConversation.puzzleMessages;
             this.maskOutputs = originalConversation.maskOutputs;
             this.deleteStatuses = originalConversation.deleteStatuses;
+            this.deleteTimestamps = originalConversation.deleteTimestamps;
             this.members = originalConversation.members;
             this.group = originalConversation.group;
         }
@@ -133,7 +134,7 @@ public class Conversation implements Parcelable {
         conversation.messageType = Constant.MSG_TYPE_TEXT;
         conversation.conversationType = Constant.CONVERSATION_TYPE_INDIVIDUAL;
         conversation.senderId = fromUserId;
-        conversation.timesstamps = System.currentTimeMillis() / 1000L;
+        conversation.timesstamps = System.currentTimeMillis() / 1000d;
 
         HashMap<String, Boolean> defaultTrueValues = new HashMap<>();
         defaultTrueValues.put(fromUserId, true);
@@ -148,6 +149,7 @@ public class Conversation implements Parcelable {
         conversation.readStatuses = defaultFalseValues;
         conversation.deleteStatuses = defaultFalseValues;
         conversation.notifications = defaultTrueValues;
+        conversation.deleteTimestamps = new HashMap<>();
 
         return conversation;
     }
@@ -158,7 +160,7 @@ public class Conversation implements Parcelable {
         conversation.conversationType = Constant.CONVERSATION_TYPE_GROUP;
         conversation.groupID = group.key;
         conversation.senderId = fromUserId;
-        conversation.timesstamps = System.currentTimeMillis() / 1000L;
+        conversation.timesstamps = System.currentTimeMillis() / 1000d;
 
         HashMap<String, Boolean> defaultTrueValues = new HashMap<>();
         HashMap<String, Boolean> defaultFalseValues = new HashMap<>();
@@ -171,6 +173,7 @@ public class Conversation implements Parcelable {
         conversation.markStatuses = defaultTrueValues;
         conversation.readStatuses = defaultFalseValues;
         conversation.deleteStatuses = defaultFalseValues;
+        conversation.deleteTimestamps = new HashMap<>();
         conversation.notifications = defaultTrueValues;
 
         return conversation;
@@ -190,6 +193,7 @@ public class Conversation implements Parcelable {
         result.put("markStatuses", markStatuses);
         result.put("readStatuses", readStatuses);
         result.put("deleteStatuses", deleteStatuses);
+        result.put("deleteTimestamps", deleteTimestamps);
         result.put("notifications", notifications);
         result.put("maskMessages", maskMessages);
         result.put("puzzleMessages", puzzleMessages);

@@ -192,6 +192,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         setContentView(R.layout.activity_call);
 
         parseIntentExtras();
+        quickBloxRepository = new QuickBloxRepository();
         sessionManager = WebRtcSessionManager.getInstance(this);
         if (!currentSessionExist()) {
 //            we have already currentSession == null, so it's no reason to do further initialization
@@ -223,7 +224,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     private void initData() {
         userRepository = new UserRepository();
-        quickBloxRepository = new QuickBloxRepository();
+
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
 
@@ -233,7 +234,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
             public void complete(Object error, Object... data) {
                 if (error == null) {
                     otherUser = (User) data[0];
-                    double timestamp = System.currentTimeMillis() / 1000L;
+                    double timestamp = System.currentTimeMillis() / 1000d;
                     callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, getCallDeleteStatuses(), timestamp);
                 }
             }

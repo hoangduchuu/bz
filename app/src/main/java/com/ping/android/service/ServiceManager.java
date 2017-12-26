@@ -385,12 +385,16 @@ public class ServiceManager {
     }
 
     public void deleteConversation(List<Conversation> conversations) {
+        double timestamp = System.currentTimeMillis() / 1000d;
         for (Conversation conversation : conversations) {
             mDatabase.child("conversations").child(conversation.key).child("deleteStatuses").child(currentUser.key).setValue(true);
-            mDatabase.child("messages").child(conversation.key).setValue(null);
+            mDatabase.child("conversations").child(conversation.key).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
+            //mDatabase.child("messages").child(conversation.key).setValue(null);
             for (User user : conversation.members) {
                 mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).
                         child("deleteStatuses").child(currentUser.key).setValue(true);
+                mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).
+                        child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
                 // TODO logical delete message belong conversation
                 // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
             }
@@ -398,14 +402,18 @@ public class ServiceManager {
     }
 
     public void deleteConversationInGroup(List<Group> groups) {
+        double timestamp = System.currentTimeMillis() / 1000d;
         for (Group group : groups) {
             if(StringUtils.isEmpty(group.conversationID))
                 continue;
             mDatabase.child("conversations").child(group.conversationID).child("deleteStatuses").child(currentUser.key).setValue(true);
+            mDatabase.child("conversations").child(group.conversationID).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
             //mDatabase.child("messages").child(group.conversationID).setValue(null);
             for (User user : group.members) {
                 mDatabase.child("users").child(user.key).child("conversations").child(group.conversationID).
                         child("deleteStatuses").child(currentUser.key).setValue(true);
+                mDatabase.child("users").child(user.key).child("conversations").child(group.conversationID).
+                        child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
                 // TODO logical delete message belong conversation
                 // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
             }
@@ -467,6 +475,26 @@ public class ServiceManager {
         }
     }
 
+    public Boolean getDeleteStatusConversation(Conversation conversation) {
+        if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
+            return false;
+        }
+        //conversation will not show if last message time stamp less than conversation deleted time
+        return conversation.deleteTimestamps.get(currentUser.key) > conversation.timesstamps;
+    }
+
+    public Double getLastDeleteTimeStamp(Conversation conversation){
+        if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
+            return 0.0d;
+        }
+        Object value = conversation.deleteTimestamps.get(currentUser.key);
+        if (value instanceof Long){
+            return  ((Long)value).doubleValue();
+        }else {
+            return (Double) value;
+        }
+    }
+
     //Call region
     public void deleteCalls(List<Call> calls) {
         if (CollectionUtils.isEmpty(calls)) {
@@ -487,7 +515,7 @@ public class ServiceManager {
 
     public void createConversationIDForPVPChat(String fromUserId, String toUserId, Callback completion) {
         String conversationID = fromUserId.compareTo(toUserId) > 0 ? fromUserId + toUserId : toUserId + fromUserId;
-        mDatabase.child("conversations").equalTo(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
