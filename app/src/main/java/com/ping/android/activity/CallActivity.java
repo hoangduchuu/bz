@@ -215,10 +215,10 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         }
         //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
         checker = new PermissionsChecker(getApplicationContext());
+        initData();
 
         startSuitableFragment(isInCommingCall);
         findViewById(R.id.call_back).setOnClickListener(this);
-        initData();
     }
 
     private void initData() {

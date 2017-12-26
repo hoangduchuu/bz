@@ -2,7 +2,9 @@ package com.ping.android.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -61,6 +63,8 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     private UserRepository userRepository;
     private ConversationRepository conversationRepository;
 
+    private SharedPreferences prefs;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -69,6 +73,12 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
         init();
         bindData();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUnreadNumber();
     }
 
     @Override
@@ -93,6 +103,8 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
         conversations = new ArrayList<>();
         adapter = new MessageAdapter(conversations);
         adapter.setListener(this);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         // Load data
         observeMessages();
     }
@@ -250,15 +262,14 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
             }
             if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                 adapter.addOrUpdateConversation(conversation);
+                updateUnreadNumber();
                 scrollToTop();
             } else {
-                ServiceManager.getInstance().getGroup(conversation.groupID, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        conversation.group = (Group) data[0];
-                        adapter.addOrUpdateConversation(conversation);
-                        scrollToTop();
-                    }
+                ServiceManager.getInstance().getGroup(conversation.groupID, (error1, data1) -> {
+                    conversation.group = (Group) data1[0];
+                    adapter.addOrUpdateConversation(conversation);
+                    updateUnreadNumber();
+                    scrollToTop();
                 });
             }
         });
@@ -345,5 +356,10 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onSelect(Conversation conversation) {
         updateEditMenu();
+    }
+
+    private void updateUnreadNumber() {
+        int unread = adapter.unreadNum();
+        prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
     }
 }

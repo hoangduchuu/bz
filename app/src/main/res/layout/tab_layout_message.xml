@@ -3,10 +3,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal|bottom"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="5dp">
 
     <RelativeLayout
-        android:layout_width="30dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -20,15 +21,16 @@
             android:id="@+id/tab_item_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/badge_circle"
             android:gravity="center_horizontal"
             android:minWidth="12dp"
-            android:background="@drawable/badge_circle"
             android:padding="2dp"
             android:textColor="#FFF"
             android:textSize="8sp"
             android:visibility="gone"
-            tools:visibility="visible"
-            tools:text="1" />
+            tools:text="1"
+            tools:visibility="visible" />
     </RelativeLayout>
 
     <TextView

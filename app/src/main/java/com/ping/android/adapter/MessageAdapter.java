@@ -66,6 +66,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         boundsViewHolder.remove(holder);
     }
 
+    public int unreadNum() {
+        int unread = 0;
+        for (Conversation conversation : originalConversations) {
+            if (!conversation.readStatuses.containsKey(currentUser.key)
+                    || !conversation.readStatuses.get(currentUser.key)) {
+                unread++;
+            }
+        }
+        return unread;
+    }
+
     public void addOrUpdateConversation(Conversation conversation) {
         boolean isAdd = true;
         for (int i = 0; i < originalConversations.size(); i++) {

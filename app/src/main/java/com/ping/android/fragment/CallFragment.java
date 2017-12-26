@@ -1,7 +1,9 @@
 package com.ping.android.fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
@@ -13,13 +15,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
@@ -30,7 +29,6 @@ import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.view.CustomSwitch;
@@ -45,28 +43,24 @@ import java.util.Map;
 public class CallFragment extends Fragment implements View.OnClickListener, CallAdapter.ClickListener {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private FirebaseAuth auth;
-    private FirebaseUser mFirebaseUser;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase, mCallDatabase;
+    private DatabaseReference mCallDatabase;
     private ChildEventListener observeCallEvent;
 
     private SearchView searchView;
     private CustomSwitch customSwitch;
     private LinearLayoutManager mLinearLayoutManager;
     private RecyclerView rvListCall;
-//    private RelativeLayout bottomMenu;
     private Button btnEditCall, btnDeleteCall;
 
     private User currentUser;
     private CallAdapter adapter;
-    private ArrayList<Call> calls;
     private boolean loadData, loadGUI, isEditMode;
     private boolean isAll = true;
     private String search = "";
     private Button btnCancel;
 
     private UserRepository userRepository;
+    private SharedPreferences prefs;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -178,14 +172,10 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     }
 
     private void init() {
+        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         userRepository = new UserRepository();
-        auth = FirebaseAuth.getInstance();
-        mFirebaseUser = auth.getCurrentUser();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
         currentUser = UserManager.getInstance().getUser();
-        calls = new ArrayList<>();
-        adapter = new CallAdapter(calls, this);
+        adapter = new CallAdapter(new ArrayList<>(), this);
         observeCalls();
     }
 
@@ -278,7 +268,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
 
             }
         };
-        mCallDatabase = mDatabase.child("users").child(mFirebaseUser.getUid()).child("calls");
+        mCallDatabase = userRepository.getDatabaseReference().child(currentUser.key).child("calls");
         mCallDatabase.addChildEventListener(observeCallEvent);
     }
 
@@ -305,6 +295,13 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
             adapter.addOrUpdateCall(call);
             rvListCall.scrollToPosition(0);
         });
+
+        long lastTimestamp = prefs.getLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, 0);
+        if (call.status == Constant.CALL_STATUS_MISS
+                && lastTimestamp > 0 && call.timestamp * 1000 > lastTimestamp) {
+            int currentMissed = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
+            prefs.edit().putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, currentMissed + 1).apply();
+        }
     }
 
     private void onEdit() {

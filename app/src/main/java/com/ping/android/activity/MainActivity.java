@@ -72,7 +72,8 @@ public class MainActivity extends CoreActivity {
     }
 
     private void init() {
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
         tabLayout = findViewById(R.id.tabs);
@@ -106,16 +107,13 @@ public class MainActivity extends CoreActivity {
     }
 
     public void onEditMode(Boolean isEditMode) {
-        tabLayout.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Transition slide = new Slide();
-                TransitionManager.beginDelayedTransition(tabLayout, slide);
-                if (isEditMode) {
-                    tabLayout.setVisibility(View.GONE);
-                } else {
-                    tabLayout.setVisibility(View.VISIBLE);
-                }
+        tabLayout.postDelayed(() -> {
+            Transition slide = new Slide();
+            TransitionManager.beginDelayedTransition(tabLayout, slide);
+            if (isEditMode) {
+                tabLayout.setVisibility(View.GONE);
+            } else {
+                tabLayout.setVisibility(View.VISIBLE);
             }
         }, 10);
     }
@@ -124,16 +122,16 @@ public class MainActivity extends CoreActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount);
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
-                    int messageCount = prefs.getInt(key, 0);
-                    updateMessageCount(messageCount);
-                }
+        listener = (prefs, key) -> {
+            if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
+                int messageCount1 = prefs.getInt(key, 0);
+                updateMessageCount(messageCount1);
+            } else if (key.equals(Constant.PREFS_KEY_MISSED_CALL_COUNT)) {
+                int count = prefs.getInt(key, 0);
+                updateMissedCallCount(count);
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(listener);
-
     }
 
     private void setupTabIcons() {
@@ -168,9 +166,13 @@ public class MainActivity extends CoreActivity {
             tabLayout.getTabAt(i).setCustomView(null);
             tabLayout.getTabAt(i).setCustomView(getTabIcon(i, i == selected));
         }
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
-        updateMessageCount(messageCount);
+        if (selected == 1) {
+            // Reset missed count
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
+            editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
+            editor.apply();
+        }
     }
 
     private View getTabIcon(int position, boolean selected) {
@@ -219,12 +221,20 @@ public class MainActivity extends CoreActivity {
     }
 
     private void updateMessageCount(int messageCount) {
-        View v = tabLayout.getTabAt(0).getCustomView();
-        TextView tvMessageCount = (TextView) v.findViewById(R.id.tab_item_number);
-        if (messageCount == 0) {
+        updateBadge(0, messageCount);
+    }
+
+    private void updateMissedCallCount(int count) {
+        updateBadge(1, count);
+    }
+
+    private void updateBadge(int index, int count) {
+        View v = tabLayout.getTabAt(index).getCustomView();
+        TextView tvMessageCount = v.findViewById(R.id.tab_item_number);
+        if (count == 0) {
             tvMessageCount.setVisibility(View.GONE);
         } else {
-            tvMessageCount.setText("" + messageCount);
+            tvMessageCount.setText("" + count);
             tvMessageCount.setVisibility(View.VISIBLE);
         }
     }
