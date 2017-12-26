@@ -2,7 +2,9 @@ package com.ping.android.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
+import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.CallAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
@@ -29,6 +32,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.ultility.Constant;
 import com.ping.android.view.CustomSwitch;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -140,6 +144,20 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     @Override
     public void onSelect(ArrayList<Call> selectConversations) {
         updateEditMode();
+    }
+
+    @Override
+    public void onViewProfile(User user, Pair<View, String>... sharedElements) {
+        Intent intent = new Intent(getActivity(), UserDetailActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, user.key);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, user);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, sharedElements[1].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
+        startActivity(intent, options.toBundle());
     }
 
     private void bindViews(View view) {
