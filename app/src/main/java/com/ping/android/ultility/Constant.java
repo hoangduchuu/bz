@@ -44,6 +44,8 @@ public class Constant {
 
     public static final String PREFS_NAME = "PingPrefsFile";
     public static final String PREFS_KEY_MESSAGE_COUNT = "MESSAGE_COUNT";
+    public static final String PREFS_KEY_MISSED_CALL_COUNT = "MISSED_CALL_COUNT";
+    public static final String PREFS_KEY_MISSED_CALL_TIMESTAMP = "MISSED_CALL_TIMESTAMP";
 
     public static final String QB_PING_ROOM = "mnb";
     public static final String QB_ACC_PASS = "QB_ACC_PASS";
