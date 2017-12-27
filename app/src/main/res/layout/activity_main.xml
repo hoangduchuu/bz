@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:fitsSystemWindows="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,12 +25,16 @@
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
-                app:tabIndicatorHeight="0dp"
-                android:layout_gravity="bottom"
-                app:tabSelectedTextColor="@color/orange"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:background="@color/bg_tab_bar" />
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                android:background="@color/bg_tab_bar"
+                app:tabIndicatorHeight="0dp"
+                app:tabSelectedTextColor="@color/orange"
+                app:tabMode="fixed"
+                app:tabPaddingStart="0dp"
+                app:tabPaddingEnd="0dp"
+                app:tabPaddingBottom="0dp"/>
 
         </LinearLayout>
 

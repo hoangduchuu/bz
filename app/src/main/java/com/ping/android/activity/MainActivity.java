@@ -9,12 +9,14 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -166,12 +168,17 @@ public class MainActivity extends CoreActivity {
             tabLayout.getTabAt(i).setCustomView(null);
             tabLayout.getTabAt(i).setCustomView(getTabIcon(i, i == selected));
         }
+        int messageCount1 = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
+        updateMessageCount(messageCount1);
         if (selected == 1) {
             // Reset missed count
             SharedPreferences.Editor editor = prefs.edit();
             editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
             editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
             editor.apply();
+        } else {
+            int count = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
+            updateMissedCallCount(count);
         }
     }
 
@@ -208,8 +215,6 @@ public class MainActivity extends CoreActivity {
         v = LayoutInflater.from(this).inflate(R.layout.tab_layout_message, null);
         numberView = (TextView) v.findViewById(R.id.tab_item_number);
 
-//        if (numberView != null)
-//            numberView.setText('1');
 
         iconView = (ImageView) v.findViewById(R.id.tab_item_icon);
         iconView.setImageResource(iconID);
@@ -234,7 +239,13 @@ public class MainActivity extends CoreActivity {
         if (count == 0) {
             tvMessageCount.setVisibility(View.GONE);
         } else {
-            tvMessageCount.setText("" + count);
+            if (count <= 99) {
+                tvMessageCount.setText("" + count);
+                tvMessageCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 8);
+            } else {
+                tvMessageCount.setText("99+");
+                tvMessageCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 6);
+            }
             tvMessageCount.setVisibility(View.VISIBLE);
         }
     }

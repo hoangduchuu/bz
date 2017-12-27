@@ -1,35 +1,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal|bottom"
-    android:orientation="vertical"
-    android:padding="5dp">
+    android:orientation="vertical">
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="45dp"
         android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/tab_item_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             tools:src="@drawable/ic_tab_messages_gray" />
 
         <TextView
             android:id="@+id/tab_item_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:layout_alignParentEnd="true"
             android:background="@drawable/badge_circle"
-            android:gravity="center_horizontal"
-            android:minWidth="12dp"
-            android:padding="2dp"
+            android:gravity="center"
             android:textColor="#FFF"
-            android:textSize="8sp"
+            android:textSize="@dimen/badge_font_size"
             android:visibility="gone"
-            tools:text="1"
+            tools:text="99"
             tools:visibility="visible" />
     </RelativeLayout>
 

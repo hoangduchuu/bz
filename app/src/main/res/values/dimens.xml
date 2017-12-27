@@ -89,4 +89,7 @@
     <dimen name="item_chat_margin">5dp</dimen>
     <dimen name="chat_bg_corner_radius">12dp</dimen>
 
+    <dimen name="badge_font_size">8sp</dimen>
+    <dimen name="badge_font_size_small">6sp</dimen>
+
 </resources>
