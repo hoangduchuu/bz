@@ -10,6 +10,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -141,5 +142,19 @@ public class ConversationRepository extends BaseFirebaseDatabase {
             updateData.put(String.format("users/%s/conversations/%s", toUser.key, conversationID), conversation.toMap());
         }
         updateBatchData(updateData, null);
+    }
+
+    public void deleteConversations(List<Conversation> conversations, Callback callback) {
+        double timestamp = System.currentTimeMillis() / 1000d;
+        Map<String, Object> updateValue = new HashMap<>();
+        for (Conversation conversation : conversations) {
+            updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, currentUserId()), true);
+            updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, currentUserId()), timestamp);
+            for (String userId : conversation.memberIDs.keySet()) {
+                updateValue.put(String.format("users/%s/conversations/%s/deleteStatuses/%s", userId, conversation.key, currentUserId()), true);
+                updateValue.put(String.format("users/%s/conversations/%s/deleteTimestamps/%s", userId, conversation.key, currentUserId()), timestamp);
+            }
+        }
+        updateBatchData(updateValue, callback);
     }
 }

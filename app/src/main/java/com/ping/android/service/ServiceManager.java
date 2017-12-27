@@ -390,10 +390,10 @@ public class ServiceManager {
             mDatabase.child("conversations").child(conversation.key).child("deleteStatuses").child(currentUser.key).setValue(true);
             mDatabase.child("conversations").child(conversation.key).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
             //mDatabase.child("messages").child(conversation.key).setValue(null);
-            for (User user : conversation.members) {
-                mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).
+            for (String userId : conversation.memberIDs.keySet()) {
+                mDatabase.child("users").child(userId).child("conversations").child(conversation.key).
                         child("deleteStatuses").child(currentUser.key).setValue(true);
-                mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).
+                mDatabase.child("users").child(userId).child("conversations").child(conversation.key).
                         child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
                 // TODO logical delete message belong conversation
                 // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
