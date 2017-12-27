@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.text.TextUtils;
 
 import com.ping.android.App;
 import com.ping.android.activity.ChatActivity;
@@ -19,6 +20,9 @@ import com.ping.android.activity.LoadingActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.User;
+import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.quickblox.chat.QBChatService;
 
@@ -37,12 +41,32 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
-            JSONObject notification = new JSONObject( intent.getStringExtra("notification"));
+            String message = intent.getStringExtra("data");
+
             String conversationId = intent.getStringExtra("conversationId");
-            if (!needDisplayNotification(conversationId)){
-                return;
+            String notificationType = intent.getStringExtra("notificationType");
+            Log.d("new message: " + message + conversationId + notificationType);
+            if (TextUtils.equals(notificationType, "incoming_message")
+                    || TextUtils.equals(notificationType, "missed_call")) {
+                Log.d("incoming message");
+                if (!needDisplayNotification(conversationId)) {
+                    return;
+                }
+                postNotification(message, conversationId, context);
             }
-            postNotification(notification, conversationId, context);
+            else if (TextUtils.equals(notificationType, "incoming_call")){
+                Log.d("incoming call");
+                if (ActivityLifecycle.getInstance().isForeground()){
+                    Log.d("app in fore ground, no need to do any thing");
+                    return;
+                }
+                Intent intentNew = new Intent(context, LoadingActivity.class);
+                intentNew.putExtra("INCOMING_CALL", "incoming_call");
+                //intentNew.addFlags(Intent.FLAG_FROM_BACKGROUND);
+                intentNew.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                Log.d("going to start activity");
+                context.startActivity(intentNew);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (NullPointerException ex){
@@ -50,11 +74,10 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void postNotification(JSONObject notification, String conversationId, Context context) throws JSONException {
+    private void postNotification(String message, String conversationId, Context context) throws JSONException {
+        User currentUser = UserManager.getInstance().getUser();
+        boolean soundNotification = currentUser != null? currentUser.settings.notification: true;
 
-        boolean soundNotification = UserManager.getInstance().getUser().settings.notification;
-        String title = notification.getString("title");
-        String body = notification.getString("body");
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         // Create pending intent, mention the Activity which needs to be
         Intent intent = new Intent(context, LoadingActivity.class);
@@ -64,7 +87,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         notificationBuilder.
-                setContentText(body).
+                setContentText(message).
                 setContentIntent(contentIntent).
                 setAutoCancel(true);
         if (App.getActiveActivity() != null && !soundNotification){
@@ -81,7 +104,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N){
             notificationBuilder
-                    .setContentTitle(title);
+                    .setContentTitle("BZZZ");
         }
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             notificationBuilder.
@@ -113,6 +136,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         Activity activeActivity = App.getActiveActivity();
         //do not display notification if user already logged out
         if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
+            Log.d("user not logged-in");
             return false;
         }
         //do not display notification if user is opening same conversation

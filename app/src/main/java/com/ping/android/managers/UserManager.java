@@ -22,7 +22,6 @@ import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
 import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.model.QBUser;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,7 @@ public class UserManager {
     private ArrayList<User> friendList;
     private ArrayList<User> blockList;
     private User user;
+    private QBUser qbUser;
     private DatabaseReference userDatabaseReference;
     private UserRepository userRepository;
     private PresenceRepository presenceRepository;
@@ -77,11 +77,12 @@ public class UserManager {
         Callback qbCallback = (error, data) -> {
             if (error == null) {
                 QBUser qbUser = (QBUser) data[0];
+                this.qbUser = qbUser;
                 user.quickBloxID = qbUser.getId();
                 userRepository.updateQBId(user.key, qbUser.getId());
                 setUser(user);
                 initFriendList(user.friends);
-                startCallService(qbUser);
+                startCallService();
             }
             callback.complete(error, data);
         };
@@ -114,7 +115,7 @@ public class UserManager {
         initFriendList(friends);
     }
 
-    private void startCallService(QBUser qbUser) {
+    public void startCallService() {
         Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
         PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
         CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);

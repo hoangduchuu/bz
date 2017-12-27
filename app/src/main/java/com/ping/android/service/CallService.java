@@ -39,11 +39,10 @@ public class CallService extends Service {
 
     public static void start(Context context, QBUser qbUser, PendingIntent pendingIntent) {
         Intent intent = new Intent(context, CallService.class);
-
+        Log.d(TAG, "going to start call service");
         intent.putExtra(Consts.EXTRA_COMMAND_TO_SERVICE, Consts.COMMAND_LOGIN);
         intent.putExtra(Consts.EXTRA_QB_USER, qbUser);
         intent.putExtra(Consts.EXTRA_PENDING_INTENT, pendingIntent);
-
         context.startService(intent);
     }
 
