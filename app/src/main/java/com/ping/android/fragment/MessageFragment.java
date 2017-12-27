@@ -308,10 +308,13 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
 
     private void onDelete() {
         ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
-        ServiceManager.getInstance().deleteConversation(readConversations);
-        for (Conversation conversation : readConversations) {
-            adapter.deleteConversation(conversation.key);
-        }
+        showLoading();
+        conversationRepository.deleteConversations(readConversations, new Callback() {
+            @Override
+            public void complete(Object error, Object... data) {
+                hideLoading();
+            }
+        });
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();
