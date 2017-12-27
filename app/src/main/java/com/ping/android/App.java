@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -36,6 +37,7 @@ public class App extends CoreApp {
         setupActivityListener();
         ActivityLifecycle.init(this);
         initApplication();
+        FirebaseApp.initializeApp(getApplicationContext());
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         remoteConfig = FirebaseRemoteConfig.getInstance();
         remoteConfig.setConfigSettings(new FirebaseRemoteConfigSettings.Builder()

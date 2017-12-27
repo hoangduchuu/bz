@@ -27,12 +27,13 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "1.0.1"
+        versionCode 31
+        versionName "1.0.5"
         multiDexEnabled true
     }
     buildTypes {
         release {
+            //debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config

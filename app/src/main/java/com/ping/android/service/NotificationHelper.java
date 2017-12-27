@@ -58,6 +58,11 @@ public class NotificationHelper {
     public void sendCallingNotificationToUser(int quickBloxId, String callType) {
         String messageData = String.format("%s is %s calling.", UserManager.getInstance().getUser().getDisplayName(), callType);
         JsonObject object = new JsonObject();
+        JsonObject notification = new JsonObject();
+//        notification.addProperty("body", messageData);
+//        notification.addProperty("title", "BZZZ");
+//        object.addProperty("notification", notification.toString());
+        object.addProperty("data", messageData);
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
@@ -82,8 +87,13 @@ public class NotificationHelper {
     }
 
     public void sendNotificationForMissedCall(int quickBloxId, String callType){
-        String messageData = String.format("You missed a %s call from %s.", UserManager.getInstance().getUser().getDisplayName(), callType);
+        String messageData = String.format("You missed a %s call from %s.", callType, UserManager.getInstance().getUser().getDisplayName());
         JsonObject object = new JsonObject();
+        JsonObject notification = new JsonObject();
+//        notification.addProperty("body", messageData);
+//        notification.addProperty("title", "BZZZ");
+//        object.addProperty("notification", notification.toString());
+        object.addProperty("data", messageData);
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
@@ -154,13 +164,10 @@ public class NotificationHelper {
                 JsonObject data = new JsonObject();
 
 
-                notification.addProperty("body", body);
-                notification.addProperty("title", "BZZZ");
-                object.addProperty("notification", notification.toString());
-
-                data.addProperty("senderId", fmessage.senderId);
-                data.addProperty("senderName", fmessage.senderName);
-                object.addProperty("data", data.toString());
+//                notification.addProperty("body", body);
+//                notification.addProperty("title", "BZZZ");
+//                object.addProperty("notification", notification.toString());
+                object.addProperty("data", body);
 
 
                 object.addProperty("ios_badge", "1");

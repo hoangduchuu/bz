@@ -58,10 +58,13 @@ public class LoadingActivity extends CoreActivity {
         quickBloxRepository = new QuickBloxRepository();
         //app not running or not logged-in, notification touched or user start app
         if(UserManager.getInstance().getUser() == null) {
+            Log.d("inittialize login");
             initialize(conversationId);
         }
         //app running and logged in, user start app
         else if (TextUtils.isEmpty(conversationId)){
+            UserManager.getInstance().startCallService();
+            Log.d("start MainActivity");
             Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
