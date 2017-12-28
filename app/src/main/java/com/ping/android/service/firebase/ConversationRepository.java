@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
@@ -20,7 +21,7 @@ import java.util.Map;
 public class ConversationRepository extends BaseFirebaseDatabase {
     @Override
     protected void initializeReference(FirebaseDatabase database) {
-        databaseReference = database.getReference().child("conversations");
+        databaseReference = database.getReference().child("users").child(UserManager.getInstance().getUser().key).child("conversations");
     }
 
     public void getConversation(String key, Callback callback) {

@@ -58,10 +58,6 @@ public class NotificationHelper {
     public void sendCallingNotificationToUser(int quickBloxId, String callType) {
         String messageData = String.format("%s is %s calling.", UserManager.getInstance().getUser().getDisplayName(), callType);
         JsonObject object = new JsonObject();
-        JsonObject notification = new JsonObject();
-//        notification.addProperty("body", messageData);
-//        notification.addProperty("title", "BZZZ");
-//        object.addProperty("notification", notification.toString());
         object.addProperty("data", messageData);
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
@@ -89,10 +85,6 @@ public class NotificationHelper {
     public void sendNotificationForMissedCall(int quickBloxId, String callType){
         String messageData = String.format("You missed a %s call from %s.", callType, UserManager.getInstance().getUser().getDisplayName());
         JsonObject object = new JsonObject();
-        JsonObject notification = new JsonObject();
-//        notification.addProperty("body", messageData);
-//        notification.addProperty("title", "BZZZ");
-//        object.addProperty("notification", notification.toString());
         object.addProperty("data", messageData);
         object.addProperty("message", messageData);
         object.addProperty("ios_badge", "1");
@@ -160,13 +152,6 @@ public class NotificationHelper {
                 }
 
                 JsonObject object = new JsonObject();
-                JsonObject notification = new JsonObject();
-                JsonObject data = new JsonObject();
-
-
-//                notification.addProperty("body", body);
-//                notification.addProperty("title", "BZZZ");
-//                object.addProperty("notification", notification.toString());
                 object.addProperty("data", body);
 
 
@@ -176,6 +161,7 @@ public class NotificationHelper {
                 object.addProperty("ios_content_available", 1);
                 object.addProperty("notificationType", "incoming_message");
                 object.addProperty("timestamp", fmessage.timestamp);
+                object.addProperty("originMessage", fmessage.message);
                 object.addProperty("senderName", fmessage.senderName);
                 object.addProperty("conversationId", conversation.key);
                 object.addProperty("photoUrl", fmessage.photoUrl);
