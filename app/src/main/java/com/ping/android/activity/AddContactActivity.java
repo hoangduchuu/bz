@@ -2,6 +2,8 @@ package com.ping.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.style.ImageSpan;
@@ -65,6 +67,16 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        for (User user : allUsers) {
+            updateTypeFriend(user);
+        }
+        adapter.updateData(allUsers);
+        adapter.filter(textToSearch);
+    }
+
     private void bindViews() {
         btBack = (ImageView) findViewById(R.id.add_contact_back);
         btBack.setOnClickListener(this);
@@ -119,6 +131,9 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     private void loadAllUsers() {
         allUsers = UserManager.getInstance().getAllUsers();
         if (allUsers.size() > 0) {
+            for (User user : allUsers) {
+                updateTypeFriend(user);
+            }
             adapter.updateData(allUsers);
             return;
         }
@@ -170,6 +185,20 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
                     intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
                     startActivity(intent);
                 });
+    }
+
+    @Override
+    public void onViewProfile(User contact, Pair<View, String>[] sharedElements) {
+        Intent intent = new Intent(this, UserDetailActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, contact.key);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, contact);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, sharedElements[1].second);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                sharedElements
+        );
+        startActivity(intent, options.toBundle());
     }
 
     @Override

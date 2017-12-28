@@ -1,6 +1,7 @@
 package com.ping.android.adapter;
 
 import android.content.Context;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -80,7 +81,6 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
             holder.tgAddFriend.setChecked(true);
             holder.tgAddFriend.setEnabled(true);
         }
-
         UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
     }
 
@@ -93,6 +93,8 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         void onAddFriend(User contact);
 
         void onSendMessage(User contact);
+
+        void onViewProfile(User contact, Pair<View, String>... sharedElements);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -113,6 +115,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
             ivSendMessage = (ImageView) itemView.findViewById(R.id.contact_send_message);
             ivSendMessage.setOnClickListener(this);
             ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
+            ivProfileImage.setOnClickListener(this);
         }
 
         public void setClickListener(ClickListener clickListener) {
@@ -133,6 +136,11 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
                     break;
                 case R.id.contact_send_message:
                     clickListener.onSendMessage(contact);
+                    break;
+                case R.id.contact_item_profile:
+                    Pair imagePair = Pair.create(ivProfileImage, "imageProfile" + getAdapterPosition());
+                    Pair namePair = Pair.create(tvName, "contactName" + getAdapterPosition());
+                    clickListener.onViewProfile(contact, imagePair, namePair);
                     break;
             }
         }
