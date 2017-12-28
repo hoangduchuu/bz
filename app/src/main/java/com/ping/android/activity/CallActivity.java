@@ -947,7 +947,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 123,
                 notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder builder = new Notification.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Ongoing call...")
                 .setColor(getResources().getColor(R.color.colorAccent))
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
