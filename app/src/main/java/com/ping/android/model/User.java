@@ -106,6 +106,7 @@ public class User implements Parcelable {
         byte tmpShowMappingConfirm = in.readByte();
         showMappingConfirm = tmpShowMappingConfirm == 1;
         friendList = in.createTypedArrayList(User.CREATOR);
+        typeFriend = Constant.TYPE_FRIEND.valueOf(in.readString());
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -169,5 +170,6 @@ public class User implements Parcelable {
         parcel.writeByte((byte) (loginStatus == null ? 0 : loginStatus ? 1 : 2));
         parcel.writeByte((byte) (showMappingConfirm ? 1 : 2));
         parcel.writeTypedList(friendList);
+        parcel.writeString(typeFriend.toString());
     }
 }

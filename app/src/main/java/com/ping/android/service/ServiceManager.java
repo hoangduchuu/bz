@@ -239,8 +239,12 @@ public class ServiceManager {
         mDatabase.child("users").child(currentUser.key).child("groups").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Group group = Group.from(dataSnapshot);
-                completion.complete(null, group);
+                if (dataSnapshot.exists()) {
+                    Group group = Group.from(dataSnapshot);
+                    completion.complete(null, group);
+                } else {
+                    completion.complete(new NullPointerException());
+                }
             }
 
             @Override

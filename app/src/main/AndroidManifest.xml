@@ -162,7 +162,8 @@
             android:name=".CallActivity"
             android:screenOrientation="sensorPortrait"
             android:label="GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".PermissionsActivity"
             android:screenOrientation="sensorPortrait"

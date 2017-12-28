@@ -266,10 +266,12 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
                 scrollToTop();
             } else {
                 ServiceManager.getInstance().getGroup(conversation.groupID, (error1, data1) -> {
-                    conversation.group = (Group) data1[0];
-                    adapter.addOrUpdateConversation(conversation);
-                    updateUnreadNumber();
-                    scrollToTop();
+                    if (error == null && data1.length > 0) {
+                        conversation.group = (Group) data1[0];
+                        adapter.addOrUpdateConversation(conversation);
+                        updateUnreadNumber();
+                        scrollToTop();
+                    }
                 });
             }
         });
