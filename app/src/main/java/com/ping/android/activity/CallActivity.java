@@ -2,9 +2,13 @@ package com.ping.android.activity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -191,6 +196,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
 
+        notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         parseIntentExtras();
         quickBloxRepository = new QuickBloxRepository();
         sessionManager = WebRtcSessionManager.getInstance(this);
@@ -643,6 +649,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         }
         insertCallHistory(Constant.CALL_STATUS_SUCCESS);
         ringtonePlayer.stop();
+        showOngoingCallNotification();
     }
 
     @Override
@@ -679,7 +686,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     public void onSessionClosed(final QBRTCSession session) {
 
         Log.d(TAG, "Session " + session.getSessionID() + " start stop session");
-
+        hideOngoingCallNotification();
         if (session.equals(getCurrentSession())) {
             Log.d(TAG, "Stop session");
 
@@ -694,7 +701,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     }
 
     @Override
-    public void onSessionStartClose(final QBRTCSession session) {
+        public void onSessionStartClose(final QBRTCSession session) {
         if (session.equals(getCurrentSession())) {
             session.removeSessionCallbacksListener(CallActivity.this);
             notifyCallStateListenersCallStopped();
@@ -792,6 +799,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     public void onAcceptCurrentSession() {
         if (currentSession != null) {
             addConversationFragment(true);
+            showOngoingCallNotification();
         } else {
             Log.d(TAG, "SKIP addConversationFragment method");
         }
@@ -811,6 +819,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        hideOngoingCallNotification();
     }
 
 
@@ -920,6 +929,28 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onOpponentsListUpdated(newUsers);
         }
+    }
+
+    NotificationManager notificationManager;
+
+    private void showOngoingCallNotification() {
+        Intent notificationIntent = new Intent(this, CallActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 123,
+                notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder builder = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Ongoing call...")
+                .setColor(getResources().getColor(R.color.colorAccent))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
+                .setContentIntent(pendingIntent);
+        builder.setPriority(Notification.PRIORITY_HIGH);
+        Notification notification = builder.build();
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        notificationManager.notify(1111, notification);
+    }
+
+    private void hideOngoingCallNotification() {
+        notificationManager.cancel(1111);
     }
 
     public interface OnChangeDynamicToggle {
