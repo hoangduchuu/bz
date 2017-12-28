@@ -19,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
@@ -35,6 +36,7 @@ import com.ping.android.fragment.VideoConversationFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
@@ -193,6 +195,11 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_call);
 
@@ -255,7 +262,9 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         String historyKey = mDatabase.child("calls").push().getKey();
         mDatabase.child("calls").child(historyKey).setValue(callHistory.toMap());
         mDatabase.child("users").child(otherUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());
-
+        if(status == Constant.CALL_STATUS_MISS) {
+            NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.quickBloxID, isVideoCall ? "video" : "voice");
+        }
         callHistory.status = Constant.CALL_STATUS_SUCCESS;
         mDatabase.child("users").child(currentUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());
     }
