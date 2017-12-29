@@ -123,6 +123,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
                 channel.enableVibration(true);
+                channel.setShowBadge(true);
                 notificationManager.createNotificationChannel(channel);
             }
             notificationBuilder.setChannelId("channel0");
