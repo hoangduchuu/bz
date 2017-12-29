@@ -60,7 +60,7 @@ public class NotificationHelper {
         JsonObject object = new JsonObject();
         object.addProperty("data", messageData);
         object.addProperty("message", messageData);
-        object.addProperty("ios_badge", "1");
+        //object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
         object.addProperty("notificationType", "incoming_call");
         QBEvent event = new QBEvent();
@@ -87,8 +87,9 @@ public class NotificationHelper {
         JsonObject object = new JsonObject();
         object.addProperty("data", messageData);
         object.addProperty("message", messageData);
-        object.addProperty("ios_badge", "1");
+        //object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
+        object.addProperty("ios_content_available", 1);
         object.addProperty("notificationType", "missed_call");
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
@@ -155,7 +156,7 @@ public class NotificationHelper {
                 object.addProperty("data", body);
 
 
-                object.addProperty("ios_badge", "1");
+                //object.addProperty("ios_badge", "1");
                 object.addProperty("message", body);
                 object.addProperty("ios_sound", "default");
                 object.addProperty("ios_content_available", 1);
@@ -214,7 +215,7 @@ public class NotificationHelper {
         object.addProperty("data", data.toString());
 
 
-        object.addProperty("ios_badge", "1");
+        //object.addProperty("ios_badge", "1");
         object.addProperty("message", body);
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
