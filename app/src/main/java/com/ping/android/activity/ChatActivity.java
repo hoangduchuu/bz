@@ -58,6 +58,7 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
@@ -151,6 +152,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     Message cacheMessage = null;
     private Message selectedMessage;
     private boolean shouldDispatchOnTouch = true;
+    private BadgeHelper badgeHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +160,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         setContentView(R.layout.activity_chat);
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
-
+        badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
 
@@ -194,6 +196,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     protected void onResume() {
         super.onResume();
+        badgeHelper.read(conversationID);
         setButtonsState(0);
         fromUser = UserManager.getInstance().getUser();
         if (userUpdated != null) {

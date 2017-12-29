@@ -100,6 +100,7 @@ public class CallService extends Service {
     }
 
     private void startLoginToChat() {
+        if (currentUser == null || currentUser.getId() == null) return;
         if (!chatService.isLoggedIn()) {
             loginToChat(currentUser);
         } else {
