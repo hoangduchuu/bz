@@ -341,7 +341,7 @@ public class CommonMethod {
         AutoCompleteTextView searchTextContent = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
 
         searchTextContent.setTextSize(15); //Set the text size
-        searchTextContent.setGravity(Gravity.BOTTOM); //Set its gravity to bottom
+        //searchTextContent.setGravity(Gravity.BOTTOM); //Set its gravity to bottom
     }
 
     public static boolean isTrueValue(Map<String, Boolean> source, String keyToCheck) {

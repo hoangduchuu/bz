@@ -31,6 +31,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.UsersUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,7 @@ public class MainActivity extends CoreActivity {
     private User currentUser;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private BadgeHelper badgeHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,7 @@ public class MainActivity extends CoreActivity {
 
     private void init() {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        badgeHelper = new BadgeHelper(this);
         viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
@@ -176,6 +179,7 @@ public class MainActivity extends CoreActivity {
             editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
             editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
             editor.apply();
+            badgeHelper.clearMissedCall();
         } else {
             int count = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
             updateMissedCallCount(count);

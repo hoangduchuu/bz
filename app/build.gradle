@@ -103,7 +103,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.5'
 
     //ShortcutBadger
-    implementation 'me.leolin:ShortcutBadger:1.1.17@aar'
+    implementation 'me.leolin:ShortcutBadger:1.1.19@aar'
     implementation("com.quickblox:quickblox-android-sdk-messages:$rootProject.qbSdkVersion") {
         exclude group: 'com.google.android.gms', module: 'play-services-gcm'
         exclude group: 'com.google.firebase', module: 'firebase-messaging'

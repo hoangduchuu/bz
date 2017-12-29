@@ -22,6 +22,7 @@ import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.quickblox.chat.QBChatService;
@@ -37,9 +38,11 @@ import org.json.JSONObject;
 
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
     private String TAG = this.getClass().getSimpleName();
+    private BadgeHelper badgeHelper;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        this.badgeHelper = new BadgeHelper(context);
         try {
             String message = intent.getStringExtra("data");
 
@@ -52,11 +55,15 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 if (!needDisplayNotification(conversationId)) {
                     return;
                 }
-                postNotification(message, conversationId, context);
-            }
-            else if (TextUtils.equals(notificationType, "incoming_call")){
+                if (!TextUtils.isEmpty(conversationId)) {
+                    this.badgeHelper.increaseBadgeCount(conversationId);
+                } else {
+                    this.badgeHelper.increaseMissedCall();
+                }
+                this.postNotification(message, conversationId, context);
+            } else if (TextUtils.equals(notificationType, "incoming_call")) {
                 Log.d("incoming call");
-                if (ActivityLifecycle.getInstance().isForeground()){
+                if (ActivityLifecycle.getInstance().isForeground()) {
                     Log.d("app in fore ground, no need to do any thing");
                     return;
                 }
@@ -69,14 +76,14 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             }
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (NullPointerException ex){
+        } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
     }
 
     private void postNotification(String message, String conversationId, Context context) throws JSONException {
         User currentUser = UserManager.getInstance().getUser();
-        boolean soundNotification = currentUser != null? currentUser.settings.notification: true;
+        boolean soundNotification = currentUser != null ? currentUser.settings.notification : true;
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         // Create pending intent, mention the Activity which needs to be
@@ -90,35 +97,35 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 setContentText(message).
                 setContentIntent(contentIntent).
                 setAutoCancel(true);
-        if (App.getActiveActivity() != null && !soundNotification){
+        if (App.getActiveActivity() != null && !soundNotification) {
             notificationBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
-        }else{
+        } else {
             notificationBuilder.setDefaults(Notification.DEFAULT_ALL);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
-        }else{
+        } else {
             notificationBuilder
                     .setPriority(Notification.PRIORITY_HIGH);
         }
         //do not show double BZZZ, will change if use title for other meaning
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             notificationBuilder
                     .setContentTitle("BZZZ");
         }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.
                     setSmallIcon(R.drawable.ic_notification).
                     setColor(context.getResources().getColor(R.color.colorAccent)).
                     setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
-        }else{
+        } else {
             notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
         }
-        NotificationManager notificationManager = ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        NotificationManager notificationManager = ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel =
-                notificationManager.getNotificationChannel("channel0");
-            if (channel == null){
+                    notificationManager.getNotificationChannel("channel0");
+            if (channel == null) {
                 channel = new NotificationChannel("channel0", "channel0", NotificationManager.IMPORTANCE_HIGH);
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
@@ -132,18 +139,18 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     }
 
-    private boolean needDisplayNotification(String conversationId){
+    private boolean needDisplayNotification(String conversationId) {
         Activity activeActivity = App.getActiveActivity();
         //do not display notification if user already logged out
-        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)){
+        if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)) {
             Log.d("user not logged-in");
             return false;
         }
         //do not display notification if user is opening same conversation
-        if (activeActivity != null && activeActivity instanceof ChatActivity){
+        if (activeActivity != null && activeActivity instanceof ChatActivity) {
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
-            if (StringUtils.equals(chatActivity.getConversationId(), conversationId)){
+            if (StringUtils.equals(chatActivity.getConversationId(), conversationId)) {
                 return false;
             }
         }
