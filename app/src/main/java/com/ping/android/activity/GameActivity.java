@@ -59,6 +59,7 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
 
     private CountDownTimer gameCountDown;
     private Handler handler = new Handler();
+    private boolean isGameNotificationSent = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,10 +121,11 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         } else {
             ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         }
-
-        //send game status to sender
-        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
-
+        if(!isGameNotificationSent) {
+            //send game status to sender
+            NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+            isGameNotificationSent = true;
+        }
         originalBitmap = null;
         for (Bitmap bitmap : chunkedImages) {
             bitmap.recycle();
@@ -265,9 +267,10 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
 
     private void updateGameStatus(boolean isTimeOut) {
         boolean gameWin = checkGameStatus();
-        if (gameWin || isTimeOut) {
+        if ((gameWin || isTimeOut) & !isGameNotificationSent) {
             //send game status to sender
             NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+            isGameNotificationSent = true;
         }
 
         if (gameWin) {
