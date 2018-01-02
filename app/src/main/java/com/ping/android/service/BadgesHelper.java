@@ -36,9 +36,7 @@ public class BadgesHelper {
         final DatabaseReference userBadgesRef = dbReference.child("users").child(userId).child("badges");
         userBadgesRef.keepSynced(true);
         FirebaseDatabase.getInstance().getReference().child("users").child(userId).child("badges")
-                .child("refreshMock").setValue(0, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                .child("refreshMock").setValue(0, (databaseError, databaseReference) ->
                 userBadgesRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -59,9 +57,7 @@ public class BadgesHelper {
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
-                });
-            }
-        });
+                }));
 
     }
 
@@ -104,7 +100,6 @@ public class BadgesHelper {
         dbReference.child("users").child(UserManager.getInstance().getUser().key).child("badges").child(key).setValue(null);
 
         //update app-icon badges count
-        //UIApplication.shared.applicationIconBadgeNumber = getCurrentUserAllBadges()
 
     }
 

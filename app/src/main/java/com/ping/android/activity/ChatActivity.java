@@ -49,6 +49,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
@@ -760,7 +761,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         notifyTyping();
         updateConversationReadStatus();
         bindConversationSetting();
-
+        BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             tvChatName.setText(originalConversation.opponentUser.getDisplayName());
         } else {
