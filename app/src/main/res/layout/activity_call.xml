@@ -12,6 +12,7 @@
 
         <ImageView
             android:id="@+id/call_back"
+            android:visibility="gone"
             style="@style/BackButton" />
     </LinearLayout>
 

@@ -49,7 +49,7 @@
             android:layout_gravity="center"
             android:layout_margin="@dimen/margin_common"
             android:textColor="@color/text_color_also_on_call"
-            android:textSize="@dimen/text_size"
+            android:textSize="18sp"
             android:visibility="invisible" />
 
         <RelativeLayout

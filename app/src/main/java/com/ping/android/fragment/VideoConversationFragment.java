@@ -94,6 +94,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     private User opponentUser;
     private UserRepository userRepository;
 
+    private ImageView firstOpponentAvatarImageView;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -186,7 +188,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
         timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
 
-        ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
+        firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
 
         userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
             if (error != null) return;
@@ -659,6 +661,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         connectionEstablished = true;
         setStatusForOpponent(userId, getString(R.string.text_status_connected));
         setProgressBarForOpponentGone(userId);
+        allOpponentsTextView.setVisibility(View.INVISIBLE);
+        firstOpponentAvatarImageView.setVisibility(View.INVISIBLE);
     }
 
     @Override

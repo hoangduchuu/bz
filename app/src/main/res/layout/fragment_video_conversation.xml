@@ -55,16 +55,25 @@
             android:text="@string/ringing"
             android:textSize="@dimen/text_size_ringing" />
 
+
+
+    </LinearLayout>
+    <LinearLayout
+        style="@style/MatchWidth"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_above="@+id/layout_action_buttons"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:layout_height="30dp">
         <Chronometer
             android:id="@+id/chronometer_timer_call"
             style="@style/WrapContent"
-            android:layout_gravity="center"
+            android:layout_gravity="center_vertical"
             android:textColor="@color/text_color_also_on_call"
-            android:textSize="@dimen/text_size"
+            android:textSize="18sp"
             android:visibility="invisible" />
-
     </LinearLayout>
-
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/layout_action_buttons"
         style="@style/MatchWidth"
