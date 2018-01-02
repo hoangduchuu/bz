@@ -28,6 +28,7 @@ import com.ping.android.fragment.GroupFragment;
 import com.ping.android.fragment.MessageFragment;
 import com.ping.android.fragment.ProfileFragment;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
@@ -46,6 +47,7 @@ public class MainActivity extends CoreActivity {
     private User currentUser;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private ViewPagerAdapter viewPagerAdapter;
     private BadgeHelper badgeHelper;
 
     @Override
@@ -174,15 +176,37 @@ public class MainActivity extends CoreActivity {
         int messageCount1 = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount1);
         if (selected == 1) {
-            // Reset missed count
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-            editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
-            editor.apply();
-            badgeHelper.clearMissedCall();
+            resetMissedCall();
         } else {
             int count = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
             updateMissedCallCount(count);
+        }
+    }
+
+    private Fragment getCurrentFragment() {
+        return viewPagerAdapter.getItem(viewPager.getCurrentItem());
+    }
+
+    private void resetMissedCall() {
+        // Reset missed count
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
+        editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
+        editor.apply();
+        badgeHelper.clearMissedCall();
+    }
+
+    public void callAdded(Call call) {
+        Fragment fragment = getCurrentFragment();
+        if (fragment instanceof CallFragment) {
+            resetMissedCall();
+        } else {
+            long lastTimestamp = prefs.getLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, 0);
+            if (call.status == Constant.CALL_STATUS_MISS
+                    && (lastTimestamp == 0 || call.timestamp * 1000 > lastTimestamp)) {
+                int currentMissed = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
+                prefs.edit().putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, currentMissed + 1).apply();
+            }
         }
     }
 
@@ -255,18 +279,18 @@ public class MainActivity extends CoreActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         ProfileFragment profileFragment = new ProfileFragment();
         ContactFragment contactFragment = new ContactFragment();
         MessageFragment messageFragment = new MessageFragment();
         GroupFragment groupFragment = new GroupFragment();
         CallFragment callFragment = new CallFragment();
-        adapter.addFrag(messageFragment, "Message");
-        adapter.addFrag(callFragment, "Call");
-        adapter.addFrag(groupFragment, "Group");
-        adapter.addFrag(contactFragment, "Contact");
-        adapter.addFrag(profileFragment, "Profile");
-        viewPager.setAdapter(adapter);
+        viewPagerAdapter.addFrag(messageFragment, "Message");
+        viewPagerAdapter.addFrag(callFragment, "Call");
+        viewPagerAdapter.addFrag(groupFragment, "Group");
+        viewPagerAdapter.addFrag(contactFragment, "Contact");
+        viewPagerAdapter.addFrag(profileFragment, "Profile");
+        viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(5);
     }
 
