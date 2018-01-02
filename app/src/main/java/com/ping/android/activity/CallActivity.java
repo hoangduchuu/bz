@@ -263,7 +263,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         mDatabase.child("calls").child(historyKey).setValue(callHistory.toMap());
         mDatabase.child("users").child(otherUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());
         if(status == Constant.CALL_STATUS_MISS) {
-            NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.quickBloxID, isVideoCall ? "video" : "voice");
+            NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.key, otherUser.quickBloxID, isVideoCall ? "video" : "voice");
         }
         callHistory.status = Constant.CALL_STATUS_SUCCESS;
         mDatabase.child("users").child(currentUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());

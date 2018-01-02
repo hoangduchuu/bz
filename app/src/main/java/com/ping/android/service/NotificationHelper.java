@@ -11,6 +11,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.quickblox.core.QBEntityCallback;
@@ -82,31 +83,38 @@ public class NotificationHelper {
         });
     }
 
-    public void sendNotificationForMissedCall(int quickBloxId, String callType){
-        String messageData = String.format("You missed a %s call from %s.", callType, UserManager.getInstance().getUser().getDisplayName());
-        JsonObject object = new JsonObject();
-        object.addProperty("data", messageData);
-        object.addProperty("message", messageData);
-        //object.addProperty("ios_badge", "1");
-        object.addProperty("ios_sound", "default");
-        object.addProperty("ios_content_available", 1);
-        object.addProperty("notificationType", "missed_call");
-        QBEvent event = new QBEvent();
-        event.setNotificationType(QBNotificationType.PUSH);
-        event.addUserIds(quickBloxId);
-        event.setType(QBEventType.ONE_SHOT);
-        event.setMessage(object.toString());
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
-        QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
-            @Override
-            public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+    public void sendNotificationForMissedCall(String userKey, int quickBloxId, String callType){
+        BadgesHelper.getInstance().readUserBadgesWithCompletion(userKey, (error, data) -> {
 
+            if (error != null){
+                return;
             }
+            int badges = (int)data[0];
+            String messageData = String.format("You missed a %s call from %s.", callType, UserManager.getInstance().getUser().getDisplayName());
+            JsonObject object = new JsonObject();
+            object.addProperty("data", messageData);
+            object.addProperty("message", messageData);
+            object.addProperty("ios_badge", badges + 1);
+            object.addProperty("ios_sound", "default");
+            object.addProperty("ios_content_available", 1);
+            object.addProperty("notificationType", "missed_call");
+            QBEvent event = new QBEvent();
+            event.setNotificationType(QBNotificationType.PUSH);
+            event.addUserIds(quickBloxId);
+            event.setType(QBEventType.ONE_SHOT);
+            event.setMessage(object.toString());
+            event.setEnvironment(QBEnvironment.DEVELOPMENT);
+            QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
+                @Override
+                public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+                    BadgesHelper.getInstance().increaseUserBadges(userKey, "missed_call");
+                }
 
-            @Override
-            public void onError(QBResponseException e) {
-                Log.e(e);
-            }
+                @Override
+                public void onError(QBResponseException e) {
+                    Log.e(e);
+                }
+            });
         });
     }
 
@@ -151,12 +159,8 @@ public class NotificationHelper {
                     default:
                         return;
                 }
-
                 JsonObject object = new JsonObject();
                 object.addProperty("data", body);
-
-
-                //object.addProperty("ios_badge", "1");
                 object.addProperty("message", body);
                 object.addProperty("ios_sound", "default");
                 object.addProperty("ios_content_available", 1);
@@ -171,15 +175,33 @@ public class NotificationHelper {
                 object.addProperty("gameUrl", fmessage.gameUrl);
                 object.addProperty("senderId", UserManager.getInstance().getUser().key);
                 object.addProperty("messageType", fmessage.messageType);
-                QBEvent event = new QBEvent();
-                event.setNotificationType(QBNotificationType.PUSH);
-                event.addUserIds(user.quickBloxID);
-                event.setType(QBEventType.ONE_SHOT);
-                event.setMessage(object.toString());
-                event.setEnvironment(QBEnvironment.DEVELOPMENT);
-                //this notification will send to both android and ios
-                QBPushNotifications.createEvent(event).performAsync(eventCallback);
 
+                BadgesHelper.getInstance().readUserBadgesWithCompletion(user.key, (error, data) -> {
+
+                    if (error != null) { return;}
+
+                    int badges = (int)data[0];
+                    object.addProperty("ios_badge", badges + 1);
+
+                    QBEvent event = new QBEvent();
+                    event.setNotificationType(QBNotificationType.PUSH);
+                    event.addUserIds(user.quickBloxID);
+                    event.setType(QBEventType.ONE_SHOT);
+                    event.setMessage(object.toString());
+                    event.setEnvironment(QBEnvironment.DEVELOPMENT);
+                    //this notification will send to both android and ios
+                    QBPushNotifications.createEvent(event).performAsync(new QBEntityCallback<QBEvent>() {
+                        @Override
+                        public void onSuccess(QBEvent qbEvent, Bundle bundle) {
+                            BadgesHelper.getInstance().increaseUserBadges(user.key, conversation.key);
+                        }
+
+                        @Override
+                        public void onError(QBResponseException e) {
+
+                        }
+                    });
+                });
             }
         }
     }
