@@ -296,11 +296,8 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
             rvListCall.scrollToPosition(0);
         });
 
-        long lastTimestamp = prefs.getLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, 0);
-        if (call.status == Constant.CALL_STATUS_MISS
-                && lastTimestamp > 0 && call.timestamp * 1000 > lastTimestamp) {
-            int currentMissed = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-            prefs.edit().putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, currentMissed + 1).apply();
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).callAdded(call);
         }
     }
 
