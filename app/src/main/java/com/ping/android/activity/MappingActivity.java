@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -138,6 +141,28 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
 
         final EditText userInput = (EditText) promptsView.findViewById(R.id.input_mapping_value);
         userInput.setText(mapping.mapValue);
+        userInput.addTextChangedListener(new TextWatcher() {
+            String oldValue = "";
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String newValue = editable.toString();
+                if (TextUtils.isEmpty(oldValue) || TextUtils.isEmpty(newValue)){
+                    oldValue = newValue;
+                }else if(!TextUtils.equals(oldValue, newValue)) {
+                    userInput.setText(oldValue);
+                }
+            }
+        });
 
         // set dialog message
         alertDialogBuilder
