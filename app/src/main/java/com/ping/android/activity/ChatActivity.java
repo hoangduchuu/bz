@@ -68,7 +68,6 @@ import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
@@ -1067,12 +1066,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
         edMessage.addTextChangedListener(textWatcher);
-        edMessage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                setButtonsState(R.id.chat_text_btn);
-                return false;
-            }
+        edMessage.setOnTouchListener((view, motionEvent) -> {
+            setButtonsState(R.id.chat_text_btn);
+            return false;
         });
     }
 
