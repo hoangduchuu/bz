@@ -516,7 +516,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         layoutBottomMenu = (RelativeLayout) findViewById(R.id.chat_bottom_menu);
 
         edMessage = (EditText) findViewById(R.id.chat_message_tv);
-        edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+        //edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
 
         visualizerView = (RecorderVisualizerView) findViewById(R.id.visualizer);
