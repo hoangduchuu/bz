@@ -21,6 +21,7 @@ import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -559,10 +560,16 @@ public class ServiceManager {
             if (mappings.containsKey(replaceSpecialChar(context, chars[i]))) {
                 key = replaceSpecialChar(context, chars[i]);
             }
-            if (mappings.containsKey(key) && !StringUtils.isEmpty(mappings.get(key))) {
-                returnMessage += mappings.get(key);
-            } else {
-                returnMessage += chars[i];
+            try {
+                Object value = mappings.get(key);
+                if (mappings.containsKey(key) && !StringUtils.isEmpty(value.toString())) {
+                    returnMessage += value.toString();
+                } else {
+                    returnMessage += chars[i];
+                }
+            } catch (ClassCastException exception) {
+                Log.e(key + "\n" + mappings.toString());
+                exception.printStackTrace();
             }
         }
         return returnMessage;
