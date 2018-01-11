@@ -207,4 +207,9 @@
     <!-- Group -->
     <string name="warning_leave_group">You will no longer receive any messages from this group.</string>
     <string name="Warning_leave_group_leave">LEAVE</string>
+
+    <!-- Memory game -->
+    <string name="memory_game_title">MEMORY GAME</string>
+    <string name="memory_game_start_instruction">You have to tap colors in played order to complete this game</string>
+    <string name="memory_game_game_over">Game over</string>
 </resources>
