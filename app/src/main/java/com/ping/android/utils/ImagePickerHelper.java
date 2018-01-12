@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -368,17 +369,24 @@ public class ImagePickerHelper {
             final String docId = DocumentsContract.getDocumentId(uri);
             final String[] split = docId.split(":");
             final String type = split[0];
-            if ("image".equals(type)) {
-                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            if (isDownloadsDocument(uri)) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
                 column = MediaStore.Images.Media.DATA;
-            } else if ("video".equals(type)) {
-                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                column = MediaStore.Video.Media.DATA;
+            } else if (isMediaDocument(uri)) {
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    column = MediaStore.Images.Media.DATA;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    column = MediaStore.Video.Media.DATA;
+                }
+                selection = MediaStore.Images.Media._ID + "=?";
+                selectionArgs = new String[]{
+                        split[1]
+                };
             }
-            selection = MediaStore.Images.Media._ID + "=?";
-            selectionArgs = new String[]{
-                    split[1]
-            };
 
         } else {
             column = MediaStore.Images.Media.DATA;
@@ -399,6 +407,22 @@ public class ImagePickerHelper {
                 cursor.close();
         }
         return null;
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
     private void saveImage(String filePath, Bitmap bitmap) {

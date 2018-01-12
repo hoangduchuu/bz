@@ -212,4 +212,8 @@
     <string name="memory_game_title">MEMORY GAME</string>
     <string name="memory_game_start_instruction">You have to tap colors in played order to complete this game</string>
     <string name="memory_game_game_over">Game over</string>
+    <string name="chat_choose_game">Choose game</string>
+    <string name="chat_puzzle_game">Puzzle</string>
+    <string name="chat_memory_game">Memory</string>
+    <string name="chat_tic_tac_toe_game">Tic tac toe</string>
 </resources>

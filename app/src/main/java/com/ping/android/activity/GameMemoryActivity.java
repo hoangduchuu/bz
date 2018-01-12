@@ -2,12 +2,20 @@ package com.ping.android.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.Constant;
+import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +31,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
     private ImageButton imgGreen;
     private ImageButton imgYellow;
     private ImageButton imgBlue;
+    private ImageView imageView;
 
     private Map<GamePattern, MediaPlayer> mediaPlayerMap;
     private ArrayList<GamePattern> originalSteps;
@@ -31,11 +40,23 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
     private Handler handler = new Handler(Looper.getMainLooper());
     private boolean playingMode = false;
 
+    private String conversationID, messageID;
+    private String imageURL;
+    private Conversation conversation;
+    private User sender;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_memory);
         initResource();
+
+        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
+        messageID = getIntent().getStringExtra("MESSAGE_ID");
+        imageURL = getIntent().getStringExtra("IMAGE_URL");
+        conversation = getIntent().getParcelableExtra("CONVERSATION");
+        sender = getIntent().getParcelableExtra("SENDER");
+
         showStartGameDialog();
     }
 
@@ -44,6 +65,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
         imgBlue = findViewById(R.id.blue);
         imgYellow = findViewById(R.id.yellow);
         imgGreen = findViewById(R.id.green);
+        imageView = findViewById(R.id.image_original);
 
         imgRed.setOnClickListener(this);
         imgBlue.setOnClickListener(this);
@@ -57,6 +79,14 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
         mediaPlayerMap.put(GamePattern.BLUE, MediaPlayer.create(this, R.raw.game_4));
 
         generateGamePatterns();
+
+        UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
+            if (error == null) {
+                Bitmap originalBitmap = (Bitmap) data[0];
+                imageView.setImageBitmap(originalBitmap);
+            }
+            hideLoading();
+        });
     }
 
     private void generateGamePatterns() {
@@ -153,6 +183,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onGamePassed() {
+        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
         finish();
     }
 
@@ -162,6 +193,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
                 .setMessage(R.string.memory_game_game_over)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
+                    ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
                     finish();
                 }).create();
         alertDialog.show();

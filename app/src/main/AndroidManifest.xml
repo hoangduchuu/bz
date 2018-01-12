@@ -78,10 +78,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".BeforeLoginActivity"
@@ -211,12 +211,9 @@
             android:screenOrientation="portrait" />
 
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
-        <activity android:name=".GameMemoryActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
+        <activity android:name=".GameMemoryActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
