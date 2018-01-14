@@ -1068,12 +1068,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
         edMessage.addTextChangedListener(textWatcher);
-        edMessage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                setButtonsState(R.id.chat_text_btn);
-                return false;
-            }
+        edMessage.setOnTouchListener((view, motionEvent) -> {
+            setButtonsState(R.id.chat_text_btn);
+            return false;
         });
     }
 
