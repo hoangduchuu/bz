@@ -24,11 +24,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GameActivity;
+import com.ping.android.activity.GameMemoryActivity;
 import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.GameType;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -553,8 +555,46 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (!TextUtils.isEmpty(message.gameUrl) && message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
                 return;
             }
+            if (TextUtils.isEmpty(message.gameUrl)) {
+                return;
+            }
+            // Only play game for player
+            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            if (!currentUserID.equals(message.senderId)) {
+                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                    // Game pass, just unpuzzle image
+                    unPuzzleImage(message.gameUrl, "", isPuzzled);
+                } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    if (message.gameType == GameType.MEMORY.ordinal()) {
+                        openMemoryGame();
+                    } else {
+                        openPuzzleGame();
+                    }
+                }
+            } else {
+                // Show image for current User
+                unPuzzleImage(message.gameUrl, "", isPuzzled);
+            }
+        }
 
-            unPuzzleGame(message.gameUrl, isPuzzled);
+        private void openPuzzleGame() {
+            Intent intent = new Intent(activity, GameActivity.class);
+            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+            intent.putExtra("CONVERSATION", orginalConversation);
+            intent.putExtra("SENDER", message.sender);
+            intent.putExtra("MESSAGE_ID", message.key);
+            intent.putExtra("IMAGE_URL", message.gameUrl);
+            activity.startActivity(intent);
+        }
+
+        private void openMemoryGame() {
+            Intent intent = new Intent(activity, GameMemoryActivity.class);
+            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+            intent.putExtra("CONVERSATION", orginalConversation);
+            intent.putExtra("SENDER", message.sender);
+            intent.putExtra("MESSAGE_ID", message.key);
+            intent.putExtra("IMAGE_URL", message.gameUrl);
+            activity.startActivity(intent);
         }
 
         private void unPuzzleImage(String imageURL, String localImage, boolean isPuzzled) {
@@ -569,28 +609,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void unPuzzleGame(String imageURL, Boolean isPuzzled) {
-            if (TextUtils.isEmpty(message.gameUrl)) {
-                return;
-            }
-            // Only play game for player
-            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (!currentUserID.equals(message.senderId)) {
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
-                    // Game pass, just unpuzzle image
-                    unPuzzleImage(imageURL, "", isPuzzled);
-                } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    Intent intent = new Intent(activity, GameActivity.class);
-                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                    intent.putExtra("CONVERSATION", orginalConversation);
-                    intent.putExtra("SENDER", message.sender);
-                    intent.putExtra("MESSAGE_ID", message.key);
-                    intent.putExtra("IMAGE_URL", imageURL);
-                    activity.startActivity(intent);
-                }
-            } else {
-                // Show image for current User
-                unPuzzleImage(imageURL, "", isPuzzled);
-            }
+
+
         }
 
         public void setModel(Message message) {

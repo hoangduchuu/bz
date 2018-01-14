@@ -52,6 +52,8 @@ public class Message {
         }
         message.senderId = dataSnapshot.child("senderId").getValue(String.class);
         message.senderName = dataSnapshot.child("senderName").getValue(String.class);
+        Integer type = dataSnapshot.child("gameType").getValue(Integer.class);
+        message.gameType = type != null ? type : 0;
 
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();

@@ -1,7 +1,9 @@
 package com.ping.android.activity;
 
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -71,6 +73,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
         imgBlue.setOnClickListener(this);
         imgYellow.setOnClickListener(this);
         imgGreen.setOnClickListener(this);
+        findViewById(R.id.btn_exit).setOnClickListener(this);
 
         mediaPlayerMap = new HashMap<>();
         mediaPlayerMap.put(GamePattern.RED, MediaPlayer.create(this, R.raw.game_1));
@@ -119,7 +122,10 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
 
     private void playSound(GamePattern pattern) {
         MediaPlayer mp = mediaPlayerMap.get(pattern);
-        mp.start();
+        if (mp != null) {
+            mp.seekTo(0);
+            mp.start();
+        }
     }
 
     private void playGamePattern(GamePattern pattern) {
@@ -165,6 +171,11 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
     }
 
     @Override
+    public void onBackPressed() {
+        return;
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.red:
@@ -179,12 +190,35 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
             case R.id.green:
                 playGame(GamePattern.GREEN);
                 break;
+            case R.id.btn_exit:
+                quitGame();
+                break;
         }
     }
 
-    private void onGamePassed() {
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
+    private void quitGame() {
+        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         finish();
+    }
+
+    private void onGamePassed() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("OK", (dialogInterface, i) -> {
+                    Intent intent = new Intent(GameMemoryActivity.this, PuzzleActivity.class);
+                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+                    intent.putExtra("MESSAGE_ID", messageID);
+                    intent.putExtra("IMAGE_URL", imageURL);
+                    intent.putExtra("PUZZLE_STATUS", false);
+                    ActivityOptions options = ActivityOptions
+                            .makeSceneTransitionAnimation(GameMemoryActivity.this, imageView, messageID);
+                    startActivity(intent, options.toBundle());
+                    //finishAfterTransition();
+                    handler.postDelayed(() -> finish(), 2000);
+                }).setMessage("Congratulations! You won.")
+                .setTitle("MEMORY GAME");
+        alertDialogBuilder.create().show();
+        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
     }
 
     private void onGameFailed() {
@@ -193,8 +227,7 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
                 .setMessage(R.string.memory_game_game_over)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
-                    ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
-                    finish();
+                    quitGame();
                 }).create();
         alertDialog.show();
     }
