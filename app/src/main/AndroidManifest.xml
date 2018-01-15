@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ping.android.activity">
-    <uses-sdk
-        android:minSdkVersion="21" />
+
+    <uses-sdk android:minSdkVersion="21" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -17,7 +18,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -40,16 +41,16 @@
         <service android:name="com.ping.android.service.CallService" />
 
         <!--<service-->
-            <!--android:name="com.quickblox.messages.services.fcm.QBFcmPushListenerService">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-            <!--</intent-filter>-->
+        <!--android:name="com.quickblox.messages.services.fcm.QBFcmPushListenerService">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+        <!--</intent-filter>-->
         <!--</service>-->
         <!--<service-->
-            <!--android:name="com.quickblox.messages.services.fcm.QBFcmPushInstanceIDService">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>-->
-            <!--</intent-filter>-->
+        <!--android:name="com.quickblox.messages.services.fcm.QBFcmPushInstanceIDService">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>-->
+        <!--</intent-filter>-->
         <!--</service>-->
 
         <service
@@ -60,11 +61,19 @@
             </intent-filter>
         </service>
 
-        <meta-data android:name="com.quickblox.messages.TYPE" android:value="FCM" />
-        <meta-data android:name="com.quickblox.messages.SENDER_ID" android:value="@string/sender_id"/>
-        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="DEVELOPMENT" />
+        <meta-data
+            android:name="com.quickblox.messages.TYPE"
+            android:value="FCM" />
+        <meta-data
+            android:name="com.quickblox.messages.SENDER_ID"
+            android:value="@string/sender_id" />
+        <meta-data
+            android:name="com.quickblox.messages.QB_ENVIRONMENT"
+            android:value="DEVELOPMENT" />
 
-        <receiver android:name="com.ping.android.service.NotificationBroadcastReceiver" android:exported="true"
+        <receiver
+            android:name="com.ping.android.service.NotificationBroadcastReceiver"
+            android:exported="true"
 
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
@@ -78,142 +87,151 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+        <activity
+            android:name=".BeforeLoginActivity"
+            android:label="Log"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.Fullscreen" />
+        <activity
+            android:name=".LoginActivity"
+            android:label="Log"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".RegistrationActivity"
+            android:label="Registration"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".PhoneActivity"
+            android:label="Registration"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MainActivity"
+            android:label="Message"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ChatActivity"
+            android:label="Chat"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".NewChatActivity"
+            android:label="Chat"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".SelectContactActivity"
+            android:label="Chat"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddContactActivity"
+            android:label="Add Contact"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MappingActivity"
+            android:label="Add Contact"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".PuzzleActivity"
+            android:label="PuzzleActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".GameActivity"
+            android:label="GameActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:label="GameActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:label="GameActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CallActivity"
+            android:label="GameActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.Fullscreen" />
+        <activity
+            android:name=".PermissionsActivity"
+            android:label="GameActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddGroupActivity"
+            android:label="Add Group"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".BlockActivity"
+            android:label="Add Group"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".GroupProfileActivity"
+            android:label="Add Group"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".UserProfileActivity"
+            android:label="Add Group"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".UserDetailActivity"
+            android:label="Add Group"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TransphabetActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".PrivacyAndTermActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name="com.ping.android.cameraview.CameraActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Fullscreen" />
+        <activity
+            android:name="com.ping.android.cameraview.PicturePreviewActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Fullscreen" />
+
+        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+
+        <activity
+            android:name=".GameMemoryActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
+        <activity android:name=".GameTicTacToeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".BeforeLoginActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Log"
-            android:theme="@style/AppTheme.Fullscreen" />
-        <activity
-            android:name=".LoginActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Log"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".RegistrationActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Registration"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".PhoneActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Registration"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Message"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleTop"/>
-        <activity
-            android:name=".ChatActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="sensorPortrait"
-            android:label="Chat"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".NewChatActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Chat"
-            android:windowSoftInputMode="stateHidden"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".SelectContactActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Chat"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".AddContactActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Contact"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".MappingActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Contact"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".PuzzleActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="PuzzleActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleTop"/>
-        <activity
-            android:name=".GameActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ChangePasswordActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ForgotPasswordActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".CallActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="GameActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme.Fullscreen" />
-        <activity
-            android:name=".PermissionsActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".AddGroupActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Group"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".BlockActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Group"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".GroupProfileActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Group"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".UserProfileActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Group"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".UserDetailActivity"
-            android:screenOrientation="sensorPortrait"
-            android:label="Add Group"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".TransphabetActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".PrivacyAndTermActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
-        <activity
-            android:name="com.ping.android.cameraview.CameraActivity"
-            android:theme="@style/AppTheme.Fullscreen"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="com.ping.android.cameraview.PicturePreviewActivity"
-            android:theme="@style/AppTheme.Fullscreen"
-            android:screenOrientation="portrait" />
-
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
-
-        <activity android:name=".GameMemoryActivity"
-            android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -226,7 +244,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
     </application>
 
