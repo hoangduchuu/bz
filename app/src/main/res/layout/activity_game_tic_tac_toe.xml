@@ -4,7 +4,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <com.ping.android.view.TouchImageView
+        android:id="@+id/game_layout_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <TableLayout
+        android:id="@+id/game_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -61,4 +68,13 @@
                 android:layout_marginEnd="0dp" />
         </TableRow>
     </TableLayout>
+
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+        android:text="Quit Game"
+        android:textAllCaps="true" />
 </RelativeLayout>

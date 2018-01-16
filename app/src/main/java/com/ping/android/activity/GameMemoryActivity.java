@@ -186,6 +186,13 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
         });
     }
 
+    @Override
+    protected void onGamePassed() {
+        super.onGamePassed();
+        imageView.setVisibility(View.VISIBLE);
+        findViewById(R.id.game_container).setVisibility(View.GONE);
+    }
+
     private void showStartGameDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.memory_game_title)

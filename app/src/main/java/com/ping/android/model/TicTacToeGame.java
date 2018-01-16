@@ -16,6 +16,8 @@ import rx.functions.Action1;
  */
 public final class TicTacToeGame {
 
+    private static final boolean APPLY_MINIMAX = false;
+
     public interface OnGameOverListener {
         void onGameOver(@GameState int state, int[] winningIndices);
     }
@@ -98,6 +100,10 @@ public final class TicTacToeGame {
 
     private void makeDummyMove(int position, char player) {
         grid[position] = player;
+    }
+
+    public boolean isTileAvailable(int index) {
+        return grid[index] == NONE;
     }
 
     @GameState
@@ -194,9 +200,22 @@ public final class TicTacToeGame {
                         // minimax will spend a lot of time calculating every permutation of this, but always ends on 0. Let's spice it up
                         nextCpuMove = new Random().nextInt(grid.length);
                     } else {
-                        minimax(0, PLAYER_TWO, -1);
+                        if (APPLY_MINIMAX) {
+                            minimax(0, PLAYER_TWO, -1);
+                        } else {
+                            randomCpuMove();
+                        }
                     }
                 });
+    }
+
+    private void randomCpuMove() {
+        List<Integer> available = getAvailableStates();
+        int index = new Random().nextInt(available.size());
+        if (index < 0 || index > available.size()) {
+            index = 0;
+        }
+        nextCpuMove = available.get(index);
     }
 
     public boolean isOver() {

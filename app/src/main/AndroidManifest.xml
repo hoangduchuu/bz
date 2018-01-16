@@ -87,10 +87,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
-            <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.MAIN" />-->
-            <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".BeforeLoginActivity"
@@ -226,12 +226,9 @@
         <activity
             android:name=".GameMemoryActivity"
             android:theme="@style/AppTheme.Fullscreen" />
-        <activity android:name=".GameTicTacToeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+
+        <activity android:name=".GameTicTacToeActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

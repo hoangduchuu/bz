@@ -1,22 +1,20 @@
 package com.ping.android.activity;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 
 import com.ping.android.model.TicTacToeGame;
+import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class GameTicTacToeActivity extends BaseGameActivity implements View.OnClickListener {
@@ -28,11 +26,23 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_tic_tac_toe);
         initResources(getIntent());
+        startGame();
+    }
+
+    private void startGame() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.tic_tac_toe_title)
+                .setMessage(R.string.tic_tac_toe_description)
+                .setPositiveButton("Start", (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                }).create();
+        alertDialog.show();
     }
 
     @Override
     protected void initResources(Intent intent) {
         super.initResources(intent);
+        imageView = findViewById(R.id.game_layout_image);
         game.setCurrentPlayer(TicTacToeGame.PLAYER_ONE);
         game.setOnGameOverListener((state, winningIndices) -> {
             if (state == TicTacToeGame.ONE_WINS) {
@@ -54,6 +64,21 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         for (ImageButton button: tiles) {
             button.setOnClickListener(this);
         }
+
+        findViewById(R.id.btn_exit).setOnClickListener(this);
+        UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
+            if (error == null) {
+                Bitmap originalBitmap = (Bitmap) data[0];
+                imageView.setImageBitmap(originalBitmap);
+            }
+        });
+    }
+
+    @Override
+    protected void onGamePassed() {
+        super.onGamePassed();
+        imageView.setVisibility(View.VISIBLE);
+        findViewById(R.id.game_container).setVisibility(View.GONE);
     }
 
     /**
@@ -69,15 +94,12 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
                 })
                 .delay(1, TimeUnit.SECONDS)                 // Make it look like the computer is "thinking"
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Object>() {
-                    @Override
-                    public void call(Object o) {
-                        // TODO enable buttons click
-                        int nextCpuMove = game.getNextCpuMove();
-                        // Set image for specific tile
-                        setTileView(nextCpuMove, TicTacToeGame.PLAYER_TWO);
-                        handleMove(game.getNextCpuMove());
-                    }
+                .subscribe(o -> {
+                    // TODO enable buttons click
+                    int nextCpuMove = game.getNextCpuMove();
+                    // Set image for specific tile
+                    setTileView(nextCpuMove, TicTacToeGame.PLAYER_TWO);
+                    handleMove(game.getNextCpuMove());
                 });
     }
 
@@ -101,13 +123,17 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     }
 
     private void onTileClick(int index) {
-        if (index < 0) return;
+        if (index < 0 || !game.isTileAvailable(index)) return;
         setTileView(index, TicTacToeGame.PLAYER_ONE);
         handleMove(index);
     }
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.btn_exit) {
+            quitGame();
+            return;
+        }
         // If current player is not user, return
         if (game.currentPlayer() == TicTacToeGame.PLAYER_TWO) return;
         onTileClick(tiles.indexOf(view));

@@ -37,19 +37,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GameActivity extends CoreActivity implements View.OnClickListener {
-    private FirebaseStorage storage;
-
-    private ImageView btBack, imageView, puzzleSelect;
+public class GameActivity extends BaseGameActivity implements View.OnClickListener {
+    private ImageView btBack, puzzleSelect;
     private LinearLayout puzzleView;
     private ImageView puzzleItem1, puzzleItem2, puzzleItem3, puzzleItem4, puzzleItem5, puzzleItem6,
             puzzleItem7, puzzleItem8, puzzleItem0;
     private TextView tvTimer;
 
-    private String conversationID, messageID;
-    private String imageURL;
-    private Conversation conversation;
-    private User sender;
     private int puzzleFirst;
 
     private Bitmap originalBitmap;
@@ -65,21 +59,15 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        messageID = getIntent().getStringExtra("MESSAGE_ID");
-        imageURL = getIntent().getStringExtra("IMAGE_URL");
-        conversation = getIntent().getParcelableExtra("CONVERSATION");
-        sender = getIntent().getParcelableExtra("SENDER");
+        initResources(getIntent());
         bindViews();
-        showLoading();
-        init();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.puzzle_back:
-                exit();
+                quitGame();
                 break;
             case R.id.puzzle_item_0:
                 choosePuzzle(view, 0);
@@ -169,9 +157,8 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         puzzleItems.add(puzzleItem6);
         puzzleItems.add(puzzleItem7);
         puzzleItems.add(puzzleItem8);
-    }
 
-    private void init() {
+        showLoading();
         UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
             if (error == null) {
                 originalBitmap = (Bitmap) data[0];
@@ -274,31 +261,13 @@ public class GameActivity extends CoreActivity implements View.OnClickListener {
         }
 
         if (gameWin) {
-            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
             gameCountDown.cancel();
             puzzleView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(originalBitmap);
-
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(tvTimer.getContext());
-            alertDialogBuilder.setCancelable(false)
-                    .setPositiveButton("OK", (dialogInterface, i) -> {
-                        Intent intent = new Intent(GameActivity.this, PuzzleActivity.class);
-                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                        intent.putExtra("MESSAGE_ID", messageID);
-                        intent.putExtra("IMAGE_URL", imageURL);
-                        intent.putExtra("PUZZLE_STATUS", false);
-                        ActivityOptions options = ActivityOptions
-                                .makeSceneTransitionAnimation(GameActivity.this, imageView, messageID);
-                        startActivity(intent, options.toBundle());
-                        //finishAfterTransition();
-                        handler.postDelayed(() -> finish(), 2000);
-                    }).setMessage("Congratulations! You won.")
-                    .setTitle("PUZZLE GAME");
-            alertDialogBuilder.create().show();
+            onGamePassed();
         } else if (isTimeOut) {
-            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
-            finish();
+            onGameFailed();
         }
     }
 }

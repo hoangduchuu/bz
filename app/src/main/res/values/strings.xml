@@ -216,4 +216,8 @@
     <string name="chat_puzzle_game">Puzzle</string>
     <string name="chat_memory_game">Memory</string>
     <string name="chat_tic_tac_toe_game">Tic tac toe</string>
+
+    <!-- Tic tac toe -->
+    <string name="tic_tac_toe_title">TIC TAC TOE GAME</string>
+    <string name="tic_tac_toe_description">You play first!</string>
 </resources>

@@ -26,7 +26,7 @@ public abstract class BaseGameActivity extends CoreActivity {
         imageURL = getIntent().getStringExtra("IMAGE_URL");
         conversation = getIntent().getParcelableExtra("CONVERSATION");
         sender = getIntent().getParcelableExtra("SENDER");
-    };
+    }
 
     protected void onGamePassed() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
