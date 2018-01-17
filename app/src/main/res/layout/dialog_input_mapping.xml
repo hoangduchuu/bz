@@ -14,14 +14,13 @@
         android:text="MASK SELECTED LETTER"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <EditText
+    <com.vanniktech.emoji.EmojiEditText
         android:id="@+id/input_mapping_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:inputType="textNoSuggestions"
-        android:maxLength="1">
+        android:inputType="textNoSuggestions">
 
-    </EditText>
+    </com.vanniktech.emoji.EmojiEditText>
 
 </LinearLayout>

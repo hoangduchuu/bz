@@ -7,16 +7,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
-import com.ping.android.fragment.transphabet.SelectiveLanguagesFragment;
-import com.ping.android.model.Language;
+import com.ping.android.model.Transphabet;
 
 import java.util.List;
 
-public class LanguageTransphabetAdapter extends RecyclerView.Adapter<LanguageTransphabetAdapter.ViewHolder> {
-    List<Language> data;
+public class TransphabetCategoryAdapter extends RecyclerView.Adapter<TransphabetCategoryAdapter.ViewHolder> {
+    List<Transphabet> data;
     private OnClickListener listener;
 
-    public LanguageTransphabetAdapter(List<Language> data) {
+    public TransphabetCategoryAdapter(List<Transphabet> data) {
         this.data = data;
     }
 
@@ -28,11 +27,11 @@ public class LanguageTransphabetAdapter extends RecyclerView.Adapter<LanguageTra
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Language language = data.get(position);
-        holder.bindData(language);
+        Transphabet transphabet = data.get(position);
+        holder.bindData(transphabet);
         holder.itemView.setOnClickListener(view -> {
             if (listener != null) {
-                listener.onClick(language);
+                listener.onClick(transphabet);
             }
         });
     }
@@ -50,7 +49,7 @@ public class LanguageTransphabetAdapter extends RecyclerView.Adapter<LanguageTra
         View divider;
         TextView title;
 
-        Language language;
+        Transphabet transphabet;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -58,13 +57,13 @@ public class LanguageTransphabetAdapter extends RecyclerView.Adapter<LanguageTra
             title = itemView.findViewById(R.id.tv_title);
         }
 
-        void bindData(Language language) {
-            this.language = language;
-            title.setText(language.name);
+        void bindData(Transphabet transphabet) {
+            this.transphabet = transphabet;
+            title.setText(transphabet.name);
         }
     }
 
     public interface OnClickListener {
-        void onClick(Language language);
+        void onClick(Transphabet transphabet);
     }
 }

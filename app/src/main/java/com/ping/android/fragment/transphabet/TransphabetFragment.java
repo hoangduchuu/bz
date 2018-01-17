@@ -32,6 +32,7 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
         view.findViewById(R.id.v_manual_setup).setOnClickListener(this);
         view.findViewById(R.id.iv_back).setOnClickListener(this);
         view.findViewById(R.id.v_selective_languages).setOnClickListener(this);
+        view.findViewById(R.id.v_selective_emojis).setOnClickListener(this);
         return view;
     }
 
@@ -48,7 +49,10 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
                 getActivity().onBackPressed();
                 break;
             case R.id.v_selective_languages:
-                moveToFragment(SelectiveLanguagesFragment.newInstance());
+                moveToFragment(SelectiveCategoriesFragment.newInstance(false));
+                break;
+            case R.id.v_selective_emojis:
+                moveToFragment(SelectiveCategoriesFragment.newInstance(true));
                 break;
         }
     }

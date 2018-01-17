@@ -13,6 +13,7 @@
             style="@style/BackButton" />
 
         <TextView
+            android:id="@+id/tv_title"
             style="@style/TextTitle"
             android:textAllCaps="true"
             android:text="@string/setting_selective_languages" />

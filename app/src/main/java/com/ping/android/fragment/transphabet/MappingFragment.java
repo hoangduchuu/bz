@@ -22,6 +22,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.KeyboardHelpers;
+import com.vanniktech.emoji.EmojiEditText;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -106,7 +107,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.input_mapping_value);
+        final EmojiEditText userInput = promptsView.findViewById(R.id.input_mapping_value);
         userInput.setText(mapping.mapValue);
 
         // set dialog message
@@ -129,7 +130,8 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        userInput.setSelection(0, mapping.mapValue.length());
+        int length = userInput.getText().length();
+        userInput.setSelection(0, length);
         // show it
         alertDialog.show();
     }
