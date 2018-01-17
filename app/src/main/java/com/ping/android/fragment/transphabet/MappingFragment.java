@@ -1,13 +1,13 @@
-package com.ping.android.activity;
+package com.ping.android.fragment.transphabet;
+
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,18 +15,23 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.ping.android.activity.R;
 import com.ping.android.form.Mapping;
+import com.ping.android.fragment.BaseFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.KeyboardHelpers;
+import com.vanniktech.emoji.EmojiEditText;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-public class MappingActivity extends CoreActivity implements View.OnClickListener {
-
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class MappingFragment extends BaseFragment implements View.OnClickListener {
     private List<Mapping> mMappings;
 
     //Views UI
@@ -35,43 +40,42 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
 
     private User currentUser;
 
+    private View rootView;
+
+    public static MappingFragment newInstance() {
+        return new MappingFragment();
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mapping);
-        bindViews();
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        rootView = inflater.inflate(R.layout.fragment_mapping, container, false);
+        bindViews(rootView);
         init();
+        return rootView;
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        saveMapping();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        saveMapping();
-    }
-
-    private void bindViews() {
-        btBack = (ImageView) findViewById(R.id.mapping_back);
-        btBack.setOnClickListener(this);
-        btReset = (Button) findViewById(R.id.mapping_reset);
-        btReset.setOnClickListener(this);
-    }
-
-    private void init() {
-        currentUser = UserManager.getInstance().getUser();
-        mMappings = ServiceManager.getInstance().getListFromMapping(currentUser.mappings);
-        renderMapping();
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.mapping_back:
+                getActivity().onBackPressed();
+                break;
+            case R.id.mapping_reset:
+                resetMapping();
+                break;
+            default:
+                String id = getResources().getResourceName(view.getId());
+                onClickMapping(id);
+                break;
+        }
     }
 
     private void renderMapping() {
         for (Mapping mapping : mMappings) {
-            int resId = getResources().getIdentifier("mapping_" + mapping.mapKey.toLowerCase(), "id", getPackageName());
-            RelativeLayout mappingItem = (RelativeLayout) findViewById(resId);
+            int resId = getResources().getIdentifier("mapping_" + mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
+            RelativeLayout mappingItem = (RelativeLayout) rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 
             TextView keyTV = (TextView) mappingItem.findViewById(R.id.mapping_item_key);
@@ -88,28 +92,6 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
         }
     }
 
-    private void resetMapping() {
-        mMappings = ServiceManager.getInstance().getDefaultMappingList();
-        KeyboardHelpers.hideSoftInputKeyboard(this);
-        renderMapping();
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.mapping_back:
-                onExitMapping();
-                break;
-            case R.id.mapping_reset:
-                resetMapping();
-                break;
-            default:
-                String id = getResources().getResourceName(view.getId());
-                onClickMapping(id);
-                break;
-        }
-    }
-
     private void onClickMapping(String id) {
         if (!id.contains("mapping_")) {
             return;
@@ -117,38 +99,16 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
         char mapKey = id.charAt(id.length() - 1);
         Mapping mapping = mMappings.get(mapKey - 'a');
 
-        LayoutInflater li = LayoutInflater.from(this);
+        LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.dialog_input_mapping, null);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
 
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.input_mapping_value);
+        final EmojiEditText userInput = promptsView.findViewById(R.id.input_mapping_value);
         userInput.setText(mapping.mapValue);
-        userInput.addTextChangedListener(new TextWatcher() {
-            String oldValue = "";
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String newValue = editable.toString();
-                if (TextUtils.isEmpty(oldValue) || TextUtils.isEmpty(newValue)){
-                    oldValue = newValue;
-                }else if(!TextUtils.equals(oldValue, newValue)) {
-                    userInput.setText(oldValue);
-                }
-            }
-        });
 
         // set dialog message
         alertDialogBuilder
@@ -170,7 +130,8 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        userInput.setSelection(0, mapping.mapValue.length());
+        int length = userInput.getText().length();
+        userInput.setSelection(0, length);
         // show it
         alertDialog.show();
     }
@@ -188,8 +149,22 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
         ServiceManager.getInstance().updateMapping(currentUser.mappings);
     }
 
-    private void onExitMapping() {
-        saveMapping();
-        finish();
+    private void resetMapping() {
+        mMappings = ServiceManager.getInstance().getDefaultMappingList();
+        KeyboardHelpers.hideSoftInputKeyboard(getActivity());
+        renderMapping();
+    }
+
+    private void bindViews(View view) {
+        btBack = (ImageView) view.findViewById(R.id.mapping_back);
+        btBack.setOnClickListener(this);
+        btReset = (Button) view.findViewById(R.id.mapping_reset);
+        btReset.setOnClickListener(this);
+    }
+
+    private void init() {
+        currentUser = UserManager.getInstance().getUser();
+        mMappings = ServiceManager.getInstance().getListFromMapping(currentUser.mappings);
+        renderMapping();
     }
 }

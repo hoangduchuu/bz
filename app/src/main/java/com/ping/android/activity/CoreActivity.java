@@ -72,8 +72,7 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
         UpdateNetworkStatus(networkStatus);
     }
 
-    private void UpdateNetworkStatus(Constant.NETWORK_STATUS networkStatus)
-    {
+    private void UpdateNetworkStatus(Constant.NETWORK_STATUS networkStatus) {
         LinearLayout notifyNetworkLayout = (LinearLayout) findViewById(R.id.notify_network_layout);
         TextView notifyNetworkText = (TextView) findViewById(R.id.notify_network_text);
 

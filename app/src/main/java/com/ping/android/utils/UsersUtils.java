@@ -4,8 +4,15 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.ping.android.db.QbUsersDbManager;
+import com.ping.android.model.Transphabet;
 import com.ping.android.service.ServiceManager;
 import com.quickblox.users.model.QBUser;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.EmojiProvider;
+import com.vanniktech.emoji.EmojiRange;
+import com.vanniktech.emoji.EmojiUtils;
+import com.vanniktech.emoji.emoji.Emoji;
+import com.vanniktech.emoji.emoji.EmojiCategory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by tereha on 09.06.16.
@@ -97,6 +105,32 @@ public class UsersUtils {
             mappings.put(keys[i], values.get(i));
         }
 
+        ServiceManager.getInstance().updateMapping(mappings);
+    }
+
+    public static void randomizeTransphabet(Transphabet transphabet) {
+        Map<String, String> mappings = new HashMap<>();
+        String[] keys = UsersUtils.MAPING_KEY_CHARACTERS;
+        char[] values = transphabet.characters.toCharArray();
+        long count = values.length;
+        Random random = new Random();
+        for (String key : keys) {
+            int index = random.nextInt((int) count);
+            mappings.put(key, Character.toString(values[index]));
+        }
+        ServiceManager.getInstance().updateMapping(mappings);
+    }
+
+    public static void randomizeEmojiTransphabet(Transphabet transphabet) {
+        Map<String, String> mappings = new HashMap<>();
+        String[] keys = UsersUtils.MAPING_KEY_CHARACTERS;
+        List<EmojiRange> emojis = EmojiUtils.emojis(transphabet.characters);
+        int count = emojis.size();
+        Random random = new Random();
+        for (String key : keys) {
+            int index = random.nextInt((int) count);
+            mappings.put(key, emojis.get(index).emoji.getUnicode());
+        }
         ServiceManager.getInstance().updateMapping(mappings);
     }
 }

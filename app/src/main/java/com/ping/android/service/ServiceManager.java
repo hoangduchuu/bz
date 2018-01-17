@@ -353,7 +353,8 @@ public class ServiceManager {
         for (Map.Entry<String, String> entry : mappingMap.entrySet()) {
             Mapping mapping = new Mapping();
             mapping.mapKey = entry.getKey();
-            mapping.mapValue = entry.getValue();
+            Object value = entry.getValue();
+            mapping.mapValue = value.toString();
             mappings.add(mapping);
         }
         Collections.sort(mappings, new Comparator<Mapping>() {
