@@ -163,7 +163,7 @@
                     android:layout_weight="1"
                     android:background="@null"
                     android:hint="New Message"
-                    android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine"
+                    android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
                     android:scrollHorizontally="false"
                     android:maxLines="5"
                     android:textSize="@dimen/text_size_medium"

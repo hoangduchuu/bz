@@ -4,3 +4,4 @@ local.properties
 app/app.iml
 bzzz-android.iml
 build/
+.DS_Store
