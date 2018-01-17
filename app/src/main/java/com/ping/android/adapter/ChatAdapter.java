@@ -25,6 +25,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GameActivity;
 import com.ping.android.activity.GameMemoryActivity;
+import com.ping.android.activity.GameTicTacToeActivity;
 import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
@@ -565,36 +566,25 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     // Game pass, just unpuzzle image
                     unPuzzleImage(message.gameUrl, "", isPuzzled);
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    Intent intent = null;
                     if (message.gameType == GameType.MEMORY.ordinal()) {
-                        openMemoryGame();
+                        intent = new Intent(activity, GameMemoryActivity.class);
+                    } else if (message.gameType == GameType.TIC_TAC_TOE.ordinal()) {
+                        intent = new Intent(activity, GameTicTacToeActivity.class);
                     } else {
-                        openPuzzleGame();
+                        intent = new Intent(activity, GameActivity.class);
                     }
+                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+                    intent.putExtra("CONVERSATION", orginalConversation);
+                    intent.putExtra("SENDER", message.sender);
+                    intent.putExtra("MESSAGE_ID", message.key);
+                    intent.putExtra("IMAGE_URL", message.gameUrl);
+                    activity.startActivity(intent);
                 }
             } else {
                 // Show image for current User
                 unPuzzleImage(message.gameUrl, "", isPuzzled);
             }
-        }
-
-        private void openPuzzleGame() {
-            Intent intent = new Intent(activity, GameActivity.class);
-            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-            intent.putExtra("CONVERSATION", orginalConversation);
-            intent.putExtra("SENDER", message.sender);
-            intent.putExtra("MESSAGE_ID", message.key);
-            intent.putExtra("IMAGE_URL", message.gameUrl);
-            activity.startActivity(intent);
-        }
-
-        private void openMemoryGame() {
-            Intent intent = new Intent(activity, GameMemoryActivity.class);
-            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-            intent.putExtra("CONVERSATION", orginalConversation);
-            intent.putExtra("SENDER", message.sender);
-            intent.putExtra("MESSAGE_ID", message.key);
-            intent.putExtra("IMAGE_URL", message.gameUrl);
-            activity.startActivity(intent);
         }
 
         private void unPuzzleImage(String imageURL, String localImage, boolean isPuzzled) {

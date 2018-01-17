@@ -27,13 +27,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GameMemoryActivity extends CoreActivity implements View.OnClickListener {
+public class GameMemoryActivity extends BaseGameActivity implements View.OnClickListener {
     private static final int GAME_STEPS = 6;
     private ImageButton imgRed;
     private ImageButton imgGreen;
     private ImageButton imgYellow;
     private ImageButton imgBlue;
-    private ImageView imageView;
 
     private Map<GamePattern, MediaPlayer> mediaPlayerMap;
     private ArrayList<GamePattern> originalSteps;
@@ -42,54 +41,13 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
     private Handler handler = new Handler(Looper.getMainLooper());
     private boolean playingMode = false;
 
-    private String conversationID, messageID;
-    private String imageURL;
-    private Conversation conversation;
-    private User sender;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_memory);
-        initResource();
-
-        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        messageID = getIntent().getStringExtra("MESSAGE_ID");
-        imageURL = getIntent().getStringExtra("IMAGE_URL");
-        conversation = getIntent().getParcelableExtra("CONVERSATION");
-        sender = getIntent().getParcelableExtra("SENDER");
+        initResources(getIntent());
 
         showStartGameDialog();
-    }
-
-    private void initResource() {
-        imgRed = findViewById(R.id.red);
-        imgBlue = findViewById(R.id.blue);
-        imgYellow = findViewById(R.id.yellow);
-        imgGreen = findViewById(R.id.green);
-        imageView = findViewById(R.id.image_original);
-
-        imgRed.setOnClickListener(this);
-        imgBlue.setOnClickListener(this);
-        imgYellow.setOnClickListener(this);
-        imgGreen.setOnClickListener(this);
-        findViewById(R.id.btn_exit).setOnClickListener(this);
-
-        mediaPlayerMap = new HashMap<>();
-        mediaPlayerMap.put(GamePattern.RED, MediaPlayer.create(this, R.raw.game_1));
-        mediaPlayerMap.put(GamePattern.GREEN, MediaPlayer.create(this, R.raw.game_2));
-        mediaPlayerMap.put(GamePattern.YELLOW, MediaPlayer.create(this, R.raw.game_3));
-        mediaPlayerMap.put(GamePattern.BLUE, MediaPlayer.create(this, R.raw.game_4));
-
-        generateGamePatterns();
-
-        UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
-            if (error == null) {
-                Bitmap originalBitmap = (Bitmap) data[0];
-                imageView.setImageBitmap(originalBitmap);
-            }
-            hideLoading();
-        });
     }
 
     private void generateGamePatterns() {
@@ -196,40 +154,43 @@ public class GameMemoryActivity extends CoreActivity implements View.OnClickList
         }
     }
 
-    private void quitGame() {
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
-        finish();
+    @Override
+    protected void initResources(Intent intent) {
+        super.initResources(intent);
+        imgRed = findViewById(R.id.red);
+        imgBlue = findViewById(R.id.blue);
+        imgYellow = findViewById(R.id.yellow);
+        imgGreen = findViewById(R.id.green);
+        imageView = findViewById(R.id.image_original);
+
+        imgRed.setOnClickListener(this);
+        imgBlue.setOnClickListener(this);
+        imgYellow.setOnClickListener(this);
+        imgGreen.setOnClickListener(this);
+        findViewById(R.id.btn_exit).setOnClickListener(this);
+
+        mediaPlayerMap = new HashMap<>();
+        mediaPlayerMap.put(GamePattern.RED, MediaPlayer.create(this, R.raw.game_1));
+        mediaPlayerMap.put(GamePattern.GREEN, MediaPlayer.create(this, R.raw.game_2));
+        mediaPlayerMap.put(GamePattern.YELLOW, MediaPlayer.create(this, R.raw.game_3));
+        mediaPlayerMap.put(GamePattern.BLUE, MediaPlayer.create(this, R.raw.game_4));
+
+        generateGamePatterns();
+
+        UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
+            if (error == null) {
+                Bitmap originalBitmap = (Bitmap) data[0];
+                imageView.setImageBitmap(originalBitmap);
+            }
+            hideLoading();
+        });
     }
 
-    private void onGamePassed() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setCancelable(false)
-                .setPositiveButton("OK", (dialogInterface, i) -> {
-                    Intent intent = new Intent(GameMemoryActivity.this, PuzzleActivity.class);
-                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                    intent.putExtra("MESSAGE_ID", messageID);
-                    intent.putExtra("IMAGE_URL", imageURL);
-                    intent.putExtra("PUZZLE_STATUS", false);
-                    ActivityOptions options = ActivityOptions
-                            .makeSceneTransitionAnimation(GameMemoryActivity.this, imageView, messageID);
-                    startActivity(intent, options.toBundle());
-                    //finishAfterTransition();
-                    handler.postDelayed(() -> finish(), 2000);
-                }).setMessage("Congratulations! You won.")
-                .setTitle("MEMORY GAME");
-        alertDialogBuilder.create().show();
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
-    }
-
-    private void onGameFailed() {
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.memory_game_title)
-                .setMessage(R.string.memory_game_game_over)
-                .setPositiveButton("OK", (dialogInterface, i) -> {
-                    dialogInterface.dismiss();
-                    quitGame();
-                }).create();
-        alertDialog.show();
+    @Override
+    protected void onGamePassed() {
+        super.onGamePassed();
+        imageView.setVisibility(View.VISIBLE);
+        findViewById(R.id.game_container).setVisibility(View.GONE);
     }
 
     private void showStartGameDialog() {

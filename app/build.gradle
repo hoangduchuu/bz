@@ -136,6 +136,7 @@ dependencies {
     implementation 'com.mikepenz:iconics-views:3.0.0@aar'
 
     implementation 'com.soundcloud.android:android-crop:1.0.1@aar'
+    implementation 'io.reactivex:rxandroid:1.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
