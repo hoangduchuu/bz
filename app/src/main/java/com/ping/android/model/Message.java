@@ -29,6 +29,7 @@ public class Message {
     public Map<String, Boolean> deleteStatuses;
     public Map<String, Boolean> readAllowed;
     public int messageType;
+    public int gameType;
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -51,6 +52,8 @@ public class Message {
         }
         message.senderId = dataSnapshot.child("senderId").getValue(String.class);
         message.senderName = dataSnapshot.child("senderName").getValue(String.class);
+        Integer type = dataSnapshot.child("gameType").getValue(Integer.class);
+        message.gameType = type != null ? type : 0;
 
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
@@ -137,7 +140,7 @@ public class Message {
 
     public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int gameType) {
         Message message = new Message();
         message.gameUrl = gameUrl;
         message.senderId = senderId;
@@ -148,6 +151,7 @@ public class Message {
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_GAME;
         message.readAllowed = readAllowed;
+        message.gameType = gameType;
         return message;
     }
 
@@ -168,6 +172,7 @@ public class Message {
         result.put("deleteStatuses", deleteStatuses);
         result.put("messageType", messageType);
         result.put("readAllowed", readAllowed);
+        result.put("gameType", gameType);
         return result;
     }
 }

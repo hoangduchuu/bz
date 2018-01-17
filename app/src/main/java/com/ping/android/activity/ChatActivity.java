@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,6 +51,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.GameType;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
@@ -104,6 +106,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private Button btnSend;
     private Button btCancelRecord;
     private BottomSheetBehavior bottomSheetBehavior;
+    private BottomSheetDialog chatGameMenu;
 
     private String conversationID, fromUserID, sendNewMsg;
     private User fromUser;
@@ -230,7 +233,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     @Override
     public void onClick(View view) {
         int viewId = view.getId();
-
         setButtonsState(viewId);
         switch (viewId) {
             case R.id.chat_header_center:
@@ -270,7 +272,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
                 break;
             case R.id.chat_game_btn:
-                onSendGame();
+                onGameClicked();
                 break;
             case R.id.chat_send_message_btn:
                 onSentMessage(originalText);
@@ -305,6 +307,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 break;
             case R.id.btn_delete:
                 onDeleteMessage(selectedMessage);
+                break;
+            case R.id.puzzle_game:
+                onSendGame(GameType.PUZZLE);
+                break;
+            case R.id.memory_game:
+                onSendGame(GameType.MEMORY);
+                break;
+            case R.id.tic_tac_toe_game:
+                onSendGame(GameType.TIC_TAC_TOE);
                 break;
         }
     }
@@ -348,12 +359,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         shouldDispatchOnTouch = false;
         selectedMessage = message;
         findViewById(R.id.btn_copy).setVisibility(message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                shouldDispatchOnTouch = true;
-            }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            shouldDispatchOnTouch = true;
         }, 800);
     }
 
@@ -376,21 +384,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);
         }
-//        if (requestCode == Constant.IMAGE_GALLERY_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//                Uri selectedImageUri = data.getData();
-//                if (selectedImageUri != null) {
-//                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_IMAGE);
-//                }
-//            }
-//        } else if (requestCode == Constant.GAME_GALLERY_REQUEST) {
-//            if (resultCode == RESULT_OK) {
-//                Uri selectedImageUri = data.getData();
-//                if (selectedImageUri != null) {
-//                    sendImageFirebase(selectedImageUri, Constant.MSG_TYPE_GAME);
-//                }
-//            }
-//        }
     }
 
     @Override
@@ -550,9 +543,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         IconicsImageView deleteImageView = findViewById(R.id.img_delete);
         deleteImageView.setIcon(deleteDrawable);
 
-        LinearLayout llBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
+        LinearLayout llBottomSheet = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_game_menu, null);
+        chatGameMenu = new BottomSheetDialog(this);
+        chatGameMenu.setContentView(view);
+        chatGameMenu.setOnDismissListener(dialogInterface -> setButtonsState(0));
+
+        view.findViewById(R.id.puzzle_game).setOnClickListener(this);
+        view.findViewById(R.id.memory_game).setOnClickListener(this);
+        view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
 
         findViewById(R.id.btn_copy).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
@@ -1375,7 +1377,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     @Override
                     public void onImageReceived(File file) {
                         // FIXME: should improve this way
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
+                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
                         cacheMessage.localImage = file.getAbsolutePath();
                         adapter.addOrUpdate(cacheMessage);
                     }
@@ -1406,7 +1408,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setListener(new ImagePickerHelper.ImagePickerListener() {
                     @Override
                     public void onImageReceived(File file) {
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
+                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
                         cacheMessage.localImage = file.getAbsolutePath();
                         adapter.addOrUpdate(cacheMessage);
                     }
@@ -1421,7 +1423,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         imagePickerHelper.openPicker();
     }
 
-    private void onSendGame() {
+    private void onGameClicked() {
+        chatGameMenu.show();
+    }
+
+    private void onSendGame(GameType gameType) {
+        chatGameMenu.hide();
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
@@ -1443,7 +1450,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     @Override
                     public void onFinalImage(File... files) {
                         File file = files[0];
-                        sendGameFirebase(file);
+                        sendGameFirebase(file, gameType);
                     }
                 });
         imagePickerHelper.openPicker();
@@ -1612,7 +1619,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void sendImageFirebase(File file, File thumbnail) {
         if (cacheMessage == null) {
-            cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE);
+            cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
         }
         //adapter.addOrUpdate(message);
         // upload thumbnail first first
@@ -1635,16 +1642,16 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    private void sendGameFirebase(File file) {
+    private void sendGameFirebase(File file, GameType gameType) {
         bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
             if (error1 == null) {
                 String imageUrl = (String) data1[0];
-                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME);
+                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME, gameType);
             }
         });
     }
 
-    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType) {
+    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType, GameType gameType) {
         String messageKey = messageRepository.generateKey();
         double timestamp = System.currentTimeMillis() / 1000;
         Message message = null;
@@ -1656,7 +1663,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         } else if (msgType == Constant.MSG_TYPE_GAME) {
             message = Message.createGameMessage(imageUrl,
                     fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
-                    getMessageDeleteStatuses(), allowance);
+                    getMessageDeleteStatuses(), allowance, gameType.ordinal());
         }
         if (message == null) throw new NullPointerException("Message must not be null " + msgType);
         message.key = messageKey;

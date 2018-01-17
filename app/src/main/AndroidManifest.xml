@@ -212,6 +212,9 @@
 
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
 
+        <activity android:name=".GameMemoryActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6adab05c8d640a679fc4d84fbd8f8047827b4d1c" />

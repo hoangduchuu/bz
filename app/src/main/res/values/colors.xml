@@ -66,5 +66,6 @@
     <color name="text_color_grey">#929292</color>
     <color name="bg_network_connecting">@color/orange</color>
     <color name="bg_network_noconnect">@color/color_grey</color>
+    <color name="yellow">#f7dc2d</color>
 
 </resources>

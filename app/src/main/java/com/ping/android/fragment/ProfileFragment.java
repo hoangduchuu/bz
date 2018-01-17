@@ -1,7 +1,10 @@
 package com.ping.android.fragment;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +35,7 @@ import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
 
 import java.io.File;
+import java.util.Locale;
 
 import me.leolin.shortcutbadger.ShortcutBadger;
 
@@ -85,6 +89,17 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         profileImage.setImageResource(R.drawable.ic_avatar_gray);
         rbNotification = (Switch) view.findViewById(R.id.profile_notification);
         rbShowProfile = (Switch) view.findViewById(R.id.profile_show_profile);
+
+        TextView txtBuildVersion = view.findViewById(R.id.txt_build_version);
+        try {
+            PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            String version = pInfo.versionName;
+            int versionCode = pInfo.versionCode;
+            String text = String.format(Locale.getDefault(), "Version: %s, Build: %d", version, versionCode);
+            txtBuildVersion.setText(text);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_phone_detail).setOnClickListener(this);
