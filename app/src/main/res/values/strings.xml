@@ -183,8 +183,12 @@
     <string name="suggest_add_phone">Your phone number helps you connect with friends, get SMS update and much more.\nOnly you can see this number.</string>
     <string name="registered_phone">REGISTERED PHONE</string>
     <string name="user_details">User Details</string>
+
     <string name="generate_random">Generate Random</string>
     <string name="setting_manual_set_up">Manual Set-up</string>
+    <string name="setting_selective_languages">Selective Languages</string>
+    <string name="setting_selective_emojis">Selective Emojis</string>
+
     <string name="register_agree_term_of_service"><u>I agree to the Terms of Service.</u></string>
     <string name="profile_privacy_terms"><![CDATA[Privacy & Terms]]></string>
     <string name="privacy_terms"><![CDATA[PRIVACY & TERMS]]></string>
@@ -220,4 +224,10 @@
     <!-- Tic tac toe -->
     <string name="tic_tac_toe_title">TIC TAC TOE GAME</string>
     <string name="tic_tac_toe_description">You play first!</string>
+
+    <!-- Selective Languages -->
+    <string name="selective_languages_title">Select Languages</string>
+    <string name="selective_languages_pick_title">Choose a language</string>
+    <string name="warning_title">WARNING</string>
+    <string name="language_transphabet_confirmation">Your Transphabet will be randomize using %s alphabet. Go to \"Manual Set-up\" to view details.</string>
 </resources>
