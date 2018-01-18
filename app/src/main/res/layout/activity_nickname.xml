@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background_white"
+    android:orientation="vertical"
+    android:clickable="true">
+
+    <RelativeLayout style="@style/TopMenu">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            style="@style/BackButton" />
+
+        <TextView
+            style="@style/TextTitle"
+            android:text="NICKNAMES" />
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/nickname_list"
+        style="@style/RecyclerView"
+        android:layout_weight="1" />
+
+</LinearLayout>

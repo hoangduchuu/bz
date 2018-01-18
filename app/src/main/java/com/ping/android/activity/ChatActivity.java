@@ -73,6 +73,7 @@ import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -768,7 +769,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         bindConversationSetting();
         BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            tvChatName.setText(originalConversation.opponentUser.getDisplayName());
+            updateTitle();
         } else {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
@@ -956,12 +957,26 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
             }
         };
-
         ValueEventListener deleteTimestampsEvent = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     originalConversation.deleteTimestamps = (Map<String, Double>) dataSnapshot.getValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ValueEventListener nickNameEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
+                    originalConversation.nickNames = nickNames;
+                    updateTitle();
                 }
             }
 
@@ -998,6 +1013,22 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         DatabaseReference deleteTimestampsReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteTimestamps");
         deleteTimestampsReference.addValueEventListener(deleteTimestampsEvent);
         databaseReferences.put(deleteTimestampsReference, deleteTimestampsEvent);
+
+        DatabaseReference nickNameReference = conversationRepository.getDatabaseReference().child(conversationID).child("nickNames");
+        nickNameReference.addValueEventListener(nickNameEvent);
+        databaseReferences.put(nickNameReference, nickNameEvent);
+    }
+
+    private void updateTitle() {
+        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            String opponentUserId = originalConversation.opponentUser.key;
+            String nickName = originalConversation.nickNames.get(opponentUserId);
+            if (TextUtils.isEmpty(nickName)) {
+                tvChatName.setText(originalConversation.opponentUser.getDisplayName());
+            } else {
+                tvChatName.setText(nickName);
+            }
+        }
     }
 
     private void observeStatus() {
@@ -1188,6 +1219,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void onOpenProfile() {
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             Intent intent = new Intent(this, UserProfileActivity.class);
+//            Bundle extras = new Bundle();
+//            extras.putParcelable(ConversationDetailActivity.USER_KEY, originalConversation.opponentUser);
+//            extras.putParcelable(ConversationDetailActivity.CONVERSATION_KEY, originalConversation);
+//            intent.putExtras(extras);
             intent.putExtra(Constant.START_ACTIVITY_USER_ID, originalConversation.opponentUser.key);
             intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
             startActivity(intent);

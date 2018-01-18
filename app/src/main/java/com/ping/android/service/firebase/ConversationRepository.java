@@ -145,6 +145,14 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         updateBatchData(updateData, null);
     }
 
+    public void updateUserNickname(String conversationId, String userId, String nickName, Callback callback) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, userId), nickName);
+        updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", userId, conversationId, userId), nickName);
+        updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", currentUserId(), conversationId, userId), nickName);
+        updateBatchData(updateValue, callback);
+    }
+
     public void deleteConversations(List<Conversation> conversations, Callback callback) {
         double timestamp = System.currentTimeMillis() / 1000d;
         Map<String, Object> updateValue = new HashMap<>();

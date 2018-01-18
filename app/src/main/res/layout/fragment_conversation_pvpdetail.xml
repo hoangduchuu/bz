@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_background_gray"
+    android:orientation="vertical"
+    android:clickable="true">
+
+    <RelativeLayout style="@style/TopMenu">
+
+        <ImageView
+            android:id="@+id/user_profile_back"
+            style="@style/BackButton" />
+
+        <TextView
+            style="@style/TextTitle"
+            android:text="DETAILS" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            style="@style/MatchParent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="@style/MatchParent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    style="@style/ItemSetting"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="10dp">
+
+                    <ImageView
+                        android:id="@+id/user_profile_image"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginRight="10dp"
+                        android:src="@drawable/ic_avatar_gray" />
+
+                    <TextView
+                        android:id="@+id/user_profile_name"
+                        style="@style/ItemSettingText"
+                        android:text="User name" />
+
+                    <ImageView
+                        android:id="@+id/user_profile_message"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10dp"
+                        android:background="@null"
+                        android:padding="5dp"
+                        android:src="@drawable/start_message" />
+
+                    <ImageView
+                        android:id="@+id/user_profile_voice"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10dp"
+                        android:background="@null"
+                        android:padding="5dp"
+                        android:src="@drawable/start_voice_call" />
+
+                    <ImageView
+                        android:id="@+id/user_profile_video"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@null"
+                        android:padding="5dp"
+                        android:src="@drawable/start_video_call" />
+                </LinearLayout>
+
+                <View style="@style/ItemViewSeparate" />
+
+                <LinearLayout style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/ic_notifications" />
+
+                    <TextView
+                        style="@style/ItemSettingText"
+                        android:text="Notifications" />
+
+                    <Switch
+                        android:id="@+id/user_profile_notification"
+                        style="@style/ItemSettingIconRight.Toggle" />
+                </LinearLayout>
+
+                <View style="@style/ItemSettingSeparate" />
+
+                <LinearLayout
+                    android:id="@+id/profile_nickname"
+                    style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/profile_nickname" />
+
+                    <TextView
+                        style="@style/ItemSettingText"
+                        android:enabled="false"
+                        android:text="Nickname" />
+
+                    <ImageView style="@style/ItemSettingIconRight" />
+                </LinearLayout>
+
+                <View style="@style/ItemSettingSeparate" />
+
+                <LinearLayout style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/profile_mask" />
+
+                    <TextView
+                        style="@style/ItemSettingText"
+                        android:text="Mask Incoming Messages" />
+
+                    <Switch
+                        android:id="@+id/user_profile_mask"
+                        style="@style/ItemSettingIconRight.Toggle" />
+                </LinearLayout>
+
+                <View style="@style/ItemSettingSeparate" />
+
+                <LinearLayout style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/profile_puzzle" />
+
+                    <TextView
+                        style="@style/ItemSettingText"
+                        android:text="Puzzle Incoming Pictures" />
+
+
+                    <Switch
+                        android:id="@+id/user_profile_puzzle"
+                        style="@style/ItemSettingIconRight.Toggle" />
+                </LinearLayout>
+
+                <View style="@style/ItemViewSeparate" />
+
+                <LinearLayout style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/profile_lock" />
+
+                    <TextView
+                        style="@style/ItemSettingText"
+                        android:text="Block" />
+
+                    <Switch
+                        android:id="@+id/user_profile_block"
+                        style="@style/ItemSettingIconRight.Toggle" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <View style="@style/ViewSeparate" />
+
+</LinearLayout>

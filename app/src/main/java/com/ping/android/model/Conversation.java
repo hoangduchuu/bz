@@ -7,9 +7,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
+import com.google.gson.Gson;
 import com.ping.android.ultility.Constant;
 
 import junit.framework.Assert;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,17 +29,18 @@ public class Conversation implements Parcelable {
     public String groupID;
     public String senderId;
     public double timesstamps;
-    public Map<String, Boolean> memberIDs;
-    public Map<String, Boolean> markStatuses;
-    public Map<String, Boolean> readStatuses;
-    public Map<String, Boolean> deleteStatuses;
-    public Map<String, Double> deleteTimestamps;
+    public Map<String, Boolean> memberIDs = new HashMap<>();
+    public Map<String, Boolean> markStatuses = new HashMap<>();
+    public Map<String, Boolean> readStatuses = new HashMap<>();
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
+    public Map<String, Double> deleteTimestamps = new HashMap<>();
 
     //Conversation setting
-    public HashMap<String, Boolean> notifications;
-    public Map<String, Boolean> maskMessages;
-    public Map<String, Boolean> puzzleMessages;
-    public Map<String, Boolean> maskOutputs;
+    public HashMap<String, Boolean> notifications = new HashMap<>();
+    public Map<String, Boolean> maskMessages = new HashMap<>();
+    public Map<String, Boolean> puzzleMessages = new HashMap<>();
+    public Map<String, Boolean> maskOutputs = new HashMap<>();
+    public Map<String, String> nickNames = new HashMap<>();
 
 //    public boolean notificationSetting;
 //    public boolean maskMessagesSetting;
@@ -57,7 +61,18 @@ public class Conversation implements Parcelable {
         timesstamps = in.readDouble();
         members = in.createTypedArrayList(User.CREATOR);
         opponentUser = in.readParcelable(User.class.getClassLoader());
+        Gson gson = new Gson();
+        memberIDs = gson.fromJson(in.readString(), Map.class);
+        markStatuses = gson.fromJson(in.readString(), Map.class);
+        readStatuses = gson.fromJson(in.readString(), Map.class);
+        deleteStatuses = gson.fromJson(in.readString(), Map.class);
+        deleteTimestamps = gson.fromJson(in.readString(), Map.class);
+
         notifications = (HashMap<String, Boolean>) in.readSerializable();
+        maskMessages = gson.fromJson(in.readString(), Map.class);
+        puzzleMessages = gson.fromJson(in.readString(), Map.class);
+        maskOutputs = gson.fromJson(in.readString(), Map.class);
+        nickNames = gson.fromJson(in.readString(), Map.class);
     }
 
     @Override
@@ -71,7 +86,28 @@ public class Conversation implements Parcelable {
         dest.writeDouble(timesstamps);
         dest.writeTypedList(members);
         dest.writeParcelable(opponentUser, flags);
+        JSONObject jsonObject = new JSONObject(memberIDs);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(markStatuses);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(readStatuses);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(deleteStatuses);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(deleteTimestamps);
+        dest.writeString(jsonObject.toString());
+
+
+        //Conversation setting
         dest.writeSerializable(notifications);
+        jsonObject = new JSONObject(maskMessages);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(puzzleMessages);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(maskOutputs);
+        dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(nickNames);
+        dest.writeString(jsonObject.toString());
     }
 
     @Override
@@ -198,6 +234,7 @@ public class Conversation implements Parcelable {
         result.put("maskMessages", maskMessages);
         result.put("puzzleMessages", puzzleMessages);
         result.put("maskOutputs", maskOutputs);
+        result.put("nickNames", nickNames);
 
         return result;
     }

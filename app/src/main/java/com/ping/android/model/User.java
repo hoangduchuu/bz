@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.gson.Gson;
 import com.ping.android.form.Setting;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -13,6 +14,8 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,6 +110,10 @@ public class User implements Parcelable {
         showMappingConfirm = tmpShowMappingConfirm == 1;
         friendList = in.createTypedArrayList(User.CREATOR);
         typeFriend = Constant.TYPE_FRIEND.valueOf(in.readString());
+        Gson gson = new Gson();
+        friends = gson.fromJson(in.readString(), Map.class);
+        blocks = gson.fromJson(in.readString(), Map.class);
+        blockBys = gson.fromJson(in.readString(), Map.class);
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -171,5 +178,11 @@ public class User implements Parcelable {
         parcel.writeByte((byte) (showMappingConfirm ? 1 : 2));
         parcel.writeTypedList(friendList);
         parcel.writeString(typeFriend.toString());
+        JSONObject jsonObject = new JSONObject(friends);
+        parcel.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(blocks);
+        parcel.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(blockBys);
+        parcel.writeString(jsonObject.toString());
     }
 }

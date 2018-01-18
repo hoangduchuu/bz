@@ -127,8 +127,32 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                 conversation = (Conversation) data[0];
                 messageRepository = MessageRepository.from(conversation.key);
                 bindData();
+                registerConversationListener(conversation.key);
             }
         });
+    }
+
+    private void registerConversationListener(String conversationId) {
+        DatabaseReference nickNameReference = conversationRepository.getDatabaseReference().child(conversationId).child("nickNames");
+        ValueEventListener nickNameEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
+                    if (conversation != null) {
+                        conversation.nickNames = nickNames;
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        nickNameReference.addValueEventListener(nickNameEvent);
+        databaseReferences.put(nickNameReference, nickNameEvent);
     }
 
     @Override
@@ -154,6 +178,9 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                 break;
             case R.id.group_profile_image:
                 openPicker();
+                break;
+            case R.id.profile_nickname:
+                onNickNameClicked();
                 break;
         }
     }
@@ -213,6 +240,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         findViewById(R.id.group_profile_back).setOnClickListener(this);
         findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
+        findViewById(R.id.profile_nickname).setOnClickListener(this);
 
         String transitionName = getIntent().getStringExtra(EXTRA_IMAGE_KEY);
         groupProfile.setTransitionName(transitionName);
@@ -251,6 +279,13 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
         if(updateGroupName()) {
             supportFinishAfterTransition();
         }
+    }
+
+    private void onNickNameClicked() {
+        conversation.members = group.members;
+        Intent intent = new Intent(this, NicknameActivity.class);
+        intent.putExtra(NicknameActivity.CONVERSATION_KEY, conversation);
+        startActivity(intent);
     }
 
     private boolean updateGroupName() {

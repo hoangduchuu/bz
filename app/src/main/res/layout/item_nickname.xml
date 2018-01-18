@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/ListItemContainer"
+    android:layout_marginStart="@dimen/default_padding"
+    android:layout_weight="1"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/iv_profile"
+        android:layout_width="@dimen/user_profile_icon_width"
+        android:layout_height="@dimen/user_profile_icon_height"
+        android:src="@drawable/ic_avatar_gray"
+        android:transitionName="profile" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="@dimen/default_padding">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/default_padding"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_nickname"
+                style="@style/AppTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textStyle="bold"
+                tools:text="John Doe" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                style="@style/AppTextAppearance.Small.Grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="This is the comment text. very long long long text with many many line" />
+        </LinearLayout>
+
+        <View
+            style="@style/horizontal_divider"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+</LinearLayout>

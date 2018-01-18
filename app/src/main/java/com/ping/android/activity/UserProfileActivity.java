@@ -2,12 +2,17 @@ package com.ping.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
@@ -17,6 +22,11 @@ import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class UserProfileActivity extends CoreActivity implements View.OnClickListener{
     private ImageView userProfile;
@@ -58,6 +68,20 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
                 conversation = (Conversation) data[0];
                 conversation.key = conversationId;
                 bindConversationSetting();
+                userRepository.initMemberList(conversation.memberIDs, (error1, data1) -> {
+                    if (error1 == null) {
+                        conversation.members = (List<User>) data1[0];
+                        if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                            String currentUserId = UserManager.getInstance().getUser().key;
+                            for (User user : conversation.members) {
+                                if (!user.key.equals(currentUserId)) {
+                                    conversation.opponentUser = user;
+                                }
+                            }
+                        }
+                        registerConversationListener(conversationId);
+                    }
+                });
             }
             hideLoading();
         });
@@ -67,6 +91,34 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
                 swBlock.setChecked(currentUser.blocks.containsKey(userID));
             }
         };
+    }
+
+    private void registerConversationListener(String conversationId) {
+        DatabaseReference nickNameReference = conversationRepository.getDatabaseReference().child(conversationId).child("nickNames");
+        ValueEventListener nickNameEvent = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
+                    if (conversation != null) {
+                        conversation.nickNames = nickNames;
+                        if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                            String nickName = nickNames.get(conversation.opponentUser.key);
+                            if (!TextUtils.isEmpty(nickName)) {
+                                userName.setText(nickName);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        nickNameReference.addValueEventListener(nickNameEvent);
+        databaseReferences.put(nickNameReference, nickNameEvent);
     }
 
     @Override
@@ -108,7 +160,16 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
             case R.id.user_profile_block:
                 onBlock();
                 break;
+            case R.id.profile_nickname:
+                onNickNameClicked();
+                break;
         }
+    }
+
+    private void onNickNameClicked() {
+        Intent intent = new Intent(this, NicknameActivity.class);
+        intent.putExtra(NicknameActivity.CONVERSATION_KEY, conversation);
+        startActivity(intent);
     }
 
     private void bindViews() {
@@ -128,6 +189,7 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
         findViewById(R.id.user_profile_message).setOnClickListener(this);
         findViewById(R.id.user_profile_voice).setOnClickListener(this);
         findViewById(R.id.user_profile_video).setOnClickListener(this);
+        findViewById(R.id.profile_nickname).setOnClickListener(this);
     }
 
     private void bindData() {
@@ -142,7 +204,6 @@ public class UserProfileActivity extends CoreActivity implements View.OnClickLis
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         swPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
     }
-
 
     private void onMessage() {
         if (!ServiceManager.getInstance().getNetworkStatus(this)) {
