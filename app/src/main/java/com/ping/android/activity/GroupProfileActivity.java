@@ -141,7 +141,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
                     HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
                     if (conversation != null) {
                         conversation.nickNames = nickNames;
-
+                        adapter.updateNickNames(nickNames);
                     }
                 }
             }

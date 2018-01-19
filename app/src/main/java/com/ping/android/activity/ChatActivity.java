@@ -976,7 +976,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (dataSnapshot.exists()) {
                     HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
                     originalConversation.nickNames = nickNames;
-                    updateTitle();
+                    if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                        updateTitle();
+                    } else {
+                        adapter.updateNickNames(nickNames);
+                    }
                 }
             }
 

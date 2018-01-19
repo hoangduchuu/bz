@@ -44,6 +44,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     private static final int RIGHT_MSG_GAME = 6;
     private static final int LEFT_MSG_GAME = 7;
 
+    private Map<String, String> nickNames = new HashMap<>();
     private List<Message> displayMessages;
     private List<Message> selectMessages;
     private String conversationID, currentUserID;
@@ -126,6 +128,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 //        // TODO should not notify all data here
 //        Collections.sort(displayMessages, this);
 //        notifyDataSetChanged();
+    }
+
+    public void updateNickNames(Map<String, String> nickNames) {
+        this.nickNames = nickNames;
+        notifyDataSetChanged();
     }
 
     public void deleteMessage(String messageID) {
@@ -428,9 +435,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             GestureDetectorCompat mDetector = new GestureDetectorCompat(itemView.getContext(), gestureDetectorListener);
             View contentView = getContentView();
             if (contentView != null) {
-                contentView.setOnTouchListener((view, motionEvent) -> {
-                    return mDetector.onTouchEvent(motionEvent);
-                });
+                contentView.setOnTouchListener((view, motionEvent) -> mDetector.onTouchEvent(motionEvent));
             }
         }
 
@@ -598,11 +603,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             activity.startActivity(intent, options.toBundle());
         }
 
-        private void unPuzzleGame(String imageURL, Boolean isPuzzled) {
-
-
-        }
-
         public void setModel(Message message) {
             this.message = message;
             markStatus = ServiceManager.getInstance().getCurrentMarkStatus(message.markStatuses);
@@ -708,8 +708,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (orginalConversation != null
                     && !currentUserID.equals(message.senderId)
                     && orginalConversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
+                String nickName = nickNames.get(message.senderId);
                 String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
-                tvInfo.setText(senderName + ", " + time);
+                tvInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName) + ", " + time);
             } else {
                 tvInfo.setText(time);
             }

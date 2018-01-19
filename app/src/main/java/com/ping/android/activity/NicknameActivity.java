@@ -1,9 +1,7 @@
 package com.ping.android.activity;
 
-import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -23,8 +21,6 @@ import java.util.List;
 
 public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
-    public static final String MEMBERS_KEY = "MEMBERS_KEY";
-    public static final String NICKNAMES_KEY = "NICKNAME_KEY";
 
     private RecyclerView recyclerView;
 

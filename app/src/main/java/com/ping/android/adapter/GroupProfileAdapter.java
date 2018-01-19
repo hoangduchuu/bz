@@ -2,6 +2,7 @@ package com.ping.android.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +14,16 @@ import com.ping.android.model.User;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapter.ViewHolder> {
 
     private static GroupProfileAdapter.ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private Context mContext;
+    private Map<String, String> nickNames = new HashMap<>();
 
     public GroupProfileAdapter(Context context, GroupProfileAdapter.ClickListener clickListener) {
         originalContacts = new ArrayList<>();
@@ -57,7 +61,8 @@ public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapte
     @Override
     public void onBindViewHolder(GroupProfileAdapter.ViewHolder holder, int position) {
         User contact = originalContacts.get(position);
-        holder.tvName.setText(contact.getDisplayName());
+        String nickName = nickNames.get(contact.key);
+        holder.tvName.setText(TextUtils.isEmpty(nickName) ? contact.getDisplayName() : nickName);
         holder.tvUsername.setText(contact.pingID);
         holder.contact = contact;
 
@@ -67,6 +72,11 @@ public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapte
     @Override
     public int getItemCount() {
         return originalContacts.size();
+    }
+
+    public void updateNickNames(Map<String, String> nickNames) {
+        this.nickNames = nickNames;
+        notifyDataSetChanged();
     }
 
     public interface ClickListener {
