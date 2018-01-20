@@ -6,6 +6,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -143,6 +144,15 @@ public class ConversationRepository extends BaseFirebaseDatabase {
             updateData.put(String.format("users/%s/conversations/%s", toUser.key, conversationID), conversation.toMap());
         }
         updateBatchData(updateData, null);
+    }
+
+    public void updateUserNickname(String conversationId, Nickname nickname, Map<String, Boolean> userIds, Callback callback) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, nickname.userId), nickname.nickName);
+        for (String userId : userIds.keySet()) {
+            updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", userId, conversationId, nickname.userId), nickname.nickName);
+        }
+        updateBatchData(updateValue, callback);
     }
 
     public void deleteConversations(List<Conversation> conversations, Callback callback) {

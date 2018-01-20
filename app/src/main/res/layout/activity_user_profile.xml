@@ -107,7 +107,7 @@
                     <View style="@style/ItemSettingSeparate" />
 
                     <LinearLayout
-                        android:id="@+id/profile_block"
+                        android:id="@+id/profile_nickname"
                         style="@style/ItemSetting">
 
                         <ImageView
@@ -115,9 +115,7 @@
                             android:src="@drawable/profile_nickname" />
 
                         <TextView
-                            android:enabled="false"
                             style="@style/ItemSettingText"
-                            android:textColor="@color/color_grey"
                             android:text="Nickname" />
 
                         <ImageView style="@style/ItemSettingIconRight" />

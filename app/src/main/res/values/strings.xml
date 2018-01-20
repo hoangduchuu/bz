@@ -201,6 +201,7 @@
     <!-- General strings -->
     <string name="gen_ok">OK</string>
     <string name="gen_cancel">CANCEL</string>
+    <string name="gen_save">SAVE</string>
 
     <!-- Chat activity -->
     <string name="chat_mask">MASK</string>
@@ -230,4 +231,9 @@
     <string name="selective_languages_pick_title">Choose a transphabet</string>
     <string name="warning_title">WARNING</string>
     <string name="language_transphabet_confirmation">Your Transphabet will be randomize using %s alphabet. Go to \"Manual Set-up\" to view details.</string>
+
+    <!-- Nickname -->
+    <string name="nick_name_edit_title">EDIT NICKNAME</string>
+    <string name="nick_name_edit_individual_description">%s will only see this in this conversation.</string>
+    <string name="nick_name_edit_group_description">Only members from this conversation will see this.</string>
 </resources>
