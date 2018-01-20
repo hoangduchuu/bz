@@ -89,14 +89,11 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
     private void onNicknameSet(Nickname nickname, String s) {
         nickname.nickName = s;
         showLoading();
-        conversationRepository.updateUserNickname(conversation.key, nickname.userId, s, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    recyclerView.post(() -> adapter.updateNickName(nickname));
-                }
-                hideLoading();
+        conversationRepository.updateUserNickname(conversation.key, nickname, conversation.memberIDs, (error, data) -> {
+            if (error == null) {
+                recyclerView.post(() -> adapter.updateNickName(nickname));
             }
+            hideLoading();
         });
     }
 }

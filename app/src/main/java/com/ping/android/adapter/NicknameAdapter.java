@@ -9,17 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.model.Nickname;
 import com.ping.android.utils.UiUtils;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 public class NicknameAdapter extends RecyclerView.Adapter<NicknameAdapter.ViewHolder> {
-    List<Nickname> data;
+    private List<Nickname> data;
     private NickNameListener listener;
 
     public NicknameAdapter(List<Nickname> nicknames) {
