@@ -130,8 +130,12 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         updateBatchData(updateValue, callback);
     }
 
-    public void updateTypingIndicatorForUser(String conversationId, String userId, boolean typing) {
-        databaseReference.child(conversationId).child("typingIndicator").child(userId).setValue(typing);
+    public void updateTypingIndicatorForUser(Conversation conversation, String userId, boolean typing) {
+        Map<String, Object> updateData = new HashMap<>();
+        for (User user: conversation.members) {
+            updateData.put(String.format("users/%s/conversations/%s/typingIndicator/%s", user.key, conversation.key, userId), typing);
+        }
+        updateBatchData(updateData, null);
     }
 
     public void updateConversation(String conversationID, Conversation conversation,
