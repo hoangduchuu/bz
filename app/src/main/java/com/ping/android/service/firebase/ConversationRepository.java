@@ -6,6 +6,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
@@ -129,8 +130,12 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         updateBatchData(updateValue, callback);
     }
 
-    public void updateTypingIndicatorForUser(String conversationId, String userId, boolean typing) {
-        databaseReference.child(conversationId).child("typingIndicator").child(userId).setValue(typing);
+    public void updateTypingIndicatorForUser(Conversation conversation, String userId, boolean typing) {
+        Map<String, Object> updateData = new HashMap<>();
+        for (User user: conversation.members) {
+            updateData.put(String.format("users/%s/conversations/%s/typingIndicator/%s", user.key, conversation.key, userId), typing);
+        }
+        updateBatchData(updateData, null);
     }
 
     public void updateConversation(String conversationID, Conversation conversation,
@@ -145,11 +150,12 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         updateBatchData(updateData, null);
     }
 
-    public void updateUserNickname(String conversationId, String userId, String nickName, Callback callback) {
+    public void updateUserNickname(String conversationId, Nickname nickname, Map<String, Boolean> userIds, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, userId), nickName);
-        updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", userId, conversationId, userId), nickName);
-        updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", currentUserId(), conversationId, userId), nickName);
+        updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, nickname.userId), nickname.nickName);
+        for (String userId : userIds.keySet()) {
+            updateValue.put(String.format("users/%s/conversations/%s/nickNames/%s", userId, conversationId, nickname.userId), nickname.nickName);
+        }
         updateBatchData(updateValue, callback);
     }
 

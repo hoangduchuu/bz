@@ -1121,6 +1121,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             @Override
             public void afterTextChanged(Editable editable) {
 
+                //send typing status
+                if (!TextUtils.isEmpty(edMessage.getText()) && !isTyping) {
+                    isTyping = true;
+                    updateConversationTyping(isTyping);
+                } else if (TextUtils.isEmpty(edMessage.getText()) && isTyping) {
+                    isTyping = false;
+                    updateConversationTyping(isTyping);
+                }
+
                 if (!tgMarkOut.isChecked()) {
                     originalText = editable.toString();
                     return;
@@ -1130,15 +1139,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (TextUtils.equals(edMessage.getText(), encodeText)){
                     return;
                 }
-
-                if (!TextUtils.isEmpty(edMessage.getText()) && !isTyping) {
-                    isTyping = true;
-                    updateConversationTyping(isTyping);
-                } else if (TextUtils.isEmpty(edMessage.getText()) && isTyping) {
-                    isTyping = false;
-                    updateConversationTyping(isTyping);
-                }
-
 
                 edMessage.removeTextChangedListener(textWatcher);
                 edMessage.setText(encodeText);
@@ -1755,7 +1755,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (CollectionUtils.isEmpty(messages)) {
             return;
         }
-        conversationRepository.updateTypingIndicatorForUser(conversationID, fromUserID, typing);
+        conversationRepository.updateTypingIndicatorForUser(originalConversation, fromUserID, typing);
     }
 
     private boolean beAbleToSendMessage() {
