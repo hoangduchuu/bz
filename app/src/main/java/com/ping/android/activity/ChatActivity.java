@@ -331,7 +331,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     public void onDoubleTap(Message message, boolean maskStatus) {
         if (message.messageType == Constant.MSG_TYPE_TEXT) {
             Message lastMessage = adapter.getLastMessage();
-            boolean isLastMessage = lastMessage != null && lastMessage.key.equals(message.key);
+            boolean isLastMessage = lastMessage != null && TextUtils.equals(lastMessage.key, message.key);
             List<Message> messages = new ArrayList<>(1);
             messages.add(message);
             messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
