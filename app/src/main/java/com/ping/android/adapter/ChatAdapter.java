@@ -196,8 +196,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     public Message getLastMessage() {
         if (displayMessages.size() >= 2) {
-            return displayMessages.get(getItemCount() - 1);
-        }
+            for (int i = displayMessages.size() - 1; i >= 0; i--) {
+                if (displayMessages.get(i).messageType != Constant.MSG_TYPE_TYPING) {
+                    return displayMessages.get(i);
+                }
+            }        }
         return null;
     }
 
