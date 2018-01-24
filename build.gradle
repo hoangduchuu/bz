@@ -48,10 +48,11 @@ ext {
     libraries = [
             kotlin      : '1.1.51',
             dagger      : "2.12",
-            rx_android   : "2.0.1",
-            rx_java      : "2.1.5",
+            rx_android  : "2.0.1",
+            rx_java     : "2.1.8",
             arrow       : "1.0.0",
             retrofit    : "2.2.0",
+            firebase    : "11.8.0",
     ]
 }
 

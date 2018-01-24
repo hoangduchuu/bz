@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.App;
+import com.ping.android.dagger.ApplicationComponent;
+import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
@@ -17,14 +20,20 @@ import com.ping.android.utils.NetworkConnectionChecker;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
+public abstract class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
 
     private NetworkConnectionChecker networkConnectionChecker;
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
+    // Disposable for UI events
+    private CompositeDisposable disposables;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        disposables = new CompositeDisposable();
         initWiFiManagerListener();
         Constant.NETWORK_STATUS networkStatus = networkConnectionChecker.getNetworkStatus();
         UpdateNetworkStatus(networkStatus);
@@ -52,6 +61,7 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        disposables.dispose();
         for (DatabaseReference reference : databaseReferences.keySet()) {
             Object listener = databaseReferences.get(reference);
             if (listener instanceof ChildEventListener) {
@@ -65,6 +75,18 @@ public class CoreActivity extends AppCompatActivity implements NetworkConnection
     @Override
     public void connectivityChanged(boolean availableNow) {
 
+    }
+
+    protected ApplicationComponent getApplicationComponent() {
+        return ((App) getApplication()).getComponent();
+    }
+
+    protected LoggedInComponent getLoggedInComponent() {
+        return ((App) getApplication()).getLoggedInComponent();
+    }
+
+    protected void registerEvent(Disposable disposable) {
+        disposables.add(disposable);
     }
 
     @Override

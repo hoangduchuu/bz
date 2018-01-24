@@ -173,7 +173,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
                 ? QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO
                 : QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_AUDIO;
 
-        QBRTCClient qbrtcClient = QBRTCClient.getInstance(App.getInstance().getApplicationContext());
+        QBRTCClient qbrtcClient = QBRTCClient.getInstance(context.getApplicationContext());
 
         QBRTCSession newQbRtcSession = qbrtcClient.createNewSessionWithOpponents(opponentsList, conferenceType);
 

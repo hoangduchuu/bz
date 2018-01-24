@@ -8,8 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import rx.Observable;
-import rx.functions.Action1;
+import io.reactivex.Observable;
 
 /**
  * Class representing a game of Tic Tac Toe
