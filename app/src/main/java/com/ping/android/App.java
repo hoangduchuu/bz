@@ -13,6 +13,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.ping.android.activity.BuildConfig;
+import com.ping.android.dagger.ApplicationComponent;
+import com.ping.android.dagger.ApplicationModule;
+import com.ping.android.dagger.DaggerApplicationComponent;
+import com.ping.android.dagger.loggedin.LoggedInComponent;
+import com.ping.android.dagger.loggedin.RepositoryModule;
 import com.ping.android.utils.ActivityLifecycle;
 
 import java.io.File;
@@ -23,12 +28,10 @@ import okhttp3.OkHttpClient;
 
 public class App extends CoreApp {
 
-    private static App instance;
+    private ApplicationComponent component;
     private FirebaseRemoteConfig remoteConfig;
+    private LoggedInComponent loggedInComponent;
 
-    public static App getInstance() {
-        return instance;
-    }
     private static Activity activeActivity;
 
     @Override
@@ -36,7 +39,6 @@ public class App extends CoreApp {
         super.onCreate();
         setupActivityListener();
         ActivityLifecycle.init(this);
-        initApplication();
         FirebaseApp.initializeApp(getApplicationContext());
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         remoteConfig = FirebaseRemoteConfig.getInstance();
@@ -45,11 +47,11 @@ public class App extends CoreApp {
         HashMap<String, Object> defaults = new HashMap<>();
         defaults.put("adr_store_current_version", "0.0.0");
         defaults.put("adr_force_update_enabled", 0);
-        defaults.put("adr_app_id","com.ping.android");
+        defaults.put("adr_app_id", "com.ping.android");
         remoteConfig.setDefaults(defaults);
     }
 
-    private OkHttpClient createCacheClient(Context context){
+    private OkHttpClient createCacheClient(Context context) {
         File httpCacheDirectory = new File(context.getCacheDir(), "bzzz");
         Cache cache = new Cache(httpCacheDirectory, 250000);
 
@@ -58,11 +60,7 @@ public class App extends CoreApp {
                 .build();
     }
 
-    private void initApplication() {
-        instance = this;
-    }
-
-    private void fetchConfigSettings(){
+    private void fetchConfigSettings() {
         final Task<Void> fetch = remoteConfig.fetch(0);
         fetch.addOnCompleteListener(task -> {
             remoteConfig.activateFetched();
@@ -75,7 +73,7 @@ public class App extends CoreApp {
         int forceUpdateEnabled = (int) remoteConfig.getLong("adr_force_update_enabled");
         String appId = remoteConfig.getString("adr_app_id");
 
-        if(forceUpdateEnabled <= 0 || !versionCompare(storeCurrentVersion, BuildConfig.VERSION_NAME)){
+        if (forceUpdateEnabled <= 0 || !versionCompare(storeCurrentVersion, BuildConfig.VERSION_NAME)) {
             return;
         }
 
@@ -96,15 +94,32 @@ public class App extends CoreApp {
                 .show();
     }
 
-    private boolean versionCompare(String storeVersion, String installedVersion){
+    private boolean versionCompare(String storeVersion, String installedVersion) {
         String[] ver1s = storeVersion.split("\\.");
         String[] ver2s = installedVersion.split("\\.");
 
         if (Integer.parseInt(ver1s[0]) > Integer.parseInt(ver2s[0])
-                || Integer.parseInt(ver1s[1]) > Integer.parseInt(ver2s[1])){
+                || Integer.parseInt(ver1s[1]) > Integer.parseInt(ver2s[1])) {
             return true;
         }
         return false;
+    }
+
+    public ApplicationComponent getComponent() {
+        if (component == null) {
+            component = DaggerApplicationComponent.builder()
+                    .applicationModule(new ApplicationModule())
+                    .build();
+        }
+        return component;
+    }
+
+    public LoggedInComponent getLoggedInComponent() {
+        if (loggedInComponent == null) {
+            loggedInComponent = getComponent()
+                    .provideLoggedInComponent(new RepositoryModule());
+        }
+        return loggedInComponent;
     }
 
     private void setupActivityListener() {
@@ -112,31 +127,37 @@ public class App extends CoreApp {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
             }
+
             @Override
             public void onActivityStarted(Activity activity) {
             }
+
             @Override
             public void onActivityResumed(Activity activity) {
                 activeActivity = activity;
                 fetchConfigSettings();
             }
+
             @Override
             public void onActivityPaused(Activity activity) {
                 activeActivity = null;
             }
+
             @Override
             public void onActivityStopped(Activity activity) {
             }
+
             @Override
             public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
             }
+
             @Override
             public void onActivityDestroyed(Activity activity) {
             }
         });
     }
 
-    public static Activity getActiveActivity(){
+    public static Activity getActiveActivity() {
         return activeActivity;
     }
 }

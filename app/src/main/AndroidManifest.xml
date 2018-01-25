@@ -128,7 +128,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".NewChatActivity"
+            android:name="com.ping.android.presentation.activity.NewChatActivity"
             android:label="Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -181,7 +181,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AddGroupActivity"
+            android:name="com.ping.android.presentation.activity.AddGroupActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />

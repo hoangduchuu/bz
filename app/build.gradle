@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -59,11 +60,17 @@ android {
     }
 }
 
+def libraries = rootProject.ext.libraries;
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:support-v4:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
+
+    implementation project(path: ':flexibleadapter')
+    implementation project(path: ':extensions')
+    implementation project(path: ':rxfirebase')
 
     //SUPPORT ANDROID
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
@@ -80,21 +87,21 @@ dependencies {
     // AUTH
 
     //compile 'com.google.android.gms:play-services-auth:10.0.1'
-    implementation 'com.google.firebase:firebase-auth:11.6.2'
-    implementation 'com.google.firebase:firebase-messaging:11.6.2'
-    implementation 'com.google.android.gms:play-services-gcm:11.6.2'
+    implementation "com.google.android.gms:play-services-gcm:${libraries.firebase}"
+    implementation "com.google.firebase:firebase-auth:${libraries.firebase}"
+    implementation "com.google.firebase:firebase-messaging:${libraries.firebase}"
 
     //DATABASE FIREBASE,UI
-    implementation 'com.google.firebase:firebase-database:11.6.2'
+    implementation "com.google.firebase:firebase-database:${libraries.firebase}"
 
     //compile 'com.firebaseui:firebase-ui-database:1.0.1'
 
     //STORAGE FIREBASE
-    implementation 'com.google.firebase:firebase-storage:11.6.2'
+    implementation "com.google.firebase:firebase-storage:${libraries.firebase}"
     implementation('com.firebaseui:firebase-ui-storage:3.1.0') {
         exclude group: 'com.android.support'
     }
-    implementation 'com.google.firebase:firebase-config:11.6.2'
+    implementation "com.google.firebase:firebase-config:${libraries.firebase}"
 
     //Places SERVICES
 
@@ -138,7 +145,12 @@ dependencies {
     implementation 'com.mikepenz:iconics-views:3.0.0@aar'
 
     implementation 'com.soundcloud.android:android-crop:1.0.1@aar'
-    implementation 'io.reactivex:rxandroid:1.0.1'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation "io.reactivex.rxjava2:rxandroid:${libraries.rx_android}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation "com.google.dagger:dagger:${libraries.dagger}"
+    annotationProcessor "com.google.dagger:dagger-compiler:${libraries.dagger}"
 }
 
 apply plugin: 'com.google.gms.google-services'

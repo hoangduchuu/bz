@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
@@ -16,26 +15,26 @@ import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
-import com.ping.android.ultility.Callback;
-import com.ping.android.utils.Log;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * Created by tuanluong on 12/7/17.
  */
 
 public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
-    private static final int DELAY = 300;
+    private static final int DELAY = 500;
 
-    private ChipsListener listener;
     private Timer timer;
     private int delayTime = DELAY; // milliseconds
     private TextWatcher textWatcher;
+    // Subject that deliver text to search
+    private PublishSubject<ChipEvent> subject;
 
     public ChipsEditText(Context context) {
         super(context);
@@ -51,6 +50,7 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
     private ArrayList<ImageSpan> spansToBeRemove = new ArrayList<>();
 
     private void init() {
+        subject = PublishSubject.create();
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -90,9 +90,7 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
                 }
                 if (spansToBeRemove.size() > 0) {
                     for (ImageSpan span : spansToBeRemove) {
-                        if (listener != null) {
-                            listener.onDeleteChip(span.getSource());
-                        }
+                        subject.onNext(new ChipEvent(EventType.DELETE, span.getSource()));
                     }
                     spansToBeRemove.clear();
                     return;
@@ -105,11 +103,9 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
                     @Override
                     public void run() {
                         // Trigger task after delaying
-                        if (listener != null) {
-                            String[] text = getText().toString().split(",");
-                            if (text.length > 0) {
-                                listener.onSearchText(text[text.length - 1]);
-                            }
+                        String[] text = getText().toString().split(",");
+                        if (text.length > 0) {
+                            subject.onNext(new ChipEvent(EventType.SEARCH, text[text.length - 1]));
                         }
                     }
                 };
@@ -119,8 +115,11 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
         addTextChangedListener(textWatcher);
     }
 
+    public Observable<ChipEvent> chipEventObservable() {
+        return this.subject.share();
+    }
+
     public void setListener(ChipsListener callback, int debounceDelay) {
-        this.listener = callback;
         this.delayTime = debounceDelay;
     }
 
@@ -189,8 +188,23 @@ public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
         }
     }
 
+    public class ChipEvent {
+        public EventType type;
+        public String text;
+
+        public ChipEvent(EventType type, String text) {
+            this.type = type;
+            this.text = text;
+        }
+    }
+
+    public enum EventType {
+        SEARCH, DELETE
+    }
+
     public interface ChipsListener {
         void onSearchText(String text);
+
         void onDeleteChip(String text);
     }
 }

@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class GameTicTacToeActivity extends BaseGameActivity implements View.OnClickListener {
     private final TicTacToeGame game = new TicTacToeGame();
@@ -89,9 +89,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     private void simulateCpuMove() {
         game.getCpuMove()
                 .subscribeOn(Schedulers.computation())
-                .doOnSubscribe(() -> {
-                    // TODO Disable buttons click
-                })
+                .doOnSubscribe(disposable -> {})
                 .delay(1, TimeUnit.SECONDS)                 // Make it look like the computer is "thinking"
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(o -> {

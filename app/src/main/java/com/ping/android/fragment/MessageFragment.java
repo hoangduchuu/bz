@@ -1,12 +1,10 @@
 package com.ping.android.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
-import com.ping.android.activity.NewChatActivity;
+import com.ping.android.presentation.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.MessageAdapter;

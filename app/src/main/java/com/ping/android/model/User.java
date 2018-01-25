@@ -35,11 +35,11 @@ public class User implements Parcelable {
     public String profile;
     public Boolean loginStatus;
     public boolean showMappingConfirm;
-    public Map<String, String> mappings;
+    public Map<String, String> mappings = new HashMap<>();
     public Setting settings;
-    public Map<String, Boolean> friends;
-    public Map<String, Boolean> blocks;
-    public Map<String, Boolean> blockBys;
+    public Map<String, Boolean> friends = new HashMap<>();
+    public Map<String, Boolean> blocks = new HashMap<>();
+    public Map<String, Boolean> blockBys = new HashMap<>();
 
     // Local variable
     public ArrayList<User> friendList  = new ArrayList<>();

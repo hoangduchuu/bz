@@ -1,11 +1,10 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
@@ -15,33 +14,42 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.ping.android.activity.ChatActivity;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.dagger.loggedin.SearchUserModule;
+import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
+import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.NewChatPresenter;
+import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
+import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NewChatActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class NewChatActivity extends CoreActivity implements View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
     private final String TAG = NewChatActivity.class.getSimpleName();
     //Views UI
     private RecyclerView recycleChatView;
@@ -68,14 +76,29 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private boolean isAddMember = false;
 
+    @Inject
+    public NewChatPresenter presenter;
+    @Inject
+    public SearchUserPresenter searchUserPresenter;
+    private NewChatComponent component;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_chat);
-
+        getComponent().inject(this);
+        presenter.create();
+        searchUserPresenter.create();
         isAddMember = getIntent().getBooleanExtra("ADD_MEMBER", false);
         bindViews();
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.destroy();
+        searchUserPresenter.destroy();
     }
 
     @Override
@@ -170,104 +193,33 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                 adapter.updateData(new ArrayList<>());
             }
         });
-        edtTo.setListener(new ChipsEditText.ChipsListener() {
-            @Override
-            public void onSearchText(String text) {
-                if (!TextUtils.isEmpty(text)) {
-                    searchUsers(text);
-                } else {
-                    recycleChatView.post(() -> adapter.updateData(new ArrayList<>()));
-                }
-            }
-
-            @Override
-            public void onDeleteChip(String text) {
-                for (User user : selectedUsers) {
-                    if (user.getDisplayName().equals(text)) {
-                        selectedUsers.remove(user);
-                        adapter.setSelectPingIDs(getSelectedPingId());
-                        btnDone.setEnabled(selectedUsers.size() > 0);
-                        break;
+        registerEvent(RxTextView
+                .afterTextChangeEvents(edMessage)
+                .subscribe(textViewAfterTextChangeEvent -> checkReadySend()));
+        registerEvent(edtTo.chipEventObservable()
+                .observeOn(new UIThread().getScheduler())
+                .subscribe(chipEvent -> {
+                    switch (chipEvent.type) {
+                        case SEARCH:
+                            if (TextUtils.isEmpty(chipEvent.text)) {
+                                adapter.updateData(new ArrayList<>());
+                            } else {
+                                searchUserPresenter.searchUsers(chipEvent.text);
+                            }
+                            break;
+                        case DELETE:
+                            for (User user : selectedUsers) {
+                                if (user.getDisplayName().equals(chipEvent.text)) {
+                                    selectedUsers.remove(user);
+                                    adapter.setSelectPingIDs(getSelectedPingId());
+                                    btnDone.setEnabled(selectedUsers.size() > 0);
+                                    break;
+                                }
+                            }
+                            break;
                     }
-                }
-            }
-        }, 500);
-
-        textWatcher = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                checkReadySend();
-            }
-        };
-
-        edMessage.addTextChangedListener(textWatcher);
+                }));
         checkReadySend();
-    }
-
-    private String textToSearch = "";
-
-    private void searchUsers(String text) {
-        Log.d(text);
-        hideNoResults();
-        textToSearch = text;
-        userList.clear();
-        Callback searchCallback = (error, data) -> {
-            if (error == null && text.equals(textToSearch)) {
-                DataSnapshot snapshot = (DataSnapshot) data[0];
-                handleUsersData(snapshot);
-            }
-            hideSearching();
-            if (userList.isEmpty()) {
-                showNoResults();
-            }
-        };
-        localSearch(text);
-        if (userList.isEmpty()) {
-            showSearching();
-        } else {
-            hideSearching();
-        }
-        userRepository.matchUserWithText(text, "ping_id", searchCallback);
-    }
-
-    private void localSearch(String text) {
-        for (User user : fromUser.friendList) {
-            if (CommonMethod.isContain(CommonMethod.getSearchString(user), text)) {
-                if (!userList.containsKey(user.key)) {
-                    userList.put(user.key, user);
-                }
-            }
-        }
-        if (!userList.isEmpty()) {
-            hideSearching();
-        }
-        recycleChatView.post(() -> {
-            adapter.setSelectPingIDs(getSelectedPingId());
-            adapter.updateData(new ArrayList<>(userList.values()));
-        });
-    }
-
-    private void handleUsersData(DataSnapshot dataSnapshot) {
-        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            if (!userList.containsKey(snapshot.getKey())
-                    && !snapshot.getKey().equals(fromUser.key)) {
-                User user = new User(snapshot);
-                userList.put(snapshot.getKey(), user);
-            }
-        }
-        adapter.setSelectPingIDs(getSelectedPingId());
-        adapter.updateData(new ArrayList<>(userList.values()));
     }
 
     private List<String> getSelectedPingId() {
@@ -392,25 +344,29 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         });
     }
 
-    private void showSearching() {
+    @Override
+    public void showSearching() {
         avi.post(() -> {
             avi.setVisibility(View.VISIBLE);
             avi.show();
         });
     }
 
-    private void hideSearching() {
+    @Override
+    public void hideSearching() {
         avi.post(() -> {
             avi.hide();
             avi.setVisibility(View.GONE);
         });
     }
 
-    private void showNoResults() {
+    @Override
+    public void showNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
-    private void hideNoResults() {
+    @Override
+    public void hideNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
@@ -420,5 +376,21 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
         finish();
+    }
+
+    public NewChatComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent()
+                    .provideNewChatComponent(
+                            new NewChatModule(this),
+                            new SearchUserModule(this)
+                    );
+        }
+        return component;
+    }
+
+    @Override
+    public void displaySearchResult(List<User> users) {
+        adapter.updateData(new ArrayList<>(users));
     }
 }
