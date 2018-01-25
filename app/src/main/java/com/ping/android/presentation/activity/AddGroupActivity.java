@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,12 +16,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.google.firebase.database.DataSnapshot;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.ping.android.activity.ChatActivity;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.dagger.loggedin.SearchUserModule;
+import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
+import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
 import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
@@ -35,9 +44,11 @@ import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.ChipsEditText;
+import com.tl.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +56,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AddGroupActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class AddGroupActivity extends CoreActivity implements View.OnClickListener, SearchUserPresenter.View {
     private LinearLayoutManager mLinearLayoutManager;
     private EditText etGroupName, edMessage;
     private Button btSave, btSendMessage;
@@ -73,12 +86,24 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private Map<String, User> userList = new HashMap<>();
     private String textToSearch = "";
 
+    @Inject
+    public SearchUserPresenter searchPresenter;
+    public NewGroupComponent component;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_group);
+        getComponent().inject(this);
+        searchPresenter.create();
         bindViews();
         init();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        searchPresenter.destroy();
     }
 
     private void bindViews() {
@@ -109,98 +134,36 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
                 adapter.updateData(new ArrayList<>());
             }
         });
-        edtTo.setListener(new ChipsEditText.ChipsListener() {
-            @Override
-            public void onSearchText(String text) {
-                if (!TextUtils.isEmpty(text)) {
-                    searchUsers(text);
-                } else {
-                    recycleChatView.post(() -> adapter.updateData(new ArrayList<>()));
-                }
-            }
-
-            @Override
-            public void onDeleteChip(String text) {
-                for (User user : selectedUsers) {
-                    if (user.getDisplayName().equals(text)) {
-                        selectedUsers.remove(user);
-                        adapter.setSelectPingIDs(getSelectedPingId());
-                        break;
+        registerEvent(edtTo.chipEventObservable()
+                .observeOn(new UIThread().getScheduler())
+                .subscribe(chipEvent -> {
+                    switch (chipEvent.type) {
+                        case SEARCH:
+                            if (TextUtils.isEmpty(chipEvent.text)) {
+                                adapter.updateData(new ArrayList<>());
+                            } else {
+                                searchPresenter.searchUsers(chipEvent.text);
+                            }
+                            break;
+                        case DELETE:
+                            for (User user : selectedUsers) {
+                                if (user.getDisplayName().equals(chipEvent.text)) {
+                                    selectedUsers.remove(user);
+                                    adapter.setSelectPingIDs(getSelectedPingId());
+                                    break;
+                                }
+                            }
+                            break;
                     }
-                }
-            }
-        }, 300);
+                }));
 
-        textWatcher = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                checkReadySend();
-            }
-        };
-        edMessage.addTextChangedListener(textWatcher);
-        etGroupName.addTextChangedListener(textWatcher);
+        registerEvent(RxTextView
+                .afterTextChangeEvents(edMessage)
+                .subscribe(textViewAfterTextChangeEvent -> checkReadySend()));
+        registerEvent(RxTextView
+                .afterTextChangeEvents(etGroupName)
+                .subscribe(textViewAfterTextChangeEvent -> checkReadySend()));
         checkReadySend();
-    }
-
-    private void searchUsers(String text) {
-        hideNoResults();
-        textToSearch = text;
-        userList.clear();
-        Callback searchCallback = (error, data) -> {
-            if (error == null && text.equals(textToSearch)) {
-                DataSnapshot snapshot = (DataSnapshot) data[0];
-                handleUsersData(snapshot);
-            }
-            hideSearching();
-            if (userList.isEmpty()) {
-                showNoResults();
-            }
-        };
-        localSearch(text);
-        if (userList.isEmpty()) {
-            showSearching();
-        } else {
-            hideSearching();
-        }
-        userRepository.matchUserWithText(text, "ping_id", searchCallback);
-    }
-
-    private void localSearch(String text) {
-        for (User user : fromUser.friendList) {
-            if (CommonMethod.isContain(CommonMethod.getSearchString(user), text)) {
-                if (!userList.containsKey(user.key)) {
-                    userList.put(user.key, user);
-                }
-            }
-        }
-        recycleChatView.post(() -> {
-            adapter.setSelectPingIDs(getSelectedPingId());
-            adapter.updateData(new ArrayList<>(userList.values()));
-        });
-    }
-
-    private void handleUsersData(DataSnapshot dataSnapshot) {
-        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            if (!userList.containsKey(snapshot.getKey())
-                    && !snapshot.getKey().equals(fromUser.key)) {
-                User user = new User(snapshot);
-                userList.put(snapshot.getKey(), user);
-            }
-        }
-
-        adapter.setSelectPingIDs(getSelectedPingId());
-        adapter.updateData(new ArrayList<>(userList.values()));
     }
 
     private List<String> getSelectedPingId() {
@@ -289,7 +252,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private void checkReadySend() {
         if (StringUtils.isEmpty(edMessage.getText().toString().trim())
                 || selectedUsers.size() <= 0
-                || TextUtils.isEmpty(etGroupName.getText().toString().trim()) ){
+                || TextUtils.isEmpty(etGroupName.getText().toString().trim())) {
             btSendMessage.setEnabled(false);
         } else {
             btSendMessage.setEnabled(true);
@@ -417,25 +380,30 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         imagePickerHelper.openPicker();
     }
 
-    private void showSearching() {
+    @Override
+    public void showSearching() {
         avi.post(() -> {
             avi.setVisibility(View.VISIBLE);
             avi.show();
         });
     }
 
-    private void hideSearching() {
+    @Override
+    public void hideSearching() {
         avi.post(() -> {
             avi.hide();
             avi.setVisibility(View.GONE);
         });
     }
 
-    private void showNoResults() {
+    @Override
+    public void showNoResults() {
+        adapter.updateData(new ArrayList<>());
         noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
-    private void hideNoResults() {
+    @Override
+    public void hideNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
@@ -445,5 +413,18 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         intent.putExtra("SEND_MESSAGE", msg);
         startActivity(intent);
         finish();
+    }
+
+    public NewGroupComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent()
+                    .provideNewGroupComponent(new NewGroupModule(), new SearchUserModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void displaySearchResult(List<User> users) {
+        adapter.updateData(new ArrayList<>(users));
     }
 }

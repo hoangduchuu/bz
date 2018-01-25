@@ -11,9 +11,7 @@ import java.util.List;
  */
 
 public interface NewChatPresenter extends BasePresenter {
-    void searchUsers(String text);
 
     interface NewChatView extends BaseView {
-        void displaySearchResult(List<User> users);
     }
 }

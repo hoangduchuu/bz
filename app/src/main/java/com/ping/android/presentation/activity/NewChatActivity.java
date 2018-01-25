@@ -32,6 +32,7 @@ import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.RepositoryModule;
+import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.domain.usecase.SearchUsersUseCase;
@@ -40,6 +41,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
+import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.presenters.impl.NewChatPresenterImpl;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
@@ -65,7 +67,7 @@ import javax.inject.Inject;
 
 import io.reactivex.functions.Consumer;
 
-public class NewChatActivity extends CoreActivity implements View.OnClickListener, NewChatPresenter.NewChatView {
+public class NewChatActivity extends CoreActivity implements View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
     private final String TAG = NewChatActivity.class.getSimpleName();
     //Views UI
     private RecyclerView recycleChatView;
@@ -94,6 +96,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     @Inject
     public NewChatPresenter presenter;
+    @Inject
+    public SearchUserPresenter searchUserPresenter;
     private NewChatComponent component;
 
     @Override
@@ -102,6 +106,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         setContentView(R.layout.activity_new_chat);
         getComponent().inject(this);
         presenter.create();
+        searchUserPresenter.create();
         isAddMember = getIntent().getBooleanExtra("ADD_MEMBER", false);
         bindViews();
         init();
@@ -111,6 +116,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     protected void onDestroy() {
         super.onDestroy();
         presenter.destroy();
+        searchUserPresenter.destroy();
     }
 
     @Override
@@ -213,12 +219,11 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                 .subscribe(chipEvent -> {
                     switch (chipEvent.type) {
                         case SEARCH:
-                            presenter.searchUsers(chipEvent.text);
-//                            if (!TextUtils.isEmpty(chipEvent.text)) {
-//                                searchUsers(chipEvent.text);
-//                            } else {
-//                                recycleChatView.post(() -> adapter.updateData(new ArrayList<>()));
-//                            }
+                            if (TextUtils.isEmpty(chipEvent.text)) {
+                                adapter.updateData(new ArrayList<>());
+                            } else {
+                                searchUserPresenter.searchUsers(chipEvent.text);
+                            }
                             break;
                         case DELETE:
                             for (User user : selectedUsers) {
@@ -233,60 +238,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
                     }
                 }));
         checkReadySend();
-    }
-
-    private String textToSearch = "";
-
-    private void searchUsers(String text) {
-//        hideNoResults();
-//        textToSearch = text;
-//        userList.clear();
-//        Callback searchCallback = (error, data) -> {
-//            if (error == null && text.equals(textToSearch)) {
-//                DataSnapshot snapshot = (DataSnapshot) data[0];
-//                handleUsersData(snapshot);
-//            }
-//            hideSearching();
-//            if (userList.isEmpty()) {
-//                showNoResults();
-//            }
-//        };
-//        localSearch(text);
-//        if (userList.isEmpty()) {
-//            showSearching();
-//        } else {
-//            hideSearching();
-//        }
-//        userRepository.matchUserWithText(text, "ping_id", searchCallback);
-    }
-
-    private void localSearch(String text) {
-        for (User user : fromUser.friendList) {
-            if (CommonMethod.isContain(CommonMethod.getSearchString(user), text)) {
-                if (!userList.containsKey(user.key)) {
-                    userList.put(user.key, user);
-                }
-            }
-        }
-        if (!userList.isEmpty()) {
-            hideSearching();
-        }
-        recycleChatView.post(() -> {
-            adapter.setSelectPingIDs(getSelectedPingId());
-            adapter.updateData(new ArrayList<>(userList.values()));
-        });
-    }
-
-    private void handleUsersData(DataSnapshot dataSnapshot) {
-        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-            if (!userList.containsKey(snapshot.getKey())
-                    && !snapshot.getKey().equals(fromUser.key)) {
-                User user = new User(snapshot);
-                userList.put(snapshot.getKey(), user);
-            }
-        }
-        adapter.setSelectPingIDs(getSelectedPingId());
-        adapter.updateData(new ArrayList<>(userList.values()));
     }
 
     private List<String> getSelectedPingId() {
@@ -411,25 +362,29 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         });
     }
 
-    private void showSearching() {
+    @Override
+    public void showSearching() {
         avi.post(() -> {
             avi.setVisibility(View.VISIBLE);
             avi.show();
         });
     }
 
-    private void hideSearching() {
+    @Override
+    public void hideSearching() {
         avi.post(() -> {
             avi.hide();
             avi.setVisibility(View.GONE);
         });
     }
 
-    private void showNoResults() {
+    @Override
+    public void showNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
-    private void hideNoResults() {
+    @Override
+    public void hideNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
@@ -445,7 +400,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         if (component == null) {
             component = getLoggedInComponent()
                     .provideNewChatComponent(
-                            new NewChatModule(this)
+                            new NewChatModule(this),
+                            new SearchUserModule(this)
                     );
         }
         return component;

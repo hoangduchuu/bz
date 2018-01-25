@@ -39,7 +39,9 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
                     String[] queries = query.split(" ");
                     StringBuilder newQuery = new StringBuilder();
                     for (String q : queries) {
-                        newQuery.append(q).append("*");
+                        if (!q.isEmpty()) {
+                            newQuery.append(q).append("*");
+                        }
                     }
                     return newQuery.toString();
                 })

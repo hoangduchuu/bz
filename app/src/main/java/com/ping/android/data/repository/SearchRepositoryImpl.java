@@ -31,6 +31,9 @@ public class SearchRepositoryImpl implements SearchRepository {
 
     @Override
     public Observable<List<User>> searchUsers(String text) {
+        if (text.isEmpty()) {
+            return Observable.just(new ArrayList<>());
+        }
         Map<String, Object> query = new HashMap<>();
         query.put("index", "firebase");
         query.put("type", "user");

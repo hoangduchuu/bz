@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.ping.android.activity.AddGroupActivity;
+import com.ping.android.presentation.activity.AddGroupActivity;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
@@ -41,7 +41,6 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener {

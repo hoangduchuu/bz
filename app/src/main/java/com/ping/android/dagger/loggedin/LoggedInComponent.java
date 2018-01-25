@@ -2,6 +2,8 @@ package com.ping.android.dagger.loggedin;
 
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
+import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
+import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
 import com.ping.android.dagger.scopes.LoggedIn;
 
 import dagger.Subcomponent;
@@ -12,5 +14,7 @@ import dagger.Subcomponent;
 @LoggedIn
 @Subcomponent(modules = { RepositoryModule.class })
 public interface LoggedInComponent {
-    NewChatComponent provideNewChatComponent(NewChatModule module);
+    NewChatComponent provideNewChatComponent(NewChatModule module, SearchUserModule searchUserModule);
+
+    NewGroupComponent provideNewGroupComponent(NewGroupModule newGroupModule, SearchUserModule searchUserModule);
 }
