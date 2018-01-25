@@ -149,6 +149,13 @@ public class CommonMethod {
         return false;
     }
 
+    public static String getStringValue(Map<String, Object> objectMap, String name) {
+        if (objectMap.containsKey(name)) {
+            return objectMap.get(name).toString();
+        }
+        return "";
+    }
+
     public static String getStringOf(Object object) {
         if (object != null) {
             return object.toString();

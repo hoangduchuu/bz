@@ -7,6 +7,7 @@ import com.tl.cleanarchitecture.DefaultObserver;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -35,12 +36,14 @@ public class NewChatPresenterImpl implements NewChatPresenter {
             @Override
             public void onNext(List<User> users) {
                 super.onNext(users);
+                view.displaySearchResult(users);
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 super.onError(exception);
                 exception.printStackTrace();
+                view.displaySearchResult(new ArrayList<>());
             }
         }, query);
     }

@@ -1,19 +1,11 @@
 package com.ping.android.data.repository;
 
-import android.support.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.ping.android.domain.repository.SearchRepository;
+import com.ping.android.model.DataSnapshotWrapper;
 import com.ping.android.model.User;
-import com.ping.android.utils.Log;
 import com.tl.rxfirebase.RxFirebaseDatabase;
 
 import java.util.ArrayList;
@@ -49,8 +41,22 @@ public class SearchRepositoryImpl implements SearchRepository {
         return RxFirebaseDatabase.getInstance(searchReference.child("response").child(requestReference.getKey()))
                 .onValueEvent()
                 .map(dataSnapshot -> {
-                   List<User> users = new ArrayList<>();
-                   return users;
+                    List<User> users = new ArrayList<>();
+                    if (dataSnapshot.exists()) {
+                        DataSnapshot usersSnapshot = dataSnapshot.child("hits").child("hits");
+                        for (DataSnapshot child : usersSnapshot.getChildren()) {
+                            DataSnapshotWrapper wrapper = new DataSnapshotWrapper(child.child("_source"));
+                            User user = new User();
+                            user.key = child.child("_id").getValue(String.class);
+                            user.email = wrapper.getStringValue("email", "");
+                            user.pingID = wrapper.getStringValue("ping_id", "");
+                            user.firstName = wrapper.getStringValue("first_name", "");
+                            user.lastName = wrapper.getStringValue("last_name", "");
+                            user.profile = wrapper.getStringValue("profile", "");
+                            users.add(user);
+                        }
+                    }
+                    return users;
                 });
     }
 }

@@ -453,6 +453,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     @Override
     public void displaySearchResult(List<User> users) {
-
+        adapter.updateData(new ArrayList<>(users));
     }
 }
