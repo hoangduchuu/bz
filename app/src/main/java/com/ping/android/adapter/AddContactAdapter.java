@@ -1,62 +1,39 @@
 package com.ping.android.adapter;
 
-import android.content.Context;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.ViewHolder> {
-    private Context mContext;
     private ClickListener mClickListener;
-    private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
 
-    public AddContactAdapter(Context context, ArrayList<User> mContacts, ClickListener clickListener) {
-        this.originalContacts = mContacts;
-        this.displayContacts = (ArrayList<User>) mContacts.clone();
-        mContext = context;
+    public AddContactAdapter(ArrayList<User> mContacts, ClickListener clickListener) {
+        this.displayContacts = mContacts;
         mClickListener = clickListener;
     }
 
     public void updateData(ArrayList<User> users) {
-        this.originalContacts = users;
-        this.displayContacts = new ArrayList<>();
+        this.displayContacts = users;
         notifyDataSetChanged();
     }
 
     public void addContact(User contact) {
-        originalContacts.add(contact);
         displayContacts.add(contact);
         notifyItemInserted(displayContacts.size() - 1);
-    }
-
-    public void filter(String text) {
-        displayContacts = new ArrayList<>();
-        if (!TextUtils.isEmpty(text)) {
-            for (User contact : originalContacts) {
-                if (CommonMethod.isContain(CommonMethod.getSearchString(contact), text)) {
-                    displayContacts.add(contact);
-                }
-            }
-        }
-        notifyDataSetChanged();
     }
 
     @Override
@@ -81,7 +58,7 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
             holder.tgAddFriend.setChecked(true);
             holder.tgAddFriend.setEnabled(true);
         }
-        UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
+        UiUtils.displayProfileImage(holder.ivProfileImage.getContext(), holder.ivProfileImage, contact);
     }
 
     @Override

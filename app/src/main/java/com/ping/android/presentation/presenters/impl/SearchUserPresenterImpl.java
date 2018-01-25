@@ -1,5 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
+import android.text.TextUtils;
+
 import com.ping.android.domain.usecase.SearchUsersUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
@@ -58,9 +60,13 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
 
     @Override
     public void searchUsers(String text) {
-        view.hideNoResults();
-        view.showSearching();
-        querySubject.onNext(text);
+        if (TextUtils.isEmpty(text)) {
+            view.displaySearchResult(new ArrayList<>());
+        } else {
+            view.hideNoResults();
+            view.showSearching();
+            querySubject.onNext(text);
+        }
     }
 
     @Override
