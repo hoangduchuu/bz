@@ -20,6 +20,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
@@ -545,22 +546,17 @@ public class ServiceManager {
             return message;
         Map<String, String> mappings = currentUser.mappings;
 
-        String modifyMessage = message;
-        modifyMessage = StringUtils.stripAccents(modifyMessage.toUpperCase());
-
         String returnMessage = "";
         String[] chars = message.split("");
-        String[] modifyChars = modifyMessage.split("");
-        for (int i = 0; i < modifyChars.length; i++) {
+
+        for (int i = 0; i < chars.length; i++) {
             Pattern p = Pattern.compile(emojiRegex);
             if (p.matcher(chars[i]).matches()) {
                 returnMessage += chars[i];
                 continue;
             }
-            String key = modifyChars[i];
-            if (mappings.containsKey(replaceSpecialChar(context, chars[i]))) {
-                key = replaceSpecialChar(context, chars[i]);
-            }
+            String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
+
             try {
                 Object value = mappings.get(key);
                 if (mappings.containsKey(key) && !StringUtils.isEmpty(value.toString())) {
@@ -581,18 +577,17 @@ public class ServiceManager {
             return message;
 
         String modifyMessage = message;
-        modifyMessage = StringUtils.stripAccents(modifyMessage.toUpperCase());
+        //modifyMessage = CommonMethod.foldToASCII(modifyMessage.toUpperCase().split(""));
 
         String returnMessage = "";
         String[] chars = message.split("");
-        String[] modifyChars = modifyMessage.split("");
-        for (int i = 0; i < modifyChars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             Pattern p = Pattern.compile(emojiRegex);
             if (p.matcher(chars[i]).matches()) {
                 returnMessage += chars[i];
                 continue;
             }
-            String key = modifyChars[i];
+            String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
             if (mappings.containsKey(key) && !StringUtils.isEmpty(mappings.get(key))) {
                 returnMessage += mappings.get(key);
             } else {
@@ -602,23 +597,23 @@ public class ServiceManager {
         return returnMessage;
     }
 
-    public String replaceSpecialChar(Context context, String msg) {
-        if (StringUtils.isEmpty(msg)) {
-            return msg;
-        }
-        if (context.getString(R.string.special_char_d_1).equals(msg) ||
-                context.getString(R.string.special_char_d_2).equals(msg)) {
-            return "D";
-        }
-        if ("đ".equals(msg) || "Đ".equals(msg)) {
-            return "D";
-        } else if (msg.equals("Œ") || msg.equals("ø")) {
-            return "O";
-        } else if (msg.equals("Æ")) {
-            return "A";
-        }
-        return msg;
-    }
+//    public String replaceSpecialChar(Context context, String msg) {
+//        if (StringUtils.isEmpty(msg)) {
+//            return msg;
+//        }
+//        if (context.getString(R.string.special_char_d_1).equals(msg) ||
+//                context.getString(R.string.special_char_d_2).equals(msg)) {
+//            return "D";
+//        }
+//        if ("đ".equals(msg) || "Đ".equals(msg)) {
+//            return "D";
+//        } else if (msg.equals("Œ") || msg.equals("ø")) {
+//            return "O";
+//        } else if (msg.equals("Æ")) {
+//            return "A";
+//        }
+//        return msg;
+//    }
 
     public void updateMarkStatus(String conversationID, String messageID, boolean markStatus) {
         mDatabase.child("messages").child(conversationID).child(messageID).child("markStatuses").child(currentUser.key).setValue(markStatus);
