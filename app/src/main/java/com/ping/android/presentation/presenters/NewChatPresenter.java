@@ -1,10 +1,7 @@
 package com.ping.android.presentation.presenters;
 
-import com.ping.android.model.User;
-import com.tl.cleanarchitecture.BasePresenter;
-import com.tl.cleanarchitecture.BaseView;
-
-import java.util.List;
+import com.bzzzchat.cleanarchitecture.BasePresenter;
+import com.bzzzchat.cleanarchitecture.BaseView;
 
 /**
  * Created by tuanluong on 1/22/18.

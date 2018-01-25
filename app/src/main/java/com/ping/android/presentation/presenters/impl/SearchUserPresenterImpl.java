@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.ping.android.domain.usecase.SearchUsersUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
-import com.tl.cleanarchitecture.DefaultObserver;
+import com.bzzzchat.cleanarchitecture.DefaultObserver;
 
 import org.jetbrains.annotations.NotNull;
 

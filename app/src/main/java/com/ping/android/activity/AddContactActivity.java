@@ -6,45 +6,26 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.jakewharton.rxbinding2.widget.RxSearchView;
 import com.ping.android.adapter.AddContactAdapter;
-import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
-import com.ping.android.utils.Toaster;
-import com.tl.cleanarchitecture.UIThread;
-
-import org.apache.commons.collections4.MapUtils;
+import com.bzzzchat.cleanarchitecture.UIThread;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;

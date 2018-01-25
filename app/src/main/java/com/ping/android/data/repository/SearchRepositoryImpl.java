@@ -6,7 +6,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.model.DataSnapshotWrapper;
 import com.ping.android.model.User;
-import com.tl.rxfirebase.RxFirebaseDatabase;
+import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -4,9 +4,9 @@ import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Constant;
-import com.tl.cleanarchitecture.PostExecutionThread;
-import com.tl.cleanarchitecture.ThreadExecutor;
-import com.tl.cleanarchitecture.UseCase;
+import com.bzzzchat.cleanarchitecture.PostExecutionThread;
+import com.bzzzchat.cleanarchitecture.ThreadExecutor;
+import com.bzzzchat.cleanarchitecture.UseCase;
 
 import org.jetbrains.annotations.NotNull;
 

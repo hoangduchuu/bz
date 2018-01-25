@@ -1,9 +1,9 @@
 package com.ping.android.dagger;
 
-import com.tl.cleanarchitecture.JobExecutor;
-import com.tl.cleanarchitecture.PostExecutionThread;
-import com.tl.cleanarchitecture.ThreadExecutor;
-import com.tl.cleanarchitecture.UIThread;
+import com.bzzzchat.cleanarchitecture.JobExecutor;
+import com.bzzzchat.cleanarchitecture.PostExecutionThread;
+import com.bzzzchat.cleanarchitecture.ThreadExecutor;
+import com.bzzzchat.cleanarchitecture.UIThread;
 
 import javax.inject.Singleton;
 

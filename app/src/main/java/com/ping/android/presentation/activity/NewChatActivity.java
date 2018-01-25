@@ -3,10 +3,8 @@ package com.ping.android.presentation.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
@@ -16,44 +14,30 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.jakewharton.rxbinding2.widget.TextViewAfterTextChangeEvent;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.adapter.SelectContactAdapter;
-import com.ping.android.dagger.loggedin.RepositoryModule;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
-import com.ping.android.domain.usecase.SearchUsersUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
-import com.ping.android.presentation.presenters.impl.NewChatPresenterImpl;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
-import com.tl.cleanarchitecture.UIThread;
+import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -64,8 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-
-import io.reactivex.functions.Consumer;
 
 public class NewChatActivity extends CoreActivity implements View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
     private final String TAG = NewChatActivity.class.getSimpleName();
