@@ -9,4 +9,11 @@ import com.bzzzchat.rxfirebase.events.ChildEvent;
 public class ChildData<T> {
     public T data;
     public ChildEvent.Type type;
+
+    public ChildData() {}
+
+    public ChildData(T data, ChildEvent.Type type) {
+        this.data = data;
+        this.type = type;
+    }
 }

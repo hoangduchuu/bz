@@ -24,8 +24,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Observable<ChildEvent> registerConversationUpdate(String userId) {
-        Query query = database.getReference("users")
-                .child(userId).child("conversations")
+        Query query = database.getReference("conversations")
+                .child(userId)
                 .orderByChild("timesstamps");
         return RxFirebaseDatabase.getInstance(query).onChildEvent();
     }

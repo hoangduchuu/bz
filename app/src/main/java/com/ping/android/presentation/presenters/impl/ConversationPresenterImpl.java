@@ -5,7 +5,9 @@ import com.bzzzchat.rxfirebase.events.ChildEvent;
 import com.ping.android.domain.usecase.ObserveConversationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationPresenter;
+import com.ping.android.presentation.presenters.ObserveGroupUseCase;
 
 import javax.inject.Inject;
 
@@ -16,6 +18,9 @@ import javax.inject.Inject;
 public class ConversationPresenterImpl implements ConversationPresenter {
     @Inject
     ObserveConversationUseCase observeConversationUseCase;
+    @Inject
+    ObserveGroupUseCase observeGroupUseCase;
+
     @Inject
     ConversationPresenter.View view;
 
@@ -40,10 +45,21 @@ public class ConversationPresenterImpl implements ConversationPresenter {
                 }
             }
         }, null);
+        observeGroupUseCase.execute(new DefaultObserver<ChildData<Group>>() {
+            @Override
+            public void onNext(ChildData<Group> groupChildData) {
+                if (groupChildData != null) {
+                    if (groupChildData.type == ChildEvent.Type.CHILD_CHANGED) {
+                        view.updateGroupConversation(groupChildData.data);
+                    }
+                }
+            }
+        }, null);
     }
 
     @Override
     public void destroy() {
         observeConversationUseCase.dispose();
+        observeGroupUseCase.dispose();
     }
 }

@@ -65,7 +65,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private ArrayList<Conversation> conversations;
     private boolean isEditMode;
 
-    private UserRepository userRepository;
     private ConversationRepository conversationRepository;
 
     private SharedPreferences prefs;
@@ -119,7 +118,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void init() {
-        userRepository = new UserRepository();
         conversationRepository = new ConversationRepository();
         currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
@@ -190,115 +188,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         } else {
             btnDeleteMessage.setEnabled(true);
         }
-    }
-
-    private void observeMessages() {
-        ChildEventListener observeConversationEvent = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = Conversation.from(dataSnapshot);
-                if (MapUtils.isEmpty(conversation.memberIDs)) {
-                    return;
-                }
-                insertOrUpdateMessage(conversation, true);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = Conversation.from(dataSnapshot);
-                if (MapUtils.isEmpty(conversation.memberIDs)) {
-                    return;
-                }
-                insertOrUpdateMessage(conversation, false);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String conversationID = dataSnapshot.getKey();
-                adapter.deleteConversation(conversationID);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        DatabaseReference conversationRef = userRepository.getDatabaseReference()
-                .child(currentUser.key)
-                .child("conversations");
-        conversationRef.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
-        databaseReferences.put(conversationRef, observeConversationEvent);
-
-        ChildEventListener groupEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Group group = Group.from(dataSnapshot);
-                adapter.updateGroupConversation(group);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        DatabaseReference groupRef = userRepository.getDatabaseReference()
-                .child(currentUser.key)
-                .child("groups");
-        groupRef.addChildEventListener(groupEventListener);
-        databaseReferences.put(groupRef, groupEventListener);
-    }
-
-    private void insertOrUpdateMessage(Conversation conversation, Boolean isAddNew) {
-        if(ServiceManager.getInstance().getDeleteStatusConversation(conversation)) {
-            if (!isAddNew) {
-                adapter.deleteConversation(conversation.key);
-            }
-            return;
-        }
-
-        userRepository.initMemberList(conversation.memberIDs, (error, data) -> {
-            conversation.members = (List<User>) data[0];
-            for (User user : conversation.members) {
-                if (!user.key.equals(currentUser.key)) {
-                    conversation.opponentUser = user;
-                    break;
-                }
-            }
-            if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                adapter.addOrUpdateConversation(conversation);
-                updateUnreadNumber();
-                scrollToTop();
-            } else {
-                ServiceManager.getInstance().getGroup(conversation.groupID, (error1, data1) -> {
-                    if (error == null && data1.length > 0) {
-                        conversation.group = (Group) data1[0];
-                        adapter.addOrUpdateConversation(conversation);
-                        updateUnreadNumber();
-                        scrollToTop();
-                    }
-                });
-            }
-        });
     }
 
     private void scrollToTop() {
@@ -402,15 +291,22 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void addConversation(Conversation conversation) {
         adapter.addConversation(conversation);
+        scrollToTop();
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
         adapter.updateConversation(conversation);
+        scrollToTop();
     }
 
     @Override
     public void deleteConversation(Conversation data) {
         adapter.deleteConversation(data.key);
+    }
+
+    @Override
+    public void updateGroupConversation(Group data) {
+        adapter.updateGroupConversation(data);
     }
 }

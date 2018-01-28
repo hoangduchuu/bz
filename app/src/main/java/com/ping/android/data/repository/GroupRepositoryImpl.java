@@ -1,6 +1,7 @@
 package com.ping.android.data.repository;
 
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
+import com.bzzzchat.rxfirebase.events.ChildEvent;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.GroupRepository;
@@ -29,5 +30,12 @@ public class GroupRepositoryImpl implements GroupRepository {
                 .onSingleValueEvent()
                 .map(Group::from)
                 .toObservable();
+    }
+
+    @Override
+    public Observable<ChildEvent> groupsChange(String userId) {
+        DatabaseReference groupReference = database.getReference("groups").child(userId);
+        return RxFirebaseDatabase.getInstance(groupReference)
+                .onChildEvent();
     }
 }

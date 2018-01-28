@@ -218,27 +218,15 @@ public class ServiceManager {
     // Start Group region
     //-------------------------------------------------------
     public void listenGroupChange(String userId, ChildEventListener listener) {
-        mDatabase.child("users").child(userId).child("groups").addChildEventListener(listener);
+        mDatabase.child("groups").child(userId).addChildEventListener(listener);
     }
 
     public void stopListenGroupChange(String userId, ChildEventListener listener) {
-        mDatabase.child("users").child(userId).child("groups").removeEventListener(listener);
-    }
-
-    public String getGroupKey() {
-        return mDatabase.child("groups").push().getKey();
-    }
-
-    public void createGroup(Group group) {
-        mDatabase.child("groups").child(group.key).setValue(group.toMap());
-
-        for (String userId : group.memberIDs.keySet()) {
-            mDatabase.child("users").child(userId).child("groups").child(group.key).setValue(group.toMap());
-        }
+        mDatabase.child("groups").child(userId).removeEventListener(listener);
     }
 
     public void getGroup(String id, Callback completion) {
-        mDatabase.child("users").child(currentUser.key).child("groups").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("groups").child(currentUser.key).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -260,50 +248,23 @@ public class ServiceManager {
         for (Group group : groups) {
             mDatabase.child("groups").child(group.key).child("deleteStatuses").child(currentUser.key).setValue(true);
             for (User user : group.members) {
-                mDatabase.child("users").child(user.key).child("groups").child(group.key).
+                mDatabase.child("groups").child(user.key).child(group.key).
                         child("deleteStatuses").child(currentUser.key).setValue(true);
             }
-        }
-    }
-
-    public void leaveGroup(List<Group> groups) {
-        deleteGroup(groups);
-        deleteConversationInGroup(groups);
-        for (Group group : groups) {
-            mDatabase.child("groups").child(group.key).child("memberIDs").child(currentUser.key).setValue(null);
-            for (User user : group.members) {
-                mDatabase.child("users").child(user.key).child("groups").child(group.key).
-                        child("memberIDs").child(currentUser.key).setValue(null);
-            }
-        }
-    }
-
-    public void addMember(Group group, ArrayList<String>  userIDs) {
-        for(String userID : userIDs) {
-            group.memberIDs.put(userID, true);
-        }
-
-        for(String userID : userIDs) {
-            mDatabase.child("groups").child(group.key).child("memberIDs").child(userID).setValue(true);
-            for (User user : group.members) {
-                mDatabase.child("users").child(user.key).child("groups").child(group.key).
-                        child("memberIDs").child(userID).setValue(true);
-            }
-            mDatabase.child("users").child(userID).child("groups").child(group.key).setValue(group);
         }
     }
 
     public void renameGroup(Group group, String name) {
         mDatabase.child("groups").child(group.key).child("groupName").setValue(name);
         for(String userID : group.memberIDs.keySet()) {
-            mDatabase.child("users").child(userID).child("groups").child(group.key).child("groupName").setValue(name);
+            mDatabase.child("groups").child(userID).child(group.key).child("groupName").setValue(name);
         }
     }
 
     public void updateGroupAvatar(String groupId, Set<String> memberIDs, String value) {
         mDatabase.child("groups").child(groupId).child("groupAvatar").setValue(value);
         for (String userId : memberIDs) {
-            mDatabase.child("users").child(userId).child("groups").child(groupId).child("groupAvatar").setValue(value);
+            mDatabase.child("groups").child(userId).child(groupId).child("groupAvatar").setValue(value);
         }
     }
 
@@ -382,29 +343,12 @@ public class ServiceManager {
     // Conversation region
     public void updateConversationReadStatus(Conversation conversation, Boolean isRead) {
         mDatabase.child("conversations").child(conversation.key).child("readStatuses").child(currentUser.key).setValue(true);
-        mDatabase.child("users").child(currentUser.key).child("conversations").child(conversation.key).child("readStatuses").child(currentUser.key).setValue(true);
+        mDatabase.child("conversations").child(currentUser.key).child(conversation.key).child("readStatuses").child(currentUser.key).setValue(true);
     }
 
     public void updateConversationReadStatus(List<Conversation> conversations, Boolean isRead) {
         for (Conversation conversation : conversations) {
             updateConversationReadStatus(conversation, isRead);
-        }
-    }
-
-    public void deleteConversation(List<Conversation> conversations) {
-        double timestamp = System.currentTimeMillis() / 1000d;
-        for (Conversation conversation : conversations) {
-            mDatabase.child("conversations").child(conversation.key).child("deleteStatuses").child(currentUser.key).setValue(true);
-            mDatabase.child("conversations").child(conversation.key).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
-            //mDatabase.child("messages").child(conversation.key).setValue(null);
-            for (String userId : conversation.memberIDs.keySet()) {
-                mDatabase.child("users").child(userId).child("conversations").child(conversation.key).
-                        child("deleteStatuses").child(currentUser.key).setValue(true);
-                mDatabase.child("users").child(userId).child("conversations").child(conversation.key).
-                        child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
-                // TODO logical delete message belong conversation
-                // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
-            }
         }
     }
 
@@ -417,9 +361,9 @@ public class ServiceManager {
             mDatabase.child("conversations").child(group.conversationID).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
             //mDatabase.child("messages").child(group.conversationID).setValue(null);
             for (User user : group.members) {
-                mDatabase.child("users").child(user.key).child("conversations").child(group.conversationID).
+                mDatabase.child("conversations").child(user.key).child(group.conversationID).
                         child("deleteStatuses").child(currentUser.key).setValue(true);
-                mDatabase.child("users").child(user.key).child("conversations").child(group.conversationID).
+                mDatabase.child("conversations").child(user.key).child(group.conversationID).
                         child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
                 // TODO logical delete message belong conversation
                 // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
@@ -452,7 +396,7 @@ public class ServiceManager {
     }
 
     public void getConversationData(String conversationID, Callback completion) {
-        mDatabase.child("users").child(currentUser.key).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("conversations").child(currentUser.key).child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -477,7 +421,7 @@ public class ServiceManager {
         mDatabase.child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
         if (conversation.members != null) {
             for (User user : conversation.members) {
-                mDatabase.child("users").child(user.key).child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
+                mDatabase.child("conversations").child(user.key).child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
             }
         }
     }
@@ -522,14 +466,13 @@ public class ServiceManager {
 
     public void createConversationIDForPVPChat(String fromUserId, String toUserId, Callback completion) {
         String conversationID = fromUserId.compareTo(toUserId) > 0 ? fromUserId + toUserId : toUserId + fromUserId;
-        mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.child("conversations").child(fromUserId).child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (!dataSnapshot.exists()) {
                     Conversation conversation = Conversation.createNewConversation(fromUserId, toUserId);
                     mDatabase.child("conversations").child(conversationID).setValue(conversation);
-                    // Tuan - create conversation node in users/{userId}/conversations/{conversationId}
-                    mDatabase.child("users").child(fromUserId).child("conversations").child(conversationID).setValue(conversation);
+                    mDatabase.child("conversations").child(fromUserId).child(conversationID).setValue(conversation);
                 }
                 completion.complete(null, conversationID);
             }
@@ -618,7 +561,7 @@ public class ServiceManager {
     public void updateMarkStatus(String conversationID, String messageID, boolean markStatus) {
         mDatabase.child("messages").child(conversationID).child(messageID).child("markStatuses").child(currentUser.key).setValue(markStatus);
         mDatabase.child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
-        mDatabase.child("users").child(currentUser.key).child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
+        mDatabase.child("conversations").child(currentUser.key).child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
     }
 
     public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
