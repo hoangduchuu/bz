@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
+import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.presentation.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
@@ -31,6 +35,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ConversationPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.UserRepository;
@@ -44,7 +49,9 @@ import org.apache.commons.collections4.MapUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
+import javax.inject.Inject;
+
+public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -63,6 +70,17 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
 
     private SharedPreferences prefs;
 
+    @Inject
+    ConversationPresenter presenter;
+    ConversationComponent component;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        component().inject(this);
+        presenter.create();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,6 +95,12 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     public void onResume() {
         super.onResume();
         updateUnreadNumber();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.destroy();
     }
 
     @Override
@@ -103,8 +127,10 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
         adapter.setListener(this);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        presenter.getConversations();
         // Load data
-        observeMessages();
+        //observeMessages();
     }
 
     private void bindViews(View view) {
@@ -364,5 +390,27 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     private void updateUnreadNumber() {
         int unread = adapter.unreadNum();
         prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
+    }
+
+    public ConversationComponent component() {
+        if (component == null) {
+            component = getComponent(MainComponent.class).provideConversationComponent(new ConversationModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void addConversation(Conversation conversation) {
+        adapter.addConversation(conversation);
+    }
+
+    @Override
+    public void updateConversation(Conversation conversation) {
+        adapter.updateConversation(conversation);
+    }
+
+    @Override
+    public void deleteConversation(Conversation data) {
+        adapter.deleteConversation(data.key);
     }
 }

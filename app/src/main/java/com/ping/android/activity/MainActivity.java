@@ -9,7 +9,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -22,10 +21,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
+import com.ping.android.dagger.loggedin.RepositoryModule;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.fragment.CallFragment;
 import com.ping.android.fragment.ContactFragment;
 import com.ping.android.fragment.GroupFragment;
-import com.ping.android.fragment.MessageFragment;
+import com.ping.android.fragment.ConversationFragment;
 import com.ping.android.fragment.ProfileFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
@@ -41,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends CoreActivity {
+public class MainActivity extends CoreActivity implements HasComponent<MainComponent> {
 
     SharedPreferences prefs;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -50,6 +53,8 @@ public class MainActivity extends CoreActivity {
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
     private BadgeHelper badgeHelper;
+
+    private MainComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,16 +289,24 @@ public class MainActivity extends CoreActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         ProfileFragment profileFragment = new ProfileFragment();
         ContactFragment contactFragment = new ContactFragment();
-        MessageFragment messageFragment = new MessageFragment();
+        ConversationFragment conversationFragment = new ConversationFragment();
         GroupFragment groupFragment = new GroupFragment();
         CallFragment callFragment = new CallFragment();
-        viewPagerAdapter.addFrag(messageFragment, "Message");
+        viewPagerAdapter.addFrag(conversationFragment, "Message");
         viewPagerAdapter.addFrag(callFragment, "Call");
         viewPagerAdapter.addFrag(groupFragment, "Group");
         viewPagerAdapter.addFrag(contactFragment, "Contact");
         viewPagerAdapter.addFrag(profileFragment, "Profile");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(5);
+    }
+
+    @Override
+    public MainComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideMainComponent(new MainModule());
+        }
+        return component;
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

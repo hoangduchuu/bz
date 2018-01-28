@@ -3,6 +3,7 @@ package com.ping.android.fragment;
 import android.app.Activity;
 import android.support.v4.app.Fragment;
 
+import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
@@ -44,5 +45,16 @@ public class BaseFragment extends Fragment {
         if (activity instanceof CoreActivity) {
             ((CoreActivity) activity).hideLoading();
         }
+    }
+
+    /**
+     * Gets component for dependency injection by its mode
+     *
+     * @param componentType
+     * @param <C>
+     * @return
+     */
+    protected <C> C getComponent(Class<C> componentType) {
+        return componentType.cast(((HasComponent<C>) getActivity()).getComponent());
     }
 }
