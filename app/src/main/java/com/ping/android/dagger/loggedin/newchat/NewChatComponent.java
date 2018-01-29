@@ -2,7 +2,7 @@ package com.ping.android.dagger.loggedin.newchat;
 
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.scopes.PerActivity;
-import com.ping.android.presentation.activity.NewChatActivity;
+import com.ping.android.presentation.view.activity.NewChatActivity;
 
 import dagger.Subcomponent;
 

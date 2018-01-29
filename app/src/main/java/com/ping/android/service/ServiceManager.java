@@ -531,7 +531,8 @@ public class ServiceManager {
                 continue;
             }
             String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
-            if (mappings.containsKey(key) && !StringUtils.isEmpty(mappings.get(key))) {
+            Object value = mappings.get(key);
+            if (value != null && !StringUtils.isEmpty(value.toString())) {
                 returnMessage += mappings.get(key);
             } else {
                 returnMessage += chars[i];

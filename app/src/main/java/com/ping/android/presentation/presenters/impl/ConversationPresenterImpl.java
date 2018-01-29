@@ -7,7 +7,7 @@ import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationPresenter;
-import com.ping.android.presentation.presenters.ObserveGroupUseCase;
+import com.ping.android.domain.usecase.ObserveGroupUseCase;
 
 import javax.inject.Inject;
 
@@ -37,7 +37,7 @@ public class ConversationPresenterImpl implements ConversationPresenter {
                         view.addConversation(childData.data);
                         break;
                     case CHILD_CHANGED:
-                        view.addConversation(childData.data);
+                        view.updateConversation(childData.data);
                         break;
                     case CHILD_REMOVED:
                         view.deleteConversation(childData.data);
@@ -54,7 +54,7 @@ public class ConversationPresenterImpl implements ConversationPresenter {
                     }
                 }
             }
-        }, null);
+        }, new ObserveGroupUseCase.Params(false));
     }
 
     @Override

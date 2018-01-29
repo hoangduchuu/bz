@@ -22,13 +22,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.dagger.loggedin.RepositoryModule;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.fragment.CallFragment;
 import com.ping.android.fragment.ContactFragment;
-import com.ping.android.fragment.GroupFragment;
-import com.ping.android.fragment.ConversationFragment;
+import com.ping.android.presentation.view.fragment.GroupFragment;
+import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.fragment.ProfileFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;

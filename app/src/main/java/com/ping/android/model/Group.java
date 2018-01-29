@@ -19,8 +19,8 @@ public class Group {
     public String groupName;
     public double timestamp;
     public String groupAvatar;
-    public Map<String, Boolean> memberIDs;
-    public Map<String, Boolean> deleteStatuses;
+    public Map<String, Boolean> memberIDs = new HashMap<>();
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
 
     public List<User> members = new ArrayList<>();
 
