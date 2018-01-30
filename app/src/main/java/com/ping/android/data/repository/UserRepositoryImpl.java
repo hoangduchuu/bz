@@ -1,6 +1,7 @@
 package com.ping.android.data.repository;
 
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
+import com.bzzzchat.rxfirebase.events.ChildEvent;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.UserRepository;
@@ -44,5 +45,12 @@ public class UserRepositoryImpl implements UserRepository {
                 .take(userIds.size())
                 .toList()
                 .toObservable();
+    }
+
+    @Override
+    public Observable<ChildEvent> getCalls(String userId) {
+        DatabaseReference callReference = database.getReference("calls").child(userId);
+        return RxFirebaseDatabase.getInstance(callReference)
+                .onChildEvent();
     }
 }

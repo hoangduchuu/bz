@@ -19,7 +19,7 @@ public class Call {
     public String receiveId;
     public int status;
     public double timestamp;
-    public Map<String, Boolean> deleteStatuses;
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
 
     public List<User> members = new ArrayList<>();
     public User opponentUser;

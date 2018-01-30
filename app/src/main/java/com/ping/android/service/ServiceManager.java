@@ -458,7 +458,7 @@ public class ServiceManager {
 
     public void deleteCall(Call call) {
         mDatabase.child("calls").child(call.key).child("deleteStatuses").child(currentUser.key).setValue(true);
-        mDatabase.child("users").child(currentUser.key).child("calls").child(call.key).child("deleteStatuses").
+        mDatabase.child("calls").child(currentUser.key).child(call.key).child("deleteStatuses").
                 child(currentUser.key).setValue(true);
     }
 

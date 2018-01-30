@@ -2,6 +2,8 @@ package com.ping.android.dagger.loggedin.main;
 
 import com.ping.android.activity.MainActivity;
 import com.ping.android.dagger.loggedin.RepositoryModule;
+import com.ping.android.dagger.loggedin.main.call.CallComponent;
+import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
@@ -21,4 +23,6 @@ public interface MainComponent {
     ConversationComponent provideConversationComponent(ConversationModule module);
 
     GroupComponent provideGroupComponent(GroupModule groupModule);
+
+    CallComponent provideCallComponent(CallModule callModule);
 }

@@ -1,4 +1,4 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,9 +24,14 @@ import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.CallAdapter;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.call.CallComponent;
+import com.ping.android.dagger.loggedin.main.call.CallModule;
+import com.ping.android.fragment.BaseFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.CommonMethod;
@@ -40,11 +45,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CallFragment extends Fragment implements View.OnClickListener, CallAdapter.ClickListener {
+import javax.inject.Inject;
+
+public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private DatabaseReference mCallDatabase;
-    private ChildEventListener observeCallEvent;
 
     private SearchView searchView;
     private CustomSwitch customSwitch;
@@ -54,7 +59,7 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
 
     private User currentUser;
     private CallAdapter adapter;
-    private boolean loadData, loadGUI, isEditMode;
+    private boolean isEditMode;
     private boolean isAll = true;
     private String search = "";
     private Button btnCancel;
@@ -62,14 +67,15 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
     private UserRepository userRepository;
     private SharedPreferences prefs;
 
+    @Inject
+    public CallPresenter presenter;
+    private CallComponent component;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         init();
-        loadData = true;
-        if (loadGUI) {
-            bindData();
-        }
     }
 
     @Override
@@ -77,25 +83,20 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_call, container, false);
         bindViews(view);
-        if (loadData & !loadGUI) {
-            bindData();
-        }
-        loadGUI = true;
+        bindData();
+        presenter.getCalls();
         return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        loadGUI = false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mCallDatabase != null) {
-            mCallDatabase.removeEventListener(observeCallEvent);
-        }
+        presenter.destroy();
     }
 
     @Override
@@ -175,11 +176,10 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
         userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
-        adapter = new CallAdapter(new ArrayList<>(), this);
-        observeCalls();
     }
 
     private void bindData() {
+        adapter = new CallAdapter(new ArrayList<>(), this);
         rvListCall.setAdapter(adapter);
         rvListCall.setLayoutManager(mLinearLayoutManager);
 
@@ -240,67 +240,6 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         }
     }
 
-    private void observeCalls() {
-        observeCallEvent = new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateCall(dataSnapshot, true);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateCall(dataSnapshot, false);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        mCallDatabase = userRepository.getDatabaseReference().child(currentUser.key).child("calls");
-        mCallDatabase.addChildEventListener(observeCallEvent);
-    }
-
-    private void insertOrUpdateCall(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Call call = Call.from(dataSnapshot);
-        if(ServiceManager.getInstance().getCurrentDeleteStatus(call.deleteStatuses)) {
-            if (!isAddNew) {
-                adapter.deleteCall(call.key);
-            }
-            return;
-        }
-
-        Map<String, Boolean> memberIDs = new HashMap<>();
-        memberIDs.put(call.senderId, true);
-        memberIDs.put(call.receiveId, true);
-        userRepository.initMemberList(memberIDs, (error, data) -> {
-            call.members = (List<User>) data[0];
-            for (User user : call.members) {
-                if (!user.key.equals(currentUser.key)) {
-                    call.opponentUser = user;
-                    break;
-                }
-            }
-            adapter.addOrUpdateCall(call);
-            rvListCall.scrollToPosition(0);
-        });
-
-        if (getActivity() != null) {
-            ((MainActivity) getActivity()).callAdded(call);
-        }
-    }
-
     private void onEdit() {
         isEditMode = true;
         updateEditMode();
@@ -320,5 +259,30 @@ public class CallFragment extends Fragment implements View.OnClickListener, Call
         }
         adapter.cleanSelectCall();
         onExitEdit();
+    }
+
+    private void scrollToTop() {
+        rvListCall.scrollToPosition(0);
+    }
+
+    public CallComponent getComponent() {
+        if (component == null) {
+            component = getComponent(MainComponent.class).provideCallComponent(new CallModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void addCall(Call call) {
+        adapter.addCall(call);
+        scrollToTop();
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).callAdded(call);
+        }
+    }
+
+    @Override
+    public void deleteCall(Call call) {
+        adapter.deleteCall(call.key);
     }
 }
