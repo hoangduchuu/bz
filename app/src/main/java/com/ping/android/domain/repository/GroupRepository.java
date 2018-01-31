@@ -3,6 +3,8 @@ package com.ping.android.domain.repository;
 import com.bzzzchat.rxfirebase.events.ChildEvent;
 import com.ping.android.model.Group;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 
 /**
@@ -12,4 +14,6 @@ import io.reactivex.Observable;
 public interface GroupRepository {
     Observable<Group> getGroup(String groupId);
     Observable<ChildEvent> groupsChange(String userId);
+
+    Observable<Boolean> addUsersToGroup(String groupId, List<String> userIds);
 }

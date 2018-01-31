@@ -32,7 +32,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.ConversationPresenter;
+import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Callback;
@@ -46,7 +46,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationPresenter.View {
+public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -65,7 +65,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private SharedPreferences prefs;
 
     @Inject
-    ConversationPresenter presenter;
+    ConversationListPresenter presenter;
     ConversationComponent component;
 
     @Override

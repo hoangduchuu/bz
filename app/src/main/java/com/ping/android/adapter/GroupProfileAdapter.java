@@ -1,6 +1,5 @@
 package com.ping.android.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,16 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapter.ViewHolder> {
-
-    private static GroupProfileAdapter.ClickListener mClickListener;
     private ArrayList<User> originalContacts;
-    private Context mContext;
     private Map<String, String> nickNames = new HashMap<>();
 
-    public GroupProfileAdapter(Context context, GroupProfileAdapter.ClickListener clickListener) {
+    public GroupProfileAdapter() {
         originalContacts = new ArrayList<>();
-        mContext = context;
-        mClickListener = clickListener;
     }
 
     public void addContact(User contact) {
@@ -66,7 +60,7 @@ public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapte
         holder.tvUsername.setText(contact.pingID);
         holder.contact = contact;
 
-        UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
+        UiUtils.displayProfileImage(holder.itemView.getContext(), holder.ivProfileImage, contact);
     }
 
     @Override
@@ -77,9 +71,6 @@ public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapte
     public void updateNickNames(Map<String, String> nickNames) {
         this.nickNames = nickNames;
         notifyDataSetChanged();
-    }
-
-    public interface ClickListener {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

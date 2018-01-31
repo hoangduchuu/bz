@@ -45,7 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GroupProfileActivity extends CoreActivity implements View.OnClickListener, GroupProfileAdapter.ClickListener{
+public class GroupProfileActivity extends CoreActivity implements View.OnClickListener {
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
     private ImageView groupProfile;
     private EditText groupName;
@@ -248,7 +248,7 @@ public class GroupProfileActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindData() {
-        adapter = new GroupProfileAdapter(this, this);
+        adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
         groupName.setText(group.groupName);

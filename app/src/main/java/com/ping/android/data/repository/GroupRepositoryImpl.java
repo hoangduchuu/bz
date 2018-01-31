@@ -7,6 +7,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.model.Group;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -37,5 +39,10 @@ public class GroupRepositoryImpl implements GroupRepository {
         DatabaseReference groupReference = database.getReference("groups").child(userId);
         return RxFirebaseDatabase.getInstance(groupReference)
                 .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> addUsersToGroup(String groupId, List<String> userIds) {
+        return null;
     }
 }

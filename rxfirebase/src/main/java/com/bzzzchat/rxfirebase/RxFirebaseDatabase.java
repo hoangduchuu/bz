@@ -1,5 +1,7 @@
 package com.bzzzchat.rxfirebase;
 
+import android.support.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 import com.bzzzchat.rxfirebase.events.ChildEvent;
@@ -40,4 +42,19 @@ public class RxFirebaseDatabase {
         return Flowable.create(new ChildEventFlowableOnSubcribe(query), BackpressureStrategy.MISSING)
                 .toObservable();
     }
+
+//    public Observable<Boolean> updateBatchData() {
+//        .updateChildren(data)
+//                    .addOnSuccessListener(task -> {
+//                        if (callback != null) {
+//                            callback.complete(null, "Update successfully");
+//                        }
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        if (callback != null) {
+//                            callback.complete(e);
+//                        }
+//                    });
+//        }
+//    }
 }

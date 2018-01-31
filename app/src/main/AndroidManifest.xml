@@ -244,7 +244,7 @@
         </provider>
 
         <activity
-            android:name=".ConversationDetailActivity"
+            android:name="com.ping.android.presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".NicknameActivity"

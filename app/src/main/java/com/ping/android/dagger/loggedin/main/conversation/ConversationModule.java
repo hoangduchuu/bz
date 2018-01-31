@@ -1,8 +1,8 @@
 package com.ping.android.dagger.loggedin.main.conversation;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.presentation.presenters.ConversationPresenter;
-import com.ping.android.presentation.presenters.impl.ConversationPresenterImpl;
+import com.ping.android.presentation.presenters.ConversationListPresenter;
+import com.ping.android.presentation.presenters.impl.ConversationListPresenterImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -13,21 +13,21 @@ import dagger.Provides;
 
 @Module
 public class ConversationModule {
-    ConversationPresenter.View view;
+    ConversationListPresenter.View view;
 
-    public ConversationModule(ConversationPresenter.View view) {
+    public ConversationModule(ConversationListPresenter.View view) {
         this.view = view;
     }
 
     @Provides
     @PerFragment
-    public ConversationPresenter.View provideView() {
+    public ConversationListPresenter.View provideView() {
         return view;
     }
 
     @Provides
     @PerFragment
-    public ConversationPresenter provideConversationPresenter(ConversationPresenterImpl presenter) {
+    public ConversationListPresenter provideConversationPresenter(ConversationListPresenterImpl presenter) {
         return presenter;
     }
 }

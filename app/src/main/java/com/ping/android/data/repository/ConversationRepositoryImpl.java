@@ -2,6 +2,7 @@ package com.ping.android.data.repository;
 
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.ConversationRepository;
@@ -23,10 +24,16 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<ChildEvent> registerConversationUpdate(String userId) {
+    public Observable<ChildEvent> registerConversationsUpdate(String userId) {
         Query query = database.getReference("conversations")
                 .child(userId)
                 .orderByChild("timesstamps");
         return RxFirebaseDatabase.getInstance(query).onChildEvent();
+    }
+
+    @Override
+    public Observable<DataSnapshot> observeConversationValue(String conversationId) {
+        Query query = database.getReference("conversations").child(conversationId);
+        return RxFirebaseDatabase.getInstance(query).onValueEvent();
     }
 }

@@ -1,6 +1,7 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,8 +13,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.ChatActivity;
-import com.ping.android.activity.ConversationDetailActivity;
+import com.ping.android.activity.NicknameActivity;
+import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
+import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
+import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -22,13 +28,15 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
+
+import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ConversationPVPDetailFragment extends BaseFragment implements View.OnClickListener {
+public class ConversationPVPDetailFragment extends BaseFragment
+        implements View.OnClickListener, ConversationPVPDetailPresenter.View {
     private ImageView userProfile;
     private TextView userName;
     private Switch swNotification;
@@ -36,12 +44,17 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
     private Switch swPuzzle;
     private Switch swBlock;
 
-    private User user, currentUser;
+    private User currentUser;
     private Conversation conversation;
+    private String conversationId;
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
 
     private Callback userUpdated;
+
+    @Inject
+    ConversationPVPDetailPresenter presenter;
+    ConversationDetailPVPComponent component;
 
     public static ConversationPVPDetailFragment newInstance(Bundle extras) {
         ConversationPVPDetailFragment fragment = new ConversationPVPDetailFragment();
@@ -52,9 +65,9 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         if (getArguments() != null) {
-            user = getArguments().getParcelable(ConversationDetailActivity.USER_KEY);
-            conversation = getArguments().getParcelable(ConversationDetailActivity.CONVERSATION_KEY);
+            conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
         }
         userRepository = new UserRepository();
         conversationRepository = new ConversationRepository();
@@ -63,7 +76,9 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
         userUpdated = (error, data) -> {
             if (error == null) {
                 currentUser = (User) data[0];
-                swBlock.setChecked(currentUser.blocks.containsKey(user.key));
+                if (conversation != null) {
+                    swBlock.setChecked(currentUser.blocks.containsKey(conversation.opponentUser.key));
+                }
             }
         };
     }
@@ -74,6 +89,7 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_conversation_pvpdetail, container, false);
         bindViews(view);
+        presenter.initConversation(conversationId);
         return view;
     }
 
@@ -107,19 +123,9 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
         view.findViewById(R.id.user_profile_voice).setOnClickListener(this);
         view.findViewById(R.id.user_profile_video).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
-
-        if (user != null) {
-            userName.setText(user.getDisplayName());
-            swBlock.setChecked(currentUser.blocks.containsKey(user.key));
-
-            UiUtils.displayProfileImage(getContext(), userProfile, user);
-        }
-        if (conversation != null) {
-            bindConversationSetting();
-        }
     }
 
-    private void bindConversationSetting() {
+    private void bindConversationSetting(Conversation conversation) {
         swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         swPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
@@ -153,12 +159,19 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
                 onBlock();
                 break;
             case R.id.profile_nickname:
+                onNickNameClicked();
                 break;
         }
     }
 
+    private void onNickNameClicked() {
+        Intent intent = new Intent(getActivity(), NicknameActivity.class);
+        intent.putExtra(NicknameActivity.CONVERSATION_KEY, conversation);
+        startActivity(intent);
+    }
+
     private void moveToFragment(BaseFragment fragment) {
-        ((ConversationDetailActivity)getActivity()).getNavigator().moveToFragment(fragment);
+        ((ConversationDetailActivity) getActivity()).getNavigator().moveToFragment(fragment);
     }
 
     private void onMessage() {
@@ -166,11 +179,11 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
     }
 
     private void onVoiceCall() {
-        CallActivity.start(getContext(), user, false);
+        CallActivity.start(getContext(), conversation.opponentUser, false);
     }
 
     private void onVideoCall() {
-        CallActivity.start(getContext(), user, true);
+        CallActivity.start(getContext(), conversation.opponentUser, true);
     }
 
     private void onNotificationSetting() {
@@ -211,6 +224,24 @@ public class ConversationPVPDetailFragment extends BaseFragment implements View.
 
     private void onBlock() {
         showLoading();
-        userRepository.toggleBlockUser(user.key, swBlock.isChecked(), (error, data) -> hideLoading());
+        userRepository.toggleBlockUser(conversation.opponentUser.key, swBlock.isChecked(), (error, data) -> hideLoading());
+    }
+
+    @Override
+    public void updateConversation(Conversation conversation) {
+        this.conversation = conversation;
+        bindConversationSetting(conversation);
+        userName.setText(conversation.opponentUser.getDisplayName());
+        swBlock.setChecked(currentUser.blocks.containsKey(conversation.opponentUser.key));
+
+        UiUtils.displayProfileImage(getContext(), userProfile, conversation.opponentUser);
+    }
+
+    public ConversationDetailPVPComponent getComponent() {
+        if (component == null) {
+            component = getComponent(ConversationDetailComponent.class)
+                    .provideConversationDetailPVPComponent(new ConversationDetailPVPModule(this));
+        }
+        return component;
     }
 }

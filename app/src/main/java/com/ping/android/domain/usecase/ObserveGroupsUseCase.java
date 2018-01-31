@@ -19,7 +19,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/28/18.
  */
 
-public class ObserveGroupUseCase extends UseCase<ChildData<Group>, ObserveGroupUseCase.Params> {
+public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroupsUseCase.Params> {
     @Inject
     GroupRepository groupRepository;
     @Inject
@@ -27,7 +27,7 @@ public class ObserveGroupUseCase extends UseCase<ChildData<Group>, ObserveGroupU
     UserManager userManager;
 
     @Inject
-    public ObserveGroupUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ObserveGroupsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
         userManager = UserManager.getInstance();
     }

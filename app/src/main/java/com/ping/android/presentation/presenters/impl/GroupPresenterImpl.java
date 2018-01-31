@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.ObserveGroupUseCase;
+import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 
 public class GroupPresenterImpl implements GroupPresenter {
     @Inject
-    ObserveGroupUseCase observeGroupUseCase;
+    ObserveGroupsUseCase observeGroupsUseCase;
     @Inject
     GroupPresenter.View view;
 
@@ -23,7 +23,7 @@ public class GroupPresenterImpl implements GroupPresenter {
 
     @Override
     public void getGroups() {
-        observeGroupUseCase.execute(new DefaultObserver<ChildData<Group>>() {
+        observeGroupsUseCase.execute(new DefaultObserver<ChildData<Group>>() {
             @Override
             public void onNext(ChildData<Group> groupChildData) {
                 switch (groupChildData.type) {
@@ -37,11 +37,11 @@ public class GroupPresenterImpl implements GroupPresenter {
                         view.deleteGroup(groupChildData.data);
                 }
             }
-        }, new ObserveGroupUseCase.Params(true));
+        }, new ObserveGroupsUseCase.Params(true));
     }
 
     @Override
     public void destroy() {
-        observeGroupUseCase.dispose();
+        observeGroupsUseCase.dispose();
     }
 }

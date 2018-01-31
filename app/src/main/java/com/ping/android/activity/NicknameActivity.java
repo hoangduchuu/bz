@@ -91,6 +91,7 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
         showLoading();
         conversationRepository.updateUserNickname(conversation.key, nickname, conversation.memberIDs, (error, data) -> {
             if (error == null) {
+                conversation.nickNames.put(nickname.userId, s);
                 recyclerView.post(() -> adapter.updateNickName(nickname));
             }
             hideLoading();

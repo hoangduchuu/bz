@@ -9,7 +9,7 @@ import com.ping.android.model.Group;
  * Created by tuanluong on 1/28/18.
  */
 
-public interface ConversationPresenter extends BasePresenter {
+public interface ConversationListPresenter extends BasePresenter {
     void getConversations();
 
     interface View extends BaseView {
