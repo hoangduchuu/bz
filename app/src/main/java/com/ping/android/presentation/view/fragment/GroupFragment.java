@@ -1,4 +1,4 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +18,12 @@ import android.widget.Toast;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.ping.android.presentation.activity.AddGroupActivity;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.group.GroupComponent;
+import com.ping.android.dagger.loggedin.main.group.GroupModule;
+import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.presenters.GroupPresenter;
+import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
@@ -43,7 +48,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener {
+import javax.inject.Inject;
+
+public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener, GroupPresenter.View {
     private RelativeLayout bottomMenu;
     private RecyclerView listGroup;
     private LinearLayoutManager linearLayoutManager;
@@ -56,13 +63,16 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
 
     private ConversationRepository conversationRepository;
     private GroupRepository groupRepository;
-    private UserRepository userRepository;
 
-    private ChildEventListener groupListener;
+    @Inject
+    GroupPresenter presenter;
+    private GroupComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
+        presenter.create();
         init();
         loadData = true;
         if (loadGUI) {
@@ -75,10 +85,8 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_group, container, false);
         bindViews(view);
-        if (loadData & !loadGUI) {
-            bindData();
-        }
-        loadGUI = true;
+        bindData();
+        presenter.getGroups();
         return view;
     }
 
@@ -91,9 +99,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (groupListener != null) {
-            ServiceManager.getInstance().stopListenGroupChange(currentUser.key, groupListener);
-        }
+        presenter.destroy();
     }
 
     @Override
@@ -134,10 +140,9 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     private void init() {
         conversationRepository = new ConversationRepository();
         groupRepository = new GroupRepository();
-        userRepository = new UserRepository();
         currentUser = UserManager.getInstance().getUser();
         adapter = new GroupAdapter(this);
-        getGroup();
+        //getGroup();
     }
 
     private void bindData() {
@@ -164,53 +169,6 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
             }
         });
         updateEditMode();
-    }
-
-    private void getGroup() {
-        groupListener = new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateMessage(dataSnapshot, true);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                insertOrUpdateMessage(dataSnapshot, false);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String key = dataSnapshot.getKey();
-                adapter.removeGroup(key);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        ServiceManager.getInstance().listenGroupChange(currentUser.key, groupListener);
-    }
-
-    private void insertOrUpdateMessage(DataSnapshot dataSnapshot, Boolean isAddNew) {
-        Group group = Group.from(dataSnapshot);
-        if (MapUtils.isEmpty(group.memberIDs)) {
-            return;
-        }
-        if(ServiceManager.getInstance().getCurrentDeleteStatus(group.deleteStatuses)) {
-            if (!isAddNew) {
-                adapter.deleteGroup(group.key);
-            }
-            return;
-        }
-        userRepository.initMemberList(group.memberIDs, (error, data) -> {
-            group.members = (List<User>) data[0];
-            adapter.addOrUpdateConversation(group);
-        });
     }
 
     private void onEdit() {
@@ -310,5 +268,33 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         Intent intent = new Intent(getContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, group.conversationID);
         getContext().startActivity(intent);
+    }
+
+    public GroupComponent getComponent() {
+        if (component == null) {
+            component = getComponent(MainComponent.class)
+                    .provideGroupComponent(new GroupModule(this));
+        }
+        return component;
+    }
+
+    private void scrollToTop() {
+        listGroup.scrollToPosition(0);
+    }
+
+    @Override
+    public void addGroup(Group group) {
+        adapter.addGroup(group);
+        scrollToTop();
+    }
+
+    @Override
+    public void updateGroup(Group group) {
+        adapter.updateGroup(group);
+    }
+
+    @Override
+    public void deleteGroup(Group data) {
+        adapter.deleteGroup(data.key);
     }
 }

@@ -29,7 +29,7 @@ public class GroupRepository extends BaseFirebaseDatabase {
         // Set groups reference to members
         Map<String, Object> newValue = new HashMap<>();
         for (String userId : group.memberIDs.keySet()) {
-            newValue.put("users/" + userId + "/groups/" + key, group.toMap());
+            newValue.put("/groups/" + userId + "/" + key, group.toMap());
         }
         updateBatchData(newValue, callback);
     }
@@ -39,7 +39,7 @@ public class GroupRepository extends BaseFirebaseDatabase {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("groups/%s/conversationID", group.key), conversationId);
         for (String userKey : group.memberIDs.keySet()) {
-            updateValue.put(String.format("users/%s/groups/%s/conversationID", userKey, group.key), conversationId);
+            updateValue.put(String.format("groups/%s/%s/conversationID", userKey, group.key), conversationId);
         }
         updateBatchData(updateValue, null);
     }
@@ -71,14 +71,14 @@ public class GroupRepository extends BaseFirebaseDatabase {
         updateValue.put(String.format("conversations/%s/deleteStatuses", conversation.key), conversation.deleteStatuses);
         conversation.message = "";
         for (String userId : newMembers) {
-            updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
-            updateValue.put(String.format("users/%s/conversations/%s", userId, conversation.key), conversation.toMap());
+            updateValue.put(String.format("groups/%s/%s", userId, group.key), group.toMap());
+            updateValue.put(String.format("conversations/%s/%s", userId, conversation.key), conversation.toMap());
         }
         for (String userId: group.memberIDs.keySet()) {
             if (!newMembers.contains(userId)) {
-                updateValue.put(String.format("users/%s/groups/%s", userId, group.key), group.toMap());
-                updateValue.put(String.format("users/%s/conversations/%s/memberIDs", userId, conversation.key), conversation.memberIDs);
-                updateValue.put(String.format("users/%s/conversations/%s/deleteStatuses", userId, conversation.key), conversation.deleteStatuses);
+                updateValue.put(String.format("groups/%s/%s", userId, group.key), group.toMap());
+                updateValue.put(String.format("conversations/%s/%s/memberIDs", userId, conversation.key), conversation.memberIDs);
+                updateValue.put(String.format("conversations/%s/%s/deleteStatuses", userId, conversation.key), conversation.deleteStatuses);
             }
         }
         updateBatchData(updateValue, callback);
@@ -90,16 +90,16 @@ public class GroupRepository extends BaseFirebaseDatabase {
         group.deleteStatuses.put(currentUserId(), true);
 
         // 1. Remove group and conversation for current user
-        updateValue.put(String.format("users/%s/groups/%s", currentUserId(), group.key), null);
-        updateValue.put(String.format("users/%s/conversations/%s", currentUserId(), group.conversationID), null);
+        updateValue.put(String.format("groups/%s/%s", currentUserId(), group.key), null);
+        updateValue.put(String.format("conversations/%s/%s", currentUserId(), group.conversationID), null);
 
         // 2. Update members for group & conversation
         updateValue.put(String.format("groups/%s/deleteStatuses", group.key), group.deleteStatuses);
         updateValue.put(String.format("conversations/%s/deleteStatuses", group.conversationID), group.deleteStatuses);
         for (String userId : group.memberIDs.keySet()) {
             if (userId.equals(currentUserId())) continue;
-            updateValue.put(String.format("users/%s/groups/%s/deleteStatuses", userId, group.key), group.deleteStatuses);
-            updateValue.put(String.format("users/%s/conversations/%s/deleteStatuses", userId, group.conversationID), group.deleteStatuses);
+            updateValue.put(String.format("groups/%s/%s/deleteStatuses", userId, group.key), group.deleteStatuses);
+            updateValue.put(String.format("conversations/%s/%s/deleteStatuses", userId, group.conversationID), group.deleteStatuses);
         }
         updateBatchData(updateValue, callback);
     }

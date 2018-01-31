@@ -1,9 +1,10 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,14 +17,14 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
-import com.ping.android.presentation.activity.NewChatActivity;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
+import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
+import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.MessageAdapter;
@@ -31,20 +32,21 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ConversationPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessageFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener {
+import javax.inject.Inject;
+
+public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -58,10 +60,20 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     private ArrayList<Conversation> conversations;
     private boolean isEditMode;
 
-    private UserRepository userRepository;
     private ConversationRepository conversationRepository;
 
     private SharedPreferences prefs;
+
+    @Inject
+    ConversationPresenter presenter;
+    ConversationComponent component;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        component().inject(this);
+        presenter.create();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,6 +92,12 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        presenter.destroy();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.message_add:
@@ -95,7 +113,6 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void init() {
-        userRepository = new UserRepository();
         conversationRepository = new ConversationRepository();
         currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
@@ -103,8 +120,10 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
         adapter.setListener(this);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        presenter.getConversations();
         // Load data
-        observeMessages();
+        //observeMessages();
     }
 
     private void bindViews(View view) {
@@ -164,115 +183,6 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
         } else {
             btnDeleteMessage.setEnabled(true);
         }
-    }
-
-    private void observeMessages() {
-        ChildEventListener observeConversationEvent = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = Conversation.from(dataSnapshot);
-                if (MapUtils.isEmpty(conversation.memberIDs)) {
-                    return;
-                }
-                insertOrUpdateMessage(conversation, true);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Conversation conversation = Conversation.from(dataSnapshot);
-                if (MapUtils.isEmpty(conversation.memberIDs)) {
-                    return;
-                }
-                insertOrUpdateMessage(conversation, false);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String conversationID = dataSnapshot.getKey();
-                adapter.deleteConversation(conversationID);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        DatabaseReference conversationRef = userRepository.getDatabaseReference()
-                .child(currentUser.key)
-                .child("conversations");
-        conversationRef.orderByChild("timesstamps").addChildEventListener(observeConversationEvent);
-        databaseReferences.put(conversationRef, observeConversationEvent);
-
-        ChildEventListener groupEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Group group = Group.from(dataSnapshot);
-                adapter.updateGroupConversation(group);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        DatabaseReference groupRef = userRepository.getDatabaseReference()
-                .child(currentUser.key)
-                .child("groups");
-        groupRef.addChildEventListener(groupEventListener);
-        databaseReferences.put(groupRef, groupEventListener);
-    }
-
-    private void insertOrUpdateMessage(Conversation conversation, Boolean isAddNew) {
-        if(ServiceManager.getInstance().getDeleteStatusConversation(conversation)) {
-            if (!isAddNew) {
-                adapter.deleteConversation(conversation.key);
-            }
-            return;
-        }
-
-        userRepository.initMemberList(conversation.memberIDs, (error, data) -> {
-            conversation.members = (List<User>) data[0];
-            for (User user : conversation.members) {
-                if (!user.key.equals(currentUser.key)) {
-                    conversation.opponentUser = user;
-                    break;
-                }
-            }
-            if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                adapter.addOrUpdateConversation(conversation);
-                updateUnreadNumber();
-                scrollToTop();
-            } else {
-                ServiceManager.getInstance().getGroup(conversation.groupID, (error1, data1) -> {
-                    if (error == null && data1.length > 0) {
-                        conversation.group = (Group) data1[0];
-                        adapter.addOrUpdateConversation(conversation);
-                        updateUnreadNumber();
-                        scrollToTop();
-                    }
-                });
-            }
-        });
     }
 
     private void scrollToTop() {
@@ -364,5 +274,34 @@ public class MessageFragment extends BaseFragment implements View.OnClickListene
     private void updateUnreadNumber() {
         int unread = adapter.unreadNum();
         prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
+    }
+
+    public ConversationComponent component() {
+        if (component == null) {
+            component = getComponent(MainComponent.class).provideConversationComponent(new ConversationModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void addConversation(Conversation conversation) {
+        adapter.addConversation(conversation);
+        scrollToTop();
+    }
+
+    @Override
+    public void updateConversation(Conversation conversation) {
+        adapter.updateConversation(conversation);
+        scrollToTop();
+    }
+
+    @Override
+    public void deleteConversation(Conversation data) {
+        adapter.deleteConversation(data.key);
+    }
+
+    @Override
+    public void updateGroupConversation(Group data) {
+        adapter.updateGroupConversation(data);
     }
 }

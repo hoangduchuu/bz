@@ -2,7 +2,7 @@ package com.ping.android.dagger.loggedin.newgroup;
 
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.scopes.PerActivity;
-import com.ping.android.presentation.activity.AddGroupActivity;
+import com.ping.android.presentation.view.activity.AddGroupActivity;
 
 import dagger.Subcomponent;
 

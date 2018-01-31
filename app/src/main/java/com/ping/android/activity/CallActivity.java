@@ -261,12 +261,12 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
         callHistory.status = status;
         String historyKey = mDatabase.child("calls").push().getKey();
         mDatabase.child("calls").child(historyKey).setValue(callHistory.toMap());
-        mDatabase.child("users").child(otherUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());
+        mDatabase.child("calls").child(otherUser.key).child(historyKey).setValue(callHistory.toMap());
         if(status == Constant.CALL_STATUS_MISS) {
             NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.key, otherUser.quickBloxID, isVideoCall ? "video" : "voice");
         }
         callHistory.status = Constant.CALL_STATUS_SUCCESS;
-        mDatabase.child("users").child(currentUser.key).child("calls").child(historyKey).setValue(callHistory.toMap());
+        mDatabase.child("calls").child(currentUser.key).child(historyKey).setValue(callHistory.toMap());
     }
 
     private Map<String, Boolean> getCallDeleteStatuses() {

@@ -54,21 +54,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         this.recyclerView = null;
     }
 
-    public void addOrUpdateCall(Call call) {
-        Boolean isAdd = true;
-        for (int i = 0; i < originalCalls.size(); i++) {
-            if (originalCalls.get(i).key.equals(call.key)) {
-                isAdd = false;
-                break;
-            }
-        }
-        if (isAdd) {
-            addCall(call);
-        } else {
-            updateCall(call);
-        }
-    }
-
     public void addCall(Call call) {
         int index = 0;
         for (Call item : originalCalls) {

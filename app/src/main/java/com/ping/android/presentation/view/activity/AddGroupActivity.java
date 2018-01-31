@@ -1,4 +1,4 @@
-package com.ping.android.presentation.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

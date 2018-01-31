@@ -93,7 +93,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-    private void addConversation(Conversation conversation) {
+    public void addConversation(Conversation conversation) {
         int index = 0;
         for (Conversation item : originalConversations) {
             if (CommonMethod.compareTimestamp(conversation.timesstamps, item.timesstamps))
@@ -107,7 +107,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyItemInserted(index);
     }
 
-    private void updateConversation(Conversation conversation) {
+    public void updateConversation(Conversation conversation) {
         for (int i = 0; i < originalConversations.size(); i++) {
             if (originalConversations.get(i).key.equals(conversation.key)) {
                 originalConversations.remove(i);
