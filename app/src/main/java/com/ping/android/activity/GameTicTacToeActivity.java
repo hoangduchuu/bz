@@ -40,6 +40,11 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     }
 
     @Override
+    protected String gameTitle() {
+        return getString(R.string.tic_tac_toe_title);
+    }
+
+    @Override
     protected void initResources(Intent intent) {
         super.initResources(intent);
         imageView = findViewById(R.id.game_layout_image);

@@ -90,17 +90,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         rbNotification = (Switch) view.findViewById(R.id.profile_notification);
         rbShowProfile = (Switch) view.findViewById(R.id.profile_show_profile);
 
-        TextView txtBuildVersion = view.findViewById(R.id.txt_build_version);
-        try {
-            PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
-            String version = pInfo.versionName;
-            int versionCode = pInfo.versionCode;
-            String text = String.format(Locale.getDefault(), "Version: %s, Build: %d", version, versionCode);
-            txtBuildVersion.setText(text);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_phone_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_mapping).setOnClickListener(this);

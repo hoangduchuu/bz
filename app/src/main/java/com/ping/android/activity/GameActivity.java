@@ -270,4 +270,9 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
             onGameFailed();
         }
     }
+
+    @Override
+    protected String gameTitle() {
+        return getString(R.string.puzzle_game_title);
+    }
 }

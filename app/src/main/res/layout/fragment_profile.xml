@@ -191,6 +191,24 @@
                     android:background="@color/white"
                     android:orientation="vertical">
 
+                    <LinearLayout style="@style/ItemSetting"
+                        android:id="@+id/profile_privacy_and_terms">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/profile_terms" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="@string/profile_privacy_terms" />
+
+                        <ImageView
+                            style="@style/ItemSettingIconRight"
+                            android:src="@drawable/ic_arrow_right_gray" />
+                    </LinearLayout>
+
+                    <View style="@style/ItemSettingSeparate" />
+
                     <LinearLayout
                         android:id="@+id/profile_help"
                         style="@style/ItemSetting">
@@ -205,24 +223,6 @@
 
                         <ImageView
                             android:id="@+id/imageView"
-                            style="@style/ItemSettingIconRight"
-                            android:src="@drawable/ic_arrow_right_gray" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
-                    <LinearLayout style="@style/ItemSetting"
-                        android:id="@+id/profile_privacy_and_terms">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_terms" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="@string/profile_privacy_terms" />
-
-                        <ImageView
                             style="@style/ItemSettingIconRight"
                             android:src="@drawable/ic_arrow_right_gray" />
                     </LinearLayout>
@@ -246,14 +246,6 @@
 
                 </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/txt_build_version"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:padding="10dp"
-                android:text="Version: 1.0"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
