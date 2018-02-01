@@ -1,8 +1,7 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
-import com.ping.android.model.Conversation;
 
 import io.reactivex.Observable;
 

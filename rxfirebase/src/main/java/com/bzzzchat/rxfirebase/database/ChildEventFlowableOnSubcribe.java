@@ -1,4 +1,4 @@
-package com.bzzzchat.rxfirebase.events;
+package com.bzzzchat.rxfirebase.database;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.Query;

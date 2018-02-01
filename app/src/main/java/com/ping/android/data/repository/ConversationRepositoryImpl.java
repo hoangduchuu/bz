@@ -1,7 +1,7 @@
 package com.ping.android.data.repository;
 
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;

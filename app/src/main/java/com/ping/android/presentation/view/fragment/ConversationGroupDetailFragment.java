@@ -3,19 +3,23 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
+import android.widget.Toast;
 
+import com.ping.android.activity.MainActivity;
+import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.adapter.GroupProfileAdapter;
@@ -23,30 +27,31 @@ import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailCom
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.fragment.BaseFragment;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
-import static org.jivesoftware.smackx.privacy.packet.PrivacyItem.Type.group;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ConversationGroupDetailFragment extends BaseFragment implements ConversationGroupDetailPresenter.View, View.OnClickListener {
+public class ConversationGroupDetailFragment extends BaseFragment
+        implements ConversationGroupDetailPresenter.View, View.OnClickListener {
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
     private ImageView groupProfile;
     private EditText groupName;
@@ -60,10 +65,14 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
     private GroupProfileAdapter adapter;
 
     private ImagePickerHelper imagePickerHelper;
+    private File groupProfileImage;
+
+    private BzzzStorage bzzzStorage;
 
     @Inject
     ConversationGroupDetailPresenter presenter;
     private ConversationDetailGroupComponent component;
+    private String profileImageKey;
 
     public static ConversationGroupDetailFragment newInstance(Bundle extras) {
         ConversationGroupDetailFragment fragment = new ConversationGroupDetailFragment();
@@ -77,13 +86,14 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
         getComponent().inject(this);
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
+            profileImageKey = getArguments().getString(EXTRA_IMAGE_KEY);
         } else {
             throw new NullPointerException("Must set extras data");
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_conversation_group_detail, container, false);
@@ -106,37 +116,108 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
     }
 
     @Override
-    public void onClick(View view){
-        switch(view.getId()){
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.group_profile_back:
                 onBack();
                 break;
             case R.id.group_profile_add_member:
                 onAddMember();
                 break;
-//            case  R.id.group_profile_leave_group:
-//                onLeaveGroup();
-//                break;
-//            case R.id.group_profile_notification:
-//                onNotificationSetting();
-//                break;
-//            case R.id.group_profile_mask:
-//                onMaskSetting();
-//                break;
-//            case R.id.group_profile_puzzle:
-//                onPuzzleSetting();
-//                break;
-//            case R.id.group_profile_image:
-//                openPicker();
-//                break;
-//            case R.id.profile_nickname:
-//                onNickNameClicked();
-//                break;
+            case R.id.group_profile_leave_group:
+                onLeaveGroup();
+                break;
+            case R.id.group_profile_notification:
+                onNotificationSetting();
+                break;
+            case R.id.group_profile_mask:
+                onMaskSetting();
+                break;
+            case R.id.group_profile_puzzle:
+                onPuzzleSetting();
+                break;
+            case R.id.group_profile_image:
+                openPicker();
+                break;
+            case R.id.profile_nickname:
+                onNickNameClicked();
+                break;
         }
     }
 
+    private void onNickNameClicked() {
+        presenter.handleNicknameClicked();
+    }
+
+    private void openPicker() {
+        if (getContext() == null) return;
+        User currentUser = UserManager.getInstance().getUser();
+        String profileFileFolder = getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator +
+                "profile" + File.separator + currentUser.key;
+        double timestamp = System.currentTimeMillis() / 1000d;
+        String profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
+        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCrop(true)
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
+                        UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
+                        presenter.uploadGroupProfile(groupProfileImage.getAbsolutePath());
+                    }
+                });
+        imagePickerHelper.openPicker();
+    }
+
+    private void onPuzzleSetting() {
+        boolean isEnable = cbPuzzle.isChecked();
+        presenter.togglePuzzle(isEnable);
+    }
+
+    private void onMaskSetting() {
+        boolean isEnable = swMask.isChecked();
+        presenter.toggleMask(isEnable);
+    }
+
+    private void onNotificationSetting() {
+        boolean isEnable = swNotification.isChecked();
+        presenter.toggleNotification(isEnable);
+    }
+
+    private void onLeaveGroup() {
+        new AlertDialog.Builder(getContext())
+                .setMessage(R.string.warning_leave_group)
+                .setCancelable(false)
+                .setPositiveButton(R.string.Warning_leave_group_leave, (dialog, whichButton) -> {
+                    presenter.leaveGroup();
+                })
+                .setNegativeButton(R.string.gen_cancel, (dialog, which) -> {
+                    dialog.dismiss();
+                }).show();
+    }
+
     private void onBack() {
-        getActivity().onBackPressed();
+        if(TextUtils.isEmpty(groupName.getText())) {
+            Toast.makeText(getContext(), "Please input group name", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        presenter.updateGroupName(groupName.getText().toString());
     }
 
     private void onAddMember() {
@@ -149,6 +230,7 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
     private void setupView(View view) {
         groupProfile = view.findViewById(R.id.group_profile_image);
         groupProfile.setOnClickListener(this);
+        groupProfile.setTransitionName(profileImageKey);
         groupName = view.findViewById(R.id.group_profile_name);
         rvListMember = view.findViewById(R.id.group_profile_list_member);
         mLinearLayoutManager = new LinearLayoutManager(getContext());
@@ -165,27 +247,28 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
 
-        // TODO
-//        String transitionName = getArguments().getString(EXTRA_IMAGE_KEY);
-//        groupProfile.setTransitionName(transitionName);
-
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
     }
 
     private void bindData(Conversation conversation) {
-        groupName.setText(conversation.group.groupName);
-        UiUtils.displayProfileAvatar(groupProfile, conversation.group.groupAvatar, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                startPostponedEnterTransition();
+        if (conversation.group != null) {
+            groupName.setText(conversation.group.groupName);
+            if (getActivity() != null && !getActivity().isDestroyed()) {
+                UiUtils.displayProfileAvatar(groupProfile, conversation.group.groupAvatar, new Callback() {
+                    @Override
+                    public void complete(Object error, Object... data) {
+                        getActivity().startPostponedEnterTransition();
+                    }
+                });
             }
-        });
+        }
         swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
         swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
         cbPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
         adapter.initContact(conversation.members);
+        adapter.updateNickNames(conversation.nickNames);
     }
 
     public ConversationDetailGroupComponent getComponent() {
@@ -199,5 +282,44 @@ public class ConversationGroupDetailFragment extends BaseFragment implements Con
     @Override
     public void updateConversation(Conversation conversation) {
         bindData(conversation);
+    }
+
+    @Override
+    public void updateGroupMembers(List<User> users) {
+        adapter.initContact(users);
+    }
+
+    @Override
+    public void navigateToMain() {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
+    @Override
+    public void updateNotification(boolean isEnable) {
+        swNotification.setChecked(isEnable);
+    }
+
+    @Override
+    public void updateMask(boolean isEnable) {
+        swMask.setChecked(isEnable);
+    }
+
+    @Override
+    public void updatePuzzlePicture(boolean isEnable) {
+        cbPuzzle.setChecked(isEnable);
+    }
+
+    @Override
+    public void openNicknameScreen(Conversation conversation) {
+        Intent intent = new Intent(getContext(), NicknameActivity.class);
+        intent.putExtra(NicknameActivity.CONVERSATION_KEY, conversation);
+        startActivity(intent);
+    }
+
+    @Override
+    public void navigateBack() {
+        getActivity().finishAfterTransition();
     }
 }

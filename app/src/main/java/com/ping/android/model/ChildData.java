@@ -1,6 +1,6 @@
 package com.ping.android.model;
 
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 
 /**
  * Created by tuanluong on 1/28/18.

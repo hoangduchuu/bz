@@ -12,7 +12,6 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Navigator;
 
 public class ConversationDetailActivity extends CoreActivity implements HasComponent<ConversationDetailComponent> {
-    public static final String USER_KEY = "USER_KEY";
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
 
@@ -24,6 +23,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_detail);
+        postponeEnterTransition();
         navigator = new Navigator();
         navigator.init(getSupportFragmentManager(), R.id.fragment_container);
 

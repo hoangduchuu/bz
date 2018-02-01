@@ -1,8 +1,6 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.events.ChildEvent;
-import com.ping.android.model.Call;
-import com.ping.android.model.ChildData;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.model.User;
 
 import java.util.List;

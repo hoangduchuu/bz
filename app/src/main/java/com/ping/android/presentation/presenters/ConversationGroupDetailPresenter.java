@@ -16,7 +16,35 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void addUsersToGroup(List<User> selectedUsers);
 
+    void leaveGroup();
+
+    void toggleNotification(boolean isEnable);
+
+    void toggleMask(boolean isEnable);
+
+    void togglePuzzle(boolean isEnable);
+
+    void uploadGroupProfile(String absolutePath);
+
+    void handleNicknameClicked();
+
+    void updateGroupName(String name);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
+
+        void updateGroupMembers(List<User> users);
+
+        void navigateToMain();
+
+        void updateNotification(boolean isEnable);
+
+        void updateMask(boolean isEnable);
+
+        void updatePuzzlePicture(boolean isEnable);
+
+        void openNicknameScreen(Conversation conversation);
+
+        void navigateBack();
     }
 }

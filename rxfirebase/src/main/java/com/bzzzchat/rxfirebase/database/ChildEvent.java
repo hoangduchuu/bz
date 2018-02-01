@@ -1,4 +1,4 @@
-package com.bzzzchat.rxfirebase.events;
+package com.bzzzchat.rxfirebase.database;
 
 import android.support.annotation.Nullable;
 

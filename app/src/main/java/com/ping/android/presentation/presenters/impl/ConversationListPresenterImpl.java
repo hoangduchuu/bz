@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.model.ChildData;

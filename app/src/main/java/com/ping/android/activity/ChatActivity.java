@@ -1224,12 +1224,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void onOpenProfile() {
         Intent intent = new Intent(this, ConversationDetailActivity.class);
         Bundle extras = new Bundle();
-        extras.putParcelable(ConversationDetailActivity.USER_KEY, originalConversation.opponentUser);
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, originalConversation.key);
         extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation.conversationType);
         intent.putExtras(extras);
-//            intent.putExtra(Constant.START_ACTIVITY_USER_ID, originalConversation.opponentUser.key);
-//            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
         startActivity(intent);
     }
 
