@@ -149,9 +149,17 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
                 playGame(GamePattern.GREEN);
                 break;
             case R.id.btn_exit:
+                if (timer != null) {
+                    timer.cancel();
+                }
                 quitGame();
                 break;
         }
+    }
+
+    @Override
+    protected String gameTitle() {
+        return getString(R.string.memory_game_title);
     }
 
     @Override
@@ -197,6 +205,7 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.memory_game_title)
                 .setMessage(R.string.memory_game_start_instruction)
+                .setCancelable(false)
                 .setPositiveButton("Start", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
                     handler.postDelayed(this::playOriginalPatterns, 500);

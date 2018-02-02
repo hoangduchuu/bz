@@ -45,6 +45,9 @@ public class ObserveConversationUseCase extends UseCase<ChildData<Conversation>,
         return conversationRepository.registerConversationUpdate(userKey)
                 .flatMap(childEvent -> {
                     Conversation conversation = Conversation.from(childEvent.dataSnapshot);
+                    if (conversation.memberIDs.isEmpty()) {
+                        return Observable.empty();
+                    }
                     if (childEvent.type == ChildEvent.Type.CHILD_CHANGED) {
                         if (conversation.deleteTimestamps.containsKey(userKey)) {
                             //conversation will not show if last message time stamp less than conversation deleted time

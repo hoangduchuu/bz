@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 
@@ -20,6 +21,8 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected User sender;
     protected Handler handler = new Handler(Looper.getMainLooper());
 
+    protected abstract String gameTitle();
+
     protected void initResources(Intent intent) {
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
@@ -29,6 +32,9 @@ public abstract class BaseGameActivity extends CoreActivity {
     }
 
     protected void onGamePassed() {
+        //send game status to sender
+        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, true);
+        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
@@ -42,15 +48,18 @@ public abstract class BaseGameActivity extends CoreActivity {
                     startActivity(intent, options.toBundle());
                     //finishAfterTransition();
                     handler.postDelayed(() -> finish(), 2000);
-                }).setMessage("Congratulations! You won.")
-                .setTitle("MEMORY GAME");
+                })
+                .setMessage("Congratulations! You won.")
+                .setTitle(gameTitle());
         alertDialogBuilder.create().show();
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
     }
 
     protected void onGameFailed() {
+        //send game status to sender
+        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, false);
+        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.memory_game_title)
+                .setTitle(gameTitle())
                 .setMessage(R.string.memory_game_game_over)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
@@ -60,6 +69,7 @@ public abstract class BaseGameActivity extends CoreActivity {
     }
 
     protected void quitGame() {
+        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, false);
         ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         finish();
     }
