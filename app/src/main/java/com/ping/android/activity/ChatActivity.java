@@ -52,6 +52,7 @@ import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
@@ -432,7 +433,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         });
     }
 
-    public String getConversationId(){
+    public String getConversationId() {
         return conversationID;
     }
 
@@ -618,7 +619,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                 Message message = Message.from(dataSnapshot);
-                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
                     return;
                 }
                 processAddChild(message);
@@ -632,7 +633,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     updateConversationLastMessage();
                     return;
                 }
-                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
                     return;
                 }
                 message.sender = getUser(message.senderId);
@@ -739,7 +740,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                 if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
                                     continue;
                                 }
-                                if(message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
                                     continue;
                                 }
                                 message.sender = getSender(message.senderId);
@@ -820,7 +821,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                                         && !message.readAllowed.containsKey(fromUserID))
                                     continue;
 
-                                if(message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)){
+                                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
                                     continue;
                                 }
 
@@ -1066,7 +1067,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
                 String newOriginalText = "";
                 String displayText = charSequence.toString();
-                if (TextUtils.equals(displayText, ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText))){
+                if (TextUtils.equals(displayText, ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText))) {
                     return;
                 }
 
@@ -1075,31 +1076,31 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 int displayTextLength = displayText.length();
                 boolean startFound = false, endFound = false;
 
-                for(int index = 0; index < originalText.length(); index++){
+                for (int index = 0; index < originalText.length(); index++) {
                     encodedStart = encodedStart + ServiceManager.getInstance().encodeMessage(getApplicationContext(),
                             originalText.substring(index, index + 1));
 
-                    if(displayTextLength >= encodedStart.length()) {
+                    if (displayTextLength >= encodedStart.length()) {
                         displayStart = displayText.substring(0, encodedStart.length());
                     }
-                    if (TextUtils.equals(displayStart, encodedStart)){
+                    if (TextUtils.equals(displayStart, encodedStart)) {
                         startFound = true;
                         originalStartIdx = index + 1;
                         originalStart += originalText.substring(index, index + 1);
-                    }else{
+                    } else {
                         break;
                     }
                 }
                 encodedStart = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalStart);
 
-                if(displayTextLength > encodedStart.length()){
-                    for(int index = originalText.length() - 1;index >= originalStartIdx; index--){
+                if (displayTextLength > encodedStart.length()) {
+                    for (int index = originalText.length() - 1; index >= originalStartIdx; index--) {
                         encodedEnd = ServiceManager.getInstance().encodeMessage(getApplicationContext(),
                                 originalText.substring(index, index + 1)) + encodedEnd;
-                        if(TextUtils.equals(displayText.substring(displayTextLength - encodedEnd.length()), encodedEnd)){
+                        if (TextUtils.equals(displayText.substring(displayTextLength - encodedEnd.length()), encodedEnd)) {
                             endFound = true;
                             originalEnd = originalText.substring(index, index + 1) + originalEnd;
-                        }else{
+                        } else {
                             break;
                         }
                     }
@@ -1107,8 +1108,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 newOriginalText = originalStart;
                 int middleStartIdx = startFound ? encodedStart.length() : 0;
                 int middleEndIdx = endFound ? displayText.lastIndexOf(
-                        ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalEnd)): displayTextLength;
-                String originalMiddle = middleEndIdx > middleStartIdx ? displayText.substring(middleStartIdx, middleEndIdx): "";
+                        ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalEnd)) : displayTextLength;
+                String originalMiddle = middleEndIdx > middleStartIdx ? displayText.substring(middleStartIdx, middleEndIdx) : "";
                 String encodedMiddle = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalMiddle);
                 newOriginalText = newOriginalText + originalMiddle + originalEnd;
 
@@ -1136,7 +1137,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
 
                 String encodeText = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText);
-                if (TextUtils.equals(edMessage.getText(), encodeText)){
+                if (TextUtils.equals(edMessage.getText(), encodeText)) {
                     return;
                 }
 
@@ -1221,20 +1222,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void onOpenProfile() {
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            Intent intent = new Intent(this, UserProfileActivity.class);
-//            Bundle extras = new Bundle();
-//            extras.putParcelable(ConversationDetailActivity.USER_KEY, originalConversation.opponentUser);
-//            extras.putParcelable(ConversationDetailActivity.CONVERSATION_KEY, originalConversation);
-//            intent.putExtras(extras);
-            intent.putExtra(Constant.START_ACTIVITY_USER_ID, originalConversation.opponentUser.key);
-            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, GroupProfileActivity.class);
-            intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, originalConversation.group.key);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, ConversationDetailActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString(ConversationDetailActivity.CONVERSATION_KEY, originalConversation.key);
+        extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation.conversationType);
+        intent.putExtras(extras);
+        startActivity(intent);
     }
 
     private void onDeleteMessage() {

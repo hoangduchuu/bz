@@ -1,11 +1,15 @@
 package com.bzzzchat.rxfirebase;
 
+import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEventFlowableOnSubcribe;
+import com.bzzzchat.rxfirebase.database.SingleUpdateBatchDataOnSubscribe;
+import com.bzzzchat.rxfirebase.database.SingleValueEventOnSubscribe;
+import com.bzzzchat.rxfirebase.database.ValueEventFlowableOnSubcribe;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.bzzzchat.rxfirebase.events.ChildEvent;
-import com.bzzzchat.rxfirebase.events.ChildEventFlowableOnSubcribe;
-import com.bzzzchat.rxfirebase.events.SingleValueEventOnSubscribe;
-import com.bzzzchat.rxfirebase.events.ValueEventFlowableOnSubcribe;
+
+import java.util.Map;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -39,5 +43,9 @@ public class RxFirebaseDatabase {
     public Observable<ChildEvent> onChildEvent() {
         return Flowable.create(new ChildEventFlowableOnSubcribe(query), BackpressureStrategy.MISSING)
                 .toObservable();
+    }
+
+    public static Single<Boolean> updateBatchData(DatabaseReference reference, Map<String, Object> data) {
+        return Single.create(new SingleUpdateBatchDataOnSubscribe(reference, data));
     }
 }

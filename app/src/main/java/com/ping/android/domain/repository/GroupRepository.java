@@ -1,6 +1,6 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.model.Group;
 
 import io.reactivex.Observable;

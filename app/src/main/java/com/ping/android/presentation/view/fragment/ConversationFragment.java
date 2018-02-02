@@ -24,6 +24,7 @@ import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
@@ -32,7 +33,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.ConversationPresenter;
+import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Callback;
@@ -46,7 +47,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationPresenter.View {
+public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -65,7 +66,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private SharedPreferences prefs;
 
     @Inject
-    ConversationPresenter presenter;
+    ConversationListPresenter presenter;
     ConversationComponent component;
 
     @Override
@@ -246,14 +247,16 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements) {
-        Intent intent = new Intent(getContext(), GroupProfileActivity.class);
-        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, conversation.groupID);
+        Intent intent = new Intent(getContext(), ConversationDetailActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString(ConversationDetailActivity.CONVERSATION_KEY, conversation.key);
         intent.putExtra(GroupProfileActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        intent.putExtras(extras);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),
                 sharedElements
         );
-        startActivityForResult(intent, 123, options.toBundle());
+        startActivity(intent, options.toBundle());
     }
 
     @Override

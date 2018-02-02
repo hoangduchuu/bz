@@ -3,7 +3,7 @@ package com.ping.android.domain.usecase;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.events.ChildEvent;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -23,7 +23,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/28/18.
  */
 
-public class ObserveConversationUseCase extends UseCase<ChildData<Conversation>, Void> {
+public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>, Void> {
     @Inject
     ConversationRepository conversationRepository;
     @Inject
@@ -33,7 +33,7 @@ public class ObserveConversationUseCase extends UseCase<ChildData<Conversation>,
     UserManager userManager;
 
     @Inject
-    public ObserveConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ObserveConversationsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
         userManager = UserManager.getInstance();
     }
@@ -42,7 +42,7 @@ public class ObserveConversationUseCase extends UseCase<ChildData<Conversation>,
     @Override
     public Observable<ChildData<Conversation>> buildUseCaseObservable(Void aVoid) {
         String userKey = userManager.getUser().key;
-        return conversationRepository.registerConversationUpdate(userKey)
+        return conversationRepository.registerConversationsUpdate(userKey)
                 .flatMap(childEvent -> {
                     Conversation conversation = Conversation.from(childEvent.dataSnapshot);
                     if (conversation.memberIDs.isEmpty()) {

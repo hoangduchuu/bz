@@ -162,6 +162,7 @@ public class Conversation implements Parcelable {
             this.deleteTimestamps = originalConversation.deleteTimestamps;
             this.members = originalConversation.members;
             this.group = originalConversation.group;
+            this.nickNames = originalConversation.nickNames;
         }
     }
 

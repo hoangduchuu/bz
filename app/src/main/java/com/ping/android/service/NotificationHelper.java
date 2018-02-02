@@ -26,6 +26,7 @@ import com.quickblox.messages.model.QBSubscription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bzzz on 11/29/17.
@@ -111,17 +112,19 @@ public class NotificationHelper {
     }
 
     public void sendNotificationForConversation(Conversation conversation, Message fmessage) {
-
-        String body, senderName;
+        String body;
         User sender = UserManager.getInstance().getUser();
+        String senderName = sender.getDisplayName();
+        Map<String, String> nickNames = conversation.nickNames;
+        if (nickNames.containsKey(sender.key)) {
+            senderName = nickNames.get(sender.key);
+        }
         if (conversation.group != null) {
-            senderName = String.format("%s to %s", sender.getDisplayName(), conversation.group.groupName);
-        } else {
-            senderName = sender.getDisplayName();
+            senderName = String.format("%s to %s", senderName, conversation.group.groupName);
         }
 
         for (User user : conversation.members) {
-            if (user.quickBloxID > 0 && user.key != UserManager.getInstance().getUser().key) {
+            if (user.quickBloxID > 0 && !user.key.equals(UserManager.getInstance().getUser().key)) {
                 if (!needSendNotification(conversation, user)) continue;
                 //get incoming mask of target user
                 boolean incomingMask = false;
