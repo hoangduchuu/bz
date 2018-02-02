@@ -777,8 +777,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             ServiceManager.getInstance().getGroup(originalConversation.groupID, new Callback() {
                 @Override
                 public void complete(Object error, Object... data) {
-                    originalConversation.group = (Group) data[0];
-                    tvChatName.setText(originalConversation.group.groupName);
+                    if (error == null) {
+                        originalConversation.group = (Group) data[0];
+                        tvChatName.setText(originalConversation.group.groupName);
+                    }
                 }
             });
         }

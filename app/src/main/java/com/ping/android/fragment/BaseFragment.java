@@ -1,6 +1,8 @@
 package com.ping.android.fragment;
 
 import android.app.Activity;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
@@ -13,16 +15,28 @@ import com.ping.android.activity.CoreActivity;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+
 /**
  * Created by tuanluong on 12/15/17.
  */
 
 public class BaseFragment extends Fragment {
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
+    // Disposable for UI events
+    private CompositeDisposable disposables;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        disposables = new CompositeDisposable();
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        disposables.dispose();
         for (DatabaseReference reference : databaseReferences.keySet()) {
             Object listener = databaseReferences.get(reference);
             if (listener instanceof ChildEventListener) {
@@ -31,6 +45,10 @@ public class BaseFragment extends Fragment {
                 reference.removeEventListener((ValueEventListener) listener);
             }
         }
+    }
+
+    protected void registerEvent(Disposable disposable) {
+        disposables.add(disposable);
     }
 
     public void showLoading() {

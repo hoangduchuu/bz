@@ -33,12 +33,12 @@
             android:text="CHOOSE A SETTING" />
     </LinearLayout>
 
-
     <LinearLayout
         style="@style/MatchWidth"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/default_padding">
+        android:paddingLeft="@dimen/default_padding"
+        >
 
         <LinearLayout
             android:id="@+id/v_generate_random"
@@ -49,21 +49,6 @@
                 style="@style/ItemSettingText"
 
                 android:text="@string/generate_random" />
-
-            <ImageView style="@style/ItemSettingIconRight" />
-        </LinearLayout>
-
-        <View
-            style="@style/horizontal_divider"
-            android:layout_marginLeft="@dimen/default_padding" />
-
-        <LinearLayout
-            android:id="@+id/v_manual_setup"
-            style="@style/ItemSetting">
-
-            <TextView
-                style="@style/ItemSettingText"
-                android:text="@string/setting_manual_set_up" />
 
             <ImageView style="@style/ItemSettingIconRight" />
         </LinearLayout>
@@ -98,6 +83,25 @@
             <ImageView style="@style/ItemSettingIconRight" />
         </LinearLayout>
 
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/MatchWidth"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/default_padding"
+        android:layout_marginTop="20dp">
+
+        <LinearLayout
+            android:id="@+id/v_manual_setup"
+            style="@style/ItemSetting">
+
+            <TextView
+                style="@style/ItemSettingText"
+                android:text="@string/setting_manual_set_up" />
+
+            <ImageView style="@style/ItemSettingIconRight" />
+        </LinearLayout>
     </LinearLayout>
 
 

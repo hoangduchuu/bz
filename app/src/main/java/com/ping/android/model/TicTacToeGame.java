@@ -15,7 +15,7 @@ import io.reactivex.Observable;
  */
 public final class TicTacToeGame {
 
-    private static final boolean APPLY_MINIMAX = false;
+    private static final boolean APPLY_MINIMAX = true;
 
     public interface OnGameOverListener {
         void onGameOver(@GameState int state, int[] winningIndices);
@@ -193,14 +193,14 @@ public final class TicTacToeGame {
     }
 
     public Observable<Object> getCpuMove() {
-        return Observable.just(null)
+        return Observable.just(new Object())
                 .doOnNext(o -> {
                     if (getAvailableStates().size() == grid.length) {
                         // minimax will spend a lot of time calculating every permutation of this, but always ends on 0. Let's spice it up
                         nextCpuMove = new Random().nextInt(grid.length);
                     } else {
                         if (APPLY_MINIMAX) {
-                            minimax(0, PLAYER_TWO, -1);
+                            minimax(0, PLAYER_TWO, 0);
                         } else {
                             randomCpuMove();
                         }
@@ -319,7 +319,7 @@ public final class TicTacToeGame {
                 return 10 - depth;
             } else if (currentResult == ONE_WINS) {
                 return depth - 10;
-            } else if (pointsAvailable.isEmpty()) {
+            } else if (pointsAvailable.isEmpty() || depth > 1) {
                 return 0;   // Ties help no one
             }
         }
@@ -328,7 +328,7 @@ public final class TicTacToeGame {
         boolean isPlayerTwo = player == PLAYER_TWO;
         char otherPlayer = isPlayerTwo ? PLAYER_ONE : PLAYER_TWO;
         int runningScore = isPlayerTwo ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-        int chosenIndex = 0;
+        int chosenIndex = -1;
 
         for (int i = 0; i < pointsAvailable.size(); ++i) {
             int index = pointsAvailable.get(i);
@@ -342,9 +342,13 @@ public final class TicTacToeGame {
             }
             grid[index] = NONE; // Clean up when we're done
         }
+        if (chosenIndex >= 0) {
+            nextCpuMove = chosenIndex;
+        } else {
+            randomCpuMove();
+        }
 
-        nextCpuMove = chosenIndex;
-        SCORE_CACHE.put(stateKey, runningScore);
+        //SCORE_CACHE.put(stateKey, runningScore);
         return runningScore;
     }
 }
