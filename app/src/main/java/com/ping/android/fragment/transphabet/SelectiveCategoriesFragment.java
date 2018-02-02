@@ -14,12 +14,18 @@ import android.widget.TextView;
 
 import com.ping.android.activity.R;
 import com.ping.android.adapter.TransphabetCategoryAdapter;
+import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
+import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
 import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.Transphabet;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,6 +34,10 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
     public static final String SELECTIVE_CATEGORY_KEY = "SELECTIVE_CATEGORY_KEY";
 
     private boolean isEmoji = false;
+
+    @Inject
+    BusProvider busProvider;
+    TransphabetSelectionComponent component;
 
     public static SelectiveCategoriesFragment newInstance(boolean isEmoji) {
         Bundle bundle = new Bundle();
@@ -40,6 +50,7 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         if (getArguments() != null) {
             isEmoji = getArguments().getBoolean(SELECTIVE_CATEGORY_KEY);
         }
@@ -88,8 +99,16 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
                     } else {
                         UsersUtils.randomizeTransphabet(transphabet);
                     }
+                    busProvider.post(new TransphabetEvent());
                     getActivity().onBackPressed();
                 })
                 .setNegativeButton(android.R.string.cancel, null).show();
+    }
+
+    public TransphabetSelectionComponent getComponent() {
+        if (component == null) {
+            component = getComponent(TransphabetComponent.class).provideTransphabetSelectionComponent();
+        }
+        return component;
     }
 }

@@ -55,7 +55,7 @@ public class MessageRepository extends BaseFirebaseDatabase {
         }
         if (isLastMessage) {
             updateValue.put(String.format("conversations/%s/markStatuses/%s", conversationId, userId), value);
-            updateValue.put(String.format("users/%s/conversations/%s/markStatuses/%s/", userId, conversationId, userId), value);
+            updateValue.put(String.format("conversations/%s/%s/markStatuses/%s/", userId, conversationId, userId), value);
         }
         updateBatchData(updateValue, null);
     }

@@ -2,12 +2,15 @@ package com.ping.android.activity;
 
 import android.os.Bundle;
 
+import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
+import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.fragment.transphabet.TransphabetFragment;
 import com.ping.android.utils.Navigator;
 
-public class TransphabetActivity extends CoreActivity {
+public class TransphabetActivity extends CoreActivity implements HasComponent<TransphabetComponent> {
 
     private Navigator navigator;
+    TransphabetComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,5 +31,13 @@ public class TransphabetActivity extends CoreActivity {
 
     public Navigator getNavigator() {
         return navigator;
+    }
+
+    @Override
+    public TransphabetComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideTransphabetComponent();
+        }
+        return component;
     }
 }

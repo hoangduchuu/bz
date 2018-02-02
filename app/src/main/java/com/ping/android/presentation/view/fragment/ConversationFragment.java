@@ -39,6 +39,8 @@ import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -67,6 +69,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Inject
     ConversationListPresenter presenter;
+    @Inject
+    BusProvider busProvider;
     ConversationComponent component;
 
     @Override
@@ -74,6 +78,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         super.onCreate(savedInstanceState);
         component().inject(this);
         presenter.create();
+        listenTransphabetChanged();
     }
 
     @Override
@@ -306,5 +311,16 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void updateGroupConversation(Group data) {
         adapter.updateGroupConversation(data);
+    }
+
+    private void listenTransphabetChanged() {
+        registerEvent(busProvider.getEvents()
+                .subscribe(object -> {
+                    if (object instanceof TransphabetEvent) {
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                }));
     }
 }
