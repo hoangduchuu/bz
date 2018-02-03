@@ -225,7 +225,7 @@
 
     <!-- Tic tac toe -->
     <string name="tic_tac_toe_title">TIC TAC TOE GAME</string>
-    <string name="tic_tac_toe_description">You play first!</string>
+    <string name="tic_tac_toe_description">Tap on the blank square box to place your X</string>
 
     <!-- Selective Languages -->
     <string name="selective_languages_title">Select Languages</string>
