@@ -63,7 +63,7 @@ public abstract class BaseGameActivity extends CoreActivity {
                 .setMessage(R.string.memory_game_game_over)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
-                    quitGame();
+                    finish();
                 }).create();
         alertDialog.show();
     }
