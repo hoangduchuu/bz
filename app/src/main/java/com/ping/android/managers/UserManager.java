@@ -90,6 +90,7 @@ public class UserManager {
             if (error == null) {
                 user = (User) data[0];
                 //userRepository.registerUserPresence();
+                userRepository.updateRefreshToken();
                 if (user.quickBloxID <= 0) {
                     quickBloxRepository.signUpNewUserQB(user, qbCallback);
                 } else {

@@ -41,6 +41,11 @@ public class User implements Parcelable {
     public Map<String, Boolean> blocks = new HashMap<>();
     public Map<String, Boolean> blockBys = new HashMap<>();
 
+    /**
+     * Map contains devices that user logged in, if count bigger than 0, it means users is online
+     */
+    public Map<String, Boolean> devices = new HashMap<>();
+
     // Local variable
     public ArrayList<User> friendList  = new ArrayList<>();
     public Constant.TYPE_FRIEND typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
@@ -66,6 +71,7 @@ public class User implements Parcelable {
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
         if (blocks == null) blocks = new HashMap<>();
         this.blockBys = (Map<String, Boolean>) dataSnapshot.child("blockBys").getValue();
+        this.devices = dataSnapshot.hasChild("devices") ? (Map<String, Boolean>) dataSnapshot.child("devices").getValue() : new HashMap<>();
         if (this.blockBys == null) this.blockBys = new HashMap<>();
         if (this.mappings == null) {
             this.mappings = ServiceManager.getInstance().getDefaultMapping();
