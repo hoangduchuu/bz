@@ -7,12 +7,14 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.App;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
+import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.fragment.LoadingDialog;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
@@ -49,18 +51,27 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     @Override
     protected void onResume() {
         super.onResume();
+        if (getPresenter() != null) {
+            getPresenter().resume();
+        }
         networkConnectionChecker.registerListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (getPresenter() != null) {
+            getPresenter().pause();
+        }
         networkConnectionChecker.unregisterListener(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (getPresenter() != null) {
+            getPresenter().destroy();
+        }
         disposables.dispose();
         for (DatabaseReference reference : databaseReferences.keySet()) {
             Object listener = databaseReferences.get(reference);
@@ -77,12 +88,20 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     }
 
+    protected BasePresenter getPresenter() {
+        return null;
+    }
+
     protected ApplicationComponent getApplicationComponent() {
         return ((App) getApplication()).getComponent();
     }
 
     protected LoggedInComponent getLoggedInComponent() {
         return ((App) getApplication()).getLoggedInComponent();
+    }
+
+    protected LoggedOutComponent getLoggedOutComponent() {
+        return ((App) getApplication()).getLoggedOutComponent();
     }
 
     protected void registerEvent(Disposable disposable) {

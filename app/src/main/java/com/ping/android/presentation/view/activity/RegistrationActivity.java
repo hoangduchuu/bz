@@ -1,6 +1,5 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,19 +23,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.managers.UserManager;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.PhoneActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedout.registration.RegistrationComponent;
+import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.model.User;
-import com.ping.android.service.CallService;
+import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.ultility.Consts;
-import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.UiUtils;
-import com.quickblox.users.model.QBUser;
 
-public class RegistrationActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class RegistrationActivity extends CoreActivity implements View.OnClickListener, RegistrationPresenter.View {
 
     private EditText txtFirstName, txtLastName, txtPingId, txtEmail, txtPassword, txtRetypePassword;
     private TextView tvAgreeTermOfService;
@@ -46,9 +46,14 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
+    @Inject
+    public RegistrationPresenter presenter;
+    private RegistrationComponent component;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         setContentView(R.layout.activity_registration);
         bindViews();
         init();
@@ -74,6 +79,11 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 break;
 
         }
+    }
+
+    @Override
+    public RegistrationPresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews() {
@@ -282,18 +292,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                                 Toast.LENGTH_SHORT).show();
                         firebaseUser.delete();
                     } else {
-                        UserManager.getInstance().initialize((error, data) -> {
-                            if (error == null) {
-                                hideLoading();
-                                ServiceManager.getInstance().updateLoginStatus(true);
-
-                                QBUser qbUser = (QBUser) data[0];
-                                startCallService(qbUser);
-
-                                startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
-                                finish();
-                            }
-                        });
+                        presenter.initializeUser();
                     }
                 });
             }
@@ -301,13 +300,21 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     }
 
-    private void startCallService(QBUser qbUser) {
-        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
-        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
+    private void exitRegistration() {
+        finish();
     }
 
-    private void exitRegistration() {
+    public RegistrationComponent getComponent() {
+        if (component == null) {
+            component = getLoggedOutComponent().provideRegistrationComponent(new RegistrationModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void navigateToMainScreen() {
+        ServiceManager.getInstance().updateLoginStatus(true);
+        startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
         finish();
     }
 }

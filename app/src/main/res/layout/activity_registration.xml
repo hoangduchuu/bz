@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.RegistrationActivity">
+    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.RegistrationActivity">
 
     <RelativeLayout
         android:id="@+id/viewRoot"

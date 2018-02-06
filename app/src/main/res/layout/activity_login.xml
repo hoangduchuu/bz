@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.LoginActivity">
+    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.LoginActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

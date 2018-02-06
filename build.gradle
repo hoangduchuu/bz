@@ -53,6 +53,7 @@ ext {
             arrow       : "1.0.0",
             retrofit    : "2.2.0",
             firebase    : "11.8.0",
+            quickblox   : "3.3.0"
     ]
 }
 

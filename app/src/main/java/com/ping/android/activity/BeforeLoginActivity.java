@@ -4,6 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.ping.android.presentation.view.activity.LoginActivity;
+import com.ping.android.presentation.view.activity.RegistrationActivity;
+
 public class BeforeLoginActivity extends CoreActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
