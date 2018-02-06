@@ -1,44 +1,33 @@
 package com.ping.android.activity;
 
-import android.app.ActivityOptions;
-import android.app.NotificationManager;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityOptionsCompat;
+import android.os.Vibrator;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.Display;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.ping.android.model.Conversation;
-import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class GameActivity extends BaseGameActivity implements View.OnClickListener {
-    private ImageView btBack, puzzleSelect;
+    private Button btnExit;
+    private ImageView puzzleSelect;
     private LinearLayout puzzleView;
     private ImageView puzzleItem1, puzzleItem2, puzzleItem3, puzzleItem4, puzzleItem5, puzzleItem6,
             puzzleItem7, puzzleItem8, puzzleItem0;
@@ -54,11 +43,13 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     private CountDownTimer gameCountDown;
     private Handler handler = new Handler();
     private boolean isGameNotificationSent = false;
+    private Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         initResources(getIntent());
         bindViews();
     }
@@ -66,7 +57,7 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.puzzle_back:
+            case R.id.btn_exit:
                 quitGame();
                 break;
             case R.id.puzzle_item_0:
@@ -100,6 +91,12 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        stopVibrate();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         gameCountDown.cancel();
@@ -123,30 +120,30 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     }
 
     private void bindViews() {
-        tvTimer = (TextView) findViewById(R.id.puzzle_timer);
-        imageView = (ImageView) findViewById(R.id.game_layout_image);
+        tvTimer = findViewById(R.id.puzzle_timer);
+        imageView = findViewById(R.id.game_layout_image);
         imageView.setVisibility(View.GONE);
-        puzzleView = (LinearLayout) findViewById(R.id.game_layout_puzzle);
-        btBack = (ImageView) findViewById(R.id.puzzle_back);
-        btBack.setOnClickListener(this);
+        puzzleView = findViewById(R.id.game_layout_puzzle);
+        btnExit = findViewById(R.id.btn_exit);
+        btnExit.setOnClickListener(this);
         puzzleItems = new ArrayList<>();
-        puzzleItem0 = (ImageView) findViewById(R.id.puzzle_item_0);
+        puzzleItem0 = findViewById(R.id.puzzle_item_0);
         puzzleItem0.setOnClickListener(this);
-        puzzleItem1 = (ImageView) findViewById(R.id.puzzle_item_1);
+        puzzleItem1 = findViewById(R.id.puzzle_item_1);
         puzzleItem1.setOnClickListener(this);
-        puzzleItem2 = (ImageView) findViewById(R.id.puzzle_item_2);
+        puzzleItem2 = findViewById(R.id.puzzle_item_2);
         puzzleItem2.setOnClickListener(this);
-        puzzleItem3 = (ImageView) findViewById(R.id.puzzle_item_3);
+        puzzleItem3 = findViewById(R.id.puzzle_item_3);
         puzzleItem3.setOnClickListener(this);
-        puzzleItem4 = (ImageView) findViewById(R.id.puzzle_item_4);
+        puzzleItem4 = findViewById(R.id.puzzle_item_4);
         puzzleItem4.setOnClickListener(this);
-        puzzleItem5 = (ImageView) findViewById(R.id.puzzle_item_5);
+        puzzleItem5 = findViewById(R.id.puzzle_item_5);
         puzzleItem5.setOnClickListener(this);
-        puzzleItem6 = (ImageView) findViewById(R.id.puzzle_item_6);
+        puzzleItem6 = findViewById(R.id.puzzle_item_6);
         puzzleItem6.setOnClickListener(this);
-        puzzleItem7 = (ImageView) findViewById(R.id.puzzle_item_7);
+        puzzleItem7 = findViewById(R.id.puzzle_item_7);
         puzzleItem7.setOnClickListener(this);
-        puzzleItem8 = (ImageView) findViewById(R.id.puzzle_item_8);
+        puzzleItem8 = findViewById(R.id.puzzle_item_8);
         puzzleItem8.setOnClickListener(this);
         puzzleItems.add(puzzleItem0);
         puzzleItems.add(puzzleItem1);
@@ -211,13 +208,31 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
 
             public void onTick(long millisUntilFinished) {
                 int remainTime = (int) millisUntilFinished / 1000;
-                handler.post(() -> tvTimer.setText("" + remainTime));
+                handler.post(() -> {
+                    if (remainTime == 5) {
+                        tvTimer.setTextColor(ContextCompat.getColor(GameActivity.this, R.color.red));
+                        startVibrate();
+                    }
+                    tvTimer.setText("" + remainTime);
+                });
             }
 
             public void onFinish() {
+                tvTimer.post(() -> tvTimer.setText("" + 0));
                 updateGameStatus(true);
             }
         };
+    }
+
+    private void startVibrate() {
+        // Vibrate for 500 milliseconds
+        vibrator.vibrate(5000);
+    }
+
+    private void stopVibrate() {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.cancel();
+        }
     }
 
     private void choosePuzzle(View view, int index) {
@@ -266,8 +281,10 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
             imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(originalBitmap);
             onGamePassed();
+            stopVibrate();
         } else if (isTimeOut) {
             onGameFailed();
+            stopVibrate();
         }
     }
 

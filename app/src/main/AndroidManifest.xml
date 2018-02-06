@@ -158,7 +158,7 @@
             android:name=".GameActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".ChangePasswordActivity"
             android:label="GameActivity"
