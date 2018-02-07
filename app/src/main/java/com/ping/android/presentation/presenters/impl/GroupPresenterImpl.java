@@ -6,6 +6,8 @@ import com.ping.android.model.ChildData;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Inject;
 
 /**
@@ -36,6 +38,11 @@ public class GroupPresenterImpl implements GroupPresenter {
                     case CHILD_REMOVED:
                         view.deleteGroup(groupChildData.data);
                 }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
             }
         }, new ObserveGroupsUseCase.Params(true));
     }

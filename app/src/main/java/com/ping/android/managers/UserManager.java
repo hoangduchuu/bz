@@ -43,6 +43,7 @@ public class UserManager {
 
     private static UserManager instance;
     private ArrayList<User> allUsers = new ArrayList<>();
+    private DatabaseReference friendDatabaseReference;
 
     public static UserManager getInstance() {
         if (instance == null) {

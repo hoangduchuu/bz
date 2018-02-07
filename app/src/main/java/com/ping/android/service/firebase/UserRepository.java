@@ -49,10 +49,10 @@ public class UserRepository extends BaseFirebaseDatabase {
                 if (dataSnapshot.exists()) {
                     User user = new User(dataSnapshot);
                     user.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
-//                    User currentUser = current
-//                    if (currentUser != null && currentUser.friends.containsKey(user.key)) {
-//                        user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
-//                    }
+                    User currentUser = UserManager.getInstance().getUser();
+                    if (currentUser != null && currentUser.friends.containsKey(user.key)) {
+                        user.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
+                    }
                     callback.complete(null, user);
                 } else {
                     callback.complete(new Error());

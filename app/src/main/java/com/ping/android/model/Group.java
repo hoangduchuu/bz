@@ -31,15 +31,13 @@ public class Group {
     public static Group from(DataSnapshot dataSnapshot) {
         //Group group = dataSnapshot.getValue(Group.class);
         Group group = new Group();
-        group.conversationID = dataSnapshot.child("conversationID").getValue(String.class);
-        group.groupName = dataSnapshot.child("groupName").getValue(String.class);
-        Double time = dataSnapshot.child("timestamp").getValue(Double.class);
-        group.timestamp = time != null ? time : 0;
-        group.groupAvatar = dataSnapshot.child("groupAvatar").getValue(String.class);
-        group.memberIDs = (Map<String, Boolean>) dataSnapshot.child("memberIDs").getValue();
-        group.deleteStatuses = (Map<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
-        Assert.assertNotNull(group);
-        if (group.deleteStatuses == null) group.deleteStatuses = new HashMap<>();
+        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
+        group.conversationID = wrapper.getStringValue("conversationID");
+        group.groupName = wrapper.getStringValue("groupName");
+        group.timestamp = wrapper.getDoubleValue("timestamp");
+        group.groupAvatar = wrapper.getStringValue("groupAvatar");
+        group.memberIDs = wrapper.getMapValue("memberIDs");
+        group.deleteStatuses = wrapper.getMapValue("deleteStatuses");
         group.key = dataSnapshot.getKey();
         return group;
     }

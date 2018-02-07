@@ -55,6 +55,17 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Observable<User> observeCurrentUser() {
+        return getCurrentUserId()
+                .flatMap(userId -> {
+                    DatabaseReference userReference = database.getReference("users").child(userId);
+                    return RxFirebaseDatabase.getInstance(userReference)
+                            .onValueEvent()
+                            .map(User::new);
+                });
+    }
+
+    @Override
     public Observable<User> getUser(String userId) {
         DatabaseReference userReference = database.getReference("users").child(userId);
         return RxFirebaseDatabase.getInstance(userReference)
@@ -102,5 +113,12 @@ public class UserRepositoryImpl implements UserRepository {
         return RxFirebaseDatabase.setValue(reference, devices)
                 .map(reference1 -> true)
                 .toObservable();
+    }
+
+    private Observable<String> getCurrentUserId() {
+        if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
+        String userId = auth.getUid();
+        if (userId == null) return Observable.error(new NullPointerException("Current uuid is null"));
+        return Observable.just(userId);
     }
 }
