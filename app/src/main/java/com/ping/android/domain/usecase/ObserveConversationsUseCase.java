@@ -48,15 +48,13 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                     if (conversation.memberIDs.isEmpty()) {
                         return Observable.empty();
                     }
-                    if (childEvent.type == ChildEvent.Type.CHILD_CHANGED) {
-                        if (conversation.deleteTimestamps.containsKey(userKey)) {
-                            //conversation will not show if last message time stamp less than conversation deleted time
-                            if (conversation.deleteTimestamps.get(userKey) > conversation.timesstamps) {
-                                ChildData<Conversation> childData = new ChildData<>();
-                                childData.data = conversation;
-                                childData.type = ChildEvent.Type.CHILD_REMOVED;
-                                return Observable.just(childData);
-                            }
+                    if (conversation.deleteTimestamps.containsKey(userKey)) {
+                        //conversation will not show if last message time stamp less than conversation deleted time
+                        if (conversation.deleteTimestamps.get(userKey) > conversation.timesstamps) {
+                            ChildData<Conversation> childData = new ChildData<>();
+                            childData.data = conversation;
+                            childData.type = ChildEvent.Type.CHILD_REMOVED;
+                            return Observable.just(childData);
                         }
                     }
                     return userRepository.getUserList(conversation.memberIDs)

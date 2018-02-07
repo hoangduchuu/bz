@@ -9,6 +9,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 /**
@@ -55,6 +57,11 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                 }
             }
         }, new ObserveGroupsUseCase.Params(false));
+    }
+
+    @Override
+    public void deleteConversations(List<Conversation> conversations) {
+
     }
 
     @Override

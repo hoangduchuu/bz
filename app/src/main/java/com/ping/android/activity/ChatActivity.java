@@ -48,6 +48,7 @@ import com.mikepenz.iconics.view.IconicsImageView;
 import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.DataSnapshotWrapper;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -660,9 +661,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean isOnline = false;
                 if (dataSnapshot.exists()) {
-                    String value = (String) dataSnapshot.getValue();
-                    isOnline = !TextUtils.isEmpty(value);
-
+                    Map<String, Double> devices = (Map<String, Double>) dataSnapshot.getValue();
+                    if (devices != null) {
+                        for (String key : devices.keySet()) {
+                            double timestamp = devices.get(key);
+                            if (System.currentTimeMillis() - timestamp * 1000 < 3600000 * 24) {
+                                isOnline = true;
+                            }
+                        }
+                    }
                 }
                 tvChatStatus.setText(isOnline ? "Online" : "Offline");
             }
@@ -1041,7 +1048,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private void observeStatus() {
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             DatabaseReference statusRef = userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
-                    .child("refreshedToken");
+                    .child("devices");
             statusRef.addValueEventListener(observeStatusEvent);
             databaseReferences.put(statusRef, observeStatusEvent);
         } else {

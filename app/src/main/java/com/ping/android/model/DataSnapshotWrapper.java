@@ -2,6 +2,8 @@ package com.ping.android.model;
 
 import com.google.firebase.database.DataSnapshot;
 
+import java.util.Map;
+
 /**
  * Created by tuanluong on 1/25/18.
  */
