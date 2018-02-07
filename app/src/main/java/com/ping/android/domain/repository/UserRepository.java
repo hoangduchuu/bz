@@ -16,7 +16,7 @@ public interface UserRepository {
     Observable<User> initializeUser();
 
     Observable<User> getCurrentUser();
-
+    Observable<User> observeCurrentUser();
     Observable<User> getUser(String userId);
     Observable<List<User>> getUserList(Map<String, Boolean> userIds);
     Observable<ChildEvent> getCalls(String userId);

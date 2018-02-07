@@ -18,14 +18,12 @@ import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailCom
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -45,12 +43,9 @@ public class ConversationPVPDetailFragment extends BaseFragment
     private Switch swPuzzle;
     private Switch swBlock;
 
-    private User currentUser;
     private Conversation conversation;
     private String conversationId;
     private UserRepository userRepository;
-
-    private Callback userUpdated;
 
     @Inject
     ConversationPVPDetailPresenter presenter;
@@ -70,16 +65,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
         }
         userRepository = new UserRepository();
-        currentUser = UserManager.getInstance().getUser();
-
-        userUpdated = (error, data) -> {
-            if (error == null) {
-                currentUser = (User) data[0];
-                if (conversation != null) {
-                    swBlock.setChecked(currentUser.blocks.containsKey(conversation.opponentUser.key));
-                }
-            }
-        };
     }
 
     @Override
@@ -88,20 +73,14 @@ public class ConversationPVPDetailFragment extends BaseFragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_conversation_pvpdetail, container, false);
         bindViews(view);
+        presenter.create();
         presenter.initConversation(conversationId);
         return view;
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        UserManager.getInstance().addUserUpdated(userUpdated);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        UserManager.getInstance().removeUserUpdated(userUpdated);
+    public ConversationPVPDetailPresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews(View view) {
@@ -208,7 +187,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
         this.conversation = conversation;
         bindConversationSetting(conversation);
         userName.setText(conversation.opponentUser.getDisplayName());
-        swBlock.setChecked(currentUser.blocks.containsKey(conversation.opponentUser.key));
+
 
         UiUtils.displayProfileImage(getContext(), userProfile, conversation.opponentUser);
     }
@@ -226,6 +205,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
     @Override
     public void updatePuzzlePicture(boolean isEnable) {
         swPuzzle.setChecked(isEnable);
+    }
+
+    @Override
+    public void updateBlockStatus(User user) {
+        swBlock.setChecked(user.blocks.containsKey(conversation.opponentUser.key));
     }
 
     @Override

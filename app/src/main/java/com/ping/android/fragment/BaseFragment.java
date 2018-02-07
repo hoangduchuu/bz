@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
@@ -34,8 +35,19 @@ public class BaseFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (getPresenter() != null) {
+            getPresenter().resume();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        if (getPresenter() != null) {
+            getPresenter().destroy();
+        }
         disposables.dispose();
         for (DatabaseReference reference : databaseReferences.keySet()) {
             Object listener = databaseReferences.get(reference);
@@ -63,6 +75,10 @@ public class BaseFragment extends Fragment {
         if (activity instanceof CoreActivity) {
             ((CoreActivity) activity).hideLoading();
         }
+    }
+
+    protected BasePresenter getPresenter() {
+        return null;
     }
 
     /**

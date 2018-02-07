@@ -2,11 +2,13 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetConversationUseCase;
+import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleNotificationSettingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +23,8 @@ import javax.inject.Inject;
 
 public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetailPresenter {
     @Inject
+    ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    @Inject
     GetConversationUseCase getConversationUseCase;
     @Inject
     ToggleNotificationSettingUseCase toggleNotificationSettingUseCase;
@@ -32,6 +36,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     ConversationPVPDetailPresenter.View view;
 
     private Conversation conversation;
+    private User currentUser;
 
     @Inject
     public ConversationPVPDetailPresenterImpl() {}
@@ -42,9 +47,20 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
             @Override
             public void onNext(Conversation data) {
                 conversation = data;
+                observeUserUpdate();
                 view.updateConversation(data);
             }
         }, conversationId);
+    }
+
+    private void observeUserUpdate() {
+        observeCurrentUserUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                currentUser = user;
+                view.updateBlockStatus(user);
+            }
+        }, null);
     }
 
     @Override
@@ -115,5 +131,6 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
         toggleNotificationSettingUseCase.dispose();
         toggleMaskIncomingUseCase.dispose();
         togglePuzzlePictureUseCase.dispose();
+        observeCurrentUserUseCase.dispose();
     }
 }

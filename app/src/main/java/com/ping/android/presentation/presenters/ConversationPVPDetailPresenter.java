@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
 
 /**
  * Created by tuanluong on 1/31/18.
@@ -30,5 +31,7 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
         void openNicknameScreen(Conversation conversation);
 
         void updatePuzzlePicture(boolean isEnable);
+
+        void updateBlockStatus(User user);
     }
 }

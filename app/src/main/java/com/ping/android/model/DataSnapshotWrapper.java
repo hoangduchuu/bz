@@ -2,6 +2,7 @@ package com.ping.android.model;
 
 import com.google.firebase.database.DataSnapshot;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,12 +16,36 @@ public class DataSnapshotWrapper {
         this.snapshot = snapshot;
     }
 
+    public String getStringValue(String name) {
+        return getStringValue(name, "");
+    }
+
     public String getStringValue(String name, String defaultValue) {
         Object object = getObject(name);
         if (object != null) {
             return object.toString();
         }
         return defaultValue;
+    }
+
+    public double getDoubleValue(String name) {
+        return getDoubleValue(name, 0);
+    }
+
+    public double getDoubleValue(String name, double defaultValue) {
+        Object object = getObject(name);
+        if (object != null) {
+            return Double.parseDouble(object.toString());
+        }
+        return defaultValue;
+    }
+
+    public Map getMapValue(String name) {
+        Object object = getObject(name);
+        if (object != null) {
+            return (Map) object;
+        }
+        return new HashMap();
     }
 
     private Object getObject(String name) {

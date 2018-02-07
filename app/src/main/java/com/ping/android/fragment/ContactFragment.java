@@ -228,7 +228,7 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
 
             }
         };
-        mContactDatabase = mDatabase.child("users").child(currentUser.key).child("friends");
+        mContactDatabase = mDatabase.child("friends").child(currentUser.key);
         mContactDatabase.addChildEventListener(observeContactEvent);
     }
 
