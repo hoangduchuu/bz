@@ -17,7 +17,8 @@ import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
-import com.ping.android.dagger.loggedin.RepositoryModule;
+import com.ping.android.dagger.RepositoryModule;
+import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
 
 import java.io.File;
@@ -33,6 +34,7 @@ public class App extends CoreApp {
     private LoggedInComponent loggedInComponent;
 
     private static Activity activeActivity;
+    private LoggedOutComponent loggedOutComponent;
 
     @Override
     public void onCreate() {
@@ -108,7 +110,7 @@ public class App extends CoreApp {
     public ApplicationComponent getComponent() {
         if (component == null) {
             component = DaggerApplicationComponent.builder()
-                    .applicationModule(new ApplicationModule())
+                    .applicationModule(new ApplicationModule(this))
                     .build();
         }
         return component;
@@ -117,9 +119,16 @@ public class App extends CoreApp {
     public LoggedInComponent getLoggedInComponent() {
         if (loggedInComponent == null) {
             loggedInComponent = getComponent()
-                    .provideLoggedInComponent(new RepositoryModule());
+                    .provideLoggedInComponent();
         }
         return loggedInComponent;
+    }
+
+    public LoggedOutComponent getLoggedOutComponent() {
+        if (loggedOutComponent == null) {
+            loggedOutComponent = getComponent().provideLoggedOutComponent();
+        }
+        return loggedOutComponent;
     }
 
     private void setupActivityListener() {

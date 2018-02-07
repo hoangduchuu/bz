@@ -71,6 +71,7 @@ dependencies {
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
     implementation project(path: ':rxfirebase')
+    implementation project(path: ':rxquickblox')
 
     //SUPPORT ANDROID
     implementation "com.android.support:appcompat-v7:$supportLibVersion"

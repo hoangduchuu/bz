@@ -1,11 +1,16 @@
 package com.ping.android.data.repository;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.User;
+import com.ping.android.ultility.Callback;
+import com.quickblox.users.model.QBUser;
 
 import java.util.List;
 import java.util.Map;
@@ -20,10 +25,33 @@ import io.reactivex.Observable;
 
 public class UserRepositoryImpl implements UserRepository {
     FirebaseDatabase database;
+    FirebaseAuth auth;
+    private User user;
+    private QBUser qbUser;
+
 
     @Inject
     public UserRepositoryImpl() {
         database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public Observable<User> initializeUser() {
+        if (TextUtils.isEmpty(auth.getUid())) {
+            return Observable.error(new NullPointerException());
+        }
+        return getUser(auth.getUid())
+                .doOnNext(user1 -> this.user = user1);
+    }
+
+    @Override
+    public Observable<User> getCurrentUser() {
+        if (user != null) {
+            return Observable.just(user);
+        } else {
+            return initializeUser();
+        }
     }
 
     @Override
@@ -52,5 +80,27 @@ public class UserRepositoryImpl implements UserRepository {
         DatabaseReference callReference = database.getReference("calls").child(userId);
         return RxFirebaseDatabase.getInstance(callReference)
                 .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> updateQuickbloxId(int qbId) {
+        if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
+        String userId = auth.getUid();
+        if (userId == null) return Observable.error(new NullPointerException("Current uuid is null"));
+        DatabaseReference reference = database.getReference().child("users").child(userId).child("quickBloxID");
+        return RxFirebaseDatabase.setValue(reference, qbId)
+                .map(reference1 -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateDeviceId(Map<String, Double> devices) {
+        if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
+        String userId = auth.getUid();
+        if (userId == null) return Observable.error(new NullPointerException("Current uuid is null"));
+        DatabaseReference reference = database.getReference().child("users").child(userId).child("devices");
+        return RxFirebaseDatabase.setValue(reference, devices)
+                .map(reference1 -> true)
+                .toObservable();
     }
 }

@@ -1,5 +1,6 @@
 package com.ping.android.dagger.loggedin;
 
+import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.main.MainComponent;
@@ -17,7 +18,7 @@ import dagger.Subcomponent;
  * Created by tuanluong on 1/23/18.
  */
 @LoggedIn
-@Subcomponent(modules = { RepositoryModule.class })
+@Subcomponent
 public interface LoggedInComponent {
     MainComponent provideMainComponent(MainModule mainModule);
 

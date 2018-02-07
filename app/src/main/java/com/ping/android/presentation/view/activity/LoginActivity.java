@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -21,8 +21,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.ForgotPasswordActivity;
+import com.ping.android.activity.MainActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedout.login.LoginComponent;
+import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.LoginPresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
@@ -33,8 +40,9 @@ import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
 
-public class LoginActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
 
+public class LoginActivity extends CoreActivity implements View.OnClickListener, LoginPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private FirebaseAuth auth;
     private EditText inputName, inputPassword;
@@ -43,10 +51,14 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
     private int timesRead = 0;
     ValueEventListener eventListener = null;
     private UserRepository userRepository;
+    @Inject
+    public LoginPresenter presenter;
+    private LoginComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         auth = FirebaseAuth.getInstance();
         setContentView(R.layout.activity_login);
         bindViews();
@@ -214,23 +226,29 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
                 });
     }
 
+    @Override
+    public LoginPresenter getPresenter() {
+        return presenter;
+    }
+
     private void checkEmailVerified() {
-        UserManager.getInstance().initialize(new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-                if (error == null) {
-                    ServiceManager.getInstance().updateLoginStatus(true);
-                    userRepository.updateRefreshToken();
-
-                    QBUser qbUser = (QBUser) data[0];
-                    startCallService(qbUser);
-
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                }
-            }
-        });
+        presenter.initializeUser();
+//        UserManager.getInstance().initialize(new Callback() {
+//            @Override
+//            public void complete(Object error, Object... data) {
+//                hideLoading();
+//                if (error == null) {
+//                    ServiceManager.getInstance().updateLoginStatus(true);
+//                    userRepository.updateRefreshToken();
+//
+//                    QBUser qbUser = (QBUser) data[0];
+//                    startCallService(qbUser);
+//
+//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//                    finish();
+//                }
+//            }
+//        });
     }
 
     private void startCallService(QBUser qbUser) {
@@ -243,5 +261,18 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener 
         startActivity(new Intent(this, ForgotPasswordActivity.class));
     }
 
+    public LoginComponent getComponent() {
+        if (component == null) {
+            component = getLoggedOutComponent().provideLoginComponent(new LoginModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void navigateToMainScreen() {
+        ServiceManager.getInstance().updateLoginStatus(true);
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        finish();
+    }
 }
 

@@ -16,8 +16,7 @@ import android.text.TextUtils;
 
 import com.ping.android.App;
 import com.ping.android.activity.ChatActivity;
-import com.ping.android.activity.LoadingActivity;
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
@@ -25,12 +24,9 @@ import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
-import com.quickblox.chat.QBChatService;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jivesoftware.smack.chat.Chat;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Created by Tung Tran on 12/2/2017.
@@ -67,7 +63,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                     Log.d("app in fore ground, no need to do any thing");
                     return;
                 }
-                Intent intentNew = new Intent(context, LoadingActivity.class);
+                Intent intentNew = new Intent(context, SplashActivity.class);
                 intentNew.putExtra("INCOMING_CALL", "incoming_call");
                 //intentNew.addFlags(Intent.FLAG_FROM_BACKGROUND);
                 intentNew.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -87,7 +83,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         // Create pending intent, mention the Activity which needs to be
-        Intent intent = new Intent(context, LoadingActivity.class);
+        Intent intent = new Intent(context, SplashActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,

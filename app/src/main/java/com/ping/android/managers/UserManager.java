@@ -11,6 +11,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.device.Device;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
 import com.ping.android.service.QuickBloxRepository;
@@ -37,8 +38,6 @@ public class UserManager {
     private QBUser qbUser;
     private DatabaseReference userDatabaseReference;
     private UserRepository userRepository;
-    private PresenceRepository presenceRepository;
-    private QuickBloxRepository quickBloxRepository;
     private ValueEventListener userUpdateListener;
     private List<Callback> userUpdated;
 
@@ -55,8 +54,6 @@ public class UserManager {
     private UserManager() {
         userUpdated = new ArrayList<>();
         userRepository = new UserRepository();
-        quickBloxRepository = new QuickBloxRepository();
-        presenceRepository = new PresenceRepository();
         friendList = new ArrayList<>();
         blockList = new ArrayList<>();
     }
@@ -71,39 +68,6 @@ public class UserManager {
         if (callback != null) {
             userUpdated.remove(callback);
         }
-    }
-
-    public void initialize(@NonNull Callback callback) {
-        Callback qbCallback = (error, data) -> {
-            if (error == null) {
-                QBUser qbUser = (QBUser) data[0];
-                this.qbUser = qbUser;
-                user.quickBloxID = qbUser.getId();
-                userRepository.updateQBId(user.key, qbUser.getId());
-                setUser(user);
-                initFriendList(user.friends);
-                startCallService();
-            }
-            callback.complete(error, data);
-        };
-        userRepository.initializeUser((error, data) -> {
-            if (error == null) {
-                user = (User) data[0];
-                //userRepository.registerUserPresence();
-                if (user.quickBloxID <= 0) {
-                    quickBloxRepository.signUpNewUserQB(user, qbCallback);
-                } else {
-                    quickBloxRepository.signInCreatedUser(user, qbCallback);
-                }
-            } else {
-                callback.complete(error, data);
-            }
-        });
-//        presenceRepository.listenStatusChange((error, data) -> {
-//            if (error == null) {
-//                userRepository.registerUserPresence();
-//            }
-//        });
     }
 
     private void onBlocksUpdated(Map<String, Object> blocks) {
@@ -175,7 +139,7 @@ public class UserManager {
         });
     }
 
-    private void setUser(User user) {
+    public void setUser(User user) {
         this.user = user;
         this.notifyUserUpdated();
         // TODO Temporary set user for ServiceManager
@@ -208,5 +172,10 @@ public class UserManager {
         CallService.logout(context);
         removeValueEventListener();
         user = null;
+    }
+
+    public void setQbUser(QBUser qbUser) {
+        this.qbUser = qbUser;
+        startCallService();
     }
 }

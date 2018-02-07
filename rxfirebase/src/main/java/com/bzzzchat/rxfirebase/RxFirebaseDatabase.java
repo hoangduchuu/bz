@@ -2,6 +2,7 @@ package com.bzzzchat.rxfirebase;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.bzzzchat.rxfirebase.database.ChildEventFlowableOnSubcribe;
+import com.bzzzchat.rxfirebase.database.SetValueSingleOnSubscribe;
 import com.bzzzchat.rxfirebase.database.SingleUpdateBatchDataOnSubscribe;
 import com.bzzzchat.rxfirebase.database.SingleValueEventOnSubscribe;
 import com.bzzzchat.rxfirebase.database.ValueEventFlowableOnSubcribe;
@@ -47,5 +48,9 @@ public class RxFirebaseDatabase {
 
     public static Single<Boolean> updateBatchData(DatabaseReference reference, Map<String, Object> data) {
         return Single.create(new SingleUpdateBatchDataOnSubscribe(reference, data));
+    }
+
+    public static Single<DatabaseReference> setValue(DatabaseReference reference, Object value) {
+        return Single.create(new SetValueSingleOnSubscribe(reference, value));
     }
 }

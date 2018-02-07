@@ -84,7 +84,7 @@
         </receiver>
 
         <activity
-            android:name=".LoadingActivity"
+            android:name="com.ping.android.presentation.view.activity.SplashActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
@@ -100,12 +100,12 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name=".LoginActivity"
+            android:name="com.ping.android.presentation.view.activity.LoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".RegistrationActivity"
+            android:name="com.ping.android.presentation.view.activity.RegistrationActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
