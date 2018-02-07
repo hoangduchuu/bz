@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background_white"
+    android:background="#efeff4"
     android:orientation="vertical"
     android:clickable="true">
 
@@ -15,11 +15,15 @@
             style="@style/TextTitle"
             android:text="NICKNAMES" />
     </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/main_background_gray"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/nickname_list"
         style="@style/RecyclerView"
-        android:layout_marginTop="10dp"
-        android:layout_weight="1" />
+        android:layout_marginTop="20dp"
+        android:background="@color/main_background_white" />
 
 </LinearLayout>

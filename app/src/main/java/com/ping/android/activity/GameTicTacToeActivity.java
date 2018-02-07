@@ -1,11 +1,19 @@
 package com.ping.android.activity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Vibrator;
+import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.ping.android.model.TicTacToeGame;
 import com.ping.android.utils.UiUtils;
@@ -20,23 +28,31 @@ import io.reactivex.schedulers.Schedulers;
 public class GameTicTacToeActivity extends BaseGameActivity implements View.OnClickListener {
     private final TicTacToeGame game = new TicTacToeGame();
     private List<ImageButton> tiles;
+    private CountDownTimer gameCountDown;
+    private android.os.Vibrator vibrator;
+    private TextView tvTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_tic_tac_toe);
         initResources(getIntent());
-        startGame();
+        showStartDialog();
     }
 
-    private void startGame() {
+    private void showStartDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.tic_tac_toe_title)
                 .setMessage(R.string.tic_tac_toe_description)
                 .setPositiveButton("Start", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
+                    startGame();
                 }).create();
         alertDialog.show();
+    }
+
+    private void startGame() {
+        gameCountDown.start();
     }
 
     @Override
@@ -47,6 +63,17 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     @Override
     protected void initResources(Intent intent) {
         super.initResources(intent);
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int heightPixels = displayMetrics.heightPixels;
+        int widthPixels = displayMetrics.widthPixels;
+        LinearLayout linearLayout = findViewById(R.id.game_container);
+        int dimension = widthPixels;
+        if (widthPixels > heightPixels) {
+            dimension = heightPixels;
+        }
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(dimension, dimension);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        linearLayout.setLayoutParams(params);
         imageView = findViewById(R.id.game_layout_image);
         game.setCurrentPlayer(TicTacToeGame.PLAYER_ONE);
         game.setOnGameOverListener((state, winningIndices) -> {
@@ -66,7 +93,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         tiles.add(findViewById(R.id.b06));
         tiles.add(findViewById(R.id.b07));
         tiles.add(findViewById(R.id.b08));
-        for (ImageButton button: tiles) {
+        for (ImageButton button : tiles) {
             button.setOnClickListener(this);
         }
 
@@ -77,13 +104,54 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
                 imageView.setImageBitmap(originalBitmap);
             }
         });
+        tvTimer = findViewById(R.id.game_timer);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        int gameTimeLimit = 20000;
+        gameCountDown = new CountDownTimer(gameTimeLimit, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                int remainTime = (int) millisUntilFinished / 1000;
+                handler.post(() -> {
+                    if (remainTime == 5) {
+                        tvTimer.setTextColor(ContextCompat.getColor(GameTicTacToeActivity.this, R.color.red));
+                        startVibrate();
+                    }
+                    tvTimer.setText("" + remainTime);
+                });
+            }
+
+            public void onFinish() {
+                tvTimer.post(() -> tvTimer.setText("" + 0));
+                if (!game.isOver()) {
+                    onGameFailed();
+                }
+            }
+        };
+    }
+
+    private void startVibrate() {
+        // Vibrate for 500 milliseconds
+        vibrator.vibrate(5000);
+    }
+
+    private void stopVibrate() {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            vibrator.cancel();
+        }
     }
 
     @Override
     protected void onGamePassed() {
         super.onGamePassed();
+        gameCountDown.cancel();
         imageView.setVisibility(View.VISIBLE);
         findViewById(R.id.game_container).setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onGameFailed() {
+        super.onGameFailed();
+        gameCountDown.cancel();
     }
 
     /**
@@ -94,7 +162,8 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     private void simulateCpuMove() {
         game.getCpuMove()
                 .subscribeOn(Schedulers.computation())
-                .doOnSubscribe(disposable -> {})
+                .doOnSubscribe(disposable -> {
+                })
                 .delay(1, TimeUnit.SECONDS)                 // Make it look like the computer is "thinking"
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(o -> {
@@ -140,5 +209,11 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         // If current player is not user, return
         if (game.currentPlayer() == TicTacToeGame.PLAYER_TWO) return;
         onTileClick(tiles.indexOf(view));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        gameCountDown.cancel();
     }
 }

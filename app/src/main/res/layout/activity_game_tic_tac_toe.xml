@@ -10,14 +10,18 @@
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <TableLayout
+    <LinearLayout
         android:id="@+id/game_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
         android:layout_centerInParent="true"
+        android:orientation="vertical"
         android:background="@color/black">
 
-        <TableRow>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <ImageButton
                 android:id="@+id/b00"
@@ -31,9 +35,12 @@
                 android:id="@+id/b02"
                 style="@style/TicTacToe.Tile"
                 android:layout_marginEnd="0dp" />
-        </TableRow>
+        </LinearLayout>
 
-        <TableRow>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <ImageButton
                 android:id="@+id/b03"
@@ -47,9 +54,12 @@
                 android:id="@+id/b05"
                 style="@style/TicTacToe.Tile"
                 android:layout_marginEnd="0dp" />
-        </TableRow>
+        </LinearLayout>
 
-        <TableRow>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <ImageButton
                 android:id="@+id/b06"
@@ -66,8 +76,16 @@
                 style="@style/TicTacToe.Tile"
                 android:layout_marginBottom="0dp"
                 android:layout_marginEnd="0dp" />
-        </TableRow>
-    </TableLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/game_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:text="20" />
 
     <Button
         android:id="@+id/btn_exit"
