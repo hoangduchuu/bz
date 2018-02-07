@@ -215,5 +215,6 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     protected void onDestroy() {
         super.onDestroy();
         gameCountDown.cancel();
+        stopVibrate();
     }
 }
