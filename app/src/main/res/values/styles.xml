@@ -502,8 +502,9 @@
     <style name="TicTacToe"></style>
 
     <style name="TicTacToe.Tile">
-        <item name="android:layout_width">80dp</item>
-        <item name="android:layout_height">80dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:background">@color/white</item>
         <item name="android:layout_marginEnd">2dp</item>
         <item name="android:layout_marginBottom">2dp</item>
