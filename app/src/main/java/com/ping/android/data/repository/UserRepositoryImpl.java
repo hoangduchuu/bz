@@ -115,6 +115,13 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<Boolean> logout() {
+        this.user = null;
+        this.auth.signOut();
+        return Observable.just(true);
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

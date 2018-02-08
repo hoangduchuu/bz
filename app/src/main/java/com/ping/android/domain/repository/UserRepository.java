@@ -22,4 +22,6 @@ public interface UserRepository {
     Observable<ChildEvent> getCalls(String userId);
     Observable<Boolean> updateQuickbloxId(int qbId);
     Observable<Boolean> updateDeviceId(Map<String, Double> devices);
+
+    Observable<Boolean> logout();
 }

@@ -28,7 +28,7 @@ import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
-import com.ping.android.fragment.ProfileFragment;
+import com.ping.android.presentation.view.fragment.ProfileFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;

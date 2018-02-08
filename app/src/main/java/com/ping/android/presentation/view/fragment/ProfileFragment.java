@@ -1,4 +1,4 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -22,8 +22,14 @@ import com.ping.android.activity.MappingActivity;
 import com.ping.android.activity.PrivacyAndTermActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.TransphabetActivity;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
+import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
+import com.ping.android.fragment.BaseFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ProfilePresenter;
+import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.UserRepository;
@@ -33,13 +39,16 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
+import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import me.leolin.shortcutbadger.ShortcutBadger;
 
-public class ProfileFragment extends BaseFragment implements View.OnClickListener {
+public class ProfileFragment extends BaseFragment implements View.OnClickListener, ProfilePresenter.View {
     private ImagePickerHelper imagePickerHelper;
 
     private ImageView profileImage;
@@ -53,10 +62,14 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private UserRepository userRepository;
     private BzzzStorage bzzzStorage;
+    @Inject
+    ProfilePresenter presenter;
+    ProfileComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         init();
         loadData = true;
         if (loadGUI) {
@@ -163,6 +176,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
+    @Override
+    public ProfilePresenter getPresenter() {
+        return presenter;
+    }
+
     private void onViewUsername() {
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.dialog_detail_username, null);
@@ -264,7 +282,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onLogout() {
-        UserManager.getInstance().logout(getContext());
+        presenter.logout();
+        SubscribeService.unSubscribeFromPushes(getContext());
+        CallService.logout(getContext());
 
         UsersUtils.removeUserData(getContext());
         ServiceManager.getInstance().updateLoginStatus(false);
@@ -344,5 +364,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 userRepository.updateProfilePicture((String) data[0]);
             }
         });
+    }
+
+    public ProfileComponent getComponent() {
+        if (component == null) {
+            component = getComponent(MainComponent.class).provideProfileComponent(new ProfileModule(this));
+        }
+        return component;
     }
 }
