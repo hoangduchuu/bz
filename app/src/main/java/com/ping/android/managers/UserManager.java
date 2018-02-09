@@ -165,12 +165,10 @@ public class UserManager {
         return allUsers;
     }
 
-    public void logout(Context context) {
+    public void logout() {
         userRepository.deleteRefreshToken();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
-        SubscribeService.unSubscribeFromPushes(context);
-        CallService.logout(context);
         removeValueEventListener();
         user = null;
     }

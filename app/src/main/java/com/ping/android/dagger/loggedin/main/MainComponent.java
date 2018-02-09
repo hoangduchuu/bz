@@ -7,6 +7,8 @@ import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
+import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
+import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
 import com.ping.android.dagger.scopes.PerActivity;
 
 import dagger.Subcomponent;
@@ -24,4 +26,6 @@ public interface MainComponent {
     GroupComponent provideGroupComponent(GroupModule groupModule);
 
     CallComponent provideCallComponent(CallModule callModule);
+
+    ProfileComponent provideProfileComponent(ProfileModule profileModule);
 }
