@@ -26,6 +26,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
@@ -80,6 +81,8 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     @Inject
     public SearchUserPresenter searchPresenter;
+    @Inject
+    public AddGroupPresenter presenter;
     public NewGroupComponent component;
 
     @Override
