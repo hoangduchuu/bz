@@ -8,8 +8,12 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.ChildData;
+import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -40,11 +44,18 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                     ChildEvent.Type type = call.deleteStatuses.containsKey(userId) && call.deleteStatuses.get(userId)
                             ? ChildEvent.Type.CHILD_REMOVED : ChildEvent.Type.CHILD_ADDED;
                     if (type == ChildEvent.Type.CHILD_ADDED) {
-                        return userRepository.getUser(call.senderId)
-                                .map(user -> {
-                                    call.opponentUser = user;
-                                    call.members.add(user);
-                                    call.members.add(userManager.getUser());
+                        Map<String, Boolean> memberIDs = new HashMap<>();
+                        memberIDs.put(call.senderId, true);
+                        memberIDs.put(call.receiveId, true);
+                        return userRepository.getUserList(memberIDs)
+                                .map(users -> {
+                                    call.members = users;
+                                    for (User user : call.members) {
+                                        if (!user.key.equals(userId)) {
+                                            call.opponentUser = user;
+                                            break;
+                                        }
+                                    }
                                     return new ChildData<>(call, type);
                                 });
                     } else {
