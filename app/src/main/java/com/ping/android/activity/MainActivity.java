@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
+import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
@@ -43,6 +44,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class MainActivity extends CoreActivity implements HasComponent<MainComponent> {
 
     SharedPreferences prefs;
@@ -53,11 +56,15 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     private ViewPagerAdapter viewPagerAdapter;
     private BadgeHelper badgeHelper;
 
+    @Inject
+    public MainPresenter presenter;
     private MainComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
+        presenter.create();
         String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         if (StringUtils.isNotEmpty(conversationId)){
             Intent intent1 = new Intent(MainActivity.this, ChatActivity.class);
@@ -80,6 +87,11 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     public void onBackPressed() {
         return;
+    }
+
+    @Override
+    public MainPresenter getPresenter() {
+        return presenter;
     }
 
     private void init() {

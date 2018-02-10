@@ -24,6 +24,12 @@ public class GroupRepositoryImpl implements GroupRepository {
     }
 
     @Override
+    public Observable<String> getKey() {
+        String key = database.getReference("groups").push().getKey();
+        return Observable.just(key);
+    }
+
+    @Override
     public Observable<Group> getGroup(String groupId) {
         DatabaseReference groupReference = database.getReference("groups").child(groupId);
         return RxFirebaseDatabase.getInstance(groupReference)
@@ -37,5 +43,21 @@ public class GroupRepositoryImpl implements GroupRepository {
         DatabaseReference groupReference = database.getReference("groups").child(userId);
         return RxFirebaseDatabase.getInstance(groupReference)
                 .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> createGroup(Group group) {
+        DatabaseReference groupReference = database.getReference("groups");
+        return RxFirebaseDatabase.setValue(groupReference, group.toMap())
+                .map(reference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateGroupConversationId(String groupId, String conversationId) {
+        DatabaseReference groupReference = database.getReference("groups").child(groupId).child("conversationID");
+        return RxFirebaseDatabase.setValue(groupReference, conversationId)
+                .map(reference -> true)
+                .toObservable();
     }
 }

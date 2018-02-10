@@ -61,7 +61,8 @@ public class UserRepositoryImpl implements UserRepository {
                     DatabaseReference userReference = database.getReference("users").child(userId);
                     return RxFirebaseDatabase.getInstance(userReference)
                             .onValueEvent()
-                            .map(User::new);
+                            .map(User::new)
+                            .doOnNext(user1 -> user = user1);
                 });
     }
 

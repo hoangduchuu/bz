@@ -22,6 +22,7 @@ import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
+import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -51,7 +52,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-public class AddGroupActivity extends CoreActivity implements View.OnClickListener, SearchUserPresenter.View {
+public class AddGroupActivity extends CoreActivity implements View.OnClickListener, SearchUserPresenter.View, AddGroupPresenter.View {
     private LinearLayoutManager mLinearLayoutManager;
     private EditText etGroupName, edMessage;
     private Button btSave, btSendMessage;
@@ -205,7 +206,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.new_group_save:
-                onCreateGroup("");
+                onCreateGroup();
                 break;
             case R.id.new_group_back:
                 onCancelGroup();
@@ -214,7 +215,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
                 selectContact();
                 break;
             case R.id.new_group_send_message_btn:
-                onCreateGroup(edMessage.getText().toString());
+                onCreateGroup();
                 break;
             case R.id.profile_image:
                 openPicker();
@@ -260,7 +261,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
 
-    private void onCreateGroup(String msg) {
+    private void onCreateGroup() {
         String groupNames = etGroupName.getText().toString().trim();
         if (StringUtils.isEmpty(groupNames)) {
             Toaster.shortToast("Name this group.");
@@ -272,79 +273,14 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         }
 
         List<User> toUsers = new ArrayList<>(selectedUsers);
-//        List<String> unknownPingID = new ArrayList<>();
-//        List<String> toUserID = new ArrayList<>();
-//        for (String id : toUserPingID) {
-//            id = id.trim();
-//            if (StringUtils.isEmpty(id)) {
-//                continue;
-//            }
-//            User contact = getUserByAnyID(id);
-//            if (contact == null) {
-//                unknownPingID.add(id);
-//            } else {
-//                toUsers.add(contact);
-//                toUserID.add(contact.key);
-//            }
-//        }
-//
-//        if (!CollectionUtils.isEmpty(unknownPingID)) {
-//            String message = getString(R.string.validate_invalid_user);
-//            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        if (CollectionUtils.isEmpty(toUserID)) {
-//            Toaster.shortToast("Please input members of group");
-//            return;
-//        }
-
         toUsers.add(fromUser);
-        String groupKey = groupRepository.generateKey();
 
-        showLoading();
-        if (groupProfileImage != null) {
-            bzzzStorage.uploadGroupAvatar(groupKey, groupProfileImage, (error, data) -> {
-                String profileImage = "";
-                if (error == null) {
-                    profileImage = (String) data[0];
-                }
-                createGroup(toUsers, groupKey, msg, profileImage);
-            });
-        } else {
-            createGroup(toUsers, groupKey, msg, "");
-        }
-
-    }
-
-    private void createGroup(List<User> toUsers, String groupKey, String msg, String profileImage) {
-        double timestamp = System.currentTimeMillis() / 1000d;
-        Group group = new Group();
-        group.timestamp = timestamp;
-        group.groupName = etGroupName.getText().toString().trim();
-        group.groupAvatar = profileImage;
-
-        for (User user : toUsers) {
-            group.memberIDs.put(user.key, true);
-        }
-        group.key = groupKey;
-        groupRepository.createGroup(groupKey, group, (error, data) -> {
-            if (error == null) {
-                Conversation conversation = Conversation.createNewGroupConversation(fromUser.key, group);
-                String conversationKey = conversationRepository.generateKey();
-                conversation.key = conversationKey;
-                conversationRepository.createConversation(conversationKey, conversation, (error1, data1) -> {
-                    hideLoading();
-                    if (error1 == null) {
-                        groupRepository.updateConversationId(group, conversationKey);
-                        group.conversationID = conversationKey;
-                        onSendMessage(group, msg);
-                    }
-                });
-            } else {
-                hideLoading();
-            }
-        });
+        CreateGroupUseCase.Params params = new CreateGroupUseCase.Params();
+        params.users = toUsers;
+        params.groupName = groupNames;
+        params.groupProfileImage = groupProfileImage != null ? groupProfileImage.getAbsolutePath() : "";
+        params.message = edMessage.getText().toString();
+        presenter.createGroup(params);
     }
 
     private void onCancelGroup() {
@@ -413,7 +349,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     public NewGroupComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent()
-                    .provideNewGroupComponent(new NewGroupModule(), new SearchUserModule(this));
+                    .provideNewGroupComponent(new NewGroupModule(this), new SearchUserModule(this));
         }
         return component;
     }
@@ -421,5 +357,13 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     @Override
     public void displaySearchResult(List<User> users) {
         adapter.updateData(new ArrayList<>(users));
+    }
+
+    @Override
+    public void moveToChatScreen(String conversationID) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+        startActivity(intent);
+        finish();
     }
 }

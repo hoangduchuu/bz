@@ -3,6 +3,7 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
@@ -28,6 +29,8 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
     @Inject
     ConversationRepository conversationRepository;
     @Inject
+    CommonRepository commonRepository;
+    @Inject
     UserRepository userRepository;
 
     @Inject
@@ -39,15 +42,30 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> conversationRepository.sendMessage(params.buildMessage(user))
-                        .map(message -> message != null));
+                .flatMap(user -> conversationRepository.getMessageKey()
+                        .flatMap(key -> {
+                            Message message = params.buildMessage(user);
+                            message.key = key;
+                            return conversationRepository.sendMessage(params.conversation.key, message);
+                        }))
+                .flatMap(message -> {
+                    Conversation conversation = params.updateConversationFollowMessage(message);
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put(String.format("conversations/%s", conversation.key), conversation.toMap());
+                    // Update message for conversation for each user
+                    for (String toUser : conversation.memberIDs.keySet()) {
+                        if (!message.readAllowed.containsKey(toUser)) continue;
+                        updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+                    }
+                    return commonRepository.updateBatchData(updateData);
+                });
     }
 
-    class Params {
-        Conversation conversation;
-        boolean markStatus;
-        User currentUser;
-        String text;
+    public static class Params {
+        public Conversation conversation;
+        public boolean markStatus;
+        public User currentUser;
+        public String text;
 
         public Message buildMessage(User currentUser) {
             this.currentUser = currentUser;
@@ -58,18 +76,25 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
             return message;
         }
 
+        public Conversation updateConversationFollowMessage(Message message) {
+            Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
+                    text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMarkStatuses(),
+                    getMessageReadStatuses(), message.timestamp, conversation);
+            return newConversation;
+        }
+
         private Map<String, Boolean> getMemberIDs() {
             Map<String, Boolean> memberIDs = new HashMap<>();
-            for (User toUser : conversation.members) {
-                memberIDs.put(toUser.key, true);
+            for (String toUser : conversation.memberIDs.keySet()) {
+                memberIDs.put(toUser, true);
             }
             return memberIDs;
         }
 
         private Map<String, Boolean> getMessageReadStatuses() {
             Map<String, Boolean> markStatuses = new HashMap<>();
-            for (User toUser : conversation.members) {
-                markStatuses.put(toUser.key, false);
+            for (String toUser : conversation.memberIDs.keySet()) {
+                markStatuses.put(toUser, false);
             }
             markStatuses.put(currentUser.key, true);
             return markStatuses;
@@ -84,11 +109,11 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
                     ret.put(conversation.opponentUser.key, true);
                 }
             } else {
-                for (User toUser : conversation.members) {
-                    if (toUser.key.equals(currentUser.key)
-                            || currentUser.blocks.containsKey(toUser.key)
-                            || currentUser.blockBys.containsKey(toUser.key)) continue;
-                    ret.put(toUser.key, true);
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    if (toUser.equals(currentUser.key)
+                            || currentUser.blocks.containsKey(toUser)
+                            || currentUser.blockBys.containsKey(toUser)) continue;
+                    ret.put(toUser, true);
                 }
             }
             return ret;
@@ -96,8 +121,8 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
 
         private Map<String, Integer> getStatuses() {
             Map<String, Integer> deleteStatuses = new HashMap<>();
-            for (User toUser : conversation.members) {
-                deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
+            for (String toUser : conversation.memberIDs.keySet()) {
+                deleteStatuses.put(toUser, Constant.MESSAGE_STATUS_SENT);
             }
             deleteStatuses.put(currentUser.key, Constant.MESSAGE_STATUS_SENT);
             return deleteStatuses;
@@ -114,8 +139,8 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
 
         private Map<String, Boolean> getMessageDeleteStatuses() {
             Map<String, Boolean> deleteStatuses = new HashMap<>();
-            for (User toUser : conversation.members) {
-                deleteStatuses.put(toUser.key, false);
+            for (String toUser : conversation.memberIDs.keySet()) {
+                deleteStatuses.put(toUser, false);
             }
             deleteStatuses.put(currentUser.key, false);
             return deleteStatuses;
