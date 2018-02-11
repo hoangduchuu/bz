@@ -1,7 +1,5 @@
 package com.ping.android.domain.repository;
 
-import java.io.File;
-
 import io.reactivex.Observable;
 
 /**

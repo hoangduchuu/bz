@@ -1,6 +1,7 @@
 package com.ping.android.data.repository;
 
 import android.net.Uri;
+import android.text.TextUtils;
 
 import com.bzzzchat.rxfirebase.RxFirebaseStorage;
 import com.google.firebase.storage.FirebaseStorage;
@@ -27,6 +28,7 @@ public class StorageRepositoryImpl implements StorageRepository {
 
     @Override
     public Observable<String> uploadGroupProfileImage(String groupId, String filePath) {
+        if (TextUtils.isEmpty(filePath)) return Observable.just("");
         File file = new File(filePath);
         String fileName = System.currentTimeMillis() + file.getName();
         String imageStoragePath = "groups" + File.separator + groupId + File.separator + fileName;
