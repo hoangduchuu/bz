@@ -42,7 +42,7 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> conversationRepository.getMessageKey()
+                .flatMap(user -> conversationRepository.getMessageKey(params.conversation.key)
                         .flatMap(key -> {
                             Message message = params.buildMessage(user);
                             message.key = key;

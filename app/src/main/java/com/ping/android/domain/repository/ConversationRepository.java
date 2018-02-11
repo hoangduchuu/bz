@@ -18,6 +18,6 @@ public interface ConversationRepository {
     Observable<ChildEvent> registerConversationsUpdate(String userId);
     Observable<DataSnapshot> observeConversationValue(String conversationId);
 
-    Observable<String> getMessageKey();
+    Observable<String> getMessageKey(String conversationId);
     Observable<Message> sendMessage(String conversationId, Message message);
 }

@@ -47,8 +47,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<String> getMessageKey() {
-        String key = database.getReference("messages").push().getKey();
+    public Observable<String> getMessageKey(String conversationId) {
+        String key = database.getReference("messages").child(conversationId).push().getKey();
         return Observable.just(key);
     }
 
