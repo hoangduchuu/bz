@@ -23,6 +23,8 @@ import com.ping.android.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
+import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
+import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -65,14 +67,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     private User fromUser;
 
-    private ConversationRepository conversationRepository;
-    private GroupRepository groupRepository;
-    private UserRepository userRepository;
-
-    private TextWatcher textWatcher;
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers = new ArrayList<>();
-    private Map<String, User> userList = new HashMap<>();
 
     private boolean isAddMember = false;
 
@@ -127,10 +123,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
-        userRepository = new UserRepository();
-        conversationRepository = new ConversationRepository();
-        groupRepository = new GroupRepository();
-
         fromUser = UserManager.getInstance().getUser();
 
         adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
@@ -280,35 +272,10 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             createGroup(toUsers, edMessage.getText().toString());
         } else {
             User toUser = selectedUsers.get(0);
-            List<User> members = new ArrayList<>();
-            members.add(fromUser);
-            members.add(toUser);
-            String conversationID = fromUser.key.compareTo(toUser.key) > 0 ? fromUser.key + toUser.key : toUser.key + fromUser.key;
-            conversationRepository.getConversation(conversationID, (error, data) -> {
-                if (error == null) {
-                    if (data.length > 0) {
-                        Conversation conversation = (Conversation) data[0];
-                        conversation.opponentUser = toUser;
-                        conversation.members = members;
-                        // Turn notifications on for this user
-                        conversationRepository.updateNotificationSetting(conversationID, fromUser.key, true, null);
-                        onSendMessage(conversationID, edMessage.getText().toString());
-                    } else {
-                        Conversation conversation = Conversation.createNewConversation(fromUser.key, toUser.key);
-                        conversation.opponentUser = toUser;
-                        conversation.members = members;
-                        conversationRepository.createConversation(conversationID, conversation, new Callback() {
-                            @Override
-                            public void complete(Object error, Object... data) {
-                                if (error == null) {
-                                    //startConversation(conversation);
-                                    onSendMessage(conversationID, edMessage.getText().toString());
-                                }
-                            }
-                        });
-                    }
-                }
-            });
+            CreatePVPConversationUseCase.Params params = new CreatePVPConversationUseCase.Params();
+            params.toUser = toUser;
+            params.message = edMessage.getText().toString();
+            presenter.createPVPConversation(params);
         }
     }
 
@@ -317,31 +284,12 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         for (User user : toUsers) {
             displayNames.add(user.getDisplayName());
         }
-        double timestamp = System.currentTimeMillis() / 1000d;
-        Group group = new Group();
-        group.timestamp = timestamp;
-        group.groupName = TextUtils.join(", ", displayNames);
-        group.groupAvatar = "";
-
-        for (User user : toUsers) {
-            group.memberIDs.put(user.key, true);
-        }
-        String groupKey = groupRepository.generateKey();
-        group.key = groupKey;
-        groupRepository.createGroup(groupKey, group, (error, data) -> {
-            if (error == null) {
-                Conversation conversation = Conversation.createNewGroupConversation(fromUser.key, group);
-                String conversationKey = conversationRepository.generateKey();
-                conversation.key = conversationKey;
-                conversationRepository.createConversation(conversationKey, conversation, (error1, data1) -> {
-                    if (error1 == null) {
-                        groupRepository.updateConversationId(group, conversationKey);
-                        group.conversationID = conversationKey;
-                        onSendMessage(group.conversationID, msg);
-                    }
-                });
-            }
-        });
+        CreateGroupUseCase.Params params = new CreateGroupUseCase.Params();
+        params.users = toUsers;
+        params.groupName = TextUtils.join(", ", displayNames);
+        params.groupProfileImage = "";
+        params.message = msg;
+        presenter.createGroup(params);
     }
 
     @Override
@@ -392,5 +340,13 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     @Override
     public void displaySearchResult(List<User> users) {
         adapter.updateData(new ArrayList<>(users));
+    }
+
+    @Override
+    public void moveToChatScreen(String conversationId) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+        startActivity(intent);
+        finish();
     }
 }

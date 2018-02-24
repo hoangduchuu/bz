@@ -41,8 +41,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<DataSnapshot> observeConversationValue(String conversationId) {
-        Query query = database.getReference("conversations").child(conversationId);
+    public Observable<DataSnapshot> observeConversationValue(String userId, String conversationId) {
+        Query query = database.getReference("conversations").child(userId).child(conversationId);
         return RxFirebaseDatabase.getInstance(query).onValueEvent();
     }
 
@@ -57,6 +57,19 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         DatabaseReference reference = database.getReference("messages").child(conversationId).child(message.key);
         return RxFirebaseDatabase.setValue(reference, message.toMap())
                 .map(reference1 -> message)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Conversation> getConversation(String userId, String conversationID) {
+        Query query = database.getReference("conversations")
+                .child(userId).child(conversationID);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    Conversation conversation = Conversation.from(dataSnapshot);
+                    return conversation;
+                })
                 .toObservable();
     }
 

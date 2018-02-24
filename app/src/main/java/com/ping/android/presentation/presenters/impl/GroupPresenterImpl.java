@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
+import com.ping.android.domain.usecase.conversation.CreateGroupConversationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
@@ -17,6 +18,8 @@ import javax.inject.Inject;
 public class GroupPresenterImpl implements GroupPresenter {
     @Inject
     ObserveGroupsUseCase observeGroupsUseCase;
+    @Inject
+    CreateGroupConversationUseCase createGroupConversationUseCase;
     @Inject
     GroupPresenter.View view;
 
@@ -48,7 +51,20 @@ public class GroupPresenterImpl implements GroupPresenter {
     }
 
     @Override
+    public void createConversation(Group group) {
+        view.showLoading();
+        createGroupConversationUseCase.execute(new DefaultObserver<String>() {
+            @Override
+            public void onNext(String s) {
+                view.hideLoading();
+                view.moveToChatScreen(s);
+            }
+        }, group);
+    }
+
+    @Override
     public void destroy() {
         observeGroupsUseCase.dispose();
+        createGroupConversationUseCase.dispose();
     }
 }

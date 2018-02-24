@@ -14,10 +14,16 @@ import io.reactivex.ObservableSource;
 
 public interface ConversationRepository {
     Observable<String> getKey();
+
     Observable<Boolean> createConversation(Conversation conversation);
+
     Observable<ChildEvent> registerConversationsUpdate(String userId);
-    Observable<DataSnapshot> observeConversationValue(String conversationId);
+
+    Observable<DataSnapshot> observeConversationValue(String userId, String conversationId);
 
     Observable<String> getMessageKey(String conversationId);
+
     Observable<Message> sendMessage(String conversationId, Message message);
+
+    Observable<Conversation> getConversation(String key, String conversationID);
 }

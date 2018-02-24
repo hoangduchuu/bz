@@ -45,10 +45,10 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Group> {
         updateValue.put(String.format("conversations/%s/%s", userId, group.conversationID), null);
 
         // 2. Update members for group & conversation
-        updateValue.put(String.format("groups/%s/deleteStatuses", group.key), group.deleteStatuses);
-        updateValue.put(String.format("conversations/%s/deleteStatuses", group.conversationID), group.deleteStatuses);
-        updateValue.put(String.format("groups/%s/memberIDs", group.key), group.memberIDs);
-        updateValue.put(String.format("conversations/%s/memberIDs", group.conversationID), group.memberIDs);
+//        updateValue.put(String.format("groups/%s/deleteStatuses", group.key), group.deleteStatuses);
+//        updateValue.put(String.format("conversations/%s/deleteStatuses", group.conversationID), group.deleteStatuses);
+//        updateValue.put(String.format("groups/%s/memberIDs", group.key), group.memberIDs);
+//        updateValue.put(String.format("conversations/%s/memberIDs", group.conversationID), group.memberIDs);
         for (String id : group.memberIDs.keySet()) {
             if (id.equals(userId)) continue;
             updateValue.put(String.format("groups/%s/%s/deleteStatuses", id, group.key), group.deleteStatuses);

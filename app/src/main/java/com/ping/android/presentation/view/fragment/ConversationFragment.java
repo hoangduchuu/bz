@@ -18,7 +18,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.ping.android.activity.ChatActivity;
-import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
@@ -255,7 +254,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         Intent intent = new Intent(getContext(), ConversationDetailActivity.class);
         Bundle extras = new Bundle();
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, conversation.key);
-        intent.putExtra(GroupProfileActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        intent.putExtra(ConversationDetailActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
         intent.putExtras(extras);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),

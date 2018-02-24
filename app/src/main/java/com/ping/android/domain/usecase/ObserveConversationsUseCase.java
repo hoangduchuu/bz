@@ -74,7 +74,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 return childData;
                             }).flatMap(childData -> {
                                 if (childData.data.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                                    return groupRepository.getGroup(childData.data.groupID)
+                                    return groupRepository.getGroup(userKey, childData.data.groupID)
                                             .map(group -> {
                                                 childData.data.group = group;
                                                 return childData;

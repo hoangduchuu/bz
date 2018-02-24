@@ -32,7 +32,7 @@ public class UpdateGroupNameUseCase extends UseCase<Boolean, UpdateGroupNameUseC
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("groups/%s/groupName", params.groupId), params.name);
+//        updateValue.put(String.format("groups/%s/groupName", params.groupId), params.name);
         for (String userId: params.userIds) {
             updateValue.put(String.format("groups/%s/%s/groupName", userId, params.groupId), params.name);
         }

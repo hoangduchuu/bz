@@ -200,6 +200,13 @@
             return false;
         }
 
+        public static boolean getBooleanFrom(Map<String, Boolean> map, String key) {
+            if (map != null && map.containsKey(key)) {
+                return map.get(key);
+            }
+            return false;
+        }
+
         public static String convertTimestampToTime(double seconds) {
             long milliSeconds = (long) (seconds * 1000);
 

@@ -28,41 +28,39 @@ public class GetConversationUseCase extends UseCase<Conversation, String> {
     UserRepository userRepository;
     @Inject
     GroupRepository groupRepository;
-    UserManager userManager;
 
     @Inject
     public GetConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull
     @Override
     public Observable<Conversation> buildUseCaseObservable(String s) {
-        String userKey = userManager.getUser().key;
-        return conversationRepository.observeConversationValue(s)
-                .flatMap(dataSnapshot -> {
-                    Conversation conversation = Conversation.from(dataSnapshot);
-                    return userRepository.getUserList(conversation.memberIDs)
-                            .flatMap(users -> {
-                                conversation.members = users;
-                                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                                    for (User user : users) {
-                                        if (!user.key.equals(userKey)) {
-                                            conversation.opponentUser = user;
-                                            break;
+        return userRepository.getCurrentUser()
+                .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
+                        .flatMap(dataSnapshot -> {
+                            Conversation conversation = Conversation.from(dataSnapshot);
+                            return userRepository.getUserList(conversation.memberIDs)
+                                    .flatMap(users -> {
+                                        conversation.members = users;
+                                        if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                                            for (User user1 : users) {
+                                                if (!user1.key.equals(user.key)) {
+                                                    conversation.opponentUser = user1;
+                                                    break;
+                                                }
+                                            }
+                                            return Observable.just(conversation);
+                                        } else {
+                                            return groupRepository.getGroup(user.key, conversation.groupID)
+                                                    .map(group -> {
+                                                        group.members = conversation.members;
+                                                        conversation.group = group;
+                                                        return conversation;
+                                                    });
                                         }
-                                    }
-                                    return Observable.just(conversation);
-                                } else {
-                                    return groupRepository.getGroup(conversation.groupID)
-                                            .map(group -> {
-                                                group.members = conversation.members;
-                                                conversation.group = group;
-                                                return conversation;
-                                            });
-                                }
-                            });
-                });
+                                    });
+                        }));
     }
 }

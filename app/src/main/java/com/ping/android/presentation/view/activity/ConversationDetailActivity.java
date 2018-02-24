@@ -14,6 +14,7 @@ import com.ping.android.utils.Navigator;
 public class ConversationDetailActivity extends CoreActivity implements HasComponent<ConversationDetailComponent> {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
+    public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
 
     Navigator navigator;
 

@@ -24,32 +24,30 @@ public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroup
     GroupRepository groupRepository;
     @Inject
     UserRepository userRepository;
-    UserManager userManager;
 
     @Inject
     public ObserveGroupsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull
     @Override
     public Observable<ChildData<Group>> buildUseCaseObservable(Params params) {
-        String userId = userManager.getUser().key;
-        return groupRepository.groupsChange(userId)
-                .flatMap(childEvent -> {
-                    Group group = Group.from(childEvent.dataSnapshot);
-                    if (params.initUsers) {
-                        return userRepository.getUserList(group.memberIDs)
-                                .map(users -> {
-                                    group.members = users;
-                                    return new ChildData<>(group, childEvent.type);
-                                });
-                    } else {
-                        ChildData<Group> childData = new ChildData<>(group, childEvent.type);
-                        return Observable.just(childData);
-                    }
-                });
+        return userRepository.getCurrentUser()
+                .flatMap(user -> groupRepository.groupsChange(user.key)
+                        .flatMap(childEvent -> {
+                            Group group = Group.from(childEvent.dataSnapshot);
+                            if (params.initUsers) {
+                                return userRepository.getUserList(group.memberIDs)
+                                        .map(users -> {
+                                            group.members = users;
+                                            return new ChildData<>(group, childEvent.type);
+                                        });
+                            } else {
+                                ChildData<Group> childData = new ChildData<>(group, childEvent.type);
+                                return Observable.just(childData);
+                            }
+                        }));
     }
 
     public static class Params {

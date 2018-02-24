@@ -41,7 +41,7 @@ public class UploadGroupProfileImageUseCase extends UseCase<Boolean, UploadGroup
                 .flatMap(s -> {
                     // Should upload image url to group
                     Map<String, Object> updateValue = new HashMap<>();
-                    updateValue.put(String.format("groups/%s/groupAvatar", params.groupId), s);
+                    //updateValue.put(String.format("groups/%s/groupAvatar", params.groupId), s);
                     for (String userId : params.memberIds) {
                         updateValue.put(String.format("groups/%s/%s/groupAvatar", userId, params.groupId), s);
                     }
