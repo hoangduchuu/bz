@@ -20,6 +20,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
@@ -65,10 +66,10 @@ import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
+import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
@@ -330,7 +331,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     public void onDoubleTap(Message message, boolean maskStatus) {
         if (message.messageType == Constant.MSG_TYPE_TEXT) {
             Message lastMessage = adapter.getLastMessage();
-            boolean isLastMessage = lastMessage != null && lastMessage.key.equals(message.key);
+            boolean isLastMessage = lastMessage != null && TextUtils.equals(lastMessage.key, message.key);
             List<Message> messages = new ArrayList<>(1);
             messages.add(message);
             messageRepository.updateMessageMask(messages, conversationID, fromUser.key, isLastMessage, maskStatus);
@@ -515,6 +516,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         layoutBottomMenu = (RelativeLayout) findViewById(R.id.chat_bottom_menu);
 
         edMessage = (EditText) findViewById(R.id.chat_message_tv);
+        //edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
+
 
         visualizerView = (RecorderVisualizerView) findViewById(R.id.visualizer);
         btCancelRecord = (Button) findViewById(R.id.chat_cancel_record);
@@ -1018,7 +1021,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 updateSendButtonStatus(!TextUtils.isEmpty(charSequence.toString()));
                 if (!tgMarkOut.isChecked()) {
                     return;
@@ -1026,22 +1029,62 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
                 String newOriginalText = "";
                 String displayText = charSequence.toString();
-                if (i1 < i2) {
-                    newOriginalText += originalText.substring(0, i + i1);
-                    newOriginalText += displayText.substring(i + i1, i + i2);
-                    if (originalText.length() >= i + i1) {
-                        newOriginalText += originalText.substring(i + i1);
-                    }
-                } else {
-                    newOriginalText += originalText.substring(0, i + i2);
-                    newOriginalText += originalText.substring(i + i1);
+                if (TextUtils.equals(displayText, ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText))){
+                    return;
                 }
-                selectPosition = i + i2;
+
+                String encodedStart = "", encodedEnd = "", originalStart = "", originalEnd = "", displayStart = "";
+                int originalStartIdx = 0;
+                int displayTextLength = displayText.length();
+                boolean startFound = false, endFound = false;
+
+                for(int index = 0; index < originalText.length(); index++){
+                    encodedStart = encodedStart + ServiceManager.getInstance().encodeMessage(getApplicationContext(),
+                            originalText.substring(index, index + 1));
+
+                    if(displayTextLength >= encodedStart.length()) {
+                        displayStart = displayText.substring(0, encodedStart.length());
+                    }
+                    if (TextUtils.equals(displayStart, encodedStart)){
+                        startFound = true;
+                        originalStartIdx = index + 1;
+                        originalStart += originalText.substring(index, index + 1);
+                    }else{
+                        break;
+                    }
+                }
+                encodedStart = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalStart);
+
+                if(displayTextLength > encodedStart.length()){
+                    for(int index = originalText.length() - 1;index >= originalStartIdx; index--){
+                        encodedEnd = ServiceManager.getInstance().encodeMessage(getApplicationContext(),
+                                originalText.substring(index, index + 1)) + encodedEnd;
+                        if(TextUtils.equals(displayText.substring(displayTextLength - encodedEnd.length()), encodedEnd)){
+                            endFound = true;
+                            originalEnd = originalText.substring(index, index + 1) + originalEnd;
+                        }else{
+                            break;
+                        }
+                    }
+                }
+                newOriginalText = originalStart;
+                int middleStartIdx = startFound ? encodedStart.length() : 0;
+                int middleEndIdx = endFound ? displayText.lastIndexOf(
+                        ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalEnd)): displayTextLength;
+                String originalMiddle = middleEndIdx > middleStartIdx ? displayText.substring(middleStartIdx, middleEndIdx): "";
+                String encodedMiddle = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalMiddle);
+                newOriginalText = newOriginalText + originalMiddle + originalEnd;
+
+
+                selectPosition = endFound ? encodedStart.length() + encodedMiddle.length()
+                        : encodedStart.length() + encodedMiddle.length() + encodedEnd.length();
                 originalText = newOriginalText;
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
+
+                //send typing status
                 if (!TextUtils.isEmpty(edMessage.getText()) && !isTyping) {
                     isTyping = true;
                     updateConversationTyping(isTyping);
@@ -1056,6 +1099,10 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
 
                 String encodeText = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText);
+                if (TextUtils.equals(edMessage.getText(), encodeText)){
+                    return;
+                }
+
                 edMessage.removeTextChangedListener(textWatcher);
                 edMessage.setText(encodeText);
                 if (selectPosition > 0 && selectPosition <= encodeText.length()) {
@@ -1067,12 +1114,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             }
         };
         edMessage.addTextChangedListener(textWatcher);
-        edMessage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                setButtonsState(R.id.chat_text_btn);
-                return false;
-            }
+        edMessage.setOnTouchListener((view, motionEvent) -> {
+            setButtonsState(R.id.chat_text_btn);
+            return false;
         });
     }
 
@@ -1261,14 +1305,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {
             edMessage.setText(ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText));
+            select = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText.substring(0, select)).length();
         } else {
             edMessage.setText(originalText);
         }
         try {
-            if (select > 0 && select <= originalText.length()) {
+            if (select > 0 && select <= edMessage.getText().length()) {
                 edMessage.setSelection(select);
             } else {
-                edMessage.setSelection(originalText.length());
+                edMessage.setSelection(edMessage.getText().length());
 
             }
         } catch (IndexOutOfBoundsException ex) {
@@ -1664,7 +1709,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (CollectionUtils.isEmpty(messages)) {
             return;
         }
-        conversationRepository.updateTypingIndicatorForUser(conversationID, fromUserID, typing);
+        conversationRepository.updateTypingIndicatorForUser(originalConversation, fromUserID, typing);
     }
 
     private boolean beAbleToSendMessage() {

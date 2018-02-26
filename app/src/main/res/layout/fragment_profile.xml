@@ -246,6 +246,14 @@
 
                 </LinearLayout>
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_build_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="10dp"
+                android:text="Version: 1.0"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

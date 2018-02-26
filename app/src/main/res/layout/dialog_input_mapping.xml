@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:inputType="textNoSuggestions"
-        android:maxLength="1">
+        android:maxLength="2">
 
     </EditText>
 
