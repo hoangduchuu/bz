@@ -15,9 +15,6 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
@@ -25,7 +22,6 @@ import com.ping.android.fragment.BaseFragment;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.activity.ChatActivity;
-import com.ping.android.activity.GroupProfileActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.GroupAdapter;
@@ -33,16 +29,14 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.GroupRepository;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +51,8 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     private SearchView searchView;
     private Button btnEditGroup, btnAddGroup, btnLeaveGroup, btnDeleteGroup;
 
-    private User currentUser;
     private GroupAdapter adapter;
     private boolean loadData, loadGUI, isEditMode;
-
-    private ConversationRepository conversationRepository;
-    private GroupRepository groupRepository;
 
     @Inject
     GroupPresenter presenter;
@@ -138,11 +128,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     private void init() {
-        conversationRepository = new ConversationRepository();
-        groupRepository = new GroupRepository();
-        currentUser = UserManager.getInstance().getUser();
         adapter = new GroupAdapter(this);
-        //getGroup();
     }
 
     private void bindData() {
@@ -162,12 +148,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
         updateEditMode();
     }
 
@@ -186,7 +167,8 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     private void onLeave() {
-        showLoading();
+        // FIXME: currently, this feature is disabled.
+        /*showLoading();
         List<Group> selectedGroups = adapter.getSelectGroup();
         AtomicInteger counter = new AtomicInteger(0);
         Callback callback = (error, data) -> {
@@ -199,14 +181,15 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         };
         for (Group group : selectedGroups) {
             groupRepository.leaveGroup(group, callback);
-        }
+        }*/
     }
 
     private void onDelete() {
-        List<Group> selectedGroups = adapter.getSelectGroup();
+        // FIXME: currently, this feature is disabled.
+        /*List<Group> selectedGroups = adapter.getSelectGroup();
         ServiceManager.getInstance().deleteGroup(selectedGroups);
         adapter.cleanSelectGroup();
-        updateEditMode();
+        updateEditMode();*/
     }
 
     private void updateEditMode() {
@@ -235,39 +218,30 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     @Override
     public void onSendMessage(Group group) {
         if (TextUtils.isEmpty(group.conversationID)) {
-            Conversation conversation = Conversation.createNewGroupConversation(currentUser.key, group);
-            String conversationKey = conversationRepository.generateKey();
-            conversation.key = conversationKey;
-            conversationRepository.createConversation(conversationKey, conversation, (error, data) -> {
-                groupRepository.updateConversationId(group, conversationKey);
-                group.conversationID = conversationKey;
-                sendMessage(group);
-            });
+            presenter.createConversation(group);
         } else {
-            sendMessage(group);
+            moveToChatScreen(group.conversationID);
         }
 
     }
 
     @Override
     public void onViewProfile(Group group, Pair<View, String>... sharedElements) {
-        Intent intent = new Intent(getContext(), GroupProfileActivity.class);
-        intent.putExtra(Constant.START_ACTIVITY_GROUP_ID, group.key);
-        intent.putExtra(GroupProfileActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
-        ActivityOptionsCompat options = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(getActivity(), sharedElements);
+        Intent intent = new Intent(getContext(), ConversationDetailActivity.class);
+        Bundle extras = new Bundle();
+        extras.putString(ConversationDetailActivity.CONVERSATION_KEY, group.conversationID);
+        intent.putExtra(ConversationDetailActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        intent.putExtras(extras);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                getActivity(),
+                sharedElements
+        );
         startActivity(intent, options.toBundle());
     }
 
     @Override
-    public void onSelect(ArrayList<Group> groups){
+    public void onSelect(ArrayList<Group> groups) {
         updateEditMode();
-    }
-
-    private void sendMessage(Group group) {
-        Intent intent = new Intent(getContext(), ChatActivity.class);
-        intent.putExtra(ChatActivity.CONVERSATION_ID, group.conversationID);
-        getContext().startActivity(intent);
     }
 
     public GroupComponent getComponent() {
@@ -296,5 +270,12 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     @Override
     public void deleteGroup(Group data) {
         adapter.deleteGroup(data.key);
+    }
+
+    @Override
+    public void moveToChatScreen(String conversationId) {
+        Intent intent = new Intent(getContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+        getContext().startActivity(intent);
     }
 }

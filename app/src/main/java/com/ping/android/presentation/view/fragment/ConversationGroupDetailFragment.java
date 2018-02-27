@@ -67,8 +67,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
 
-    private BzzzStorage bzzzStorage;
-
     @Inject
     ConversationGroupDetailPresenter presenter;
     private ConversationDetailGroupComponent component;

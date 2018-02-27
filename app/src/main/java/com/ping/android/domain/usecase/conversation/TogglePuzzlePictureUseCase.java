@@ -36,7 +36,7 @@ public class TogglePuzzlePictureUseCase extends UseCase<Boolean, TogglePuzzlePic
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         String userId = userManager.getUser().key;
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/puzzleMessages/%s", params.conversationId, userId), params.value);
+        //updateValue.put(String.format("conversations/%s/puzzleMessages/%s", params.conversationId, userId), params.value);
         for(String userID: params.memberIds) {
             updateValue.put(String.format("conversations/%s/%s/puzzleMessages/%s", userID, params.conversationId, userId), params.value);
         }

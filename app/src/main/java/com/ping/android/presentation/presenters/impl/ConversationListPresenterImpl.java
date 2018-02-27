@@ -47,16 +47,16 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                 }
             }
         }, null);
-//        observeGroupsUseCase.execute(new DefaultObserver<ChildData<Group>>() {
-//            @Override
-//            public void onNext(ChildData<Group> groupChildData) {
-//                if (groupChildData != null) {
-//                    if (groupChildData.type == ChildEvent.Type.CHILD_CHANGED) {
-//                        view.updateGroupConversation(groupChildData.data);
-//                    }
-//                }
-//            }
-//        }, new ObserveGroupsUseCase.Params(false));
+        observeGroupsUseCase.execute(new DefaultObserver<ChildData<Group>>() {
+            @Override
+            public void onNext(ChildData<Group> groupChildData) {
+                if (groupChildData != null) {
+                    if (groupChildData.type == ChildEvent.Type.CHILD_CHANGED) {
+                        view.updateGroupConversation(groupChildData.data);
+                    }
+                }
+            }
+        }, new ObserveGroupsUseCase.Params(false));
     }
 
     @Override

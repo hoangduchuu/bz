@@ -12,7 +12,7 @@ import io.reactivex.ObservableSource;
 
 public interface GroupRepository {
     Observable<String> getKey();
-    Observable<Group> getGroup(String groupId);
+    Observable<Group> getGroup(String userId, String groupId);
     Observable<ChildEvent> groupsChange(String userId);
 
     Observable<Boolean> createGroup(Group group);

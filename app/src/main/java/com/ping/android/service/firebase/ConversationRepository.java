@@ -25,25 +25,6 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         databaseReference = database.getReference().child("conversations").child(UserManager.getInstance().getUser().key);
     }
 
-    public void getConversation(String key, Callback callback) {
-        databaseReference.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Conversation from = Conversation.from(dataSnapshot);
-                    callback.complete(null, from);
-                } else {
-                    callback.complete(null);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                callback.complete(databaseError);
-            }
-        });
-    }
-
     public void getMaskOutput(String conversationId, String userId, Callback callback) {
         databaseReference.child(conversationId).child("maskOutputs").child(userId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -83,7 +64,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void createConversation(String key, Conversation conversation, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s", key), conversation.toMap());
+        //updateValue.put(String.format("conversations/%s", key), conversation.toMap());
         for (String userKey : conversation.memberIDs.keySet()) {
             updateValue.put(String.format("conversations/%s/%s", userKey, key), conversation.toMap());
         }
@@ -92,14 +73,14 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void updateUserReadStatus(String conversationID, String userId, boolean value) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/readStatuses/%s", conversationID, userId), value);
+        //updateValue.put(String.format("conversations/%s/readStatuses/%s", conversationID, userId), value);
         updateValue.put(String.format("conversations/%s/%s/readStatuses/%s", userId, conversationID, userId), value);
         updateBatchData(updateValue, null);
     }
 
     public void updateNotificationSetting(String conversationId, String userId, boolean value, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
+        //updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
         updateValue.put(String.format("conversations/%s/%s/notifications/%s", userId, conversationId, userId), value);
         updateBatchData(updateValue, callback);
     }
@@ -110,7 +91,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         }
         conversation.maskMessages.put(currentUserId(), data);
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/maskMessages/%s", conversation.key, currentUserId()), data);
+        //updateValue.put(String.format("conversations/%s/maskMessages/%s", conversation.key, currentUserId()), data);
         for(String userID: conversation.memberIDs.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/maskMessages/%s", userID, conversation.key, currentUserId()), data);
         }
@@ -123,7 +104,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         }
         conversation.puzzleMessages.put(currentUserId(), data);
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/puzzleMessages/%s", conversation.key, currentUserId()), data);
+        //updateValue.put(String.format("conversations/%s/puzzleMessages/%s", conversation.key, currentUserId()), data);
         for(String userID: conversation.memberIDs.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/puzzleMessages/%s", userID, conversation.key, currentUserId()), data);
         }
@@ -141,7 +122,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
     public void updateConversation(String conversationID, Conversation conversation,
                                    Map<String, Boolean> readAllowance) {
         Map<String, Object> updateData = new HashMap<>();
-        updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
+        //updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
         // Update message for conversation for each user
         for (User toUser : conversation.members) {
             if (!readAllowance.containsKey(toUser.key)) continue;
@@ -152,7 +133,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void updateUserNickname(String conversationId, Nickname nickname, Map<String, Boolean> userIds, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, nickname.userId), nickname.nickName);
+        //updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, nickname.userId), nickname.nickName);
         for (String userId : userIds.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/nickNames/%s", userId, conversationId, nickname.userId), nickname.nickName);
         }
@@ -163,8 +144,8 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         double timestamp = System.currentTimeMillis() / 1000d;
         Map<String, Object> updateValue = new HashMap<>();
         for (Conversation conversation : conversations) {
-            updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, currentUserId()), true);
-            updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, currentUserId()), timestamp);
+            //updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, currentUserId()), true);
+            //updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, currentUserId()), timestamp);
             for (String userId : conversation.memberIDs.keySet()) {
                 updateValue.put(String.format("conversations/%s/%s/deleteStatuses/%s", userId, conversation.key, currentUserId()), true);
                 updateValue.put(String.format("conversations/%s/%s/deleteTimestamps/%s", userId, conversation.key, currentUserId()), timestamp);

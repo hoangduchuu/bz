@@ -11,9 +11,15 @@ import com.ping.android.model.Group;
 public interface GroupPresenter extends BasePresenter {
     void getGroups();
 
+    void createConversation(Group group);
+
     interface View extends BaseView {
         void addGroup(Group group);
+
         void updateGroup(Group group);
+
         void deleteGroup(Group data);
+
+        void moveToChatScreen(String conversationId);
     }
 }

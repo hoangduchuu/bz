@@ -73,7 +73,7 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                         .flatMap(s -> {
                             group.groupAvatar = s;
                             Map<String, Object> updateValue = new HashMap<>();
-                            updateValue.put(String.format("groups/%s", group.key), group.toMap());
+                            //updateValue.put(String.format("groups/%s", group.key), group.toMap());
                             for (String userId : group.memberIDs.keySet()) {
                                 updateValue.put(String.format("groups/%s/%s", userId, group.key), group.toMap());
                             }
@@ -86,13 +86,15 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                         })
                         .flatMap(conversation -> {
                             Map<String, Object> updateValue = new HashMap<>();
-                            updateValue.put(String.format("conversations/%s", conversation.key), conversation.toMap());
+                            //updateValue.put(String.format("conversations/%s", conversation.key), conversation.toMap());
                             for (String userKey : conversation.memberIDs.keySet()) {
                                 updateValue.put(String.format("conversations/%s/%s", userKey, conversation.key), conversation.toMap());
+                                updateValue.put(String.format("groups/%s/%s/conversationID", userKey, conversation.groupID), conversation.key);
                             }
                             return commonRepository.updateBatchData(updateValue)
-                                    .zipWith(groupRepository.updateGroupConversationId(conversation.groupID, conversation.key),
-                                            (aBoolean, aBoolean2) -> conversation);
+                                    .map(aBoolean -> conversation);
+                                    //.zipWith(groupRepository.updateGroupConversationId(conversation.groupID, conversation.key),
+                                    //        (aBoolean, aBoolean2) -> conversation);
                         })
                 )
                 .flatMap(conversation -> {
