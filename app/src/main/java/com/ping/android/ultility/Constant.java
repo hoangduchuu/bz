@@ -27,7 +27,7 @@ public class Constant {
     public static final int MESSAGE_STATUS_ERROR = 2;
     public static final int MESSAGE_STATUS_GAME_PASS = 3;
     public static final int MESSAGE_STATUS_GAME_FAIL = 4;
-    public static final int MESSAGE_STATUS_GAME_INIT = 5;
+    public static final int MESSAGE_STATUS_READ = 5;
     public static final int MESSAGE_STATUS_GAME_DELIVERED = 6;
 
     public static final int CALL_STATUS_SUCCESS = 0;

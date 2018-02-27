@@ -7,6 +7,8 @@ import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
+import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
+import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
@@ -18,6 +20,8 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -36,6 +40,10 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveMessageUseCase observeMessageUseCase;
     @Inject
     ObserveGroupValueUseCase observeGroupValueUseCase;
+    @Inject
+    GetLastMessagesUseCase getLastMessagesUseCase;
+    @Inject
+    LoadMoreMessagesUseCase loadMoreMessagesUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -94,12 +102,33 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
             }
-        }, conversation);
+        }, new ObserveMessageUseCase.Params(conversation, currentUser));
+    }
+
+    @Override
+    public void loadMoreMessage(double oldestTimestamp) {
+        double endTimestamp = oldestTimestamp - 0.001;
+        loadMoreMessagesUseCase.execute(new DefaultObserver<LoadMoreMessagesUseCase.Output>() {
+            @Override
+            public void onNext(LoadMoreMessagesUseCase.Output output) {
+                view.updateLastMessages(output.messages, output.canLoadMore);
+            }
+        }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
 
     @Override
     public void sendTextMessage() {
 
+    }
+
+    private void getLastMessages(Conversation conversation) {
+        getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
+            @Override
+            public void onNext(GetLastMessagesUseCase.Output output) {
+                view.updateLastMessages(output.messages, output.canLoadMore);
+                observeMessageUpdate();
+            }
+        }, conversation);
     }
 
     private void observeGroupChange(String groupId) {
@@ -112,7 +141,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         }, groupId);
     }
 
-    private void obserUserStatus(String userId) {
+    private void observeUserStatus(String userId) {
         observeUserStatusUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
@@ -127,6 +156,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         this.conversation = conversation;
         view.updateConversation(conversation);
         //observeMessageUpdate();
+        getLastMessages(conversation);
 
         boolean isEnable = CommonMethod.getBooleanFrom(conversation.maskOutputs, currentUser.key);
         view.updateMaskSetting(isEnable);
@@ -138,7 +168,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 title = conversation.opponentUser.getDisplayName();
             }
             view.updateConversationTitle(title);
-            obserUserStatus(opponentUserId);
+            observeUserStatus(opponentUserId);
         } else if (conversation.group != null) {
             view.updateConversationTitle(conversation.group.groupName);
             view.hideUserStatus();
@@ -151,5 +181,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeCurrentUserUseCase.dispose();
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
+        getLastMessagesUseCase.dispose();
     }
 }

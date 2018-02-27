@@ -336,14 +336,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
-    private void onSendMessage(Group group, String msg) {
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(ChatActivity.CONVERSATION_ID, group.conversationID);
-        intent.putExtra("SEND_MESSAGE", msg);
-        startActivity(intent);
-        finish();
-    }
-
     public NewGroupComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent()

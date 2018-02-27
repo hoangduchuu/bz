@@ -1,6 +1,7 @@
 package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.firebase.database.DataSnapshot;
 
 import io.reactivex.Observable;
 
@@ -9,5 +10,7 @@ import io.reactivex.Observable;
  */
 
 public interface MessageRepository {
+    Observable<DataSnapshot> getLastMessages(String conversationId);
+    Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp);
     Observable<ChildEvent> observeMessageUpdate(String conversationId);
 }

@@ -308,14 +308,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
-    private void onSendMessage(String conversationID, String msg) {
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-        intent.putExtra("SEND_MESSAGE", msg);
-        startActivity(intent);
-        finish();
-    }
-
     public NewChatComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent()

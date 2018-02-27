@@ -2,6 +2,7 @@ package com.ping.android.data.repository;
 
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.MessageRepository;
@@ -21,6 +22,27 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Inject
     public MessageRepositoryImpl() {
         database = FirebaseDatabase.getInstance();
+    }
+
+    @Override
+    public Observable<DataSnapshot> getLastMessages(String conversationId) {
+        Query query = database.getReference("messages").child(conversationId)
+                .orderByChild("timestamp")
+                .limitToLast(Constant.LATEST_RECENT_MESSAGES);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
+    }
+
+    @Override
+    public Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp) {
+        Query query = database.getReference("messages").child(conversationId)
+                .orderByChild("timestamp")
+                .endAt(endTimestamp)
+                .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
     }
 
     @Override

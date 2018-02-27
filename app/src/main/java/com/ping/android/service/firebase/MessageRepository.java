@@ -3,6 +3,7 @@ package com.ping.android.service.firebase;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.ultility.Callback;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +30,8 @@ public class MessageRepository extends BaseFirebaseDatabase {
         return repository;
     }
 
-    public void updateMessage(String key, Message message) {
-        databaseReference.child(key).updateChildren(message.toMap());
+    public void updateMessage(String key, Message message, Callback callback) {
+        databaseReference.child(key).updateChildren(message.toMap(), callback::complete);
     }
 
     public void updateMessageStatus(String key, List<User> members, long status) {

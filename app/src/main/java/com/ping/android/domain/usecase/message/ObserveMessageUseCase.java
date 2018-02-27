@@ -23,7 +23,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 2/26/18.
  */
 
-public class ObserveMessageUseCase extends UseCase<ChildData<Message>, Conversation> {
+public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMessageUseCase.Params> {
     @Inject
     MessageRepository messageRepository;
     @Inject
@@ -38,9 +38,9 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, Conversat
 
     @NotNull
     @Override
-    public Observable<ChildData<Message>> buildUseCaseObservable(Conversation conversation) {
-        currentUser = conversation.opponentUser;
-        return messageRepository.observeMessageUpdate(conversation.key)
+    public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
+        currentUser = params.user;
+        return messageRepository.observeMessageUpdate(params.conversation.key)
 //                .zipWith(userRepository.getCurrentUser(), (childEvent, user) -> {
 //                    currentUser = user;
 //                    Message message = Message.from(childEvent.dataSnapshot);
@@ -54,7 +54,7 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, Conversat
                     Message message = childData.data;
                     boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0
                             && !message.readAllowed.containsKey(currentUser.key);
-                    boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(conversation);
+                    boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     if (isOldMessage || unReadable) {
                         return Observable.empty();
                     }
@@ -86,6 +86,16 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, Conversat
             return  ((Long)value).doubleValue();
         }else {
             return (Double) value;
+        }
+    }
+
+    public static class Params {
+        public Conversation conversation;
+        public User user;
+
+        public Params(Conversation conversation, User currentUser) {
+            this.conversation = conversation;
+            this.user = currentUser;
         }
     }
 }
