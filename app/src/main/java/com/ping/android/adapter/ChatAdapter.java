@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.ping.android.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.GameActivity;
 import com.ping.android.activity.GameMemoryActivity;
 import com.ping.android.activity.GameTicTacToeActivity;

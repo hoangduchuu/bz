@@ -2,7 +2,6 @@ package com.ping.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -12,6 +11,7 @@ import android.widget.Toast;
 
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;

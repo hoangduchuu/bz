@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
@@ -24,7 +23,6 @@ import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
 import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.managers.UserManager;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddGroupPresenter;

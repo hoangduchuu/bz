@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.Manifest;
 import android.content.ClipData;
@@ -21,7 +21,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
@@ -37,6 +36,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bzzzchat.cleanarchitecture.BasePresenter;
+import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,15 +46,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.view.IconicsImageView;
+import com.ping.android.activity.CallActivity;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
 import com.ping.android.adapter.ChatAdapter;
+import com.ping.android.dagger.loggedin.chat.ChatComponent;
+import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.DataSnapshotWrapper;
-import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
-import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
@@ -70,12 +74,10 @@ import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
-import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -86,7 +88,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
+import javax.inject.Inject;
+
+public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatAdapter.ClickListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private final int REPEAT_INTERVAL = 40;
 
@@ -117,7 +121,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private ChatAdapter adapter;
     private List<Message> messages;
     private ChildEventListener observeChatEvent;
-    private ValueEventListener observeStatusEvent;
     private String RECORDING_PATH, currentOutFile;
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false, isEditAllMode = true;
@@ -140,8 +143,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
 
-    private Callback userUpdated;
-
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
         @Override
@@ -162,10 +163,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private boolean shouldDispatchOnTouch = true;
     private BadgeHelper badgeHelper;
 
+    @Inject
+    ChatPresenter presenter;
+    ChatComponent component;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        getComponent().inject(this);
+        presenter.create();
+
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
         badgeHelper = new BadgeHelper(this);
@@ -176,9 +184,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (bundle != null) {
             originalConversation = bundle.getParcelable("CONVERSATION");
         }
-
         init();
-        initConversationData();
+        initView();
+        //initConversationData();
+        presenter.initConversationData(conversationID);
+    }
+
+    private void initView() {
+        notifyTyping();
+        messages = new ArrayList<>();
+        adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
+        recycleChatView.setLayoutManager(mLinearLayoutManager);
+        recycleChatView.setAdapter(adapter);
     }
 
     @Override
@@ -188,7 +205,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         bindViews();
 
         init();
-        initConversationData();
+        // FIXME
+        //initConversationData();
     }
 
     @Override
@@ -207,9 +225,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         badgeHelper.read(conversationID);
         setButtonsState(0);
         fromUser = UserManager.getInstance().getUser();
-        if (userUpdated != null) {
-            UserManager.getInstance().addUserUpdated(userUpdated);
-        }
     }
 
     @Override
@@ -228,9 +243,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onPause();
         isTyping = false;
         updateConversationTyping(false);
-        if (userUpdated != null) {
-            UserManager.getInstance().removeUserUpdated(userUpdated);
-        }
+    }
+
+    @Override
+    protected BasePresenter getPresenter() {
+        return presenter;
     }
 
     @Override
@@ -655,50 +672,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-
-        observeStatusEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean isOnline = false;
-                if (dataSnapshot.exists()) {
-                    Map<String, Double> devices = (Map<String, Double>) dataSnapshot.getValue();
-                    if (devices != null) {
-                        for (String key : devices.keySet()) {
-                            double timestamp = devices.get(key);
-                            if (System.currentTimeMillis() - timestamp * 1000 < 3600000 * 24) {
-                                isOnline = true;
-                            }
-                        }
-                    }
-                }
-                tvChatStatus.setText(isOnline ? "Online" : "Offline");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-
-        userUpdated = (error, data) -> {
-            if (error == null) {
-                User user = (User) data[0];
-                fromUser = user;
-            }
-        };
-    }
-
-    private void bindConversationSetting() {
-        conversationRepository.getMaskOutput(conversationID, fromUser.key, (error, data) -> {
-            if (error == null) {
-                tgMarkOut.setChecked((boolean) data[0]);
-            }
-        });
-        conversationRepository.getMaskMessageSetting(conversationID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-
-            }
-        });
     }
 
     private void updateSendButtonStatus(boolean isEnable) {
@@ -706,7 +679,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void processAddChild(Message message) {
-
         if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
             return;
         }
@@ -771,25 +743,23 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void startChat() {
         observeChats();
-        observeStatus();
-        notifyTyping();
         updateConversationReadStatus();
-        bindConversationSetting();
+        //bindConversationSetting();
         BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
         if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             updateTitle();
         } else {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
-            ServiceManager.getInstance().getGroup(originalConversation.groupID, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    if (error == null) {
-                        originalConversation.group = (Group) data[0];
-                        tvChatName.setText(originalConversation.group.groupName);
-                    }
-                }
-            });
+//            ServiceManager.getInstance().getGroup(originalConversation.groupID, new Callback() {
+//                @Override
+//                public void complete(Object error, Object... data) {
+//                    if (error == null) {
+//                        originalConversation.group = (Group) data[0];
+//                        tvChatName.setText(originalConversation.group.groupName);
+//                    }
+//                }
+//            });
         }
         if (!TextUtils.isEmpty(sendNewMsg)) {
             onSentMessage(sendNewMsg);
@@ -807,9 +777,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     }
 
     private void observeChats() {
-        adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
-        recycleChatView.setLayoutManager(mLinearLayoutManager);
-        recycleChatView.setAdapter(adapter);
+
         // Load data for first time
         messageRepository.getDatabaseReference().orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES)
@@ -1042,17 +1010,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             } else {
                 tvChatName.setText(nickName);
             }
-        }
-    }
-
-    private void observeStatus() {
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            DatabaseReference statusRef = userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
-                    .child("devices");
-            statusRef.addValueEventListener(observeStatusEvent);
-            databaseReferences.put(statusRef, observeStatusEvent);
-        } else {
-            tvChatStatus.setVisibility(View.GONE);
         }
     }
 
@@ -1792,5 +1749,62 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void updateLoadMoreButtonStatus(boolean isShow) {
         btLoadMoreChat.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void updateConversation(Conversation conv) {
+        this.originalConversation = conv;
+        this.adapter.setOrginalConversation(conv);
+        // FIXME
+        startChat();
+    }
+
+    @Override
+    public void updateConversationTitle(String title) {
+        tvChatName.setText(title);
+    }
+
+    @Override
+    public void updateMaskSetting(boolean isEnable) {
+        tgMarkOut.setChecked(isEnable);
+    }
+
+    @Override
+    public void updateUserStatus(boolean isOnline) {
+        tvChatStatus.setText(isOnline ? "Online" : "Offline");
+    }
+
+    @Override
+    public void hideUserStatus() {
+        tvChatStatus.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCurrentUser(User user) {
+        fromUser = user;
+    }
+
+    @Override
+    public void addNewMessage(Message data) {
+        adapter.addOrUpdate(data);
+        recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
+    }
+
+    @Override
+    public void removeMessage(Message data) {
+        adapter.deleteMessage(data.key);
+    }
+
+    @Override
+    public void updateMessage(Message data) {
+        adapter.addOrUpdate(data);
+    }
+
+    @Override
+    public ChatComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideChatComponent(new ChatModule(this));
+        }
+        return component;
     }
 }
