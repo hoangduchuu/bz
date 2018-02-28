@@ -1647,6 +1647,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void addNewMessage(Message data) {
         adapter.addOrUpdate(data);
+        // FIXME why should update mark status
+        updateMessageMarkStatus(data);
+        updateMessageStatus(data);
+        updateConversationReadStatus();
         recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
