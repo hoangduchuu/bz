@@ -320,7 +320,15 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             case R.id.tic_tac_toe_game:
                 onSendGame(GameType.TIC_TAC_TOE);
                 break;
+            case R.id.btn_cancel_game_selection:
+                hideGameSelection();
+                break;
         }
+    }
+
+    private void hideGameSelection() {
+        chatGameMenu.hide();
+        setButtonsState(0);
     }
 
     private void setButtonsState(int selectedViewId) {
@@ -558,6 +566,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         view.findViewById(R.id.puzzle_game).setOnClickListener(this);
         view.findViewById(R.id.memory_game).setOnClickListener(this);
         view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
+        view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
 
         findViewById(R.id.btn_copy).setOnClickListener(this);
         findViewById(R.id.btn_delete).setOnClickListener(this);
