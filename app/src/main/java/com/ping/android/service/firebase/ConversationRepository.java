@@ -124,9 +124,9 @@ public class ConversationRepository extends BaseFirebaseDatabase {
         Map<String, Object> updateData = new HashMap<>();
         //updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
         // Update message for conversation for each user
-        for (User toUser : conversation.members) {
-            if (!readAllowance.containsKey(toUser.key)) continue;
-            updateData.put(String.format("conversations/%s/%s", toUser.key, conversationID), conversation.toMap());
+        for (String toUserId : conversation.memberIDs.keySet()) {
+            if (!readAllowance.containsKey(toUserId)) continue;
+            updateData.put(String.format("conversations/%s/%s", toUserId, conversationID), conversation.toMap());
         }
         updateBatchData(updateData, null);
     }

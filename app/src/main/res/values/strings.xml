@@ -237,4 +237,7 @@
     <string name="nick_name_edit_title">EDIT NICKNAME</string>
     <string name="nick_name_edit_individual_description">%s will only see this in this conversation.</string>
     <string name="nick_name_edit_group_description">Only members from this conversation will see this.</string>
+    <string name="hint_reply">Write reply</string>
+    <string name="notif_content_sent">Sent</string>
+    <string name="notif_action_reply">Reply</string>
 </resources>
