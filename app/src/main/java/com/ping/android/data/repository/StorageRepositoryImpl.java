@@ -39,6 +39,19 @@ public class StorageRepositoryImpl implements StorageRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<String> uploadImageMessage(String key, String filePath) {
+        if (TextUtils.isEmpty(filePath)) return Observable.just("");
+        File file = new File(filePath);
+        String fileName = System.currentTimeMillis() + file.getName();
+        String conversationImagePath = "conversations/" + key + "/" + fileName;
+        StorageReference photoRef = storage.getReference().child(conversationImagePath);
+        return RxFirebaseStorage.getInstance(photoRef)
+                .putFile(Uri.fromFile(file))
+                .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
+                .toObservable();
+    }
+
     private String getStorageRoot(){
         return String.format("gs://%s", storage.getReference().getBucket());
     }

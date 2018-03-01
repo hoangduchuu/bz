@@ -10,11 +10,18 @@ import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
+import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
+import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
+import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
+import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -44,11 +51,20 @@ public class ChatPresenterImpl implements ChatPresenter {
     GetLastMessagesUseCase getLastMessagesUseCase;
     @Inject
     LoadMoreMessagesUseCase loadMoreMessagesUseCase;
+    @Inject
+    SendTextMessageUseCase sendTextMessageUseCase;
+    @Inject
+    SendImageMessageUseCase sendImageMessageUseCase;
+    @Inject
+    SendGameMessageUseCase sendGameMessageUseCase;
+    @Inject
+    SendAudioMessageUseCase sendAudioMessageUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
+
     User currentUser;
 
     @Inject
@@ -117,8 +133,98 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void sendTextMessage() {
+    public void sendTextMessage(String message, boolean markStatus) {
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.TEXT)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setText(message)
+                .setMarkStatus(markStatus)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                view.sendNotification(conversation, message1);
+            }
 
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus) {
+        SendImageMessageUseCase.Params params = new SendImageMessageUseCase.Params();
+        params.filePath = photoUrl;
+        params.thumbFilePath = thumbUrl;
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.markStatus = markStatus;
+        params.messageType = MessageType.IMAGE;
+        sendImageMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (message.isCached) {
+                    view.addCacheMessage(message);
+                } else {
+                    view.sendNotification(conversation, message);
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus) {
+        SendGameMessageUseCase.Params params = new SendGameMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.filePath = gameUrl;
+        params.gameType = gameType;
+        params.markStatus  = markStatus;
+        params.messageType = MessageType.GAME;
+        sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                view.sendNotification(conversation, message);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendAudioMessage(String audioUrl) {
+        SendAudioMessageUseCase.Params params = new SendAudioMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.filePath = audioUrl;
+        params.messageType = MessageType.AUDIO;
+        sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                view.sendNotification(conversation, message);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void setConversation(Conversation originalConversation) {
+        this.conversation = originalConversation;
     }
 
     private void getLastMessages(Conversation conversation) {
@@ -182,5 +288,9 @@ public class ChatPresenterImpl implements ChatPresenter {
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
         getLastMessagesUseCase.dispose();
+        sendTextMessageUseCase.dispose();
+        sendImageMessageUseCase.dispose();
+        sendGameMessageUseCase.dispose();
+        sendAudioMessageUseCase.dispose();
     }
 }

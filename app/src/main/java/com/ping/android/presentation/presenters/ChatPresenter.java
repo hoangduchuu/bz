@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.GameType;
 
 import java.util.List;
 
@@ -19,7 +20,15 @@ public interface ChatPresenter extends BasePresenter {
 
     void loadMoreMessage(double oldestTimestamp);
 
-    void sendTextMessage();
+    void sendTextMessage(String message, boolean markStatus);
+
+    void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus);
+
+    void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus);
+
+    void sendAudioMessage(String audioUrl);
+
+    void setConversation(Conversation originalConversation);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
@@ -41,5 +50,9 @@ public interface ChatPresenter extends BasePresenter {
         void updateMessage(Message data);
 
         void updateLastMessages(List<Message> messages, boolean canLoadMore);
+
+        void sendNotification(Conversation conversation, Message message);
+
+        void addCacheMessage(Message message);
     }
 }

@@ -237,4 +237,9 @@
     <string name="nick_name_edit_title">EDIT NICKNAME</string>
     <string name="nick_name_edit_individual_description">%s will only see this in this conversation.</string>
     <string name="nick_name_edit_group_description">Only members from this conversation will see this.</string>
+
+    <string name="today_trip_scheduled_pickup">Scheduled pickup</string>
+    <string name="today_trip_scheduled_drop_off">Scheduled drop-off</string>
+    <string name="today_trip_status">%s\'s trip %s</string>
+    <string name="today_trip_date">Date: %s</string>
 </resources>

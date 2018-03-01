@@ -9,6 +9,7 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.ultility.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
@@ -77,11 +78,13 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                                         .map(aBoolean -> conversation);
                             })
                             .flatMap(conversation -> {
-                                SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params();
-                                sendMessageParams.currentUser = user;
-                                sendMessageParams.conversation = conversation;
-                                sendMessageParams.markStatus = false;
-                                sendMessageParams.text = params.message;
+                                SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params.Builder()
+                                        .setMessageType(MessageType.TEXT)
+                                        .setConversation(conversation)
+                                        .setMarkStatus(false)
+                                        .setCurrentUser(user)
+                                        .setText(params.message)
+                                        .build();
                                 return sendMessageUseCase.buildUseCaseObservable(sendMessageParams)
                                         .map(aBoolean -> conversation.key);
                             });

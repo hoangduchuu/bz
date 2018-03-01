@@ -199,7 +199,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 if (displayMessages.get(i).messageType != Constant.MSG_TYPE_TYPING) {
                     return displayMessages.get(i);
                 }
-            }        }
+            }
+        }
         return null;
     }
 
@@ -242,33 +243,34 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public int getItemViewType(int position) {
         Message model = displayMessages.get(position);
-        if (model.messageType == Constant.MSG_TYPE_TYPING) {
-            return Constant.MSG_TYPE_TYPING;
-        } else if (model.messageType == Constant.MSG_TYPE_PADDING) {
-            return Constant.MSG_TYPE_PADDING;
-        }
-        if (model.photoUrl != null) {
-            if (model.senderId.equals(currentUserID)) {
-                return RIGHT_MSG_IMG;
-            } else {
-                return LEFT_MSG_IMG;
-            }
-        } else if (model.gameUrl != null) {
-            if (model.senderId.equals(currentUserID)) {
-                return RIGHT_MSG_GAME;
-            } else {
-                return LEFT_MSG_GAME;
-            }
-        } else if (model.audioUrl != null) {
-            if (model.senderId.equals(currentUserID)) {
-                return RIGHT_MSG_AUDIO;
-            } else {
-                return LEFT_MSG_AUDIO;
-            }
-        } else if (model.senderId.equals(currentUserID)) {
-            return RIGHT_MSG;
-        } else {
-            return LEFT_MSG;
+        switch (model.messageType) {
+            case Constant.MSG_TYPE_TYPING:
+            case Constant.MSG_TYPE_PADDING:
+                return model.messageType;
+            case Constant.MSG_TYPE_IMAGE:
+                if (model.senderId.equals(currentUserID)) {
+                    return RIGHT_MSG_IMG;
+                } else {
+                    return LEFT_MSG_IMG;
+                }
+            case Constant.MSG_TYPE_GAME:
+                if (model.senderId.equals(currentUserID)) {
+                    return RIGHT_MSG_GAME;
+                } else {
+                    return LEFT_MSG_GAME;
+                }
+            case Constant.MSG_TYPE_VOICE:
+                if (model.senderId.equals(currentUserID)) {
+                    return RIGHT_MSG_AUDIO;
+                } else {
+                    return LEFT_MSG_AUDIO;
+                }
+            default:
+                if (model.senderId.equals(currentUserID)) {
+                    return RIGHT_MSG;
+                } else {
+                    return LEFT_MSG;
+                }
         }
     }
 
@@ -776,6 +778,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         case Constant.MESSAGE_STATUS_SENT:
                         case Constant.MESSAGE_STATUS_DELIVERED:
                             messageStatus = "Delivered";
+                            break;
+                        case Constant.MESSAGE_STATUS_ERROR:
+                            messageStatus = "Undelivered";
+                            break;
+                        case Constant.MESSAGE_STATUS_READ:
+                            messageStatus = "Read";
                             break;
                         default:
                             messageStatus = "";

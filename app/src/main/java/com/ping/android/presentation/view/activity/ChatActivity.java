@@ -134,7 +134,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextWatcher textWatcher;
 
     private ImagePickerHelper imagePickerHelper;
-    private BzzzStorage bzzzStorage;
     private MessageRepository messageRepository;
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
@@ -422,33 +421,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void initConversationData() {
-        conversationRepository.getDatabaseReference().child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                originalConversation = Conversation.from(dataSnapshot);
-                userRepository.initMemberList(originalConversation.memberIDs, (error, data) -> {
-                    if (error == null) {
-                        originalConversation.members = (List<User>) data[0];
-                        for (User user : originalConversation.members) {
-                            if (!user.key.equals(fromUserID)) {
-                                originalConversation.opponentUser = user;
-                                if (adapter != null)
-                                    adapter.setOrginalConversation(originalConversation);
-                                break;
-                            }
-                        }
-                        startChat();
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
     public String getConversationId() {
         return conversationID;
     }
@@ -599,17 +571,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         return adapter.getItem(1);
     }
 
-    private User getSender(String senderId) {
-        for (User user : originalConversation.members) {
-            if (user.key.equals(senderId)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
     private void init() {
-        bzzzStorage = new BzzzStorage();
         messageRepository = MessageRepository.from(conversationID);
         conversationRepository = new ConversationRepository();
         userRepository = new UserRepository();
@@ -633,29 +595,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void updateSendButtonStatus(boolean isEnable) {
         btnSend.setEnabled(isEnable);
-    }
-
-    private void processAddChild(Message message) {
-        if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-            return;
-        }
-        if (message.readAllowed != null && message.readAllowed.size() > 0
-                && !message.readAllowed.containsKey(fromUserID))
-            return;
-
-        userRepository.getUser(message.senderId, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    message.sender = (User) data[0];
-                    updateMessageMarkStatus(message);
-                    updateMessageStatus(message);
-                    adapter.addOrUpdate(message);
-                    updateConversationReadStatus();
-                    recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
-                }
-            }
-        });
     }
 
     private void loadMoreChats() {
@@ -685,6 +624,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                     Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.maskMessages = maskMessages;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -700,6 +640,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                     Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.puzzleMessages = puzzleMessages;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -719,6 +660,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                         if (error == null) {
                             List<User> users = (List<User>) data[0];
                             originalConversation.members = users;
+                            presenter.setConversation(originalConversation);
                         }
                     });
                 }
@@ -757,6 +699,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 if (dataSnapshot.exists()) {
                     HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.notifications = notifications;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -774,6 +717,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 } else {
                     originalConversation.deleteStatuses = new HashMap<>();
                 }
+                presenter.setConversation(originalConversation);
             }
 
             @Override
@@ -786,6 +730,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     originalConversation.deleteTimestamps = (Map<String, Double>) dataSnapshot.getValue();
+                    presenter.setConversation(originalConversation);
                 }
             }
 
@@ -805,6 +750,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     } else {
                         adapter.updateNickNames(nickNames);
                     }
+                    presenter.setConversation(originalConversation);
                 }
             }
 
@@ -1188,20 +1134,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
 
         edMessage.setText(null);
-        double timestamp = System.currentTimeMillis() / 1000d;
-        Map<String, Boolean> allowance = getAllowance();
-        Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
-                timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
-
-        Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
-                text, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
-                getMessageReadStatuses(), timestamp, originalConversation);
-        conversation.members = originalConversation.members;
-        String messageKey = messageRepository.generateKey();
-        sendMessage(messageKey, message);
-        message.key = messageKey;
-        conversationRepository.updateConversation(conversationID, conversation, allowance);
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+        presenter.sendTextMessage(text, tgMarkOut.isChecked());
     }
 
     private void sendMessage(String messageKey, Message message) {
@@ -1231,9 +1164,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     @Override
                     public void onImageReceived(File file) {
                         // FIXME: should improve this way
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-                        cacheMessage.localImage = file.getAbsolutePath();
-                        adapter.addOrUpdate(cacheMessage);
+//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
+//                        cacheMessage.localImage = file.getAbsolutePath();
+//                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1262,9 +1195,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 .setListener(new ImagePickerHelper.ImagePickerListener() {
                     @Override
                     public void onImageReceived(File file) {
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-                        cacheMessage.localImage = file.getAbsolutePath();
-                        adapter.addOrUpdate(cacheMessage);
+//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
+//                        cacheMessage.localImage = file.getAbsolutePath();
+//                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1378,33 +1311,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (!beAbleToSendMessage()) {
             return;
         }
-
-        double timestamp = System.currentTimeMillis() / 1000d;
-
         File audioFile = new File(currentOutFile);
-        String audioName = audioFile.getName();
-        String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;
-        bzzzStorage.uploadFile(pathAudio, audioFile, (error, data) -> {
-            if (error == null) {
-                String downloadUrl = (String) data[0];
-                Map<String, Boolean> allowance = getAllowance();
-                Message message = Message.createAudioMessage(downloadUrl,
-                        fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), null,
-                        getMessageDeleteStatuses(), allowance);
-
-                Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
-                        downloadUrl, originalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
-                        timestamp, originalConversation);
-                conversation.members = originalConversation.members;
-                String messageKey = messageRepository.generateKey();
-                message.key = messageKey;
-                //Create or Update Conversation
-                sendMessage(messageKey, message);
-                conversationRepository.updateConversation(conversationID, conversation, allowance);
-                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-            }
-        });
-        //btSendRecord.setEnabled(false);
+        presenter.sendAudioMessage(audioFile.getAbsolutePath());
         visualizerView.clear();
         setRecordMode(false);
         //setButtonsState(0);
@@ -1435,15 +1343,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         return markStatuses;
     }
 
-    private Map<String, Boolean> getImageMarkStatuses() {
-        Map<String, Boolean> markStatuses = new HashMap<>();
-        if (originalConversation.puzzleMessages != null) {
-            markStatuses.putAll(originalConversation.puzzleMessages);
-        }
-        markStatuses.put(fromUser.key, tgMarkOut.isChecked());
-        return markStatuses;
-    }
-
     private Map<String, Boolean> getMessageReadStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
         for (User toUser : originalConversation.members) {
@@ -1453,94 +1352,21 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         return markStatuses;
     }
 
-    private Map<String, Boolean> getMessageDeleteStatuses() {
-        Map<String, Boolean> deleteStatuses = new HashMap<>();
-        for (User toUser : originalConversation.members) {
-            deleteStatuses.put(toUser.key, false);
-        }
-        deleteStatuses.put(fromUser.key, false);
-        return deleteStatuses;
-    }
-
-    private Map<String, Integer> getStatuses() {
-        Map<String, Integer> deleteStatuses = new HashMap<>();
-        for (User toUser : originalConversation.members) {
-            deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
-        }
-        deleteStatuses.put(fromUser.key, Constant.MESSAGE_STATUS_SENT);
-        return deleteStatuses;
-    }
-
     private void sendImageFirebase(File file, File thumbnail) {
-        if (cacheMessage == null) {
-            cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-        }
-        //adapter.addOrUpdate(message);
-        // upload thumbnail first first
-        bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
-            if (error != null) {
-                // TODO handle error when uploading image
-                return;
-            }
-            String thumbnailUrl = (String) data[0];
-            messageRepository.updateThumbnailUrl(cacheMessage.key, thumbnailUrl);
-            // Upload image
-            bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
-                String imageUrl = thumbnailUrl;
-                if (error1 == null) {
-                    imageUrl = (String) data1[0];
-                }
-                messageRepository.updatePhotoUrl(cacheMessage.key, imageUrl);
-                //sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
-            });
-        });
+        presenter.sendImageMessage(file.getAbsolutePath(), thumbnail.getAbsolutePath(), tgMarkOut.isChecked());
     }
 
     private void sendGameFirebase(File file, GameType gameType) {
-        bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
-            if (error1 == null) {
-                String imageUrl = (String) data1[0];
-                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME, gameType);
-            }
-        });
-    }
-
-    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType, GameType gameType) {
-        String messageKey = messageRepository.generateKey();
-        double timestamp = System.currentTimeMillis() / 1000;
-        Message message = null;
-        Map<String, Boolean> allowance = getAllowance();
-        if (msgType == Constant.MSG_TYPE_IMAGE) {
-            message = Message.createImageMessage(imageUrl, thumbnailUrl,
-                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
-                    getMessageDeleteStatuses(), allowance);
-        } else if (msgType == Constant.MSG_TYPE_GAME) {
-            message = Message.createGameMessage(imageUrl,
-                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
-                    getMessageDeleteStatuses(), allowance, gameType.ordinal());
-        }
-        if (message == null) throw new NullPointerException("Message must not be null " + msgType);
-        message.key = messageKey;
-
-        Conversation conversation = new Conversation(originalConversation.conversationType, msgType, imageUrl,
-                originalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                getMessageReadStatuses(), timestamp, originalConversation);
-        conversation.members = originalConversation.members;
-        //Create or Update Conversation
-        sendMessage(messageKey, message);
-        conversationRepository.updateConversation(conversationID, conversation, allowance);
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-        return message;
+        presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isChecked());
     }
 
     private void updateMessageStatus(Message message) {
-        if (message.senderId.equals(fromUserID)) {
-            return;
-        }
         int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
-        if (status == Constant.MESSAGE_STATUS_SENT) {
-            status = Constant.MESSAGE_STATUS_DELIVERED;
-            messageRepository.updateMessageStatus(message.key, originalConversation.members, status);
+        if (!message.senderId.equals(fromUserID)) {
+            if (status != Constant.MESSAGE_STATUS_READ) {
+                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_READ);
+            }
+            return;
         }
     }
 
@@ -1657,6 +1483,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void removeMessage(Message data) {
         adapter.deleteMessage(data.key);
+        this.updateConversationLastMessage();
     }
 
     @Override
@@ -1671,6 +1498,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             isEndOfConvesation = true;
             updateLoadMoreButtonStatus(false);
         }
+    }
+
+    @Override
+    public void sendNotification(Conversation conversation, Message message) {
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+    }
+
+    @Override
+    public void addCacheMessage(Message message) {
+        adapter.addOrUpdate(message);
     }
 
     @Override
