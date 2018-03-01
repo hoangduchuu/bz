@@ -4,62 +4,128 @@
     android:id="@+id/menu_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background_gray"
     android:gravity="bottom"
     android:orientation="vertical"
     app:behavior_peekHeight="0dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:text="@string/chat_choose_game"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimary" />
-
     <LinearLayout
-        android:id="@+id/puzzle_game"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="10dp">
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/chat_puzzle_game" />
+            android:layout_marginTop="10dp"
+            android:text="@string/chat_choose_game_title"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/chat_choose_game_description"
+            android:textAlignment="center"
+            android:textColor="@color/gray_bg" />
+
+        <LinearLayout
+            android:id="@+id/puzzle_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/grey_transparent_50" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textSize="18sp"
+                android:text="@string/chat_puzzle_game"
+                android:textAlignment="center"
+                android:textColor="@color/orange"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/memory_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/grey_transparent_50" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textSize="18sp"
+                android:text="@string/chat_memory_game"
+                android:textAlignment="center"
+                android:textColor="@color/orange"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tic_tac_toe_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/grey_transparent_50" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textSize="18sp"
+                android:text="@string/chat_tic_tac_toe_game"
+                android:textAlignment="center"
+                android:textColor="@color/orange"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/grey_transparent_50" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/memory_game"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="10dp">
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/btn_cancel_game_selection"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/chat_memory_game" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/tic_tac_toe_game"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/chat_tic_tac_toe_game" />
+            android:text="@string/gen_cancel"
+            android:textSize="18sp"
+            android:background="@color/white"
+            android:textColor="@color/orange"/>
     </LinearLayout>
 </LinearLayout>
