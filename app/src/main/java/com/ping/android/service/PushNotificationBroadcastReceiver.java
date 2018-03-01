@@ -45,7 +45,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private Context context;
     private BadgeHelper badgeHelper;
     private int mNotificationId;
-    private String mMessageId;
+    private String mConversationId;
 
     private final static AtomicInteger c = new AtomicInteger(0);
     public static int getID() {
@@ -98,19 +98,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         User currentUser = UserManager.getInstance().getUser();
         boolean soundNotification = currentUser != null ? currentUser.settings.notification : true;
         mNotificationId = getID();
-        mMessageId = conversationId;
-        // 1. Build label
-        String replyLabel = getString(R.string.notif_action_reply);
-        RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
-                .setLabel(replyLabel)
-                .build();
+        mConversationId = conversationId;
 
-        // 2. Build action
-        NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_action_send_now, replyLabel, getReplyPendingIntent())
-                .addRemoteInput(remoteInput)
-                .setAllowGeneratedReplies(true)
-                .build();
 
         // 3. Build notification
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
@@ -124,7 +113,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         notificationBuilder.
                 setContentText(message).
                 setContentIntent(contentIntent).
-                addAction(replyAction).
+                //setShowWhen(true).
+                //setWhen(0).
                 setAutoCancel(true);
         if (App.getActiveActivity() != null && !soundNotification) {
             notificationBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
@@ -139,8 +129,28 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         }
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+
+            // 1. Build label
+            String replyLabel = getString(R.string.notif_action_reply);
+            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
+                    .setLabel(replyLabel)
+                    .build();
+
+
+            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
+            PendingIntent.getBroadcast(context, 100, intent1,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            // 2. Build action
+            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                    R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
+                    PendingIntent.FLAG_UPDATE_CURRENT))
+                    .addRemoteInput(remoteInput)
+                    .setAllowGeneratedReplies(true)
+                    .build();
             notificationBuilder
-                    .setContentTitle("BZZZ");
+                    .setContentTitle("BZZZ")
+                    .addAction(replyAction);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.
@@ -192,13 +202,13 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // start a
             // (i)  broadcast receiver which runs on the UI thread or
-            // (ii) service for a background task to b executed , but for the purpose of this codelab, will be doing a broadcast receiver
-            intent = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mMessageId);
+            // (ii) service for a background task to b executed , but for the purpose of this code lab, will be doing a broadcast receiver
+            intent = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
             return PendingIntent.getBroadcast(context, 100, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
             // start your activity
-            intent = ReplyActivity.getReplyMessageIntent(context, mNotificationId, mMessageId);
+            intent = ReplyActivity.getReplyMessageIntent(context, mNotificationId, mConversationId);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             return PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
