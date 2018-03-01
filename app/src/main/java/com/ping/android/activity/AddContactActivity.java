@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.bzzzchat.cleanarchitecture.UIThread;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,11 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     private LinearLayoutManager mLinearLayoutManager;
     private SearchView searchView;
     private ImageView btBack;
+    private AVLoadingIndicatorView avi;
 
     private User currentUser;
     private AddContactAdapter adapter;
+    private LinearLayout noResultsView;
 
     private Timer timer;
     private String textToSearch = "";
@@ -76,6 +80,9 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = findViewById(R.id.add_contact_search_view);
+        noResultsView = findViewById(R.id.no_results);
+        avi = findViewById(R.id.avi);
+
         CommonMethod.UpdateSearchViewLayout(searchView);
         registerEvent(RxSearchView.queryTextChangeEvents(searchView)
                 .debounce(300, TimeUnit.MILLISECONDS)
@@ -163,21 +170,29 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     @Override
     public void showNoResults() {
-
+        rvListContact.post(()-> rvListContact.setVisibility(View.GONE));
+        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
     @Override
     public void hideNoResults() {
-
+        rvListContact.post(()->rvListContact.setVisibility(View.VISIBLE));
+        noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
     @Override
     public void showSearching() {
-
+        avi.post(() -> {
+            avi.setVisibility(View.VISIBLE);
+            avi.show();
+        });
     }
 
     @Override
     public void hideSearching() {
-
+        avi.post(() -> {
+            avi.hide();
+            avi.setVisibility(View.GONE);
+        });
     }
 }

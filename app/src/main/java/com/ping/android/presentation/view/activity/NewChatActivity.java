@@ -310,11 +310,13 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     @Override
     public void showNoResults() {
+        recycleChatView.post(()-> recycleChatView.setVisibility(View.GONE));
         noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
     @Override
     public void hideNoResults() {
+        recycleChatView.post(()->recycleChatView.setVisibility(View.VISIBLE));
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
     }
 
