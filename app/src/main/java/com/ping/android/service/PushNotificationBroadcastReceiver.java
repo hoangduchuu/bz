@@ -11,14 +11,13 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
 import com.ping.android.App;
-import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.ReplyActivity;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;

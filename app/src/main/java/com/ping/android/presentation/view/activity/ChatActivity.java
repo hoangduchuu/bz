@@ -1149,9 +1149,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void sendMessage(String messageKey, Message message) {
         messageRepository.updateMessage(messageKey, message, (error, data) -> {
             if (error == null) {
-                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_DELIVERED);
+                messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_DELIVERED);
             } else {
-                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_ERROR);
+                messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_ERROR);
             }
         });
     }
@@ -1373,7 +1373,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
         if (!message.senderId.equals(fromUserID)) {
             if (status != Constant.MESSAGE_STATUS_READ) {
-                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_READ);
+                messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_READ);
             }
             return;
         }

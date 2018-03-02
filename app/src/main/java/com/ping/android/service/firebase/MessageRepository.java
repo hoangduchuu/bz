@@ -8,6 +8,7 @@ import com.ping.android.ultility.Callback;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by tuanluong on 11/29/17.
@@ -34,10 +35,10 @@ public class MessageRepository extends BaseFirebaseDatabase {
         databaseReference.child(key).updateChildren(message.toMap(), callback::complete);
     }
 
-    public void updateMessageStatus(String key, List<User> members, long status) {
-        if (members == null) return;
-        for (User user : members) {
-            databaseReference.child(key).child("status").child(user.key).setValue(status);
+    public void updateMessageStatus(String key, Set<String> memberIds, long status) {
+        if (memberIds == null) return;
+        for (String userId : memberIds) {
+            databaseReference.child(key).child("status").child(userId).setValue(status);
         }
     }
 

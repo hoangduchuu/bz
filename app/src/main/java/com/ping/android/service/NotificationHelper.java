@@ -281,7 +281,13 @@ public class NotificationHelper {
                     getMessageReadStatuses(), timestamp, originalConversation);
             conversation.members = originalConversation.members;
             String messageKey = messageRepository.generateKey();
-            messageRepository.updateMessage(messageKey, message);
+            messageRepository.updateMessage(messageKey, message, (error, data) ->{
+                if (error == null) {
+                    messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_DELIVERED);
+                } else {
+                    messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_ERROR);
+                }
+            });
             message.key = messageKey;
             fbConversationRepository.updateConversation(conversationId, newConversation, readAllowed);
             sendNotificationForConversation(conversation, message);
