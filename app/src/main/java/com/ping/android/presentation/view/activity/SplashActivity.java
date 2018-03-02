@@ -8,7 +8,6 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.ping.android.activity.BeforeLoginActivity;
 import com.ping.android.activity.BuildConfig;
-import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;

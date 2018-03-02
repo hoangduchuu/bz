@@ -9,6 +9,7 @@ import android.widget.ImageView;
 
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;

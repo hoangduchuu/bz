@@ -1,5 +1,7 @@
 package com.ping.android.domain.repository;
 
+import com.ping.android.model.Message;
+
 import io.reactivex.Observable;
 
 /**
@@ -8,4 +10,6 @@ import io.reactivex.Observable;
 
 public interface StorageRepository {
     Observable<String> uploadGroupProfileImage(String groupId, String path);
+
+    Observable<String> uploadImageMessage(String key, String filePath);
 }

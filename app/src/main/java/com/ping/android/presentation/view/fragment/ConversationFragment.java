@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.ping.android.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;

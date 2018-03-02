@@ -7,6 +7,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.widget.Toast;
 
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
 
 import static com.ping.android.service.NotificationHelper.REPLY_ACTION;

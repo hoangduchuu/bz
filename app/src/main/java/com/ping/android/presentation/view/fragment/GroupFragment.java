@@ -21,26 +21,18 @@ import com.ping.android.dagger.loggedin.main.group.GroupModule;
 import com.ping.android.fragment.BaseFragment;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
-import com.ping.android.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.adapter.GroupAdapter;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.GroupRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 

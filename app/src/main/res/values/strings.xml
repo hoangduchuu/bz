@@ -241,4 +241,9 @@
     <string name="hint_reply">Write reply</string>
     <string name="notif_content_sent">Sent</string>
     <string name="notif_action_reply">Reply</string>
+
+    <string name="today_trip_scheduled_pickup">Scheduled pickup</string>
+    <string name="today_trip_scheduled_drop_off">Scheduled drop-off</string>
+    <string name="today_trip_status">%s\'s trip %s</string>
+    <string name="today_trip_date">Date: %s</string>
 </resources>

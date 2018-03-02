@@ -3,6 +3,7 @@ package com.ping.android.dagger;
 import com.ping.android.data.repository.CommonRepositoryImpl;
 import com.ping.android.data.repository.ConversationRepositoryImpl;
 import com.ping.android.data.repository.GroupRepositoryImpl;
+import com.ping.android.data.repository.MessageRepositoryImpl;
 import com.ping.android.data.repository.QuickbloxRepositoryImpl;
 import com.ping.android.data.repository.SearchRepositoryImpl;
 import com.ping.android.data.repository.StorageRepositoryImpl;
@@ -10,6 +11,7 @@ import com.ping.android.data.repository.UserRepositoryImpl;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.QuickbloxRepository;
 import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.domain.repository.StorageRepository;
@@ -64,6 +66,12 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public QuickbloxRepository provideQuickbloxRepository(QuickbloxRepositoryImpl repository) {
+        return repository;
+    }
+
+    @Provides
+    @Singleton
+    public MessageRepository provideMessageRepository(MessageRepositoryImpl repository) {
         return repository;
     }
 }

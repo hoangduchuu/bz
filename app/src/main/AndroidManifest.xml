@@ -127,7 +127,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ChatActivity"
+            android:name="com.ping.android.presentation.view.activity.ChatActivity"
             android:label="Chat"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
