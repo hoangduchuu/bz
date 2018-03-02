@@ -14,7 +14,6 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -22,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.activity.AddContactActivity;
 import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.adapter.ContactAdapter;

@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.Manifest;
 import android.content.ClipData;
@@ -21,7 +21,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
@@ -37,6 +36,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bzzzchat.cleanarchitecture.BasePresenter;
+import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,15 +46,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.view.IconicsImageView;
+import com.ping.android.activity.CallActivity;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
 import com.ping.android.adapter.ChatAdapter;
+import com.ping.android.dagger.loggedin.chat.ChatComponent;
+import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.DataSnapshotWrapper;
-import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
-import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
@@ -70,12 +74,10 @@ import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
-import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -86,7 +88,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ChatActivity extends CoreActivity implements View.OnClickListener, ChatAdapter.ClickListener {
+import javax.inject.Inject;
+
+public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatAdapter.ClickListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private final int REPEAT_INTERVAL = 40;
 
@@ -111,13 +115,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private BottomSheetBehavior bottomSheetBehavior;
     private BottomSheetDialog chatGameMenu;
 
-    private String conversationID, fromUserID, sendNewMsg;
+    private String conversationID, fromUserID;
     private User fromUser;
     private Conversation originalConversation;
     private ChatAdapter adapter;
     private List<Message> messages;
-    private ChildEventListener observeChatEvent;
-    private ValueEventListener observeStatusEvent;
     private String RECORDING_PATH, currentOutFile;
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false, isEditAllMode = true;
@@ -132,15 +134,12 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private TextWatcher textWatcher;
 
     private ImagePickerHelper imagePickerHelper;
-    private BzzzStorage bzzzStorage;
     private MessageRepository messageRepository;
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
-
-    private Callback userUpdated;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
     Runnable updateVisualizer = new Runnable() {
@@ -162,12 +161,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
     private boolean shouldDispatchOnTouch = true;
     private BadgeHelper badgeHelper;
 
+    @Inject
+    ChatPresenter presenter;
+    ChatComponent component;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        getComponent().inject(this);
+        presenter.create();
+
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        sendNewMsg = getIntent().getStringExtra("SEND_MESSAGE");
         badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
@@ -176,9 +181,18 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (bundle != null) {
             originalConversation = bundle.getParcelable("CONVERSATION");
         }
-
         init();
-        initConversationData();
+        initView();
+        //initConversationData();
+        presenter.initConversationData(conversationID);
+    }
+
+    private void initView() {
+        notifyTyping();
+        messages = new ArrayList<>();
+        adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
+        recycleChatView.setLayoutManager(mLinearLayoutManager);
+        recycleChatView.setAdapter(adapter);
     }
 
     @Override
@@ -188,7 +202,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         bindViews();
 
         init();
-        initConversationData();
+        // FIXME
+        //initConversationData();
     }
 
     @Override
@@ -207,9 +222,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         badgeHelper.read(conversationID);
         setButtonsState(0);
         fromUser = UserManager.getInstance().getUser();
-        if (userUpdated != null) {
-            UserManager.getInstance().addUserUpdated(userUpdated);
-        }
     }
 
     @Override
@@ -228,9 +240,11 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         super.onPause();
         isTyping = false;
         updateConversationTyping(false);
-        if (userUpdated != null) {
-            UserManager.getInstance().removeUserUpdated(userUpdated);
-        }
+    }
+
+    @Override
+    protected BasePresenter getPresenter() {
+        return presenter;
     }
 
     @Override
@@ -415,33 +429,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void initConversationData() {
-        conversationRepository.getDatabaseReference().child(conversationID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                originalConversation = Conversation.from(dataSnapshot);
-                userRepository.initMemberList(originalConversation.memberIDs, (error, data) -> {
-                    if (error == null) {
-                        originalConversation.members = (List<User>) data[0];
-                        for (User user : originalConversation.members) {
-                            if (!user.key.equals(fromUserID)) {
-                                originalConversation.opponentUser = user;
-                                if (adapter != null)
-                                    adapter.setOrginalConversation(originalConversation);
-                                break;
-                            }
-                        }
-                        startChat();
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
     public String getConversationId() {
         return conversationID;
     }
@@ -593,17 +580,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return adapter.getItem(1);
     }
 
-    private User getSender(String senderId) {
-        for (User user : originalConversation.members) {
-            if (user.key.equals(senderId)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
     private void init() {
-        bzzzStorage = new BzzzStorage();
         messageRepository = MessageRepository.from(conversationID);
         conversationRepository = new ConversationRepository();
         userRepository = new UserRepository();
@@ -623,250 +600,26 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 }
             }
         };
-
-        observeChatEvent = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                Message message = Message.from(dataSnapshot);
-                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
-                    return;
-                }
-                processAddChild(message);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Message message = Message.from(dataSnapshot);
-                if (ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                    adapter.deleteMessage(message.key);
-                    updateConversationLastMessage();
-                    return;
-                }
-                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
-                    return;
-                }
-                message.sender = getUser(message.senderId);
-                updateMessageMarkStatus(message);
-                updateMessageStatus(message);
-                adapter.addOrUpdate(message);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-
-        observeStatusEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean isOnline = false;
-                if (dataSnapshot.exists()) {
-                    Map<String, Double> devices = (Map<String, Double>) dataSnapshot.getValue();
-                    if (devices != null) {
-                        for (String key : devices.keySet()) {
-                            double timestamp = devices.get(key);
-                            if (System.currentTimeMillis() - timestamp * 1000 < 3600000 * 24) {
-                                isOnline = true;
-                            }
-                        }
-                    }
-                }
-                tvChatStatus.setText(isOnline ? "Online" : "Offline");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-
-        userUpdated = (error, data) -> {
-            if (error == null) {
-                User user = (User) data[0];
-                fromUser = user;
-            }
-        };
-    }
-
-    private void bindConversationSetting() {
-        conversationRepository.getMaskOutput(conversationID, fromUser.key, (error, data) -> {
-            if (error == null) {
-                tgMarkOut.setChecked((boolean) data[0]);
-            }
-        });
-        conversationRepository.getMaskMessageSetting(conversationID, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-
-            }
-        });
     }
 
     private void updateSendButtonStatus(boolean isEnable) {
         btnSend.setEnabled(isEnable);
     }
 
-    private void processAddChild(Message message) {
-
-        if (message == null || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-            return;
-        }
-        if (message.readAllowed != null && message.readAllowed.size() > 0
-                && !message.readAllowed.containsKey(fromUserID))
-            return;
-
-        userRepository.getUser(message.senderId, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    message.sender = (User) data[0];
-                    updateMessageMarkStatus(message);
-                    updateMessageStatus(message);
-                    adapter.addOrUpdate(message);
-                    updateConversationReadStatus();
-                    recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
-                }
-            }
-        });
-    }
-
     private void loadMoreChats() {
         Message lastMessage = getLastMessage();
         if (lastMessage == null) return;
-        messageRepository.getDatabaseReference()
-                .orderByChild("timestamp")
-                .endAt(lastMessage.timestamp)
-                .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getChildrenCount() > 0) {
-                            List<Message> messages = new ArrayList<>();
-                            for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                //processAddChild(child);
-                                Message message = Message.from(child);
-                                if (message.key.equals(lastMessage.key) || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                                    continue;
-                                }
-                                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
-                                    continue;
-                                }
-                                message.sender = getSender(message.senderId);
-                                messages.add(message);
-                            }
-                            adapter.appendHistoryItems(messages);
-                        }
-
-                        if (dataSnapshot.getChildrenCount() < Constant.LOAD_MORE_MESSAGE_AMOUNT) {
-                            isEndOfConvesation = true;
-                            updateLoadMoreButtonStatus(false);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+        presenter.loadMoreMessage(lastMessage.timestamp);
     }
 
     private void startChat() {
         observeChats();
-        observeStatus();
-        notifyTyping();
         updateConversationReadStatus();
-        bindConversationSetting();
+        //bindConversationSetting();
         BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            updateTitle();
-        } else {
-            btVideoCall.setVisibility(View.GONE);
-            btVoiceCall.setVisibility(View.GONE);
-            ServiceManager.getInstance().getGroup(originalConversation.groupID, new Callback() {
-                @Override
-                public void complete(Object error, Object... data) {
-                    if (error == null) {
-                        originalConversation.group = (Group) data[0];
-                        tvChatName.setText(originalConversation.group.groupName);
-                    }
-                }
-            });
-        }
-        if (!TextUtils.isEmpty(sendNewMsg)) {
-            onSentMessage(sendNewMsg);
-            sendNewMsg = "";
-        }
-    }
-
-    private User getUser(String userId) {
-        for (User user : originalConversation.members) {
-            if (user.key.equals(userId)) {
-                return user;
-            }
-        }
-        return null;
     }
 
     private void observeChats() {
-        adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
-        recycleChatView.setLayoutManager(mLinearLayoutManager);
-        recycleChatView.setAdapter(adapter);
-        // Load data for first time
-        messageRepository.getDatabaseReference().orderByChild("timestamp")
-                .limitToLast(Constant.LATEST_RECENT_MESSAGES)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getChildrenCount() > 0) {
-                            List<Message> messages = new ArrayList<>();
-                            for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                Message message = Message.from(child);
-
-                                if (message == null
-                                        || ServiceManager.getInstance().getCurrentDeleteStatus(message.deleteStatuses)) {
-                                    continue;
-                                }
-
-                                if (message.readAllowed != null && message.readAllowed.size() > 0
-                                        && !message.readAllowed.containsKey(fromUserID))
-                                    continue;
-
-                                if (message.timestamp < ServiceManager.getInstance().getLastDeleteTimeStamp(originalConversation)) {
-                                    continue;
-                                }
-
-                                message.sender = getUser(message.senderId);
-                                messages.add(message);
-                            }
-                            adapter.appendHistoryItems(messages);
-                        }
-
-                        if (dataSnapshot.getChildrenCount() < Constant.LATEST_RECENT_MESSAGES) {
-                            isEndOfConvesation = true;
-                            updateLoadMoreButtonStatus(false);
-                        }
-
-                        // Listen for data changes
-                        DatabaseReference messageReference = messageRepository.getDatabaseReference();
-                        messageReference.orderByChild("timestamp")
-                                .limitToLast(Constant.LATEST_RECENT_MESSAGES)
-                                .addChildEventListener(observeChatEvent);
-                        databaseReferences.put(messageReference, observeChatEvent);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
         adapter.setEditMode(isEditMode);
         adapter.setOrginalConversation(originalConversation);
 
@@ -880,6 +633,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                     Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.maskMessages = maskMessages;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -895,6 +649,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
                     Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.puzzleMessages = puzzleMessages;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -914,6 +669,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                         if (error == null) {
                             List<User> users = (List<User>) data[0];
                             originalConversation.members = users;
+                            presenter.setConversation(originalConversation);
                         }
                     });
                 }
@@ -952,6 +708,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 if (dataSnapshot.exists()) {
                     HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
                     originalConversation.notifications = notifications;
+                    presenter.setConversation(originalConversation);
                     adapter.setOrginalConversation(originalConversation);
                 }
             }
@@ -969,6 +726,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 } else {
                     originalConversation.deleteStatuses = new HashMap<>();
                 }
+                presenter.setConversation(originalConversation);
             }
 
             @Override
@@ -981,6 +739,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     originalConversation.deleteTimestamps = (Map<String, Double>) dataSnapshot.getValue();
+                    presenter.setConversation(originalConversation);
                 }
             }
 
@@ -1000,6 +759,7 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     } else {
                         adapter.updateNickNames(nickNames);
                     }
+                    presenter.setConversation(originalConversation);
                 }
             }
 
@@ -1051,17 +811,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
             } else {
                 tvChatName.setText(nickName);
             }
-        }
-    }
-
-    private void observeStatus() {
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            DatabaseReference statusRef = userRepository.getDatabaseReference().child(originalConversation.opponentUser.key)
-                    .child("devices");
-            statusRef.addValueEventListener(observeStatusEvent);
-            databaseReferences.put(statusRef, observeStatusEvent);
-        } else {
-            tvChatStatus.setVisibility(View.GONE);
         }
     }
 
@@ -1394,20 +1143,17 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         }
 
         edMessage.setText(null);
-        double timestamp = System.currentTimeMillis() / 1000d;
-        Map<String, Boolean> allowance = getAllowance();
-        Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
-                timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+        presenter.sendTextMessage(text, tgMarkOut.isChecked());
+    }
 
-        Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
-                text, originalConversation.groupID, fromUserID, getMemberIDs(), getMessageMarkStatuses(),
-                getMessageReadStatuses(), timestamp, originalConversation);
-        conversation.members = originalConversation.members;
-        String messageKey = messageRepository.generateKey();
-        messageRepository.updateMessage(messageKey, message);
-        message.key = messageKey;
-        conversationRepository.updateConversation(conversationID, conversation, allowance);
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+    private void sendMessage(String messageKey, Message message) {
+        messageRepository.updateMessage(messageKey, message, (error, data) -> {
+            if (error == null) {
+                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_DELIVERED);
+            } else {
+                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_ERROR);
+            }
+        });
     }
 
     private void onSendCamera() {
@@ -1427,9 +1173,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                     @Override
                     public void onImageReceived(File file) {
                         // FIXME: should improve this way
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-                        cacheMessage.localImage = file.getAbsolutePath();
-                        adapter.addOrUpdate(cacheMessage);
+//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
+//                        cacheMessage.localImage = file.getAbsolutePath();
+//                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1458,9 +1204,9 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
                 .setListener(new ImagePickerHelper.ImagePickerListener() {
                     @Override
                     public void onImageReceived(File file) {
-                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-                        cacheMessage.localImage = file.getAbsolutePath();
-                        adapter.addOrUpdate(cacheMessage);
+//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
+//                        cacheMessage.localImage = file.getAbsolutePath();
+//                        adapter.addOrUpdate(cacheMessage);
                     }
 
                     @Override
@@ -1574,33 +1320,8 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         if (!beAbleToSendMessage()) {
             return;
         }
-
-        double timestamp = System.currentTimeMillis() / 1000d;
-
         File audioFile = new File(currentOutFile);
-        String audioName = audioFile.getName();
-        String pathAudio = fromUser.key + "/" + timestamp + "/" + audioName;
-        bzzzStorage.uploadFile(pathAudio, audioFile, (error, data) -> {
-            if (error == null) {
-                String downloadUrl = (String) data[0];
-                Map<String, Boolean> allowance = getAllowance();
-                Message message = Message.createAudioMessage(downloadUrl,
-                        fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), null,
-                        getMessageDeleteStatuses(), allowance);
-
-                Conversation conversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_VOICE,
-                        downloadUrl, originalConversation.groupID, fromUserID, getMemberIDs(), null, getMessageReadStatuses(),
-                        timestamp, originalConversation);
-                conversation.members = originalConversation.members;
-                String messageKey = messageRepository.generateKey();
-                message.key = messageKey;
-                //Create or Update Conversation
-                messageRepository.updateMessage(messageKey, message);
-                conversationRepository.updateConversation(conversationID, conversation, allowance);
-                NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-            }
-        });
-        //btSendRecord.setEnabled(false);
+        presenter.sendAudioMessage(audioFile.getAbsolutePath());
         visualizerView.clear();
         setRecordMode(false);
         //setButtonsState(0);
@@ -1631,15 +1352,6 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return markStatuses;
     }
 
-    private Map<String, Boolean> getImageMarkStatuses() {
-        Map<String, Boolean> markStatuses = new HashMap<>();
-        if (originalConversation.puzzleMessages != null) {
-            markStatuses.putAll(originalConversation.puzzleMessages);
-        }
-        markStatuses.put(fromUser.key, tgMarkOut.isChecked());
-        return markStatuses;
-    }
-
     private Map<String, Boolean> getMessageReadStatuses() {
         Map<String, Boolean> markStatuses = new HashMap<>();
         for (User toUser : originalConversation.members) {
@@ -1649,94 +1361,21 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
         return markStatuses;
     }
 
-    private Map<String, Boolean> getMessageDeleteStatuses() {
-        Map<String, Boolean> deleteStatuses = new HashMap<>();
-        for (User toUser : originalConversation.members) {
-            deleteStatuses.put(toUser.key, false);
-        }
-        deleteStatuses.put(fromUser.key, false);
-        return deleteStatuses;
-    }
-
-    private Map<String, Integer> getStatuses() {
-        Map<String, Integer> deleteStatuses = new HashMap<>();
-        for (User toUser : originalConversation.members) {
-            deleteStatuses.put(toUser.key, Constant.MESSAGE_STATUS_SENT);
-        }
-        deleteStatuses.put(fromUser.key, Constant.MESSAGE_STATUS_SENT);
-        return deleteStatuses;
-    }
-
     private void sendImageFirebase(File file, File thumbnail) {
-        if (cacheMessage == null) {
-            cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-        }
-        //adapter.addOrUpdate(message);
-        // upload thumbnail first first
-        bzzzStorage.uploadImageForConversation(conversationID, thumbnail, (error, data) -> {
-            if (error != null) {
-                // TODO handle error when uploading image
-                return;
-            }
-            String thumbnailUrl = (String) data[0];
-            messageRepository.updateThumbnailUrl(cacheMessage.key, thumbnailUrl);
-            // Upload image
-            bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
-                String imageUrl = thumbnailUrl;
-                if (error1 == null) {
-                    imageUrl = (String) data1[0];
-                }
-                messageRepository.updatePhotoUrl(cacheMessage.key, imageUrl);
-                //sendImageMessage(imageUrl, thumbnailUrl, Constant.MSG_TYPE_IMAGE);
-            });
-        });
+        presenter.sendImageMessage(file.getAbsolutePath(), thumbnail.getAbsolutePath(), tgMarkOut.isChecked());
     }
 
     private void sendGameFirebase(File file, GameType gameType) {
-        bzzzStorage.uploadImageForConversation(conversationID, file, (error1, data1) -> {
-            if (error1 == null) {
-                String imageUrl = (String) data1[0];
-                sendImageMessage(imageUrl, imageUrl, Constant.MSG_TYPE_GAME, gameType);
-            }
-        });
-    }
-
-    private Message sendImageMessage(String imageUrl, String thumbnailUrl, int msgType, GameType gameType) {
-        String messageKey = messageRepository.generateKey();
-        double timestamp = System.currentTimeMillis() / 1000;
-        Message message = null;
-        Map<String, Boolean> allowance = getAllowance();
-        if (msgType == Constant.MSG_TYPE_IMAGE) {
-            message = Message.createImageMessage(imageUrl, thumbnailUrl,
-                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
-                    getMessageDeleteStatuses(), allowance);
-        } else if (msgType == Constant.MSG_TYPE_GAME) {
-            message = Message.createGameMessage(imageUrl,
-                    fromUser.key, fromUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
-                    getMessageDeleteStatuses(), allowance, gameType.ordinal());
-        }
-        if (message == null) throw new NullPointerException("Message must not be null " + msgType);
-        message.key = messageKey;
-
-        Conversation conversation = new Conversation(originalConversation.conversationType, msgType, imageUrl,
-                originalConversation.groupID, fromUserID, getMemberIDs(), getImageMarkStatuses(),
-                getMessageReadStatuses(), timestamp, originalConversation);
-        conversation.members = originalConversation.members;
-        //Create or Update Conversation
-        messageRepository.updateMessage(messageKey, message);
-        conversationRepository.updateConversation(conversationID, conversation, allowance);
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-        return message;
+        presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isChecked());
     }
 
     private void updateMessageStatus(Message message) {
-        if (message.senderId.equals(fromUserID)) {
-            return;
-        }
         int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
-        if (status == Constant.MESSAGE_STATUS_SENT) {
-            status = Constant.MESSAGE_STATUS_DELIVERED;
-            messageRepository.updateMessageStatus(message.key, originalConversation.members, status);
+        if (!message.senderId.equals(fromUserID)) {
+            if (status != Constant.MESSAGE_STATUS_READ) {
+                messageRepository.updateMessageStatus(message.key, originalConversation.members, Constant.MESSAGE_STATUS_READ);
+            }
+            return;
         }
     }
 
@@ -1801,5 +1440,90 @@ public class ChatActivity extends CoreActivity implements View.OnClickListener, 
 
     private void updateLoadMoreButtonStatus(boolean isShow) {
         btLoadMoreChat.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void updateConversation(Conversation conv) {
+        this.originalConversation = conv;
+        this.adapter.setOrginalConversation(conv);
+        if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
+            btVideoCall.setVisibility(View.GONE);
+            btVoiceCall.setVisibility(View.GONE);
+        }
+        // FIXME
+        startChat();
+    }
+
+    @Override
+    public void updateConversationTitle(String title) {
+        tvChatName.setText(title);
+    }
+
+    @Override
+    public void updateMaskSetting(boolean isEnable) {
+        tgMarkOut.setChecked(isEnable);
+    }
+
+    @Override
+    public void updateUserStatus(boolean isOnline) {
+        tvChatStatus.setText(isOnline ? "Online" : "Offline");
+    }
+
+    @Override
+    public void hideUserStatus() {
+        tvChatStatus.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onCurrentUser(User user) {
+        fromUser = user;
+    }
+
+    @Override
+    public void addNewMessage(Message data) {
+        adapter.addOrUpdate(data);
+        // FIXME why should update mark status
+        updateMessageMarkStatus(data);
+        updateMessageStatus(data);
+        updateConversationReadStatus();
+        recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
+    }
+
+    @Override
+    public void removeMessage(Message data) {
+        adapter.deleteMessage(data.key);
+        this.updateConversationLastMessage();
+    }
+
+    @Override
+    public void updateMessage(Message data) {
+        adapter.addOrUpdate(data);
+    }
+
+    @Override
+    public void updateLastMessages(List<Message> messages, boolean canLoadMore) {
+        adapter.appendHistoryItems(messages);
+        if (!canLoadMore) {
+            isEndOfConvesation = true;
+            updateLoadMoreButtonStatus(false);
+        }
+    }
+
+    @Override
+    public void sendNotification(Conversation conversation, Message message) {
+        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
+    }
+
+    @Override
+    public void addCacheMessage(Message message) {
+        adapter.addOrUpdate(message);
+    }
+
+    @Override
+    public ChatComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideChatComponent(new ChatModule(this));
+        }
+        return component;
     }
 }

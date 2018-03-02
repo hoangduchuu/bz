@@ -14,6 +14,7 @@ import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
@@ -101,11 +102,13 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                     if (TextUtils.isEmpty(params.message)) {
                         return Observable.just(conversation.key);
                     } else {
-                        SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params();
-                        sendMessageParams.currentUser = currentUser;
-                        sendMessageParams.conversation = conversation;
-                        sendMessageParams.markStatus = false;
-                        sendMessageParams.text = params.message;
+                        SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params.Builder()
+                                .setMessageType(MessageType.TEXT)
+                                .setConversation(conversation)
+                                .setMarkStatus(false)
+                                .setCurrentUser(currentUser)
+                                .setText(params.message)
+                                .build();
                         return sendMessageUseCase.buildUseCaseObservable(sendMessageParams)
                                 .map(aBoolean -> conversation.key);
                     }

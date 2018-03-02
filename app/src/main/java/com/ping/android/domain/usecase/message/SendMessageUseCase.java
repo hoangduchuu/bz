@@ -9,13 +9,16 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.service.NotificationHelper;
+import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.inject.Inject;
 
@@ -25,31 +28,42 @@ import io.reactivex.Observable;
  * Created by tuanluong on 2/8/18.
  */
 
-public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Params> {
+public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Params> {
     @Inject
     ConversationRepository conversationRepository;
     @Inject
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
+    private Message message;
+    private Conversation conversation;
+    private Timer timer;
 
     @Inject
     public SendMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
+        timer = new Timer();
     }
 
     @NotNull
     @Override
-    public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
-                .flatMap(user -> conversationRepository.getMessageKey(params.conversation.key)
-                        .flatMap(key -> {
-                            Message message = params.buildMessage(user);
-                            message.key = key;
-                            return conversationRepository.sendMessage(params.conversation.key, message);
-                        }))
-                .flatMap(message -> {
-                    Conversation conversation = params.updateConversationFollowMessage(message);
+    public Observable<Message> buildUseCaseObservable(Params params) {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                updateMessageStatus(Constant.MESSAGE_STATUS_ERROR);
+            }
+        };
+        timer.schedule(task, 5000);
+        message = params.getMessage();
+        conversation = params.getConversation();
+        return conversationRepository.sendMessage(params.conversation.key, message)
+                .flatMap(message1 -> {
+                    if (timer != null) {
+                        timer.cancel();
+                    }
+                    updateMessageStatus(Constant.MESSAGE_STATUS_DELIVERED);
+                    Conversation conversation = params.getNewConversation();
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put(String.format("conversations/%s", conversation.key), conversation.toMap());
                     // Update message for conversation for each user
@@ -57,93 +71,253 @@ public class SendMessageUseCase extends UseCase<Boolean, SendMessageUseCase.Para
                         if (!message.readAllowed.containsKey(toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
                     }
-                    return commonRepository.updateBatchData(updateData);
+                    return commonRepository.updateBatchData(updateData)
+                            .map(success -> message);
                 });
     }
 
-    public static class Params {
-        public Conversation conversation;
-        public boolean markStatus;
-        public User currentUser;
-        public String text;
+    private void updateMessageStatus(int messageStatus) {
+        if (message != null) {
+            HashMap<String, Object> updateValue = new HashMap<>();
+            for (String userId: conversation.memberIDs.keySet()) {
+                updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), messageStatus);
+            }
+            commonRepository.updateBatchData(updateValue);
+        }
+    }
 
-        public Message buildMessage(User currentUser) {
-            this.currentUser = currentUser;
-            double timestamp = System.currentTimeMillis() / 1000d;
-            Map<String, Boolean> allowance = getAllowance();
-            Message message = Message.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
-                    timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+    public static class Params {
+        private Conversation conversation;
+        private Conversation newConversation;
+        private Message message;
+        private String filePath;
+
+        public Message getMessage() {
             return message;
         }
 
-        public Conversation updateConversationFollowMessage(Message message) {
-            Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
-                    text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMarkStatuses(),
-                    getMessageReadStatuses(), message.timestamp, conversation);
+        public Conversation getConversation() {
+            return conversation;
+        }
+
+        public Conversation getNewConversation() {
             return newConversation;
         }
 
-        private Map<String, Boolean> getMemberIDs() {
-            Map<String, Boolean> memberIDs = new HashMap<>();
-            for (String toUser : conversation.memberIDs.keySet()) {
-                memberIDs.put(toUser, true);
-            }
-            return memberIDs;
-        }
+        public static class Builder {
+            private Conversation conversation;
+            private boolean markStatus;
+            private User currentUser;
+            private String text;
+            private MessageType messageType;
+            private GameType gameType;
+            private String imageUrl;
+            private String thumbUrl;
+            private String messageKey;
 
-        private Map<String, Boolean> getMessageReadStatuses() {
-            Map<String, Boolean> markStatuses = new HashMap<>();
-            for (String toUser : conversation.memberIDs.keySet()) {
-                markStatuses.put(toUser, false);
+            public Builder setCurrentUser(User currentUser) {
+                this.currentUser = currentUser;
+                return this;
             }
-            markStatuses.put(currentUser.key, true);
-            return markStatuses;
-        }
 
-        private Map<String, Boolean> getAllowance() {
-            Map<String, Boolean> ret = new HashMap<>();
-            ret.put(currentUser.key, true);
-            if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                // Check whether sender is in block list of receiver
-                if (!currentUser.blockBys.containsKey(conversation.opponentUser.key)) {
-                    ret.put(conversation.opponentUser.key, true);
+            public Builder setConversation(Conversation conversation) {
+                this.conversation = conversation;
+                return this;
+            }
+
+            public Builder setMarkStatus(boolean markStatus) {
+                this.markStatus = markStatus;
+                return this;
+            }
+
+            public Builder setMessageType(MessageType messageType) {
+                this.messageType = messageType;
+                return this;
+            }
+
+            public Builder setMessageKey(String messageKey) {
+                this.messageKey = messageKey;
+                return this;
+            }
+
+            // region text message
+            public Builder setText(String text) {
+                this.text = text;
+                return this;
+            }
+            // endregion
+
+            // region Game message
+            public Builder setGameType(GameType gameType) {
+                this.gameType = gameType;
+                return this;
+            }
+
+            // endregion
+
+            // region image message
+
+            public Builder setImageUrl(String imageUrl) {
+                this.imageUrl = imageUrl;
+                this.text = imageUrl;
+                return this;
+            }
+
+            public Builder setThumbUrl(String thumbUrl) {
+                this.thumbUrl = thumbUrl;
+                return this;
+            }
+
+            // endregion
+
+            public SendMessageUseCase.Params build() {
+                Params params = new Params();
+                Message message = null;
+                switch (messageType) {
+                    case TEXT:
+                        message = buildMessage(currentUser, text);
+                        break;
+                    case IMAGE:
+                        message = buildImageMessage(currentUser, imageUrl, thumbUrl);
+                        break;
+                    case GAME:
+                        message = buildGameMessage(currentUser, imageUrl, gameType);
+                        break;
+                    case AUDIO:
+                        message = buildAudioMessage(currentUser, imageUrl);
+                        break;
                 }
-            } else {
+                message.key = messageKey;
+                params.message = message;
+                params.conversation = conversation;
+                params.newConversation = conversationFrom(message);
+                params.filePath = imageUrl;
+                return params;
+            }
+
+            private Message buildAudioMessage(User currentUser, String audioUrl) {
+                double timestamp = System.currentTimeMillis() / 1000d;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createAudioMessage(audioUrl,
+                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), null,
+                        getMessageDeleteStatuses(), allowance);
+            }
+
+            private Message buildMessage(User currentUser, String text) {
+                this.currentUser = currentUser;
+                double timestamp = System.currentTimeMillis() / 1000d;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+            }
+
+            private Message buildImageMessage(User currentUser, String photoUrl, String thumbUrl) {
+                this.currentUser = currentUser;
+                double timestamp = System.currentTimeMillis() / 1000d;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createImageMessage(photoUrl, thumbUrl, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+            }
+
+            private Message buildGameMessage(User currentUser, String imageUrl, GameType gameType) {
+                this.currentUser = currentUser;
+                double timestamp = System.currentTimeMillis() / 1000d;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createGameMessage(imageUrl,
+                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
+                        getMessageDeleteStatuses(), allowance, gameType.ordinal());
+            }
+
+            private Conversation conversationFrom(Message message) {
+                Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
+                        text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMarkStatuses(),
+                        getMessageReadStatuses(), message.timestamp, conversation);
+                return newConversation;
+            }
+
+            private Map<String, Boolean> getMemberIDs() {
+                Map<String, Boolean> memberIDs = new HashMap<>();
                 for (String toUser : conversation.memberIDs.keySet()) {
-                    if (toUser.equals(currentUser.key)
-                            || currentUser.blocks.containsKey(toUser)
-                            || currentUser.blockBys.containsKey(toUser)) continue;
-                    ret.put(toUser, true);
+                    memberIDs.put(toUser, true);
                 }
+                return memberIDs;
             }
-            return ret;
+
+            private Map<String, Boolean> getMessageReadStatuses() {
+                Map<String, Boolean> markStatuses = new HashMap<>();
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    markStatuses.put(toUser, false);
+                }
+                markStatuses.put(currentUser.key, true);
+                return markStatuses;
+            }
+
+            private Map<String, Boolean> getAllowance() {
+                Map<String, Boolean> ret = new HashMap<>();
+                ret.put(currentUser.key, true);
+                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                    // Check whether sender is in block list of receiver
+                    if (!currentUser.blockBys.containsKey(conversation.opponentUser.key)) {
+                        ret.put(conversation.opponentUser.key, true);
+                    }
+                } else {
+                    for (String toUser : conversation.memberIDs.keySet()) {
+                        if (toUser.equals(currentUser.key)
+                                || currentUser.blocks.containsKey(toUser)
+                                || currentUser.blockBys.containsKey(toUser)) continue;
+                        ret.put(toUser, true);
+                    }
+                }
+                return ret;
+            }
+
+            private Map<String, Integer> getStatuses() {
+                Map<String, Integer> deleteStatuses = new HashMap<>();
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    deleteStatuses.put(toUser, Constant.MESSAGE_STATUS_SENT);
+                }
+                deleteStatuses.put(currentUser.key, Constant.MESSAGE_STATUS_SENT);
+                return deleteStatuses;
+            }
+
+            private Map<String, Boolean> getMessageMarkStatuses() {
+                Map<String, Boolean> markStatuses = new HashMap<>();
+                if (conversation.maskMessages != null) {
+                    markStatuses.putAll(conversation.maskMessages);
+                }
+                markStatuses.put(currentUser.key, markStatus);
+                return markStatuses;
+            }
+
+            private Map<String, Boolean> getImageMarkStatuses() {
+                Map<String, Boolean> markStatuses = new HashMap<>();
+                if (conversation.puzzleMessages != null) {
+                    markStatuses.putAll(conversation.puzzleMessages);
+                }
+                markStatuses.put(currentUser.key, markStatus);
+                return markStatuses;
+            }
+
+            private Map<String, Boolean> getMessageDeleteStatuses() {
+                Map<String, Boolean> deleteStatuses = new HashMap<>();
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    deleteStatuses.put(toUser, false);
+                }
+                deleteStatuses.put(currentUser.key, false);
+                return deleteStatuses;
+            }
         }
 
-        private Map<String, Integer> getStatuses() {
-            Map<String, Integer> deleteStatuses = new HashMap<>();
-            for (String toUser : conversation.memberIDs.keySet()) {
-                deleteStatuses.put(toUser, Constant.MESSAGE_STATUS_SENT);
-            }
-            deleteStatuses.put(currentUser.key, Constant.MESSAGE_STATUS_SENT);
-            return deleteStatuses;
+        public void setConversation(Conversation conversation) {
+            this.conversation = conversation;
         }
 
-        private Map<String, Boolean> getMessageMarkStatuses() {
-            Map<String, Boolean> markStatuses = new HashMap<>();
-            if (conversation.maskMessages != null) {
-                markStatuses.putAll(conversation.maskMessages);
-            }
-            markStatuses.put(currentUser.key, markStatus);
-            return markStatuses;
+        public void setMessageKey(String key) {
+            message.key = key;
         }
 
-        private Map<String, Boolean> getMessageDeleteStatuses() {
-            Map<String, Boolean> deleteStatuses = new HashMap<>();
-            for (String toUser : conversation.memberIDs.keySet()) {
-                deleteStatuses.put(toUser, false);
-            }
-            deleteStatuses.put(currentUser.key, false);
-            return deleteStatuses;
+        public String getFilePath() {
+            return filePath;
         }
     }
 }

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.activity.ChatActivity;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
@@ -26,16 +24,10 @@ import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
 import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.managers.UserManager;
-import com.ping.android.model.Conversation;
-import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.GroupRepository;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
@@ -45,9 +37,7 @@ import com.wang.avi.AVLoadingIndicatorView;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -316,14 +306,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     @Override
     public void hideNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
-    }
-
-    private void onSendMessage(String conversationID, String msg) {
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-        intent.putExtra("SEND_MESSAGE", msg);
-        startActivity(intent);
-        finish();
     }
 
     public NewChatComponent getComponent() {

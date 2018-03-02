@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.conversation;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
@@ -21,7 +21,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/31/18.
  */
 
-public class GetConversationUseCase extends UseCase<Conversation, String> {
+public class ObserveConversationValueUseCase extends UseCase<Conversation, String> {
     @Inject
     ConversationRepository conversationRepository;
     @Inject
@@ -30,7 +30,7 @@ public class GetConversationUseCase extends UseCase<Conversation, String> {
     GroupRepository groupRepository;
 
     @Inject
-    public GetConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ObserveConversationValueUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 

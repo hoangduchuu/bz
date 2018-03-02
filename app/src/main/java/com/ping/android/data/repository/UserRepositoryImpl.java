@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.UserRepository;
@@ -121,6 +122,13 @@ public class UserRepositoryImpl implements UserRepository {
         this.user = null;
         this.auth.signOut();
         return Observable.just(true);
+    }
+
+    @Override
+    public Observable<DataSnapshot> observeUserStatus(String userId) {
+        DatabaseReference reference = database.getReference("users").child(userId).child("devices");
+        return RxFirebaseDatabase.getInstance(reference)
+                .onValueEvent();
     }
 
     private Observable<String> getCurrentUserId() {

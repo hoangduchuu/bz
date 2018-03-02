@@ -34,6 +34,7 @@ public class Message {
     // Local variable, don't store on Firebase
     public User sender;
     public String localImage;
+    public boolean isCached;
 
     public Message() {
     }
