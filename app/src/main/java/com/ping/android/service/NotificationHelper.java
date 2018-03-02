@@ -1,17 +1,18 @@
 package com.ping.android.service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
+import android.support.v4.app.RemoteInput;
 
 import com.google.gson.JsonObject;
+import com.ping.android.data.repository.ConversationRepositoryImpl;
+import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Callback;
+import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.quickblox.core.QBEntityCallback;
@@ -20,23 +21,28 @@ import com.quickblox.messages.QBPushNotifications;
 import com.quickblox.messages.model.QBEnvironment;
 import com.quickblox.messages.model.QBEvent;
 import com.quickblox.messages.model.QBEventType;
-import com.quickblox.messages.model.QBNotificationChannel;
 import com.quickblox.messages.model.QBNotificationType;
-import com.quickblox.messages.model.QBSubscription;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * Created by bzzz on 11/29/17.
  */
 
 public class NotificationHelper {
+    public static String REPLY_ACTION = "com.ping.android.service.NotificationHelper.REPLY_ACTION";
+    public static String KEY_REPLY = "key_reply_message";
 
     private static NotificationHelper instance = new NotificationHelper();
-    private static Context context;
 
+    MessageRepository messageRepository;
+    ConversationRepository conversationRepository = new ConversationRepositoryImpl();
+    private com.ping.android.service.firebase.ConversationRepository fbConversationRepository;
+    private User fromUser;
+    private Conversation originalConversation;
     private NotificationHelper() {
 
     }
@@ -105,10 +111,6 @@ public class NotificationHelper {
                 }
             });
         });
-    }
-
-    public static void setContext(Context context) {
-        NotificationHelper.context = context;
     }
 
     public void sendNotificationForConversation(Conversation conversation, Message fmessage) {
@@ -251,5 +253,89 @@ public class NotificationHelper {
                 }
             });
         });
+    }
+
+    public static CharSequence getReplyMessage(Intent intent) {
+        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+        if (remoteInput != null) {
+            return remoteInput.getCharSequence(KEY_REPLY);
+        }
+        return null;
+    }
+
+    public void sendMessage(String text, String conversationId) {
+        fromUser = UserManager.getInstance().getUser();
+        if (fbConversationRepository == null){
+            fbConversationRepository = new com.ping.android.service.firebase.ConversationRepository();
+        }
+        messageRepository = MessageRepository.from(conversationId);
+        conversationRepository.getConversation(fromUser.key, conversationId).subscribe(conversation -> {
+            originalConversation = conversation;
+            double timestamp = System.currentTimeMillis() / 1000d;
+            Map<String, Boolean> readAllowed = getReadAllowed();
+            Message message = Message.createTextMessage(text, fromUser.key, fromUser.getDisplayName(),
+                    timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), readAllowed);
+
+            Conversation newConversation = new Conversation(originalConversation.conversationType, Constant.MSG_TYPE_TEXT,
+                    text, originalConversation.groupID, fromUser.key, originalConversation.memberIDs, getMessageMarkStatuses(),
+                    getMessageReadStatuses(), timestamp, originalConversation);
+            conversation.members = originalConversation.members;
+            String messageKey = messageRepository.generateKey();
+            messageRepository.updateMessage(messageKey, message);
+            message.key = messageKey;
+            fbConversationRepository.updateConversation(conversationId, newConversation, readAllowed);
+            sendNotificationForConversation(conversation, message);
+        });
+
+    }
+
+    private Map<String, Boolean> getMessageMarkStatuses() {
+        Map<String, Boolean> markStatuses = new HashMap<>();
+        if (originalConversation.maskMessages != null) {
+            markStatuses.putAll(originalConversation.maskMessages);
+        }
+        return markStatuses;
+    }
+
+    private Map<String, Boolean> getMessageReadStatuses() {
+        Map<String, Boolean> markStatuses = new HashMap<>();
+        for (String toUserId : originalConversation.memberIDs.keySet()) {
+            markStatuses.put(toUserId, false);
+        }
+        markStatuses.put(fromUser.key, true);
+        return markStatuses;
+    }
+
+    private Map<String, Boolean> getMessageDeleteStatuses() {
+        Map<String, Boolean> deleteStatuses = new HashMap<>();
+        for (String toUserId : originalConversation.memberIDs.keySet()) {
+            deleteStatuses.put(toUserId, false);
+        }
+        deleteStatuses.put(fromUser.key, false);
+        return deleteStatuses;
+    }
+
+    private Map<String, Integer> getStatuses() {
+        Map<String, Integer> deleteStatuses = new HashMap<>();
+        for (String toUserId : originalConversation.memberIDs.keySet()) {
+            deleteStatuses.put(toUserId, Constant.MESSAGE_STATUS_SENT);
+        }
+        deleteStatuses.put(fromUser.key, Constant.MESSAGE_STATUS_SENT);
+        return deleteStatuses;
+    }
+
+    private Map<String, Boolean> getReadAllowed() {
+        Map<String, Boolean> ret = new HashMap<>();
+        ret.put(fromUser.key, true);
+        // Check whether sender is in block list of receiver
+
+        for (String toUserId : originalConversation.memberIDs.keySet()) {
+            if (toUserId.equals(fromUser.key)
+                    || fromUser.blocks.containsKey(toUserId)
+                    || fromUser.blockBys.containsKey(toUserId)) continue;
+            ret.put(toUserId, true);
+        }
+
+        return ret;
     }
 }

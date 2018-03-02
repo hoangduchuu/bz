@@ -40,7 +40,7 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userRepository.initializeUser()
                 .flatMap(user -> {
                     String deviceId = device.getDeviceId();
                     user.devices.put(deviceId, ((double) System.currentTimeMillis() / 1000));

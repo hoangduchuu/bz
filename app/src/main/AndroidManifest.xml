@@ -73,16 +73,22 @@
             android:value="DEVELOPMENT" />
 
         <receiver
-            android:name="com.ping.android.service.NotificationBroadcastReceiver"
+            android:name="com.ping.android.service.PushNotificationBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-
                 <!-- <action android:name="new-push-event"/> -->
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </receiver>
-
+        <receiver
+            android:name="com.ping.android.service.NotificationBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.ping.android.service.NotificationHelper.REPLY_ACTION" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name="com.ping.android.presentation.view.activity.SplashActivity"
             android:launchMode="singleTop"

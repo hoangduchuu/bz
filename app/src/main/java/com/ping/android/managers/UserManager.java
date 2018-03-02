@@ -42,7 +42,6 @@ public class UserManager {
     private List<Callback> userUpdated;
 
     private static UserManager instance;
-    private ArrayList<User> allUsers = new ArrayList<>();
     private DatabaseReference friendDatabaseReference;
 
     public static UserManager getInstance() {
@@ -155,14 +154,6 @@ public class UserManager {
 
     public User getUser() {
         return user;
-    }
-
-    public void setAllUsers(ArrayList<User> allUsers) {
-        this.allUsers = allUsers;
-    }
-
-    public ArrayList<User> getAllUsers() {
-        return allUsers;
     }
 
     public void logout() {

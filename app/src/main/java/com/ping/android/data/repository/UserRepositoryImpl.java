@@ -23,13 +23,11 @@ import io.reactivex.Observable;
 /**
  * Created by tuanluong on 1/28/18.
  */
-
 public class UserRepositoryImpl implements UserRepository {
     FirebaseDatabase database;
     FirebaseAuth auth;
     private User user;
     private QBUser qbUser;
-
 
     @Inject
     public UserRepositoryImpl() {
@@ -43,7 +41,7 @@ public class UserRepositoryImpl implements UserRepository {
             return Observable.error(new NullPointerException());
         }
         return getUser(auth.getUid())
-                .doOnNext(user1 -> this.user = user1);
+                .doOnNext(user1 -> this.setUser(user1));
     }
 
     @Override
@@ -63,7 +61,7 @@ public class UserRepositoryImpl implements UserRepository {
                     return RxFirebaseDatabase.getInstance(userReference)
                             .onValueEvent()
                             .map(User::new)
-                            .doOnNext(user1 -> user = user1);
+                            .doOnNext(user1 -> this.setUser(user1));
                 });
     }
 
@@ -119,8 +117,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Boolean> logout() {
-        this.user = null;
         this.auth.signOut();
+
+        setUser(null);
         return Observable.just(true);
     }
 
@@ -136,5 +135,9 @@ public class UserRepositoryImpl implements UserRepository {
         String userId = auth.getUid();
         if (userId == null) return Observable.error(new NullPointerException("Current uuid is null"));
         return Observable.just(userId);
+    }
+
+    private void setUser(User user){
+        this.user = user;
     }
 }
