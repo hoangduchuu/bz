@@ -226,6 +226,8 @@ public class NotificationHelper {
         object.addProperty("senderName", currentUser.getDisplayName());
         object.addProperty("conversationId", conversation.key);
         object.addProperty("senderId", currentUser.key);
+        object.addProperty("messageType", Constant.MSG_TYPE_GAME);
+
         BadgesHelper.getInstance().readUserBadgesWithCompletion(user.key, (error, data) -> {
 
             if (error != null) {
