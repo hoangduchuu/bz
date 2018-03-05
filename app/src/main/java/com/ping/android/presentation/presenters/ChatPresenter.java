@@ -30,6 +30,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void setConversation(Conversation originalConversation);
 
+    void resendMessage(Message message);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

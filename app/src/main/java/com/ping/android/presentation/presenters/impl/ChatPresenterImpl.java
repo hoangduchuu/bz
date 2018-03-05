@@ -10,6 +10,7 @@ import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
+import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
@@ -29,6 +30,7 @@ import com.ping.android.ultility.Constant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -59,11 +61,15 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendGameMessageUseCase sendGameMessageUseCase;
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
+    @Inject
+    ResendMessageUseCase resendMessageUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
+    private AtomicInteger initMessageSteps = new AtomicInteger(2);
+    private boolean isMessageFirstLoad;
 
     User currentUser;
 
@@ -74,6 +80,16 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void create() {
         observeCurrentUser();
+    }
+
+    @Override
+    public void resume() {
+        observeMessageUpdate();
+    }
+
+    @Override
+    public void pause() {
+        observeMessageUseCase.unsubscribe();
     }
 
     private void observeCurrentUser() {
@@ -98,6 +114,8 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void observeMessageUpdate() {
+        if (initMessageSteps.decrementAndGet() > 0) return;
+
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
@@ -227,6 +245,15 @@ public class ChatPresenterImpl implements ChatPresenter {
         this.conversation = originalConversation;
     }
 
+    @Override
+    public void resendMessage(Message message) {
+        ResendMessageUseCase.Params params = new ResendMessageUseCase.Params();
+        params.conversationId = conversation.key;
+        params.currentUserId = currentUser.key;
+        params.message = message;
+        resendMessageUseCase.execute(new DefaultObserver<>(), params);
+    }
+
     private void getLastMessages(Conversation conversation) {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
@@ -292,5 +319,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendImageMessageUseCase.dispose();
         sendGameMessageUseCase.dispose();
         sendAudioMessageUseCase.dispose();
+        resendMessageUseCase.dispose();
     }
 }

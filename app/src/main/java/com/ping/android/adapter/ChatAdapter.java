@@ -1,6 +1,7 @@
 package com.ping.android.adapter;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -8,6 +9,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -721,7 +723,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setStatus(String messageStatus) {
+        private void setStatus(String messageStatus, int status) {
             if (tvStatus == null) return;
             if (TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setVisibility(View.GONE);
@@ -729,6 +731,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
             tvStatus.setText(messageStatus);
             tvStatus.setVisibility(View.VISIBLE);
+            if (status == Constant.MESSAGE_STATUS_ERROR) {
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red));
+            } else {
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
+            }
         }
 
         @Override
@@ -776,6 +783,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 if (isLastMessage && message.messageType != Constant.MSG_TYPE_GAME) {
                     switch (status) {
                         case Constant.MESSAGE_STATUS_SENT:
+                            messageStatus = "";
+                            break;
                         case Constant.MESSAGE_STATUS_DELIVERED:
                             messageStatus = "Delivered";
                             break;
@@ -830,7 +839,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     messageStatus = "Game";
                 }
             }
-            setStatus(messageStatus);
+            setStatus(messageStatus, status);
         }
     }
 }

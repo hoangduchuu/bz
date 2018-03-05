@@ -170,7 +170,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         getComponent().inject(this);
-        presenter.create();
 
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         badgeHelper = new BadgeHelper(this);
@@ -183,6 +182,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         init();
         initView();
+        presenter.create();
         //initConversationData();
         presenter.initConversationData(conversationID);
     }
@@ -1134,10 +1134,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1376,6 +1376,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_READ);
             }
             return;
+        } else {
+            if (status == Constant.MESSAGE_STATUS_ERROR) {
+                presenter.resendMessage(message);
+            }
         }
     }
 
