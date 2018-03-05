@@ -1,4 +1,4 @@
-package com.ping.android.adapter;
+package com.ping.android.presentation.view.adapter;
 
 import android.content.Context;
 import android.support.v4.util.Pair;
@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.utils.UiUtils;
 

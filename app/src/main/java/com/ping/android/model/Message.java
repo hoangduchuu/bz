@@ -35,6 +35,7 @@ public class Message {
     public User sender;
     public String localImage;
     public boolean isCached;
+    public String currentUserId;
 
     public Message() {
     }

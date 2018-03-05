@@ -1,4 +1,4 @@
-package com.ping.android.adapter;
+package com.ping.android.presentation.view.adapter;
 
 import android.graphics.Typeface;
 import android.support.transition.TransitionManager;

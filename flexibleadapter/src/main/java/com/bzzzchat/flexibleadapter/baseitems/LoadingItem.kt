@@ -18,7 +18,7 @@ class LoadingItem: FlexibleItem<LoadingItem.ViewHolder> {
         return ViewHolder(parent.inflate(layoutId))
     }
 
-    override fun onBindViewHolder(holder: ViewHolder) {
+    override fun onBindViewHolder(holder: ViewHolder, lastItem: Boolean) {
 
     }
 

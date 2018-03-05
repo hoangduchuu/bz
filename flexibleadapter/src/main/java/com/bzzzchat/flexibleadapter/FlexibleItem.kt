@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
 /**
- * Base item that is used in [FlexibleAdapter]
+ * Base item that is used in [FlexibleAdapter1]
  *
  * Created by tuanluong on 10/18/17.
  */
@@ -15,5 +15,5 @@ interface FlexibleItem<V> where V: RecyclerView.ViewHolder{
 
     fun onCreateViewHolder(parent: ViewGroup): V
 
-    fun onBindViewHolder(holder: V)
+    fun onBindViewHolder(holder: V, lastItem: Boolean)
 }

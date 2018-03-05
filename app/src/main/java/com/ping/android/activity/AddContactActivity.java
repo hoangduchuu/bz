@@ -13,7 +13,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxSearchView;
-import com.ping.android.adapter.AddContactAdapter;
+import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.managers.UserManager;

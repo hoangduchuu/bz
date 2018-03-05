@@ -8,12 +8,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ping.android.adapter.NicknameAdapter;
+import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
 import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.ping.android.adapter;
+package com.ping.android.presentation.view.adapter;
 
 import android.content.Context;
 import android.support.transition.TransitionManager;

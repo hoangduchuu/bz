@@ -22,7 +22,7 @@ import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
-import com.ping.android.adapter.GroupProfileAdapter;
+import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
@@ -34,7 +34,6 @@ import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;

@@ -1,6 +1,5 @@
-package com.ping.android.adapter;
+package com.ping.android.presentation.view.adapter;
 
-import android.content.Context;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;

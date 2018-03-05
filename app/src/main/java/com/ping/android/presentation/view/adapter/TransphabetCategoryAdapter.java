@@ -1,4 +1,4 @@
-package com.ping.android.adapter;
+package com.ping.android.presentation.view.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

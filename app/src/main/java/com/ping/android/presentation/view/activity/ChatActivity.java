@@ -16,7 +16,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -38,7 +40,8 @@ import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.google.firebase.database.ChildEventListener;
+import com.bzzzchat.flexibleadapter.FlexibleAdapter1;
+import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,8 +51,13 @@ import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.view.IconicsImageView;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.GameActivity;
+import com.ping.android.activity.GameMemoryActivity;
+import com.ping.android.activity.GameTicTacToeActivity;
+import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
-import com.ping.android.adapter.ChatAdapter;
+import com.ping.android.activity.UserDetailActivity;
+import com.ping.android.presentation.view.adapter.ChatAdapter;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.managers.UserManager;
@@ -58,14 +66,14 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
+import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
@@ -90,7 +98,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
-public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatAdapter.ClickListener {
+public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatAdapter.ClickListener, MessageBaseItem.MessageListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private final int REPEAT_INTERVAL = 40;
 
@@ -119,6 +127,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private User fromUser;
     private Conversation originalConversation;
     private ChatAdapter adapter;
+    private ChatMessageAdapter messagesAdapter;
+
     private List<Message> messages;
     private String RECORDING_PATH, currentOutFile;
     private MediaRecorder myAudioRecorder;
@@ -192,7 +202,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messages = new ArrayList<>();
         adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
-        recycleChatView.setAdapter(adapter);
+        messagesAdapter = new ChatMessageAdapter();
+        recycleChatView.setAdapter(messagesAdapter);
     }
 
     @Override
@@ -391,11 +402,44 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements) {
+        Intent intent = new Intent(this, PuzzleActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+        intent.putExtra("MESSAGE_ID", messageKey);
+        intent.putExtra("IMAGE_URL", imageUrl);
+        intent.putExtra("LOCAL_IMAGE", localImage);
+        intent.putExtra("PUZZLE_STATUS", isPuzzled);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this, sharedElements
+        );
+        startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public void openGameMessage(Message message) {
+        Intent intent = null;
+        if (message.gameType == GameType.MEMORY.ordinal()) {
+            intent = new Intent(this, GameMemoryActivity.class);
+        } else if (message.gameType == GameType.TIC_TAC_TOE.ordinal()) {
+            intent = new Intent(this, GameTicTacToeActivity.class);
+        } else {
+            intent = new Intent(this, GameActivity.class);
+        }
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
+        intent.putExtra("CONVERSATION", originalConversation);
+        intent.putExtra("SENDER", message.sender);
+        intent.putExtra("MESSAGE_ID", message.key);
+        intent.putExtra("IMAGE_URL", message.gameUrl);
+        startActivity(intent);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (shouldDispatchOnTouch) {
             if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 if (selectedMessage != null) {
-                    adapter.addOrUpdate(selectedMessage);
+                    //adapter.addOrUpdate(selectedMessage);
+                    updateMessage(selectedMessage);
                 }
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 //return false;
@@ -969,6 +1013,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (adapter != null) {
             adapter.setEditMode(isEditMode);
         }
+        if (messagesAdapter != null) {
+            messagesAdapter.updateEditMode(isEditMode);
+        }
     }
 
     private void updateEditAllMode() {
@@ -1250,10 +1297,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     }
                 });
         imagePickerHelper.openPicker();
-//        Intent intent = new Intent();
-//        intent.setType("image/*");
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
-//        startActivityForResult(Intent.createChooser(intent, "Get photo"), Constant.GAME_GALLERY_REQUEST);
     }
 
     private void onStartRecord() {
@@ -1419,25 +1462,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         return true;
     }
 
-    private Map<String, Boolean> getAllowance() {
-        Map<String, Boolean> ret = new HashMap<>();
-        ret.put(fromUserID, true);
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            // Check whether sender is in block list of receiver
-            if (!fromUser.blockBys.containsKey(originalConversation.opponentUser.key)) {
-                ret.put(originalConversation.opponentUser.key, true);
-            }
-        } else {
-            for (User toUser : originalConversation.members) {
-                if (toUser.key.equals(fromUser.key)
-                        || fromUser.blocks.containsKey(toUser.key)
-                        || fromUser.blockBys.containsKey(toUser.key)) continue;
-                ret.put(toUser.key, true);
-            }
-        }
-        return ret;
-    }
-
     private void updateLoadMoreButtonStatus(boolean isShow) {
         btLoadMoreChat.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
@@ -1481,7 +1505,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void addNewMessage(Message data) {
-        adapter.addOrUpdate(data);
+        //adapter.addOrUpdate(data);
+        FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
+        if (item instanceof MessageBaseItem) {
+            ((MessageBaseItem) item).setMessageListener(this);
+            messagesAdapter.addOrUpdate((MessageBaseItem) item);
+        }
         // FIXME why should update mark status
         updateMessageMarkStatus(data);
         updateMessageStatus(data);
@@ -1492,12 +1521,17 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void removeMessage(Message data) {
         adapter.deleteMessage(data.key);
+        messagesAdapter.deleteMessage(data.key);
         this.updateConversationLastMessage();
     }
 
     @Override
     public void updateMessage(Message data) {
-        adapter.addOrUpdate(data);
+        FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
+        if (item instanceof MessageBaseItem) {
+            ((MessageBaseItem) item).setMessageListener(this);
+            messagesAdapter.addOrUpdate((MessageBaseItem) item);
+        }
     }
 
     @Override
@@ -1525,5 +1559,25 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             component = getLoggedInComponent().provideChatComponent(new ChatModule(this));
         }
         return component;
+    }
+
+    @Override
+    public void handleProfileImagePress(User user, Pair<View, String>[] sharedElements) {
+        Intent intent = new Intent(this, UserDetailActivity.class);
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, user.key);
+        intent.putExtra(UserDetailActivity.EXTRA_USER, user);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
+        intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "");
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this, sharedElements
+        );
+        startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public void updateMessageMask(Message message, boolean maskStatus, boolean lastItem) {
+        List<Message> messages = new ArrayList<>(1);
+        messages.add(message);
+        messageRepository.updateMessageMask(messages, conversationID, fromUser.key, lastItem, maskStatus);
     }
 }

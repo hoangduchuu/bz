@@ -15,6 +15,9 @@ public abstract class BaseMessageViewHolder extends RecyclerView.ViewHolder impl
 
     public BaseMessageViewHolder(View itemView) {
         super(itemView);
+    }
+
+    protected void initGestureListener() {
         gestureDetectorListener = new GestureDetectorListener(this);
         GestureDetectorCompat mDetector = new GestureDetectorCompat(itemView.getContext(), gestureDetectorListener);
         View clickableView = getClickableView();

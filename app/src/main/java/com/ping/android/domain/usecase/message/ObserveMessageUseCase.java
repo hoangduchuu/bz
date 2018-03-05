@@ -48,6 +48,7 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
 //                })
                 .map(childEvent -> {
                     Message message = Message.from(childEvent.dataSnapshot);
+                    message.currentUserId = currentUser.key;
                     return new ChildData<>(message, childEvent.type);
                 })
                 .flatMap(childData -> {

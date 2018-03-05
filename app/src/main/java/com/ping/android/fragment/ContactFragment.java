@@ -24,7 +24,7 @@ import com.ping.android.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
-import com.ping.android.adapter.ContactAdapter;
+import com.ping.android.presentation.view.adapter.ContactAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
