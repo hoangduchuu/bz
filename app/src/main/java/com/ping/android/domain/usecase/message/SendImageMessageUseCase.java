@@ -50,6 +50,8 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
+        builder.setCacheImage(params.filePath);
+        builder.setImageUrl("PPhtotoMessageIdentifier");
         Message cachedMessage = builder.build().getMessage();
         cachedMessage.isCached = true;
         cachedMessage.localImage = params.filePath;
@@ -59,6 +61,12 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                     builder.setMessageKey(s);
                     return message;
                 })
+                .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
+                        .map(message1 -> {
+                            message1.isCached = true;
+                            message1.localImage = params.filePath;
+                            return message1;
+                        }))
                 .concatWith(sendMessage(params));
     }
 

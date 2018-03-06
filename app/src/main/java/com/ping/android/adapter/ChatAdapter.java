@@ -1,7 +1,6 @@
 package com.ping.android.adapter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -629,8 +628,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         private void setIvChatPhoto(String imageURL) {
             boolean bitmapMark = markStatus;
             if (ivChatPhoto == null) return;
-            if (TextUtils.isEmpty(imageURL)) {
-                ivChatPhoto.setImageResource(R.drawable.img_loading);
+            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+                //ivChatPhoto.setImageResource(R.drawable.img_loading);
+                ivChatPhoto.setImageResource(R.drawable.img_loading_image);
                 return;
             }
             int status = ServiceManager.getInstance().getCurrentStatus(message.status);
@@ -760,15 +760,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (ivChatPhoto != null) {
                 ivChatPhoto.setTransitionName(message.key);
             }
-            if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+            if (model.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME) {
                 if (!TextUtils.isEmpty(model.localImage)) {
                     setLocalImage(model.localImage);
                 } else {
-                    setIvChatPhoto(model.thumbUrl);
+                    if (message.messageType == Constant.MSG_TYPE_GAME) {
+                        setIvChatPhoto(message.gameUrl);
+                    } else {
+                        setIvChatPhoto(model.photoUrl);
+                    }
                 }
-            }
-            if (message.messageType == Constant.MSG_TYPE_GAME) {
-                setIvChatPhoto(message.gameUrl);
             }
             setMessageStatus(model, isLastMessage);
 
@@ -777,7 +779,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setMessageStatus(Message message, boolean isLastMessage) {
-            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            //int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = Constant.MESSAGE_STATUS_SENT;
+            for (String userId : orginalConversation.memberIDs.keySet()) {
+                status = CommonMethod.getIntFrom(message.status, userId);
+                if (status == Constant.MESSAGE_STATUS_READ) {
+                    break;
+                }
+            }
+            if (status != Constant.MESSAGE_STATUS_READ) {
+                status = CommonMethod.getIntFrom(message.status, currentUserID);
+                if (status == -1) {
+                    status = Constant.MESSAGE_STATUS_SENT;
+                }
+            }
             String messageStatus = "";
             if (TextUtils.equals(message.senderId, currentUserID)) {
                 if (isLastMessage && message.messageType != Constant.MSG_TYPE_GAME) {
@@ -812,7 +827,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                     failedCount += 1;
                                 }
                             }
-                            if (passedCount == 0 && failedCount == 0) {
+                            if (status == Constant.MESSAGE_STATUS_ERROR) {
+                                messageStatus = "Game Undelivered";
+                            } else if (status == Constant.MESSAGE_STATUS_SENT) {
+                                messageStatus = "";
+                            } else if (passedCount == 0 && failedCount == 0) {
                                 messageStatus = "Game Delivered";
                             } else {
                                 messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
@@ -826,6 +845,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                     break;
                                 case Constant.MESSAGE_STATUS_GAME_FAIL:
                                     messageStatus = "Game Failed";
+                                    break;
+                                case Constant.MESSAGE_STATUS_ERROR:
+                                    messageStatus = "Game Undelivered";
+                                    break;
+                                case Constant.MESSAGE_STATUS_SENT:
+                                    messageStatus = "";
                                     break;
                                 default:
                                     messageStatus = "Game Delivered";

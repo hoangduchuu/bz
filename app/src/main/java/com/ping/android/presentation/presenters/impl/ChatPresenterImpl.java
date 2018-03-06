@@ -29,7 +29,10 @@ import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -68,13 +71,18 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
-    private AtomicInteger initMessageSteps = new AtomicInteger(2);
-    private boolean isMessageFirstLoad;
+    /**
+     * Collections that contains new message update when chat screen come background
+     */
+    private List<ChildData<Message>> messagesInBackground;
+    private AtomicBoolean isInBackground;
 
     User currentUser;
 
     @Inject
     public ChatPresenterImpl() {
+        isInBackground = new AtomicBoolean(false);
+        messagesInBackground = new ArrayList<>();
     }
 
     @Override
@@ -84,12 +92,28 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void resume() {
-        observeMessageUpdate();
+        //observeMessageUpdate();
+        isInBackground.set(false);
+        for (ChildData<Message> message: messagesInBackground) {
+            switch (message.type) {
+                case CHILD_ADDED:
+                    view.addNewMessage(message.data);
+                    break;
+                case CHILD_REMOVED:
+                    view.removeMessage(message.data);
+                    break;
+                case CHILD_CHANGED:
+                    view.updateMessage(message.data);
+                    break;
+            }
+        }
+        messagesInBackground.clear();
     }
 
     @Override
     public void pause() {
-        observeMessageUseCase.unsubscribe();
+        //observeMessageUseCase.unsubscribe();
+        isInBackground.set(true);
     }
 
     private void observeCurrentUser() {
@@ -114,11 +138,13 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void observeMessageUpdate() {
-        if (initMessageSteps.decrementAndGet() > 0) return;
-
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
+                if (isInBackground.get()) {
+                    messagesInBackground.add(messageChildData);
+                    return;
+                }
                 switch (messageChildData.type) {
                     case CHILD_ADDED:
                         view.addNewMessage(messageChildData.data);
@@ -210,7 +236,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                view.sendNotification(conversation, message);
+                if (message.isCached) {
+                    view.addCacheMessage(message);
+                } else {
+                    view.sendNotification(conversation, message);
+                }
             }
 
             @Override

@@ -1189,10 +1189,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendImage() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1225,10 +1225,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendGame(GameType gameType) {
         chatGameMenu.hide();
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1377,7 +1377,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             }
             return;
         } else {
-            if (status == Constant.MESSAGE_STATUS_ERROR) {
+            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
                 presenter.resendMessage(message);
             }
         }
@@ -1521,6 +1521,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void addCacheMessage(Message message) {
         adapter.addOrUpdate(message);
+        recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
     @Override

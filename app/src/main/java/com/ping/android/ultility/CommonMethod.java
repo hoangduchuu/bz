@@ -207,6 +207,13 @@
             return false;
         }
 
+        public static int getIntFrom(Map<String, Integer> map, String key) {
+            if (map != null && map.containsKey(key)) {
+                return map.get(key);
+            }
+            return -1;
+        }
+
         public static String convertTimestampToTime(double seconds) {
             long milliSeconds = (long) (seconds * 1000);
 
