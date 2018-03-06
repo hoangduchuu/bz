@@ -50,7 +50,12 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
                             .setConversation(params.conversation)
                             .setCurrentUser(params.currentUser)
                             .setMessageKey(s);
-                    return sendMessage(params);
+                    return sendMessageUseCase.buildUseCaseObservable(builder.build())
+                            .map(message -> {
+                                message.isCached = true;
+                                return message;
+                            })
+                            .concatWith(sendMessage(params));
                 });
 
     }

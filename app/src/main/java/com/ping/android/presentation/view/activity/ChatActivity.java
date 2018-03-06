@@ -1313,10 +1313,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendRecord() {
         onStopRecord();
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }

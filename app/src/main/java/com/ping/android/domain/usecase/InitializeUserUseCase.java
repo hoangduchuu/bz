@@ -44,24 +44,29 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
                 .flatMap(user -> {
                     String deviceId = device.getDeviceId();
                     user.devices.put(deviceId, ((double) System.currentTimeMillis() / 1000));
-                    return userRepository.updateDeviceId(user.devices)
-                            .flatMap(aBoolean -> userRepository.getUserList(user.friends)
-                                    .flatMap(users -> {
-                                        user.friendList = new ArrayList<>(users);
-                                        userManager.setUser(user);
-                                        if (user.quickBloxID > 0) {
-                                            return quickbloxRepository.signIn(user.quickBloxID, user.pingID);
-                                        } else {
-                                            return quickbloxRepository.signUp(user.pingID)
-                                                    .flatMap(qbUser -> {
-                                                        user.quickBloxID = qbUser.getId();
-                                                        return userRepository.updateQuickbloxId(qbUser.getId())
-                                                                .map(aBoolean1 -> qbUser);
-                                                    });
-                                        }
-                                    }));
+                    updateDevicesId(user);
+                    return userRepository.getUserList(user.friends)
+                            .flatMap(users -> {
+                                user.friendList = new ArrayList<>(users);
+                                userManager.setUser(user);
+                                if (user.quickBloxID > 0) {
+                                    return quickbloxRepository.signIn(user.quickBloxID, user.pingID);
+                                } else {
+                                    return quickbloxRepository.signUp(user.pingID)
+                                            .flatMap(qbUser -> {
+                                                user.quickBloxID = qbUser.getId();
+                                                return userRepository.updateQuickbloxId(qbUser.getId())
+                                                        .map(aBoolean1 -> qbUser);
+                                            });
+                                }
+                            });
                 })
                 .doOnNext(qbUser -> userManager.setQbUser(qbUser))
                 .map(qbUser -> true);
+    }
+
+    private void updateDevicesId(User user) {
+        userRepository.updateDeviceId(user.devices)
+                .subscribe();
     }
 }

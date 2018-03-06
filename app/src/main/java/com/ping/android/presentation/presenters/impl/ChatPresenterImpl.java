@@ -260,7 +260,9 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                view.sendNotification(conversation, message);
+                if (!message.isCached) {
+                    view.sendNotification(conversation, message);
+                }
             }
 
             @Override
@@ -345,10 +347,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
         getLastMessagesUseCase.dispose();
-        sendTextMessageUseCase.dispose();
-        sendImageMessageUseCase.dispose();
-        sendGameMessageUseCase.dispose();
-        sendAudioMessageUseCase.dispose();
-        resendMessageUseCase.dispose();
+//        sendTextMessageUseCase.dispose();
+//        sendImageMessageUseCase.dispose();
+//        sendGameMessageUseCase.dispose();
+//        sendAudioMessageUseCase.dispose();
+//        resendMessageUseCase.dispose();
     }
 }

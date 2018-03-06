@@ -657,9 +657,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         private void setAudioSrc(String audioUrl) {
             if (TextUtils.isEmpty(audioUrl)) {
+                itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
                 return;
             }
-
+            itemView.findViewById(R.id.item_chat_audio).setVisibility(View.VISIBLE);
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             final String audioLocalPath = activity.getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
 

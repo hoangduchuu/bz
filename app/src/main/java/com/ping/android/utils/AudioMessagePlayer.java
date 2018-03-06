@@ -212,7 +212,6 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
     }
 
     public void release() {
-
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.reset();
