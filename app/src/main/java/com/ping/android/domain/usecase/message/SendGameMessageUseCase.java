@@ -49,12 +49,24 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
+        builder.setCacheImage(params.filePath);
+        builder.setImageUrl("PPhtotoMessageIdentifier");
+        Message cachedMessage = builder.build().getMessage();
+        cachedMessage.isCached = true;
+        cachedMessage.localImage = params.filePath;
         return conversationRepository.getMessageKey(params.conversation.key)
-                .flatMap(s -> {
+                .zipWith(Observable.just(cachedMessage), (s, message) -> {
+                    message.key = s;
                     builder.setMessageKey(s);
-                    return sendMessage(params);
-                });
-
+                    return message;
+                })
+                .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
+                        .map(message1 -> {
+                            message1.isCached = true;
+                            message1.localImage = params.filePath;
+                            return message1;
+                        }))
+                .concatWith(sendMessage(params));
     }
 
     private Observable<Message> sendMessage(Params params) {

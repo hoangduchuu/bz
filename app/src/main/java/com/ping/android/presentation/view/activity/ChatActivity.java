@@ -180,7 +180,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         getComponent().inject(this);
-        presenter.create();
 
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         badgeHelper = new BadgeHelper(this);
@@ -193,6 +192,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         init();
         initView();
+        presenter.create();
         //initConversationData();
         presenter.initConversationData(conversationID);
     }
@@ -1181,10 +1181,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1236,10 +1236,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendImage() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1272,10 +1272,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendGame(GameType gameType) {
         chatGameMenu.hide();
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1356,10 +1356,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendRecord() {
         onStopRecord();
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
         if (!beAbleToSendMessage()) {
             return;
         }
@@ -1419,6 +1419,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 messageRepository.updateMessageStatus(message.key, originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_READ);
             }
             return;
+        } else {
+            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
+                presenter.resendMessage(message);
+            }
         }
     }
 
@@ -1551,6 +1555,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void addCacheMessage(Message message) {
         adapter.addOrUpdate(message);
+        recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
     @Override

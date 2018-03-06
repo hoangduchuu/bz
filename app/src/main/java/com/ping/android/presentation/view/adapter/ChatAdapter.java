@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -628,8 +629,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         private void setIvChatPhoto(String imageURL) {
             boolean bitmapMark = markStatus;
             if (ivChatPhoto == null) return;
-            if (TextUtils.isEmpty(imageURL)) {
-                ivChatPhoto.setImageResource(R.drawable.img_loading);
+            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+                //ivChatPhoto.setImageResource(R.drawable.img_loading);
+                ivChatPhoto.setImageResource(R.drawable.img_loading_image);
                 return;
             }
             int status = ServiceManager.getInstance().getCurrentStatus(message.status);
@@ -656,9 +658,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         private void setAudioSrc(String audioUrl) {
             if (TextUtils.isEmpty(audioUrl)) {
+                itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
                 return;
             }
-
+            itemView.findViewById(R.id.item_chat_audio).setVisibility(View.VISIBLE);
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             final String audioLocalPath = activity.getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
 
@@ -722,7 +725,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             tvInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setStatus(String messageStatus) {
+        private void setStatus(String messageStatus, int status) {
             if (tvStatus == null) return;
             if (TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setVisibility(View.GONE);
@@ -730,6 +733,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
             tvStatus.setText(messageStatus);
             tvStatus.setVisibility(View.VISIBLE);
+            if (status == Constant.MESSAGE_STATUS_ERROR) {
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red));
+            } else {
+                tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
+            }
         }
 
         @Override
@@ -754,15 +762,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             if (ivChatPhoto != null) {
                 ivChatPhoto.setTransitionName(message.key);
             }
-            if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+            if (model.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME) {
                 if (!TextUtils.isEmpty(model.localImage)) {
                     setLocalImage(model.localImage);
                 } else {
-                    setIvChatPhoto(model.thumbUrl);
+                    if (message.messageType == Constant.MSG_TYPE_GAME) {
+                        setIvChatPhoto(message.gameUrl);
+                    } else {
+                        setIvChatPhoto(model.photoUrl);
+                    }
                 }
-            }
-            if (message.messageType == Constant.MSG_TYPE_GAME) {
-                setIvChatPhoto(message.gameUrl);
             }
             setMessageStatus(model, isLastMessage);
 
@@ -771,12 +781,27 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
 
         private void setMessageStatus(Message message, boolean isLastMessage) {
-            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            //int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = Constant.MESSAGE_STATUS_SENT;
+            for (String userId : orginalConversation.memberIDs.keySet()) {
+                status = CommonMethod.getIntFrom(message.status, userId);
+                if (status == Constant.MESSAGE_STATUS_READ) {
+                    break;
+                }
+            }
+            if (status != Constant.MESSAGE_STATUS_READ) {
+                status = CommonMethod.getIntFrom(message.status, currentUserID);
+                if (status == -1) {
+                    status = Constant.MESSAGE_STATUS_SENT;
+                }
+            }
             String messageStatus = "";
             if (TextUtils.equals(message.senderId, currentUserID)) {
                 if (isLastMessage && message.messageType != Constant.MSG_TYPE_GAME) {
                     switch (status) {
                         case Constant.MESSAGE_STATUS_SENT:
+                            messageStatus = "";
+                            break;
                         case Constant.MESSAGE_STATUS_DELIVERED:
                             messageStatus = "Delivered";
                             break;
@@ -804,8 +829,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                     failedCount += 1;
                                 }
                             }
-                            if (passedCount == 0 && failedCount == 0) {
-                                messageStatus = "Game Delivered";
+                            if (status == Constant.MESSAGE_STATUS_ERROR) {
+                                messageStatus = "Game Undelivered";
+                            } else if (status == Constant.MESSAGE_STATUS_SENT) {
+                                messageStatus = "";
+                            } else if (passedCount == 0 && failedCount == 0) {
+                                if (status == Constant.MESSAGE_STATUS_READ) {
+                                    messageStatus = "Read";
+                                } else {
+                                    messageStatus = "Game Delivered";
+                                }
                             } else {
                                 messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
                             }
@@ -819,6 +852,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                 case Constant.MESSAGE_STATUS_GAME_FAIL:
                                     messageStatus = "Game Failed";
                                     break;
+                                case Constant.MESSAGE_STATUS_ERROR:
+                                    messageStatus = "Game Undelivered";
+                                    break;
+                                case Constant.MESSAGE_STATUS_SENT:
+                                    messageStatus = "";
+                                    break;
+                                case Constant.MESSAGE_STATUS_READ:
+                                    messageStatus = "Read";
+                                    break;
                                 default:
                                     messageStatus = "Game Delivered";
 
@@ -831,7 +873,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     messageStatus = "Game";
                 }
             }
-            setStatus(messageStatus);
+            setStatus(messageStatus, status);
         }
     }
 }

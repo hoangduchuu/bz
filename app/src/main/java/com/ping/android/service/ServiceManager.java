@@ -139,7 +139,7 @@ public class ServiceManager {
     }
 
     public boolean isBlock(String userID) {
-        if(currentUser.blocks == null || currentUser.blocks.containsKey(userID)) {
+        if (currentUser.blocks == null || currentUser.blocks.containsKey(userID)) {
             return currentUser.blocks.get(userID);
         }
         return false;
@@ -256,7 +256,7 @@ public class ServiceManager {
 
     public void renameGroup(Group group, String name) {
         mDatabase.child("groups").child(group.key).child("groupName").setValue(name);
-        for(String userID : group.memberIDs.keySet()) {
+        for (String userID : group.memberIDs.keySet()) {
             mDatabase.child("groups").child(userID).child(group.key).child("groupName").setValue(name);
         }
     }
@@ -355,7 +355,7 @@ public class ServiceManager {
     public void deleteConversationInGroup(List<Group> groups) {
         double timestamp = System.currentTimeMillis() / 1000d;
         for (Group group : groups) {
-            if(StringUtils.isEmpty(group.conversationID))
+            if (StringUtils.isEmpty(group.conversationID))
                 continue;
             mDatabase.child("conversations").child(group.conversationID).child("deleteStatuses").child(currentUser.key).setValue(true);
             mDatabase.child("conversations").child(group.conversationID).child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
@@ -375,17 +375,17 @@ public class ServiceManager {
         getConversationData(fromUserId + toUserId, new Callback() {
             @Override
             public void complete(Object error, Object... data) {
-                if(error == null) {
+                if (error == null) {
                     Conversation conversation = (Conversation) data[0];
                     completion.complete(null, conversation);
-                }else {
+                } else {
                     getConversationData(toUserId + fromUserId, new Callback() {
                         @Override
                         public void complete(Object error, Object... data) {
-                            if(error == null) {
+                            if (error == null) {
                                 Conversation conversation = (Conversation) data[0];
                                 completion.complete(null, conversation);
-                            }else {
+                            } else {
                                 completion.complete("Error");
                             }
                         }
@@ -414,7 +414,7 @@ public class ServiceManager {
     }
 
     public void changeMaskOutputConversation(Conversation conversation, Boolean data) {
-        if(conversation.maskOutputs == null) {
+        if (conversation.maskOutputs == null) {
             conversation.maskOutputs = new HashMap<>();
         }
         conversation.maskOutputs.put(currentUser.key, data);
@@ -434,14 +434,14 @@ public class ServiceManager {
         return conversation.deleteTimestamps.get(currentUser.key) > conversation.timesstamps;
     }
 
-    public Double getLastDeleteTimeStamp(Conversation conversation){
+    public Double getLastDeleteTimeStamp(Conversation conversation) {
         if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
             return 0.0d;
         }
         Object value = conversation.deleteTimestamps.get(currentUser.key);
-        if (value instanceof Long){
-            return  ((Long)value).doubleValue();
-        }else {
+        if (value instanceof Long) {
+            return ((Long) value).doubleValue();
+        } else {
             return (Double) value;
         }
     }

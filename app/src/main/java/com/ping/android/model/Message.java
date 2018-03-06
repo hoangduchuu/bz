@@ -47,6 +47,7 @@ public class Message {
         message.thumbUrl = dataSnapshot.child("thumbUrl").getValue(String.class);
         message.audioUrl = dataSnapshot.child("audioUrl").getValue(String.class);
         message.gameUrl = dataSnapshot.child("gameUrl").getValue(String.class);
+        message.messageType = dataSnapshot.child("messageType").getValue(Integer.class);
         if(dataSnapshot.child("timestamp").exists()) {
             message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
         }else{

@@ -37,7 +37,8 @@ interface PostExecutionThread {
  * that will execute its job in a background thread and will post the result in the UI thread.
  */
 abstract class UseCase<T, in Params>(private val threadExecutor: ThreadExecutor, private val postExecutionThread: PostExecutionThread) {
-    private val disposables = CompositeDisposable()
+    private var disposables = CompositeDisposable()
+    private var lastDisposable: Disposable? = null
 
     /**
      * Builds an {@link Observable} which will be used when executing the current {@link UseCase}.
@@ -68,10 +69,17 @@ abstract class UseCase<T, in Params>(private val threadExecutor: ThreadExecutor,
         }
     }
 
+    fun unsubscribe() {
+        if (lastDisposable != null) {
+            disposables.remove(lastDisposable!!)
+        }
+    }
+
     /**
      * Dispose from current [CompositeDisposable].
      */
     private fun addDisposable(disposable: Disposable) {
         disposables.add(disposable)
+        lastDisposable = disposable
     }
 }

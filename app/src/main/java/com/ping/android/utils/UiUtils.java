@@ -253,7 +253,7 @@ public class UiUtils {
             return;
         }
         if (placeholder == null) {
-            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_bottom);
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         }
 
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);

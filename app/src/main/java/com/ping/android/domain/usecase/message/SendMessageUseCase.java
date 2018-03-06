@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
@@ -34,6 +35,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     @Inject
     CommonRepository commonRepository;
     @Inject
+    MessageRepository messageRepository;
+    @Inject
     UserRepository userRepository;
     private Message message;
     private Conversation conversation;
@@ -51,9 +54,14 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                updateMessageStatus(Constant.MESSAGE_STATUS_ERROR);
+                updateMessageStatus(Constant.MESSAGE_STATUS_ERROR)
+                    .subscribe();
             }
         };
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
         timer.schedule(task, 5000);
         message = params.getMessage();
         conversation = params.getConversation();
@@ -62,11 +70,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     if (timer != null) {
                         timer.cancel();
                     }
-                    updateMessageStatus(Constant.MESSAGE_STATUS_DELIVERED);
                     Conversation conversation = params.getNewConversation();
                     Map<String, Object> updateData = new HashMap<>();
                     updateData.put(String.format("conversations/%s", conversation.key), conversation.toMap());
                     // Update message for conversation for each user
+                    updateData.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
                         if (!message.readAllowed.containsKey(toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
@@ -76,14 +84,17 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 });
     }
 
-    private void updateMessageStatus(int messageStatus) {
+    private Observable<Boolean> updateMessageStatus(int messageStatus) {
         if (message != null) {
+            //messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, messageStatus);
             HashMap<String, Object> updateValue = new HashMap<>();
             for (String userId: conversation.memberIDs.keySet()) {
+                //messageRepository.updateMessageStatus(conversation.key, message.key, userId, messageStatus);
                 updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), messageStatus);
             }
-            commonRepository.updateBatchData(updateValue);
+            return commonRepository.updateBatchData(updateValue);
         }
+        return Observable.empty();
     }
 
     public static class Params {
@@ -114,6 +125,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String imageUrl;
             private String thumbUrl;
             private String messageKey;
+            private String cacheImage;
 
             public Builder setCurrentUser(User currentUser) {
                 this.currentUser = currentUser;
@@ -188,6 +200,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         break;
                 }
                 message.key = messageKey;
+                message.localImage = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);
@@ -305,6 +318,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 }
                 deleteStatuses.put(currentUser.key, false);
                 return deleteStatuses;
+            }
+
+            public Builder setCacheImage(String filePath) {
+                this.cacheImage = filePath;
+                return this;
             }
         }
 

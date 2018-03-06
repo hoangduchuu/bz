@@ -3,6 +3,7 @@ package com.ping.android.data.repository;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.MessageRepository;
@@ -52,5 +53,13 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
         return RxFirebaseDatabase.getInstance(query)
                 .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status) {
+        DatabaseReference reference = database.getReference("messages").child(conversationId).child(messageId).child("status").child(userId);
+        return RxFirebaseDatabase.setValue(reference, status)
+                .map(reference1 -> true)
+                .toObservable();
     }
 }
