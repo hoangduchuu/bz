@@ -129,6 +129,10 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
 
+
+            notificationBuilder
+                    .setContentTitle("BZZZ");
+        }else{
             // 1. Build label
             String replyLabel = getString(R.string.notif_action_reply);
             RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
@@ -147,9 +151,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
                     .addRemoteInput(remoteInput)
                     .setAllowGeneratedReplies(true)
                     .build();
-            notificationBuilder
-                    .setContentTitle("BZZZ")
-                    .addAction(replyAction);
+            notificationBuilder.addAction(replyAction);
+
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.
