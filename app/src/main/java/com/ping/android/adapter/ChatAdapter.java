@@ -833,7 +833,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                             } else if (status == Constant.MESSAGE_STATUS_SENT) {
                                 messageStatus = "";
                             } else if (passedCount == 0 && failedCount == 0) {
-                                messageStatus = "Game Delivered";
+                                if (status == Constant.MESSAGE_STATUS_READ) {
+                                    messageStatus = "Read";
+                                } else {
+                                    messageStatus = "Game Delivered";
+                                }
                             } else {
                                 messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
                             }
@@ -852,6 +856,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                                     break;
                                 case Constant.MESSAGE_STATUS_SENT:
                                     messageStatus = "";
+                                    break;
+                                case Constant.MESSAGE_STATUS_READ:
+                                    messageStatus = "Read";
                                     break;
                                 default:
                                     messageStatus = "Game Delivered";
