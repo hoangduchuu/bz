@@ -21,7 +21,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/chat_choose_game_title"
             android:textAlignment="center"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/gray_bg"
             android:textStyle="bold" />
 
         <TextView
@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:text="@string/chat_choose_game_description"
             android:textAlignment="center"
-            android:textColor="@color/gray_bg" />
+            android:textColor="@color/gray_bg"
+            android:padding="5dp"/>
 
         <LinearLayout
             android:id="@+id/puzzle_game"
@@ -53,8 +54,7 @@
                 android:textSize="18sp"
                 android:text="@string/chat_puzzle_game"
                 android:textAlignment="center"
-                android:textColor="@color/orange"
-                android:textStyle="bold" />
+                android:textColor="@color/orange" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,8 +78,7 @@
                 android:textSize="18sp"
                 android:text="@string/chat_memory_game"
                 android:textAlignment="center"
-                android:textColor="@color/orange"
-                android:textStyle="bold" />
+                android:textColor="@color/orange" />
         </LinearLayout>
 
         <LinearLayout
@@ -103,8 +102,7 @@
                 android:textSize="18sp"
                 android:text="@string/chat_tic_tac_toe_game"
                 android:textAlignment="center"
-                android:textColor="@color/orange"
-                android:textStyle="bold" />
+                android:textColor="@color/orange" />
         </LinearLayout>
 
         <View
@@ -124,6 +122,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/gen_cancel"
+            android:textAllCaps="false"
+            android:textStyle="normal"
             android:textSize="18sp"
             android:background="@color/white"
             android:textColor="@color/orange"/>

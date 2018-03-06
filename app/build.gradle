@@ -19,7 +19,7 @@ android {
             storePassword '123456'
         }
     }
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion 27
     buildToolsVersion rootProject.ext.buildToolsVersion
 //    dataBinding {
 //        enabled = true
@@ -67,7 +67,6 @@ dependencies {
     implementation 'com.android.support:support-v4:27.0.2'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
-
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
     implementation project(path: ':rxfirebase')
@@ -144,13 +143,11 @@ dependencies {
     implementation 'com.mikepenz:iconics-core:3.0.0@aar'
     implementation 'com.mikepenz:community-material-typeface:2.0.46.1@aar'
     implementation 'com.mikepenz:iconics-views:3.0.0@aar'
-
     implementation 'com.soundcloud.android:android-crop:1.0.1@aar'
     implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     implementation "io.reactivex.rxjava2:rxandroid:${libraries.rx_android}"
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     annotationProcessor "com.google.dagger:dagger-compiler:${libraries.dagger}"
 }

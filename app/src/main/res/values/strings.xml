@@ -200,7 +200,7 @@
     <string name="sender_id_debug">5791510531</string>
     <!-- General strings -->
     <string name="gen_ok">OK</string>
-    <string name="gen_cancel">CANCEL</string>
+    <string name="gen_cancel">Cancel</string>
     <string name="gen_save">SAVE</string>
 
     <!-- Chat activity -->

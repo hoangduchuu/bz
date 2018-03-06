@@ -10,6 +10,7 @@ import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
+import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
@@ -28,7 +29,11 @@ import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -59,21 +64,56 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendGameMessageUseCase sendGameMessageUseCase;
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
+    @Inject
+    ResendMessageUseCase resendMessageUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
+    /**
+     * Collections that contains new message update when chat screen come background
+     */
+    private List<ChildData<Message>> messagesInBackground;
+    private AtomicBoolean isInBackground;
 
     User currentUser;
 
     @Inject
     public ChatPresenterImpl() {
+        isInBackground = new AtomicBoolean(false);
+        messagesInBackground = new ArrayList<>();
     }
 
     @Override
     public void create() {
         observeCurrentUser();
+    }
+
+    @Override
+    public void resume() {
+        //observeMessageUpdate();
+        isInBackground.set(false);
+        for (ChildData<Message> message: messagesInBackground) {
+            switch (message.type) {
+                case CHILD_ADDED:
+                    view.addNewMessage(message.data);
+                    break;
+                case CHILD_REMOVED:
+                    view.removeMessage(message.data);
+                    break;
+                case CHILD_CHANGED:
+                    view.updateMessage(message.data);
+                    break;
+            }
+        }
+        messagesInBackground.clear();
+    }
+
+    @Override
+    public void pause() {
+        //observeMessageUseCase.unsubscribe();
+        isInBackground.set(true);
     }
 
     private void observeCurrentUser() {
@@ -101,6 +141,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
+                if (isInBackground.get()) {
+                    messagesInBackground.add(messageChildData);
+                    return;
+                }
                 switch (messageChildData.type) {
                     case CHILD_ADDED:
                         view.addNewMessage(messageChildData.data);
@@ -192,7 +236,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                view.sendNotification(conversation, message);
+                if (message.isCached) {
+                    view.addCacheMessage(message);
+                } else {
+                    view.sendNotification(conversation, message);
+                }
             }
 
             @Override
@@ -212,7 +260,9 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                view.sendNotification(conversation, message);
+                if (!message.isCached) {
+                    view.sendNotification(conversation, message);
+                }
             }
 
             @Override
@@ -225,6 +275,15 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void setConversation(Conversation originalConversation) {
         this.conversation = originalConversation;
+    }
+
+    @Override
+    public void resendMessage(Message message) {
+        ResendMessageUseCase.Params params = new ResendMessageUseCase.Params();
+        params.conversationId = conversation.key;
+        params.currentUserId = currentUser.key;
+        params.message = message;
+        resendMessageUseCase.execute(new DefaultObserver<>(), params);
     }
 
     private void getLastMessages(Conversation conversation) {
@@ -288,9 +347,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
         getLastMessagesUseCase.dispose();
-        sendTextMessageUseCase.dispose();
-        sendImageMessageUseCase.dispose();
-        sendGameMessageUseCase.dispose();
-        sendAudioMessageUseCase.dispose();
+//        sendTextMessageUseCase.dispose();
+//        sendImageMessageUseCase.dispose();
+//        sendGameMessageUseCase.dispose();
+//        sendAudioMessageUseCase.dispose();
+//        resendMessageUseCase.dispose();
     }
 }

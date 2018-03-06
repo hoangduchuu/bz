@@ -104,7 +104,6 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
         }
 
         mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
-
         mMediaPlayer.start();
         setPausable();
     }
@@ -212,7 +211,6 @@ public class AudioMessagePlayer implements SeekBar.OnSeekBarChangeListener, View
     }
 
     public void release() {
-
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.reset();

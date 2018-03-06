@@ -11,6 +11,10 @@ import io.reactivex.Observable;
 
 public interface MessageRepository {
     Observable<DataSnapshot> getLastMessages(String conversationId);
+
     Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp);
+
     Observable<ChildEvent> observeMessageUpdate(String conversationId);
+
+    Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
 }

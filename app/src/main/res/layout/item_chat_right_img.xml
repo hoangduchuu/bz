@@ -35,12 +35,11 @@
 
             <com.joooonho.SelectableRoundedImageView
                 android:id="@+id/item_chat_image"
-                android:layout_width="wrap_content"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:maxHeight="150dp"
-                android:maxWidth="150dp"
-                android:minHeight="100dp"
-                android:minWidth="100dp"
+                android:src="@drawable/img_loading_image"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
                 app:sriv_left_bottom_corner_radius="@dimen/chat_bg_corner_radius"
                 app:sriv_left_top_corner_radius="@dimen/chat_bg_corner_radius"
                 app:sriv_right_bottom_corner_radius="@dimen/chat_bg_corner_radius"
