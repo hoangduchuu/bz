@@ -41,11 +41,6 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
     public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
         currentUser = params.user;
         return messageRepository.observeMessageUpdate(params.conversation.key)
-//                .zipWith(userRepository.getCurrentUser(), (childEvent, user) -> {
-//                    currentUser = user;
-//                    Message message = Message.from(childEvent.dataSnapshot);
-//                    return new ChildData<>(message, childEvent.type);
-//                })
                 .map(childEvent -> {
                     Message message = Message.from(childEvent.dataSnapshot);
                     message.currentUserId = currentUser.key;

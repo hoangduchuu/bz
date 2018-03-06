@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -17,6 +18,9 @@ import com.ping.android.model.enums.MessageType;
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -28,6 +32,8 @@ import io.reactivex.Observable;
 public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUseCase.Params> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    CommonRepository commonRepository;
     @Inject
     StorageRepository storageRepository;
     @Inject
@@ -65,6 +71,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                         .map(message1 -> {
                             message1.isCached = true;
                             message1.localImage = params.filePath;
+                            message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))
                 .concatWith(sendMessage(params));
@@ -77,7 +84,13 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                     builder.setThumbUrl(s2);
                     return builder.build();
                 })
-                .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1));
+                .flatMap(params1 -> {
+                    Message message = params1.getMessage();
+                    Map<String, Object> updateValue = new HashMap<>();
+                    updateValue.put(String.format("messages/%s/%s/photoUrl", params1.getConversation().key, message.key), message.photoUrl);
+                    updateValue.put(String.format("messages/%s/%s/thumbUrl", params1.getConversation().key, message.key), message.thumbUrl);
+                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
+                });
     }
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {

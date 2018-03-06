@@ -134,8 +134,8 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.message.messageType == Constant.MSG_TYPE_GAME) {
                 imageURL = message.gameUrl;
             }
-            if (TextUtils.isEmpty(imageURL)) {
-                imageView.setImageResource(R.drawable.img_loading);
+            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+                imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
             int status = ServiceManager.getInstance().getCurrentStatus(message.status);
@@ -155,7 +155,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
             Drawable placeholder = null;
             if (isUpdated) {
-                placeholder = imageView.getDrawable();
+                //placeholder = imageView.getDrawable();
             }
             UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder);
         }

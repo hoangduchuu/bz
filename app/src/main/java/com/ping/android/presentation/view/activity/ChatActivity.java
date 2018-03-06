@@ -203,6 +203,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         adapter = new ChatAdapter(conversationID, fromUser.key, messages, this, this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
+        messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
     }
 
@@ -1512,7 +1513,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         //adapter.addOrUpdate(data);
         FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
         if (item instanceof MessageBaseItem) {
-            ((MessageBaseItem) item).setMessageListener(this);
             messagesAdapter.addOrUpdate((MessageBaseItem) item);
         }
         // FIXME why should update mark status
@@ -1524,7 +1524,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void removeMessage(Message data) {
-        adapter.deleteMessage(data.key);
+        //adapter.deleteMessage(data.key);
         messagesAdapter.deleteMessage(data.key);
         this.updateConversationLastMessage();
     }
@@ -1554,8 +1554,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void addCacheMessage(Message message) {
-        adapter.addOrUpdate(message);
-        recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
+        //adapter.addOrUpdate(message);
+        FlexibleItem item = MessageBaseItem.from(message, fromUserID, originalConversation.conversationType);
+        messagesAdapter.addOrUpdate((MessageBaseItem) item);
+        //recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
     @Override

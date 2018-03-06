@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,6 +15,9 @@ import com.bzzzchat.flexibleadapter.baseitems.LoadingItem;
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
@@ -51,10 +55,18 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             case Constant.MSG_TYPE_IMAGE:
+            case Constant.MSG_TYPE_GAME:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new ImageMessageRightItem(message);
                 } else {
-                    baseItem = new ImageMessageRightItem(message);
+                    baseItem = new ImageMessageLeftItem(message);
+                }
+                break;
+            case Constant.MSG_TYPE_VOICE:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new AudioMessageRightItem(message);
+                } else {
+                    baseItem = new AudioMessageLeftItem(message);
                 }
                 break;
             default:
@@ -115,7 +127,6 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             setSenderImage(item.message.sender);
             setMessageInfo(item.message);
             setMessageStatus(item.message, lastItem);
-
         }
 
         @Override
@@ -183,79 +194,18 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         private void setMessageStatus(Message message, boolean lastItem) {
             if (tvStatus == null) return;
-            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            String messageStatus = "";
-            if (TextUtils.equals(message.senderId, message.currentUserId)) {
-                if (lastItem && message.messageType != Constant.MSG_TYPE_GAME) {
-                    switch (status) {
-                        case Constant.MESSAGE_STATUS_SENT:
-                        case Constant.MESSAGE_STATUS_DELIVERED:
-                            messageStatus = "Delivered";
-                            break;
-                        case Constant.MESSAGE_STATUS_ERROR:
-                            messageStatus = "Undelivered";
-                            break;
-                        case Constant.MESSAGE_STATUS_READ:
-                            messageStatus = "Read";
-                            break;
-                        default:
-                            messageStatus = "";
-                    }
+            String messageStatus = message.messageStatus;
+            if (lastItem || message.messageType == Constant.MSG_TYPE_GAME) {
+                tvStatus.setText(messageStatus);
+                tvStatus.setVisibility(View.VISIBLE);
+                if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
+                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.red));
                 } else {
-                    if (message.messageType == Constant.MSG_TYPE_GAME) {
-                        if (item.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                            int passedCount = 0, failedCount = 0;
-                            for (Map.Entry<String, Integer> entry : message.status.entrySet()) {
-                                if (TextUtils.equals(entry.getKey(), message.currentUserId)) {
-                                    continue;
-                                }
-                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS) {
-                                    passedCount += 1;
-                                }
-                                if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                                    failedCount += 1;
-                                }
-                            }
-                            if (passedCount == 0 && failedCount == 0) {
-                                messageStatus = "Game Delivered";
-                            } else {
-                                messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
-                            }
-                        } else {
-                            User opponentUser = null;
-                            if (message.senderId.equals(message.currentUserId)) {
-                                opponentUser = message.sender;
-                            }
-                            status = opponentUser != null && message.status.containsKey(opponentUser.key) ?
-                                    message.status.get(opponentUser.key) : Constant.MESSAGE_STATUS_GAME_DELIVERED;
-                            switch (status) {
-                                case Constant.MESSAGE_STATUS_GAME_PASS:
-                                    messageStatus = "Game Passed";
-                                    break;
-                                case Constant.MESSAGE_STATUS_GAME_FAIL:
-                                    messageStatus = "Game Failed";
-                                    break;
-                                default:
-                                    messageStatus = "Game Delivered";
-
-                            }
-                        }
-                    } else {
-                        messageStatus = "";
-                    }
+                    tvStatus.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
                 }
-            } else {
-                if (message.messageType == Constant.MSG_TYPE_GAME) {
-                    messageStatus = "Game";
-                }
-            }
-
-            if (TextUtils.isEmpty(messageStatus)) {
-                tvStatus.setVisibility(View.GONE);
                 return;
             }
-            tvStatus.setText(messageStatus);
-            tvStatus.setVisibility(View.VISIBLE);
+            tvStatus.setVisibility(View.GONE);
         }
     }
 
@@ -264,6 +214,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
     }
 
     public interface MessageListener {
+
         void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);

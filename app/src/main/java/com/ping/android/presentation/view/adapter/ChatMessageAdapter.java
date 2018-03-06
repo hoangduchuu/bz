@@ -12,6 +12,12 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
  */
 
 public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> {
+    private MessageBaseItem.MessageListener messageListener;
+
+    public void setMessageListener(MessageBaseItem.MessageListener messageListener) {
+        this.messageListener = messageListener;
+    }
+
     public void addOrUpdate(MessageBaseItem messageItem) {
         boolean isAdd = true;
         int size = getItemCount();
@@ -37,6 +43,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> {
         }
 
         if (isAdd) {
+            messageItem.setMessageListener(messageListener);
             add(messageItem, index);
             // If new message has come, add to list then update previous message to hide its status
             if (index == getItemCount() - 1 && index > 0) {
@@ -59,6 +66,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> {
             }
         }
         if (deleteItem != null) {
+            ((MessageBaseItem)deleteItem).setMessageListener(null);
             int index = this.items.indexOf(deleteItem);
             this.items.remove(index);
             notifyItemRemoved(index);
