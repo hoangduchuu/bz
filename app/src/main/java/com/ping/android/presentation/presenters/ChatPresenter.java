@@ -32,6 +32,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void resendMessage(Message message);
 
+    void updateConversationLastMessage(Message lastMessage);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

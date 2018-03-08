@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.message;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -11,6 +13,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.ultility.Constant;
 
 import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +67,19 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                             return Observable.empty();
                         }
                     } else {
+                        if (childData.type == ChildEvent.Type.CHILD_CHANGED) {
+                            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                                // Update status of game if not update
+                                int status = CommonMethod.getIntFrom(message.status, currentUser.key);
+                                if (!TextUtils.isEmpty(message.gameUrl)
+                                        && !message.gameUrl.equals("PPhtotoMessageIdentifier")
+                                        && status == Constant.MESSAGE_STATUS_ERROR) {
+                                    messageRepository.updateMessageStatus(params.conversation.key,
+                                            message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
+                                            .subscribe();
+                                }
+                            }
+                        }
                         return userRepository.getUser(childData.data.senderId)
                                 .map(user -> {
                                     childData.data.sender = user;
@@ -73,14 +89,14 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                 });
     }
 
-    private Double getLastDeleteTimeStamp(Conversation conversation){
+    private Double getLastDeleteTimeStamp(Conversation conversation) {
         if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
             return 0.0d;
         }
         Object value = conversation.deleteTimestamps.get(currentUser.key);
-        if (value instanceof Long){
-            return  ((Long)value).doubleValue();
-        }else {
+        if (value instanceof Long) {
+            return ((Long) value).doubleValue();
+        } else {
             return (Double) value;
         }
     }

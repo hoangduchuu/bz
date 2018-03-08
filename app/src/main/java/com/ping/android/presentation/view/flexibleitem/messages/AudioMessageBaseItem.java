@@ -5,12 +5,14 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
+import android.support.transition.TransitionManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -18,16 +20,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
-import com.ping.android.utils.AudioMessagePlayer;
 import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,9 +33,41 @@ import java.util.concurrent.TimeUnit;
  */
 
 public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageBaseItem.ViewHolder> {
+    protected static MediaPlayer audioPlayerInstance = null;
+    public static AudioMessageBaseItem currentPlayingMessage = null;
+
+    private int audioDuration = 0;
+    private int currentPosition = 0;
+    private AudioStatus audioStatus = AudioStatus.UNKNOWN;
 
     public AudioMessageBaseItem(Message message) {
         super(message);
+        if (audioPlayerInstance == null) {
+            audioPlayerInstance = new MediaPlayer();
+            audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
+                if (currentPlayingMessage != null) {
+                    currentPlayingMessage.completePlaying();
+                }
+            });
+        }
+    }
+
+    private void completePlaying() {
+        currentPosition = 0;
+        audioStatus = AudioStatus.INITIALIZED;
+        if (messageListener != null) {
+            messageListener.onCompletePlayAudio(this);
+        }
+
+    }
+
+    public void stopSelf() {
+        if (currentPlayingMessage == this) {
+            audioPlayerInstance.pause();
+            if (audioStatus == AudioStatus.PLAYING) {
+                audioStatus = AudioStatus.PAUSED;
+            }
+        }
     }
 
     @NotNull
@@ -45,6 +75,36 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
     public ViewHolder onCreateViewHolder(@NotNull ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext()).inflate(getLayoutId(), parent, false);
         return new ViewHolder(view);
+    }
+
+    public void setAudioDuration(int audioDuration) {
+        this.audioDuration = audioDuration;
+    }
+
+    public void setCurrentPosition(int currentPosition) {
+        this.currentPosition = currentPosition;
+    }
+
+    public int getAudioDuration() {
+        return audioDuration;
+    }
+
+    public int getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public synchronized void setAudioStatus(AudioStatus audioStatus) {
+        this.audioStatus = audioStatus;
+    }
+
+    public synchronized AudioStatus getAudioStatus() {
+        return audioStatus;
+    }
+
+    public void release() {
+        audioPlayerInstance.stop();
+        audioPlayerInstance.release();
+        audioPlayerInstance = null;
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
@@ -55,19 +115,25 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         private SeekBar seekBar;
         private ImageView btnPlay;
         private ImageView btnPause;
+        private ImageView btnError;
         private MediaPlayer mMediaPlayer;
+        private ProgressBar loadingAudioPreparing;
         private Handler mProgressUpdateHandler;
         private int totalTime;
+        private AudioStatus audioStatus;
 
         public ViewHolder(View itemView) {
             super(itemView);
             storage = FirebaseStorage.getInstance();
             duration = itemView.findViewById(R.id.playback_time);
             seekBar = itemView.findViewById(R.id.media_seekbar);
+            loadingAudioPreparing = itemView.findViewById(R.id.loading_audio_preparing);
             btnPlay = itemView.findViewById(R.id.play);
             btnPause = itemView.findViewById(R.id.pause);
+            btnError = itemView.findViewById(R.id.img_error);
             btnPlay.setOnClickListener(this);
             btnPause.setOnClickListener(this);
+            mProgressUpdateHandler = new Handler(Looper.getMainLooper());
         }
 
         @Override
@@ -91,14 +157,23 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         @Override
         public void bindData(MessageBaseItem item, boolean lastItem) {
             super.bindData(item, lastItem);
-            setAudioSrc(item.message);
+            AudioMessageBaseItem audioItem = (AudioMessageBaseItem) item;
+            audioStatus = audioItem.getAudioStatus();
+            mMediaPlayer = null;
+            switch (audioStatus) {
+                case UNKNOWN:
+                    setAudioSrc(item.message);
+                    break;
+                default:
+                    initPlayer(audioStatus);
+                    break;
+            }
         }
 
         private Runnable mUpdateProgress = new Runnable() {
 
             public void run() {
-
-                if (mProgressUpdateHandler != null && mMediaPlayer.isPlaying()) {
+                if (mProgressUpdateHandler != null && audioStatus == AudioStatus.PLAYING && mMediaPlayer != null) {
                     onProgressChange(mMediaPlayer.getCurrentPosition(), totalTime, false);
 
                     // repeat the process
@@ -109,40 +184,76 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
         };
 
-        public void play() {
-
+        private void play() {
+            if (currentPlayingMessage != item) {
+                if (currentPlayingMessage != null) {
+                    currentPlayingMessage.stopSelf();
+                    if (messageListener != null) {
+                        messageListener.onPauseAudioMessage(currentPlayingMessage);
+                    }
+                }
+                currentPlayingMessage = (AudioMessageBaseItem) item;
+            }
             if (mMediaPlayer == null) {
-                throw new IllegalStateException("Call init() before calling this method");
+                showLoading();
+                initMediaPlayer(mediaPlayer -> {
+                    if (mediaPlayer == null) {
+                        showError();
+                        return;
+                    }
+                    int currentPosition = ((AudioMessageBaseItem) item).getCurrentPosition();
+                    mediaPlayer.seekTo(currentPosition);
+                    if (seekBar != null) {
+                        seekBar.setMax(mMediaPlayer.getDuration());
+                        seekBar.setProgress(currentPosition);
+                    }
+                    showPause();
+                    showSeekbar(true);
+                    mProgressUpdateHandler.postDelayed(() -> {
+                        mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
+                        mMediaPlayer.start();
+                    }, 300);
+                });
+            } else {
+                showPause();
+                showSeekbar(false);
+                mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
+                int position = ((AudioMessageBaseItem) item).getCurrentPosition();
+                mMediaPlayer.seekTo(position);
+                if (currentPlayingMessage != item) {
+                    if (messageListener != null) {
+                        messageListener.onPauseAudioMessage((AudioMessageBaseItem) item);
+                    }
+                    currentPlayingMessage = (AudioMessageBaseItem) item;
+                }
+                mMediaPlayer.start();
             }
-
-            if (mMediaPlayer.isPlaying()) {
-                mMediaPlayer.stop();
-            }
-
-            mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
-            mMediaPlayer.start();
-            setPausable();
+            audioStatus = AudioStatus.PLAYING;
+            ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);
         }
 
-        public void pause() {
-
+        private void pause() {
             if (mMediaPlayer == null) {
                 return;
             }
 
             if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
+                audioStatus = AudioStatus.PAUSED;
+                ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);
             }
-            setPlayable(false);
+            showPlay(true);
         }
 
         private void setAudioSrc(Message message) {
             String audioUrl = message.audioUrl;
             if (TextUtils.isEmpty(audioUrl)) {
-                itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
+                //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
+                // FIXME: should think about message send first then uploading file
+                showError();
                 return;
             }
-            itemView.findViewById(R.id.item_chat_audio).setVisibility(View.VISIBLE);
+            //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.VISIBLE);
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             final String audioLocalPath = itemView.getContext()
                     .getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
@@ -152,13 +263,13 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             CommonMethod.createFolder(imageLocalFolder);
 
             if (audioLocal.exists()) {
-                initPlayer(message);
+                initPlayer(AudioStatus.UNKNOWN);
             } else {
                 Log.d("audioUrl = " + audioUrl);
                 try {
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
-                        initPlayer(message);
+                        initPlayer(AudioStatus.UNKNOWN);
                     }).addOnFailureListener(exception -> {
                         // Handle any errors
                     });
@@ -168,52 +279,77 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
         }
 
-        public void initPlayer(Message message) {
-            totalTime = getTotalTime();
-            setPlayable(true);
-
-            if (mMediaPlayer != null) {
-                release();
+        private void initPlayer(AudioStatus status) {
+            if (status == AudioStatus.PLAYING || status == AudioStatus.PAUSED) {
+                initPlayingView();
+            } else if (status == AudioStatus.COMPLETED) {
+                hideSeekbar(true);
+                mProgressUpdateHandler.postDelayed(() -> {
+                    showPlay(false);
+                    seekBar.setProgress(0);
+                    if (mMediaPlayer != null) {
+                        mMediaPlayer.seekTo(0);
+                    }
+                    setTotalTime();
+                }, 300);
+            } else {
+                showPlay(false);
+                seekBar.setVisibility(View.GONE);
+                if (status == AudioStatus.UNKNOWN) {
+                    totalTime = getTotalTime();
+                    ((AudioMessageBaseItem) item).setAudioDuration(totalTime);
+                    audioStatus = AudioStatus.INITIALIZED;
+                    ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);
+                } else {
+                    totalTime = ((AudioMessageBaseItem) item).getAudioDuration();
+                }
+                setTotalTime();
             }
-            mMediaPlayer = new MediaPlayer();
-            mProgressUpdateHandler = new Handler();
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-            String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
-                    + CommonMethod.getFileNameFromFirebase(message.audioUrl);
-
-            try {
-                mMediaPlayer.setDataSource(audioLocalPath);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                mMediaPlayer.prepare();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            mMediaPlayer.setOnCompletionListener(mediaPlayer -> {
-                onProgressChange(totalTime, totalTime, false);
-            });
         }
 
-        public void onProgressChange(int currentTime, int totalTime, boolean isFromSeekBar) {
+        private void initPlayingView() {
+            AudioMessageBaseItem audioItem = (AudioMessageBaseItem) item;
+            totalTime = audioItem.getAudioDuration();
+            int position = audioItem.getCurrentPosition();
+            onProgressChange(position, totalTime, false);
+            if (seekBar != null) {
+                seekBar.setVisibility(View.VISIBLE);
+                seekBar.setMax(totalTime);
+                seekBar.setProgress(position);
+            }
+            if (audioStatus == AudioStatus.PLAYING) {
+                showPause();
+                mMediaPlayer = audioPlayerInstance;
+                mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
+            } else {
+                showPlay(false);
+            }
+        }
+
+        private void initMediaPlayer(MediaPlayer.OnPreparedListener listener) {
+            mMediaPlayer = audioPlayerInstance;
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.setOnPreparedListener(listener);
+            String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
+                    + CommonMethod.getFileNameFromFirebase(item.message.audioUrl);
+
+            try {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(audioLocalPath);
+                mMediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                e.printStackTrace();
+                showError();
+            }
+        }
+
+        private void onProgressChange(int currentTime, int totalTime, boolean isFromSeekBar) {
             StringBuilder playbackStr = new StringBuilder();
+            ((AudioMessageBaseItem) item).setCurrentPosition(currentTime);
             int remainingTime = totalTime - currentTime;
+            if (mMediaPlayer != null) {
+                seekBar.setProgress(currentTime);
+            }
 
             // set the current time
             // its ok to show 00:00 in the UI
@@ -222,24 +358,16 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             if (duration != null) {
                 duration.setText(playbackStr.toString());
             }
-            if (!isFromSeekBar && seekBar != null) {
-                seekBar.setProgress(currentTime);
-            }
-
-            if (currentTime == totalTime) {
-                setPlayable(true);
-            }
         }
 
-        public void setTotalTime() {
+        private void setTotalTime() {
             // set total time as the audio is being played
             StringBuilder playbackStr = new StringBuilder();
             if (totalTime != 0) {
                 playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) totalTime), TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
             }
 
-            TextView mRunTime = itemView.findViewById(R.id.playback_time);
-            mRunTime.setText(playbackStr);
+            duration.setText(playbackStr);
         }
 
         private int getTotalTime() {
@@ -252,46 +380,68 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             return Integer.parseInt(durationStr);
         }
 
-        private void setPlayable(boolean resetPlayedTime) {
-            ImageView mPlayMedia = itemView.findViewById(R.id.play);
-            ImageView mPauseMedia = itemView.findViewById(R.id.pause);
-            SeekBar mMediaSeekBar = itemView.findViewById(R.id.media_seekbar);
-
-            if (mPlayMedia != null) {
-                mPlayMedia.setVisibility(View.VISIBLE);
+        private void showPlay(boolean isAnimate) {
+            loadingAudioPreparing.setVisibility(View.GONE);
+            btnPause.setVisibility(View.GONE);
+            btnError.setVisibility(View.GONE);
+            if (isAnimate) {
+                TransitionManager.beginDelayedTransition((ViewGroup) itemView);
             }
-
-            if (mPauseMedia != null) {
-                mPauseMedia.setVisibility(View.GONE);
-            }
-            if (mMediaSeekBar != null && resetPlayedTime) {
-                mMediaSeekBar.setProgress(0);
-            }
-            if (resetPlayedTime) {
-                setTotalTime();
-            }
+            btnPlay.setVisibility(View.VISIBLE);
         }
 
-        private void setPausable() {
-            ImageView mPlayMedia = itemView.findViewById(R.id.play);
-            ImageView mPauseMedia = itemView.findViewById(R.id.pause);
-            if (mPlayMedia != null) {
-                mPlayMedia.setVisibility(View.GONE);
-            }
-
-            if (mPauseMedia != null) {
-                mPauseMedia.setVisibility(View.VISIBLE);
-            }
+        private void showPause() {
+            loadingAudioPreparing.setVisibility(View.GONE);
+            btnError.setVisibility(View.GONE);
+            btnPlay.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            btnPause.setVisibility(View.VISIBLE);
         }
 
-        public void release() {
-            if (mMediaPlayer != null) {
-                mMediaPlayer.stop();
-                mMediaPlayer.reset();
-                mMediaPlayer.release();
-                mMediaPlayer = null;
-                mProgressUpdateHandler = null;
-            }
+        private void showLoading() {
+            btnPause.setVisibility(View.GONE);
+            btnError.setVisibility(View.GONE);
+            btnPlay.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            loadingAudioPreparing.setVisibility(View.VISIBLE);
         }
+
+        private void hideLoading() {
+            loadingAudioPreparing.setVisibility(View.GONE);
+            btnPause.setVisibility(View.GONE);
+            btnError.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            btnPlay.setVisibility(View.VISIBLE);
+        }
+
+        private void showError() {
+            loadingAudioPreparing.setVisibility(View.GONE);
+            btnPause.setVisibility(View.GONE);
+            btnPlay.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            btnError.setVisibility(View.VISIBLE);
+        }
+
+        private void showSeekbar(boolean isAnimate) {
+            if (isAnimate) {
+                TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            }
+            seekBar.setVisibility(View.VISIBLE);
+        }
+
+        private void hideSeekbar(boolean isAnimate) {
+            if (isAnimate) {
+                TransitionManager.beginDelayedTransition((ViewGroup) itemView);
+            }
+            seekBar.setVisibility(View.GONE);
+        }
+    }
+
+    enum AudioStatus {
+        UNKNOWN,
+        INITIALIZED,
+        PLAYING,
+        PAUSED,
+        COMPLETED,
     }
 }

@@ -41,19 +41,13 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
     private Map<String, String> nickNames = new HashMap<>();
     public Message message;
     public int conversationType;
-    private boolean isEditMode = false;
-    private MessageListener messageListener;
+    protected boolean isEditMode = false;
+    protected boolean isSelected = false;
+    protected MessageListener messageListener;
 
-    public static FlexibleItem from(Message message, String currentUserID, int conversationType) {
-        FlexibleItem baseItem;
+    public static MessageBaseItem from(Message message, String currentUserID, int conversationType) {
+        MessageBaseItem baseItem;
         switch (message.messageType) {
-            case Constant.MSG_TYPE_TEXT:
-                if (message.senderId.equals(currentUserID)) {
-                    baseItem = new TextMessageRightItem(message);
-                } else {
-                    baseItem = new TextMessageLeftItem(message);
-                }
-                break;
             case Constant.MSG_TYPE_IMAGE:
             case Constant.MSG_TYPE_GAME:
                 if (message.senderId.equals(currentUserID)) {
@@ -70,11 +64,14 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             default:
-                baseItem = new LoadingItem();
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new TextMessageRightItem(message);
+                } else {
+                    baseItem = new TextMessageLeftItem(message);
+                }
+                break;
         }
-        if (baseItem instanceof MessageBaseItem) {
-            ((MessageBaseItem) baseItem).conversationType = conversationType;
-        }
+        baseItem.conversationType = conversationType;
         return baseItem;
     }
 
@@ -92,6 +89,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         this.messageListener = messageListener;
     }
 
+    public void setNickNames(HashMap<String, String> nickNames) {
+        this.nickNames = nickNames;
+    }
+
     public static abstract class ViewHolder extends BaseMessageViewHolder implements View.OnClickListener {
         protected RadioButton rbSelection;
         protected ImageView senderProfileImage;
@@ -100,7 +101,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         protected MessageBaseItem item;
         protected boolean maskStatus;
-        protected boolean lastItem;
+        public boolean lastItem;
 
         protected MessageListener messageListener;
 
@@ -113,6 +114,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             if (senderProfileImage != null) {
                 senderProfileImage.setOnClickListener(this);
             }
+            rbSelection.setOnClickListener(this);
         }
 
         public void setMessageListener(MessageListener messageListener) {
@@ -124,6 +126,8 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             this.lastItem = lastItem;
             this.maskStatus = CommonMethod.getBooleanFrom(item.message.markStatuses, item.message.currentUserId);
             rbSelection.setVisibility(item.isEditMode ? View.VISIBLE : View.GONE);
+            rbSelection.setChecked(item.isSelected);
+            rbSelection.setSelected(item.isSelected);
             setSenderImage(item.message.sender);
             setMessageInfo(item.message);
             setMessageStatus(item.message, lastItem);
@@ -148,18 +152,36 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 rbSelection.setVisibility(View.VISIBLE);
             }, 10);
             if (messageListener != null) {
-                messageListener.onLongPress(item.message);
+                messageListener.onLongPress(item);
             }
         }
 
         @Override
         public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.item_chat_user_profile:
-                    handleProfileImagePress();
-                    break;
-                default:
-                    break;
+            if (view.getId() == R.id.item_chat_select || item.isEditMode) {
+                handleSelection();
+            } else {
+                switch (view.getId()) {
+                    case R.id.item_chat_user_profile:
+                        handleProfileImagePress();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void handleSelection() {
+            boolean toggleStatus = !rbSelection.isSelected();
+            item.setSelected(toggleStatus);
+            rbSelection.setChecked(toggleStatus);
+            rbSelection.setSelected(toggleStatus);
+            if (messageListener != null) {
+                if (rbSelection.isChecked()) {
+                    messageListener.selectMessage(item);
+                } else {
+                    messageListener.unSelectMessage(item);
+                }
             }
         }
 
@@ -195,7 +217,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         private void setMessageStatus(Message message, boolean lastItem) {
             if (tvStatus == null) return;
             String messageStatus = message.messageStatus;
-            if (lastItem || message.messageType == Constant.MSG_TYPE_GAME) {
+            if ((lastItem || message.messageType == Constant.MSG_TYPE_GAME) && !TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setText(messageStatus);
                 tvStatus.setVisibility(View.VISIBLE);
                 if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
@@ -213,16 +235,28 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         this.isEditMode = isEditMode;
     }
 
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
     public interface MessageListener {
 
         void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
 
-        void onLongPress(Message message);
+        void onLongPress(MessageBaseItem messageItem);
 
         void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
 
         void openGameMessage(Message message);
+
+        void onPauseAudioMessage(AudioMessageBaseItem message);
+
+        void onCompletePlayAudio(AudioMessageBaseItem audioMessageBaseItem);
+
+        void selectMessage(MessageBaseItem item);
+
+        void unSelectMessage(MessageBaseItem item);
     }
 }

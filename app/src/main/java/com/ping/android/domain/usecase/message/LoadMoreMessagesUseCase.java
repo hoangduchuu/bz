@@ -61,6 +61,7 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                     }
 
                                     message.sender = getUser(message.senderId, params.conversation);
+                                    message.currentUserId = user.key;
                                     messages.add(message);
                                 }
                                 Output output = new Output();

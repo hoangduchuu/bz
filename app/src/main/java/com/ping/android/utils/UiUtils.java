@@ -213,8 +213,10 @@ public class UiUtils {
 
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
         ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         GlideApp.with(imageView.getContext())
                 .load(filePath)
+                .placeholder(placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))

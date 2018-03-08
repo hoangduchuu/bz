@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
@@ -30,6 +31,7 @@ import com.ping.android.ultility.Constant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +69,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendAudioMessageUseCase sendAudioMessageUseCase;
     @Inject
     ResendMessageUseCase resendMessageUseCase;
+    @Inject
+    UpdateConversationUseCase updateConversationUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -288,6 +292,19 @@ public class ChatPresenterImpl implements ChatPresenter {
         resendMessageUseCase.execute(new DefaultObserver<>(), params);
     }
 
+    @Override
+    public void updateConversationLastMessage(Message lastMessage) {
+        Conversation conversation = new Conversation(this.conversation.conversationType, lastMessage.messageType,
+                lastMessage.message, this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs, lastMessage.markStatuses,
+                this.conversation.readStatuses, lastMessage.timestamp, this.conversation);
+        conversation.key = this.conversation.key;
+        HashMap<String, Boolean> allowance = new HashMap<>();
+        allowance.put(currentUser.key, true);
+
+        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {},
+                new UpdateConversationUseCase.Params(conversation, allowance));
+    }
+
     private void getLastMessages(Conversation conversation) {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
@@ -417,8 +434,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                         messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
                     }
                 } else {
-                    status = conversation.opponentUser != null && message.status.containsKey(conversation.opponentUser.key) ?
+                    int oponentStatus = conversation.opponentUser != null && message.status.containsKey(conversation.opponentUser.key) ?
                             message.status.get(conversation.opponentUser.key) : Constant.MESSAGE_STATUS_GAME_DELIVERED;
+                    if (oponentStatus == Constant.MESSAGE_STATUS_GAME_PASS
+                            || oponentStatus == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                        status = oponentStatus;
+                    }
                     switch (status) {
                         case Constant.MESSAGE_STATUS_GAME_PASS:
                             messageStatus = "Game Passed";
@@ -431,9 +452,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                             break;
                         case Constant.MESSAGE_STATUS_SENT:
                             messageStatus = "";
-                            break;
-                        case Constant.MESSAGE_STATUS_READ:
-                            messageStatus = "Read";
                             break;
                         default:
                             messageStatus = "Game Delivered";

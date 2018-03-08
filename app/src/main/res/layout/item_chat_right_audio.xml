@@ -24,49 +24,68 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="5dp">
+            android:gravity="end">
 
             <TextView
                 android:id="@+id/item_chat_info"
                 style="@style/AppTextAppearance.VerySmall.Grey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="user" />
+                tools:text="This is very long long long text" />
 
             <RelativeLayout
-                android:layout_width="200dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/background_chat_left">
 
-                <ProgressBar
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_margin="5dp"
-                    android:layout_centerInParent="true" />
-
                 <LinearLayout
                     android:id="@+id/item_chat_audio"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/background_chat_right"
                     android:padding="10dp"
+                    android:gravity="center"
                     android:scaleType="centerInside"
-                    tools:visibility="gone">
+                    tools:visibility="visible">
 
-                    <ImageView
-                        android:id="@+id/play"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="6"
-                        android:src="@android:drawable/ic_media_play" />
+                        android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/pause"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="6"
-                        android:src="@android:drawable/ic_media_pause"
-                        android:visibility="gone" />
+                        <ImageView
+                            android:id="@+id/play"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@drawable/ic_play_arrow" />
+
+                        <ImageView
+                            android:id="@+id/pause"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@drawable/ic_pause"
+                            android:visibility="gone" />
+
+                        <ImageView
+                            android:id="@+id/img_error"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:src="@drawable/ic_error_outline"
+                            android:tint="@color/gray_bg"
+                            android:visibility="gone"/>
+
+                        <ProgressBar
+                            android:id="@+id/loading_audio_preparing"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:indeterminate="true"
+                            android:indeterminateTintMode="src_atop"
+                            android:indeterminateTint="@color/gray_bg"
+                            android:layout_centerInParent="true"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -83,7 +102,8 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="start"
                             android:progressTint="@color/color_primary"
-                            android:thumbTint="@color/color_primary" />
+                            android:thumbTint="@color/color_primary"
+                            android:visibility="gone"/>
 
                         <TextView
                             android:id="@+id/playback_time"

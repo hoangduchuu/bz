@@ -51,6 +51,9 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         @Override
         public void onDoubleTap() {
+            if (item.isEditMode) {
+                return;
+            }
             maskStatus = !maskStatus;
             if (messageListener != null) {
                 messageListener.updateMessageMask(item.message, maskStatus, lastItem);
@@ -59,6 +62,9 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         @Override
         public void onSingleTap() {
+            if (item.isEditMode) {
+                return;
+            }
             switch (item.message.messageType) {
                 case Constant.MSG_TYPE_IMAGE:
                     handleImagePress(maskStatus);

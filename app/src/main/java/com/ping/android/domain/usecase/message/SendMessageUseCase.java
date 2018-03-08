@@ -88,7 +88,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         if (message != null) {
             //messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, messageStatus);
             HashMap<String, Object> updateValue = new HashMap<>();
-            for (String userId: conversation.memberIDs.keySet()) {
+            for (String userId : conversation.memberIDs.keySet()) {
                 //messageRepository.updateMessageStatus(conversation.key, message.key, userId, messageStatus);
                 updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), messageStatus);
             }
