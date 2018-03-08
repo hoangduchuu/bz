@@ -34,38 +34,53 @@
             android:text="user" />
 
         <RelativeLayout
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/background_chat_left">
 
-            <ProgressBar
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerInParent="true"
-                android:layout_margin="5dp" />
-
             <LinearLayout
                 android:id="@+id/item_chat_audio"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:background="@drawable/background_chat_left"
-                android:padding="5dp">
+                android:gravity="center"
+                android:padding="10dp"
+                android:background="@drawable/background_chat_left">
 
-                <ImageView
-                    android:id="@+id/play"
+                <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="6"
-                    android:src="@android:drawable/ic_media_play" />
+                    android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/pause"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="6"
-                    android:src="@android:drawable/ic_media_pause"
-                    android:visibility="gone" />
+                    <ImageView
+                        android:id="@+id/play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_play_arrow" />
+
+                    <ImageView
+                        android:id="@+id/pause"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_pause"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/img_error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_error_outline"
+                        android:visibility="gone"/>
+
+                    <ProgressBar
+                        android:id="@+id/loading_audio_preparing"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerInParent="true"
+                        android:visibility="gone"/>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -82,7 +97,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:progressTint="@color/color_primary"
-                        android:thumbTint="@color/color_primary" />
+                        android:thumbTint="@color/color_primary"
+                        android:visibility="gone"/>
 
                     <TextView
                         android:id="@+id/playback_time"
@@ -103,6 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
+            android:visibility="gone"
             android:text="Sent" />
     </LinearLayout>
 

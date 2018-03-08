@@ -24,9 +24,8 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.ping.android.activity.R;
-import com.ping.android.adapter.OpponentsFromCallAdapter;
+import com.ping.android.presentation.view.adapter.OpponentsFromCallAdapter;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;

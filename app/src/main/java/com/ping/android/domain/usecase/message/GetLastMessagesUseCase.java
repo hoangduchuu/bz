@@ -62,6 +62,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     }
 
                                     message.sender = getUser(message.senderId, conversation);
+                                    message.currentUserId = user.key;
                                     messages.add(message);
                                 }
                                 Output output = new Output();

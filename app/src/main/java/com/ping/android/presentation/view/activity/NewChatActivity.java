@@ -17,7 +17,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
-import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;

@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
-import com.ping.android.adapter.TransphabetCategoryAdapter;
+import com.ping.android.presentation.view.adapter.TransphabetCategoryAdapter;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
 import com.ping.android.fragment.BaseFragment;

@@ -13,7 +13,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.ping.android.adapter.BlockAdapter;
+import com.ping.android.presentation.view.adapter.BlockAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.firebase.UserRepository;

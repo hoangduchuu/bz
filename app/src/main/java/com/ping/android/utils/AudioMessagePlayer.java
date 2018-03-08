@@ -8,11 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
-import com.ping.android.adapter.ChatAdapter;
 import com.ping.android.model.Message;
 import com.ping.android.ultility.CommonMethod;
 

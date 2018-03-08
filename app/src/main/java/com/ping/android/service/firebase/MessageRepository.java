@@ -50,7 +50,7 @@ public class MessageRepository extends BaseFirebaseDatabase {
         databaseReference.child(messageKey).child("photoUrl").setValue(photoUrl);
     }
 
-    public void updateMessageMask(List<Message> messages, String conversationId, String userId, boolean isLastMessage, boolean value) {
+    public void updateMessageMask(List<Message> messages, String conversationId, String userId, boolean isLastMessage, boolean value, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         for (Message message : messages) {
             updateValue.put(String.format("messages/%s/%s/markStatuses/%s", conversationId, message.key, userId), value);
@@ -59,14 +59,14 @@ public class MessageRepository extends BaseFirebaseDatabase {
             updateValue.put(String.format("conversations/%s/markStatuses/%s", conversationId, userId), value);
             updateValue.put(String.format("conversations/%s/%s/markStatuses/%s/", userId, conversationId, userId), value);
         }
-        updateBatchData(updateValue, null);
+        updateBatchData(updateValue, callback);
     }
 
-    public void deleteMessage(String conversationID, List<Message> messages) {
+    public void deleteMessage(String conversationID, List<Message> messages, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
         for (Message message : messages) {
             updateValue.put(String.format("messages/%s/%s/deleteStatuses/%s", conversationID, message.key, currentUserId()), true);
         }
-        updateBatchData(updateValue, null);
+        updateBatchData(updateValue, callback);
     }
 }

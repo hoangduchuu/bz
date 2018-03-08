@@ -12,7 +12,7 @@ import java.util.*
  * Created by tuanluong on 10/18/17.
  */
 
-class FlexibleAdapter<V, in T> : RecyclerView.Adapter<V>() where V: RecyclerView.ViewHolder, T: FlexibleItem<V> {
+class FlexibleAdapter1<V, in T> : RecyclerView.Adapter<V>() where V: RecyclerView.ViewHolder, T: FlexibleItem<V> {
     private val items = ArrayList<T>()
     private val viewTypes = SparseArrayCompat<T>()
     private val loadingItem: LoadingItem by lazy {
@@ -23,7 +23,8 @@ class FlexibleAdapter<V, in T> : RecyclerView.Adapter<V>() where V: RecyclerView
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: V, position: Int) {
-        items[position].onBindViewHolder(holder)
+        var isLastPosition = position == itemCount - 1
+        items[position].onBindViewHolder(holder, isLastPosition)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): V {

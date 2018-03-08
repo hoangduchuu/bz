@@ -10,11 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SearchView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.ping.android.adapter.SelectContactAdapter;
+import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.ultility.CommonMethod;

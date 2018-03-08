@@ -134,7 +134,7 @@ public class NotificationHelper {
                     incomingMask = conversation.maskMessages.get(user.key);
                 }
 
-                switch (conversation.messageType) {
+                switch (fmessage.messageType) {
                     case Constant.MSG_TYPE_TEXT:
                         body = String.format("%s: %s", senderName, incomingMask && user.mappings != null && user.mappings.size() > 0 ?
                                 ServiceManager.getInstance().encodeMessage(user.mappings, fmessage.message) : fmessage.message);

@@ -27,7 +27,7 @@ import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
-import com.ping.android.adapter.MessageAdapter;
+import com.ping.android.presentation.view.adapter.MessageAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;

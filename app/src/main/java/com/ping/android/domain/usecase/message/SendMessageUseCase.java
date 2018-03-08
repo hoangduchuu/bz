@@ -76,11 +76,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     // Update message for conversation for each user
                     updateData.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (!message.readAllowed.containsKey(toUser)) continue;
+                        if (!message1.readAllowed.containsKey(toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
                     }
                     return commonRepository.updateBatchData(updateData)
-                            .map(success -> message);
+                            .map(success -> message1);
                 });
     }
 
@@ -88,7 +88,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         if (message != null) {
             //messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, messageStatus);
             HashMap<String, Object> updateValue = new HashMap<>();
-            for (String userId: conversation.memberIDs.keySet()) {
+            for (String userId : conversation.memberIDs.keySet()) {
                 //messageRepository.updateMessageStatus(conversation.key, message.key, userId, messageStatus);
                 updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), messageStatus);
             }

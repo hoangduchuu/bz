@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
@@ -30,8 +31,10 @@ import com.ping.android.ultility.Constant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,6 +69,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendAudioMessageUseCase sendAudioMessageUseCase;
     @Inject
     ResendMessageUseCase resendMessageUseCase;
+    @Inject
+    UpdateConversationUseCase updateConversationUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -141,6 +146,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
+                updateMessageStatus(messageChildData.data);
                 if (isInBackground.get()) {
                     messagesInBackground.add(messageChildData);
                     return;
@@ -286,6 +292,19 @@ public class ChatPresenterImpl implements ChatPresenter {
         resendMessageUseCase.execute(new DefaultObserver<>(), params);
     }
 
+    @Override
+    public void updateConversationLastMessage(Message lastMessage) {
+        Conversation conversation = new Conversation(this.conversation.conversationType, lastMessage.messageType,
+                lastMessage.message, this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs, lastMessage.markStatuses,
+                this.conversation.readStatuses, lastMessage.timestamp, this.conversation);
+        conversation.key = this.conversation.key;
+        HashMap<String, Boolean> allowance = new HashMap<>();
+        allowance.put(currentUser.key, true);
+
+        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {},
+                new UpdateConversationUseCase.Params(conversation, allowance));
+    }
+
     private void getLastMessages(Conversation conversation) {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
@@ -352,5 +371,100 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        sendGameMessageUseCase.dispose();
 //        sendAudioMessageUseCase.dispose();
 //        resendMessageUseCase.dispose();
+    }
+
+    private void updateMessageStatus(Message message) {
+        int status = Constant.MESSAGE_STATUS_SENT;
+        for (String userId : conversation.memberIDs.keySet()) {
+            status = CommonMethod.getIntFrom(message.status, userId);
+            if (status == Constant.MESSAGE_STATUS_READ) {
+                break;
+            }
+        }
+        if (status != Constant.MESSAGE_STATUS_READ) {
+            status = CommonMethod.getIntFrom(message.status, currentUser.key);
+            if (status == -1) {
+                status = Constant.MESSAGE_STATUS_SENT;
+            }
+        }
+        String messageStatus = "";
+        if (TextUtils.equals(message.senderId, currentUser.key)) {
+            if (message.messageType != Constant.MSG_TYPE_GAME) {
+                switch (status) {
+                    case Constant.MESSAGE_STATUS_SENT:
+                        messageStatus = "";
+                        break;
+                    case Constant.MESSAGE_STATUS_DELIVERED:
+                        messageStatus = "Delivered";
+                        break;
+                    case Constant.MESSAGE_STATUS_ERROR:
+                        messageStatus = "Undelivered";
+                        break;
+                    case Constant.MESSAGE_STATUS_READ:
+                        messageStatus = "Read";
+                        break;
+                    default:
+                        messageStatus = "";
+                }
+            } else {
+                if (!TextUtils.isEmpty(conversation.groupID)) {
+                    int passedCount = 0, failedCount = 0;
+                    for (Map.Entry<String, Integer> entry : message.status.entrySet()) {
+                        if (TextUtils.equals(entry.getKey(), currentUser.key)) {
+                            continue;
+                        }
+                        if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_PASS) {
+                            passedCount += 1;
+                        }
+                        if (entry.getValue() == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                            failedCount += 1;
+                        }
+                    }
+                    if (status == Constant.MESSAGE_STATUS_ERROR) {
+                        messageStatus = "Game Undelivered";
+                    } else if (status == Constant.MESSAGE_STATUS_SENT) {
+                        messageStatus = "";
+                    } else if (passedCount == 0 && failedCount == 0) {
+                        if (status == Constant.MESSAGE_STATUS_READ) {
+                            messageStatus = "Read";
+                        } else {
+                            messageStatus = "Game Delivered";
+                        }
+                    } else {
+                        messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount);
+                    }
+                } else {
+                    int oponentStatus = conversation.opponentUser != null && message.status.containsKey(conversation.opponentUser.key) ?
+                            message.status.get(conversation.opponentUser.key) : Constant.MESSAGE_STATUS_GAME_DELIVERED;
+                    if (oponentStatus == Constant.MESSAGE_STATUS_GAME_PASS
+                            || oponentStatus == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                        status = oponentStatus;
+                    }
+                    switch (status) {
+                        case Constant.MESSAGE_STATUS_GAME_PASS:
+                            messageStatus = "Game Passed";
+                            break;
+                        case Constant.MESSAGE_STATUS_GAME_FAIL:
+                            messageStatus = "Game Failed";
+                            break;
+                        case Constant.MESSAGE_STATUS_ERROR:
+                            messageStatus = "Game Undelivered";
+                            break;
+                        case Constant.MESSAGE_STATUS_SENT:
+                            messageStatus = "";
+                            break;
+                        default:
+                            messageStatus = "Game Delivered";
+
+                    }
+                }
+            }
+        } else {
+            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                messageStatus = "Game";
+            }
+        }
+        message.messageStatus = messageStatus;
+        message.messageStatusCode = status;
     }
 }

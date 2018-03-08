@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -15,6 +16,9 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -31,6 +35,8 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     StorageRepository storageRepository;
     @Inject
     ConversationRepository conversationRepository;
+    @Inject
+    CommonRepository commonRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
     SendMessageUseCase.Params.Builder builder;
@@ -64,6 +70,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                         .map(message1 -> {
                             message1.isCached = true;
                             message1.localImage = params.filePath;
+                            message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))
                 .concatWith(sendMessage(params));
@@ -75,7 +82,12 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                     builder.setImageUrl(s);
                     return builder.build();
                 })
-                .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1));
+                .flatMap(params1 -> {
+                    Message message = params1.getMessage();
+                    Map<String, Object> updateValue = new HashMap<>();
+                    updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
+                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
+                });
     }
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {
