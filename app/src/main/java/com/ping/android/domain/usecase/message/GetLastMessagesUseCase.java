@@ -47,6 +47,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                             if (dataSnapshot.getChildrenCount() > 0) {
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                    if (!child.exists()) continue;
                                     Message message = Message.from(child);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted) {

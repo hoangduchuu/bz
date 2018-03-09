@@ -102,15 +102,17 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                     if (TextUtils.isEmpty(params.message)) {
                         return Observable.just(conversation.key);
                     } else {
-                        SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params.Builder()
-                                .setMessageType(MessageType.TEXT)
-                                .setConversation(conversation)
-                                .setMarkStatus(false)
-                                .setCurrentUser(currentUser)
-                                .setText(params.message)
-                                .build();
-                        return sendMessageUseCase.buildUseCaseObservable(sendMessageParams)
-                                .map(aBoolean -> conversation.key);
+                        return conversationRepository.getMessageKey(conversation.key)
+                                .map(messageKey -> new SendMessageUseCase.Params.Builder()
+                                        .setMessageType(MessageType.TEXT)
+                                        .setConversation(conversation)
+                                        .setMarkStatus(false)
+                                        .setCurrentUser(currentUser)
+                                        .setText(params.message)
+                                        .setMessageKey(messageKey)
+                                        .build())
+                                .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1)
+                                    .map(aBoolean -> conversation.key));
                     }
                 });
 
