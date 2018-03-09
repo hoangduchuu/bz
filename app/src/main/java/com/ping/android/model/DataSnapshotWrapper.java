@@ -28,6 +28,18 @@ public class DataSnapshotWrapper {
         return defaultValue;
     }
 
+    public int getIntValue(String name) {
+        return getIntValue(name, -1);
+    }
+
+    public int getIntValue(String name, int defaultValue) {
+        Object object = getObject(name);
+        if (object != null) {
+            return Integer.parseInt(object.toString());
+        }
+        return defaultValue;
+    }
+
     public double getDoubleValue(String name) {
         return getDoubleValue(name, 0);
     }

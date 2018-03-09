@@ -45,10 +45,15 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
         currentUser = params.user;
         return messageRepository.observeMessageUpdate(params.conversation.key)
                 .map(childEvent -> {
-                    Message message = Message.from(childEvent.dataSnapshot);
-                    message.currentUserId = currentUser.key;
-                    return new ChildData<>(message, childEvent.type);
+                    if (childEvent.dataSnapshot.exists()) {
+                        Message message = Message.from(childEvent.dataSnapshot);
+                        message.currentUserId = currentUser.key;
+                        return new ChildData<>(message, childEvent.type);
+                    } else {
+                        throw new NullPointerException();
+                    }
                 })
+                .onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
                     Message message = childData.data;
                     boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0

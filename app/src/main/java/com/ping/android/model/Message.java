@@ -44,32 +44,29 @@ public class Message {
 
     public static Message from(DataSnapshot dataSnapshot) {
         Message message = new Message();
-        message.message = dataSnapshot.child("message").getValue(String.class);
-        message.photoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
-        message.thumbUrl = dataSnapshot.child("thumbUrl").getValue(String.class);
-        message.audioUrl = dataSnapshot.child("audioUrl").getValue(String.class);
-        message.gameUrl = dataSnapshot.child("gameUrl").getValue(String.class);
-        message.messageType = dataSnapshot.child("messageType").getValue(Integer.class);
-        if(dataSnapshot.child("timestamp").exists()) {
-            message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
-        }else{
-            message.timestamp = 0.0d;
-        }
-        message.senderId = dataSnapshot.child("senderId").getValue(String.class);
-        message.senderName = dataSnapshot.child("senderName").getValue(String.class);
-        Integer type = dataSnapshot.child("gameType").getValue(Integer.class);
-        message.gameType = type != null ? type : 0;
+        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
+        message.message = wrapper.getStringValue("message");
+        message.photoUrl = wrapper.getStringValue("photoUrl");
+        message.thumbUrl = wrapper.getStringValue("thumbUrl");
+        message.audioUrl = wrapper.getStringValue("audioUrl");
+        message.gameUrl = wrapper.getStringValue("gameUrl");
+        message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
+        message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
+        message.senderId = wrapper.getStringValue("senderId");
+        message.senderName = wrapper.getStringValue("senderName");
+        message.gameType = wrapper.getIntValue("gameType", 0);
 
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
-        for (String k:status.keySet()
-             ) {
-            Object value = status.get(k);
-            int intValue = 0;
-            if (value instanceof Long){
-                intValue = ((Long)value).intValue();
+        if (status != null) {
+            for (String k : status.keySet()) {
+                Object value = status.get(k);
+                int intValue = 0;
+                if (value instanceof Long) {
+                    intValue = ((Long) value).intValue();
+                }
+                message.status.put(k, intValue);
             }
-            message.status.put(k, intValue);
         }
 
         message.markStatuses = (HashMap<String, Boolean>) dataSnapshot.child("markStatuses").getValue();

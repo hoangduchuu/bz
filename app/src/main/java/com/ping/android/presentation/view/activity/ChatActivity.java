@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -25,7 +24,6 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -83,7 +81,6 @@ import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiPopup;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
@@ -122,6 +119,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private Button btCancelRecord;
     private BottomSheetBehavior bottomSheetBehavior;
     private BottomSheetDialog chatGameMenu;
+    private BottomSheetDialog messageActions;
+
+    private LinearLayout copyContainer;
 
     private String conversationID, fromUserID;
     private User fromUser;
@@ -164,9 +164,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             }
         }
     };
-    Message cacheMessage = null;
     private MessageBaseItem selectedMessage;
-    private boolean shouldDispatchOnTouch = true;
     private BadgeHelper badgeHelper;
 
     @Inject
@@ -379,13 +377,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void onLongPress(MessageBaseItem message) {
         KeyboardHelpers.hideSoftInputKeyboard(this);
-        shouldDispatchOnTouch = false;
         selectedMessage = message;
-        findViewById(R.id.btn_copy).setVisibility(message.message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-            shouldDispatchOnTouch = true;
-        }, 800);
+        copyContainer.setVisibility(message.message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
+        messageActions.show();
     }
 
     @Override
@@ -436,21 +430,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateLastConversationMessage(Message lastMessage) {
         presenter.updateConversationLastMessage(lastMessage);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (shouldDispatchOnTouch) {
-            if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                if (selectedMessage != null) {
-                    selectedMessage.setSelected(false);
-                    messagesAdapter.update(selectedMessage);
-                }
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                //return false;
-            }
-        }
-        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -578,21 +557,30 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btEmoji = findViewById(R.id.chat_emoji_btn);
         btEmoji.setOnClickListener(this);
 
+//        LinearLayout llBottomSheet = findViewById(R.id.bottom_sheet);
+//        bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
+//        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+
+        View messageActionsView = getLayoutInflater().inflate(R.layout.bottom_sheet_message_actions, null);
+        copyContainer = messageActionsView.findViewById(R.id.btn_copy);
+        copyContainer.setOnClickListener(this);
+        messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
+
         IconicsDrawable drawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_content_copy)
                 .sizeDp(24)
                 .color(ContextCompat.getColor(this, R.color.colorAccent));
-        IconicsImageView copyImageView = findViewById(R.id.img_copy);
+        IconicsImageView copyImageView = messageActionsView.findViewById(R.id.img_copy);
         copyImageView.setIcon(drawable);
 
         IconicsDrawable deleteDrawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_delete)
                 .sizeDp(24)
                 .color(ContextCompat.getColor(this, R.color.colorAccent));
-        IconicsImageView deleteImageView = findViewById(R.id.img_delete);
+        IconicsImageView deleteImageView = messageActionsView.findViewById(R.id.img_delete);
         deleteImageView.setIcon(deleteDrawable);
-
-        LinearLayout llBottomSheet = findViewById(R.id.bottom_sheet);
-        bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        messageActions = new BottomSheetDialog(this);
+        messageActions.setContentView(messageActionsView);
+        messageActions.setOnDismissListener(dialog -> hideSelectedMessage());
 
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_game_menu, null);
         chatGameMenu = new BottomSheetDialog(this);
@@ -603,9 +591,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         view.findViewById(R.id.memory_game).setOnClickListener(this);
         view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
         view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
-
-        findViewById(R.id.btn_copy).setOnClickListener(this);
-        findViewById(R.id.btn_delete).setOnClickListener(this);
 
         onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
         onUpdateEditMode();
@@ -1055,23 +1040,33 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onCopySelectedMessageText() {
-        hideBottomSheet();
+        messageActions.hide();
         if (selectedMessage == null) return;
         ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clipData = ClipData.newPlainText("message", selectedMessage.message.message);
         clipboardManager.setPrimaryClip(clipData);
+
+        Toast.makeText(this, "Message copied", Toast.LENGTH_SHORT).show();
+        hideSelectedMessage();
     }
 
     private void onDeleteSelectedMessage() {
-        hideBottomSheet();
+        messageActions.hide();
         if (selectedMessage == null) return;
+
         List<Message> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(selectedMessage.message);
         messageRepository.deleteMessage(conversationID, messagesToDelete, null);
+        hideSelectedMessage();
     }
 
-    private void hideBottomSheet() {
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    private void hideSelectedMessage() {
+        messageActions.hide();
+        if (selectedMessage != null) {
+            selectedMessage.setEditMode(false);
+            selectedMessage.setSelected(true);
+            messagesAdapter.update(selectedMessage);
+        }
         selectedMessage = null;
     }
 
