@@ -63,10 +63,20 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
     public void stopSelf() {
         if (currentPlayingMessage == this) {
-            audioPlayerInstance.pause();
+            if (audioPlayerInstance != null) {
+                audioPlayerInstance.pause();
+            }
             if (audioStatus == AudioStatus.PLAYING) {
                 audioStatus = AudioStatus.PAUSED;
             }
+        }
+    }
+
+    public void release() {
+        if (audioPlayerInstance != null) {
+            audioPlayerInstance.stop();
+            audioPlayerInstance.release();
+            audioPlayerInstance = null;
         }
     }
 
@@ -77,34 +87,28 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         return new ViewHolder(view);
     }
 
-    public void setAudioDuration(int audioDuration) {
+    void setAudioDuration(int audioDuration) {
         this.audioDuration = audioDuration;
     }
 
-    public void setCurrentPosition(int currentPosition) {
+    void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
     }
 
-    public int getAudioDuration() {
+    int getAudioDuration() {
         return audioDuration;
     }
 
-    public int getCurrentPosition() {
+    int getCurrentPosition() {
         return currentPosition;
     }
 
-    public synchronized void setAudioStatus(AudioStatus audioStatus) {
+    synchronized void setAudioStatus(AudioStatus audioStatus) {
         this.audioStatus = audioStatus;
     }
 
-    public synchronized AudioStatus getAudioStatus() {
+    synchronized AudioStatus getAudioStatus() {
         return audioStatus;
-    }
-
-    public void release() {
-        audioPlayerInstance.stop();
-        audioPlayerInstance.release();
-        audioPlayerInstance = null;
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
@@ -173,13 +177,15 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         private Runnable mUpdateProgress = new Runnable() {
 
             public void run() {
-                if (mProgressUpdateHandler != null && audioStatus == AudioStatus.PLAYING && mMediaPlayer != null) {
-                    onProgressChange(mMediaPlayer.getCurrentPosition(), totalTime, false);
+                try {
+                    if (mProgressUpdateHandler != null && audioStatus == AudioStatus.PLAYING && mMediaPlayer != null) {
+                        onProgressChange(mMediaPlayer.getCurrentPosition(), totalTime, false);
 
-                    // repeat the process
-                    mProgressUpdateHandler.postDelayed(this, AUDIO_PROGRESS_UPDATE_TIME);
-                } else {
-                    // DO NOT update UI if the player is paused
+                        // repeat the process
+                        mProgressUpdateHandler.postDelayed(this, AUDIO_PROGRESS_UPDATE_TIME);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -257,7 +263,10 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             final String audioLocalPath = itemView.getContext()
                     .getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
-
+            if (audioLocalPath.endsWith("m4a")) {
+                showError();
+                return;
+            }
             File audioLocal = new File(audioLocalPath);
             String imageLocalFolder = audioLocal.getParent();
             CommonMethod.createFolder(imageLocalFolder);
@@ -332,7 +341,10 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             mMediaPlayer.setOnPreparedListener(listener);
             String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
                     + CommonMethod.getFileNameFromFirebase(item.message.audioUrl);
-
+            if (audioLocalPath.endsWith("m4a")) {
+                showError();
+                return;
+            }
             try {
                 mMediaPlayer.reset();
                 mMediaPlayer.setDataSource(audioLocalPath);

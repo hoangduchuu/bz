@@ -128,7 +128,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private Conversation originalConversation;
     private ChatMessageAdapter messagesAdapter;
 
-    private List<Message> messages;
     private String RECORDING_PATH, currentOutFile;
     private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false;
@@ -199,7 +198,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void initView() {
         notifyTyping();
-        messages = new ArrayList<>();
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
@@ -644,7 +642,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        messages = new ArrayList<>();
         fromUser = UserManager.getInstance().getUser();
         fromUserID = fromUser.key;
 
@@ -1390,9 +1387,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void updateConversationReadStatus() {
-        if (CollectionUtils.isEmpty(messages)) {
-            return;
-        }
         if (!visibleStatus) {
             return;
         }
@@ -1418,10 +1412,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void updateConversationTyping(boolean typing) {
-        if (CollectionUtils.isEmpty(messages)) {
-            return;
+        if (originalConversation != null) {
+            conversationRepository.updateTypingIndicatorForUser(originalConversation, fromUserID, typing);
         }
-        conversationRepository.updateTypingIndicatorForUser(originalConversation, fromUserID, typing);
     }
 
     private boolean beAbleToSendMessage() {
