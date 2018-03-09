@@ -6,13 +6,13 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.jakewharton.rxbinding2.widget.RxSearchView;
+import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
@@ -84,7 +84,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         noResultsView = findViewById(R.id.no_results);
         avi = findViewById(R.id.avi);
 
-        CommonMethod.UpdateSearchViewLayout(searchView);
         registerEvent(RxSearchView.queryTextChangeEvents(searchView)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(new UIThread().getScheduler())

@@ -7,10 +7,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -141,7 +141,6 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
         rvListContact = (RecyclerView) view.findViewById(R.id.contact_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = (SearchView) view.findViewById(R.id.contact_search_view);
-        CommonMethod.UpdateSearchViewLayout(searchView);
     }
 
     private void init() {

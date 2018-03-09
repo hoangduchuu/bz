@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.SearchView;
 
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.managers.UserManager;
@@ -56,7 +56,7 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = (SearchView) findViewById(R.id.select_contact_search_view);
-        CommonMethod.UpdateSearchViewLayout(searchView);
+        //CommonMethod.UpdateSearchViewLayout(searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

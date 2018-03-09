@@ -352,7 +352,7 @@
         }
 
         public static void UpdateSearchViewLayout(SearchView searchView) {
-            AutoCompleteTextView searchTextContent = (AutoCompleteTextView) searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+            AutoCompleteTextView searchTextContent = searchView.findViewById(searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
 
             searchTextContent.setTextSize(15); //Set the text size
             //searchTextContent.setGravity(Gravity.BOTTOM); //Set its gravity to bottom
