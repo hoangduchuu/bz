@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.conversation;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -78,15 +80,21 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                                         .map(aBoolean -> conversation);
                             })
                             .flatMap(conversation -> {
-                                SendMessageUseCase.Params sendMessageParams = new SendMessageUseCase.Params.Builder()
-                                        .setMessageType(MessageType.TEXT)
-                                        .setConversation(conversation)
-                                        .setMarkStatus(false)
-                                        .setCurrentUser(user)
-                                        .setText(params.message)
-                                        .build();
-                                return sendMessageUseCase.buildUseCaseObservable(sendMessageParams)
-                                        .map(aBoolean -> conversation.key);
+                                if (TextUtils.isEmpty(params.message)) {
+                                    return Observable.just(conversation.key);
+                                } else {
+                                    return conversationRepository.getMessageKey(conversation.key)
+                                            .map(messageKey -> new SendMessageUseCase.Params.Builder()
+                                                    .setMessageType(MessageType.TEXT)
+                                                    .setConversation(conversation)
+                                                    .setMarkStatus(false)
+                                                    .setCurrentUser(user)
+                                                    .setText(params.message)
+                                                    .setMessageKey(messageKey)
+                                                    .build())
+                                            .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1)
+                                                    .map(aBoolean -> conversation.key));
+                                }
                             });
                 });
     }
