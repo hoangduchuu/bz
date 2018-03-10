@@ -25,9 +25,9 @@
 
         <LinearLayout style="@style/SearchLayout">
 
-            <SearchView
+            <android.support.v7.widget.SearchView
                 android:id="@+id/add_contact_search_view"
-                style="@style/SearchView"></SearchView>
+                style="@style/SearchView" />
         </LinearLayout>
         <RelativeLayout
             android:layout_width="match_parent"

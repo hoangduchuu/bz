@@ -38,7 +38,7 @@
 
     <LinearLayout style="@style/SearchLayout">
 
-        <SearchView
+        <android.support.v7.widget.SearchView
             android:id="@+id/message_search_view"
             style="@style/SearchView" />
     </LinearLayout>

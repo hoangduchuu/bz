@@ -13,6 +13,7 @@
         <item name="android:textAppearanceMedium">@style/AppTextAppearance</item>
         <item name="android:textAppearanceSmall">@style/AppTextAppearance.Small</item>
         <item name="android:radioButtonStyle">@style/radionbutton</item>
+        <item name="searchViewStyle">@style/SearchView</item>
 
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowContentTransitions">true</item>
@@ -315,6 +316,7 @@
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:background">@drawable/round_corner</item>
         <item name="android:queryBackground">@null</item>
+        <item name="queryBackground">@null</item>
         <item name="submitBackground">@null</item>
         <item name="defaultQueryHint">Search</item>
         <item name="closeIcon">@drawable/ic_search_close</item>

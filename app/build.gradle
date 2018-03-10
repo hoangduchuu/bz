@@ -144,7 +144,8 @@ dependencies {
     implementation 'com.mikepenz:community-material-typeface:2.0.46.1@aar'
     implementation 'com.mikepenz:iconics-views:3.0.0@aar'
     implementation 'com.soundcloud.android:android-crop:1.0.1@aar'
-    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
+    implementation 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1'
     implementation "io.reactivex.rxjava2:rxandroid:${libraries.rx_android}"
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

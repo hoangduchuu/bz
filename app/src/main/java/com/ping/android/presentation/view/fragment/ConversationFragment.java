@@ -9,12 +9,12 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.ping.android.presentation.view.activity.ChatActivity;
@@ -134,8 +134,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private void bindViews(View view) {
         listChat = (RecyclerView) view.findViewById(R.id.message_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
-        searchView = (SearchView) view.findViewById(R.id.message_search_view);
-        CommonMethod.UpdateSearchViewLayout(searchView);
+        searchView = view.findViewById(R.id.message_search_view);
+        //CommonMethod.UpdateSearchViewLayout(searchView);
         btnEditMessage = (Button) view.findViewById(R.id.message_edit);
         btnEditMessage.setOnClickListener(this);
         btnDeleteMessage = (Button) view.findViewById(R.id.message_delete);

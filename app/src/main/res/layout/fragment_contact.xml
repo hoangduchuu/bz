@@ -22,9 +22,9 @@
 
     <LinearLayout style="@style/SearchLayout">
 
-        <SearchView
+        <android.support.v7.widget.SearchView
             android:id="@+id/contact_search_view"
-            style="@style/SearchView"></SearchView>
+            style="@style/SearchView" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

@@ -8,11 +8,11 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.SearchView;
 
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.MainActivity;
@@ -151,7 +151,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
         rvListCall = (RecyclerView) view.findViewById(R.id.call_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = (SearchView) view.findViewById(R.id.call_search_view);
-        CommonMethod.UpdateSearchViewLayout(searchView);
+        //CommonMethod.UpdateSearchViewLayout(searchView);
         customSwitch = (CustomSwitch) view.findViewById(R.id.call_switch);
 
         btnEditCall = (Button) view.findViewById(R.id.call_edit);

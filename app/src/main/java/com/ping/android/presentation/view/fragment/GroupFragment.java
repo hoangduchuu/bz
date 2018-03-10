@@ -6,13 +6,13 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.ping.android.dagger.loggedin.main.MainComponent;
@@ -107,7 +107,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         listGroup = (RecyclerView) view.findViewById(R.id.group_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = (SearchView) view.findViewById(R.id.group_search_view);
-        CommonMethod.UpdateSearchViewLayout(searchView);
+//        CommonMethod.UpdateSearchViewLayout(searchView);
 
         btnEditGroup = (Button) view.findViewById(R.id.group_edit);
         btnEditGroup.setOnClickListener(this);

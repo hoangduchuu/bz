@@ -241,7 +241,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     public void update(MessageBaseItem selectedMessage) {
-        int index = this.items.indexOf(typingItem);
+        int index = this.items.indexOf(selectedMessage);
         if (index >= 0 && index < getItemCount()) {
             this.items.set(index, selectedMessage);
             notifyItemChanged(index);
