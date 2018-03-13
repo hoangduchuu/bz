@@ -8,6 +8,7 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -38,6 +39,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask);
 
+    void updateConversationReadStatus();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -64,5 +67,9 @@ public interface ChatPresenter extends BasePresenter {
         void addCacheMessage(Message message);
 
         void switchOffEditMode();
+
+        void updateNickNames(Map<String, String> nickNames);
+
+        void toggleTyping(boolean b);
     }
 }

@@ -89,7 +89,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         this.messageListener = messageListener;
     }
 
-    public void setNickNames(HashMap<String, String> nickNames) {
+    public void setNickNames(Map<String, String> nickNames) {
         this.nickNames = nickNames;
     }
 

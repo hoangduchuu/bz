@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -248,7 +249,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
-    public void updateNickNames(HashMap<String, String> nickNames) {
+    public void updateNickNames(Map<String, String> nickNames) {
         for (FlexibleItem item : this.items) {
             if (item instanceof MessageBaseItem) {
                 ((MessageBaseItem) item).setNickNames(nickNames);

@@ -21,7 +21,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/31/18.
  */
 
-public class ObserveConversationValueUseCase extends UseCase<Conversation, String> {
+public class ObserveConversationUpdateUseCase extends UseCase<Conversation, String> {
     @Inject
     ConversationRepository conversationRepository;
     @Inject
@@ -30,7 +30,7 @@ public class ObserveConversationValueUseCase extends UseCase<Conversation, Strin
     GroupRepository groupRepository;
 
     @Inject
-    public ObserveConversationValueUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ObserveConversationUpdateUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 

@@ -6,6 +6,9 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
@@ -75,6 +78,12 @@ public class ChatPresenterImpl implements ChatPresenter {
     DeleteMessagesUseCase deleteMessagesUseCase;
     @Inject
     UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
+    @Inject
+    ObserveConversationValueFromExistsConversationUseCase observeConversationValueFromExistsConversationUseCase;
+    @Inject
+    ObserveTypingEventUseCase observeTypingEventUseCase;
+    @Inject
+    UpdateConversationReadStatusUseCase updateConversationReadStatusUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -103,7 +112,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void resume() {
         //observeMessageUpdate();
         isInBackground.set(false);
-        for (ChildData<Message> message: messagesInBackground) {
+        for (ChildData<Message> message : messagesInBackground) {
             switch (message.type) {
                 case CHILD_ADDED:
                     view.addNewMessage(message.data);
@@ -157,6 +166,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 switch (messageChildData.type) {
                     case CHILD_ADDED:
+                        // Check error message
+                        checkMessageError(messageChildData.data);
+                        updateConversationReadStatus();
                         view.addNewMessage(messageChildData.data);
                         break;
                     case CHILD_REMOVED:
@@ -241,7 +253,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.currentUser = currentUser;
         params.filePath = gameUrl;
         params.gameType = gameType;
-        params.markStatus  = markStatus;
+        params.markStatus = markStatus;
         params.messageType = MessageType.GAME;
         sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
@@ -305,7 +317,8 @@ public class ChatPresenterImpl implements ChatPresenter {
         HashMap<String, Boolean> allowance = new HashMap<>();
         allowance.put(currentUser.key, true);
 
-        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {},
+        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {
+                                          },
                 new UpdateConversationUseCase.Params(conversation, allowance));
     }
 
@@ -389,11 +402,59 @@ public class ChatPresenterImpl implements ChatPresenter {
         }, userId);
     }
 
+    private void observeTypingEvent() {
+        observeTypingEventUseCase.execute(
+                new DefaultObserver<Map<String, Boolean>>() {
+                    @Override
+                    public void onNext(Map<String, Boolean> map) {
+                        boolean isTyping = false;
+                            for (String key : map.keySet()) {
+                                if (!key.equals(currentUser.key) && map.get(key)
+                                        && !currentUser.blocks.containsKey(key)
+                                        && !currentUser.blockBys.containsKey(key)) {
+                                    isTyping = true;
+                                    break;
+                                }
+                        }
+                        view.toggleTyping(isTyping);
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable exception) {
+                        exception.printStackTrace();
+                        view.toggleTyping(false);
+                    }
+                },
+                new ObserveTypingEventUseCase.Params(conversation.key, currentUser.key));
+    }
+
+    private void observeConversationUpdate() {
+        observeConversationValueFromExistsConversationUseCase
+                .execute(new DefaultObserver<Conversation>() {
+                             @Override
+                             public void onNext(Conversation conv) {
+                                 conversation = conv;
+                                 if (conv.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                                     String opponentUserId = conv.opponentUser.key;
+                                     String nickName = conv.nickNames.get(opponentUserId);
+                                     String title = TextUtils.isEmpty(nickName) ? conv.opponentUser.getDisplayName() : nickName;
+                                     view.updateConversationTitle(title);
+                                 } else {
+                                     view.updateNickNames(conv.nickNames);
+                                 }
+                             }
+                         },
+                        new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));
+    }
+
     private void handleConversationUpdate(Conversation conversation) {
         if (currentUser == null) return;
 
         this.conversation = conversation;
         view.updateConversation(conversation);
+        observeConversationUpdate();
+        observeTypingEvent();
+        updateConversationReadStatus();
         //observeMessageUpdate();
         getLastMessages(conversation);
 
@@ -416,10 +477,29 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
+    public void updateConversationReadStatus() {
+        boolean isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
+        if (!isRead && !isInBackground.get()) {
+            updateConversationReadStatusUseCase.execute(new DefaultObserver<>(), conversation);
+        }
+    }
+
+    private void checkMessageError(Message message) {
+        int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
+        if (message.senderId.equals(currentUser.key)) {
+            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
+                resendMessage(message);
+            }
+        }
+    }
+
+    @Override
     public void destroy() {
         observeCurrentUserUseCase.dispose();
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
+        observeTypingEventUseCase.dispose();
+        observeConversationValueFromExistsConversationUseCase.dispose();
         getLastMessagesUseCase.dispose();
         deleteMessagesUseCase.dispose();
         updateMaskMessagesUseCase.dispose();

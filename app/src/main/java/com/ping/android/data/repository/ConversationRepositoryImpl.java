@@ -11,6 +11,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.ultility.Constant;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -84,6 +86,23 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                     Conversation conversation = Conversation.from(dataSnapshot);
                     return conversation;
                 })
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Map<String, Boolean>> observeTypingEvent(String conversationId, String userId) {
+        Query query = database.getReference("conversations").child(userId).child(conversationId).child("typingIndicator");
+        return RxFirebaseDatabase.getInstance(query)
+                .onValueEvent()
+                .map(dataSnapshot -> (Map<String, Boolean>) dataSnapshot.getValue());
+    }
+
+    @Override
+    public Observable<Boolean> updateReadStatus(String conversationId, String userId) {
+        DatabaseReference reference = database.getReference("conversations")
+                .child(userId).child(conversationId).child("readStatuses").child(userId);
+        return RxFirebaseDatabase.setValue(reference, true)
+                .map(reference1 -> true)
                 .toObservable();
     }
 

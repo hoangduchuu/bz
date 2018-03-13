@@ -38,10 +38,6 @@ import android.widget.Toast;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.view.IconicsImageView;
@@ -67,7 +63,6 @@ import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -85,7 +80,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -132,7 +126,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private AtomicBoolean isSettingStackFromEnd = new AtomicBoolean(false);
     private String originalText = "";
     private int selectPosition = 0;
-    private boolean visibleStatus;
 
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -140,7 +133,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private ImagePickerHelper imagePickerHelper;
     private ConversationRepository conversationRepository;
-    private UserRepository userRepository;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
@@ -211,7 +203,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onStart() {
         super.onStart();
-        visibleStatus = true;
 
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount);
@@ -232,8 +223,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         super.onStop();
         isTyping = false;
         updateConversationTyping(false);
-
-        visibleStatus = false;
 
         prefs.unregisterOnSharedPreferenceChangeListener(listener);
     }
@@ -616,8 +605,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void init() {
         conversationRepository = new ConversationRepository();
-        userRepository = new UserRepository();
-
         RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -645,199 +632,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void startChat() {
-        observeChats();
-        updateConversationReadStatus();
         //bindConversationSetting();
         BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
-    }
-
-    private void observeChats() {
-        initConversationListeners();
-    }
-
-    private void initConversationListeners() {
-        ValueEventListener maskMessageListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
-                    Map<String, Boolean> maskMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                    originalConversation.maskMessages = maskMessages;
-                    presenter.setConversation(originalConversation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener puzzleMessageListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && dataSnapshot.hasChildren()) {
-                    Map<String, Boolean> puzzleMessages = (Map<String, Boolean>) dataSnapshot.getValue();
-                    originalConversation.puzzleMessages = puzzleMessages;
-                    presenter.setConversation(originalConversation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener memberIdsListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Map<String, Boolean> memberIds = (Map<String, Boolean>) dataSnapshot.getValue();
-                    originalConversation.memberIDs = memberIds;
-                    userRepository.initMemberList(memberIds, (error, data) -> {
-                        if (error == null) {
-                            List<User> users = (List<User>) data[0];
-                            originalConversation.members = users;
-                            presenter.setConversation(originalConversation);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener observeTypingEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Boolean> typingIndicator = (Map<String, Boolean>) dataSnapshot.getValue();
-                boolean isTyping = false;
-                if (typingIndicator != null) {
-                    for (String key : typingIndicator.keySet()) {
-                        if (!key.equals(fromUser.key) && typingIndicator.get(key)
-                                && !fromUser.blocks.containsKey(key)
-                                && !fromUser.blockBys.containsKey(key)) {
-                            isTyping = true;
-                            break;
-                        }
-                    }
-                }
-                showTyping(isTyping);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        ValueEventListener notificationsEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    HashMap<String, Boolean> notifications = (HashMap<String, Boolean>) dataSnapshot.getValue();
-                    originalConversation.notifications = notifications;
-                    presenter.setConversation(originalConversation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener deleteStatusesEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    originalConversation.deleteStatuses = (Map<String, Boolean>) dataSnapshot.getValue();
-                } else {
-                    originalConversation.deleteStatuses = new HashMap<>();
-                }
-                presenter.setConversation(originalConversation);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener deleteTimestampsEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    originalConversation.deleteTimestamps = (Map<String, Double>) dataSnapshot.getValue();
-                    presenter.setConversation(originalConversation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ValueEventListener nickNameEvent = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    HashMap<String, String> nickNames = (HashMap<String, String>) dataSnapshot.getValue();
-                    originalConversation.nickNames = nickNames;
-                    if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                        updateTitle();
-                    } else {
-                        messagesAdapter.updateNickNames(nickNames);
-                    }
-                    presenter.setConversation(originalConversation);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        DatabaseReference maskReference = conversationRepository.getDatabaseReference().child(conversationID).child("maskMessages");
-        maskReference.addValueEventListener(maskMessageListener);
-        databaseReferences.put(maskReference, maskMessageListener);
-
-        DatabaseReference puzzleReference = conversationRepository.getDatabaseReference().child(conversationID).child("puzzleMessages");
-        puzzleReference.addValueEventListener(puzzleMessageListener);
-        databaseReferences.put(puzzleReference, puzzleMessageListener);
-
-        DatabaseReference memberIdsReference = conversationRepository.getDatabaseReference().child(conversationID).child("memberIDs");
-        memberIdsReference.addValueEventListener(memberIdsListener);
-        databaseReferences.put(memberIdsReference, memberIdsListener);
-
-        DatabaseReference typingReference = conversationRepository.getDatabaseReference().child(conversationID).child("typingIndicator");
-        typingReference.addValueEventListener(observeTypingEvent);
-        databaseReferences.put(typingReference, observeTypingEvent);
-
-        DatabaseReference notificationReference = conversationRepository.getDatabaseReference().child(conversationID).child("notifications");
-        notificationReference.addValueEventListener(notificationsEvent);
-        databaseReferences.put(notificationReference, notificationsEvent);
-
-        DatabaseReference deleteStatusReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteStatuses");
-        deleteStatusReference.addValueEventListener(deleteStatusesEvent);
-        databaseReferences.put(deleteStatusReference, deleteStatusesEvent);
-
-        DatabaseReference deleteTimestampsReference = conversationRepository.getDatabaseReference().child(conversationID).child("deleteTimestamps");
-        deleteTimestampsReference.addValueEventListener(deleteTimestampsEvent);
-        databaseReferences.put(deleteTimestampsReference, deleteTimestampsEvent);
-
-        DatabaseReference nickNameReference = conversationRepository.getDatabaseReference().child(conversationID).child("nickNames");
-        nickNameReference.addValueEventListener(nickNameEvent);
-        databaseReferences.put(nickNameReference, nickNameEvent);
-    }
-
-    private void updateTitle() {
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            String opponentUserId = originalConversation.opponentUser.key;
-            String nickName = originalConversation.nickNames.get(opponentUserId);
-            if (TextUtils.isEmpty(nickName)) {
-                tvChatName.setText(originalConversation.opponentUser.getDisplayName());
-            } else {
-                tvChatName.setText(nickName);
-            }
-        }
     }
 
     private void notifyTyping() {
@@ -1346,29 +1142,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isChecked());
     }
 
-    private void checkMessageError(Message message) {
-        int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
-        if (message.senderId.equals(fromUserID)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
-                presenter.resendMessage(message);
-            }
-        }
-    }
-
-    private void updateConversationReadStatus() {
-        if (!visibleStatus) {
-            return;
-        }
-        conversationRepository.updateUserReadStatus(conversationID, fromUser.key, true);
-    }
-
-    private void updateMessageMarkStatus(Message message) {
-        if (message.markStatuses == null || !message.markStatuses.containsKey(fromUser.key)) {
-            ServiceManager.getInstance().updateMarkStatus(conversationID, message.key,
-                    (ServiceManager.getInstance().getMaskSetting(originalConversation.maskMessages)));
-        }
-    }
-
     private void showTyping(boolean typing) {
         if (typing) {
             messagesAdapter.showTyping();
@@ -1441,14 +1214,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void addNewMessage(Message data) {
         //adapter.addOrUpdate(data);
         FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
-        if (item instanceof MessageBaseItem) {
+        if (item != null) {
             ((MessageBaseItem) item).setEditMode(isEditMode);
             messagesAdapter.addOrUpdate((MessageBaseItem) item);
         }
-        // FIXME why should update mark status
-        updateMessageMarkStatus(data);
-        checkMessageError(data);
-        updateConversationReadStatus();
         if (!isEditMode && isVisible) {
             recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
         }
@@ -1495,6 +1264,18 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         hideLoading();
         isEditMode = false;
         onUpdateEditMode();
+    }
+
+    @Override
+    public void updateNickNames(Map<String, String> nickNames) {
+        if (messagesAdapter != null) {
+            messagesAdapter.updateNickNames(nickNames);
+        }
+    }
+
+    @Override
+    public void toggleTyping(boolean b) {
+        showTyping(b);
     }
 
     @Override
