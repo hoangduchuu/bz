@@ -15,6 +15,8 @@ import io.reactivex.ObservableSource;
 public interface ConversationRepository {
     Observable<String> getKey();
 
+    Observable<DataSnapshot> getLastConversations(String userId);
+
     Observable<Boolean> createConversation(Conversation conversation);
 
     Observable<ChildEvent> registerConversationsUpdate(String userId);

@@ -4,10 +4,13 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
+import com.ping.android.domain.usecase.conversation.GetLastConversationsUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -21,8 +24,7 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     @Inject
     ObserveConversationsUseCase observeConversationsUseCase;
     @Inject
-    ObserveGroupsUseCase observeGroupsUseCase;
-
+    GetLastConversationsUseCase getLastConversationsUseCase;
     @Inject
     ConversationListPresenter.View view;
 
@@ -31,6 +33,22 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
 
     @Override
     public void getConversations() {
+        getLastConversationsUseCase.execute(new DefaultObserver<List<Conversation>>() {
+            @Override
+            public void onNext(List<Conversation> conversations) {
+                view.updateConversationList(conversations);
+                observeConversations();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+                observeConversations();
+            }
+        }, null);
+    }
+
+    private void observeConversations() {
         observeConversationsUseCase.execute(new DefaultObserver<ChildData<Conversation>>() {
             @Override
             public void onNext(ChildData<Conversation> childData) {
@@ -47,16 +65,6 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                 }
             }
         }, null);
-        observeGroupsUseCase.execute(new DefaultObserver<ChildData<Group>>() {
-            @Override
-            public void onNext(ChildData<Group> groupChildData) {
-                if (groupChildData != null) {
-                    if (groupChildData.type == ChildEvent.Type.CHILD_CHANGED) {
-                        view.updateGroupConversation(groupChildData.data);
-                    }
-                }
-            }
-        }, new ObserveGroupsUseCase.Params(false));
     }
 
     @Override
@@ -67,6 +75,5 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     @Override
     public void destroy() {
         observeConversationsUseCase.dispose();
-        observeGroupsUseCase.dispose();
     }
 }

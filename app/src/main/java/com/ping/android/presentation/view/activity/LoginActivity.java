@@ -46,11 +46,9 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private FirebaseAuth auth;
     private EditText inputName, inputPassword;
-    private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private int timesRead = 0;
     ValueEventListener eventListener = null;
-    private UserRepository userRepository;
     @Inject
     public LoginPresenter presenter;
     private LoginComponent component;
@@ -90,8 +88,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     }
 
     private void init() {
-        userRepository = new UserRepository();
-        database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
     }
 

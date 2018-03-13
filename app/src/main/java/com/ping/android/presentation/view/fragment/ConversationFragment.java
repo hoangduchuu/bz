@@ -135,7 +135,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         listChat = (RecyclerView) view.findViewById(R.id.message_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = view.findViewById(R.id.message_search_view);
-        //CommonMethod.UpdateSearchViewLayout(searchView);
         btnEditMessage = (Button) view.findViewById(R.id.message_edit);
         btnEditMessage.setOnClickListener(this);
         btnDeleteMessage = (Button) view.findViewById(R.id.message_delete);
@@ -292,7 +291,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void addConversation(Conversation conversation) {
-        adapter.addConversation(conversation);
+        adapter.updateConversation(conversation);
         scrollToTop();
     }
 
@@ -310,6 +309,11 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void updateGroupConversation(Group data) {
         adapter.updateGroupConversation(data);
+    }
+
+    @Override
+    public void updateConversationList(List<Conversation> conversations) {
+        adapter.updateData(conversations);
     }
 
     private void listenTransphabetChanged() {

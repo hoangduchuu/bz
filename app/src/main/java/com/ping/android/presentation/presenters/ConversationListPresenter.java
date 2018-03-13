@@ -13,13 +13,18 @@ import java.util.List;
 
 public interface ConversationListPresenter extends BasePresenter {
     void getConversations();
+
     void deleteConversations(List<Conversation> conversations);
 
     interface View extends BaseView {
         void addConversation(Conversation conversation);
+
         void updateConversation(Conversation conversation);
+
         void deleteConversation(Conversation data);
 
         void updateGroupConversation(Group data);
+
+        void updateConversationList(List<Conversation> conversations);
     }
 }

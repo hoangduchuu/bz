@@ -5,7 +5,6 @@ import android.support.transition.TransitionManager;
 import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +24,7 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +67,37 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         boundsViewHolder.remove(holder);
     }
 
+    @Override
+    public MessageAdapter.MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_text, parent, false);
+        return new MessageAdapter.MessageViewHolder(view, listener);
+    }
+
+    @Override
+    public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
+        boundsViewHolder.add(holder);
+        Conversation model = displayConversations.get(position);
+        holder.bindData(model, selectConversations.contains(model));
+        holder.setClickListener(conversation -> {
+            boolean status = selectConversations.contains(conversation);
+            if (status) {
+                selectConversations.remove(conversation);
+                holder.rbSelect.setChecked(false);
+            } else {
+                selectConversations.add(conversation);
+                holder.rbSelect.setChecked(true);
+            }
+            if (listener != null) {
+                listener.onSelect(holder.conversation);
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return displayConversations.size();
+    }
+
     public int unreadNum() {
         int unread = 0;
         for (Conversation conversation : originalConversations) {
@@ -78,36 +109,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return unread;
     }
 
-    public void addOrUpdateConversation(Conversation conversation) {
-        boolean isAdd = true;
-        for (int i = 0; i < originalConversations.size(); i++) {
-            if (originalConversations.get(i).key.equals(conversation.key)) {
-                isAdd = false;
-                break;
-            }
-        }
-        if (isAdd) {
-            addConversation(conversation);
-        } else {
-            updateConversation(conversation);
-        }
-    }
-
-    public void addConversation(Conversation conversation) {
-        int index = 0;
-        for (Conversation item : originalConversations) {
-            if (CommonMethod.compareTimestamp(conversation.timesstamps, item.timesstamps))
-                index ++;
-            else
-                break;
-        }
-
-        originalConversations.add(index, conversation);
-        displayConversations.add(index, conversation);
-        notifyItemInserted(index);
-    }
-
     public void updateConversation(Conversation conversation) {
+        boolean isAdd = true;
+        int index = -1;
+        int previousIndex = -1;
         for (int i = 0; i < originalConversations.size(); i++) {
             if (originalConversations.get(i).key.equals(conversation.key)) {
                 originalConversations.remove(i);
@@ -115,13 +120,44 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
         for (int i = 0; i < displayConversations.size(); i++) {
-            if (displayConversations.get(i).key.equals(conversation.key)) {
-                displayConversations.remove(i);
-                notifyItemRemoved(i);
-                break;
+            Conversation item = displayConversations.get(i);
+            if (item.key.equals(conversation.key)) {
+                isAdd = false;
+                previousIndex = i;
+                if (index == -1) {
+                    index = i;
+                }
+            }
+            if (conversation.timesstamps >= item.timesstamps) {
+                if (index == -1) {
+                    index = i;
+                }
             }
         }
-        addConversation(conversation);
+        if (index == -1) {
+            index = displayConversations.size();
+        }
+        if (index >= 0) {
+            if (isAdd) {
+                displayConversations.add(index, conversation);
+                notifyItemInserted(index);
+            } else {
+                if (previousIndex == index) {
+                    displayConversations.set(index, conversation);
+                    notifyItemChanged(index);
+                } else if (previousIndex > index) {
+                    displayConversations.remove(previousIndex);
+                    displayConversations.add(index, conversation);
+                    notifyItemMoved(previousIndex, index);
+                } else {
+                    displayConversations.add(index, conversation);
+                    displayConversations.remove(previousIndex);
+                    notifyItemMoved(previousIndex, index);
+                }
+            }
+        }
+        originalConversations.add(conversation);
+        Collections.sort(originalConversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
     }
 
     public void deleteConversation(String conversationID) {
@@ -139,9 +175,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             selectConversations.remove(deletedConversation);
 
             if (index >= 0) {
-                MessageViewHolder viewHolder = (MessageViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
-                boundsViewHolder.remove(viewHolder);
                 notifyItemRemoved(index);
+//                MessageViewHolder viewHolder = (MessageViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
+//                boundsViewHolder.remove(viewHolder);
             }
         }
     }
@@ -192,45 +228,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             for (MessageViewHolder holder : boundsViewHolder) {
                 holder.setEditMode(isEditMode);
             }
-        }, 10);
-    }
-
-    @Override
-    public MessageAdapter.MessageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
-        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_text, parent, false);
-        return new MessageAdapter.MessageViewHolder(view, listener);
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        Conversation model = displayConversations.get(position);
-        return model.messageType;
-    }
-
-    @Override
-    public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
-        boundsViewHolder.add(holder);
-        Conversation model = displayConversations.get(position);
-        holder.bindData(model, selectConversations.contains(model));
-        holder.setClickListener(conversation -> {
-            boolean status = selectConversations.contains(conversation);
-            if (status) {
-                selectConversations.remove(conversation);
-                holder.rbSelect.setChecked(false);
-            } else {
-                selectConversations.add(conversation);
-                holder.rbSelect.setChecked(true);
-            }
-            if (listener != null) {
-                listener.onSelect(holder.conversation);
-            }
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return displayConversations.size();
+        }, 100);
     }
 
     public void setListener(ConversationItemListener listener) {
@@ -257,6 +255,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 notifyItemChanged(displayIndex);
             }
         }
+    }
+
+    public void updateData(List<Conversation> conversations) {
+        Collections.sort(conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
+        this.originalConversations = new ArrayList<>(conversations);
+        this.displayConversations = new ArrayList<>(conversations);
+        notifyDataSetChanged();
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -343,14 +348,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         public void bindData(Conversation model, boolean isSelected) {
             this.conversation = model;
-            String conversationName = "";
-            if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                String nickName = model.nickNames.get(model.opponentUser.key);
-                conversationName = TextUtils.isEmpty(nickName) ? model.opponentUser.getDisplayName() : nickName;
-            } else {
-                conversationName = model.group.groupName;
-            }
-            this.tvSender.setText(conversationName);
+            this.tvSender.setText(model.conversationName);
             this.tvTime.setText(CommonMethod.convertTimestampToTime(model.timesstamps));
             String message = "";
             if (model.messageType == Constant.MSG_TYPE_TEXT) {
@@ -376,7 +374,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             if (model.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                 String nameTransitionKey = "transitionName" + getAdapterPosition();
                 tvSender.setTransitionName(nameTransitionKey);
-                UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, model.opponentUser);
                 ivProfileImage.setOnClickListener(v -> {
                     if (listener != null) {
                         Pair imagePair = Pair.create(ivProfileImage, imageTransitionKey);
@@ -392,8 +389,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                         listener.onOpenGroupProfile(conversation, imagePair);
                     }
                 });
-                UiUtils.displayProfileAvatar(ivProfileImage, model.group.groupAvatar);
             }
+            UiUtils.displayProfileAvatar(ivProfileImage, model.conversationAvatarUrl);
         }
     }
 

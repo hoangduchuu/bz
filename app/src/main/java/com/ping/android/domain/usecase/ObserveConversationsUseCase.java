@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -45,7 +47,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
         return conversationRepository.registerConversationsUpdate(userKey)
                 .flatMap(childEvent -> {
                     Conversation conversation = Conversation.from(childEvent.dataSnapshot);
-                    if (conversation.memberIDs.isEmpty()) {
+                    if (!conversation.memberIDs.containsKey(userKey)) {
                         return Observable.empty();
                     }
                     if (conversation.deleteTimestamps.containsKey(userKey)) {
@@ -64,6 +66,10 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                     for (User user : users) {
                                         if (!user.key.equals(userKey)) {
                                             conversation.opponentUser = user;
+                                            conversation.conversationAvatarUrl = user.profile;
+                                            String nickName = conversation.nickNames.get(user.key);
+                                            String conversationName = TextUtils.isEmpty(nickName) ? user.getDisplayName() : nickName;
+                                            conversation.conversationName = conversationName;
                                             break;
                                         }
                                     }
@@ -72,15 +78,6 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 childData.data = conversation;
                                 childData.type = childEvent.type;
                                 return childData;
-                            }).flatMap(childData -> {
-                                if (childData.data.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                                    return groupRepository.getGroup(userKey, childData.data.groupID)
-                                            .map(group -> {
-                                                childData.data.group = group;
-                                                return childData;
-                                            });
-                                }
-                                return Observable.just(childData);
                             });
                 });
     }

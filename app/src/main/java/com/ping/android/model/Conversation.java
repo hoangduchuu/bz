@@ -2,6 +2,7 @@ package com.ping.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
@@ -24,6 +25,8 @@ public class Conversation implements Parcelable {
     public String key;
     public int messageType;
     public int conversationType;
+    public String conversationName;
+    public String conversationAvatarUrl;
     @PropertyName("lastMessage")
     public String message;
     public String groupID;
@@ -55,6 +58,8 @@ public class Conversation implements Parcelable {
         key = in.readString();
         messageType = in.readInt();
         conversationType = in.readInt();
+        conversationName = in.readString();
+        conversationAvatarUrl = in.readString();
         message = in.readString();
         groupID = in.readString();
         senderId = in.readString();
@@ -80,6 +85,8 @@ public class Conversation implements Parcelable {
         dest.writeString(key);
         dest.writeInt(messageType);
         dest.writeInt(conversationType);
+        dest.writeString(conversationName);
+        dest.writeString(conversationAvatarUrl);
         dest.writeString(message);
         dest.writeString(groupID);
         dest.writeString(senderId);
@@ -163,6 +170,10 @@ public class Conversation implements Parcelable {
             this.members = originalConversation.members;
             this.group = originalConversation.group;
             this.nickNames = originalConversation.nickNames;
+            if (!TextUtils.isEmpty(groupID)) {
+                this.conversationName = originalConversation.conversationName;
+                this.conversationAvatarUrl = originalConversation.conversationAvatarUrl;
+            }
         }
     }
 
@@ -194,6 +205,8 @@ public class Conversation implements Parcelable {
     public static Conversation createNewGroupConversation(String fromUserId, Group group) {
         Conversation conversation = new Conversation();
         conversation.messageType = Constant.MSG_TYPE_TEXT;
+        conversation.conversationName = group.groupName;
+        conversation.conversationAvatarUrl = group.groupAvatar;
         conversation.conversationType = Constant.CONVERSATION_TYPE_GROUP;
         conversation.groupID = group.key;
         conversation.senderId = fromUserId;
@@ -223,6 +236,8 @@ public class Conversation implements Parcelable {
         result.put("conversationType", conversationType);
         result.put("messageType", messageType);
         result.put("lastMessage", message);
+        result.put("conversationName", conversationName);
+        result.put("conversationAvatarUrl", conversationAvatarUrl);
         result.put("senderId", senderId);
         result.put("groupID", groupID);
         result.put("timesstamps", timesstamps);

@@ -44,6 +44,7 @@ public class UploadGroupProfileImageUseCase extends UseCase<Boolean, UploadGroup
                     //updateValue.put(String.format("groups/%s/groupAvatar", params.groupId), s);
                     for (String userId : params.memberIds) {
                         updateValue.put(String.format("groups/%s/%s/groupAvatar", userId, params.groupId), s);
+                        updateValue.put(String.format("conversations/%s/%s/conversationAvatarUrl", userId, params.conversationId), s);
                     }
                     return commonRepository.updateBatchData(updateValue);
                 });
@@ -52,11 +53,13 @@ public class UploadGroupProfileImageUseCase extends UseCase<Boolean, UploadGroup
     public static class Params {
         public String filePath;
         public String groupId;
+        public String conversationId;
         public List<String> memberIds;
 
-        public Params(String groupId, String filePath, List<String> memberIds) {
+        public Params(String groupId, String conversationId, String filePath, List<String> memberIds) {
             this.filePath = filePath;
             this.groupId = groupId;
+            this.conversationId = conversationId;
             this.memberIds = memberIds;
         }
     }

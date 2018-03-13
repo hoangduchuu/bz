@@ -44,7 +44,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
         return userRepository.getCurrentUser()
                 .flatMap(user -> messageRepository.getLastMessages(conversation.key)
                         .map(dataSnapshot -> {
-                            if (dataSnapshot.getChildrenCount() > 0) {
+                            Output output = new Output();
+                            if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
@@ -66,12 +67,15 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     message.currentUserId = user.key;
                                     messages.add(message);
                                 }
-                                Output output = new Output();
+
                                 output.messages = messages;
                                 output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
                                 return output;
+                            } else {
+                                output.messages = new ArrayList<>();
+                                output.canLoadMore = false;
+                                return output;
                             }
-                            throw new NullPointerException();
                         })
                 );
     }
