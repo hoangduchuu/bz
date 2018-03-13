@@ -1211,13 +1211,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void addNewMessage(Message data) {
+    public void addNewMessage(MessageBaseItem data) {
         //adapter.addOrUpdate(data);
-        FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
-        if (item != null) {
-            ((MessageBaseItem) item).setEditMode(isEditMode);
-            messagesAdapter.addOrUpdate((MessageBaseItem) item);
-        }
+        data.setEditMode(isEditMode);
+        messagesAdapter.addOrUpdate(data);
         if (!isEditMode && isVisible) {
             recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
         }
@@ -1231,11 +1228,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void updateMessage(Message data) {
-        FlexibleItem item = MessageBaseItem.from(data, fromUserID, originalConversation.conversationType);
-        if (item instanceof MessageBaseItem) {
-            messagesAdapter.addOrUpdate((MessageBaseItem) item);
-        }
+    public void updateMessage(MessageBaseItem data) {
+        messagesAdapter.addOrUpdate(data);
     }
 
     @Override

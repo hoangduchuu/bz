@@ -6,6 +6,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 
 import java.util.List;
 import java.util.Map;
@@ -54,11 +55,11 @@ public interface ChatPresenter extends BasePresenter {
 
         void onCurrentUser(User user);
 
-        void addNewMessage(Message data);
+        void addNewMessage(MessageBaseItem data);
 
         void removeMessage(Message data);
 
-        void updateMessage(Message data);
+        void updateMessage(MessageBaseItem data);
 
         void updateLastMessages(List<Message> messages, boolean canLoadMore);
 

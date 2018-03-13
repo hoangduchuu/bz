@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
@@ -30,6 +31,7 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ChatPresenter;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
@@ -113,15 +115,16 @@ public class ChatPresenterImpl implements ChatPresenter {
         //observeMessageUpdate();
         isInBackground.set(false);
         for (ChildData<Message> message : messagesInBackground) {
+            MessageBaseItem item = MessageBaseItem.from(message.data, currentUser.key, conversation.conversationType);
             switch (message.type) {
                 case CHILD_ADDED:
-                    view.addNewMessage(message.data);
+                    view.addNewMessage(item);
                     break;
                 case CHILD_REMOVED:
                     view.removeMessage(message.data);
                     break;
                 case CHILD_CHANGED:
-                    view.updateMessage(message.data);
+                    view.updateMessage(item);
                     break;
             }
         }
@@ -164,18 +167,19 @@ public class ChatPresenterImpl implements ChatPresenter {
                     messagesInBackground.add(messageChildData);
                     return;
                 }
+                MessageBaseItem item = MessageBaseItem.from(messageChildData.data, currentUser.key, conversation.conversationType);
                 switch (messageChildData.type) {
                     case CHILD_ADDED:
                         // Check error message
                         checkMessageError(messageChildData.data);
                         updateConversationReadStatus();
-                        view.addNewMessage(messageChildData.data);
+                        view.addNewMessage(item);
                         break;
                     case CHILD_REMOVED:
                         view.removeMessage(messageChildData.data);
                         break;
                     case CHILD_CHANGED:
-                        view.updateMessage(messageChildData.data);
+                        view.updateMessage(item);
                         break;
                 }
             }
