@@ -338,17 +338,17 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.isLastMessage = isLastMessage;
         params.isMask = isMask;
         params.messages = messages;
-        view.showLoading();
+        //view.showLoading();
         updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
-                view.hideLoading();
+                //view.hideLoading();
                 view.switchOffEditMode();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
-                view.hideLoading();
+                //view.hideLoading();
             }
         }, params);
     }
@@ -421,6 +421,8 @@ public class ChatPresenterImpl implements ChatPresenter {
         getConversationValueUseCase.dispose();
         observeMessageUseCase.dispose();
         getLastMessagesUseCase.dispose();
+        deleteMessagesUseCase.dispose();
+        updateMaskMessagesUseCase.dispose();
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();

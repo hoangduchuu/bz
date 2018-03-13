@@ -1066,6 +1066,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 }
             }
         }
+        showLoading();
+        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+            handler.postDelayed(() -> switchOffEditMode(), 2000);
+        }
         presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
     }
 
@@ -1488,6 +1492,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void switchOffEditMode() {
+        hideLoading();
         isEditMode = false;
         onUpdateEditMode();
     }
