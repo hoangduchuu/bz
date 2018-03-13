@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -70,7 +69,6 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.service.firebase.MessageRepository;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
@@ -117,7 +115,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
     private Button btCancelRecord;
-    private BottomSheetBehavior bottomSheetBehavior;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -142,7 +139,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextWatcher textWatcher;
 
     private ImagePickerHelper imagePickerHelper;
-    private MessageRepository messageRepository;
     private ConversationRepository conversationRepository;
     private UserRepository userRepository;
 
@@ -205,12 +201,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        bindViews();
-
-        init();
+        String conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         // FIXME
-        //initConversationData();
+        if (!this.conversationID.equals(conversationID)) {
+            presenter.initConversationData(conversationID);
+        }
     }
 
     @Override
@@ -620,7 +615,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void init() {
-        messageRepository = MessageRepository.from(conversationID);
         conversationRepository = new ConversationRepository();
         userRepository = new UserRepository();
 
@@ -1026,17 +1020,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onDeleteMessages() {
         List<Message> messages = messagesAdapter.getSelectedMessages();
-        showLoading();
-        messageRepository.deleteMessage(conversationID, messages, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-                isEditMode = false;
-                onUpdateEditMode();
-            }
-        });
-//        messagesAdapter.resetSelectedMessages();
-//        updateMessageSelection(0);
+        presenter.deleteMessages(messages);
     }
 
     private void onCopySelectedMessageText() {
@@ -1056,7 +1040,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
         List<Message> messagesToDelete = new ArrayList<>();
         messagesToDelete.add(selectedMessage.message);
-        messageRepository.deleteMessage(conversationID, messagesToDelete, null);
+        presenter.deleteMessages(messagesToDelete);
         hideSelectedMessage();
     }
 
@@ -1082,15 +1066,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 }
             }
         }
-        showLoading();
-        messageRepository.updateMessageMask(selectedMessages, conversationID, fromUser.key, isLastMessage, mask, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-                isEditMode = false;
-                onUpdateEditMode();
-            }
-        });
+        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
     }
 
     private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
@@ -1366,15 +1342,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isChecked());
     }
 
-    private void updateMessageStatus(Message message) {
+    private void checkMessageError(Message message) {
         int status = CommonMethod.getCurrentStatus(fromUserID, message.status);
-        if (!message.senderId.equals(fromUserID)) {
-            if (status == Constant.MESSAGE_STATUS_DELIVERED) {
-                messageRepository.updateMessageStatus(message.key,
-                        originalConversation.memberIDs.keySet(), Constant.MESSAGE_STATUS_READ);
-            }
-            return;
-        } else {
+        if (message.senderId.equals(fromUserID)) {
             if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
                 presenter.resendMessage(message);
             }
@@ -1473,7 +1443,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         // FIXME why should update mark status
         updateMessageMarkStatus(data);
-        updateMessageStatus(data);
+        checkMessageError(data);
         updateConversationReadStatus();
         if (!isEditMode && isVisible) {
             recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
@@ -1517,6 +1487,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void switchOffEditMode() {
+        isEditMode = false;
+        onUpdateEditMode();
+    }
+
+    @Override
     public ChatComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent().provideChatComponent(new ChatModule(this));
@@ -1541,6 +1517,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void updateMessageMask(Message message, boolean maskStatus, boolean lastItem) {
         List<Message> messages = new ArrayList<>(1);
         messages.add(message);
-        messageRepository.updateMessageMask(messages, conversationID, fromUser.key, lastItem, maskStatus, null);
+        presenter.updateMaskMessages(messages, lastItem, maskStatus);
     }
 }

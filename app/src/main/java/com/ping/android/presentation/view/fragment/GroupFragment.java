@@ -168,7 +168,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
             if (counter.get() == selectedGroups.size()) {
                 hideLoading();
                 adapter.cleanSelectGroup();
-                updateEditMode();
+                switchOffEditMode();
             }
         };
         for (Group group : selectedGroups) {
@@ -181,7 +181,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         /*List<Group> selectedGroups = adapter.getSelectGroup();
         ServiceManager.getInstance().deleteGroup(selectedGroups);
         adapter.cleanSelectGroup();
-        updateEditMode();*/
+        switchOffEditMode();*/
     }
 
     private void updateEditMode() {

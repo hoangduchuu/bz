@@ -8,6 +8,7 @@ import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
+import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
@@ -17,6 +18,7 @@ import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
+import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -32,11 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -71,6 +71,10 @@ public class ChatPresenterImpl implements ChatPresenter {
     ResendMessageUseCase resendMessageUseCase;
     @Inject
     UpdateConversationUseCase updateConversationUseCase;
+    @Inject
+    DeleteMessagesUseCase deleteMessagesUseCase;
+    @Inject
+    UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -303,6 +307,50 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         updateConversationUseCase.execute(new DefaultObserver<Boolean>() {},
                 new UpdateConversationUseCase.Params(conversation, allowance));
+    }
+
+    @Override
+    public void deleteMessages(List<Message> messages) {
+        DeleteMessagesUseCase.Params params = new DeleteMessagesUseCase.Params();
+        params.messages = messages;
+        params.conversationId = conversation.key;
+        view.showLoading();
+        deleteMessagesUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                super.onNext(aBoolean);
+                view.hideLoading();
+                view.switchOffEditMode();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+                view.hideLoading();
+            }
+        }, params);
+    }
+
+    @Override
+    public void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask) {
+        UpdateMaskMessagesUseCase.Params params = new UpdateMaskMessagesUseCase.Params();
+        params.conversationId = conversation.key;
+        params.isLastMessage = isLastMessage;
+        params.isMask = isMask;
+        params.messages = messages;
+        view.showLoading();
+        updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.hideLoading();
+                view.switchOffEditMode();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.hideLoading();
+            }
+        }, params);
     }
 
     private void getLastMessages(Conversation conversation) {

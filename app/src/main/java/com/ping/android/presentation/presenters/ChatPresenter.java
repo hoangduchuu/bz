@@ -34,6 +34,10 @@ public interface ChatPresenter extends BasePresenter {
 
     void updateConversationLastMessage(Message lastMessage);
 
+    void deleteMessages(List<Message> messages);
+
+    void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -58,5 +62,7 @@ public interface ChatPresenter extends BasePresenter {
         void sendNotification(Conversation conversation, Message message);
 
         void addCacheMessage(Message message);
+
+        void switchOffEditMode();
     }
 }
