@@ -125,6 +125,7 @@
             android:label="Message"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.ping.android.presentation.view.activity.ChatActivity"
