@@ -312,6 +312,13 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.updateLastMessages(output.messages, output.canLoadMore);
                 observeMessageUpdate();
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+                view.updateLastMessages(new ArrayList<>(), false);
+                observeMessageUpdate();
+            }
         }, conversation);
     }
 

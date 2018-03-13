@@ -182,7 +182,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, new UploadGroupProfileImageUseCase.Params(conversation.groupID, absolutePath, new ArrayList<>(conversation.memberIDs.keySet())));
+        }, new UploadGroupProfileImageUseCase.Params(conversation.groupID, conversation.key, absolutePath, new ArrayList<>(conversation.memberIDs.keySet())));
     }
 
     @Override
@@ -197,7 +197,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
             public void onNext(Boolean aBoolean) {
                 view.navigateBack();
             }
-        }, new UpdateGroupNameUseCase.Params(conversation.groupID, name, new ArrayList<>(conversation.memberIDs.keySet())));
+        }, new UpdateGroupNameUseCase.Params(conversation.groupID, conversation.key, name, new ArrayList<>(conversation.memberIDs.keySet())));
     }
 
     @Override

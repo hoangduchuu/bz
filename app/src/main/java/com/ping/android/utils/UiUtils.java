@@ -171,7 +171,7 @@ public class UiUtils {
     }
 
     public static void displayProfileAvatar(ImageView imageView, String firebaseUrl) {
-        if (TextUtils.isEmpty(firebaseUrl)) {
+        if (TextUtils.isEmpty(firebaseUrl) || !firebaseUrl.startsWith("gs://")) {
             imageView.setImageResource(IMG_DEFAULT);
             return;
         }

@@ -35,17 +35,20 @@ public class UpdateGroupNameUseCase extends UseCase<Boolean, UpdateGroupNameUseC
 //        updateValue.put(String.format("groups/%s/groupName", params.groupId), params.name);
         for (String userId: params.userIds) {
             updateValue.put(String.format("groups/%s/%s/groupName", userId, params.groupId), params.name);
+            updateValue.put(String.format("conversations/%s/%s/conversationName", userId, params.conversationId), params.name);
         }
         return commonRepository.updateBatchData(updateValue);
     }
 
     public static class Params {
         public String groupId;
+        public String conversationId;
         public String name;
         public List<String> userIds;
 
-        public Params(String groupId, String name, List<String> userIds) {
+        public Params(String groupId, String conversationId, String name, List<String> userIds) {
             this.groupId = groupId;
+            this.conversationId = conversationId;
             this.name = name;
             this.userIds = userIds;
         }

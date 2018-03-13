@@ -9,6 +9,7 @@ import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.ultility.Constant;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,19 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<String> getKey() {
         String key = database.getReference("conversations").push().getKey();
         return Observable.just(key);
+    }
+
+    @Override
+    public Observable<DataSnapshot> getLastConversations(String userId) {
+        database.getReference("conversations")
+                .child(userId).keepSynced(true);
+        Query query = database.getReference("conversations")
+                .child(userId)
+                .orderByChild("timesstamps")
+                .limitToLast(15);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
     }
 
     @Override
