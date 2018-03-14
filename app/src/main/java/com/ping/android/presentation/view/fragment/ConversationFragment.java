@@ -38,6 +38,7 @@ import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -313,6 +314,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void updateConversationList(List<Conversation> conversations) {
         adapter.updateData(conversations);
+    }
+
+    @Override
+    public void notifyConversationChange(Conversation data) {
+        ConversationChangeEvent event = new ConversationChangeEvent();
+        event.conversationId = data.key;
+        event.nickName = data.conversationName;
+        busProvider.post(event);
     }
 
     private void listenTransphabetChanged() {

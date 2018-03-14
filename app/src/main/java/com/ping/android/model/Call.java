@@ -23,6 +23,8 @@ public class Call {
 
     public List<User> members = new ArrayList<>();
     public User opponentUser;
+    public String opponentName;
+    public String conversationId;
 
     public Call() {}
 

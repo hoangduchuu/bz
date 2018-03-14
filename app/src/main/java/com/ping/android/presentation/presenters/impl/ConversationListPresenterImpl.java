@@ -9,6 +9,7 @@ import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,6 +58,9 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                         view.addConversation(childData.data);
                         break;
                     case CHILD_CHANGED:
+                        if (childData.data.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                            view.notifyConversationChange(childData.data);
+                        }
                         view.updateConversation(childData.data);
                         break;
                     case CHILD_REMOVED:
