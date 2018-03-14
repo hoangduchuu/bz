@@ -121,7 +121,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.ping.android.presentation.view.activity.MainActivity"
             android:label="Message"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
@@ -198,7 +198,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".UserDetailActivity"
+            android:name="com.ping.android.presentation.view.activity.UserDetailActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />

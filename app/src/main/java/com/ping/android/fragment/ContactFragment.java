@@ -23,14 +23,13 @@ import com.ping.android.activity.AddContactActivity;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.ContactAdapter;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 public class ContactFragment extends Fragment implements View.OnClickListener, ContactAdapter.ClickListener {
@@ -226,8 +225,8 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
 
             }
         };
-        mContactDatabase = mDatabase.child("friends").child(currentUser.key);
-        mContactDatabase.addChildEventListener(observeContactEvent);
+        //mContactDatabase = mDatabase.child("friends").child(currentUser.key);
+        //mContactDatabase.addChildEventListener(observeContactEvent);
     }
 
     private void onAddContact(View view) {

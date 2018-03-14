@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,10 +22,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.PhoneActivity;
+import com.ping.android.activity.R;
+import com.ping.android.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.presentation.presenters.MainPresenter;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
@@ -77,13 +80,13 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
         init();
         observeBadgeNumber();
-        UserManager.getInstance().addValueEventListener();
+        //UserManager.getInstance().addValueEventListener();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        UserManager.getInstance().removeValueEventListener();
+        //UserManager.getInstance().removeValueEventListener();
     }
     @Override
     public void onBackPressed() {

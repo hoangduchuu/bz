@@ -117,14 +117,14 @@ public class ServiceManager {
 
     public void addContact(User contact) {
         mDatabase.child("friends").child(currentUser.key).child(contact.key).setValue(true);
-        currentUser.friends.put(contact.key, true);
+        //currentUser.friends.put(contact.key, true);
         contact.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
         currentUser.friendList.add(contact);
     }
 
     public void deleteContact(User contact) {
         mDatabase.child("friends").child(currentUser.key).child(contact.key).setValue(null);
-        currentUser.friends.remove(contact.key);
+        ///currentUser.friends.remove(contact.key);
         contact.typeFriend = Constant.TYPE_FRIEND.NON_FRIEND;
         currentUser.friendList.remove(contact);
     }

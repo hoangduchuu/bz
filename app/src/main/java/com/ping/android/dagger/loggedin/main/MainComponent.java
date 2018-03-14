@@ -1,6 +1,6 @@
 package com.ping.android.dagger.loggedin.main;
 
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.dagger.loggedin.main.call.CallComponent;
 import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;

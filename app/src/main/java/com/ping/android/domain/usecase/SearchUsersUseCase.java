@@ -1,6 +1,7 @@
 package com.ping.android.domain.usecase;
 
 import com.ping.android.domain.repository.SearchRepository;
+import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Constant;
@@ -23,6 +24,8 @@ import io.reactivex.Observable;
 public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> {
     @Inject
     SearchRepository searchRepository;
+    @Inject
+    UserRepository userRepository;
     UserManager userManager;
 
     @Inject
@@ -46,10 +49,11 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
                     return newQuery.toString();
                 })
                 .flatMap(query -> searchRepository.searchUsers(query))
-                .map(users -> {
+                .zipWith(userRepository.getCurrentUser(), (users, user) -> {
                     User currentUser = userManager.getUser();
-                    for (User user : users) {
-                        user.typeFriend = currentUser.friends.containsKey(user.key) ? Constant.TYPE_FRIEND.IS_FRIEND : Constant.TYPE_FRIEND.NON_FRIEND;
+                    for (User u : users) {
+                        // TODO
+                        u.typeFriend = currentUser.friends.containsKey(user.key) ? Constant.TYPE_FRIEND.IS_FRIEND : Constant.TYPE_FRIEND.NON_FRIEND;
                     }
                     return users;
                 });

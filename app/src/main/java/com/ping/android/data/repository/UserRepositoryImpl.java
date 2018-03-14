@@ -8,11 +8,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Callback;
 import com.quickblox.users.model.QBUser;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class UserRepositoryImpl implements UserRepository {
     FirebaseAuth auth;
     private User user;
     private QBUser qbUser;
+    private Map<String, Boolean> friends;
 
     @Inject
     public UserRepositoryImpl() {
@@ -41,7 +43,35 @@ public class UserRepositoryImpl implements UserRepository {
             return Observable.error(new NullPointerException());
         }
         return getUser(auth.getUid())
-                .doOnNext(user1 -> this.setUser(user1));
+                .doOnNext(this::setUser);
+    }
+
+    private void setFriendsData(Map<String, Boolean> map) {
+        this.friends = map;
+        if (this.user != null) {
+            this.user.friends = map;
+        }
+    }
+
+    @Override
+    public Observable<Map<String, Boolean>> observeFriendsValue(String userId) {
+        Query query = database.getReference("friends")
+                .child(userId);
+        return RxFirebaseDatabase.getInstance(query).onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return (Map<String, Boolean>)dataSnapshot.getValue();
+                    }
+                    return new HashMap<String, Boolean>();
+                })
+                .doOnNext(this::setFriendsData);
+    }
+
+    @Override
+    public Observable<ChildEvent> observeFriendsChildEvent(String userId) {
+        Query query = database.getReference("friends")
+                .child(userId);
+        return RxFirebaseDatabase.getInstance(query).onChildEvent();
     }
 
     @Override
@@ -130,6 +160,36 @@ public class UserRepositoryImpl implements UserRepository {
                 .onValueEvent();
     }
 
+    @Override
+    public Observable<Boolean> deleteFriend(String userId, String friendId) {
+        DatabaseReference reference = database.getReference("friends").child(userId).child(friendId);
+        return RxFirebaseDatabase.setValue(reference, null)
+                .map(reference1 -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> observeFriendStatus(String currentUserId, String friendId) {
+        Query query = database.getReference("friends").child(currentUserId).child(friendId);
+        return RxFirebaseDatabase.getInstance(query)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return dataSnapshot.getValue(Boolean.class);
+                    }
+                    return false;
+                })
+                .onErrorReturnItem(false);
+    }
+
+    @Override
+    public Observable<Boolean> addContact(String currentUserId, String friendId) {
+        DatabaseReference reference = database.getReference("friends").child(currentUserId).child(friendId);
+        return RxFirebaseDatabase.setValue(reference, true)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();
@@ -138,6 +198,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private void setUser(User user){
+        user.friends = this.friends;
         this.user = user;
     }
 }

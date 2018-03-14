@@ -48,7 +48,6 @@ import com.ping.android.activity.GameMemoryActivity;
 import com.ping.android.activity.GameTicTacToeActivity;
 import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.model.Conversation;

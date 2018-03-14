@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.call.CallComponent;
@@ -29,7 +29,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.view.CustomSwitch;
 

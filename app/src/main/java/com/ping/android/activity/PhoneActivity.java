@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.hbb20.CountryCodePicker;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 

@@ -37,7 +37,6 @@ public class User implements Parcelable {
     public boolean showMappingConfirm;
     public Map<String, String> mappings = new HashMap<>();
     public Setting settings;
-    public Map<String, Boolean> friends = new HashMap<>();
     public Map<String, Boolean> blocks = new HashMap<>();
     public Map<String, Boolean> blockBys = new HashMap<>();
 
@@ -47,6 +46,7 @@ public class User implements Parcelable {
     public Map<String, Double> devices = new HashMap<>();
 
     // Local variable
+    public Map<String, Boolean> friends = new HashMap<>();
     public ArrayList<User> friendList  = new ArrayList<>();
     public Constant.TYPE_FRIEND typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
 
@@ -66,8 +66,8 @@ public class User implements Parcelable {
         this.showMappingConfirm = CommonMethod.getBooleanOf(dataSnapshot.child("show_mapping_confirm").getValue());
         this.mappings = (Map<String, String>) dataSnapshot.child("mappings").getValue();
         this.settings = new Setting(dataSnapshot.child("settings"));
-        this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
-        if (friends == null) friends = new HashMap<>();
+//        this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
+//        if (friends == null) friends = new HashMap<>();
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
         if (blocks == null) blocks = new HashMap<>();
         this.blockBys = (Map<String, Boolean>) dataSnapshot.child("blockBys").getValue();
@@ -79,9 +79,9 @@ public class User implements Parcelable {
         if (this.settings == null) {
             this.settings = Setting.defaultSetting();
         }
-        if (this.friends == null) {
-            this.friends = new HashMap();
-        }
+//        if (this.friends == null) {
+//            this.friends = new HashMap();
+//        }
         if (this.blocks == null) {
             this.blocks = new HashMap();
         }
@@ -114,10 +114,10 @@ public class User implements Parcelable {
         loginStatus = tmpLoginStatus == 0 ? null : tmpLoginStatus == 1;
         byte tmpShowMappingConfirm = in.readByte();
         showMappingConfirm = tmpShowMappingConfirm == 1;
-        friendList = in.createTypedArrayList(User.CREATOR);
+        //friendList = in.createTypedArrayList(User.CREATOR);
         typeFriend = Constant.TYPE_FRIEND.valueOf(in.readString());
         Gson gson = new Gson();
-        friends = gson.fromJson(in.readString(), Map.class);
+        //friends = gson.fromJson(in.readString(), Map.class);
         blocks = gson.fromJson(in.readString(), Map.class);
         blockBys = gson.fromJson(in.readString(), Map.class);
     }
@@ -147,7 +147,7 @@ public class User implements Parcelable {
         result.put("phone", phone);
         result.put("loginStatus", loginStatus);
         result.put("show_mapping_confirm", showMappingConfirm);
-        result.put("friends", friends);
+        //result.put("friends", friends);
         result.put("mappings", mappings);
         result.put("settings", settings.toMap());
         result.put("profile", profile);
@@ -183,11 +183,11 @@ public class User implements Parcelable {
         parcel.writeString(profile);
         parcel.writeByte((byte) (loginStatus == null ? 0 : loginStatus ? 1 : 2));
         parcel.writeByte((byte) (showMappingConfirm ? 1 : 2));
-        parcel.writeTypedList(friendList);
+        //parcel.writeTypedList(friendList);
         parcel.writeString(typeFriend.toString());
-        JSONObject jsonObject = new JSONObject(friends);
-        parcel.writeString(jsonObject.toString());
-        jsonObject = new JSONObject(blocks);
+         //jsonObject = new JSONObject(friends);
+        //parcel.writeString(jsonObject.toString());
+        JSONObject jsonObject = new JSONObject(blocks);
         parcel.writeString(jsonObject.toString());
         jsonObject = new JSONObject(blockBys);
         parcel.writeString(jsonObject.toString());

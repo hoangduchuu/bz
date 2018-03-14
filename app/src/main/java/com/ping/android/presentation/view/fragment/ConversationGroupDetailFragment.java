@@ -19,7 +19,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;

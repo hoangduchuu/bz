@@ -79,7 +79,7 @@ public class App extends CoreApp {
             return;
         }
 
-        new AlertDialog.Builder(activeActivity)
+        new AlertDialog.Builder(this)
                 .setTitle("Update Available")
                 .setMessage(String.format("A new version of Bzzz is available on Google Play. Please update to version %s now.", storeCurrentVersion))
                 .setCancelable(false)
