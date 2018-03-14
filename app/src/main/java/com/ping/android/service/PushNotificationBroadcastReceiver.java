@@ -58,7 +58,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         try {
             String message = intent.getStringExtra("data");
 
-            String conversationId = intent.getStringExtra("conversationId");
+            String conversationId = intent.getStringExtra("conversation");
             String notificationType = intent.getStringExtra("notificationType");
             Log.d("new message: " + message + conversationId + notificationType);
             if (TextUtils.equals(notificationType, "incoming_message")

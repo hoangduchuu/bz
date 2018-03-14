@@ -35,7 +35,7 @@ public class ToggleNotificationSettingUseCase extends UseCase<Boolean, ToggleNot
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         Map<String, Object> updateValue = new HashMap<>();
         String userId = userManager.getUser().key;
-        //updateValue.put(String.format("conversations/%s/notifications/%s", params.conversationId, userId), params.isEnable);
+        //updateValue.put(String.format("conversations/%s/notifications/%s", params.conversation, userId), params.isEnable);
         updateValue.put(String.format("conversations/%s/%s/notifications/%s", userId, params.conversationId, userId), params.isEnable);
         return commonRepository.updateBatchData(updateValue);
     }

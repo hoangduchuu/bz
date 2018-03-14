@@ -258,28 +258,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         notifyDataSetChanged();
     }
 
-    public void appendHistoryItems(List<Message> messages, String fromUserID, int conversationType) {
-        Collections.sort(messages, new Comparator<Message>() {
-            @Override
-            public int compare(Message o1, Message o2) {
-                if (o1.timestamp > o2.timestamp) {
-                    return 1;
-                } else if (o1.timestamp < o2.timestamp) {
-                    return -1;
-                }
-
-                return 0;
-            }
-        });
+    public void appendHistoryItems(List<MessageBaseItem> messages) {
+        for (MessageBaseItem item : messages) {
+            item.setMessageListener(this);
+        }
         int startIndex = this.items.size() >= 1 ? 1 : 0;
         int endIndex = messages.size();
-        List<FlexibleItem> messageBaseItems = new ArrayList<>();
-        for (Message message : messages) {
-            MessageBaseItem item = MessageBaseItem.from(message, fromUserID, conversationType);
-            item.setMessageListener(this);
-            messageBaseItems.add(item);
-        }
-        this.items.addAll(startIndex, messageBaseItems);
+        this.items.addAll(startIndex, messages);
         notifyItemRangeInserted(startIndex, endIndex);
     }
 

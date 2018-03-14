@@ -51,7 +51,6 @@ import com.ping.android.activity.R;
 import com.ping.android.activity.UserDetailActivity;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -62,8 +61,6 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
@@ -114,8 +111,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private LinearLayout copyContainer;
 
-    private String conversationID, fromUserID;
-    private User fromUser;
+    private String conversationID;
     private Conversation originalConversation;
     private ChatMessageAdapter messagesAdapter;
 
@@ -132,7 +128,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextWatcher textWatcher;
 
     private ImagePickerHelper imagePickerHelper;
-    private ConversationRepository conversationRepository;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
@@ -214,7 +209,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         super.onResume();
         badgeHelper.read(conversationID);
         setButtonsState(0);
-        fromUser = UserManager.getInstance().getUser();
         isVisible = true;
     }
 
@@ -604,19 +598,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void init() {
-        conversationRepository = new ConversationRepository();
         RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
         //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        fromUser = UserManager.getInstance().getUser();
-        fromUserID = fromUser.key;
-
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
-                    int messageCount = prefs.getInt(key, 0);
-                    updateMessageCount(messageCount);
-                }
+        listener = (prefs, key) -> {
+            if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
+                int messageCount = prefs.getInt(key, 0);
+                updateMessageCount(messageCount);
             }
         };
     }
@@ -942,32 +930,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSentMessage(String text) {
-        //loadMoreChats();
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(getApplicationContext(), "Please input message", Toast.LENGTH_SHORT).show();
             return;
         }
-//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        if (!beAbleToSendMessage()) {
-            return;
-        }
-
         edMessage.setText(null);
         presenter.sendTextMessage(text, tgMarkOut.isChecked());
     }
 
     private void onSendCamera() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!beAbleToSendMessage()) {
-            return;
-        }
-
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setCrop(false)
                 .setScale(true)
@@ -992,14 +963,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendImage() {
-//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        if (!beAbleToSendMessage()) {
-            return;
-        }
-
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setCrop(false)
                 .setScale(true)
@@ -1028,14 +991,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendGame(GameType gameType) {
         chatGameMenu.hide();
-//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        if (!beAbleToSendMessage()) {
-            return;
-        }
-
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setCrop(false)
                 .setScale(true)
@@ -1112,13 +1067,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void onSendRecord() {
         onStopRecord();
-//        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
-//            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-        if (!beAbleToSendMessage()) {
-            return;
-        }
         File audioFile = new File(currentOutFile);
         presenter.sendAudioMessage(audioFile.getAbsolutePath());
         visualizerView.clear();
@@ -1154,20 +1102,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void updateConversationTyping(boolean typing) {
-        if (originalConversation != null) {
-            conversationRepository.updateTypingIndicatorForUser(originalConversation, fromUserID, typing);
-        }
-    }
-
-    private boolean beAbleToSendMessage() {
-        if (originalConversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-            if (fromUser.blocks.containsKey(originalConversation.opponentUser.key)) {
-                String username = originalConversation.opponentUser.firstName;
-                Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
-                return false;
-            }
-        }
-        return true;
+        presenter.handleUserTypingStatus(typing);
     }
 
     private void updateLoadMoreButtonStatus(boolean isShow) {
@@ -1206,11 +1141,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void onCurrentUser(User user) {
-        fromUser = user;
-    }
-
-    @Override
     public void addNewMessage(MessageBaseItem data) {
         //adapter.addOrUpdate(data);
         data.setEditMode(isEditMode);
@@ -1233,8 +1163,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void updateLastMessages(List<Message> messages, boolean canLoadMore) {
-        messagesAdapter.appendHistoryItems(messages, fromUserID, originalConversation.conversationType);
+    public void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore) {
+        messagesAdapter.appendHistoryItems(messages);
         if (!canLoadMore) {
             isEndOfConvesation = true;
             updateLoadMoreButtonStatus(false);
@@ -1247,9 +1177,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void addCacheMessage(Message message) {
-        FlexibleItem item = MessageBaseItem.from(message, fromUserID, originalConversation.conversationType);
-        messagesAdapter.addOrUpdate((MessageBaseItem) item);
+    public void addCacheMessage(MessageBaseItem message) {
+        messagesAdapter.addOrUpdate(message);
         //recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
@@ -1270,6 +1199,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void toggleTyping(boolean b) {
         showTyping(b);
+    }
+
+    @Override
+    public void showErrorUserBlocked(String username) {
+        Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
     }
 
     @Override

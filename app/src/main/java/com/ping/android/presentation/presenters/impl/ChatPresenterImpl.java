@@ -4,11 +4,13 @@ import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.ping.android.activity.R;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
@@ -34,10 +36,12 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Toaster;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +90,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveTypingEventUseCase observeTypingEventUseCase;
     @Inject
     UpdateConversationReadStatusUseCase updateConversationReadStatusUseCase;
+    @Inject
+    ToggleConversationTypingUseCase toggleConversationTypingUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -142,7 +148,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(User user) {
                 currentUser = user;
-                view.onCurrentUser(user);
             }
         }, null);
     }
@@ -197,13 +202,24 @@ public class ChatPresenterImpl implements ChatPresenter {
         loadMoreMessagesUseCase.execute(new DefaultObserver<LoadMoreMessagesUseCase.Output>() {
             @Override
             public void onNext(LoadMoreMessagesUseCase.Output output) {
-                view.updateLastMessages(output.messages, output.canLoadMore);
+                updateLastMessages(output.messages, output.canLoadMore);
             }
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
 
+    private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
+        Collections.sort(messages, (o1, o2) -> Double.compare(o1.timestamp, o2.timestamp));
+        List<MessageBaseItem> messageBaseItems = new ArrayList<>();
+        for (Message message : messages) {
+            MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+            messageBaseItems.add(item);
+        }
+        view.updateLastMessages(messageBaseItems, canLoadMore);
+    }
+
     @Override
     public void sendTextMessage(String message, boolean markStatus) {
+        if (!beAbleToSendMessage()) return;
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.TEXT)
                 .setConversation(conversation)
@@ -226,6 +242,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus) {
+        if (!beAbleToSendMessage()) return;
         SendImageMessageUseCase.Params params = new SendImageMessageUseCase.Params();
         params.filePath = photoUrl;
         params.thumbFilePath = thumbUrl;
@@ -237,7 +254,8 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    view.addCacheMessage(message);
+                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+                    view.addCacheMessage(item);
                 } else {
                     view.sendNotification(conversation, message);
                 }
@@ -252,6 +270,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus) {
+        if (!beAbleToSendMessage()) return;
         SendGameMessageUseCase.Params params = new SendGameMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -263,7 +282,8 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    view.addCacheMessage(message);
+                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+                    view.addCacheMessage(item);
                 } else {
                     view.sendNotification(conversation, message);
                 }
@@ -278,6 +298,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendAudioMessage(String audioUrl) {
+        if (!beAbleToSendMessage()) return;
         SendAudioMessageUseCase.Params params = new SendAudioMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -296,11 +317,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
             }
         }, params);
-    }
-
-    @Override
-    public void setConversation(Conversation originalConversation) {
-        this.conversation = originalConversation;
     }
 
     @Override
@@ -374,7 +390,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
             public void onNext(GetLastMessagesUseCase.Output output) {
-                view.updateLastMessages(output.messages, output.canLoadMore);
+                updateLastMessages(output.messages, output.canLoadMore);
                 observeMessageUpdate();
             }
 
@@ -488,6 +504,12 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
+    @Override
+    public void handleUserTypingStatus(boolean typing) {
+        toggleConversationTypingUseCase.execute(new DefaultObserver<>(),
+                new ToggleConversationTypingUseCase.Params(currentUser.key, conversation, typing));
+    }
+
     private void checkMessageError(Message message) {
         int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
@@ -496,6 +518,18 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
     }
+
+    private boolean beAbleToSendMessage() {
+        if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+            if (currentUser.blocks.containsKey(conversation.opponentUser.key)) {
+                String username = conversation.opponentUser.firstName;
+                view.showErrorUserBlocked(username);
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public void destroy() {
@@ -507,6 +541,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         getLastMessagesUseCase.dispose();
         deleteMessagesUseCase.dispose();
         updateMaskMessagesUseCase.dispose();
+        toggleConversationTypingUseCase.dispose();
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();
