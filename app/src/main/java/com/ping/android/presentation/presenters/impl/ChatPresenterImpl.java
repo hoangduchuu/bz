@@ -506,8 +506,10 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void handleUserTypingStatus(boolean typing) {
-        toggleConversationTypingUseCase.execute(new DefaultObserver<>(),
-                new ToggleConversationTypingUseCase.Params(currentUser.key, conversation, typing));
+        if (conversation != null) {
+            toggleConversationTypingUseCase.execute(new DefaultObserver<>(),
+                    new ToggleConversationTypingUseCase.Params(currentUser.key, conversation, typing));
+        }
     }
 
     private void checkMessageError(Message message) {
