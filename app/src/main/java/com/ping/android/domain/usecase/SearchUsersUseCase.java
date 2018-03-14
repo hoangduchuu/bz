@@ -48,14 +48,22 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
                     }
                     return newQuery.toString();
                 })
-                .flatMap(query -> searchRepository.searchUsers(query))
-                .zipWith(userRepository.getCurrentUser(), (users, user) -> {
-                    User currentUser = userManager.getUser();
-                    for (User u : users) {
-                        // TODO
-                        u.typeFriend = currentUser.friends.containsKey(user.key) ? Constant.TYPE_FRIEND.IS_FRIEND : Constant.TYPE_FRIEND.NON_FRIEND;
-                    }
-                    return users;
-                });
+                .switchMap(query -> searchRepository.searchUsers(query)
+                        .flatMap(users -> {
+                            if (users.size() > 0) {
+                                return userRepository.getCurrentUser()
+                                        .map(user -> {
+                                            for (User u : users) {
+                                                // TODO
+                                                u.typeFriend = user.friends.containsKey(u.key)
+                                                        ? Constant.TYPE_FRIEND.IS_FRIEND : Constant.TYPE_FRIEND.NON_FRIEND;
+                                            }
+                                            return users;
+                                        });
+                            } else {
+                                return Observable.just(users);
+                            }
+                        })
+                );
     }
 }
