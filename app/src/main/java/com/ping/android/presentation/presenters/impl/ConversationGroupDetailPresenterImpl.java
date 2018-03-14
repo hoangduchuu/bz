@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.conversation.ObserveConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleNotificationSettingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
@@ -27,7 +27,7 @@ import javax.inject.Inject;
 
 public class ConversationGroupDetailPresenterImpl implements ConversationGroupDetailPresenter {
     @Inject
-    ObserveConversationValueUseCase observeConversationValueUseCase;
+    ObserveConversationUpdateUseCase observeConversationUpdateUseCase;
     @Inject
     AddGroupMembersUseCase addGroupMembersUseCase;
     @Inject
@@ -52,7 +52,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Override
     public void initConversation(String conversationId) {
         view.showLoading();
-        observeConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
+        observeConversationUpdateUseCase.execute(new DefaultObserver<Conversation>() {
             @Override
             public void onNext(Conversation data) {
                 conversation = data;
@@ -202,7 +202,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     @Override
     public void destroy() {
-        observeConversationValueUseCase.dispose();
+        observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();
         leaveGroupUseCase.dispose();
         toggleNotificationSettingUseCase.dispose();

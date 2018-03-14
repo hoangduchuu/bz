@@ -54,6 +54,12 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.isEditMode) {
                 return;
             }
+            if (item.message.messageType == Constant.MSG_TYPE_GAME) {
+                if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_PASS
+                        && !item.message.isFromMe()) {
+                    return;
+                }
+            }
             maskStatus = !maskStatus;
             if (messageListener != null) {
                 messageListener.updateMessageMask(item.message, maskStatus, lastItem);

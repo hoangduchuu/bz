@@ -6,8 +6,6 @@
     android:fitsSystemWindows="true"
     tools:context="com.ping.android.presentation.view.activity.ChatActivity">
 
-    <include layout="@layout/notify_network_other" />
-
     <LinearLayout
         android:id="@+id/contentRoot"
         android:layout_width="match_parent"
@@ -300,4 +298,6 @@
                 android:text="@string/chat_unmask_all" />
         </RelativeLayout>
     </LinearLayout>
+
+    <include layout="@layout/notify_network_main" />
 </android.support.design.widget.CoordinatorLayout>

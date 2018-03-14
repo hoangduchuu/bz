@@ -59,6 +59,10 @@ public class BaseFragment extends Fragment {
         }
     }
 
+    public boolean onBackPress() {
+        return false;
+    }
+
     protected void registerEvent(Disposable disposable) {
         disposables.add(disposable);
     }

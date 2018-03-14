@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.conversation.ObserveConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleNotificationSettingUseCase;
@@ -24,7 +24,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
     @Inject
-    ObserveConversationValueUseCase observeConversationValueUseCase;
+    ObserveConversationUpdateUseCase observeConversationUpdateUseCase;
     @Inject
     ToggleNotificationSettingUseCase toggleNotificationSettingUseCase;
     @Inject
@@ -42,7 +42,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
 
     @Override
     public void initConversation(String conversationId) {
-        observeConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
+        observeConversationUpdateUseCase.execute(new DefaultObserver<Conversation>() {
             @Override
             public void onNext(Conversation data) {
                 conversation = data;
@@ -126,7 +126,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
 
     @Override
     public void destroy() {
-        observeConversationValueUseCase.dispose();
+        observeConversationUpdateUseCase.dispose();
         toggleNotificationSettingUseCase.dispose();
         toggleMaskIncomingUseCase.dispose();
         togglePuzzlePictureUseCase.dispose();

@@ -31,6 +31,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
     // Disposable for UI events
     private CompositeDisposable disposables;
+    public Constant.NETWORK_STATUS networkStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,14 +39,14 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         disposables = new CompositeDisposable();
         initWiFiManagerListener();
         Constant.NETWORK_STATUS networkStatus = networkConnectionChecker.getNetworkStatus();
-        UpdateNetworkStatus(networkStatus);
+        updateNetworkStatus(networkStatus);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Constant.NETWORK_STATUS networkStatus = networkConnectionChecker.getNetworkStatus();
-        UpdateNetworkStatus(networkStatus);
+        updateNetworkStatus(networkStatus);
     }
 
     @Override
@@ -110,10 +111,11 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     @Override
     public void connectivityChanged(Constant.NETWORK_STATUS networkStatus) {
-        UpdateNetworkStatus(networkStatus);
+        updateNetworkStatus(networkStatus);
     }
 
-    private void UpdateNetworkStatus(Constant.NETWORK_STATUS networkStatus) {
+    private void updateNetworkStatus(Constant.NETWORK_STATUS networkStatus) {
+        this.networkStatus = networkStatus;
         LinearLayout notifyNetworkLayout = (LinearLayout) findViewById(R.id.notify_network_layout);
         TextView notifyNetworkText = (TextView) findViewById(R.id.notify_network_text);
 

@@ -84,6 +84,17 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                                             .subscribe();
                                 }
                             }
+                        } else if (childData.type == ChildEvent.Type.CHILD_ADDED) {
+                            int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
+                            if (!message.senderId.equals(currentUser.key)) {
+                                if (status == Constant.MESSAGE_STATUS_DELIVERED) {
+                                    for (String userId : params.conversation.memberIDs.keySet()) {
+                                        messageRepository.updateMessageStatus(params.conversation.key, message.key,
+                                                userId, Constant.MESSAGE_STATUS_READ)
+                                                .subscribe();
+                                    }
+                                }
+                            }
                         }
                         return userRepository.getUser(childData.data.senderId)
                                 .map(user -> {

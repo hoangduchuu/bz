@@ -157,6 +157,10 @@ public class Message {
         return message;
     }
 
+    public boolean isFromMe() {
+        return this.senderId.equals(currentUserId);
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();

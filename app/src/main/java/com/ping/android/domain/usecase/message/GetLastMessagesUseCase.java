@@ -69,7 +69,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 }
 
                                 output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
+                                output.canLoadMore = messages.size() >= Constant.LATEST_RECENT_MESSAGES;
                                 return output;
                             } else {
                                 output.messages = new ArrayList<>();

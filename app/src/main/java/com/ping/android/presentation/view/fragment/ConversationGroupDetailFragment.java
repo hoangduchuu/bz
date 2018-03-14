@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.MainActivity;
 import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
@@ -121,6 +122,12 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     @Override
+    public boolean onBackPress() {
+        onBack();
+        return true;
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.group_profile_back:
@@ -212,6 +219,13 @@ public class ConversationGroupDetailFragment extends BaseFragment
         if(TextUtils.isEmpty(groupName.getText())) {
             Toast.makeText(getContext(), "Please input group name", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        if (getActivity() != null && getActivity() instanceof CoreActivity) {
+            if (((CoreActivity) getActivity()).networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+                navigateBack();
+                return;
+            }
         }
 
         presenter.updateGroupName(groupName.getText().toString());
@@ -317,6 +331,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     @Override
     public void navigateBack() {
-        getActivity().finishAfterTransition();
+        if (getActivity() != null) {
+            getActivity().finishAfterTransition();
+        }
     }
 }

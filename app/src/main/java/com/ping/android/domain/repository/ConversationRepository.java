@@ -5,6 +5,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 
+import java.util.Map;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 
@@ -28,4 +30,8 @@ public interface ConversationRepository {
     Observable<Message> sendMessage(String conversationId, Message message);
 
     Observable<Conversation> getConversation(String key, String conversationID);
+
+    Observable<Map<String,Boolean>> observeTypingEvent(String conversationId, String userId);
+
+    Observable<Boolean> updateReadStatus(String conversationId, String userId);
 }
