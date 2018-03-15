@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.com.ping.android.presentation.view.MainActivity">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -105,8 +103,7 @@
                         <TextView
                             android:id="@+id/user_detail_name"
                             style="@style/WrapContent"
-                            android:layout_alignParentEnd="true"
-                            android:paddingRight="@dimen/default_padding"
+                            android:paddingEnd="@dimen/default_padding"
                             android:text="me.me"
                             android:textColor="@color/text_color_grey"
                             android:textSize="@dimen/text_size_small" />

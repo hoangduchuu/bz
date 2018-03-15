@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/group_item"
     style="@style/ListItemContainer"
 
@@ -44,8 +45,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:ellipsize="marquee"
-                    android:maxLines="1"
-                    android:text="Group name" />
+                    android:text="Group name"
+                    android:singleLine="true" />
 
 
                 <TextView
@@ -53,11 +54,10 @@
                     style="@style/AppTextAppearance.Small.Grey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
+                    android:singleLine="true"
                     android:layout_marginLeft="@dimen/default_padding"
                     android:layout_marginRight="@dimen/default_padding"
-                    android:text="07-22-2017-07:40" />
+                    tools:text="yesterday yesterday yesterday yesterday 07-22-2017-07:40" />
             </LinearLayout>
 
 

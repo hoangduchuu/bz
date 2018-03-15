@@ -102,7 +102,6 @@
             android:layout_marginStart="@dimen/element_fragment_margin"/>
 
         <ToggleButton
-            android:layout_alignParentBottom="true"
             android:id="@+id/toggle_camera"
             android:layout_width="@dimen/toggle_button_params"
             android:layout_height="@dimen/toggle_button_params"

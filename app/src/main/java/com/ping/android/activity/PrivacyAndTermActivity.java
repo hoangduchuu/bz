@@ -22,7 +22,7 @@ public class PrivacyAndTermActivity extends CoreActivity implements View.OnClick
         findViewById(R.id.iv_back).setOnClickListener(this);
         findViewById(R.id.v_data_privacy).setOnClickListener(this);
         findViewById(R.id.v_terms_of_service).setOnClickListener(this);
-        tvCopyRight = (TextView) findViewById(R.id.tv_copyright);
+        tvCopyRight = findViewById(R.id.tv_copyright);
 
         intiView();
     }

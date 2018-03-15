@@ -38,12 +38,6 @@
         <View style="@style/ViewSeparate"
             android:background="#929292"/>
 
-        <LinearLayout
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:focusable="true"
-            android:focusableInTouchMode="true" />
-
         <LinearLayout style="@style/MappingLine">
 
             <include

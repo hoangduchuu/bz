@@ -74,7 +74,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     }
 
     private void bindViews() {
-        rvListBlock = (RecyclerView) findViewById(R.id.block_list_view);
+        rvListBlock = findViewById(R.id.block_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
 
         findViewById(R.id.iv_back).setOnClickListener(this);

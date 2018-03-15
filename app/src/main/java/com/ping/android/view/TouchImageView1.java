@@ -48,7 +48,6 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
     private Matrix matrix, prevMatrix;
     private State state;
 
-    ;
     private float minScale;
     private float maxScale;
     private float superMinScale;
@@ -817,10 +816,10 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
         matrix.getValues(n);
     }
 
-    private static enum State {NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM}
+    private enum State {NONE, DRAG, ZOOM, FLING, ANIMATE_ZOOM}
 
     public interface OnTouchImageViewListener {
-        public void onMove();
+        void onMove();
     }
 
     /**
@@ -1140,7 +1139,7 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
                 minY = maxY = startY;
             }
 
-            scroller.fling(startX, startY, (int) velocityX, (int) velocityY, minX,
+            scroller.fling(startX, startY, velocityX, velocityY, minX,
                     maxX, minY, maxY);
             currX = startX;
             currY = startY;

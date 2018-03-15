@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,7 +23,6 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.ping.android.App;
 import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.fragment.AudioConversationFragment;
 import com.ping.android.fragment.BaseConversationFragment;
@@ -37,7 +35,6 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
-import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
@@ -53,6 +50,7 @@ import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.WebRtcSessionManager;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.core.QBEntityCallbackImpl;
+import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.AppRTCAudioManager;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
@@ -127,7 +125,6 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
     private User currentUser;
     private User otherUser;
     private UserRepository userRepository;
-    private QuickBloxRepository quickBloxRepository;
 
     private boolean isSendHistory = false;
 
@@ -205,7 +202,6 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
         notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         parseIntentExtras();
-        quickBloxRepository = new QuickBloxRepository();
         sessionManager = WebRtcSessionManager.getInstance(this);
         if (!currentSessionExist()) {
 //            we have already currentSession == null, so it's no reason to do further initialization
@@ -329,7 +325,7 @@ public class CallActivity extends BaseActivity implements QBRTCClientSessionCall
 
         ArrayList<Integer> idsUsersNeedLoad = UsersUtils.getIdsNotLoadedUsers(usersFromDb, allParticipantsOfCall);
         if (!idsUsersNeedLoad.isEmpty()) {
-            quickBloxRepository.loadUsersByIds(idsUsersNeedLoad, new QBEntityCallbackImpl<ArrayList<QBUser>>() {
+            QBUsers.getUsersByIDs(idsUsersNeedLoad, null).performAsync(new QBEntityCallbackImpl<ArrayList<QBUser>>() {
                 @Override
                 public void onSuccess(ArrayList<QBUser> result, Bundle params) {
                     dbManager.saveAllUsers(result, false);

@@ -75,12 +75,12 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
     private void renderMapping() {
         for (Mapping mapping : mMappings) {
             int resId = getResources().getIdentifier("mapping_" + mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
-            RelativeLayout mappingItem = (RelativeLayout) rootView.findViewById(resId);
+            RelativeLayout mappingItem = rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 
-            TextView keyTV = (TextView) mappingItem.findViewById(R.id.mapping_item_key);
+            TextView keyTV = mappingItem.findViewById(R.id.mapping_item_key);
             keyTV.setText(mapping.mapKey.toLowerCase());
-            TextView valueTV = (TextView) mappingItem.findViewById(R.id.mapping_item_value);
+            TextView valueTV = mappingItem.findViewById(R.id.mapping_item_value);
             if (StringUtils.isEmpty(mapping.mapValue)) {
                 keyTV.setBackgroundResource(R.drawable.mapping_main_bg);
                 valueTV.setVisibility(View.GONE);
@@ -156,9 +156,9 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void bindViews(View view) {
-        btBack = (ImageView) view.findViewById(R.id.mapping_back);
+        btBack = view.findViewById(R.id.mapping_back);
         btBack.setOnClickListener(this);
-        btReset = (Button) view.findViewById(R.id.mapping_reset);
+        btReset = view.findViewById(R.id.mapping_reset);
         btReset.setOnClickListener(this);
     }
 

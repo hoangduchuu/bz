@@ -23,6 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:gravity="center_vertical"
+            android:baselineAligned="false"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -63,7 +64,6 @@
                 <ImageView
                     android:id="@+id/contact_send_message"
                     style="@style/list_item_btn"
-                    android:layout_centerVertical="true"
                     android:src="@drawable/start_message" />
 
                 <ToggleButton
@@ -74,7 +74,6 @@
                     android:layout_height="20dp"
                     android:background="@drawable/toggle_add_friend"
                     android:checked="false"
-                    android:onClick="onToggleChange"
                     android:text=""
                     android:textOff=""
                     android:textOn="" />

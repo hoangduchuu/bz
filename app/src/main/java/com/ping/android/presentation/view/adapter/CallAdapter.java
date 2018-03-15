@@ -174,10 +174,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         if (!isAll && call.status == Constant.CALL_STATUS_SUCCESS) {
             return false;
         }
-        if (!CommonMethod.isFiltered(call.opponentUser, text)) {
-            return false;
-        }
-        return true;
+        return CommonMethod.isFiltered(call.opponentUser, text);
     }
 
 
@@ -243,14 +240,14 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvName = (TextView) itemView.findViewById(R.id.call_item_name);
-            tvInfo = (TextView) itemView.findViewById(R.id.call_item_info);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.call_item_profile);
-            ivVideoCall = (ImageView) itemView.findViewById(R.id.item_call_video);
+            tvName = itemView.findViewById(R.id.call_item_name);
+            tvInfo = itemView.findViewById(R.id.call_item_info);
+            ivProfileImage = itemView.findViewById(R.id.call_item_profile);
+            ivVideoCall = itemView.findViewById(R.id.item_call_video);
             ivVideoCall.setOnClickListener(this);
-            ivVoiceCall = (ImageView) itemView.findViewById(R.id.item_call_voice);
+            ivVoiceCall = itemView.findViewById(R.id.item_call_voice);
             ivVoiceCall.setOnClickListener(this);
-            rbSelect = (RadioButton) itemView.findViewById(R.id.call_item_select);
+            rbSelect = itemView.findViewById(R.id.call_item_select);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
         }
@@ -336,7 +333,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                 info = "Missed. ";
             }
 
-            String time = CommonMethod.convertTimestampToTime(call.timestamp).toString();
+            String time = CommonMethod.convertTimestampToTime(call.timestamp);
             tvInfo.setText(info + time);
             tvName.setText(call.opponentName);
             setInfoColor();

@@ -149,19 +149,19 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     private void bindViews(View view) {
-        rvListCall = (RecyclerView) view.findViewById(R.id.call_recycle_view);
+        rvListCall = view.findViewById(R.id.call_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        searchView = (SearchView) view.findViewById(R.id.call_search_view);
+        searchView = view.findViewById(R.id.call_search_view);
         //CommonMethod.UpdateSearchViewLayout(searchView);
-        customSwitch = (CustomSwitch) view.findViewById(R.id.call_switch);
+        customSwitch = view.findViewById(R.id.call_switch);
 
-        btnEditCall = (Button) view.findViewById(R.id.call_edit);
+        btnEditCall = view.findViewById(R.id.call_edit);
         btnEditCall.setOnClickListener(this);
 
-        btnDeleteCall = (Button) view.findViewById(R.id.call_delete);
+        btnDeleteCall = view.findViewById(R.id.call_delete);
         btnDeleteCall.setOnClickListener(this);
 
-        btnCancel = (Button) view.findViewById(R.id.call_cancel_edit);
+        btnCancel = view.findViewById(R.id.call_cancel_edit);
         btnCancel.setOnClickListener(this);
     }
 
@@ -187,7 +187,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
         });
         searchView.setOnClickListener(v -> searchView.setIconified(false));
         customSwitch.setSwitchToggleListener(switchToggleState -> {
-            isAll = switchToggleState == CustomSwitch.SwitchToggleState.LEFT ? true : false;
+            isAll = switchToggleState == CustomSwitch.SwitchToggleState.LEFT;
             adapter.filter(search, isAll);
         });
         updateEditMode();

@@ -3,15 +3,25 @@ package com.ping.android.utils;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.*;
+import android.util.Log;
+
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks {
-
+    private static final long CHECK_DELAY = 500;
     private static ActivityLifecycle instance;
-    private static Activity foregroundActivity;
+    private WeakReference<Activity> foregroundActivity;
 
-    private boolean foreground = false;
+    private boolean foreground = false, paused = true;
+    private Handler handler = new Handler();
+    private Runnable check;
 
     private ActivityLifecycle() {
+        foregroundActivity = new WeakReference<Activity>(null);
     }
 
     public static void init(Application app) {
@@ -19,10 +29,6 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
             instance = new ActivityLifecycle();
             app.registerActivityLifecycleCallbacks(instance);
         }
-    }
-
-    public static Activity getForegroundActivity() {
-        return foregroundActivity;
     }
 
     public static synchronized ActivityLifecycle getInstance() {
@@ -37,40 +43,54 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
         return !foreground;
     }
 
+    public Activity getForegroundActivity() {
+        return foregroundActivity.get();
+    }
+
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        foregroundActivity = activity;
+
     }
 
     @Override
     public void onActivityStarted(Activity activity) {
-        foregroundActivity = activity;
     }
 
     @Override
     public void onActivityResumed(Activity activity) {
+        foregroundActivity = new WeakReference<>(activity);
+        paused = false;
+        boolean wasBackground = !foreground;
         foreground = true;
-        foregroundActivity = activity;
+
+        if (check != null)
+            handler.removeCallbacks(check);
     }
 
     @Override
     public void onActivityPaused(Activity activity) {
-        foreground = false;
-        //foregroundActivity = activity;
+        paused = true;
+
+        if (check != null)
+            handler.removeCallbacks(check);
+
+        handler.postDelayed(check = () -> {
+            if (foreground && paused) {
+                foreground = false;
+            } else {
+            }
+        }, CHECK_DELAY);
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-        //foregroundActivity = activity;
     }
 
     @Override
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-        foregroundActivity = activity;
     }
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        //foregroundActivity = null;
     }
 }

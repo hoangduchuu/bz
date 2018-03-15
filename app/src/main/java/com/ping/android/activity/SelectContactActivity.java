@@ -48,14 +48,14 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     }
 
     private void bindViews() {
-        btBack = (ImageView) findViewById(R.id.select_contact_back);
+        btBack = findViewById(R.id.select_contact_back);
         btBack.setOnClickListener(this);
-        btSelect = (Button) findViewById(R.id.select_contact_done);
+        btSelect = findViewById(R.id.select_contact_done);
         btSelect.setOnClickListener(this);
-        rvListContact = (RecyclerView) findViewById(R.id.select_contact_list_view);
+        rvListContact = findViewById(R.id.select_contact_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
         mLinearLayoutManager.setStackFromEnd(false);
-        searchView = (SearchView) findViewById(R.id.select_contact_search_view);
+        searchView = findViewById(R.id.select_contact_search_view);
         //CommonMethod.UpdateSearchViewLayout(searchView);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

@@ -102,19 +102,19 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     private void bindViews(View view) {
-        bottomMenu = (RelativeLayout) view.findViewById(R.id.group_bottom_menu);
-        listGroup = (RecyclerView) view.findViewById(R.id.group_recycle_view);
+        bottomMenu = view.findViewById(R.id.group_bottom_menu);
+        listGroup = view.findViewById(R.id.group_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
-        searchView = (SearchView) view.findViewById(R.id.group_search_view);
+        searchView = view.findViewById(R.id.group_search_view);
 //        CommonMethod.UpdateSearchViewLayout(searchView);
 
-        btnEditGroup = (Button) view.findViewById(R.id.group_edit);
+        btnEditGroup = view.findViewById(R.id.group_edit);
         btnEditGroup.setOnClickListener(this);
-        btnAddGroup = (Button) view.findViewById(R.id.group_add);
+        btnAddGroup = view.findViewById(R.id.group_add);
         btnAddGroup.setOnClickListener(this);
-        btnLeaveGroup = (Button) view.findViewById(R.id.group_leave);
+        btnLeaveGroup = view.findViewById(R.id.group_leave);
         btnLeaveGroup.setOnClickListener(this);
-        btnDeleteGroup = (Button) view.findViewById(R.id.group_delete);
+        btnDeleteGroup = view.findViewById(R.id.group_delete);
         btnDeleteGroup.setOnClickListener(this);
     }
 

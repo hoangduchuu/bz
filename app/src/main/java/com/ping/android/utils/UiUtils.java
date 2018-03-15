@@ -37,6 +37,7 @@ import com.ping.android.ultility.Callback;
 import org.jivesoftware.smack.util.StringUtils;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.Random;
 
 public class UiUtils {
@@ -87,7 +88,7 @@ public class UiUtils {
 
     public static int getCircleColor(@IntRange(from = RANDOM_COLOR_START_RANGE, to = RANDOM_COLOR_END_RANGE)
                                              int colorPosition) {
-        String colorIdName = String.format("random_color_%d", colorPosition + 1);
+        String colorIdName = String.format(Locale.getDefault(), "random_color_%d", colorPosition + 1);
         int colorId = CoreApp.getInstance().getResources()
                 .getIdentifier(colorIdName, "color", CoreApp.getInstance().getPackageName());
 

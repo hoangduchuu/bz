@@ -28,10 +28,10 @@
 
     public class CommonMethod {
         private static final String EMAIL_PATTERN =
-                "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@"
                         + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
         private static final String PING_ID_PATTERN = "^[a-zA-Z0-9]*$";
-        private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢§¶•ªº«\\\\/<>?:;|=., 0-9]{1,20}$";
+        private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢¶•ªº«\\\\/<>?:;|=., 0-9]{1,20}$";
         private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
 
         public static boolean isValidName(String name) {
@@ -117,10 +117,7 @@
                 return true;
             }
             String fullName = String.format("%s %s", contact.firstName, contact.lastName).trim();
-            if (!StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase())) {
-                return true;
-            }
-            return false;
+            return !StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
         }
 
         public static boolean isFiltered(User contact, String text) {
@@ -143,10 +140,7 @@
                 return true;
             }
             String fullName = String.format("%s %s", contact.firstName, contact.lastName).trim();
-            if (!StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase())) {
-                return true;
-            }
-            return false;
+            return !StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
         }
 
         public static String getStringOf(Object object) {

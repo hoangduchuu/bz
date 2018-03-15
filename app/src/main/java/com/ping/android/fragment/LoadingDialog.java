@@ -33,12 +33,8 @@ public class LoadingDialog extends DialogFragment {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setCancelable(false);
         dialog.setOnKeyListener((dialogInterface, keyCode, event) -> {
-            if (keyCode == KeyEvent.KEYCODE_BACK
-                    && event.getAction() == KeyEvent.ACTION_UP) {
-                // TODO do the "back pressed" work here
-                return true;
-            }
-            return false;
+            return keyCode == KeyEvent.KEYCODE_BACK
+                    && event.getAction() == KeyEvent.ACTION_UP;
         });
         Window window = dialog.getWindow();
         if (window != null) {

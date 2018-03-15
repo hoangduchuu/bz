@@ -1,7 +1,9 @@
 package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
@@ -31,6 +33,7 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
+        presenter.create();
         conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         //app running and logged-in, notification touched
         if(UserManager.getInstance().getUser() != null && StringUtils.isNotEmpty(conversationId)){
@@ -55,7 +58,7 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
         }
         //app running and logged in, user start app
         else if (TextUtils.isEmpty(conversationId)){
-            UserManager.getInstance().startCallService();
+            UserManager.getInstance().startCallService(this);
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -86,6 +89,30 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
         }
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void startCallService() {
+        UserManager.getInstance().startCallService(this);
+    }
+
+    @Override
+    public void showAppUpdateDialog(String appId, String currentVersion) {
+        new AlertDialog.Builder(this)
+                .setTitle("Update Available")
+                .setMessage(String.format("A new version of Bzzz is available on Google Play. Please update to version %s now.", currentVersion))
+                .setCancelable(false)
+                .setPositiveButton("Check it out!", (dialogInterface, i) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format("market://details?id=%s", appId)));
+                    try {
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        intent.setData(Uri.parse(String.format("https://play.google.com/store/apps/details?id=%s", appId)));
+                        startActivity(intent);
+                    }
+                })
+                .create()
+                .show();
     }
 
     @Override

@@ -29,5 +29,6 @@
         android:clickable="true"
         android:background="@null"
         android:padding="8dp"
-        android:src="@drawable/send"/>
+        android:src="@drawable/send"
+        android:focusable="true" />
 </RelativeLayout>

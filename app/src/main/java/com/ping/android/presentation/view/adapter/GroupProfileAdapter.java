@@ -81,9 +81,9 @@ public class GroupProfileAdapter extends RecyclerView.Adapter<GroupProfileAdapte
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvName = (TextView) itemView.findViewById(R.id.group_profile_item_name);
-            tvUsername = (TextView) itemView.findViewById(R.id.group_profile_item_username);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.group_profile_item_image);
+            tvName = itemView.findViewById(R.id.group_profile_item_name);
+            tvUsername = itemView.findViewById(R.id.group_profile_item_username);
+            ivProfileImage = itemView.findViewById(R.id.group_profile_item_image);
             itemView.setOnClickListener(this);
         }
 

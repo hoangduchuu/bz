@@ -135,7 +135,7 @@ public class CallService extends Service {
 
     private void initPingListener() {
         ChatPingAlarmManager.onCreate(this);
-        ChatPingAlarmManager.getInstanceFor().addPingListener(new PingFailedListener() {
+        ChatPingAlarmManager.addPingListener(new PingFailedListener() {
             @Override
             public void pingFailed() {
                 Log.d(TAG, "Ping chat server failed");

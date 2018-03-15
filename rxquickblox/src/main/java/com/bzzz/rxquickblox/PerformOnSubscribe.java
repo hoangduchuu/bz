@@ -36,7 +36,7 @@ public class PerformOnSubscribe<T> implements FlowableOnSubscribe<T> {
         } catch (Throwable var5) {
             Lo.g(TAG + ":error result " + var5.getLocalizedMessage());
             Exceptions.throwIfFatal(var5);
-            CompositeException composite = new CompositeException(new Throwable[]{e, var5});
+            CompositeException composite = new CompositeException(e, var5);
             RxJavaPlugins.getInstance().getErrorHandler().handleError(composite);
         }
 

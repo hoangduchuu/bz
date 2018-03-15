@@ -1,31 +1,19 @@
 package com.ping.android.managers;
 
+import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-import com.ping.android.device.Device;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
-import com.ping.android.service.QuickBloxRepository;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.PresenceRepository;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
-import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.model.QBUser;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -61,10 +49,10 @@ public class UserManager {
         }
     }
 
-    public void startCallService() {
-        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
-        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
+    public void startCallService(Activity activity) {
+        Intent tempIntent = new Intent(activity.getApplicationContext(), CallService.class);
+        PendingIntent pendingIntent = activity.createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
+        CallService.start(activity, qbUser, pendingIntent);
     }
 
     public void setUser(User user) {
@@ -92,6 +80,5 @@ public class UserManager {
 
     public void setQbUser(QBUser qbUser) {
         this.qbUser = qbUser;
-        startCallService();
     }
 }

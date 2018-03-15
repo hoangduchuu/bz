@@ -79,8 +79,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         findViewById(R.id.login_next).setOnClickListener(this);
         findViewById(R.id.login_forget_password).setOnClickListener(this);
 
-        inputName = (EditText) findViewById(R.id.login_name);
-        inputPassword = (EditText) findViewById(R.id.login_password);
+        inputName = findViewById(R.id.login_name);
+        inputPassword = findViewById(R.id.login_password);
     }
 
     private void init() {
@@ -242,12 +242,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
 //                }
 //            }
 //        });
-    }
-
-    private void startCallService(QBUser qbUser) {
-        Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
-        PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
     }
 
     private void onForgetPassword() {

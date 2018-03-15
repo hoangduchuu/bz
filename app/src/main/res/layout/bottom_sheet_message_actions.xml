@@ -6,6 +6,7 @@
     android:background="@color/main_background_gray"
     android:gravity="center"
     android:orientation="horizontal"
+    android:baselineAligned="false"
     app:behavior_peekHeight="0dp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 

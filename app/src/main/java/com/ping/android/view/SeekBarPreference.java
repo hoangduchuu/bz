@@ -55,7 +55,7 @@ public class SeekBarPreference extends Preference implements SeekBar.OnSeekBarCh
     @Override
     protected void onBindView(View view) {
         super.onBindView(view);
-        seekBar = (SeekBar) view.findViewById(R.id.seekbar);
+        seekBar = view.findViewById(R.id.seekbar);
         seekBar.setMax(maxSeekBarValue);
         seekBar.setProgress(progress);
         seekBar.setOnSeekBarChangeListener(this);

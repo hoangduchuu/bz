@@ -1,5 +1,6 @@
 package com.ping.android.view.viewholders;
 
+import android.annotation.SuppressLint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -17,6 +18,7 @@ public abstract class BaseMessageViewHolder extends RecyclerView.ViewHolder impl
         super(itemView);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     protected void initGestureListener() {
         gestureDetectorListener = new GestureDetectorListener(this);
         GestureDetectorCompat mDetector = new GestureDetectorCompat(itemView.getContext(), gestureDetectorListener);

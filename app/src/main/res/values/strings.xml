@@ -42,8 +42,8 @@
     <string name="msg_current_user_empty_quickbloxID">Cannot setup. Please re-login and try again</string>
     <string name="msg_opponent_user_empty_quickbloxID">Your opponent cannot contact</string>
     <string name="msg_accept_term">You must agree to the Terms of Service.</string>
-    <string name="msg_account_msg_blocked" formatted="false">You cannot send message to %1s because %2s is currently in your block list.</string>
-    <string name="msg_account_call_blocked" formatted="false">You cannot call %1s because %2s is currently in your block list.</string>
+    <string name="msg_account_msg_blocked" formatted="false">You cannot send message to %s because %s is currently in your block list.</string>
+    <string name="msg_account_call_blocked" formatted="false">You cannot call %s because %s is currently in your block list.</string>
     <string name="msg_account_blocked_by">The user %s blocked you</string>
 
     <string name="special_char_d_1">đ</string>
@@ -174,7 +174,7 @@
 
     <string name="opponents">and %s other</string>
     <string name="opponent">and %s </string>
-    <string name="ringing">Connecting ...</string>
+    <string name="ringing">Connecting …</string>
     <string name="stop_share">Stop</string>
     <string name="camera_swicth_failed">\"Failed switch camera\"</string>
     <string name="connecting">Connecting . . .</string>

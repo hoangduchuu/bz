@@ -119,9 +119,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         if (StringUtils.isEmpty(text)) {
             return true;
         }
-        if (group.groupName.toUpperCase().contains(text.toUpperCase()))
-            return true;
-        return false;
+        return group.groupName.toUpperCase().contains(text.toUpperCase());
     }
 
     public void setEditMode(Boolean isEditMode) {
@@ -186,12 +184,12 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvGroupName = (TextView) itemView.findViewById(R.id.group_item_name);
-            tvGroupMember = (TextView) itemView.findViewById(R.id.group_item_members);
-            tvCreateTime = (TextView) itemView.findViewById(R.id.group_item_create_date);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.group_item_profile);
+            tvGroupName = itemView.findViewById(R.id.group_item_name);
+            tvGroupMember = itemView.findViewById(R.id.group_item_members);
+            tvCreateTime = itemView.findViewById(R.id.group_item_create_date);
+            ivProfileImage = itemView.findViewById(R.id.group_item_profile);
             ivProfileImage.setOnClickListener(this);
-            rbSelect = (RadioButton) itemView.findViewById(R.id.group_item_select);
+            rbSelect = itemView.findViewById(R.id.group_item_select);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
         }
@@ -258,7 +256,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             tvGroupMember.setText(TextUtils.join(", ", displayNames));
             ivProfileImage.setTransitionName("imageProfile" + getAdapterPosition());
             UiUtils.displayProfileAvatar(ivProfileImage, group.groupAvatar);
-            tvCreateTime.setText("Created: " + CommonMethod.convertTimestampToDate(group.timestamp).toString());
+            tvCreateTime.setText("Created: " + CommonMethod.convertTimestampToDate(group.timestamp));
             setEditMode(isEditMode);
             if (isEditMode) {
                 setSelect(selectGroups.contains(group));

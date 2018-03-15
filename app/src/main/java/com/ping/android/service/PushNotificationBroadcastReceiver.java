@@ -95,7 +95,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void postNotification(String message, String conversationId, Context context) throws JSONException {
         User currentUser = UserManager.getInstance().getUser();
-        boolean soundNotification = currentUser != null ? currentUser.settings.notification : true;
+        boolean soundNotification = currentUser == null || currentUser.settings.notification;
         mNotificationId = getID();
         mConversationId = conversationId;
 
@@ -115,7 +115,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
                 //setShowWhen(true).
                 //setWhen(0).
                 setAutoCancel(true);
-        if (App.getActiveActivity() != null && !soundNotification) {
+        if (ActivityLifecycle.getInstance().isForeground() && !soundNotification) {
             notificationBuilder.setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE);
         } else {
             notificationBuilder.setDefaults(Notification.DEFAULT_ALL);
@@ -182,14 +182,15 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     }
 
     private boolean needDisplayNotification(String conversationId) {
-        Activity activeActivity = App.getActiveActivity();
+        Activity activeActivity = ActivityLifecycle.getInstance().getForegroundActivity();
+        boolean isForeground = ActivityLifecycle.getInstance().isForeground();
         //do not display notification if user already logged out
         if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)) {
             Log.d("user not logged-in");
             return false;
         }
         //do not display notification if user is opening same conversation
-        if (activeActivity != null && activeActivity instanceof ChatActivity) {
+        if (activeActivity != null && activeActivity instanceof ChatActivity && isForeground) {
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
             if (StringUtils.equals(chatActivity.getConversationId(), conversationId)) {

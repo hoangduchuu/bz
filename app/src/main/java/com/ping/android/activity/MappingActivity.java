@@ -56,9 +56,9 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void bindViews() {
-        btBack = (ImageView) findViewById(R.id.mapping_back);
+        btBack = findViewById(R.id.mapping_back);
         btBack.setOnClickListener(this);
-        btReset = (Button) findViewById(R.id.mapping_reset);
+        btReset = findViewById(R.id.mapping_reset);
         btReset.setOnClickListener(this);
     }
 
@@ -71,12 +71,12 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
     private void renderMapping() {
         for (Mapping mapping : mMappings) {
             int resId = getResources().getIdentifier("mapping_" + mapping.mapKey.toLowerCase(), "id", getPackageName());
-            RelativeLayout mappingItem = (RelativeLayout) findViewById(resId);
+            RelativeLayout mappingItem = findViewById(resId);
             mappingItem.setOnClickListener(this);
 
-            TextView keyTV = (TextView) mappingItem.findViewById(R.id.mapping_item_key);
+            TextView keyTV = mappingItem.findViewById(R.id.mapping_item_key);
             keyTV.setText(mapping.mapKey.toLowerCase());
-            TextView valueTV = (TextView) mappingItem.findViewById(R.id.mapping_item_value);
+            TextView valueTV = mappingItem.findViewById(R.id.mapping_item_value);
             if (StringUtils.isEmpty(mapping.mapValue)) {
                 keyTV.setBackgroundResource(R.drawable.mapping_main_bg);
                 valueTV.setVisibility(View.GONE);
@@ -125,7 +125,7 @@ public class MappingActivity extends CoreActivity implements View.OnClickListene
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final EditText userInput = (EditText) promptsView.findViewById(R.id.input_mapping_value);
+        final EditText userInput = promptsView.findViewById(R.id.input_mapping_value);
         userInput.setText(mapping.mapValue);
         userInput.addTextChangedListener(new TextWatcher() {
             String oldValue = "";

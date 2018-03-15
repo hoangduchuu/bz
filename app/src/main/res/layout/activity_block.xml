@@ -51,6 +51,7 @@
             android:id="@+id/block_list_view"
             style="@style/RecyclerView"
             android:layout_weight="1"
+            android:layout_height="0dp"
             android:background="@color/main_background_white" />
 
 

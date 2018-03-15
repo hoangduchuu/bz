@@ -119,20 +119,20 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     private void initUI(View view) {
         userRepository = new UserRepository();
 
-        callTypeTextView = (TextView) view.findViewById(R.id.call_type);
+        callTypeTextView = view.findViewById(R.id.call_type);
 
-        ImageView callerAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
+        ImageView callerAvatarImageView = view.findViewById(R.id.image_caller_avatar);
         callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(currentSession.getCallerID()));
 
-        TextView callerNameTextView = (TextView) view.findViewById(R.id.text_caller_name);
+        TextView callerNameTextView = view.findViewById(R.id.text_caller_name);
 
         QBUser callerUser = qbUserDbManager.getUserById(currentSession.getCallerID());
         callerNameTextView.setText(UsersUtils.getUserNameOrId(callerUser, currentSession.getCallerID()));
 
-        rejectButton = (ImageButton) view.findViewById(R.id.image_button_reject_call);
-        takeButton = (ImageButton) view.findViewById(R.id.image_button_accept_call);
+        rejectButton = view.findViewById(R.id.image_button_reject_call);
+        takeButton = view.findViewById(R.id.image_button_accept_call);
 
-        ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
+        ImageView firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
 
         userRepository.getUserByQbId(currentSession.getCallerID(), (error, data) -> {
             if (error != null) return;
