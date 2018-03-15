@@ -32,17 +32,11 @@ import java.util.Map;
  */
 
 public class UserManager {
-    private ArrayList<User> friendList;
-    private ArrayList<User> blockList;
     private User user;
     private QBUser qbUser;
-    private DatabaseReference userDatabaseReference;
-    private UserRepository userRepository;
-    private ValueEventListener userUpdateListener;
     private List<Callback> userUpdated;
 
     private static UserManager instance;
-    private DatabaseReference friendDatabaseReference;
 
     public static UserManager getInstance() {
         if (instance == null) {
@@ -53,9 +47,6 @@ public class UserManager {
 
     private UserManager() {
         userUpdated = new ArrayList<>();
-        userRepository = new UserRepository();
-        friendList = new ArrayList<>();
-        blockList = new ArrayList<>();
     }
 
     public void addUserUpdated(Callback callback) {
@@ -70,73 +61,10 @@ public class UserManager {
         }
     }
 
-    private void onBlocksUpdated(Map<String, Object> blocks) {
-        blockList = new ArrayList<>();
-    }
-
-    private void onFriendsUpdated(Map<String, Boolean> friends) {
-        friendList = new ArrayList<>();
-        initFriendList(friends);
-    }
-
     public void startCallService() {
         Intent tempIntent = new Intent(ActivityLifecycle.getForegroundActivity(), CallService.class);
         PendingIntent pendingIntent = ActivityLifecycle.getForegroundActivity().createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
         CallService.start(ActivityLifecycle.getForegroundActivity(), qbUser, pendingIntent);
-    }
-
-    public void addValueEventListener() {
-        if (user == null) return;
-
-        userUpdateListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (user == null) return;
-                User updateUser = new User(dataSnapshot);
-                boolean shouldUpdateFriends = false;
-                if (user.friendList.size() != updateUser.friendList.size()) {
-                    // Handle friends updated
-                    shouldUpdateFriends = true;
-                }
-                if (user.blocks.size() != updateUser.blocks.size()) {
-                    // Handle blocks updated
-                }
-                setUser(updateUser);
-                if (shouldUpdateFriends) {
-                    onFriendsUpdated(updateUser.friends);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        userDatabaseReference = userRepository.getDatabaseReference().child(user.key);
-        userDatabaseReference.addValueEventListener(userUpdateListener);
-    }
-
-    public void removeValueEventListener() {
-        if (userUpdateListener != null && user != null) {
-            userDatabaseReference.removeEventListener(userUpdateListener);
-        }
-    }
-
-    private void initFriendList(Map<String, Boolean> keys) {
-        userRepository.initMemberList(keys, (error, data) -> {
-            if (error == null) {
-                friendList = (ArrayList<User>) data[0];
-                user.friendList = friendList;
-            }
-        });
-    }
-
-    private void initBlocksList(Map<String, Boolean> keys) {
-        userRepository.initMemberList(keys, (error, data) -> {
-            if (error == null) {
-                blockList = (ArrayList<User>) data[0];;
-            }
-        });
     }
 
     public void setUser(User user) {
@@ -157,10 +85,8 @@ public class UserManager {
     }
 
     public void logout() {
-        userRepository.deleteRefreshToken();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
-        removeValueEventListener();
         user = null;
     }
 

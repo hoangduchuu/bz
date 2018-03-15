@@ -161,7 +161,7 @@ public class NotificationHelper {
                 object.addProperty("timestamp", fmessage.timestamp);
                 object.addProperty("originMessage", fmessage.message);
                 object.addProperty("senderName", fmessage.senderName);
-                object.addProperty("conversationId", conversation.key);
+                object.addProperty("conversation", conversation.key);
                 object.addProperty("photoUrl", fmessage.photoUrl);
                 object.addProperty("thumbUrl", fmessage.thumbUrl);
                 object.addProperty("audioUrl", fmessage.audioUrl);
@@ -224,7 +224,7 @@ public class NotificationHelper {
         object.addProperty("ios_content_available", 1);
         object.addProperty("notificationType", "incoming_message");
         object.addProperty("senderName", currentUser.getDisplayName());
-        object.addProperty("conversationId", conversation.key);
+        object.addProperty("conversation", conversation.key);
         object.addProperty("senderId", currentUser.key);
         object.addProperty("messageType", Constant.MSG_TYPE_GAME);
 

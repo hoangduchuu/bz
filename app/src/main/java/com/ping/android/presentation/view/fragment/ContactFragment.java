@@ -1,9 +1,8 @@
-package com.ping.android.fragment;
+package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,50 +12,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.activity.AddContactActivity;
 import com.ping.android.activity.CallActivity;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
-import com.ping.android.presentation.view.adapter.ContactAdapter;
-import com.ping.android.managers.UserManager;
+import com.ping.android.dagger.loggedin.main.MainComponent;
+import com.ping.android.dagger.loggedin.main.contact.ContactComponent;
+import com.ping.android.dagger.loggedin.main.contact.ContactModule;
+import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ContactPresenter;
+import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
+import com.ping.android.presentation.view.adapter.ContactAdapter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
-public class ContactFragment extends Fragment implements View.OnClickListener, ContactAdapter.ClickListener {
+import javax.inject.Inject;
 
+public class ContactFragment extends BaseFragment
+        implements View.OnClickListener, ContactAdapter.ClickListener, ContactPresenter.View {
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
     private SearchView searchView;
-    private FirebaseAuth auth;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-    private DatabaseReference mContactDatabase;
-    private User currentUser;
     private ContactAdapter adapter;
-    private boolean loadData, loadGUI;
-    private ChildEventListener observeContactEvent;
 
-    private UserRepository userRepository;
+    @Inject
+    ContactPresenter presenter;
+    ContactComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        init();
-        loadData = true;
-        if (loadGUI) {
-            bindData();
-        }
+        component().inject(this);
     }
 
     @Override
@@ -64,25 +51,20 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
         bindViews(view);
-        if (loadData & !loadGUI) {
-            bindData();
-        }
-        loadGUI = true;
+        init();
+        bindData();
+        presenter.create();
         return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        loadGUI = false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mContactDatabase != null) {
-            mContactDatabase.removeEventListener(observeContactEvent);
-        }
     }
 
     @Override
@@ -95,21 +77,17 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     }
 
     @Override
+    public ContactPresenter getPresenter() {
+        return presenter;
+    }
+
+    @Override
     public void onSendMessage(User contact) {
         if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        ServiceManager.getInstance().createConversationIDForPVPChat(currentUser.key, contact.key,
-                new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        String conversationID = data[0].toString();
-                        Intent intent = new Intent(getActivity(), ChatActivity.class);
-                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                        startActivity(intent);
-                    }
-                });
+        presenter.handleSendMessage(contact);
     }
 
     @Override
@@ -144,13 +122,8 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
     }
 
     private void init() {
-        userRepository = new UserRepository();
-        auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        currentUser = UserManager.getInstance().getUser();
         adapter = new ContactAdapter(getActivity(), this);
-        observeContacts();
+        //observeContacts();
     }
 
     private void bindData() {
@@ -178,64 +151,37 @@ public class ContactFragment extends Fragment implements View.OnClickListener, C
         });
     }
 
-    private void observeContacts() {
-        observeContactEvent = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String contactID = dataSnapshot.getKey();
-                Boolean exist = Boolean.valueOf(dataSnapshot.getValue().toString());
-                if (exist) {
-                    userRepository.getUser(contactID, (error, data) -> {
-                        if (error == null) {
-                            User contact = (User) data[0];
-                            adapter.addContact(contact);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                String contactID = dataSnapshot.getKey();
-                Boolean exist = Boolean.valueOf(dataSnapshot.getValue().toString());
-                if (exist) {
-                    userRepository.getUser(contactID, (error, data) -> {
-                        if (error == null) {
-                            User contact = (User) data[0];
-                            adapter.updateContact(contact);
-                        }
-                    });
-                } else {
-                    adapter.deleteContact(contactID);
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String contactID = dataSnapshot.getKey();
-                adapter.deleteContact(contactID);
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        mContactDatabase = mDatabase.child("friends").child(currentUser.key);
-        mContactDatabase.addChildEventListener(observeContactEvent);
-    }
-
     private void onAddContact(View view) {
         if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(getActivity(), AddContactActivity.class);
+        startActivity(intent);
+    }
+
+    private ContactComponent component() {
+        if (component == null) {
+            component = getComponent(MainComponent.class)
+                    .provideContactComponent(new ContactModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void addFriend(User data) {
+        adapter.addContact(data);
+    }
+
+    @Override
+    public void removeFriend(String key) {
+        adapter.deleteContact(key);
+    }
+
+    @Override
+    public void openConversation(String conversationId) {
+        Intent intent = new Intent(getActivity(), ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         startActivity(intent);
     }
 }

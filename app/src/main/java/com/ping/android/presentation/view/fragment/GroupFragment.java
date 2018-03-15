@@ -22,13 +22,12 @@ import com.ping.android.fragment.BaseFragment;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.presentation.view.adapter.GroupAdapter;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
 
 import org.apache.commons.collections4.CollectionUtils;
 

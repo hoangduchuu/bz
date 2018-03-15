@@ -12,6 +12,8 @@ import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
+import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
+import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.dagger.scopes.LoggedIn;
 
 import dagger.Subcomponent;
@@ -35,4 +37,6 @@ public interface LoggedInComponent {
     TransphabetComponent provideTransphabetComponent();
 
     ChatComponent provideChatComponent(ChatModule chatModule);
+
+    UserDetailComponent provideUserDetailComponent(UserDetailModule module);
 }

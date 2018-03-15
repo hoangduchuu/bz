@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
+import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.presentation.presenters.MainPresenter;
 
 import javax.inject.Inject;
@@ -13,6 +14,8 @@ import javax.inject.Inject;
 public class MainPresenterImpl implements MainPresenter {
     @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    @Inject
+    ObserveFriendsStatusUseCase observeFriendsStatusUseCase;
 
     @Inject
     public MainPresenterImpl() {
@@ -22,10 +25,12 @@ public class MainPresenterImpl implements MainPresenter {
     @Override
     public void create() {
         observeCurrentUserUseCase.execute(new DefaultObserver<>(), null);
+        observeFriendsStatusUseCase.execute(new DefaultObserver<>(), null);
     }
 
     @Override
     public void destroy() {
         observeCurrentUserUseCase.dispose();
+        observeFriendsStatusUseCase.dispose();
     }
 }

@@ -30,8 +30,6 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendAudioMessage(String audioUrl);
 
-    void setConversation(Conversation originalConversation);
-
     void resendMessage(Message message);
 
     void updateConversationLastMessage(Message lastMessage);
@@ -41,6 +39,8 @@ public interface ChatPresenter extends BasePresenter {
     void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask);
 
     void updateConversationReadStatus();
+
+    void handleUserTypingStatus(boolean typing);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
@@ -53,24 +53,24 @@ public interface ChatPresenter extends BasePresenter {
 
         void hideUserStatus();
 
-        void onCurrentUser(User user);
-
         void addNewMessage(MessageBaseItem data);
 
         void removeMessage(Message data);
 
         void updateMessage(MessageBaseItem data);
 
-        void updateLastMessages(List<Message> messages, boolean canLoadMore);
+        void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore);
 
         void sendNotification(Conversation conversation, Message message);
 
-        void addCacheMessage(Message message);
+        void addCacheMessage(MessageBaseItem message);
 
         void switchOffEditMode();
 
         void updateNickNames(Map<String, String> nickNames);
 
         void toggleTyping(boolean b);
+
+        void showErrorUserBlocked(String username);
     }
 }

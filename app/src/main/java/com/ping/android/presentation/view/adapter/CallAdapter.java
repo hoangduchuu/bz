@@ -18,6 +18,7 @@ import com.ping.android.model.User;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.bus.events.ConversationChangeEvent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,7 +55,26 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         this.recyclerView = null;
     }
 
-    public void addCall(Call call) {
+    public void addOrUpdateCall(Call call) {
+        boolean isAdd = true;
+        for (int i = 0, size = originalCalls.size(); i < size; i++) {
+            Call item = originalCalls.get(i);
+            if (item.key.equals(call.key)) {
+                originalCalls.set(i, call);
+                isAdd = false;
+            }
+        }
+        if (!isAdd) {
+            for (int i = 0, size = displayCalls.size(); i < size; i++) {
+                Call item = displayCalls.get(i);
+                if (item.key.equals(call.key)) {
+                    displayCalls.set(i, call);
+                    notifyItemChanged(i);
+                    break;
+                }
+            }
+            return;
+        }
         int index = 0;
         for (Call item : originalCalls) {
             if (CommonMethod.compareTimestamp(call.timestamp, item.timestamp))
@@ -190,6 +210,20 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         return displayCalls.size();
     }
 
+    public void updateNickNames(String conversationId, String nickname) {
+        for (Call call : originalCalls) {
+            if (conversationId.equals(call.conversationId)) {
+                call.opponentName = nickname;
+            }
+        }
+        for (Call call : displayCalls) {
+            if (conversationId.equals(call.conversationId)) {
+                call.opponentName = nickname;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public interface ClickListener {
         void onReCall(Call call, Boolean isVideoCall);
 
@@ -304,7 +338,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
             String time = CommonMethod.convertTimestampToTime(call.timestamp).toString();
             tvInfo.setText(info + time);
-            tvName.setText(call.opponentUser.getDisplayName());
+            tvName.setText(call.opponentName);
             setInfoColor();
             setEditMode(isEditMode);
             setSelect(selectCalls.contains(call));

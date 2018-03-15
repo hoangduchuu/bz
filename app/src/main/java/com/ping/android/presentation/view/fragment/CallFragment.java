@@ -1,9 +1,7 @@
 package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,22 +13,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.MainActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.UserDetailActivity;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.call.CallComponent;
 import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.ConversationChangeEvent;
+import com.ping.android.utils.bus.events.TransphabetEvent;
 import com.ping.android.view.CustomSwitch;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,16 +47,14 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     private RecyclerView rvListCall;
     private Button btnEditCall, btnDeleteCall;
 
-    private User currentUser;
     private CallAdapter adapter;
     private boolean isEditMode;
     private boolean isAll = true;
     private String search = "";
     private Button btnCancel;
 
-    private UserRepository userRepository;
-    private SharedPreferences prefs;
-
+    @Inject
+    public BusProvider busProvider;
     @Inject
     public CallPresenter presenter;
     private CallComponent component;
@@ -67,7 +63,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
-        init();
+        listenConversationChange();
     }
 
     @Override
@@ -76,8 +72,20 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
         View view = inflater.inflate(R.layout.fragment_call, container, false);
         bindViews(view);
         bindData();
-        presenter.getCalls();
+        presenter.create();
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        presenter.resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        presenter.pause();
     }
 
     @Override
@@ -112,14 +120,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onReCall(Call call, Boolean isVideoCall) {
-        User user = null;
-        for (User member : call.members) {
-            if (!member.key.equals(currentUser.key)) {
-                user = member;
-                break;
-            }
-        }
-        CallActivity.start(getContext(), user, isVideoCall);
+        presenter.handleCallPressed(call, isVideoCall);
     }
 
     @Override
@@ -164,12 +165,6 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
         btnCancel.setOnClickListener(this);
     }
 
-    private void init() {
-        prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        userRepository = new UserRepository();
-        currentUser = UserManager.getInstance().getUser();
-    }
-
     private void bindData() {
         adapter = new CallAdapter(new ArrayList<>(), this);
         rvListCall.setAdapter(adapter);
@@ -190,18 +185,10 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
-        customSwitch.setSwitchToggleListener(new CustomSwitch.SwitchToggleListener() {
-            @Override
-            public void onSwitchToggle(CustomSwitch.SwitchToggleState switchToggleState) {
-                isAll = switchToggleState == CustomSwitch.SwitchToggleState.LEFT ? true : false;
-                adapter.filter(search, isAll);
-            }
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
+        customSwitch.setSwitchToggleListener(switchToggleState -> {
+            isAll = switchToggleState == CustomSwitch.SwitchToggleState.LEFT ? true : false;
+            adapter.filter(search, isAll);
         });
         updateEditMode();
     }
@@ -266,7 +253,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void addCall(Call call) {
-        adapter.addCall(call);
+        adapter.addOrUpdateCall(call);
         scrollToTop();
         if (getActivity() != null) {
             ((MainActivity) getActivity()).callAdded(call);
@@ -276,5 +263,20 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void deleteCall(Call call) {
         adapter.deleteCall(call.key);
+    }
+
+    @Override
+    public void callUser(User user, boolean isVideoCall) {
+        CallActivity.start(getContext(), user, isVideoCall);
+    }
+
+    private void listenConversationChange() {
+        registerEvent(busProvider.getEvents()
+                .subscribe(object -> {
+                    if (object instanceof ConversationChangeEvent) {
+                        adapter.updateNickNames(((ConversationChangeEvent) object).conversationId,
+                                ((ConversationChangeEvent) object).nickName);
+                    }
+                }));
     }
 }

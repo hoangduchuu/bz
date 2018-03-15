@@ -26,5 +26,7 @@ public interface ConversationListPresenter extends BasePresenter {
         void updateGroupConversation(Group data);
 
         void updateConversationList(List<Conversation> conversations);
+
+        void notifyConversationChange(Conversation data);
     }
 }

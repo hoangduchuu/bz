@@ -80,7 +80,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void updateNotificationSetting(String conversationId, String userId, boolean value, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        //updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
+        //updateValue.put(String.format("conversations/%s/notifications/%s", conversation, userId), value);
         updateValue.put(String.format("conversations/%s/%s/notifications/%s", userId, conversationId, userId), value);
         updateBatchData(updateValue, callback);
     }
@@ -133,7 +133,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void updateUserNickname(String conversationId, Nickname nickname, Map<String, Boolean> userIds, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        //updateValue.put(String.format("conversations/%s/nickNames/%s", conversationId, nickname.userId), nickname.nickName);
+        //updateValue.put(String.format("conversations/%s/nickNames/%s", conversation, nickname.userId), nickname.nickName);
         for (String userId : userIds.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/nickNames/%s", userId, conversationId, nickname.userId), nickname.nickName);
         }

@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,16 +9,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ping.android.managers.UserManager;
+import com.ping.android.activity.CallActivity;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
+import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
-import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.presenters.UserDetailPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
-public class UserDetailActivity extends CoreActivity implements View.OnClickListener{
+import javax.inject.Inject;
+
+public class UserDetailActivity extends CoreActivity implements View.OnClickListener, UserDetailPresenter.View {
     public static final String EXTRA_USER = "EXTRA_USER";
     public static final String EXTRA_USER_IMAGE = "EXTRA_USER_IMAGE";
     public static final String EXTRA_USER_NAME = "EXTRA_USER_NAME";
@@ -30,13 +34,17 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private LinearLayout layoutSaveContact, layoutDeleteContact;
 
     private String userID;
-    private User user, currentUser;
-    private UserRepository userRepository;
-    private Callback userUpdated;
+    private User user;
+
+    @Inject
+    UserDetailPresenter presenter;
+    UserDetailComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
+        presenter.create();
         setContentView(R.layout.activity_user_detail);
         bindViews();
         userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
@@ -46,28 +54,23 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         String userName = getIntent().getStringExtra(EXTRA_USER_NAME);
         tvDisplayName.setTransitionName(userName);
         //ViewCompat.setTransitionName(ivAvatar, imageName);
-
+        presenter.observeFriendStatus(userID);
         bindData();
-        currentUser = UserManager.getInstance().getUser();
-        userRepository = new UserRepository();
-        userUpdated = (error, data) -> {
-            if (error == null) {
-                currentUser = (User) data[0];
-                swUserBlock.setChecked(currentUser.blocks.containsKey(userID));
-            }
-        };
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        UserManager.getInstance().addUserUpdated(userUpdated);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        UserManager.getInstance().removeUserUpdated(userUpdated);
+    }
+
+    @Override
+    public UserDetailPresenter getPresenter() {
+        return presenter;
     }
 
     @Override
@@ -98,13 +101,11 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void addContact() {
-        ServiceManager.getInstance().addContact(user);
-        updateContactLayout();
+        presenter.addContact(user.key);
     }
 
     private void deleteContact() {
-        ServiceManager.getInstance().deleteContact(user);
-        updateContactLayout();
+        presenter.deleteContact(user.key);
     }
 
     private void bindViews() {
@@ -129,21 +130,8 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private void bindData() {
         tvDisplayName.setText(user.getDisplayName());
         userName.setText(user.pingID);
-        swUserBlock.setChecked(ServiceManager.getInstance().isBlock(userID));
-
-        updateContactLayout();
 
         UiUtils.displayProfileImage(ivAvatar, user, null);
-    }
-
-    private void updateContactLayout() {
-        if (user.typeFriend != null && user.typeFriend == Constant.TYPE_FRIEND.IS_FRIEND) {
-            layoutSaveContact.setVisibility(View.GONE);
-            layoutDeleteContact.setVisibility(View.VISIBLE);
-        } else {
-            layoutSaveContact.setVisibility(View.VISIBLE);
-            layoutDeleteContact.setVisibility(View.GONE);
-        }
     }
 
     private void onMessage() {
@@ -151,16 +139,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        ServiceManager.getInstance().createConversationIDForPVPChat(currentUser.key, user.key,
-                new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        String conversationID = data[0].toString();
-                        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-                        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                        startActivity(intent);
-                    }
-                });
+        presenter.sendMessageToUser(user);
     }
 
     private void onVoiceCall() {
@@ -181,15 +160,40 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
     private void onBlock() {
         showLoading();
-        userRepository.toggleBlockUser(user.key, swUserBlock.isChecked(), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-            }
-        });
+        presenter.toggleBlockUser(user.key, swUserBlock.isChecked());
     }
 
     private void onBack() {
         supportFinishAfterTransition();
+    }
+
+    public UserDetailComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideUserDetailComponent(new UserDetailModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void toggleBlockUser(User user) {
+        swUserBlock.setChecked(user.blocks.containsKey(userID));
+    }
+
+    @Override
+    public void openConversation(String s) {
+        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, s);
+        startActivity(intent);
+    }
+
+    @Override
+    public void updateFriendStatus(boolean isFriend) {
+        if (isFriend) {
+            layoutSaveContact.setVisibility(View.GONE);
+            layoutDeleteContact.setVisibility(View.VISIBLE);
+        } else {
+            layoutSaveContact.setVisibility(View.VISIBLE);
+            layoutDeleteContact.setVisibility(View.GONE);
+        }
     }
 }

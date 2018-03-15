@@ -36,7 +36,7 @@ public class ToggleMaskIncomingUseCase extends UseCase<Boolean, ToggleMaskIncomi
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         String userId = userManager.getUser().key;
         Map<String, Object> updateValue = new HashMap<>();
-        //updateValue.put(String.format("conversations/%s/maskMessages/%s", params.conversationId, userId), params.value);
+        //updateValue.put(String.format("conversations/%s/maskMessages/%s", params.conversation, userId), params.value);
         for(String userID: params.memberIds) {
             updateValue.put(String.format("conversations/%s/%s/maskMessages/%s", userID, params.conversationId, userId), params.value);
         }

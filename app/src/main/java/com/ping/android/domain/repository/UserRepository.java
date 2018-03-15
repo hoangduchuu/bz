@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -17,6 +18,10 @@ public interface UserRepository {
     Observable<User> initializeUser();
 
     Observable<User> getCurrentUser();
+
+    Observable<ChildEvent> observeFriendsChildEvent(String userId);
+
+    Observable<Map<String, Boolean>> observeFriendsValue(String userId);
 
     Observable<User> observeCurrentUser();
 
@@ -33,4 +38,10 @@ public interface UserRepository {
     Observable<Boolean> logout();
 
     Observable<DataSnapshot> observeUserStatus(String userId);
+
+    Observable<Boolean> deleteFriend(String userId, String friendId);
+
+    Observable<Boolean> observeFriendStatus(String currentUserId, String friendId);
+
+    Observable<Boolean> addContact(String currentUserId, String friendId);
 }

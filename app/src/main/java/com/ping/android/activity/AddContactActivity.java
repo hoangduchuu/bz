@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
@@ -21,7 +22,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;

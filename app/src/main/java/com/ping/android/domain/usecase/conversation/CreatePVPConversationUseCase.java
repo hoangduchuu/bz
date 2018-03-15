@@ -74,7 +74,7 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                                 conversation.members = members;
                                 // Turn notifications on for this user
                                 Map<String, Object> updateValue = new HashMap<>();
-                                //updateValue.put(String.format("conversations/%s/notifications/%s", conversationId, userId), value);
+                                //updateValue.put(String.format("conversations/%s/notifications/%s", conversation, userId), value);
                                 updateValue.put(String.format("conversations/%s/%s/notifications/%s", user.key, conversationID, user.key), true);
                                 return commonRepository.updateBatchData(updateValue)
                                         .map(aBoolean -> conversation);

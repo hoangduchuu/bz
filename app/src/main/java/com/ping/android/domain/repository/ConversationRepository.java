@@ -34,4 +34,6 @@ public interface ConversationRepository {
     Observable<Map<String,Boolean>> observeTypingEvent(String conversationId, String userId);
 
     Observable<Boolean> updateReadStatus(String conversationId, String userId);
+
+    Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId);
 }
