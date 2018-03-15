@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,7 @@ public class ObserveCurrentUserUseCase extends UseCase<User, Void> {
     @NotNull
     @Override
     public Observable<User> buildUseCaseObservable(Void aVoid) {
-        return userRepository.observeCurrentUser();
+        return userRepository.observeCurrentUser()
+                .doOnNext(user -> UserManager.getInstance().setUser(user));
     }
 }
