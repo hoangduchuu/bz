@@ -276,11 +276,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
             messageItem = (LinearLayout) itemView;
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.message_item_profile);
-            tvSender = (TextView) itemView.findViewById(R.id.message_item_sender);
-            tvMessage = (TextView) itemView.findViewById(R.id.message_item_message);
-            tvTime = (TextView) itemView.findViewById(R.id.message_item_time);
-            rbSelect = (RadioButton) itemView.findViewById(R.id.message_item_select);
+            ivProfileImage = itemView.findViewById(R.id.message_item_profile);
+            tvSender = itemView.findViewById(R.id.message_item_sender);
+            tvMessage = itemView.findViewById(R.id.message_item_message);
+            tvTime = itemView.findViewById(R.id.message_item_time);
+            rbSelect = itemView.findViewById(R.id.message_item_select);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
             this.listener = listener;

@@ -254,10 +254,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }
         if (selectedUsers.size() > 1) {
             // TODO create group then send message
-            List<User> toUsers = new ArrayList<>(selectedUsers.size());
-            for (User user : selectedUsers) {
-                toUsers.add(user);
-            }
+            List<User> toUsers = new ArrayList<>();
+            toUsers.addAll(selectedUsers);
             toUsers.add(fromUser);
             createGroup(toUsers, edMessage.getText().toString());
         } else {

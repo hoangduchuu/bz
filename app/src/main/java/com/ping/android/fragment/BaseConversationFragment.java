@@ -157,12 +157,12 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
     }
 
     protected void initViews(View view) {
-        micToggleVideoCall = (ToggleButton) view.findViewById(R.id.toggle_mic);
-        handUpVideoCall = (ImageButton) view.findViewById(R.id.button_hangup_call);
-        allOpponentsTextView = (TextView) view.findViewById(R.id.text_outgoing_opponents_names);
-        ringingTextView = (TextView) view.findViewById(R.id.text_ringing);
+        micToggleVideoCall = view.findViewById(R.id.toggle_mic);
+        handUpVideoCall = view.findViewById(R.id.button_hangup_call);
+        allOpponentsTextView = view.findViewById(R.id.text_outgoing_opponents_names);
+        ringingTextView = view.findViewById(R.id.text_ringing);
 
-        timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
+        timerChronometer = view.findViewById(R.id.chronometer_timer_call);
 
         if (isIncomingCall) {
             hideOutgoingScreen();

@@ -109,16 +109,16 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void bindViews() {
-        ivAvatar = (ImageView) findViewById(R.id.user_detail_image);
-        userName = (TextView) findViewById(R.id.user_detail_name);
-        tvDisplayName = (TextView) findViewById(R.id.tv_display_name);
+        ivAvatar = findViewById(R.id.user_detail_image);
+        userName = findViewById(R.id.user_detail_name);
+        tvDisplayName = findViewById(R.id.tv_display_name);
 
-        swUserBlock = (Switch) findViewById(R.id.user_detail_block);
+        swUserBlock = findViewById(R.id.user_detail_block);
         swUserBlock.setOnClickListener(this);
 
-        layoutSaveContact = (LinearLayout) findViewById(R.id.layout_save_contact);
+        layoutSaveContact = findViewById(R.id.layout_save_contact);
         layoutSaveContact.setOnClickListener(this);
-        layoutDeleteContact = (LinearLayout) findViewById(R.id.layout_delete_contact);
+        layoutDeleteContact = findViewById(R.id.layout_delete_contact);
         layoutDeleteContact.setOnClickListener(this);
 
         findViewById(R.id.user_detail_message).setOnClickListener(this);

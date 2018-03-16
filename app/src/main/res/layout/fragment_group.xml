@@ -39,7 +39,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/group_recycle_view"
         style="@style/RecyclerView"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
     <View style="@style/ViewSeparate" />
 

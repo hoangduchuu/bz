@@ -50,10 +50,10 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
         findViewById(R.id.forgot_pass_back).setOnClickListener(this);
         findViewById(R.id.forgot_pass_reset).setOnClickListener(this);
 
-        txtEmail = (EditText) findViewById(R.id.forgot_pass_email);
-        txtFirstName = (EditText) findViewById(R.id.forgot_pass_first_name);
-        txtLastName = (EditText) findViewById(R.id.forgot_pass_last_name);
-        txtPhoneLast4n = (EditText) findViewById(R.id.forgot_pass_phone_4n);
+        txtEmail = findViewById(R.id.forgot_pass_email);
+        txtFirstName = findViewById(R.id.forgot_pass_first_name);
+        txtLastName = findViewById(R.id.forgot_pass_last_name);
+        txtPhoneLast4n = findViewById(R.id.forgot_pass_phone_4n);
     }
 
     private void init() {

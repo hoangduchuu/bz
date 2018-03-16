@@ -132,14 +132,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void bindViews(View view) {
-        listChat = (RecyclerView) view.findViewById(R.id.message_recycle_view);
+        listChat = view.findViewById(R.id.message_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = view.findViewById(R.id.message_search_view);
-        btnEditMessage = (Button) view.findViewById(R.id.message_edit);
+        btnEditMessage = view.findViewById(R.id.message_edit);
         btnEditMessage.setOnClickListener(this);
-        btnDeleteMessage = (Button) view.findViewById(R.id.message_delete);
+        btnDeleteMessage = view.findViewById(R.id.message_delete);
         btnDeleteMessage.setOnClickListener(this);
-        btnNewMessage = (ImageView) view.findViewById(R.id.message_add);
+        btnNewMessage = view.findViewById(R.id.message_add);
         btnNewMessage.setOnClickListener(this);
     }
 

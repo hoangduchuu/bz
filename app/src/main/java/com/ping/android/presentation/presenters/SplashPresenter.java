@@ -17,5 +17,9 @@ public interface SplashPresenter extends BasePresenter {
         void navigateToMainScreen();
 
         void navigateToLoginScreen();
+
+        void startCallService();
+
+        void showAppUpdateDialog(String appId, String currentVersion);
     }
 }

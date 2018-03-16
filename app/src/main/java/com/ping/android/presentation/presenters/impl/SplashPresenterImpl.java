@@ -1,10 +1,15 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.CheckAppUpdateUseCase;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -17,10 +22,37 @@ public class SplashPresenterImpl implements SplashPresenter {
     View view;
     @Inject
     InitializeUserUseCase initializeUserUseCase;
+    @Inject
+    CheckAppUpdateUseCase checkAppUpdateUseCase;
+    private AtomicInteger initializeSteps;
     private boolean isLoggedIn = false;
 
     @Inject
-    public SplashPresenterImpl() {}
+    public SplashPresenterImpl() {
+        initializeSteps = new AtomicInteger(3);
+    }
+
+    @Override
+    public void create() {
+        checkAppUpdateUseCase.execute(new DefaultObserver<CheckAppUpdateUseCase.Output>() {
+            @Override
+            public void onNext(CheckAppUpdateUseCase.Output output) {
+                if (output.needUpdate) {
+                    view.showAppUpdateDialog(output.appId, output.currentVersion);
+                } else {
+                    onStepFinish();
+                }
+            }
+        }, null);
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                finishTimer();
+            }
+        };
+        timer.schedule(task, 3000);
+    }
 
     @Override
     public void initializeUser() {
@@ -28,27 +60,30 @@ public class SplashPresenterImpl implements SplashPresenter {
             @Override
             public void onNext(Boolean aBoolean) {
                 isLoggedIn = aBoolean;
-                if (isLoggedIn) {
-                    view.navigateToMainScreen();
-                } else {
-                    view.navigateToLoginScreen();
-                }
+                onStepFinish();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
-                view.navigateToLoginScreen();
+                onStepFinish();
             }
         }, null);
     }
 
     @Override
     public void finishTimer() {
-        if (isLoggedIn) {
-            view.navigateToMainScreen();
-        } else {
-            view.navigateToLoginScreen();
+        onStepFinish();
+    }
+
+    private void onStepFinish() {
+        if (initializeSteps.decrementAndGet() == 0) {
+            if (isLoggedIn) {
+                view.startCallService();
+                view.navigateToMainScreen();
+            } else {
+                view.navigateToLoginScreen();
+            }
         }
     }
 

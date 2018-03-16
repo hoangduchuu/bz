@@ -130,7 +130,6 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-        return;
     }
 
     @Override

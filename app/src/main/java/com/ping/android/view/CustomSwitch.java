@@ -50,13 +50,15 @@ public class CustomSwitch extends LinearLayout {
         initialize();
 
         TypedArray styleAttrs = getContext().obtainStyledAttributes(
-                attrs, R.styleable.Switch);
+                attrs, R.styleable.CustomSwitch);
 
-        String leftSwitch = styleAttrs.getString(R.styleable.Switch_leftSwitch);
-        String rightSwitch = styleAttrs.getString(R.styleable.Switch_rightSwitch);
+        String leftSwitch = styleAttrs.getString(R.styleable.CustomSwitch_leftSwitch);
+        String rightSwitch = styleAttrs.getString(R.styleable.CustomSwitch_rightSwitch);
         setSwitches(leftSwitch, rightSwitch);
         toggleSwitch();
         invalidate();
+
+        styleAttrs.recycle();
     }
 
     public void setSwitchToggleListener(SwitchToggleListener switchToggleListener) {
@@ -137,8 +139,8 @@ public class CustomSwitch extends LinearLayout {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toggleSwitch() {
-        Button leftButton = (Button) findViewById(R.id.leftButton);
-        Button rightButton = (Button) findViewById(R.id.rightButton);
+        Button leftButton = findViewById(R.id.leftButton);
+        Button rightButton = findViewById(R.id.rightButton);
 
         if (mSwitchToggleState == SwitchToggleState.LEFT) {
             leftButton.setTextColor(getResources().getColor(R.color.white));
@@ -173,7 +175,7 @@ public class CustomSwitch extends LinearLayout {
     }
 
     public enum SwitchToggleState {
-        LEFT, RIGHT;
+        LEFT, RIGHT
     }
 
     public interface SwitchToggleListener {

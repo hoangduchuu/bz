@@ -26,6 +26,7 @@ import com.ping.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -365,7 +366,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
             // set the current time
             // its ok to show 00:00 in the UI
-            playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) remainingTime),
+            playbackStr.append(String.format(Locale.getDefault(), "%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) remainingTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) remainingTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) remainingTime))));
             if (duration != null) {
                 duration.setText(playbackStr.toString());
@@ -376,7 +377,9 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             // set total time as the audio is being played
             StringBuilder playbackStr = new StringBuilder();
             if (totalTime != 0) {
-                playbackStr.append(String.format("%02d:%02d", TimeUnit.MILLISECONDS.toMinutes((long) totalTime), TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
+                playbackStr.append(String.format(Locale.getDefault(), "%02d:%02d",
+                        TimeUnit.MILLISECONDS.toMinutes((long) totalTime),
+                        TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
             }
 
             duration.setText(playbackStr);

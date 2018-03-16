@@ -175,19 +175,19 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         opponentViewHolders = new SparseArray<>(opponents.size());
         isRemoteShown = false;
         isCurrentCameraFront = true;
-        localVideoView = (QBRTCSurfaceView) view.findViewById(R.id.local_video_view);
+        localVideoView = view.findViewById(R.id.local_video_view);
         initCorrectSizeForLocalView();
         localVideoView.setZOrderMediaOverlay(true);
 
-        remoteFullScreenVideoView = (QBRTCSurfaceView) view.findViewById(R.id.remote_video_view);
+        remoteFullScreenVideoView = view.findViewById(R.id.remote_video_view);
         remoteFullScreenVideoView.setOnClickListener(localViewOnClickListener);
 
-        cameraToggle = (ToggleButton) view.findViewById(R.id.toggle_camera);
+        cameraToggle = view.findViewById(R.id.toggle_camera);
         cameraToggle.setVisibility(View.VISIBLE);
 
-        timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
+        timerChronometer = view.findViewById(R.id.chronometer_timer_call);
 
-        firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
+        firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
 
         userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
             if (error != null) return;

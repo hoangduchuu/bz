@@ -128,10 +128,10 @@ public class OpponentsFromCallAdapter extends RecyclerView.Adapter<OpponentsFrom
         public ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            opponentsName = (TextView) itemView.findViewById(R.id.opponentName);
-            connectionStatus = (TextView) itemView.findViewById(R.id.connectionStatus);
-            opponentView = (QBRTCSurfaceView) itemView.findViewById(R.id.opponentView);
-            progressBar = (ProgressBar) itemView.findViewById(R.id.progress_bar_adapter);
+            opponentsName = itemView.findViewById(R.id.opponentName);
+            connectionStatus = itemView.findViewById(R.id.connectionStatus);
+            opponentView = itemView.findViewById(R.id.opponentView);
+            progressBar = itemView.findViewById(R.id.progress_bar_adapter);
         }
 
         private void setListener(ViewHolderClickListener viewHolderClickListener) {

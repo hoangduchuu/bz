@@ -3,7 +3,8 @@
     android:layout_height="match_parent"
     android:background="#efeff4"
     android:orientation="vertical"
-    android:clickable="true">
+    android:clickable="true"
+    android:focusable="true">
 
     <RelativeLayout style="@style/TopMenu">
 

@@ -1,8 +1,8 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context=".AddContactActivity">
 
@@ -29,24 +29,27 @@
                 android:id="@+id/add_contact_search_view"
                 style="@style/SearchView" />
         </LinearLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/add_contact_list_view"
                 style="@style/RecyclerView"
-                android:layout_weight="1" />
+                android:layout_height="match_parent"/>
+
             <com.wang.avi.AVLoadingIndicatorView
                 android:id="@+id/avi"
+                style="@style/AVLoadingIndicatorView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                style="@style/AVLoadingIndicatorView"
                 android:visibility="gone"
-                app:indicatorName="BallPulseIndicator"
                 app:indicatorColor="@color/colorAccent"
-                />
+                app:indicatorName="BallPulseIndicator" />
+
             <LinearLayout
                 android:id="@+id/no_results"
                 android:layout_width="match_parent"
@@ -59,12 +62,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAllCaps="true"
-                    android:text="No results"/>
+                    android:text="No results"
+                    android:textAllCaps="true" />
             </LinearLayout>
-                <View
-                    style="@style/horizontal_divider"
-                    android:layout_gravity="bottom" />
+
+            <View
+                style="@style/horizontal_divider"
+                android:layout_gravity="bottom" />
         </RelativeLayout>
     </LinearLayout>
 

@@ -121,9 +121,9 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvName = (TextView) itemView.findViewById(R.id.friend_name);
+            tvName = itemView.findViewById(R.id.friend_name);
             //tgStatus = (ToggleButton) itemView.findViewById(R.id.friend_status);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.friend_profile);
+            ivProfileImage = itemView.findViewById(R.id.friend_profile);
             itemView.setOnClickListener(this);
             itemView.findViewById(R.id.friend_call_video).setOnClickListener(this);
             itemView.findViewById(R.id.friend_call_voice).setOnClickListener(this);

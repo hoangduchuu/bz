@@ -128,7 +128,7 @@ public class UsersUtils {
         int count = emojis.size();
         Random random = new Random();
         for (String key : keys) {
-            int index = random.nextInt((int) count);
+            int index = random.nextInt(count);
             mappings.put(key, emojis.get(index).emoji.getUnicode());
         }
         ServiceManager.getInstance().updateMapping(mappings);

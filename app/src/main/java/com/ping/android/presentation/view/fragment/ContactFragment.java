@@ -116,9 +116,9 @@ public class ContactFragment extends BaseFragment
 
     private void bindViews(View view) {
         view.findViewById(R.id.contact_add).setOnClickListener(this);
-        rvListContact = (RecyclerView) view.findViewById(R.id.contact_recycle_view);
+        rvListContact = view.findViewById(R.id.contact_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        searchView = (SearchView) view.findViewById(R.id.contact_search_view);
+        searchView = view.findViewById(R.id.contact_search_view);
     }
 
     private void init() {

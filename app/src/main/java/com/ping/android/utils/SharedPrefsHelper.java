@@ -139,7 +139,7 @@ public class SharedPrefsHelper {
                 deviceId = UUID.randomUUID().toString();
                 SharedPreferences.Editor editor = sharedPrefs.edit();
                 editor.putString(PREF_UNIQUE_ID, deviceId);
-                editor.commit();
+                editor.apply();
             }
         }
         return deviceId;

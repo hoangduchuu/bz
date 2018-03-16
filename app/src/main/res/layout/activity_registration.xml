@@ -1,135 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.RegistrationActivity">
+    android:background="@color/gray_bg"
+    android:fitsSystemWindows="true">
 
-    <RelativeLayout
-        android:id="@+id/viewRoot"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/gray_bg">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/registration_back"
+            style="@style/BackButton" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/img_logo" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            style="@style/InputLayoutStyle"
+            android:layout_marginTop="100dp">
 
-            <ImageView
-                android:id="@+id/registration_back"
-                style="@style/BackButton" />
+            <EditText
+                android:id="@+id/registration_first_name"
+                style="@style/InputTextStyle"
+                android:hint="First Name"
+                android:inputType="textCapWords" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/img_logo" />
+            <View style="@style/InputUnderLineStyle" />
+
+            <EditText
+                android:id="@+id/registration_last_name"
+                style="@style/InputTextStyle"
+                android:hint="Last Name"
+                android:inputType="textCapWords" />
+
+            <View style="@style/InputUnderLineStyle" />
+
+            <EditText
+                android:id="@+id/registration_ping_id"
+                style="@style/InputTextStyle"
+                android:hint="Username"
+                android:inputType="" />
+
+            <View style="@style/InputUnderLineStyle" />
+
+            <EditText
+                android:id="@+id/registration_email"
+                style="@style/InputTextStyle"
+                android:hint="Email"
+                android:inputType="textEmailAddress" />
+
+            <View style="@style/InputUnderLineStyle" />
+
+            <EditText
+                android:id="@+id/registration_password"
+                style="@style/InputTextStyle"
+                android:hint="Password"
+                android:inputType="textPassword" />
+
+            <View style="@style/InputUnderLineStyle" />
+
+            <EditText
+                android:id="@+id/registration_retype_password"
+                style="@style/InputTextStyle"
+                android:hint="Retype Password"
+                android:inputType="textPassword" />
+
+            <View style="@style/InputUnderLineStyle" />
 
             <LinearLayout
-                style="@style/InputLayoutStyle"
-                android:layout_marginTop="100dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/registration_first_name"
-                    style="@style/InputTextStyle"
-                    android:hint="First Name"
-                    android:inputType="textCapWords" />
-
-                <View style="@style/InputUnderLineStyle" />
-
-                <EditText
-                    android:id="@+id/registration_last_name"
-                    style="@style/InputTextStyle"
-                    android:hint="Last Name"
-                    android:inputType="textCapWords" />
-
-                <View style="@style/InputUnderLineStyle" />
-
-                <EditText
-                    android:id="@+id/registration_ping_id"
-                    style="@style/InputTextStyle"
-                    android:inputType=""
-                    android:hint="Username" />
-
-                <View style="@style/InputUnderLineStyle" />
-
-                <EditText
-                    android:id="@+id/registration_email"
-                    style="@style/InputTextStyle"
-                    android:inputType="textEmailAddress"
-                    android:hint="Email" />
-
-                <View style="@style/InputUnderLineStyle" />
-
-                <EditText
-                    android:id="@+id/registration_password"
-                    style="@style/InputTextStyle"
-                    android:hint="Password"
-                    android:inputType="textPassword" />
-
-                <View style="@style/InputUnderLineStyle" />
-
-                <EditText
-                    android:id="@+id/registration_retype_password"
-                    style="@style/InputTextStyle"
-                    android:hint="Retype Password"
-                    android:inputType="textPassword" />
-
-                <View style="@style/InputUnderLineStyle" />
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-                    <LinearLayout
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:gravity="center">
+                    android:gravity="center">
 
-                        <CheckBox
-                            android:id="@+id/registration_terms"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-                    <TextView
-                        android:textColor="#A7A9AC"
-                        android:id="@+id/tv_register_agree_term_of_service"
+                    <CheckBox
+                        android:id="@+id/registration_terms"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/register_agree_term_of_service"/>
+                        android:layout_height="wrap_content" />
+
                 </LinearLayout>
 
-
-
-
-                <RelativeLayout
-                    android:id="@+id/registration_next"
-                    style="@style/NextButtonLayout"
-                    android:layout_marginTop="15dp">
-
-                    <TextView
-                        style="@style/NextButtonText"
-                        android:text="CREATE" />
-
-                    <ImageView
-                        style="@style/NextButtonImage"
-                        android:src="@drawable/ic_arrow_right" />
-                </RelativeLayout>
-
+                <TextView
+                    android:id="@+id/tv_register_agree_term_of_service"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_agree_term_of_service"
+                    android:textColor="#A7A9AC" />
             </LinearLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/registration_next"
+                style="@style/NextButtonLayout"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    style="@style/NextButtonText"
+                    android:text="CREATE" />
+
+                <ImageView
+                    style="@style/NextButtonImage"
+                    android:src="@drawable/ic_arrow_right" />
+            </RelativeLayout>
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <include layout="@layout/notify_network_other" />
+
     <ProgressBar
         android:id="@+id/progress_bar"
         style="@style/ProgressStyle"
         android:visibility="gone"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 </android.support.design.widget.CoordinatorLayout>

@@ -85,13 +85,13 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tvName = (TextView) itemView.findViewById(R.id.contact_item_name);
-            tvDetail = (TextView) itemView.findViewById(R.id.contact_item_detail);
-            tgAddFriend = (ToggleButton) itemView.findViewById(R.id.contact_add_friend);
+            tvName = itemView.findViewById(R.id.contact_item_name);
+            tvDetail = itemView.findViewById(R.id.contact_item_detail);
+            tgAddFriend = itemView.findViewById(R.id.contact_add_friend);
             tgAddFriend.setOnClickListener(this);
-            ivSendMessage = (ImageView) itemView.findViewById(R.id.contact_send_message);
+            ivSendMessage = itemView.findViewById(R.id.contact_send_message);
             ivSendMessage.setOnClickListener(this);
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.contact_item_profile);
+            ivProfileImage = itemView.findViewById(R.id.contact_item_profile);
             ivProfileImage.setOnClickListener(this);
         }
 

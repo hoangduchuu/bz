@@ -90,7 +90,6 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
     @Override
     public void onBackPressed() {
-        return;
     }
 
     @Override
@@ -263,12 +262,12 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         ImageView iconView;
         TextView numberView, titleView;
         v = LayoutInflater.from(this).inflate(R.layout.tab_layout_message, null);
-        numberView = (TextView) v.findViewById(R.id.tab_item_number);
+        numberView = v.findViewById(R.id.tab_item_number);
 
 
-        iconView = (ImageView) v.findViewById(R.id.tab_item_icon);
+        iconView = v.findViewById(R.id.tab_item_icon);
         iconView.setImageResource(iconID);
-        titleView = (TextView) v.findViewById(R.id.tab_item_title);
+        titleView = v.findViewById(R.id.tab_item_title);
         titleView.setText(title);
         titleView.setTextColor(getResources().getColor(colorID));
 

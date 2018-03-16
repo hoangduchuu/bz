@@ -52,9 +52,9 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     private void bindViews() {
         findViewById(R.id.password_change).setOnClickListener(this);
         findViewById(R.id.ib_back).setOnClickListener(this);
-        etPassword = (EditText) findViewById(R.id.txt_password);
-        etNewPassword = (EditText) findViewById(R.id.txt_new_password);
-        etConfirmPassword = (EditText) findViewById(R.id.txt_confirm_password);
+        etPassword = findViewById(R.id.txt_password);
+        etNewPassword = findViewById(R.id.txt_new_password);
+        etConfirmPassword = findViewById(R.id.txt_confirm_password);
     }
 
     private void init() {

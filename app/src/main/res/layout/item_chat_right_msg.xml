@@ -45,7 +45,6 @@
                     android:id="@+id/item_chat_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
                     android:maxWidth="240dp"
                     android:padding="2dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"

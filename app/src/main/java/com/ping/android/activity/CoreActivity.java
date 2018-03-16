@@ -116,8 +116,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     private void updateNetworkStatus(Constant.NETWORK_STATUS networkStatus) {
         this.networkStatus = networkStatus;
-        LinearLayout notifyNetworkLayout = (LinearLayout) findViewById(R.id.notify_network_layout);
-        TextView notifyNetworkText = (TextView) findViewById(R.id.notify_network_text);
+        LinearLayout notifyNetworkLayout = findViewById(R.id.notify_network_layout);
+        TextView notifyNetworkText = findViewById(R.id.notify_network_text);
 
         if (notifyNetworkLayout == null) return;
 

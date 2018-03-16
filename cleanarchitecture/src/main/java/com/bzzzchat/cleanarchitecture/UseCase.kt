@@ -17,7 +17,7 @@ import java.util.concurrent.Executor
  * execution, but every implementation will execute the
  * {@link UseCase} out of the UI thread.
  */
-interface ThreadExecutor : Executor {}
+interface ThreadExecutor : Executor
 
 /**
  * Thread abstraction created to change the execution context from any thread to any other thread.

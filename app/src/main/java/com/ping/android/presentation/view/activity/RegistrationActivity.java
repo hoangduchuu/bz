@@ -87,15 +87,15 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindViews() {
-        txtFirstName = (EditText) findViewById(R.id.registration_first_name);
-        txtLastName = (EditText) findViewById(R.id.registration_last_name);
-        txtPingId = (EditText) findViewById(R.id.registration_ping_id);
-        txtEmail = (EditText) findViewById(R.id.registration_email);
-        txtPassword = (EditText) findViewById(R.id.registration_password);
-        txtRetypePassword = (EditText) findViewById(R.id.registration_retype_password);
-        tvAgreeTermOfService = (TextView) findViewById(R.id.tv_register_agree_term_of_service);
+        txtFirstName = findViewById(R.id.registration_first_name);
+        txtLastName = findViewById(R.id.registration_last_name);
+        txtPingId = findViewById(R.id.registration_ping_id);
+        txtEmail = findViewById(R.id.registration_email);
+        txtPassword = findViewById(R.id.registration_password);
+        txtRetypePassword = findViewById(R.id.registration_retype_password);
+        tvAgreeTermOfService = findViewById(R.id.tv_register_agree_term_of_service);
         tvAgreeTermOfService.setOnClickListener(this);
-        termCheckBox = (CheckBox) findViewById(R.id.registration_terms);
+        termCheckBox = findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.registration_back).setOnClickListener(this);
 

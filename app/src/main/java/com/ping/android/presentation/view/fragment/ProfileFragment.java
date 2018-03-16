@@ -96,12 +96,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void bindViews(View view) {
-        tvName = (TextView) view.findViewById(R.id.profile_name);
-        tvDisplayName = (TextView) view.findViewById(R.id.tv_display_name);
-        profileImage = (ImageView) view.findViewById(R.id.profile_image);
+        tvName = view.findViewById(R.id.profile_name);
+        tvDisplayName = view.findViewById(R.id.tv_display_name);
+        profileImage = view.findViewById(R.id.profile_image);
         profileImage.setImageResource(R.drawable.ic_avatar_gray);
-        rbNotification = (Switch) view.findViewById(R.id.profile_notification);
-        rbShowProfile = (Switch) view.findViewById(R.id.profile_show_profile);
+        rbNotification = view.findViewById(R.id.profile_notification);
+        rbShowProfile = view.findViewById(R.id.profile_show_profile);
 
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_phone_detail).setOnClickListener(this);
@@ -190,10 +190,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final TextView nameTv = (TextView) promptsView.findViewById(R.id.dialog_username_name);
+        final TextView nameTv = promptsView.findViewById(R.id.dialog_username_name);
         nameTv.setText("Username: " + currentUser.pingID);
 
-        final TextView emailTv = (TextView) promptsView.findViewById(R.id.dialog_username_email);
+        final TextView emailTv = promptsView.findViewById(R.id.dialog_username_email);
         emailTv.setText("Email: " + currentUser.email);
 
         // set dialog message
@@ -217,7 +217,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final TextView phoneTv = (TextView) promptsView.findViewById(R.id.dialog_phone_number);
+        final TextView phoneTv = promptsView.findViewById(R.id.dialog_phone_number);
         phoneTv.setText("Primary: " + currentUser.phone);
 
         // set dialog message

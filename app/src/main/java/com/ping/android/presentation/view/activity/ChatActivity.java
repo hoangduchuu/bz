@@ -68,6 +68,7 @@ import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.RecorderVisualizerView;
+import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -101,7 +102,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextView tvChatStatus;
     private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
-    private EditText edMessage;
+    private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
     private Button btCancelRecord;
@@ -439,12 +440,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void bindViews() {
-        btBack = (ImageView) findViewById(R.id.chat_back);
+        btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
-        tvChatName = (TextView) findViewById(R.id.chat_person_name);
+        tvChatName = findViewById(R.id.chat_person_name);
         tvChatName.setOnClickListener(this);
-        tvChatStatus = (TextView) findViewById(R.id.chat_person_status);
-        recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
+        tvChatStatus = findViewById(R.id.chat_person_status);
+        recycleChatView = findViewById(R.id.chat_list_view);
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
@@ -489,48 +490,48 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btnSend.setOnClickListener(this);
         btnSend.setEnabled(false);
 
-        btVoiceCall = (ImageButton) findViewById(R.id.chat_voice_call_btn);
+        btVoiceCall = findViewById(R.id.chat_voice_call_btn);
         btVoiceCall.setOnClickListener(this);
-        btVideoCall = (ImageButton) findViewById(R.id.chat_video_call_btn);
+        btVideoCall = findViewById(R.id.chat_video_call_btn);
         btVideoCall.setOnClickListener(this);
 
-        btMask = (Button) findViewById(R.id.chat_mask);
+        btMask = findViewById(R.id.chat_mask);
         btMask.setOnClickListener(this);
-        btUnMask = (Button) findViewById(R.id.chat_unmask);
+        btUnMask = findViewById(R.id.chat_unmask);
         btUnMask.setOnClickListener(this);
-        btDelete = (Button) findViewById(R.id.chat_delete);
+        btDelete = findViewById(R.id.chat_delete);
         btDelete.setOnClickListener(this);
-        btEdit = (Button) findViewById(R.id.chat_edit);
+        btEdit = findViewById(R.id.chat_edit);
         btEdit.setOnClickListener(this);
-        btCancelEdit = (Button) findViewById(R.id.chat_cancel_edit);
+        btCancelEdit = findViewById(R.id.chat_cancel_edit);
         btCancelEdit.setOnClickListener(this);
-        btLoadMoreChat = (ImageView) findViewById(R.id.load_more);
+        btLoadMoreChat = findViewById(R.id.load_more);
         btLoadMoreChat.setOnClickListener(this);
 
-        layoutText = (LinearLayout) findViewById(R.id.chat_layout_text);
-        layoutVoice = (RelativeLayout) findViewById(R.id.chat_layout_voice);
-        layoutBottomMenu = (RelativeLayout) findViewById(R.id.chat_bottom_menu);
+        layoutText = findViewById(R.id.chat_layout_text);
+        layoutVoice = findViewById(R.id.chat_layout_voice);
+        layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
-        edMessage = (EditText) findViewById(R.id.chat_message_tv);
+        edMessage = findViewById(R.id.chat_message_tv);
         //edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
 
-        visualizerView = (RecorderVisualizerView) findViewById(R.id.visualizer);
-        btCancelRecord = (Button) findViewById(R.id.chat_cancel_record);
+        visualizerView = findViewById(R.id.visualizer);
+        btCancelRecord = findViewById(R.id.chat_cancel_record);
         btCancelRecord.setOnClickListener(this);
-        tbRecord = (Button) findViewById(R.id.chat_start_record);
+        tbRecord = findViewById(R.id.chat_start_record);
         tbRecord.setOnClickListener(this);
-        btSendRecord = (Button) findViewById(R.id.chat_send_record);
+        btSendRecord = findViewById(R.id.chat_send_record);
         btSendRecord.setOnClickListener(this);
 
-        tgMarkOut = (CheckBox) findViewById(R.id.chat_tgl_outcoming);
+        tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tgMarkOut.setOnClickListener(this);
 
-        tvNewMsgCount = (TextView) findViewById(R.id.chat_new_message_count);
-        layoutMsgType = (LinearLayout) findViewById(R.id.chat_layout_msg_type);
+        tvNewMsgCount = findViewById(R.id.chat_new_message_count);
+        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
         //emoji
         findViewById(R.id.chat_header_center).setOnClickListener(this);
-        emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(findViewById(R.id.chat_message_tv));
+        emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(edMessage);
         btEmoji = findViewById(R.id.chat_emoji_btn);
         btEmoji.setOnClickListener(this);
 
@@ -629,9 +630,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!tgMarkOut.isChecked()) {
-                    return;
-                }
             }
 
             @Override

@@ -1,5 +1,6 @@
 package com.ping.android.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -47,8 +48,8 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
 
     private void bindViews() {
         findViewById(R.id.phone_register).setOnClickListener(this);
-        etPhone = (EditText) findViewById(R.id.phone_number);
-        countryCodePicker = (CountryCodePicker) findViewById(R.id.ccp);
+        etPhone = findViewById(R.id.phone_number);
+        countryCodePicker = findViewById(R.id.ccp);
     }
 
     private void init() {
@@ -59,7 +60,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void setDefaultCountryCode() {
-        TelephonyManager tm = (TelephonyManager) getSystemService(getApplicationContext().TELEPHONY_SERVICE);
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         String countryCode = tm.getNetworkCountryIso().toUpperCase();
         if (!TextUtils.isEmpty(countryCode)) {
             countryCodePicker.setDefaultCountryUsingNameCode(countryCode);

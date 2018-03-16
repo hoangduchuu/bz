@@ -243,7 +243,6 @@
                         android:id="@+id/visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_centerHorizontal="true"
                         android:background="@android:color/background_light" />
                 </FrameLayout>
 

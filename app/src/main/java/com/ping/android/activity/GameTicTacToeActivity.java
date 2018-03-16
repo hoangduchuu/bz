@@ -84,15 +84,15 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
             }
         });
         tiles = new ArrayList<>();
-        tiles.add(findViewById(R.id.b00));
-        tiles.add(findViewById(R.id.b01));
-        tiles.add(findViewById(R.id.b02));
-        tiles.add(findViewById(R.id.b03));
-        tiles.add(findViewById(R.id.b04));
-        tiles.add(findViewById(R.id.b05));
-        tiles.add(findViewById(R.id.b06));
-        tiles.add(findViewById(R.id.b07));
-        tiles.add(findViewById(R.id.b08));
+        tiles.add((ImageButton) findViewById(R.id.b00));
+        tiles.add((ImageButton) findViewById(R.id.b01));
+        tiles.add((ImageButton) findViewById(R.id.b02));
+        tiles.add((ImageButton) findViewById(R.id.b03));
+        tiles.add((ImageButton) findViewById(R.id.b04));
+        tiles.add((ImageButton) findViewById(R.id.b05));
+        tiles.add((ImageButton) findViewById(R.id.b06));
+        tiles.add((ImageButton) findViewById(R.id.b07));
+        tiles.add((ImageButton) findViewById(R.id.b08));
         for (ImageButton button : tiles) {
             button.setOnClickListener(this);
         }

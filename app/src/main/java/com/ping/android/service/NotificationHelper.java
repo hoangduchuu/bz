@@ -13,6 +13,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.firebase.MessageRepository;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.quickblox.core.QBEntityCallback;
@@ -127,7 +128,7 @@ public class NotificationHelper {
 
         for (User user : conversation.members) {
             if (user.quickBloxID > 0 && !user.key.equals(UserManager.getInstance().getUser().key)) {
-                if (!needSendNotification(conversation, user)) continue;
+                if (!needSendNotification(conversation, user, sender)) continue;
                 //get incoming mask of target user
                 boolean incomingMask = false;
                 if(conversation.maskMessages != null && conversation.maskMessages.containsKey(user.key)){
@@ -199,22 +200,23 @@ public class NotificationHelper {
         }
     }
 
-    private boolean needSendNotification(Conversation conversation, User user) {
+    private boolean needSendNotification(Conversation conversation, User user, User sender) {
         if (user == null) return false;
-        if (ServiceManager.getInstance().isBlock(user.key) || ServiceManager.getInstance().isBlockBy(user)) {
+        boolean isBlock = CommonMethod.getBooleanFrom(sender.blocks, user.key);
+        boolean isBlockBy = CommonMethod.getBooleanFrom(sender.blockBys, user.key);
+        if (isBlock || isBlockBy) {
             return false;
         }
         //check if target user enable notification
-        if (conversation.notifications != null && conversation.notifications.containsKey(user.key) && !conversation.notifications.get(user.key)){
-            return false;
-        }
-        return true;
+        return !(conversation.notifications != null
+                && conversation.notifications.containsKey(user.key)
+                && !conversation.notifications.get(user.key));
     }
 
     public void sendGameStatusNotificationToSender(User user, Conversation conversation, boolean passed){
-        if(!needSendNotification(conversation, user)) return;
-
         User currentUser = UserManager.getInstance().getUser();
+        if(!needSendNotification(conversation, user, currentUser)) return;
+
         String body = currentUser.getDisplayName() + (passed ? " passed a game you sent.": " failed to complete a game you sent.");
         JsonObject object = new JsonObject();
         object.addProperty("data", body);

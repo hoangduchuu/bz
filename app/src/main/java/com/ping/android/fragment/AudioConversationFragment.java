@@ -56,9 +56,9 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
     @Override
     protected void initViews(View view) {
         super.initViews(view);
-        timerChronometer = (Chronometer) view.findViewById(R.id.chronometer_timer_call);
+        timerChronometer = view.findViewById(R.id.chronometer_timer_call);
 
-        ImageView firstOpponentAvatarImageView = (ImageView) view.findViewById(R.id.image_caller_avatar);
+        ImageView firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
         userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
             if (error == null) {
                 opponentUser = (User) data[0];
@@ -68,7 +68,7 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
             }
         });
 
-        audioSwitchToggleButton = (ToggleButton) view.findViewById(R.id.toggle_speaker);
+        audioSwitchToggleButton = view.findViewById(R.id.toggle_speaker);
         audioSwitchToggleButton.setVisibility(View.VISIBLE);
 
         actionButtonsEnabled(false);

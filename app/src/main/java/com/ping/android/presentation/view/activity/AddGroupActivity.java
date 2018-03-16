@@ -101,10 +101,10 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     private void bindViews() {
         edtTo = findViewById(R.id.edt_to);
-        etGroupName = (EditText) findViewById(R.id.new_group_name);
-        btBack = (ImageView) findViewById(R.id.new_group_back);
+        etGroupName = findViewById(R.id.new_group_name);
+        btBack = findViewById(R.id.new_group_back);
         btBack.setOnClickListener(this);
-        btSave = (Button) findViewById(R.id.new_group_save);
+        btSave = findViewById(R.id.new_group_save);
         btSave.setOnClickListener(this);
         groupAvatar = findViewById(R.id.profile_image);
         groupAvatar.setOnClickListener(this);
@@ -112,13 +112,13 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         avi = findViewById(R.id.avi);
         noResultsView = findViewById(R.id.no_results);
 
-        edMessage = (EditText) findViewById(R.id.new_group_message_tv);
-        btSendMessage = (Button) findViewById(R.id.new_group_send_message_btn);
+        edMessage = findViewById(R.id.new_group_message_tv);
+        btSendMessage = findViewById(R.id.new_group_send_message_btn);
         btSendMessage.setOnClickListener(this);
 
         findViewById(R.id.new_group_select_contact).setOnClickListener(this);
 
-        recycleChatView = (RecyclerView) findViewById(R.id.chat_list_view);
+        recycleChatView = findViewById(R.id.chat_list_view);
         mLinearLayoutManager = new LinearLayoutManager(this);
         recycleChatView.setLayoutManager(mLinearLayoutManager);
 
