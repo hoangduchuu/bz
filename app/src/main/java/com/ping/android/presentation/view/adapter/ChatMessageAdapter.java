@@ -216,7 +216,20 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (typingItem == null) {
             typingItem = new TypingItem();
         }
+        int index = items.indexOf(typingItem);
+        if (index >= 0 && index < items.size()) {
+            if (index == items.size() - 1) {
+                return;
+            } else {
+                remove(index);
+            }
+        }
         add(typingItem);
+    }
+
+    private void remove(int index) {
+        items.remove(index);
+        notifyItemRemoved(index);
     }
 
     public void hideTypingItem() {

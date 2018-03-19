@@ -391,6 +391,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(GetLastMessagesUseCase.Output output) {
                 updateLastMessages(output.messages, output.canLoadMore);
                 observeMessageUpdate();
+                observeTypingEvent();
             }
 
             @Override
@@ -398,6 +399,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
                 view.updateLastMessages(new ArrayList<>(), false);
                 observeMessageUpdate();
+                observeTypingEvent();
             }
         }, conversation);
     }
@@ -472,7 +474,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         this.conversation = conversation;
         view.updateConversation(conversation);
         observeConversationUpdate();
-        observeTypingEvent();
         updateConversationReadStatus();
         //observeMessageUpdate();
         getLastMessages(conversation);
