@@ -72,9 +72,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     }
                     Conversation conversation = params.getNewConversation();
                     Map<String, Object> updateData = new HashMap<>();
-                    //updateData.put(String.format("conversations/%s", conversation.key), conversation.toMap());
                     // Update message for conversation for each user
-                    updateData.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
+                    updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
+                            message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
                         if (!message1.readAllowed.containsKey(toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());

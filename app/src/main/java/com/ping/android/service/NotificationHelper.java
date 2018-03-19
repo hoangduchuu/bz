@@ -162,7 +162,7 @@ public class NotificationHelper {
                 object.addProperty("timestamp", fmessage.timestamp);
                 object.addProperty("originMessage", fmessage.message);
                 object.addProperty("senderName", fmessage.senderName);
-                object.addProperty("conversation", conversation.key);
+                object.addProperty("conversationId", conversation.key);
                 object.addProperty("photoUrl", fmessage.photoUrl);
                 object.addProperty("thumbUrl", fmessage.thumbUrl);
                 object.addProperty("audioUrl", fmessage.audioUrl);

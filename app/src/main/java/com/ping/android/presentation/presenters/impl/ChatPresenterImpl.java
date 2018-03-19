@@ -337,8 +337,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         HashMap<String, Boolean> allowance = new HashMap<>();
         allowance.put(currentUser.key, true);
 
-        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {
-                                          },
+        updateConversationUseCase.execute(new DefaultObserver<Boolean>() {},
                 new UpdateConversationUseCase.Params(conversation, allowance));
     }
 
@@ -630,6 +629,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                             break;
                         case Constant.MESSAGE_STATUS_SENT:
                             messageStatus = "";
+                            break;
+                        case Constant.MESSAGE_STATUS_READ:
+                            messageStatus = "Read";
                             break;
                         default:
                             messageStatus = "Game Delivered";

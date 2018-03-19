@@ -72,10 +72,10 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                             return Observable.empty();
                         }
                     } else {
+                        int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                         if (childData.type == ChildEvent.Type.CHILD_CHANGED) {
                             if (message.messageType == Constant.MSG_TYPE_GAME) {
                                 // Update status of game if not update
-                                int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                                 if (!TextUtils.isEmpty(message.gameUrl)
                                         && !message.gameUrl.equals("PPhtotoMessageIdentifier")
                                         && status == Constant.MESSAGE_STATUS_ERROR) {
@@ -84,17 +84,9 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                                             .subscribe();
                                 }
                             }
+                            updateReadStatus(message, params.conversation, status);
                         } else if (childData.type == ChildEvent.Type.CHILD_ADDED) {
-                            int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
-                            if (!message.senderId.equals(currentUser.key)) {
-                                if (status == Constant.MESSAGE_STATUS_DELIVERED) {
-                                    for (String userId : params.conversation.memberIDs.keySet()) {
-                                        messageRepository.updateMessageStatus(params.conversation.key, message.key,
-                                                userId, Constant.MESSAGE_STATUS_READ)
-                                                .subscribe();
-                                    }
-                                }
-                            }
+                            updateReadStatus(message, params.conversation, status);
                         }
                         return userRepository.getUser(childData.data.senderId)
                                 .map(user -> {
@@ -103,6 +95,24 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                                 });
                     }
                 });
+    }
+
+    /**
+     *
+     * @param message
+     * @param conversation
+     * @param status message status of current user. -1 if not exists on message's status
+     */
+    private void updateReadStatus(Message message, Conversation conversation, int status) {
+        if (!message.senderId.equals(currentUser.key)) {
+            if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
+                //for (String userId : conversation.memberIDs.keySet()) {
+                    messageRepository.updateMessageStatus(conversation.key, message.key,
+                            currentUser.key, Constant.MESSAGE_STATUS_READ)
+                            .subscribe();
+                //}
+            }
+        }
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {
