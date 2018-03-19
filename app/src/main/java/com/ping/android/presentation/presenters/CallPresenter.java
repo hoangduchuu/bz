@@ -1,24 +1,37 @@
 package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.bzzzchat.cleanarchitecture.BaseView;
-import com.ping.android.model.Call;
-import com.ping.android.model.User;
+import com.ping.android.activity.CallActivity;
+
+import java.util.List;
 
 /**
- * Created by tuanluong on 1/30/18.
+ * Created by tuanluong on 3/16/18.
  */
 
 public interface CallPresenter extends BasePresenter {
-    void getCalls();
+    void initSession(String id);
 
-    void handleCallPressed(Call call, boolean isVideo);
+    void reject();
 
-    interface View extends BaseView {
-        void addCall(Call call);
+    void accept();
 
-        void deleteCall(Call call);
+    void hangup();
 
-        void callUser(User user, boolean isVideo);
+    void toggleAudio(boolean isAudioEnabled);
+
+    void registerCallStateListener(CallActivity.CurrentCallStateCallback callback);
+
+    void removeCallStateCallback(CallActivity.CurrentCallStateCallback callback);
+
+    interface View {
+
+        void configCallSettings(List<Integer> users);
+
+        void initAudioSettings(boolean isVideo);
+
+        void finishCall();
+
+        void initCallViews(boolean isVideo, boolean isIncoming);
     }
 }

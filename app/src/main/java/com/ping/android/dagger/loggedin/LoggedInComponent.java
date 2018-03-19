@@ -2,6 +2,8 @@ package com.ping.android.dagger.loggedin;
 
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
+import com.ping.android.dagger.loggedin.call.CallComponent;
+import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
@@ -39,4 +41,6 @@ public interface LoggedInComponent {
     ChatComponent provideChatComponent(ChatModule chatModule);
 
     UserDetailComponent provideUserDetailComponent(UserDetailModule module);
+
+    CallComponent provideCallComponent(CallModule module);
 }

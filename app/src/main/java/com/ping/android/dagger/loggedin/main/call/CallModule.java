@@ -1,8 +1,8 @@
 package com.ping.android.dagger.loggedin.main.call;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.presentation.presenters.CallPresenter;
-import com.ping.android.presentation.presenters.impl.CallPresenterImpl;
+import com.ping.android.presentation.presenters.CallListPresenter;
+import com.ping.android.presentation.presenters.impl.CallListPresenterImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -12,21 +12,21 @@ import dagger.Provides;
  */
 @Module
 public class CallModule {
-    private final CallPresenter.View view;
+    private final CallListPresenter.View view;
 
-    public CallModule(CallPresenter.View view) {
+    public CallModule(CallListPresenter.View view) {
         this.view = view;
     }
 
     @Provides
     @PerFragment
-    CallPresenter.View provideView() {
+    CallListPresenter.View provideView() {
         return view;
     }
 
     @Provides
     @PerFragment
-    CallPresenter provideCallPresenter(CallPresenterImpl presenter) {
+    CallListPresenter provideCallPresenter(CallListPresenterImpl presenter) {
         return presenter;
     }
 }

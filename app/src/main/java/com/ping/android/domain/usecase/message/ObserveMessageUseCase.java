@@ -98,7 +98,7 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
     }
 
     /**
-     *
+     * Update message status to Read
      * @param message
      * @param conversation
      * @param status message status of current user. -1 if not exists on message's status

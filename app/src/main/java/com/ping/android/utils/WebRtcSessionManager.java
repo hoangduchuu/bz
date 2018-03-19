@@ -1,6 +1,5 @@
 package com.ping.android.utils;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.ping.android.activity.CallActivity;
@@ -14,16 +13,15 @@ public class WebRtcSessionManager extends QBRTCClientSessionCallbacksImpl {
     private static final String TAG = WebRtcSessionManager.class.getSimpleName();
 
     private static WebRtcSessionManager instance;
-    private static QBRTCSession currentSession;
-    private Context context;
+    private QBRTCSession currentSession;
 
-    private WebRtcSessionManager(Context context) {
-        this.context = context;
+    private WebRtcSessionManager() {
+
     }
 
-    public static WebRtcSessionManager getInstance(Context context) {
+    public static WebRtcSessionManager getInstance() {
         if (instance == null) {
-            instance = new WebRtcSessionManager(context);
+            instance = new WebRtcSessionManager();
         }
 
         return instance;
@@ -35,25 +33,5 @@ public class WebRtcSessionManager extends QBRTCClientSessionCallbacksImpl {
 
     public void setCurrentSession(QBRTCSession qbCurrentSession) {
         currentSession = qbCurrentSession;
-    }
-
-    @Override
-    public void onReceiveNewSession(QBRTCSession session) {
-        Log.d(TAG, "onReceiveNewSession to WebRtcSessionManager");
-
-        if (currentSession == null) {
-            setCurrentSession(session);
-            CallActivity.start(context, true);
-            // TODO handle OpponentsActivity.start(context, true);
-        }
-    }
-
-    @Override
-    public void onSessionClosed(QBRTCSession session) {
-        Log.d(TAG, "onSessionClosed WebRtcSessionManager");
-
-        if (session.equals(getCurrentSession())) {
-            setCurrentSession(null);
-        }
     }
 }

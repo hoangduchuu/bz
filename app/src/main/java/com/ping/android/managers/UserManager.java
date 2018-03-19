@@ -50,9 +50,7 @@ public class UserManager {
     }
 
     public void startCallService(Activity activity) {
-        Intent tempIntent = new Intent(activity.getApplicationContext(), CallService.class);
-        PendingIntent pendingIntent = activity.createPendingResult(Consts.EXTRA_LOGIN_RESULT_CODE, tempIntent, 0);
-        CallService.start(activity, qbUser, pendingIntent);
+        CallService.start(activity, qbUser);
     }
 
     public void setUser(User user) {

@@ -8,6 +8,8 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.ping.android.device.Device;
 import com.ping.android.device.impl.DeviceImpl;
+import com.ping.android.service.CallServiceHandler;
+import com.ping.android.service.CallServiceHandlerImpl;
 
 import javax.inject.Singleton;
 
@@ -48,5 +50,11 @@ public class ApplicationModule {
     @Singleton
     public Device provideDevice(DeviceImpl device) {
         return device;
+    }
+
+    @Provides
+    @Singleton
+    public CallServiceHandler provideCallServiceHandler(CallServiceHandlerImpl handler) {
+        return handler;
     }
 }
