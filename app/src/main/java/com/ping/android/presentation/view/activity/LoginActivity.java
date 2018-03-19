@@ -26,6 +26,7 @@ import com.ping.android.activity.ForgotPasswordActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
 import com.ping.android.service.CallService;
@@ -257,6 +258,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
 
     @Override
     public void navigateToMainScreen() {
+        UserManager.getInstance().startCallService(this);
         ServiceManager.getInstance().updateLoginStatus(true);
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();

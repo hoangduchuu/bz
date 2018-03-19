@@ -3,6 +3,7 @@ package com.ping.android.domain.usecase;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.device.Device;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 
@@ -19,6 +20,8 @@ import io.reactivex.Observable;
 public class LogoutUseCase extends UseCase<Boolean, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    Device device;
     UserManager userManager;
 
     @Inject
@@ -31,6 +34,7 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
         userManager.logout();
-        return userRepository.logout();
+        String deviceId = device.getDeviceId();
+        return userRepository.logout(deviceId);
     }
 }

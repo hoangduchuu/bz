@@ -28,6 +28,7 @@ import com.ping.android.activity.PhoneActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.registration.RegistrationComponent;
 import com.ping.android.dagger.loggedout.registration.RegistrationModule;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.service.ServiceManager;
@@ -313,6 +314,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     @Override
     public void navigateToMainScreen() {
+        UserManager.getInstance().startCallService(this);
         ServiceManager.getInstance().updateLoginStatus(true);
         startActivity(new Intent(RegistrationActivity.this, PhoneActivity.class));
         finish();
