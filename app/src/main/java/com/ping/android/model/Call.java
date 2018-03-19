@@ -1,10 +1,7 @@
 package com.ping.android.model;
 
-import android.service.autofill.Dataset;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
-import com.ping.android.ultility.CommonMethod;
 
 import junit.framework.Assert;
 
@@ -28,11 +25,11 @@ public class Call {
 
     public Call() {}
 
-    public Call(String senderId, String receiveId, int status, Map<String, Boolean> deleteStatuses, double timestamp) {
+    public Call(String senderId, String receiveId, int status, double timestamp) {
         this.senderId = senderId;
         this.receiveId = receiveId;
         this.status = status;
-        this.deleteStatuses = deleteStatuses;
+        this.deleteStatuses = getCallDeleteStatuses();
         this.timestamp = timestamp;
     }
 
@@ -41,6 +38,13 @@ public class Call {
         Assert.assertNotNull(call);
         call.key = dataSnapshot.getKey();
         return call;
+    }
+
+    private Map<String, Boolean> getCallDeleteStatuses() {
+        Map<String, Boolean> deleteStatuses = new HashMap<>();
+        deleteStatuses.put(senderId, false);
+        deleteStatuses.put(receiveId, false);
+        return deleteStatuses;
     }
 
     @Exclude

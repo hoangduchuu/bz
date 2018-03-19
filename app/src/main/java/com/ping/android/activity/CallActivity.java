@@ -72,6 +72,7 @@ import com.quickblox.videochat.webrtc.exception.QBRTCSignalException;
 import org.jivesoftware.smack.AbstractConnectionListener;
 import org.webrtc.CameraVideoCapturer;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,9 +83,9 @@ import javax.inject.Inject;
 /**
  * QuickBlox team
  */
-public class CallActivity extends CoreActivity implements CallPresenter.View, QBRTCClientSessionCallbacks, QBRTCSessionStateCallback, QBRTCSignalingCallback, View.OnClickListener,
-        OnCallEventsController, IncomeCallFragmentCallbackListener, ConversationFragmentCallbackListener, NetworkConnectionChecker.OnConnectivityChangedListener {
-
+public class CallActivity extends CoreActivity implements CallPresenter.View, View.OnClickListener,
+        OnCallEventsController, IncomeCallFragmentCallbackListener, ConversationFragmentCallbackListener,
+        NetworkConnectionChecker.OnConnectivityChangedListener {
     public static final String OPPONENTS_CALL_FRAGMENT = "opponents_call_fragment";
     public static final String INCOME_CALL_FRAGMENT = "income_call_fragment";
     public static final String CONVERSATION_CALL_FRAGMENT = "conversation_call_fragment";
@@ -94,8 +95,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     private static final String TAG = CallActivity.class.getSimpleName();
     private static final int REQUEST_MEDIA_PROJECTION = 1;
     private static final String EXTRA_SESSION_ID = "EXTRA_SESSION_ID";
+    private static final String EXTRA_OPPONENT_IDS = "EXTRA_OPPONENT_IDS";
+    private static final String EXTRA_IS_INCOMING_CALL = "EXTRA_IS_INCOMING_CALL";
+    private static final String EXTRA_IS_VIDEO_CALL = "EXTRA_IS_VIDEO_CALL";
+    private static final String EXTRA_OPPONENT_USER = "EXTRA_OPPONENT_USER";
 
-    public List<QBUser> opponentsList;
     private QBRTCSession currentSession;
     private Runnable showIncomingCallWindowTask;
     private Handler showIncomingCallWindowTaskHandler;
@@ -111,7 +115,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     //private LinearLayout connectionView;
     private AppRTCAudioManager audioManager;
     private NetworkConnectionChecker networkConnectionChecker;
-    private WebRtcSessionManager sessionManager;
     private QbUsersDbManager dbManager;
     private ArrayList<CurrentCallStateCallback> currentCallStateCallbackList = new ArrayList<>();
     //private List<Integer> opponentsIdsList;
@@ -123,17 +126,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     private boolean previousDeviceEarPiece;
     private boolean showToastAfterHeadsetPlugged = true;
     private PermissionsChecker checker;
-    private MediaProjectionManager mMediaProjectionManager;
-
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
-
-    private Call callHistory;
-    private User currentUser;
-    private User otherUser;
-    private UserRepository userRepository;
-
-    private boolean isSendHistory = false;
 
     @Inject
     CallPresenter presenter;
@@ -177,25 +169,27 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         }
 
         //TODO CollectionsUtils.getIdsSelectedOpponents(opponentsAdapter.getSelectedItems());
-        QBRTCTypes.QBConferenceType conferenceType = isVideoCall
-                ? QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO
-                : QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_AUDIO;
+//        QBRTCTypes.QBConferenceType conferenceType = isVideoCall
+//                ? QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO
+//                : QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_AUDIO;
 
-        QBRTCClient qbrtcClient = QBRTCClient.getInstance(context.getApplicationContext());
+//        QBRTCClient qbrtcClient = QBRTCClient.getInstance(context.getApplicationContext());
 
-        QBRTCSession newQbRtcSession = qbrtcClient.createNewSessionWithOpponents(opponentsList, conferenceType);
+//        QBRTCSession newQbRtcSession = qbrtcClient.createNewSessionWithOpponents(opponentsList, conferenceType);
+        //newQbRtcSession.startCall(null);
+//        WebRtcSessionManager.getInstance().setCurrentSession(newQbRtcSession);
 
-        WebRtcSessionManager.getInstance().setCurrentSession(newQbRtcSession);
-
-        CallActivity.start(context, false);
+        CallActivity.start(context, otherUser, isVideoCall, false);
     }
 
-    public static void start(Context context,
+    public static void start(Context context, User otherUser, boolean isVideoCall,
                              boolean isIncomingCall) {
 
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(Consts.EXTRA_IS_INCOMING_CALL, isIncomingCall);
+        intent.putExtra(EXTRA_IS_VIDEO_CALL, isVideoCall);
+        intent.putExtra(EXTRA_IS_INCOMING_CALL, isIncomingCall);
+        intent.putExtra(EXTRA_OPPONENT_USER, otherUser);
         context.startActivity(intent);
     }
 
@@ -204,7 +198,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
 
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.putExtra(Consts.EXTRA_IS_INCOMING_CALL, isIncomingCall);
+        intent.putExtra(EXTRA_IS_INCOMING_CALL, isIncomingCall);
         intent.putExtra(EXTRA_SESSION_ID, sessionId);
         context.startActivity(intent);
     }
@@ -220,7 +214,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         getComponent().inject(this);
 
         notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        parseIntentExtras();
         //sessionManager = WebRtcSessionManager.getInstance(this);
 //        if (!currentSessionExist()) {
 ////            we have already currentSession == null, so it's no reason to do further initialization
@@ -231,12 +224,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
 
         initFields();
         //initCurrentSession(currentSession);
-
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        String sessionId = getIntent().getStringExtra(EXTRA_SESSION_ID);
-        presenter.initSession(sessionId);
-        initQBRTCClient();
         //initAudioManager();
         initWiFiManagerListener();
         if (isInCommingCall) {
@@ -247,8 +236,17 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
         checker = new PermissionsChecker(getApplicationContext());
         //initData();
-
-        startSuitableFragment(isInCommingCall);
+        initQBRTCClient();
+        isInCommingCall = getIntent().getBooleanExtra(EXTRA_IS_INCOMING_CALL, false);
+        isVideoCall = getIntent().getBooleanExtra(EXTRA_IS_VIDEO_CALL, false);
+        if (isInCommingCall) {
+            String sessionId = getIntent().getStringExtra(EXTRA_SESSION_ID);
+            presenter.initSession(sessionId, isInCommingCall);
+        } else {
+            User opponentUser = getIntent().getParcelableExtra(EXTRA_OPPONENT_USER);
+            presenter.initCall(opponentUser, isVideoCall, isInCommingCall);
+        }
+        startSuitableFragment(isInCommingCall, isVideoCall);
         findViewById(R.id.call_back).setOnClickListener(this);
     }
 
@@ -257,54 +255,54 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         return presenter;
     }
 
-    private void initData() {
-        userRepository = new UserRepository();
+//    private void initData() {
+//        userRepository = new UserRepository();
+//
+//        database = FirebaseDatabase.getInstance();
+//        mDatabase = database.getReference();
+//
+//        currentUser = UserManager.getInstance().getUser();
+//        userRepository.getUserByQbId(isInCommingCall ? currentSession.getCallerID() : currentSession.getOpponents().get(0), new Callback() {
+//            @Override
+//            public void complete(Object error, Object... data) {
+//                if (error == null) {
+//                    otherUser = (User) data[0];
+//                    double timestamp = System.currentTimeMillis() / 1000d;
+//                    callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, timestamp);
+//                }
+//            }
+//        });
+//    }
 
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
+//    private void insertCallHistory(int status) {
+//        if (isSendHistory) return;
+//        if (callHistory == null) return;
+//        isSendHistory = true;
+//        callHistory.status = status;
+//        String historyKey = mDatabase.child("calls").push().getKey();
+//        //mDatabase.child("calls").child(historyKey).setValue(callHistory.toMap());
+//        mDatabase.child("calls").child(otherUser.key).child(historyKey).setValue(callHistory.toMap());
+//        mDatabase.child("calls").child(currentUser.key).child(historyKey).setValue(callHistory.toMap());
+//        if (status == Constant.CALL_STATUS_MISS) {
+//            NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.key, otherUser.quickBloxID, isVideoCall ? "video" : "voice");
+//        }
+//        callHistory.status = Constant.CALL_STATUS_SUCCESS;
+//    }
 
-        currentUser = UserManager.getInstance().getUser();
-        userRepository.getUserByQbId(isInCommingCall ? currentSession.getCallerID() : currentSession.getOpponents().get(0), new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                if (error == null) {
-                    otherUser = (User) data[0];
-                    double timestamp = System.currentTimeMillis() / 1000d;
-                    callHistory = new Call(currentUser.key, otherUser.key, Constant.CALL_STATUS_SUCCESS, getCallDeleteStatuses(), timestamp);
-                }
-            }
-        });
-    }
+//    private Map<String, Boolean> getCallDeleteStatuses() {
+//        Map<String, Boolean> deleteStatuses = new HashMap<>();
+//        deleteStatuses.put(currentUser.key, false);
+//        deleteStatuses.put(otherUser.key, false);
+//        return deleteStatuses;
+//    }
 
-    private void insertCallHistory(int status) {
-        if (isSendHistory) return;
-        if (callHistory == null) return;
-        isSendHistory = true;
-        callHistory.status = status;
-        String historyKey = mDatabase.child("calls").push().getKey();
-        mDatabase.child("calls").child(historyKey).setValue(callHistory.toMap());
-        mDatabase.child("calls").child(otherUser.key).child(historyKey).setValue(callHistory.toMap());
-        if (status == Constant.CALL_STATUS_MISS) {
-            NotificationHelper.getInstance().sendNotificationForMissedCall(otherUser.key, otherUser.quickBloxID, isVideoCall ? "video" : "voice");
-        }
-        callHistory.status = Constant.CALL_STATUS_SUCCESS;
-        mDatabase.child("calls").child(currentUser.key).child(historyKey).setValue(callHistory.toMap());
-    }
-
-    private Map<String, Boolean> getCallDeleteStatuses() {
-        Map<String, Boolean> deleteStatuses = new HashMap<>();
-        deleteStatuses.put(currentUser.key, false);
-        deleteStatuses.put(otherUser.key, false);
-        return deleteStatuses;
-    }
-
-    private void returnToCamera() {
-        try {
-            currentSession.getMediaStreamManager().setVideoCapturer(new QBRTCCameraVideoCapturer(this, null));
-        } catch (QBRTCCameraVideoCapturer.QBRTCCameraCapturerException e) {
-            Log.i(TAG, "Error: device doesn't have camera");
-        }
-    }
+//    private void returnToCamera() {
+//        try {
+//            currentSession.getMediaStreamManager().setVideoCapturer(new QBRTCCameraVideoCapturer(this, null));
+//        } catch (QBRTCCameraVideoCapturer.QBRTCCameraCapturerException e) {
+//            Log.i(TAG, "Error: device doesn't have camera");
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -318,16 +316,14 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         }
     }
 
-    private void startSuitableFragment(boolean isInComingCall) {
+    private void startSuitableFragment(boolean isInComingCall, boolean isVideoCall) {
         if (isInComingCall) {
             initIncomingCallTask();
-            //startLoadAbsentUsers();
             checkPermission();
             addIncomeCallFragment();
         } else {
             checkPermission();
-            // FIXME isvideo
-            addConversationFragment(false, isInComingCall);
+            addConversationFragment(isVideoCall, isInComingCall);
         }
     }
 
@@ -341,14 +337,13 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         PermissionsActivity.startActivity(this, checkOnlyAudio, Consts.PERMISSIONS);
     }
 
-    private void startLoadAbsentUsers() {
+    private void startLoadAbsentUsers(Integer callerId, List<Integer> opponentsIdsList) {
         ArrayList<QBUser> usersFromDb = dbManager.getAllUsers();
         ArrayList<Integer> allParticipantsOfCall = new ArrayList<>();
-        // FIXME
-        //allParticipantsOfCall.addAll(opponentsIdsList);
+        allParticipantsOfCall.addAll(opponentsIdsList);
 
         if (isInCommingCall) {
-            allParticipantsOfCall.add(currentSession.getCallerID());
+            allParticipantsOfCall.add(callerId);
         }
 
         ArrayList<Integer> idsUsersNeedLoad = UsersUtils.getIdsNotLoadedUsers(usersFromDb, allParticipantsOfCall);
@@ -367,18 +362,14 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         notifyCallStateListenersNeedUpdateOpponentsList(newUsers);
     }
 
-    private boolean currentSessionExist() {
-        currentSession = sessionManager.getCurrentSession();
-        return currentSession != null;
-    }
+//    private boolean currentSessionExist() {
+//        currentSession = sessionManager.getCurrentSession();
+//        return currentSession != null;
+//    }
 
     private void initFields() {
         dbManager = QbUsersDbManager.getInstance(getApplicationContext());
         //opponentsIdsList = currentSession.getOpponents();
-    }
-
-    private void parseIntentExtras() {
-        isInCommingCall = getIntent().getExtras().getBoolean(Consts.EXTRA_IS_INCOMING_CALL);
     }
 
     private void setAudioDeviceDelayed(final AppRTCAudioManager.AudioDevice audioDevice) {
@@ -430,7 +421,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
 
 
         // Add activity as callback to RTCClient
-        rtcClient.addSessionCallbacksListener(this);
+        //rtcClient.addSessionCallbacksListener(this);
         // Start mange QBRTCSessions according to VideoCall parser's callbacks
         rtcClient.prepareToProcessCalls();
         connectionListener = new ConnectionListener();
@@ -515,10 +506,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     }
 
     public void hangUpCurrentSession() {
-        ringtonePlayer.stop();
-        if (getCurrentSession() != null) {
-            getCurrentSession().hangUp(new HashMap<String, String>());
-        }
+        presenter.hangup();
+//        ringtonePlayer.stop();
+//        if (getCurrentSession() != null) {
+//            getCurrentSession().hangUp(new HashMap<String, String>());
+//        }
     }
 
     private void setAudioEnabled(boolean isAudioEnabled) {
@@ -571,125 +563,125 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         }
     }
 
-    private void forbiddenCloseByWifiState() {
-        closeByWifiStateAllow = false;
-    }
-
-
-    public void initCurrentSession(QBRTCSession session) {
-        if (session != null) {
-            Log.d(TAG, "Init new QBRTCSession");
-            this.currentSession = session;
-            this.currentSession.addSessionCallbacksListener(CallActivity.this);
-            this.currentSession.addSignalingCallback(CallActivity.this);
-        }
-    }
+//    private void forbiddenCloseByWifiState() {
+//        closeByWifiStateAllow = false;
+//    }
+//
+//
+//    public void initCurrentSession(QBRTCSession session) {
+//        if (session != null) {
+//            Log.d(TAG, "Init new QBRTCSession");
+//            this.currentSession = session;
+//            this.currentSession.addSessionCallbacksListener(CallActivity.this);
+//            this.currentSession.addSignalingCallback(CallActivity.this);
+//        }
+//    }
 
     public void releaseCurrentSession() {
         Log.d(TAG, "Release current session");
         if (currentSession != null) {
-            this.currentSession.removeSessionCallbacksListener(CallActivity.this);
-            this.currentSession.removeSignalingCallback(CallActivity.this);
-            rtcClient.removeSessionsCallbacksListener(CallActivity.this);
+//            this.currentSession.removeSessionCallbacksListener(CallActivity.this);
+//            this.currentSession.removeSignalingCallback(CallActivity.this);
+//            rtcClient.removeSessionsCallbacksListener(CallActivity.this);
             this.currentSession = null;
         }
     }
 
     // ---------------Chat callback methods implementation  ----------------------//
 
-    @Override
-    public void onReceiveNewSession(final QBRTCSession session) {
-        Log.d(TAG, "Session " + session.getSessionID() + " are income");
-        if (getCurrentSession() != null) {
-            Log.d(TAG, "Stop new session. Device now is busy");
-            session.rejectCall(null);
-        }
-    }
+    //@Override
+//    public void onReceiveNewSession(final QBRTCSession session) {
+//        Log.d(TAG, "Session " + session.getSessionID() + " are income");
+//        if (getCurrentSession() != null) {
+//            Log.d(TAG, "Stop new session. Device now is busy");
+//            session.rejectCall(null);
+//        }
+//    }
 
-    @Override
-    public void onUserNotAnswer(QBRTCSession session, Integer userID) {
-        if (!session.equals(getCurrentSession())) {
-            return;
-        }
-        insertCallHistory(Constant.CALL_STATUS_MISS);
-        ringtonePlayer.stop();
-    }
+//    @Override
+//    public void onUserNotAnswer(QBRTCSession session, Integer userID) {
+//        if (!session.equals(getCurrentSession())) {
+//            return;
+//        }
+//        insertCallHistory(Constant.CALL_STATUS_MISS);
+//        ringtonePlayer.stop();
+//    }
 
-    @Override
-    public void onUserNoActions(QBRTCSession qbrtcSession, Integer integer) {
-        startIncomeCallTimer(0);
-    }
+//    @Override
+//    public void onUserNoActions(QBRTCSession qbrtcSession, Integer integer) {
+//        startIncomeCallTimer(0);
+//    }
 
-    @Override
-    public void onCallAcceptByUser(QBRTCSession session, Integer userId, Map<String, String> userInfo) {
-        if (!session.equals(getCurrentSession())) {
-            return;
-        }
-        insertCallHistory(Constant.CALL_STATUS_SUCCESS);
-        ringtonePlayer.stop();
-        showOngoingCallNotification();
-    }
+//    @Override
+//    public void onCallAcceptByUser(QBRTCSession session, Integer userId, Map<String, String> userInfo) {
+//        if (!session.equals(getCurrentSession())) {
+//            return;
+//        }
+//        insertCallHistory(Constant.CALL_STATUS_SUCCESS);
+//        ringtonePlayer.stop();
+//        showOngoingCallNotification();
+//    }
 
-    @Override
-    public void onCallRejectByUser(QBRTCSession session, Integer userID, Map<String, String> userInfo) {
-        if (!session.equals(getCurrentSession())) {
-            return;
-        }
-        insertCallHistory(Constant.CALL_STATUS_MISS);
-        ringtonePlayer.stop();
-    }
+//    @Override
+//    public void onCallRejectByUser(QBRTCSession session, Integer userID, Map<String, String> userInfo) {
+//        if (!session.equals(getCurrentSession())) {
+//            return;
+//        }
+//        insertCallHistory(Constant.CALL_STATUS_MISS);
+//        ringtonePlayer.stop();
+//    }
 
-    @Override
-    public void onConnectionClosedForUser(QBRTCSession session, Integer userID) {
-        // Close app after session close of network was disabled
-        if (hangUpReason != null && hangUpReason.equals(Consts.WIFI_DISABLED)) {
-            Intent returnIntent = new Intent();
-            setResult(Consts.CALL_ACTIVITY_CLOSE_WIFI_DISABLED, returnIntent);
-            finish();
-        }
-    }
+//    @Override
+//    public void onConnectionClosedForUser(QBRTCSession session, Integer userID) {
+//        // Close app after session close of network was disabled
+//        if (hangUpReason != null && hangUpReason.equals(Consts.WIFI_DISABLED)) {
+//            Intent returnIntent = new Intent();
+//            setResult(Consts.CALL_ACTIVITY_CLOSE_WIFI_DISABLED, returnIntent);
+//            finish();
+//        }
+//    }
 
-    @Override
-    public void onConnectedToUser(QBRTCSession session, final Integer userID) {
-        callStarted = true;
-        //notifyCallStateListenersCallStarted();
-//        forbiddenCloseByWifiState();
-        if (isInCommingCall) {
-            stopIncomeCallTimer();
-        }
-        Log.d(TAG, "onConnectedToUser() is started");
-    }
+//    @Override
+//    public void onConnectedToUser(QBRTCSession session, final Integer userID) {
+//        callStarted = true;
+//        //notifyCallStateListenersCallStarted();
+////        forbiddenCloseByWifiState();
+//        if (isInCommingCall) {
+//            stopIncomeCallTimer();
+//        }
+//        Log.d(TAG, "onConnectedToUser() is started");
+//    }
 
-    @Override
-    public void onSessionClosed(final QBRTCSession session) {
+//    @Override
+//    public void onSessionClosed(final QBRTCSession session) {
+//
+//        Log.d(TAG, "Session " + session.getSessionID() + " start stop session");
+//        hideOngoingCallNotification();
+//        if (session.equals(getCurrentSession())) {
+//            Log.d(TAG, "Stop session");
+//
+//            if (audioManager != null) {
+//                audioManager.close();
+//            }
+//            releaseCurrentSession();
+//
+//            closeByWifiStateAllow = true;
+//            finish();
+//        }
+//    }
 
-        Log.d(TAG, "Session " + session.getSessionID() + " start stop session");
-        hideOngoingCallNotification();
-        if (session.equals(getCurrentSession())) {
-            Log.d(TAG, "Stop session");
+//    @Override
+//    public void onSessionStartClose(final QBRTCSession session) {
+//        if (session.equals(getCurrentSession())) {
+//            //session.removeSessionCallbacksListener(CallActivity.this);
+//            notifyCallStateListenersCallStopped();
+//        }
+//    }
 
-            if (audioManager != null) {
-                audioManager.close();
-            }
-            releaseCurrentSession();
-
-            closeByWifiStateAllow = true;
-            finish();
-        }
-    }
-
-    @Override
-    public void onSessionStartClose(final QBRTCSession session) {
-        if (session.equals(getCurrentSession())) {
-            session.removeSessionCallbacksListener(CallActivity.this);
-            notifyCallStateListenersCallStopped();
-        }
-    }
-
-    @Override
-    public void onDisconnectedFromUser(QBRTCSession session, Integer userID) {
-
-    }
+//    @Override
+//    public void onDisconnectedFromUser(QBRTCSession session, Integer userID) {
+//
+//    }
 
     private void showToast(final int message) {
         runOnUiThread(new Runnable() {
@@ -709,23 +701,23 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         });
     }
 
-    @Override
-    public void onReceiveHangUpFromUser(final QBRTCSession session, final Integer userID, Map<String, String> map) {
-        if (session.equals(getCurrentSession())) {
+//    @Override
+//    public void onReceiveHangUpFromUser(final QBRTCSession session, final Integer userID, Map<String, String> map) {
+//        if (session.equals(getCurrentSession())) {
+//
+//            if (userID.equals(session.getCallerID())) {
+//                hangUpCurrentSession();
+//                Log.d(TAG, "initiator hung up the call");
+//            }
+//
+//            QBUser participant = dbManager.getUserById(userID);
+//            final String participantName = participant != null ? participant.getFullName() : String.valueOf(userID);
+//        }
+//    }
 
-            if (userID.equals(session.getCallerID())) {
-                hangUpCurrentSession();
-                Log.d(TAG, "initiator hung up the call");
-            }
-
-            QBUser participant = dbManager.getUserById(userID);
-            final String participantName = participant != null ? participant.getFullName() : String.valueOf(userID);
-        }
-    }
-
-    private android.support.v4.app.Fragment getCurrentFragment() {
-        return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-    }
+//    private android.support.v4.app.Fragment getCurrentFragment() {
+//        return getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+//    }
 
     private void addIncomeCallFragment() {
         Log.d(TAG, "QBRTCSession in addIncomeCallFragment is " + currentSession);
@@ -747,18 +739,18 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         FragmentExecuotr.addFragment(getSupportFragmentManager(), R.id.fragment_container, conversationFragment, conversationFragment.getClass().getSimpleName());
     }
 
-    public SharedPreferences getDefaultSharedPrefs() {
-        return sharedPref;
-    }
+//    public SharedPreferences getDefaultSharedPrefs() {
+//        return sharedPref;
+//    }
 
-    @Override
-    public void onSuccessSendingPacket(QBSignalingSpec.QBSignalCMD qbSignalCMD, Integer integer) {
-    }
+//    @Override
+//    public void onSuccessSendingPacket(QBSignalingSpec.QBSignalCMD qbSignalCMD, Integer integer) {
+//    }
 
-    @Override
-    public void onErrorSendingPacket(QBSignalingSpec.QBSignalCMD qbSignalCMD, Integer userId, QBRTCSignalException e) {
-        showToast(R.string.dlg_signal_error);
-    }
+//    @Override
+//    public void onErrorSendingPacket(QBSignalingSpec.QBSignalCMD qbSignalCMD, Integer userId, QBRTCSignalException e) {
+//        showToast(R.string.dlg_signal_error);
+//    }
 
 
     public void onUseHeadSet(boolean use) {
@@ -837,8 +829,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
 
     @Override
     public void onSwitchCamera(CameraVideoCapturer.CameraSwitchHandler cameraSwitchHandler) {
-        ((QBRTCCameraVideoCapturer) (currentSession.getMediaStreamManager().getVideoCapturer()))
-                .switchCamera(cameraSwitchHandler);
+        presenter.switchCamera(cameraSwitchHandler);
     }
 
     @Override
@@ -891,17 +882,17 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
         this.onChangeDynamicCallback = null;
     }
 
-    private void notifyCallStateListenersCallStarted() {
-        for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
-            callback.onCallStarted();
-        }
-    }
-
-    private void notifyCallStateListenersCallStopped() {
-        for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
-            callback.onCallStopped();
-        }
-    }
+//    private void notifyCallStateListenersCallStarted() {
+//        for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
+//            callback.onCallStarted();
+//        }
+//    }
+//
+//    private void notifyCallStateListenersCallStopped() {
+//        for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
+//            callback.onCallStopped();
+//        }
+//    }
 
     private void notifyCallStateListenersNeedUpdateOpponentsList(final ArrayList<QBUser> newUsers) {
         for (CurrentCallStateCallback callback : currentCallStateCallbackList) {
@@ -990,7 +981,9 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     @Override
     public void finishCall() {
         hideOngoingCallNotification();
-        ringtonePlayer.stop();
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
+        }
         if (audioManager != null) {
             audioManager.close();
         }
@@ -1004,6 +997,33 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, QB
     public void initCallViews(boolean isVideo, boolean isIncoming) {
         addConversationFragment(isVideo, isIncoming);
         showOngoingCallNotification();
+    }
+
+    @Override
+    public void stopRingtone() {
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
+        }
+    }
+
+    @Override
+    public void showErrorSendingPacket() {
+        showToast(R.string.dlg_signal_error);
+    }
+
+    @Override
+    public void updateOpponentInfo(User user) {
+
+    }
+
+    @Override
+    public void initUserData(Integer callerId, List<Integer> opponents) {
+        startLoadAbsentUsers(callerId, opponents);
+    }
+
+    @Override
+    public void sendMissedCallNotification(String userId, int quickBloxID) {
+        NotificationHelper.getInstance().sendNotificationForMissedCall(userId, quickBloxID, isVideoCall ? "video" : "voice");
     }
 
     public interface OnChangeDynamicToggle {

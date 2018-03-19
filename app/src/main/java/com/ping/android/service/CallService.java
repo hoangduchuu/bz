@@ -61,8 +61,14 @@ public class CallService extends Service {
         context.startService(intent);
     }
 
-    public static void start(Context context, QBUser qbUser) {
-        start(context, qbUser, null);
+    public static void start(Context context, Integer qbId, String pingId) {
+        Intent intent = new Intent(context, CallService.class);
+        Log.d(TAG, "going to start call service");
+        intent.putExtra(EXTRA_QB_ID, qbId);
+        intent.putExtra(EXTRA_PING_ID, pingId);
+        intent.setAction(ACTION_LOG_IN);
+        //intent.putExtra(Consts.EXTRA_PENDING_INTENT, pendingIntent);
+        context.startService(intent);
     }
 
     public static void logout(Context context) {
@@ -75,6 +81,7 @@ public class CallService extends Service {
     public void onCreate() {
         super.onCreate();
         ((App) getApplication()).getComponent().inject(this);
+        handler.create();
         initChatService();
 
         Log.d(TAG, "Service onCreate()");
@@ -99,7 +106,7 @@ public class CallService extends Service {
     }
 
     private void logUserOut(Intent intent) {
-
+        handler.logout();
     }
 
     private void logUserIn(Intent intent) {

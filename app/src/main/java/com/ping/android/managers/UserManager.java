@@ -11,9 +11,11 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.SharedPrefsHelper;
 import com.quickblox.users.model.QBUser;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -50,12 +52,16 @@ public class UserManager {
     }
 
     public void startCallService(Activity activity) {
-        CallService.start(activity, qbUser);
+        Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
+        String pingId = SharedPrefsHelper.getInstance().get("pingId");
+        CallService.start(activity, qbId, pingId);
     }
 
     public void setUser(User user) {
         this.user = user;
         this.notifyUserUpdated();
+        SharedPrefsHelper.getInstance().save("quickbloxId", user.quickBloxID);
+        SharedPrefsHelper.getInstance().save("pingId", user.pingID);
         // TODO Temporary set user for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
     }
@@ -71,6 +77,8 @@ public class UserManager {
     }
 
     public void logout() {
+        SharedPrefsHelper.getInstance().save("quickbloxId", 0);
+        SharedPrefsHelper.getInstance().save("pingId", "");
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
         user = null;

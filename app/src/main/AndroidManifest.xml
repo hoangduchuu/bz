@@ -36,7 +36,11 @@
         android:theme="@style/AppTheme">
 
         <!-- </service> -->
-        <service android:name="com.ping.android.service.CallService" />
+        <service
+            android:enabled="true"
+            android:name="com.ping.android.service.CallService"
+            android:exported="false"
+            android:stopWithTask="false" />
 
         <!-- <service -->
         <!-- android:name="com.quickblox.messages.services.fcm.QBFcmPushListenerService"> -->

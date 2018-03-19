@@ -252,8 +252,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             itemView.setOnClickListener(this);
         }
 
-        public void setInfoColor() {
-            if (call.status == Constant.CALL_STATUS_SUCCESS) {
+        public void setInfoColor(int status) {
+            if (status == Constant.CALL_STATUS_SUCCESS) {
                 tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color));
             } else {
                 tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.red));
@@ -329,14 +329,20 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                 } else {
                     info = "Incoming. ";
                 }
+                setInfoColor(Constant.CALL_STATUS_SUCCESS);
             } else {
-                info = "Missed. ";
+                if (call.senderId.equals(currentUser.key)) {
+                    info = "Outgoing. ";
+                    setInfoColor(Constant.CALL_STATUS_SUCCESS);
+                } else {
+                    info = "Missed. ";
+                    setInfoColor(Constant.CALL_STATUS_MISS);
+                }
             }
 
             String time = CommonMethod.convertTimestampToTime(call.timestamp);
             tvInfo.setText(info + time);
             tvName.setText(call.opponentName);
-            setInfoColor();
             setEditMode(isEditMode);
             setSelect(selectCalls.contains(call));
             UiUtils.displayProfileImage(itemView.getContext(), ivProfileImage, call.opponentUser);

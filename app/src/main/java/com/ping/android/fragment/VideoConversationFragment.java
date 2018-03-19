@@ -206,9 +206,9 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         if (currentSession.getState() != QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_ACTIVE) {
             return;
         }
-        onCallStarted();
         Map<Integer, QBRTCVideoTrack> videoTrackMap = getVideoTrackMap();
         if (!videoTrackMap.isEmpty()) {
+            onCallStarted();
             for (final Iterator<Map.Entry<Integer, QBRTCVideoTrack>> entryIterator
                  = videoTrackMap.entrySet().iterator(); entryIterator.hasNext(); ) {
                 final Map.Entry<Integer, QBRTCVideoTrack> entry = entryIterator.next();

@@ -12,12 +12,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.Call;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import io.reactivex.Observable;
 
 /**
  * Created by tuanluong on 11/29/17.
@@ -64,5 +67,4 @@ public abstract class BaseFirebaseDatabase {
                     }
                 });
     }
-
 }
