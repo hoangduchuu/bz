@@ -146,11 +146,14 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<Boolean> logout() {
+    public Observable<Boolean> logout(String deviceId) {
         this.auth.signOut();
-
-        setUser(null);
-        return Observable.just(true);
+        user.devices.remove(deviceId);
+        DatabaseReference reference = database.getReference("users").child(user.key).child("devices").child(deviceId);
+        return RxFirebaseDatabase.setValue(reference, null)
+                .map(databaseReference -> true)
+                .toObservable()
+                .doOnNext(aBoolean -> setUser(null));
     }
 
     @Override
@@ -198,7 +201,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private void setUser(User user){
-        user.friends = this.friends;
+        if (user != null) {
+            user.friends = this.friends;
+        }
         this.user = user;
     }
 }
