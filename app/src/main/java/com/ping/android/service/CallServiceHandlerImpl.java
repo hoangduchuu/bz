@@ -163,6 +163,9 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
         Log.d("onReceiveHangUpFromUser");
+        if (callbacks != null) {
+            callbacks.onReceiveHangUpFromUser(qbrtcSession, integer, map);
+        }
     }
 
     @Override

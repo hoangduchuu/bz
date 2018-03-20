@@ -26,7 +26,6 @@ import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
@@ -42,7 +41,6 @@ import com.ping.android.utils.UsersUtils;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -83,10 +81,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         init();
         bindViews(view);
-//        if (loadData & !loadGUI) {
-            bindData();
-//        }
-//        loadGUI = true;
         return view;
     }
 
@@ -131,10 +125,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private void init() {
         bzzzStorage = new BzzzStorage();
         userRepository = new UserRepository();
-        currentUser = UserManager.getInstance().getUser();
-        profileFileFolder = getActivity().getExternalFilesDir(null).getAbsolutePath() + File.separator +
-                "profile" + File.separator + currentUser.key;
-        CommonMethod.createFolder(profileFileFolder);
     }
 
     @Override
@@ -334,7 +324,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             Toaster.shortToast("Please check network connection.");
             return;
         }
-
+        profileFileFolder = getActivity().getExternalFilesDir(null).getAbsolutePath() + File.separator +
+                "profile" + File.separator + currentUser.key;
+        CommonMethod.createFolder(profileFileFolder);
         double timestamp = System.currentTimeMillis() / 1000d;
         profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
@@ -372,5 +364,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             component = getComponent(MainComponent.class).provideProfileComponent(new ProfileModule(this));
         }
         return component;
+    }
+
+    @Override
+    public void updateUser(User user) {
+        this.currentUser = user;
+        bindData();
     }
 }

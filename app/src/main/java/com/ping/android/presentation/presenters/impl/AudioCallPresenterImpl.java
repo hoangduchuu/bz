@@ -1,9 +1,13 @@
 package com.ping.android.presentation.presenters.impl;
 
+import com.ping.android.activity.CallActivity;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AudioCallPresenter;
 import com.ping.android.presentation.presenters.CallPresenter;
+import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCSession;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -11,7 +15,7 @@ import javax.inject.Inject;
  * Created by tuanluong on 3/20/18.
  */
 
-public class AudioCallPresenterImpl implements AudioCallPresenter {
+public class AudioCallPresenterImpl implements AudioCallPresenter, CallActivity.CurrentCallStateCallback {
     @Inject
     AudioCallPresenter.View view;
     @Inject
@@ -31,6 +35,12 @@ public class AudioCallPresenterImpl implements AudioCallPresenter {
         if (opponentUser != null) {
             view.updateOpponentInfo(opponentUser);
         }
+        presenter.registerCallStateListener(this);
+    }
+
+    @Override
+    public void destroy() {
+        presenter.removeCallStateCallback(this);
     }
 
     @Override
@@ -41,5 +51,20 @@ public class AudioCallPresenterImpl implements AudioCallPresenter {
     @Override
     public void toggleAudio(boolean isEnable) {
         presenter.toggleAudio(isEnable);
+    }
+
+    @Override
+    public void onCallStarted() {
+        view.onCallStarted();
+    }
+
+    @Override
+    public void onCallStopped() {
+        view.onCallStopped();
+    }
+
+    @Override
+    public void onOpponentsListUpdated(ArrayList<QBUser> newUsers) {
+        view.onOpponentsListUpdated(newUsers);
     }
 }

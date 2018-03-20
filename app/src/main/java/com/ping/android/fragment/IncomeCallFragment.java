@@ -209,6 +209,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     public void showOpponentInfo(String displayName, String avatar) {
         callerNameTextView.setText(displayName);
         UiUtils.displayProfileAvatar(callerAvatarImageView, avatar);
-        callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(displayName.length()));
+        if (!TextUtils.isEmpty(displayName)) {
+            callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(displayName.length()));
+        }
     }
 }

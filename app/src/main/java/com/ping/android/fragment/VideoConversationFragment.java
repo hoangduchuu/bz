@@ -646,18 +646,18 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         surfaceViewRenderer.requestLayout();
     }
 
-    private void setStatusForOpponent(int userId, final String status) {
-        if (isPeerToPeerCall) {
-            return;
-        }
-
-        final OpponentsFromCallAdapter.ViewHolder holder = findHolder(userId);
-        if (holder == null) {
-            return;
-        }
-
-        holder.setStatus(status);
-    }
+//    private void setStatusForOpponent(int userId, final String status) {
+//        if (isPeerToPeerCall) {
+//            return;
+//        }
+//
+//        final OpponentsFromCallAdapter.ViewHolder holder = findHolder(userId);
+//        if (holder == null) {
+//            return;
+//        }
+//
+//        holder.setStatus(status);
+//    }
 
     private void updateNameForOpponent(int userId, String newUserName) {
         if (isPeerToPeerCall) {
@@ -833,13 +833,13 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     @Override
     public void updateOpponentInfo(User opponentUser) {
         UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
-        allOpponentsTextView.setText(opponentUser.getDisplayName());
+        allOpponentsTextView.setText(opponentUser.nickName);
     }
 
     @Override
     public void playRingtone() {
         ringtonePlayer = new RingtonePlayer(getContext(), R.raw.beep);
-        ringtonePlayer.play(true);
+        //ringtonePlayer.play(true);
     }
 
     private enum CameraState {

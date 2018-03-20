@@ -1,11 +1,12 @@
 package com.ping.android.presentation.presenters.impl;
 
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.activity.CallActivity;
-import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.AddCallHistoryUseCase;
+import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.GetUserByKeyUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.call.InitCallInfoUseCase;
@@ -24,6 +25,8 @@ import com.quickblox.videochat.webrtc.callbacks.QBRTCSessionStateCallback;
 import com.quickblox.videochat.webrtc.callbacks.QBRTCSignalingCallback;
 import com.quickblox.videochat.webrtc.exception.QBRTCSignalException;
 
+import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;
@@ -51,11 +54,15 @@ public class CallPresenterImpl implements CallPresenter,
     @Inject
     AddCallHistoryUseCase addCallHistoryUseCase;
     @Inject
+    GetCurrentUserUseCase getCurrentUserUseCase;
+    @Inject
     InitCallInfoUseCase initCallInfoUseCase;
 
     private User currentUser;
     private User opponentUser;
     private QBRTCSession currentSession;
+    private String currentUserNickname;
+    private String opponentNickname;
     private boolean isIncomingCall;
     private double callTimestamp;
     private boolean callAccepted = false;
@@ -68,17 +75,34 @@ public class CallPresenterImpl implements CallPresenter,
     public void init(Intent intent, boolean isInComingCall, boolean isVideoCall) {
         this.isIncomingCall = isInComingCall;
         if (isInComingCall) {
-            String sessionId = intent.getStringExtra(CallActivity.EXTRA_SESSION_ID);
-            initSession(sessionId, isInComingCall);
-            view.startInComingCall(isVideoCall);
-        } else {
-            opponentUser = intent.getParcelableExtra(CallActivity.EXTRA_OPPONENT_USER);
-            initCallInfoUseCase.execute(new DefaultObserver<User>() {
+            getCurrentUserUseCase.execute(new DefaultObserver<User>() {
                 @Override
                 public void onNext(User user) {
-                    currentUser = user;
+                    String sessionId = intent.getStringExtra(CallActivity.EXTRA_SESSION_ID);
+                    initSession(sessionId, isInComingCall);
+                    view.startInComingCall(isVideoCall);
+                }
+
+                @Override
+                public void onError(@NotNull Throwable exception) {
+                    view.finishCall();
+                }
+            }, null);
+        } else {
+            opponentUser = intent.getParcelableExtra(CallActivity.EXTRA_OPPONENT_USER);
+            initCallInfoUseCase.execute(new DefaultObserver<InitCallInfoUseCase.Output>() {
+                @Override
+                public void onNext(InitCallInfoUseCase.Output output) {
+                    currentUser = output.currentUser;
+                    currentUserNickname = output.currentUserNickname;
+                    opponentNickname = output.opponentNickname;
                     initCall(opponentUser, isVideoCall, isInComingCall);
                     view.startOutgoingCall(opponentUser, isVideoCall);
+                }
+
+                @Override
+                public void onError(@NotNull Throwable exception) {
+                    view.finishCall();
                 }
             }, opponentUser.key);
         }
@@ -94,14 +118,16 @@ public class CallPresenterImpl implements CallPresenter,
                 if (currentUser.settings != null && currentUser.settings.private_profile) {
                     avatar = "";
                 }
+                String name = TextUtils.isEmpty(currentUserNickname) ? currentUser.getDisplayName() : currentUserNickname;
                 Map<String, String> userInfo = new HashMap<>();
                 userInfo.put("ping_id", currentUser.pingID);
                 userInfo.put("user_id", currentUser.key);
-                userInfo.put("display_name", currentUser.getDisplayName());
+                userInfo.put("display_name", name);
                 userInfo.put("avatar_url", avatar);
                 session.startCall(userInfo);
             } else {
                 String opponentId = session.getUserInfo().get("user_id");
+                opponentNickname = session.getUserInfo().get("display_name");
                 getOpponentInfo(opponentId);
             }
             currentSession = session;
@@ -185,6 +211,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public User getOpponentUser() {
+        opponentUser.nickName = TextUtils.isEmpty(opponentNickname) ? opponentUser.getDisplayName() : opponentNickname;
         return opponentUser;
     }
 
@@ -294,8 +321,11 @@ public class CallPresenterImpl implements CallPresenter,
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
         if (qbrtcSession.equals(this.currentSession)) {
-            this.currentSession.hangUp(new HashMap<>());
-            view.finishCall();
+//            this.currentSession.hangUp(new HashMap<>());
+//            view.finishCall();
+            if (!isIncomingCall) {
+                addCallHistory(Constant.CALL_STATUS_SUCCESS);
+            }
         }
     }
 

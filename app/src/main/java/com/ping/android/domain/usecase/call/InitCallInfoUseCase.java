@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.call;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -19,7 +21,7 @@ import io.reactivex.Observable;
  *
  * Created by tuanluong on 3/20/18.
  */
-public class InitCallInfoUseCase extends UseCase<User, String> {
+public class InitCallInfoUseCase extends UseCase<InitCallInfoUseCase.Output, String> {
     @Inject
     UserRepository userRepository;
     @Inject
@@ -32,15 +34,24 @@ public class InitCallInfoUseCase extends UseCase<User, String> {
 
     @NotNull
     @Override
-    public Observable<User> buildUseCaseObservable(String s) {
+    public Observable<Output> buildUseCaseObservable(String s) {
         return userRepository.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(s) > 0 ? user.key + s : s + user.key;
                     return conversationRepository.getConversationNickName(user.key, conversationID, s)
-                            .map(s1 -> {
-                                user.nickName = s1;
-                                return user;
+                            .zipWith(conversationRepository.getConversationNickName(s, conversationID, user.key), (s1, s2) -> {
+                                Output output = new Output();
+                                output.opponentNickname = s1;
+                                output.currentUserNickname = s2;
+                                output.currentUser = user;
+                                return output;
                             });
                 });
+    }
+
+    public static class Output {
+        public String opponentNickname;
+        public User currentUser;
+        public String currentUserNickname;
     }
 }

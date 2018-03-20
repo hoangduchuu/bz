@@ -133,7 +133,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
 
     public void updateUserNickname(String conversationId, Nickname nickname, Map<String, Boolean> userIds, Callback callback) {
         Map<String, Object> updateValue = new HashMap<>();
-        //updateValue.put(String.format("conversations/%s/nickNames/%s", conversation, nickname.userId), nickname.nickName);
+        //updateValue.put(String.format("conversations/%s/nickNames/%s", conversation, nickname.userId), nickname.opponentNickname);
         for (String userId : userIds.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/nickNames/%s", userId, conversationId, nickname.userId), nickname.nickName);
         }

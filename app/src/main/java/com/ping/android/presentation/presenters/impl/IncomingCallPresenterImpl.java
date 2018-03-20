@@ -1,5 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
+import android.text.TextUtils;
+
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.presenters.IncomingCallPresenter;
 import com.quickblox.videochat.webrtc.QBRTCSession;
