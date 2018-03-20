@@ -39,7 +39,6 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
     protected WebRtcSessionManager sessionManager;
     protected QBRTCSession currentSession;
     protected ArrayList<QBUser> opponents;
-    protected ConversationFragmentCallbackListener conversationFragmentCallbackListener;
     protected Chronometer timerChronometer;
     protected boolean isStarted;
     protected TextView allOpponentsTextView;
@@ -61,23 +60,9 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         return baseConversationFragment;
     }
 
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            conversationFragmentCallbackListener = (ConversationFragmentCallbackListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement ConversationFragmentCallbackListener");
-        }
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        conversationFragmentCallbackListener.addCurrentCallStateCallback(this);
     }
 
     @Nullable
@@ -128,7 +113,6 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         if (currentSession == null) {
             Log.d(TAG, "currentSession = null onStart");
             return;
-
         }
 
         User currentUser = UserManager.getInstance().getUser();
@@ -141,9 +125,9 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
             if (isIncomingCall) {
                 currentSession.acceptCall(userInfo);
             } else {
-                currentSession.startCall(userInfo);
-                String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
-                NotificationHelper.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
+                //currentSession.startCall(userInfo);
+                //String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
+                //NotificationHelper.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
             }
             isMessageProcessed = true;
         }
@@ -151,9 +135,10 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 
     @Override
     public void onDestroy() {
-        conversationFragmentCallbackListener.removeCurrentCallStateCallback(this);
         super.onDestroy();
     }
+
+    protected abstract void hangup();
 
     protected void initViews(View view) {
         btnToggleMic = view.findViewById(R.id.toggle_mic);
@@ -172,7 +157,7 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         btnToggleMic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                conversationFragmentCallbackListener.onSetAudioEnabled(isChecked);
+                toggleAudio(isChecked);
             }
         });
 
@@ -182,12 +167,12 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
                 actionButtonsEnabled(false);
                 btnHangup.setEnabled(false);
                 btnHangup.setActivated(false);
-
-                conversationFragmentCallbackListener.onHangUpCurrentSession();
-                Log.d(TAG, "Call is stopped");
+                hangup();
             }
         });
     }
+
+    protected abstract void toggleAudio(boolean isEnable);
 
     protected void actionButtonsEnabled(boolean inability) {
         btnToggleMic.setEnabled(inability);
@@ -211,7 +196,7 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         }
     }
 
-    private void hideOutgoingScreen() {
+    protected void hideOutgoingScreen() {
         ringingTextView.setVisibility(View.GONE);
         //outgoingOpponentsRelativeLayout.setVisibility(View.GONE);
     }

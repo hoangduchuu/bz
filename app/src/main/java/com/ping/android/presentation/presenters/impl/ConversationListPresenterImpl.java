@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
+import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.GetLastConversationsUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
@@ -26,6 +27,8 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     ObserveConversationsUseCase observeConversationsUseCase;
     @Inject
     GetLastConversationsUseCase getLastConversationsUseCase;
+    @Inject
+    DeleteConversationsUseCase deleteConversationsUseCase;
     @Inject
     ConversationListPresenter.View view;
 
@@ -73,7 +76,18 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
 
     @Override
     public void deleteConversations(List<Conversation> conversations) {
+        view.showLoading();
+        deleteConversationsUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.hideLoading();
+            }
 
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.hideLoading();
+            }
+        }, conversations);
     }
 
     @Override

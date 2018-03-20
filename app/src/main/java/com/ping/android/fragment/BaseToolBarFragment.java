@@ -17,7 +17,7 @@ import com.ping.android.activity.R;
 
 import java.lang.ref.WeakReference;
 
-public abstract class BaseToolBarFragment extends Fragment {
+public abstract class BaseToolBarFragment extends BaseFragment {
 
     private static final String TAG = BaseToolBarFragment.class.getSimpleName();
     protected Handler mainHandler;

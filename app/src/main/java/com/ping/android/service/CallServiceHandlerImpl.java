@@ -66,6 +66,11 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
     }
 
     @Override
+    public void logout() {
+
+    }
+
+    @Override
     public Observable<String> startNewSession(ArrayList<Integer> opponents, boolean isVideo) {
         QBRTCTypes.QBConferenceType conferenceType = isVideo
                 ? QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO

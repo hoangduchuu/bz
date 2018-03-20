@@ -70,22 +70,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
-        init();
-        loadData = true;
-        if (loadGUI) {
-            bindData();
-        }
+//
+//        loadData = true;
+//        if (loadGUI) {
+//            bindData();
+//        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        init();
         bindViews(view);
-        if (loadData & !loadGUI) {
+//        if (loadData & !loadGUI) {
             bindData();
-        }
-        loadGUI = true;
+//        }
+//        loadGUI = true;
         return view;
     }
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/incoming_actions"
+        style="@style/WrapContent"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/image_button_accept_call"
+            style="@style/CallActionImageButton"
+            android:background="@drawable/ic_call" />
+
+        <ImageButton
+            android:id="@+id/image_button_reject_call"
+            style="@style/CallActionImageButton"
+            android:layout_marginLeft="100dp"
+            android:layout_toEndOf="@id/image_button_accept_call"
+            android:background="@drawable/ic_call_hang_up" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/incall_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ToggleButton
+            android:id="@+id/toggle_mic"
+            android:layout_width="@dimen/toggle_button_params"
+            android:layout_height="@dimen/toggle_button_params"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/selector_toggle_mic"
+            android:checked="true"
+            android:gravity="center_vertical|center_horizontal"
+            android:textOff=""
+            android:textOn="" />
+
+        <ImageButton
+            android:id="@+id/button_hangup_call"
+            style="@style/CallActionImageButton"
+            android:layout_margin="20dp"
+            android:background="@drawable/ic_call_hang_up" />
+
+        <ToggleButton
+            android:id="@+id/toggle_speaker"
+            android:layout_width="@dimen/toggle_button_params"
+            android:layout_height="@dimen/toggle_button_params"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/selector_toggle_speaker"
+            android:checked="true"
+            android:textOff=""
+            android:textOn="" />
+    </LinearLayout>
+</RelativeLayout>

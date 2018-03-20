@@ -6,18 +6,17 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.SelectContactActivity;
-import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
@@ -26,26 +25,20 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
+import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.BzzzStorage;
-import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.service.firebase.GroupRepository;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.view.ChipsEditText;
-import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -62,20 +55,11 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     private User fromUser;
 
-    private TextWatcher textWatcher;
-
-    private BzzzStorage bzzzStorage;
-    private GroupRepository groupRepository;
-    private ConversationRepository conversationRepository;
-    private UserRepository userRepository;
-
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage = null;
 
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers = new ArrayList<>();
-    private Map<String, User> userList = new HashMap<>();
-    private String textToSearch = "";
 
     @Inject
     public SearchUserPresenter searchPresenter;
@@ -168,10 +152,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void init() {
-        userRepository = new UserRepository();
-        bzzzStorage = new BzzzStorage();
-        groupRepository = new GroupRepository();
-        conversationRepository = new ConversationRepository();
         fromUser = UserManager.getInstance().getUser();
         adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
             if (isSelected) {

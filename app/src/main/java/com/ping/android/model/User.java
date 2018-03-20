@@ -49,6 +49,7 @@ public class User implements Parcelable {
     public Map<String, Boolean> friends = new HashMap<>();
     public ArrayList<User> friendList  = new ArrayList<>();
     public Constant.TYPE_FRIEND typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
+    public String nickName;
 
     public User() {}
 

@@ -1,6 +1,12 @@
 package com.ping.android.dagger.loggedin.call;
 
 import com.ping.android.activity.CallActivity;
+import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
+import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;
+import com.ping.android.dagger.loggedin.call.incoming.IncomingCallComponent;
+import com.ping.android.dagger.loggedin.call.incoming.IncomingCallModule;
+import com.ping.android.dagger.loggedin.call.video.VideoCallComponent;
+import com.ping.android.dagger.loggedin.call.video.VideoCallModule;
 import com.ping.android.dagger.scopes.PerActivity;
 
 import dagger.Subcomponent;
@@ -12,4 +18,10 @@ import dagger.Subcomponent;
 @Subcomponent(modules = { CallModule.class })
 public interface CallComponent {
     void inject(CallActivity activity);
+
+    IncomingCallComponent provideIncomingCallComponent(IncomingCallModule module);
+
+    AudioCallComponent provideAudioCallComponent(AudioCallModule module);
+
+    VideoCallComponent provideVideoCallComponent(VideoCallModule module);
 }

@@ -1,8 +1,11 @@
 package com.ping.android.presentation.presenters;
 
+import android.content.Intent;
+
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.model.User;
+import com.quickblox.videochat.webrtc.QBRTCSession;
 
 import org.webrtc.CameraVideoCapturer;
 
@@ -14,6 +17,8 @@ import java.util.List;
  */
 
 public interface CallPresenter extends BasePresenter {
+    void init(Intent intent, boolean isInComingCall, boolean isVideoCall);
+
     void initSession(String id, boolean isIncomingCall);
 
     void initCall(User opponentUser, boolean isVideoCall, boolean isIncomingCall);
@@ -32,7 +37,16 @@ public interface CallPresenter extends BasePresenter {
 
     void switchCamera(CameraVideoCapturer.CameraSwitchHandler cameraSwitchHandler);
 
+    QBRTCSession getCurrentSession();
+
+    User getOpponentUser();
+
+    boolean isIncomingCall();
+
     interface View {
+        void startInComingCall(boolean isVideoCall);
+
+        void startOutgoingCall(User opponentUser, boolean isVideoCall);
 
         void configCallSettings(List<Integer> users);
 
