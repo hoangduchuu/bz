@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.RemoteInput;
 
+import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.google.gson.JsonObject;
 import com.ping.android.data.repository.ConversationRepositoryImpl;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
@@ -23,6 +25,8 @@ import com.quickblox.messages.model.QBEnvironment;
 import com.quickblox.messages.model.QBEvent;
 import com.quickblox.messages.model.QBEventType;
 import com.quickblox.messages.model.QBNotificationType;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +48,7 @@ public class NotificationHelper {
     private com.ping.android.service.firebase.ConversationRepository fbConversationRepository;
     private User fromUser;
     private Conversation originalConversation;
+
     private NotificationHelper() {
 
     }
@@ -158,6 +163,7 @@ public class NotificationHelper {
                 object.addProperty("message", body);
                 object.addProperty("ios_sound", "default");
                 object.addProperty("ios_content_available", 1);
+                object.addProperty("ios_category", "incoming_message");
                 object.addProperty("notificationType", "incoming_message");
                 object.addProperty("timestamp", fmessage.timestamp);
                 object.addProperty("originMessage", fmessage.message);
@@ -224,6 +230,7 @@ public class NotificationHelper {
         object.addProperty("message", body);
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
+        object.addProperty("ios_category", "incoming_message");
         object.addProperty("notificationType", "incoming_message");
         object.addProperty("senderName", currentUser.getDisplayName());
         object.addProperty("conversation", conversation.key);

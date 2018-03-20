@@ -2,6 +2,7 @@ package com.ping.android.dagger;
 
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
+import com.ping.android.service.NotificationBroadcastReceiver;
 
 import javax.inject.Singleton;
 
@@ -15,4 +16,6 @@ import dagger.Component;
 public interface ApplicationComponent {
     LoggedInComponent provideLoggedInComponent();
     LoggedOutComponent provideLoggedOutComponent();
+
+    void inject(NotificationBroadcastReceiver receiver);
 }
