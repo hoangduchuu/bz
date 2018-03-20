@@ -53,7 +53,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private TextView tvName;
     private Switch rbNotification, rbShowProfile;
 
-    private boolean loadData, loadGUI;
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
@@ -68,11 +67,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
-//
-//        loadData = true;
-//        if (loadGUI) {
-//            bindData();
-//        }
     }
 
     @Override
@@ -81,13 +75,14 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         init();
         bindViews(view);
+        presenter.create();
         return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        loadGUI = false;
+        presenter.destroy();
     }
 
     private void bindViews(View view) {
@@ -112,10 +107,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void bindData() {
-        if (currentUser != null) {
-            tvName.setText(currentUser.pingID);
-            tvDisplayName.setText(currentUser.getDisplayName());
-        }
+        tvName.setText(currentUser.pingID);
+        tvDisplayName.setText(currentUser.getDisplayName());
 
         UiUtils.displayProfileImage(getContext(), profileImage, currentUser, true);
         rbNotification.setChecked(currentUser.settings.notification);

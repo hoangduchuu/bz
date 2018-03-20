@@ -53,6 +53,7 @@ public class Conversation implements Parcelable {
     public List<User> members = new ArrayList<>();
     public Group group;
     public User opponentUser;
+    public boolean isRead = false;
 
     protected Conversation(Parcel in) {
         key = in.readString();

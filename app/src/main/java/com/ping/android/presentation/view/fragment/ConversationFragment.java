@@ -58,7 +58,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private RecyclerView listChat;
     private Button btnDeleteMessage, btnEditMessage;
     private ImageView btnNewMessage;
-    private User currentUser;
     private MessageAdapter adapter;
     private ArrayList<Conversation> conversations;
     private boolean isEditMode;
@@ -117,7 +116,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void init() {
-        currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
         adapter = new MessageAdapter(conversations);
         adapter.setListener(this);
@@ -205,18 +203,18 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         updateEditMode();
     }
 
-    private void onRead() {
-        ArrayList<Conversation> unreadConversations = new ArrayList<>();
-        for (Conversation conversation : conversations) {
-            Boolean readStatus = conversation.readStatuses.get(currentUser.key);
-            if (!readStatus) {
-                unreadConversations.add(conversation);
-            }
-        }
-        ServiceManager.getInstance().updateConversationReadStatus(unreadConversations, true);
-        isEditMode = false;
-        updateEditMode();
-    }
+//    private void onRead() {
+//        ArrayList<Conversation> unreadConversations = new ArrayList<>();
+//        for (Conversation conversation : conversations) {
+//            Boolean readStatus = conversation.readStatuses.get(currentUser.key);
+//            if (!readStatus) {
+//                unreadConversations.add(conversation);
+//            }
+//        }
+//        ServiceManager.getInstance().updateConversationReadStatus(unreadConversations, true);
+//        isEditMode = false;
+//        updateEditMode();
+//    }
 
     private void onDelete() {
         ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
