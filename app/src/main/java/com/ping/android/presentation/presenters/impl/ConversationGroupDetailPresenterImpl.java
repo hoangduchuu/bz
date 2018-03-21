@@ -202,6 +202,12 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     @Override
+    public void handleGroupProfileImagePress() {
+        view.initProfileImagePath(conversation.key);
+        view.openPicker();
+    }
+
+    @Override
     public void destroy() {
         observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();

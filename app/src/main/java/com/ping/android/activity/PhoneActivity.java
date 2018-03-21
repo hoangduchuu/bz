@@ -27,7 +27,6 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
     private DatabaseReference mDatabase;
     private CountryCodePicker countryCodePicker;
     private EditText etPhone;
-    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +52,6 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
     }
 
     private void init() {
-        currentUser = UserManager.getInstance().getUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         setDefaultCountryCode();
@@ -91,7 +89,6 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
                 if (dataSnapshot.exists()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.msg_duplicate_phone), Toast.LENGTH_SHORT).show();
                 } else {
-                    currentUser.phone = phone;
                     ServiceManager.getInstance().updatePhone(phone);
                     startActivity(new Intent(PhoneActivity.this, MainActivity.class));
                     finish();
