@@ -32,6 +32,8 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     @Inject
     ConversationListPresenter.View view;
 
+    int unreadNum;
+
     @Inject
     public ConversationListPresenterImpl() {}
 

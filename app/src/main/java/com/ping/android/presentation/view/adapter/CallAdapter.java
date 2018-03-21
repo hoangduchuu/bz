@@ -29,7 +29,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     private ArrayList<Call> originalCalls;
     private ArrayList<Call> displayCalls;
     private ArrayList<Call> selectCalls;
-    private User currentUser;
     private Boolean isEditMode = false;
     private ClickListener clickListener;
     private RecyclerView recyclerView;
@@ -40,7 +39,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         displayCalls = (ArrayList<Call>) calls.clone();
         selectCalls = new ArrayList<>();
         this.clickListener = clickListener;
-        currentUser = UserManager.getInstance().getUser();
     }
 
     @Override
@@ -323,21 +321,15 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         public void bindData(Call call) {
             this.call = call;
             String info;
-            if (call.status == Constant.CALL_STATUS_SUCCESS) {
-                if (call.senderId.equals(currentUser.key)) {
-                    info = "Outgoing. ";
-                } else {
-                    info = "Incoming. ";
-                }
+            if (call.type == Call.CallType.OUTGOING) {
+                info = "Outgoing. ";
+                setInfoColor(Constant.CALL_STATUS_SUCCESS);
+            } else if (call.type == Call.CallType.INCOMING) {
+                info = "Incoming. ";
                 setInfoColor(Constant.CALL_STATUS_SUCCESS);
             } else {
-                if (call.senderId.equals(currentUser.key)) {
-                    info = "Outgoing. ";
-                    setInfoColor(Constant.CALL_STATUS_SUCCESS);
-                } else {
-                    info = "Missed. ";
-                    setInfoColor(Constant.CALL_STATUS_MISS);
-                }
+                info = "Missed. ";
+                setInfoColor(Constant.CALL_STATUS_MISS);
             }
 
             String time = CommonMethod.convertTimestampToTime(call.timestamp);
