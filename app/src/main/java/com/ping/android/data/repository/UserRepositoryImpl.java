@@ -233,6 +233,37 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<ChildEvent> observeBlockedContacts(String key) {
+        Query query = database.getReference("users").child(key).child("blocks");
+        return RxFirebaseDatabase.getInstance(query)
+                .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean) {
+        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("notification");
+        return RxFirebaseDatabase.setValue(reference, aBoolean)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean) {
+        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("private_profile");
+        return RxFirebaseDatabase.setValue(reference, aBoolean)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserProfileImage(String userId, String s) {
+        DatabaseReference reference = database.getReference("users").child(userId).child("profile");
+        return RxFirebaseDatabase.setValue(reference, s)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

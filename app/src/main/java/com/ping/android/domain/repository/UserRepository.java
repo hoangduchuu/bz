@@ -51,4 +51,12 @@ public interface UserRepository {
     Observable<Boolean> addCallHistory(Call call);
 
     Observable<Boolean> removeUserBadge(String userId, String key);
+
+    Observable<ChildEvent> observeBlockedContacts(String key);
+
+    Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean);
+
+    Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean);
+
+    Observable<Boolean> updateUserProfileImage(String userId, String s);
 }

@@ -20,14 +20,14 @@ import io.reactivex.Observable;
  * Created by tuanluong on 2/1/18.
  */
 
-public class ToggleMaskIncomingUseCase extends UseCase<Boolean, ToggleMaskIncomingUseCase.Params> {
+public class ToggleConversationNotificationSettingUseCase extends UseCase<Boolean, ToggleConversationNotificationSettingUseCase.Params> {
     @Inject
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
 
     @Inject
-    public ToggleMaskIncomingUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ToggleConversationNotificationSettingUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
@@ -37,24 +37,23 @@ public class ToggleMaskIncomingUseCase extends UseCase<Boolean, ToggleMaskIncomi
         return userRepository.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
-                    //updateValue.put(String.format("conversations/%s/maskMessages/%s", params.conversation, userId), params.value);
-                    for(String userID: params.memberIds) {
-                        updateValue.put(String.format("conversations/%s/%s/maskMessages/%s",
-                                userID, params.conversationId, user.key), params.value);
+                    for (String userId : params.memberIds) {
+                        updateValue.put(String.format("conversations/%s/%s/notifications/%s",
+                                userId, params.conversationId, user.key), params.isEnable);
                     }
                     return commonRepository.updateBatchData(updateValue);
                 });
     }
 
     public static class Params {
-        public String conversationId;
         public List<String> memberIds;
-        public boolean value;
+        public String conversationId;
+        public boolean isEnable;
 
-        public Params(String conversationId, List<String> memberIds, boolean value) {
-            this.conversationId = conversationId;
+        public Params(String conversationId, List<String> memberIds, boolean isEnable) {
             this.memberIds = memberIds;
-            this.value = value;
+            this.conversationId = conversationId;
+            this.isEnable = isEnable;
         }
     }
 }

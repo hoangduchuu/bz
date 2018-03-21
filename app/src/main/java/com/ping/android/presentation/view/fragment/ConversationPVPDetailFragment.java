@@ -23,7 +23,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -45,7 +44,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     private Conversation conversation;
     private String conversationId;
-    private UserRepository userRepository;
 
     @Inject
     ConversationPVPDetailPresenter presenter;
@@ -64,7 +62,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
         }
-        userRepository = new UserRepository();
     }
 
     @Override
@@ -179,7 +176,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     private void onBlock() {
         showLoading();
-        userRepository.toggleBlockUser(conversation.opponentUser.key, swBlock.isChecked(), (error, data) -> hideLoading());
+        presenter.toggleBlockUser(conversation.opponentUser.key, swBlock.isChecked());
     }
 
     @Override

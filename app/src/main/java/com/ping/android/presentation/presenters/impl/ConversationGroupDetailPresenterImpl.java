@@ -3,7 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleNotificationSettingUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.domain.usecase.group.AddGroupMembersUseCase;
 import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
@@ -33,7 +33,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Inject
     LeaveGroupUseCase leaveGroupUseCase;
     @Inject
-    ToggleNotificationSettingUseCase toggleNotificationSettingUseCase;
+    ToggleConversationNotificationSettingUseCase toggleConversationNotificationSettingUseCase;
     @Inject
     ToggleMaskIncomingUseCase toggleMaskIncomingUseCase;
     @Inject
@@ -115,7 +115,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Override
     public void toggleNotification(boolean isEnable) {
         view.showLoading();
-        toggleNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
+        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean) {
@@ -128,7 +128,8 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, new ToggleNotificationSettingUseCase.Params(conversation.key, isEnable));
+        }, new ToggleConversationNotificationSettingUseCase.Params(conversation.key,
+                new ArrayList<>(conversation.memberIDs.keySet()), isEnable));
     }
 
     @Override
@@ -205,7 +206,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();
         leaveGroupUseCase.dispose();
-        toggleNotificationSettingUseCase.dispose();
+        toggleConversationNotificationSettingUseCase.dispose();
         toggleMaskIncomingUseCase.dispose();
         togglePuzzlePictureUseCase.dispose();
         uploadGroupProfileImageUseCase.dispose();

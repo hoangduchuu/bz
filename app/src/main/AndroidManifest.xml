@@ -194,7 +194,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".BlockActivity"
+            android:name="com.ping.android.presentation.view.activity.BlockActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />

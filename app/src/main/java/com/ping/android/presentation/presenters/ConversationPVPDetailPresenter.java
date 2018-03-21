@@ -20,6 +20,8 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
     void handleNicknameClicked();
 
+    void toggleBlockUser(String key, boolean checked);
+
     interface View extends BaseView {
 
         void updateConversation(Conversation conversation);

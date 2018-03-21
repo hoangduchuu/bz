@@ -34,6 +34,8 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers;
 
+    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,12 +72,7 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
     }
 
     private void init() {

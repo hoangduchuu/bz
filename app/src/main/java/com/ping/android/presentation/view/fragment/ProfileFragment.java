@@ -1,10 +1,7 @@
 package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -16,7 +13,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.ping.android.activity.BeforeLoginActivity;
-import com.ping.android.activity.BlockActivity;
+import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.activity.ChangePasswordActivity;
 import com.ping.android.activity.MappingActivity;
 import com.ping.android.activity.PrivacyAndTermActivity;
@@ -31,7 +28,6 @@ import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.BzzzStorage;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
@@ -57,8 +53,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
 
-    private UserRepository userRepository;
-    private BzzzStorage bzzzStorage;
+//    private UserRepository userRepository;
+//    private BzzzStorage bzzzStorage;
     @Inject
     ProfilePresenter presenter;
     ProfileComponent component;
@@ -116,8 +112,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void init() {
-        bzzzStorage = new BzzzStorage();
-        userRepository = new UserRepository();
+//        bzzzStorage = new BzzzStorage();
+//        userRepository = new UserRepository();
     }
 
     @Override
@@ -141,7 +137,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             case R.id.profile_help:
                 onOpenHelp();
                 break;
-
             case R.id.profile_privacy_and_terms:
                 onClickPrivacyAndTerms();
                 break;
@@ -228,31 +223,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onNotificationClick() {
-        showLoading();
-        boolean isEnable = rbNotification.isChecked();
-        currentUser.settings.notification = rbNotification.isChecked();
-        userRepository.updateSetting(currentUser.settings, (error, data) -> {
-            if (error != null) {
-                // Revert state if something went wrong
-                rbNotification.setChecked(!isEnable);
-                currentUser.settings.notification = !isEnable;
-            }
-            hideLoading();
-        });
+        presenter.toggleNotificationSetting(rbNotification.isChecked());
     }
 
     private void onShowProfileClick() {
-        showLoading();
-        boolean isEnable = rbShowProfile.isChecked();
-        currentUser.settings.private_profile = rbShowProfile.isChecked();
-        userRepository.updateSetting(currentUser.settings, (error, data) -> {
-            if (error != null) {
-                // Revert state if something went wrong
-                rbShowProfile.setChecked(!isEnable);
-                currentUser.settings.private_profile = !isEnable;
-            }
-            hideLoading();
-        });
+        presenter.togglePrivateProfileSetting(rbShowProfile.isChecked());
     }
 
     private void onOpenHelp() {
@@ -344,12 +319,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void uploadProfile() {
-        String imageStoragePath = "profiles" + File.separator + currentUser.key + File.separator + profileFileName;
-        bzzzStorage.uploadFile(imageStoragePath, new File(profileFilePath), (error, data) -> {
-            if (error == null) {
-                userRepository.updateProfilePicture((String) data[0]);
-            }
-        });
+        presenter.uploadUserProfile(profileFilePath);
     }
 
     public ProfileComponent getComponent() {
