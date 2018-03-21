@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.quickblox.users.model.QBUser;
@@ -220,6 +221,15 @@ public class UserRepositoryImpl implements UserRepository {
         updateValue.put(String.format("calls/%s/%s", call.senderId, callId), call.toMap());
         updateValue.put(String.format("calls/%s/%s", call.receiveId, callId), call.toMap());
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> removeUserBadge(String userId, String key) {
+        DatabaseReference databaseReference = database.getReference("users")
+                .child(userId).child("badges").child(key);
+        return RxFirebaseDatabase.setValue(databaseReference, null)
+                .map(databaseReference1 -> true)
                 .toObservable();
     }
 

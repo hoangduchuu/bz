@@ -34,7 +34,6 @@ import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
@@ -184,7 +183,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
         editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
         editor.apply();
-        BadgesHelper.getInstance().removeCurrentUserBadges("missed_call");
+        presenter.removeMissedCallsBadge();
         badgeHelper.clearMissedCall();
     }
 

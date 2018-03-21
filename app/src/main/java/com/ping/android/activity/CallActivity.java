@@ -1,6 +1,5 @@
 package com.ping.android.activity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,7 +25,6 @@ import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.fragment.AudioConversationFragment;
 import com.ping.android.fragment.BaseConversationFragment;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.fragment.ConversationFragmentCallbackListener;
 import com.ping.android.fragment.IncomeCallFragment;
 import com.ping.android.fragment.OnCallEventsController;
 import com.ping.android.fragment.VideoConversationFragment;
@@ -54,8 +51,6 @@ import com.quickblox.videochat.webrtc.QBRTCClient;
 import com.quickblox.videochat.webrtc.QBRTCConfig;
 import com.quickblox.videochat.webrtc.QBRTCScreenCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
-import com.quickblox.videochat.webrtc.callbacks.QBRTCSessionEventsCallback;
-import com.quickblox.videochat.webrtc.callbacks.QBRTCSessionStateCallback;
 
 import org.jivesoftware.smack.AbstractConnectionListener;
 import org.webrtc.CameraVideoCapturer;
@@ -71,16 +66,10 @@ import javax.inject.Inject;
 public class CallActivity extends CoreActivity implements CallPresenter.View, View.OnClickListener,
         OnCallEventsController,
         NetworkConnectionChecker.OnConnectivityChangedListener, HasComponent<CallComponent> {
-    public static final String OPPONENTS_CALL_FRAGMENT = "opponents_call_fragment";
+    private static final int ACTIVITY_REQUEST_CODE = 100;
     public static final String INCOME_CALL_FRAGMENT = "income_call_fragment";
-    public static final String CONVERSATION_CALL_FRAGMENT = "conversation_call_fragment";
-    public static final String CALLER_NAME = "caller_name";
-    public static final String SESSION_ID = "sessionID";
-    public static final String START_CONVERSATION_REASON = "start_conversation_reason";
     private static final String TAG = CallActivity.class.getSimpleName();
-    private static final int REQUEST_MEDIA_PROJECTION = 1;
     public static final String EXTRA_SESSION_ID = "EXTRA_SESSION_ID";
-    private static final String EXTRA_OPPONENT_IDS = "EXTRA_OPPONENT_IDS";
     private static final String EXTRA_IS_INCOMING_CALL = "EXTRA_IS_INCOMING_CALL";
     private static final String EXTRA_IS_VIDEO_CALL = "EXTRA_IS_VIDEO_CALL";
     public static final String EXTRA_OPPONENT_USER = "EXTRA_OPPONENT_USER";
@@ -206,20 +195,19 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         initFields();
-        //initCurrentSession(currentSession);
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //initAudioManager();
-        initWiFiManagerListener();
-        //connectionView = (LinearLayout) View.inflate(this, R.layout.connection_popup, null);
-        checker = new PermissionsChecker(getApplicationContext());
-        //initData();
-        initQBRTCClient();
         isInComingCall = getIntent().getBooleanExtra(EXTRA_IS_INCOMING_CALL, false);
         isVideoCall = getIntent().getBooleanExtra(EXTRA_IS_VIDEO_CALL, false);
-        presenter.init(getIntent(), isInComingCall, isVideoCall);
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        checker = new PermissionsChecker(getApplicationContext());
+
+        initWiFiManagerListener();
+        initQBRTCClient();
         findViewById(R.id.call_back).setOnClickListener(this);
+        if (checkPermission()) {
+            initialized();
+        }
     }
 
     @Override
@@ -286,28 +274,43 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 
             }
         }
-    }
-
-    private void startSuitableFragment(boolean isInComingCall, boolean isVideoCall) {
-        if (isInComingCall) {
-            initIncomingCallTask();
-            checkPermission();
-            addIncomeCallFragment();
-        } else {
-            checkPermission();
-            addConversationFragment(isVideoCall, isInComingCall);
+        if (requestCode == ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                initialized();
+            } else {
+                finish();
+            }
         }
     }
 
-    private void checkPermission() {
+    private void initialized() {
+        presenter.init(getIntent(), isInComingCall, isVideoCall);
+    }
+
+//    private void startSuitableFragment(boolean isInComingCall, boolean isVideoCall) {
+//        if (isInComingCall) {
+//            initIncomingCallTask();
+//            checkPermission();
+//            addIncomeCallFragment();
+//        } else {
+//            checkPermission();
+//            addConversationFragment(isVideoCall, isInComingCall);
+//        }
+//    }
+
+    private boolean checkPermission() {
         if (checker.lacksPermissions(Consts.PERMISSIONS)) {
             startPermissionsActivity(!isVideoCall);
+            return false;
         }
+        return true;
     }
 
     private void startPermissionsActivity(boolean checkOnlyAudio) {
-        PermissionsActivity.startActivity(this, checkOnlyAudio, Consts.PERMISSIONS);
+        PermissionsActivity.startActivity(this, checkOnlyAudio, ACTIVITY_REQUEST_CODE, Consts.PERMISSIONS);
     }
+
+
 
     private void startLoadAbsentUsers(Integer callerId, List<Integer> opponentsIdsList) {
         ArrayList<QBUser> usersFromDb = dbManager.getAllUsers();
@@ -437,7 +440,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 //                }
 //            }
 //        });
-
     }
 
     private void initWiFiManagerListener() {

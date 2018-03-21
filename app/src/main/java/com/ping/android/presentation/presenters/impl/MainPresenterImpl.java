@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
+import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
 
@@ -21,6 +22,8 @@ public class MainPresenterImpl implements MainPresenter {
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
     @Inject
     ObserveFriendsStatusUseCase observeFriendsStatusUseCase;
+    @Inject
+    RemoveUserBadgeUseCase removeUserBadgeUseCase;
     private User currentUser;
     private boolean isInit = false;
 
@@ -57,5 +60,10 @@ public class MainPresenterImpl implements MainPresenter {
     public void destroy() {
         observeCurrentUserUseCase.dispose();
         observeFriendsStatusUseCase.dispose();
+    }
+
+    @Override
+    public void removeMissedCallsBadge() {
+        removeUserBadgeUseCase.execute(new DefaultObserver<>(), "missed_call");
     }
 }

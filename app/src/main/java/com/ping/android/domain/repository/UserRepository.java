@@ -49,4 +49,6 @@ public interface UserRepository {
     Observable<User> getUserByQuickBloxId(Integer qbId);
 
     Observable<Boolean> addCallHistory(Call call);
+
+    Observable<Boolean> removeUserBadge(String userId, String key);
 }

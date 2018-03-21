@@ -12,18 +12,17 @@ import com.ping.android.utils.PermissionsChecker;
 import com.ping.android.utils.Toaster;
 
 public class PermissionsActivity extends AppCompatActivity {
-
     private static final int PERMISSION_REQUEST_CODE = 0;
     private static final String EXTRA_PERMISSIONS = "extraPermissions";
     private static final String CHECK_ONLY_AUDIO = "checkAudio";
     private PermissionsChecker checker;
     private boolean requiresCheck;
 
-    public static void startActivity(Activity activity, boolean checkOnlyAudio, String... permissions) {
+    public static void startActivity(Activity activity, boolean checkOnlyAudio, int code, String... permissions) {
         Intent intent = new Intent(activity, PermissionsActivity.class);
         intent.putExtra(EXTRA_PERMISSIONS, permissions);
         intent.putExtra(CHECK_ONLY_AUDIO, checkOnlyAudio);
-        ActivityCompat.startActivity(activity, intent, null);
+        ActivityCompat.startActivityForResult(activity, intent, code, null);
     }
 
     @Override
@@ -35,17 +34,18 @@ public class PermissionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_permissions);
 
         checker = new PermissionsChecker(this);
-        requiresCheck = true;
+        checkPermissions();
+        //requiresCheck = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (requiresCheck) {
-            checkPermissions();
-        } else {
-            requiresCheck = true;
-        }
+//        if (requiresCheck) {
+//            checkPermissions();
+//        } else {
+//            requiresCheck = true;
+//        }
     }
 
     private void checkPermissions() {
@@ -65,6 +65,11 @@ public class PermissionsActivity extends AppCompatActivity {
         } else {
             allPermissionsGranted();
         }
+    }
+
+    private void allPermissionsGranted() {
+        setResult(RESULT_OK);
+        finish();
     }
 
     private void checkPermissionAudioVideo(String[] permissions) {
@@ -87,10 +92,6 @@ public class PermissionsActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
     }
 
-    private void allPermissionsGranted() {
-        finish();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE && hasAllPermissionsGranted(grantResults)) {
@@ -99,6 +100,7 @@ public class PermissionsActivity extends AppCompatActivity {
         } else {
             requiresCheck = false;
             showDeniedResponse(grantResults);
+            setResult(RESULT_CANCELED);
             finish();
         }
     }

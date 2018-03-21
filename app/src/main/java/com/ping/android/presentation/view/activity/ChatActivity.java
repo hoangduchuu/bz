@@ -629,11 +629,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         presenter.loadMoreMessage(lastMessage.timestamp);
     }
 
-    private void startChat() {
-        //bindConversationSetting();
-        BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
-    }
-
     private void notifyTyping() {
         // Tuan - just init textWatcher once
         if (textWatcher != null) return;
@@ -1123,8 +1118,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
         }
-        // FIXME
-        startChat();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.activity.R;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
+import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
@@ -92,6 +93,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     UpdateConversationReadStatusUseCase updateConversationReadStatusUseCase;
     @Inject
     ToggleConversationTypingUseCase toggleConversationTypingUseCase;
+    @Inject
+    RemoveUserBadgeUseCase removeUserBadgeUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -477,6 +480,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateConversationReadStatus();
         //observeMessageUpdate();
         getLastMessages(conversation);
+        removeConversationBadge(conversation.key);
 
         boolean isEnable = CommonMethod.getBooleanFrom(conversation.maskOutputs, currentUser.key);
         view.updateMaskSetting(isEnable);
@@ -494,6 +498,10 @@ public class ChatPresenterImpl implements ChatPresenter {
             view.hideUserStatus();
             observeGroupChange(conversation.groupID);
         }
+    }
+
+    private void removeConversationBadge(String key) {
+        removeUserBadgeUseCase.execute(new DefaultObserver<>(), key);
     }
 
     @Override

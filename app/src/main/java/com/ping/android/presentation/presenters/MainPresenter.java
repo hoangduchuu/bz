@@ -8,6 +8,8 @@ import com.bzzzchat.cleanarchitecture.BaseView;
  */
 
 public interface MainPresenter extends BasePresenter {
+    void removeMissedCallsBadge();
+
     interface View extends BaseView {
 
         void openPhoneRequireView();
