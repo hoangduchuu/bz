@@ -48,7 +48,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ConversationFragment extends BaseFragment implements View.OnClickListener, MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
+public class ConversationFragment extends BaseFragment implements View.OnClickListener,
+        MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -57,12 +58,9 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private RecyclerView listChat;
     private Button btnDeleteMessage, btnEditMessage;
     private ImageView btnNewMessage;
-    private User currentUser;
     private MessageAdapter adapter;
     private ArrayList<Conversation> conversations;
     private boolean isEditMode;
-
-    private ConversationRepository conversationRepository;
 
     private SharedPreferences prefs;
 
@@ -118,8 +116,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void init() {
-        conversationRepository = new ConversationRepository();
-        currentUser = UserManager.getInstance().getUser();
         conversations = new ArrayList<>();
         adapter = new MessageAdapter(conversations);
         adapter.setListener(this);
@@ -207,28 +203,22 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         updateEditMode();
     }
 
-    private void onRead() {
-        ArrayList<Conversation> unreadConversations = new ArrayList<>();
-        for (Conversation conversation : conversations) {
-            Boolean readStatus = conversation.readStatuses.get(currentUser.key);
-            if (!readStatus) {
-                unreadConversations.add(conversation);
-            }
-        }
-        ServiceManager.getInstance().updateConversationReadStatus(unreadConversations, true);
-        isEditMode = false;
-        updateEditMode();
-    }
+//    private void onRead() {
+//        ArrayList<Conversation> unreadConversations = new ArrayList<>();
+//        for (Conversation conversation : conversations) {
+//            Boolean readStatus = conversation.readStatuses.get(currentUser.key);
+//            if (!readStatus) {
+//                unreadConversations.add(conversation);
+//            }
+//        }
+//        ServiceManager.getInstance().updateConversationReadStatus(unreadConversations, true);
+//        isEditMode = false;
+//        updateEditMode();
+//    }
 
     private void onDelete() {
         ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
-        showLoading();
-        conversationRepository.deleteConversations(readConversations, new Callback() {
-            @Override
-            public void complete(Object error, Object... data) {
-                hideLoading();
-            }
-        });
+        presenter.deleteConversations(readConversations);
         adapter.cleanSelectConversation();
         isEditMode = false;
         updateEditMode();

@@ -20,7 +20,6 @@ import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.service.NotificationHelper;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Consts;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.WebRtcSessionManager;
@@ -37,20 +36,15 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 
     private static final String TAG = BaseConversationFragment.class.getSimpleName();
     protected QbUsersDbManager dbManager;
-    protected WebRtcSessionManager sessionManager;
-    protected QBRTCSession currentSession;
-    protected ArrayList<QBUser> opponents;
-    protected ConversationFragmentCallbackListener conversationFragmentCallbackListener;
+    //protected ArrayList<QBUser> opponents;
     protected Chronometer timerChronometer;
     protected boolean isStarted;
     protected TextView allOpponentsTextView;
     protected TextView ringingTextView;
     protected QBUser currentUser;
     private boolean isIncomingCall;
-    private QBRTCTypes.QBConferenceType qbConferenceType;
-    private ToggleButton micToggleVideoCall;
-    private ImageButton handUpVideoCall;
-    private boolean isMessageProcessed;
+    private ToggleButton btnToggleMic;
+    private ImageButton btnHangup;
 
     public static BaseConversationFragment newInstance(BaseConversationFragment baseConversationFragment, boolean isIncomingCall) {
         Log.d(TAG, "isIncomingCall =  " + isIncomingCall);
@@ -62,35 +56,15 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         return baseConversationFragment;
     }
 
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        try {
-            conversationFragmentCallbackListener = (ConversationFragmentCallbackListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement ConversationFragmentCallbackListener");
-        }
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        conversationFragmentCallbackListener.addCurrentCallStateCallback(this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        sessionManager = WebRtcSessionManager.getInstance(getActivity());
-        currentSession = sessionManager.getCurrentSession();
-        if (currentSession == null) {
-            Log.d(TAG, "currentSession = null onCreateView");
-            return view;
-        }
         initFields();
         initViews(view);
         initButtonsListener();
@@ -108,57 +82,50 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
     protected void initFields() {
         currentUser = QBChatService.getInstance().getUser();
         dbManager = QbUsersDbManager.getInstance(getActivity().getApplicationContext());
-        sessionManager = WebRtcSessionManager.getInstance(getActivity());
-        currentSession = sessionManager.getCurrentSession();
 
         if (getArguments() != null) {
             isIncomingCall = getArguments().getBoolean(Consts.EXTRA_IS_INCOMING_CALL);
         }
 
-        initOpponentsList();
-
-        qbConferenceType = currentSession.getConferenceType();
-
-        Log.d(TAG, "opponents: " + opponents.toString());
-        Log.d(TAG, "currentSession " + currentSession.toString());
+        //initOpponentsList();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        if (currentSession == null) {
-            Log.d(TAG, "currentSession = null onStart");
-            return;
+//        if (currentSession == null) {
+//            Log.d(TAG, "currentSession = null onStart");
+//            return;
+//        }
+//
+//        User currentUser = UserManager.getInstance().getUser();
+//        Map<String, String> userInfo = new HashMap();
+//        userInfo.put("ping_id", currentUser.pingID);
+//        userInfo.put("user_id", currentUser.key);
+//        userInfo.put("first_last_name", currentUser.getDisplayName());
 
-        }
-
-        User currentUser = UserManager.getInstance().getUser();
-        Map<String, String> userInfo = new HashMap();
-        userInfo.put("ping_id", currentUser.pingID);
-        userInfo.put("user_id", currentUser.key);
-        userInfo.put("first_last_name", currentUser.getDisplayName());
-
-        if (currentSession.getState() != QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_ACTIVE) {
-            if (isIncomingCall) {
-                currentSession.acceptCall(userInfo);
-            } else {
-                currentSession.startCall(userInfo);
-                String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
-                NotificationHelper.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
-            }
-            isMessageProcessed = true;
-        }
+//        if (currentSession.getState() != QBRTCSession.QBRTCSessionState.QB_RTC_SESSION_ACTIVE) {
+//            if (isIncomingCall) {
+//                currentSession.acceptCall(userInfo);
+//            } else {
+//                //currentSession.startCall(userInfo);
+//                //String callType = currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO? "video": "voice";
+//                //NotificationHelper.getInstance().sendCallingNotificationToUser(currentSession.getOpponents().get(0), callType);
+//            }
+//            isMessageProcessed = true;
+//        }
     }
 
     @Override
     public void onDestroy() {
-        conversationFragmentCallbackListener.removeCurrentCallStateCallback(this);
         super.onDestroy();
     }
 
+    protected abstract void hangup();
+
     protected void initViews(View view) {
-        micToggleVideoCall = view.findViewById(R.id.toggle_mic);
-        handUpVideoCall = view.findViewById(R.id.button_hangup_call);
+        btnToggleMic = view.findViewById(R.id.toggle_mic);
+        btnHangup = view.findViewById(R.id.button_hangup_call);
         allOpponentsTextView = view.findViewById(R.id.text_outgoing_opponents_names);
         ringingTextView = view.findViewById(R.id.text_ringing);
 
@@ -170,33 +137,30 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
     }
 
     protected void initButtonsListener() {
-
-        micToggleVideoCall.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        btnToggleMic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                conversationFragmentCallbackListener.onSetAudioEnabled(isChecked);
+                toggleAudio(isChecked);
             }
         });
 
-        handUpVideoCall.setOnClickListener(new View.OnClickListener() {
+        btnHangup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 actionButtonsEnabled(false);
-                handUpVideoCall.setEnabled(false);
-                handUpVideoCall.setActivated(false);
-
-                conversationFragmentCallbackListener.onHangUpCurrentSession();
-                Log.d(TAG, "Call is stopped");
+                btnHangup.setEnabled(false);
+                btnHangup.setActivated(false);
+                hangup();
             }
         });
     }
 
+    protected abstract void toggleAudio(boolean isEnable);
+
     protected void actionButtonsEnabled(boolean inability) {
-
-        micToggleVideoCall.setEnabled(inability);
-
+        btnToggleMic.setEnabled(inability);
         // inactivate toggle buttons
-        micToggleVideoCall.setActivated(inability);
+        btnToggleMic.setActivated(inability);
     }
 
     private void startTimer() {
@@ -215,7 +179,7 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
         }
     }
 
-    private void hideOutgoingScreen() {
+    protected void hideOutgoingScreen() {
         ringingTextView.setVisibility(View.GONE);
         //outgoingOpponentsRelativeLayout.setVisibility(View.GONE);
     }
@@ -229,34 +193,30 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 
     @Override
     public void onCallStopped() {
-        if (currentSession == null) {
-            Log.d(TAG, "currentSession = null onCallStopped");
-            return;
-        }
         stopTimer();
         actionButtonsEnabled(false);
     }
 
     @Override
     public void onOpponentsListUpdated(ArrayList<QBUser> newUsers) {
-        initOpponentsList();
+        //initOpponentsList();
     }
 
-    private void initOpponentsList() {
-        Log.v("UPDATE_USERS", "super initOpponentsList()");
-        ArrayList<QBUser> usersFromDb = dbManager.getUsersByIds(currentSession.getOpponents());
-        opponents = UsersUtils.getListAllUsersFromIds(usersFromDb, currentSession.getOpponents());
-
-        QBUser caller = dbManager.getUserById(currentSession.getCallerID());
-        if (caller == null) {
-            caller = new QBUser(currentSession.getCallerID());
-            caller.setFullName(String.valueOf(currentSession.getCallerID()));
-        }
-
-        if (isIncomingCall) {
-            opponents.add(caller);
-            opponents.remove(QBChatService.getInstance().getUser());
-        }
-    }
+//    private void initOpponentsList() {
+//        Log.v("UPDATE_USERS", "super initOpponentsList()");
+//        ArrayList<QBUser> usersFromDb = dbManager.getUsersByIds(currentSession.getOpponents());
+//        opponents = UsersUtils.getListAllUsersFromIds(usersFromDb, currentSession.getOpponents());
+//
+//        QBUser caller = dbManager.getUserById(currentSession.getCallerID());
+//        if (caller == null) {
+//            caller = new QBUser(currentSession.getCallerID());
+//            caller.setFullName(String.valueOf(currentSession.getCallerID()));
+//        }
+//
+//        if (isIncomingCall) {
+//            opponents.add(caller);
+//            opponents.remove(QBChatService.getInstance().getUser());
+//        }
+//    }
 
 }

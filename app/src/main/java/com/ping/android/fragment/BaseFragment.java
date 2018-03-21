@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.activity.BaseActivity;
 import com.ping.android.activity.CoreActivity;
+import com.ping.android.utils.Navigator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,6 +83,10 @@ public class BaseFragment extends Fragment {
     }
 
     protected BasePresenter getPresenter() {
+        return null;
+    }
+
+    protected Navigator getNavigator() {
         return null;
     }
 

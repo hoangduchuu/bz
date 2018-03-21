@@ -365,7 +365,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 message = "[Game]";
             }
             this.tvMessage.setText(message);
-            this.setReadStatus(ServiceManager.getInstance().getCurrentReadStatus(model.readStatuses));
+            this.setReadStatus(model.isRead);
             this.setEditMode(isEditMode);
             this.setSelect(isSelected);
 

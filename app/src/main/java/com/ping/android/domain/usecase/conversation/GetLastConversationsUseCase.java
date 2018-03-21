@@ -10,6 +10,7 @@ import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +54,8 @@ public class GetLastConversationsUseCase extends UseCase<List<Conversation>, Voi
                                         continue;
                                         //conversation will not show if last message time stamp less than conversation deleted time
                                     }
+                                    boolean readStatus = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
+                                    conversation.isRead = readStatus;
                                     conversations.add(conversation);
                                 }
                             }

@@ -2,6 +2,7 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.model.Call;
 import com.ping.android.model.User;
 
 import java.util.List;
@@ -44,4 +45,8 @@ public interface UserRepository {
     Observable<Boolean> observeFriendStatus(String currentUserId, String friendId);
 
     Observable<Boolean> addContact(String currentUserId, String friendId);
+
+    Observable<User> getUserByQuickBloxId(Integer qbId);
+
+    Observable<Boolean> addCallHistory(Call call);
 }

@@ -1,5 +1,6 @@
 package com.ping.android.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -12,7 +13,11 @@ import android.widget.ToggleButton;
 
 import com.ping.android.activity.CallActivity;
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.call.CallComponent;
+import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
+import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.AudioCallPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
@@ -21,30 +26,49 @@ import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
 
-public class AudioConversationFragment extends BaseConversationFragment implements CallActivity.OnChangeDynamicToggle {
+import javax.inject.Inject;
+
+public class AudioConversationFragment extends BaseConversationFragment
+        implements CallActivity.OnChangeDynamicToggle, AudioCallPresenter.View {
     private static final String TAG = AudioConversationFragment.class.getSimpleName();
 
     private ToggleButton audioSwitchToggleButton;
+    private ImageView opponentImage;
+
     private boolean headsetPlugged;
-    private User opponentUser;
-    private UserRepository userRepository;
+
+    @Inject
+    AudioCallPresenter presenter;
+    AudioCallComponent component;
+
+    public static AudioConversationFragment newInstance() {
+        AudioConversationFragment fragment = new AudioConversationFragment();
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userRepository = new UserRepository();
+        getComponent().inject(this);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        conversationFragmentCallbackListener.addOnChangeDynamicToggle(this);
+        //conversationFragmentCallbackListener.addOnChangeDynamicToggle(this);
+    }
+
+    @Override
+    protected void hangup() {
+        presenter.hangup();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        presenter.create();
+        return view;
     }
 
     @Override
@@ -57,17 +81,7 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
     protected void initViews(View view) {
         super.initViews(view);
         timerChronometer = view.findViewById(R.id.chronometer_timer_call);
-
-        ImageView firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
-        userRepository.getUserByQbId(opponents.get(0).getId(), (error, data) -> {
-            if (error == null) {
-                opponentUser = (User) data[0];
-                UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
-
-                allOpponentsTextView.setText(opponentUser.getDisplayName());
-            }
-        });
-
+        opponentImage = view.findViewById(R.id.image_caller_avatar);
         audioSwitchToggleButton = view.findViewById(R.id.toggle_speaker);
         audioSwitchToggleButton.setVisibility(View.VISIBLE);
 
@@ -77,7 +91,7 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
     @Override
     public void onStop() {
         super.onStop();
-        conversationFragmentCallbackListener.removeOnChangeDynamicToggle(this);
+        //conversationFragmentCallbackListener.removeOnChangeDynamicToggle(this);
     }
 
     @Override
@@ -87,9 +101,18 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
         audioSwitchToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                conversationFragmentCallbackListener.onSwitchAudio();
+                //conversationFragmentCallbackListener.onSwitchAudio();
+                Activity activity = getActivity();
+                if (activity instanceof CallActivity) {
+                    ((CallActivity) activity).onSwitchAudio();
+                }
             }
         });
+    }
+
+    @Override
+    protected void toggleAudio(boolean isEnable) {
+        presenter.toggleAudio(isEnable);
     }
 
     @Override
@@ -124,5 +147,18 @@ public class AudioConversationFragment extends BaseConversationFragment implemen
             audioSwitchToggleButton.setChecked(false);
         }
 
+    }
+
+    public AudioCallComponent getComponent() {
+        if (component == null) {
+            component = getComponent(CallComponent.class).provideAudioCallComponent(new AudioCallModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void updateOpponentInfo(User opponentInfo) {
+        UiUtils.displayProfileImage(getContext(), opponentImage, opponentInfo);
+        allOpponentsTextView.setText(opponentInfo.nickName);
     }
 }

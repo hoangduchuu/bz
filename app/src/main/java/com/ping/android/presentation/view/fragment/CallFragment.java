@@ -23,12 +23,11 @@ import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.CallPresenter;
+import com.ping.android.presentation.presenters.CallListPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
-import com.ping.android.utils.bus.events.TransphabetEvent;
 import com.ping.android.view.CustomSwitch;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallPresenter.View {
+public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
@@ -56,7 +55,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     @Inject
     public BusProvider busProvider;
     @Inject
-    public CallPresenter presenter;
+    public CallListPresenter presenter;
     private CallComponent component;
 
     @Override

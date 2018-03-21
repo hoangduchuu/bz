@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.call.CallComponent;
+import com.ping.android.dagger.loggedin.call.incoming.IncomingCallComponent;
+import com.ping.android.dagger.loggedin.call.incoming.IncomingCallModule;
 import com.ping.android.db.QbUsersDbManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.CallPresenter;
+import com.ping.android.presentation.presenters.IncomingCallPresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Callback;
@@ -34,75 +40,60 @@ import com.quickblox.videochat.webrtc.QBRTCTypes;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 /**
  * QuickBlox team
  */
-public class IncomeCallFragment extends Fragment implements Serializable, View.OnClickListener {
+public class IncomeCallFragment extends BaseFragment implements Serializable, View.OnClickListener, IncomingCallPresenter.View {
 
     private static final String TAG = IncomeCallFragment.class.getSimpleName();
     private static final long CLICK_DELAY = TimeUnit.SECONDS.toMillis(2);
     private TextView callTypeTextView;
     private ImageButton rejectButton;
     private ImageButton takeButton;
+    private TextView callerNameTextView;
+    private ImageView callerAvatarImageView;
 
-    private List<Integer> opponentsIds;
     private Vibrator vibrator;
-    private QBRTCTypes.QBConferenceType conferenceType;
     private long lastClickTime = 0l;
     private RingtonePlayer ringtonePlayer;
-    private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
-    private QBRTCSession currentSession;
-    private QbUsersDbManager qbUserDbManager;
+//    private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
 
-    private UserRepository userRepository;
+    @Inject
+    IncomingCallPresenter presenter;
+    IncomingCallComponent component;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+//    @Override
+//    public void onAttach(Activity activity) {
+//        super.onAttach(activity);
 
-        try {
-            incomeCallFragmentCallbackListener = (IncomeCallFragmentCallbackListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnCallEventsController");
-        }
-    }
+//        try {
+//            incomeCallFragmentCallbackListener = (IncomeCallFragmentCallbackListener) activity;
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(activity.toString()
+//                    + " must implement OnCallEventsController");
+//        }
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setRetainInstance(true);
-
-        Log.d(TAG, "onCreate() from IncomeCallFragment");
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_income_call, container, false);
-
-        initFields();
-
-        if (currentSession != null) {
-            initUI(view);
-            setDisplayedTypeCall(conferenceType);
-            initButtonsListener();
-        }
-
+        initUI(view);
+        initButtonsListener();
         ringtonePlayer = new RingtonePlayer(getActivity());
+        presenter.create();
         return view;
-    }
-
-    private void initFields() {
-        currentSession = WebRtcSessionManager.getInstance(getActivity()).getCurrentSession();
-        qbUserDbManager = QbUsersDbManager.getInstance(getActivity().getApplicationContext());
-
-        if (currentSession != null) {
-            opponentsIds = currentSession.getOpponents();
-            conferenceType = currentSession.getConferenceType();
-            Log.d(TAG, conferenceType.toString() + "From onCreateView()");
-        }
     }
 
     @Override
@@ -117,29 +108,11 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     }
 
     private void initUI(View view) {
-        userRepository = new UserRepository();
-
         callTypeTextView = view.findViewById(R.id.call_type);
-
-        ImageView callerAvatarImageView = view.findViewById(R.id.image_caller_avatar);
-        callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(currentSession.getCallerID()));
-
-        TextView callerNameTextView = view.findViewById(R.id.text_caller_name);
-
-        QBUser callerUser = qbUserDbManager.getUserById(currentSession.getCallerID());
-        callerNameTextView.setText(UsersUtils.getUserNameOrId(callerUser, currentSession.getCallerID()));
-
+        callerAvatarImageView = view.findViewById(R.id.image_caller_avatar);
+        callerNameTextView = view.findViewById(R.id.text_caller_name);
         rejectButton = view.findViewById(R.id.image_button_reject_call);
         takeButton = view.findViewById(R.id.image_button_accept_call);
-
-        ImageView firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
-
-        userRepository.getUserByQbId(currentSession.getCallerID(), (error, data) -> {
-            if (error != null) return;
-            User opponentUser = (User) data[0];
-            UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
-            callerNameTextView.setText(opponentUser.getDisplayName());
-        });
     }
 
     private Drawable getBackgroundForCallerAvatar(int callerId) {
@@ -147,12 +120,8 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     }
 
     public void startCallNotification() {
-        Log.d(TAG, "startCallNotification()");
-
-        ringtonePlayer.play(false);
-
+        ringtonePlayer.play(true);
         vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-
         long[] vibrationCycle = {0, 1000, 1000};
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(vibrationCycle, 1);
@@ -170,22 +139,6 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
         if (vibrator != null) {
             vibrator.cancel();
         }
-    }
-
-    private String getOtherIncUsersNames() {
-        ArrayList<QBUser> usersFromDb = qbUserDbManager.getUsersByIds(opponentsIds);
-        ArrayList<QBUser> opponents = new ArrayList<>();
-        opponents.addAll(UsersUtils.getListAllUsersFromIds(usersFromDb, opponentsIds));
-
-        opponents.remove(QBChatService.getInstance().getUser());
-        Log.d(TAG, "opponentsIds = " + opponentsIds);
-        return CollectionsUtils.makeStringFromUsersFullNames(opponents);
-    }
-
-    private void setDisplayedTypeCall(QBRTCTypes.QBConferenceType conferenceType) {
-        boolean isVideoCall = conferenceType == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO;
-
-        callTypeTextView.setText(isVideoCall ? R.string.text_incoming_video_call : R.string.text_incoming_audio_call);
     }
 
     @Override
@@ -220,21 +173,44 @@ public class IncomeCallFragment extends Fragment implements Serializable, View.O
     private void accept() {
         enableButtons(false);
         stopCallNotification();
-
-        incomeCallFragmentCallbackListener.onAcceptCurrentSession();
+        presenter.accept();
+        //incomeCallFragmentCallbackListener.onAcceptCurrentSession();
         Log.d(TAG, "Call is started");
     }
 
     private void reject() {
         enableButtons(false);
         stopCallNotification();
-
-        incomeCallFragmentCallbackListener.onRejectCurrentSession();
+        presenter.reject();
+        //incomeCallFragmentCallbackListener.onRejectCurrentSession();
         Log.d(TAG, "Call is rejected");
     }
 
     private void enableButtons(boolean enable) {
         takeButton.setEnabled(enable);
         rejectButton.setEnabled(enable);
+    }
+
+    public IncomingCallComponent getComponent() {
+        if (component == null) {
+            component = getComponent(CallComponent.class)
+                    .provideIncomingCallComponent(new IncomingCallModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void showConferenceType(QBRTCTypes.QBConferenceType conferenceType) {
+        boolean isVideoCall = conferenceType == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO;
+        callTypeTextView.setText(isVideoCall ? R.string.text_incoming_video_call : R.string.text_incoming_audio_call);
+    }
+
+    @Override
+    public void showOpponentInfo(String displayName, String avatar) {
+        callerNameTextView.setText(displayName);
+        UiUtils.displayProfileAvatar(callerAvatarImageView, avatar);
+        if (!TextUtils.isEmpty(displayName)) {
+            callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(displayName.length()));
+        }
     }
 }

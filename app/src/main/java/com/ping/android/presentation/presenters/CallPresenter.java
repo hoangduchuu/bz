@@ -1,24 +1,69 @@
 package com.ping.android.presentation.presenters;
 
+import android.content.Intent;
+
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.bzzzchat.cleanarchitecture.BaseView;
-import com.ping.android.model.Call;
+import com.ping.android.activity.CallActivity;
 import com.ping.android.model.User;
+import com.quickblox.videochat.webrtc.QBRTCSession;
+
+import org.webrtc.CameraVideoCapturer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by tuanluong on 1/30/18.
+ * Created by tuanluong on 3/16/18.
  */
 
 public interface CallPresenter extends BasePresenter {
-    void getCalls();
+    void init(Intent intent, boolean isInComingCall, boolean isVideoCall);
 
-    void handleCallPressed(Call call, boolean isVideo);
+    void initSession(String id, boolean isIncomingCall);
 
-    interface View extends BaseView {
-        void addCall(Call call);
+    void initCall(User opponentUser, boolean isVideoCall, boolean isIncomingCall);
 
-        void deleteCall(Call call);
+    void reject();
 
-        void callUser(User user, boolean isVideo);
+    void accept();
+
+    void hangup();
+
+    void toggleAudio(boolean isAudioEnabled);
+
+    void registerCallStateListener(CallActivity.CurrentCallStateCallback callback);
+
+    void removeCallStateCallback(CallActivity.CurrentCallStateCallback callback);
+
+    void switchCamera(CameraVideoCapturer.CameraSwitchHandler cameraSwitchHandler);
+
+    QBRTCSession getCurrentSession();
+
+    User getOpponentUser();
+
+    boolean isIncomingCall();
+
+    interface View {
+        void startInComingCall(boolean isVideoCall);
+
+        void startOutgoingCall(User opponentUser, boolean isVideoCall);
+
+        void configCallSettings(List<Integer> users);
+
+        void initAudioSettings(boolean isVideo);
+
+        void finishCall();
+
+        void initCallViews(boolean isVideo, boolean isIncoming);
+
+        void stopRingtone();
+
+        void showErrorSendingPacket();
+
+        void updateOpponentInfo(User user);
+
+        void initUserData(Integer callerId, List<Integer> opponents);
+
+        void sendMissedCallNotification(String userId, int quickBloxID);
     }
 }
