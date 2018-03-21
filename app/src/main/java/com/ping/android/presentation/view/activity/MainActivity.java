@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -28,15 +27,13 @@ import com.ping.android.activity.R;
 import com.ping.android.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
+import com.ping.android.model.Call;
 import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.presentation.view.fragment.ContactFragment;
-import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
+import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.Call;
-import com.ping.android.model.User;
 import com.ping.android.service.BadgesHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
@@ -50,11 +47,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class MainActivity extends CoreActivity implements HasComponent<MainComponent> {
+public class MainActivity extends CoreActivity implements HasComponent<MainComponent>,MainPresenter.View {
 
     SharedPreferences prefs;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-    private User currentUser;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
@@ -76,7 +72,6 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
             startActivity(intent1);
         }
         setContentView(R.layout.activity_main);
-        currentUser = UserManager.getInstance().getUser();
 
         init();
         observeBadgeNumber();
@@ -107,30 +102,6 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
         onChangeTab();
-
-        if (currentUser != null && TextUtils.isEmpty(currentUser.phone)) {
-            startActivity(new Intent(MainActivity.this, PhoneActivity.class));
-        }
-        if (currentUser != null && !currentUser.showMappingConfirm) {
-            new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("NOTICE")
-                    .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
-                    .setCancelable(false)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
-                            ServiceManager.getInstance().updateShowMappingConfirm(true);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            UsersUtils.randomizeTransphabet();
-                            ServiceManager.getInstance().updateShowMappingConfirm(true);
-                        }
-                    }).show();
-        }
     }
 
     public void onEditMode(Boolean isEditMode) {
@@ -318,9 +289,36 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     public MainComponent getComponent() {
         if (component == null) {
-            component = getLoggedInComponent().provideMainComponent(new MainModule());
+            component = getLoggedInComponent().provideMainComponent(new MainModule(this));
         }
         return component;
+    }
+
+    @Override
+    public void openPhoneRequireView() {
+        startActivity(new Intent(MainActivity.this, PhoneActivity.class));
+    }
+
+    @Override
+    public void showMappingConfirm() {
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("NOTICE")
+                .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
+                        ServiceManager.getInstance().updateShowMappingConfirm(true);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        UsersUtils.randomizeTransphabet();
+                        ServiceManager.getInstance().updateShowMappingConfirm(true);
+                    }
+                }).show();
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
