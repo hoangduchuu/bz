@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
 import com.ping.android.presentation.presenters.BlockContactPresenter;

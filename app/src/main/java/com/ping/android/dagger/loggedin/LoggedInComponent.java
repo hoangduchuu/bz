@@ -16,6 +16,8 @@ import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
+import com.ping.android.dagger.loggedin.selectcontact.SelectContactComponent;
+import com.ping.android.dagger.loggedin.selectcontact.SelectContactModule;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
@@ -48,4 +50,6 @@ public interface LoggedInComponent {
     CallComponent provideCallComponent(CallModule module);
 
     BlockContactComponent provideBlockContactComponent(BlockContactModule module);
+
+    SelectContactComponent provideSelectContactComponent(SelectContactModule module);
 }

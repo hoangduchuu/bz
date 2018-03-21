@@ -22,7 +22,7 @@ import com.ping.android.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.SelectContactActivity;
+import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;

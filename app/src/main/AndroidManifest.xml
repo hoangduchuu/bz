@@ -142,7 +142,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".SelectContactActivity"
+            android:name="com.ping.android.presentation.view.activity.SelectContactActivity"
             android:label="Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
