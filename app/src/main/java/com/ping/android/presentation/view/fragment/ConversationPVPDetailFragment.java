@@ -12,7 +12,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.NicknameActivity;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;

@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
+import com.ping.android.presentation.presenters.NicknamePresenter;
 import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
@@ -18,6 +22,8 @@ import com.ping.android.ultility.Constant;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
 
@@ -26,15 +32,22 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
     private Conversation conversation;
     private NicknameAdapter adapter;
 
-    private ConversationRepository conversationRepository;
+    @Inject
+    NicknamePresenter presenter;
+    NicknameComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
         conversation = getIntent().getParcelableExtra(CONVERSATION_KEY);
-        conversationRepository = new ConversationRepository();
         initView();
+        presenter.init(conversation);
+    }
+
+    @Override
+    public NicknamePresenter getPresenter() {
+        return presenter;
     }
 
     private void initView() {
@@ -88,12 +101,14 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
     private void onNicknameSet(Nickname nickname, String s) {
         nickname.nickName = s;
         showLoading();
-        conversationRepository.updateUserNickname(conversation.key, nickname, conversation.memberIDs, (error, data) -> {
-            if (error == null) {
-                conversation.nickNames.put(nickname.userId, s);
-                recyclerView.post(() -> adapter.updateNickName(nickname));
-            }
-            hideLoading();
-        });
+        presenter.updateNickName(nickname);
+//        conversationRepository.updateUserNickname(conversation.key, nickname, conversation.memberIDs, (error, data) -> {
+//            if (error == null) {
+//
+//            }
+//            hideLoading();
+//        });
+        conversation.nickNames.put(nickname.userId, s);
+        recyclerView.post(() -> adapter.updateNickName(nickname));
     }
 }
