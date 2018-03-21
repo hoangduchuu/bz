@@ -264,6 +264,22 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue) {
+        DatabaseReference reference = database.getReference("users").child(key).child("mappings").child(mapKey);
+        return RxFirebaseDatabase.setValue(reference, mapValue)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings) {
+        DatabaseReference reference = database.getReference("users").child(key).child("mappings");
+        return RxFirebaseDatabase.setValue(reference, mappings)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.ping.android.activity.BeforeLoginActivity;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.activity.ChangePasswordActivity;
-import com.ping.android.activity.MappingActivity;
 import com.ping.android.activity.PrivacyAndTermActivity;
 import com.ping.android.activity.R;
 import com.ping.android.activity.TransphabetActivity;
@@ -27,7 +26,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.BzzzStorage;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
@@ -266,17 +264,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    private void onEditMapping(View view) {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
-            Toaster.shortToast("Please check network connection.");
-            return;
-        }
-        if (currentUser == null) {
-            return;
-        }
-        startActivity(new Intent(getActivity(), MappingActivity.class));
     }
 
     private void onChangePwd() {

@@ -152,11 +152,6 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".MappingActivity"
-            android:label="Add Contact"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".PuzzleActivity"
             android:label="PuzzleActivity"
             android:launchMode="singleTop"

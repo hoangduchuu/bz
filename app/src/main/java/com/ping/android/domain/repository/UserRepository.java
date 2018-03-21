@@ -59,4 +59,8 @@ public interface UserRepository {
     Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean);
 
     Observable<Boolean> updateUserProfileImage(String userId, String s);
+
+    Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue);
+
+    Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings);
 }

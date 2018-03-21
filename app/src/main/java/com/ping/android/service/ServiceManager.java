@@ -287,12 +287,9 @@ public class ServiceManager {
             Mapping mapping = new Mapping(mapKey, "");
             mappings.add(mapping);
         }
-        Collections.sort(mappings, new Comparator<Mapping>() {
-            @Override
-            public int compare(Mapping lhs, Mapping rhs) {
-                // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-                return lhs.mapKey.compareTo(rhs.mapKey);
-            }
+        Collections.sort(mappings, (lhs, rhs) -> {
+            // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+            return lhs.mapKey.compareTo(rhs.mapKey);
         });
         return mappings;
     }

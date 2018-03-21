@@ -1,6 +1,5 @@
 package com.ping.android.dagger.loggedin;
 
-import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
@@ -12,6 +11,8 @@ import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
+import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
+import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
@@ -52,4 +53,6 @@ public interface LoggedInComponent {
     BlockContactComponent provideBlockContactComponent(BlockContactModule module);
 
     SelectContactComponent provideSelectContactComponent(SelectContactModule module);
+
+    ManualMappingComponent provideManualMappingComponent(ManualMappingModule module);
 }
