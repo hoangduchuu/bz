@@ -35,7 +35,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private ArrayList<Conversation> originalConversations;
     private ArrayList<Conversation> displayConversations;
     private ArrayList<Conversation> selectConversations;
-    private User currentUser;
     private RecyclerView recyclerView;
     private Set<MessageViewHolder> boundsViewHolder = new HashSet<>();
 
@@ -46,7 +45,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         this.originalConversations = conversations;
         this.displayConversations = (ArrayList<Conversation>) conversations.clone();
         selectConversations = new ArrayList<>();
-        currentUser = UserManager.getInstance().getUser();
     }
 
     @Override
@@ -101,8 +99,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public int unreadNum() {
         int unread = 0;
         for (Conversation conversation : originalConversations) {
-            if (!conversation.readStatuses.containsKey(currentUser.key)
-                    || !conversation.readStatuses.get(currentUser.key)) {
+            if (!conversation.isRead) {
                 unread++;
             }
         }
@@ -211,14 +208,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     private boolean isFiltered(Conversation conversation, String text) {
-        for (User user : conversation.members) {
-            if (!user.key.equals(currentUser.key)) {
-                if (CommonMethod.isFiltered(user, text)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return conversation.filterText.contains(text);
     }
 
     private void toggleEditMode() {
