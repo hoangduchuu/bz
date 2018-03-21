@@ -319,7 +319,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 return;
             }
             if (listener != null) {
-                listener.onOpenChatScreen(this.conversation, null);
+                String nameTransitionKey = "transitionName" + getAdapterPosition();
+                tvSender.setTransitionName(nameTransitionKey);
+                Pair namePair = Pair.create(tvSender, nameTransitionKey);
+                listener.onOpenChatScreen(this.conversation, namePair);
             }
         }
 
@@ -401,7 +404,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public interface ConversationItemListener {
         void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements);
         void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements);
-        void onOpenChatScreen(Conversation conversation, List<Pair<View, String>> sharedElements);
+        void onOpenChatScreen(Conversation conversation, Pair<View, String>... sharedElements);
         void onSelect(Conversation conversation);
     }
 }

@@ -20,8 +20,6 @@ import com.ping.android.activity.SelectContactActivity;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
-import com.ping.android.domain.usecase.group.CreateGroupUseCase;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
@@ -52,8 +50,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private RecyclerView recycleChatView;
     private LinearLayout noResultsView;
     private AVLoadingIndicatorView avi;
-
-    private User fromUser;
 
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage = null;
@@ -152,7 +148,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void init() {
-        fromUser = UserManager.getInstance().getUser();
         adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
             if (isSelected) {
                 selectedUsers.add(contact);
@@ -195,7 +190,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
                 onCreateGroup();
                 break;
             case R.id.profile_image:
-                openPicker();
+                presenter.handlePickerPress();
                 break;
         }
     }
@@ -248,43 +243,17 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             Toaster.shortToast("Please check network connection.");
             return;
         }
-
-        List<User> toUsers = new ArrayList<>(selectedUsers);
-        toUsers.add(fromUser);
-
-        CreateGroupUseCase.Params params = new CreateGroupUseCase.Params();
-        params.users = toUsers;
-        params.groupName = groupNames;
-        params.groupProfileImage = groupProfileImage != null ? groupProfileImage.getAbsolutePath() : "";
-        params.message = edMessage.getText().toString();
-        presenter.createGroup(params);
+        presenter.createGroup(selectedUsers, groupNames,
+                groupProfileImage != null ? groupProfileImage.getAbsolutePath() : "",
+                edMessage.getText().toString());
     }
 
     private void onCancelGroup() {
         finish();
     }
 
-    private void openPicker() {
-        String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
-                "profile" + File.separator + fromUser.key;
-        double timestamp = System.currentTimeMillis() / 1000d;
-        String profileFileName = "" + timestamp + "-" + fromUser.key + ".png";
-        String profileFilePath = profileFileFolder + File.separator + profileFileName;
-        imagePickerHelper = ImagePickerHelper.from(this)
-                .setFilePath(profileFilePath)
-                .setCrop(true)
-                .setListener(new ImagePickerHelper.ImagePickerListener() {
-                    @Override
-                    public void onImageReceived(File file) {
-
-                    }
-
-                    @Override
-                    public void onFinalImage(File... files) {
-                        groupProfileImage = files[0];
-                        UiUtils.displayProfileAvatar(groupAvatar, groupProfileImage);
-                    }
-                });
+    @Override
+    public void openPicker() {
         imagePickerHelper.openPicker();
     }
 
@@ -334,5 +303,29 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void initProfileImagePath(String key) {
+        String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
+                "profile" + File.separator + key;
+        double timestamp = System.currentTimeMillis() / 1000d;
+        String profileFileName = "" + timestamp + "-" + key + ".png";
+        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCrop(true)
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
+                        UiUtils.displayProfileAvatar(groupAvatar, groupProfileImage);
+                    }
+                });
     }
 }

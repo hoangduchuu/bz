@@ -12,45 +12,40 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
-import com.ping.android.presentation.view.activity.UserDetailActivity;
-import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
-import com.ping.android.managers.UserManager;
+import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.service.ServiceManager;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
+import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.ultility.Constant;
-import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener, SearchUserPresenter.View {
-    private static final int DELAY = 300;
-
+public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener, SearchUserPresenter.View, AddContactPresenter.View {
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
     private SearchView searchView;
     private ImageView btBack;
     private AVLoadingIndicatorView avi;
 
-    private User currentUser;
     private AddContactAdapter adapter;
     private LinearLayout noResultsView;
 
-    private Timer timer;
-    private String textToSearch = "";
-
     @Inject
     public SearchUserPresenter searchUserPresenter;
+    @Inject
+    public AddContactPresenter presenter;
     private AddContactComponent component;
 
     @Override
@@ -72,6 +67,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     protected void onDestroy() {
         super.onDestroy();
         searchUserPresenter.destroy();
+        presenter.destroy();
     }
 
     private void bindViews() {
@@ -92,8 +88,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     }
 
     private void init() {
-        currentUser = UserManager.getInstance().getUser();
-
         adapter = new AddContactAdapter(new ArrayList<>(), this);
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
@@ -101,27 +95,21 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     @Override
     public void onAddFriend(User contact) {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        ServiceManager.getInstance().addContact(contact);
+        presenter.addContact(contact.key);
         contact.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
     }
 
     @Override
     public void onSendMessage(User contact) {
-        if (!ServiceManager.getInstance().getNetworkStatus(AddContactActivity.this)) {
+        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
             Toast.makeText(AddContactActivity.this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        ServiceManager.getInstance().createConversationIDForPVPChat(currentUser.key, contact.key,
-                (error, data) -> {
-                    String conversationID = data[0].toString();
-                    Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
-                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                    startActivity(intent);
-                });
+        presenter.createPVPConversation(contact);
     }
 
     @Override
@@ -147,10 +135,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         }
     }
 
-    public void searchUsers(String text) {
-        searchUserPresenter.searchUsers(text);
-    }
-
     private void onExitAddContact() {
         finish();
     }
@@ -158,7 +142,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     public AddContactComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent()
-                    .provideAddContactComponent(new SearchUserModule(this));
+                    .provideAddContactComponent(new AddContactModule(this), new SearchUserModule(this));
         }
         return component;
     }
@@ -194,5 +178,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
             avi.hide();
             avi.setVisibility(View.GONE);
         });
+    }
+
+    @Override
+    public void moveToChatScreen(String s) {
+        Intent intent = new Intent(AddContactActivity.this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, s);
+        startActivity(intent);
     }
 }

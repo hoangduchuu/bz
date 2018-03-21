@@ -184,7 +184,9 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                              boolean isIncomingCall) {
 
         Intent intent = new Intent(context, CallActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         intent.putExtra(EXTRA_IS_INCOMING_CALL, isIncomingCall);
         intent.putExtra(EXTRA_SESSION_ID, sessionId);
         context.startActivity(intent);

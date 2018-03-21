@@ -79,12 +79,15 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
                     Log.d("app in fore ground, no need to do any thing");
                     return;
                 }
-                Intent intentNew = new Intent(context, SplashActivity.class);
-                intentNew.putExtra("INCOMING_CALL", "incoming_call");
-                //intentNew.addFlags(Intent.FLAG_FROM_BACKGROUND);
-                intentNew.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Log.d("going to start activity");
-                context.startActivity(intentNew);
+                Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
+                String pingId = SharedPrefsHelper.getInstance().get("pingId");
+                CallService.start(context, qbId, pingId);
+//                Intent intentNew = new Intent(context, SplashActivity.class);
+//                intentNew.putExtra("INCOMING_CALL", "incoming_call");
+//                //intentNew.addFlags(Intent.FLAG_FROM_BACKGROUND);
+//                intentNew.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                Log.d("going to start activity");
+//                context.startActivity(intentNew);
             }
         } catch (JSONException e) {
             e.printStackTrace();
