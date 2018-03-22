@@ -9,8 +9,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;

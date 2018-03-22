@@ -1,8 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.AudioCallPresenter;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.quickblox.users.model.QBUser;

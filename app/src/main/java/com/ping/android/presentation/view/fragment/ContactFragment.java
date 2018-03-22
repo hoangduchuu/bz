@@ -12,13 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.ping.android.activity.AddContactActivity;
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.AddContactActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ContactPresenter;
 import com.ping.android.presentation.view.activity.ChatActivity;

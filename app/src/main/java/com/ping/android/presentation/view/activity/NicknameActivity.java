@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
 import com.ping.android.dagger.loggedin.nickname.NicknameModule;
@@ -17,7 +16,6 @@ import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
-import com.ping.android.service.firebase.ConversationRepository;
 import com.ping.android.ultility.Constant;
 
 import java.util.ArrayList;

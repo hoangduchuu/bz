@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.domain.usecase.AddCallHistoryUseCase;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.GetUserByKeyUseCase;
@@ -17,7 +17,6 @@ import com.ping.android.service.CallServiceHandler;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.WebRtcSessionManager;
-import com.quickblox.chat.QBChatService;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
@@ -28,7 +27,6 @@ import com.quickblox.videochat.webrtc.callbacks.QBRTCSignalingCallback;
 import com.quickblox.videochat.webrtc.exception.QBRTCSignalException;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;

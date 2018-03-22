@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
@@ -20,7 +20,6 @@ import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.call.CallComponent;
 import com.ping.android.dagger.loggedin.main.call.CallModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;

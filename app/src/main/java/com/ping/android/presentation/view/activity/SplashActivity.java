@@ -8,9 +8,7 @@ import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
-import com.ping.android.activity.BeforeLoginActivity;
 import com.ping.android.activity.BuildConfig;
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.splash.SplashComponent;
 import com.ping.android.dagger.loggedout.splash.SplashModule;

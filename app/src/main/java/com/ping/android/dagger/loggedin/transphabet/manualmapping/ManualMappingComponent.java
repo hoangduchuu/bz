@@ -1,7 +1,7 @@
 package com.ping.android.dagger.loggedin.transphabet.manualmapping;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.fragment.transphabet.MappingFragment;
+import com.ping.android.presentation.view.fragment.MappingFragment;
 
 import dagger.Subcomponent;
 

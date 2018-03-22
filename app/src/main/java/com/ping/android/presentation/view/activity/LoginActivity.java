@@ -1,6 +1,5 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,19 +20,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.ForgotPasswordActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
-import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Consts;
-import com.ping.android.utils.ActivityLifecycle;
-import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
 

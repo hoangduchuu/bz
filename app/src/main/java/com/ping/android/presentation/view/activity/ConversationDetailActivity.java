@@ -1,13 +1,11 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.Fragment;
 import android.os.Bundle;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
-import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
 import com.ping.android.presentation.view.fragment.ConversationPVPDetailFragment;
 import com.ping.android.ultility.Constant;

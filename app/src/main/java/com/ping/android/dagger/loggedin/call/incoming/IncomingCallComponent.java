@@ -1,7 +1,7 @@
 package com.ping.android.dagger.loggedin.call.incoming;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.fragment.IncomeCallFragment;
+import com.ping.android.presentation.view.fragment.IncomeCallFragment;
 
 import dagger.Subcomponent;
 
