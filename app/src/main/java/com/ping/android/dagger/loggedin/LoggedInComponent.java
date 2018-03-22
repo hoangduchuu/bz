@@ -11,6 +11,8 @@ import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
+import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
+import com.ping.android.dagger.loggedin.nickname.NicknameModule;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
@@ -54,5 +56,5 @@ public interface LoggedInComponent {
 
     SelectContactComponent provideSelectContactComponent(SelectContactModule module);
 
-    ManualMappingComponent provideManualMappingComponent(ManualMappingModule module);
+    NicknameComponent provideNickNameComponent(NicknameModule nicknameModule);
 }

@@ -17,5 +17,6 @@ public interface NicknamePresenter extends BasePresenter {
 
     interface View extends BaseView {
 
+        void updateNickname(Nickname nickname);
     }
 }

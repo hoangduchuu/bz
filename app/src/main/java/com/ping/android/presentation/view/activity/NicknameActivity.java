@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
+import com.ping.android.dagger.loggedin.nickname.NicknameModule;
 import com.ping.android.presentation.presenters.NicknamePresenter;
 import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
@@ -24,7 +25,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener {
+public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener, NicknamePresenter.View {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
 
     private RecyclerView recyclerView;
@@ -40,6 +41,7 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
+        getComponent().inject(this);
         conversation = getIntent().getParcelableExtra(CONVERSATION_KEY);
         initView();
         presenter.init(conversation);
@@ -102,13 +104,17 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
         nickname.nickName = s;
         showLoading();
         presenter.updateNickName(nickname);
-//        conversationRepository.updateUserNickname(conversation.key, nickname, conversation.memberIDs, (error, data) -> {
-//            if (error == null) {
-//
-//            }
-//            hideLoading();
-//        });
-        conversation.nickNames.put(nickname.userId, s);
+    }
+
+    public NicknameComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideNickNameComponent(new NicknameModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void updateNickname(Nickname nickname) {
         recyclerView.post(() -> adapter.updateNickName(nickname));
     }
 }

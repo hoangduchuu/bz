@@ -21,7 +21,8 @@ public class NicknamePresenterImpl implements NicknamePresenter {
     private Conversation conversation;
 
     @Inject
-    public NicknamePresenterImpl() {}
+    public NicknamePresenterImpl() {
+    }
 
 
     @Override
@@ -31,6 +32,16 @@ public class NicknamePresenterImpl implements NicknamePresenter {
 
     @Override
     public void updateNickName(Nickname nickname) {
-        updateConversationNicknameUseCase.execute(new DefaultObserver<>(), new UpdateConversationNicknameUseCase.Params(conversation, nickname));
+        view.showLoading();
+        updateConversationNicknameUseCase
+                .execute(new DefaultObserver<Boolean>() {
+                             @Override
+                             public void onNext(Boolean aBoolean) {
+                                 conversation.nickNames.put(nickname.userId, nickname.nickName);
+                                 view.hideLoading();
+                                 view.updateNickname(nickname);
+                             }
+                         },
+                        new UpdateConversationNicknameUseCase.Params(conversation, nickname));
     }
 }
