@@ -1,11 +1,11 @@
-package com.ping.android.view.viewholders;
+package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.annotation.SuppressLint;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.ping.android.view.GestureDetectorListener;
+import com.ping.android.presentation.view.custom.GestureDetectorListener;
 
 /**
  * Created by tuanluong on 1/19/18.

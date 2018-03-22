@@ -58,7 +58,7 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
-import com.ping.android.view.RecorderVisualizerView;
+import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 

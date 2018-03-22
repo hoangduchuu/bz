@@ -1,4 +1,4 @@
-package com.ping.android.view;
+package com.ping.android.presentation.view.custom;
 
 import android.app.Activity;
 import android.content.Context;

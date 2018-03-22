@@ -23,7 +23,7 @@
             android:visibility="gone"
             android:text="CANCEL" />
 
-        <com.ping.android.view.CustomSwitch
+        <com.ping.android.presentation.view.custom.CustomSwitch
             android:id="@+id/call_switch"
             android:layout_width="120dp"
             android:layout_height="26dp"

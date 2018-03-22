@@ -34,7 +34,7 @@
             android:layout_height="match_parent"
             android:gravity="center">
 
-            <com.ping.android.view.TouchImageView
+            <com.ping.android.presentation.view.custom.TouchImageView
                 android:id="@+id/puzzle_image"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

@@ -1,4 +1,4 @@
-package com.ping.android.db;
+package com.ping.android.data.db;
 
 import android.content.ContentValues;
 import android.content.Context;

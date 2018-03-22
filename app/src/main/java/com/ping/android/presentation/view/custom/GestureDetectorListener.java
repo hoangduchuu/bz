@@ -1,11 +1,9 @@
-package com.ping.android.view;
+package com.ping.android.presentation.view.custom;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-
-import com.ping.android.utils.Log;
 
 public class GestureDetectorListener implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
     private String DEBUG_TAG = GestureDetectorListener.class.getSimpleName();

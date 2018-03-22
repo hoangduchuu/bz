@@ -27,7 +27,7 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.view.ChipsEditText;
+import com.ping.android.presentation.view.custom.ChipsEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;

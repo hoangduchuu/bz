@@ -23,11 +23,10 @@ import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
-import com.ping.android.view.CustomSwitch;
+import com.ping.android.presentation.view.custom.CustomSwitch;
 
 import org.apache.commons.collections4.CollectionUtils;
 

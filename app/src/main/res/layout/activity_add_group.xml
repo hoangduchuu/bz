@@ -68,7 +68,7 @@
                 android:layout_marginLeft="@dimen/default_padding"
                 android:text="To: " />
 
-            <com.ping.android.view.ChipsEditText
+            <com.ping.android.presentation.view.custom.ChipsEditText
                 android:id="@+id/edt_to"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

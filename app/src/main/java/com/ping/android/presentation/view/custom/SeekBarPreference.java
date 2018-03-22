@@ -1,4 +1,4 @@
-package com.ping.android.view;
+package com.ping.android.presentation.view.custom;
 
 import android.content.Context;
 import android.content.res.TypedArray;

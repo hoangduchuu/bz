@@ -3,16 +3,12 @@ package com.ping.android.utils;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.ping.android.db.QbUsersDbManager;
+import com.ping.android.data.db.QbUsersDbManager;
 import com.ping.android.model.Transphabet;
 import com.ping.android.service.ServiceManager;
 import com.quickblox.users.model.QBUser;
-import com.vanniktech.emoji.EmojiManager;
-import com.vanniktech.emoji.EmojiProvider;
 import com.vanniktech.emoji.EmojiRange;
 import com.vanniktech.emoji.EmojiUtils;
-import com.vanniktech.emoji.emoji.Emoji;
-import com.vanniktech.emoji.emoji.EmojiCategory;
 
 import java.util.ArrayList;
 import java.util.Arrays;

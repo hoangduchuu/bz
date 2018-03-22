@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.ping.android.view.TouchImageView
+    <com.ping.android.presentation.view.custom.TouchImageView
         android:id="@+id/image_original"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
