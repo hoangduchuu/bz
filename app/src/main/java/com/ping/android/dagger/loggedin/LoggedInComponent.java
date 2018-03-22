@@ -6,6 +6,8 @@ import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.CallModule;
+import com.ping.android.dagger.loggedin.changepassword.ChangePasswordComponent;
+import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
@@ -57,4 +59,6 @@ public interface LoggedInComponent {
     SelectContactComponent provideSelectContactComponent(SelectContactModule module);
 
     NicknameComponent provideNickNameComponent(NicknameModule nicknameModule);
+
+    ChangePasswordComponent provideChangePasswordComponent(ChangePasswordModule changePasswordModule);
 }

@@ -15,18 +15,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.changepassword.ChangePasswordComponent;
+import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ChangePasswordPresenter;
 import com.ping.android.ultility.CommonMethod;
 
-public class ChangePasswordActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
 
+public class ChangePasswordActivity extends CoreActivity implements View.OnClickListener, ChangePasswordPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
+
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private FirebaseAuth auth;
     private EditText etPassword, etNewPassword, etConfirmPassword;
     private User currentUser;
+
+    @Inject
+    ChangePasswordPresenter presenter;
+    ChangePasswordComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +57,11 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
         }
     }
 
+    @Override
+    public ChangePasswordPresenter getPresenter() {
+        return presenter;
+    }
+
     private void bindViews() {
         findViewById(R.id.password_change).setOnClickListener(this);
         findViewById(R.id.ib_back).setOnClickListener(this);
@@ -58,7 +72,6 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
 
     private void init() {
         auth = FirebaseAuth.getInstance();
-        currentUser = UserManager.getInstance().getUser();
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
     }
@@ -124,5 +137,18 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
                     }
                 })
                 .addOnFailureListener(e -> hideLoading());
+    }
+
+    public ChangePasswordComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent()
+                    .provideChangePasswordComponent(new ChangePasswordModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void onUserUpdated(User currentUser) {
+        this.currentUser = currentUser;
     }
 }
