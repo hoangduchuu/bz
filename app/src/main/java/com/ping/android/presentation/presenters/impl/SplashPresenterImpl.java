@@ -2,7 +2,9 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.CheckAppUpdateUseCase;
+import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
+import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +22,8 @@ import javax.inject.Inject;
 public class SplashPresenterImpl implements SplashPresenter {
     @Inject
     View view;
+    @Inject
+    GetCurrentUserUseCase getCurrentUserUseCase;
     @Inject
     InitializeUserUseCase initializeUserUseCase;
     @Inject
@@ -74,6 +78,16 @@ public class SplashPresenterImpl implements SplashPresenter {
     @Override
     public void finishTimer() {
         onStepFinish();
+    }
+
+    @Override
+    public void handleNewConversation(String conversationId) {
+        getCurrentUserUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                view.navigateToMainScreenWithExtra(conversationId);
+            }
+        }, null);
     }
 
     private void onStepFinish() {
