@@ -433,9 +433,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void bindViews() {
-        Bundle extras = getIntent().getExtras();
-        String conversationName = extras.getString(EXTRA_CONVERSATION_NAME);
-        String conversationTransionName = extras.getString(EXTRA_CONVERSATION_TRANSITION_NAME);
+        String conversationName = getIntent().getStringExtra(EXTRA_CONVERSATION_NAME);
+        String conversationTransionName = getIntent().getStringExtra(EXTRA_CONVERSATION_TRANSITION_NAME);
 
         btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
@@ -919,7 +918,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onExitChat() {
-        finish();
+        finishAfterTransition();
     }
 
     private void onSentMessage(String text) {

@@ -60,17 +60,19 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
             String notificationType = intent.getStringExtra("notificationType");
             Log.d("new message: " + message + conversationId + notificationType);
             if (TextUtils.equals(notificationType, "incoming_message")
-                    || TextUtils.equals(notificationType, "missed_call")) {
+                    || TextUtils.equals(notificationType, "missed_call")
+                    || TextUtils.equals(notificationType, "game_status")) {
                 Log.d("incoming message");
                 if (!needDisplayNotification(conversationId)) {
                     return;
                 }
-                if (!TextUtils.isEmpty(conversationId)) {
+                if (TextUtils.equals(notificationType, "incoming_message")) {
                     this.badgeHelper.increaseBadgeCount(conversationId);
-                } else {
+                } else if (TextUtils.equals(notificationType, "missed_call")) {
                     this.badgeHelper.increaseMissedCall();
                 }
-                this.postNotification(message, conversationId, context);
+                boolean allowReply = notificationType.equals("incoming_message");
+                this.postNotification(message, conversationId, allowReply);
             } else if (TextUtils.equals(notificationType, "incoming_call")) {
                 Log.d("incoming call");
                 if (ActivityLifecycle.getInstance().isForeground()) {
@@ -94,7 +96,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void postNotification(String message, String conversationId, Context context) throws JSONException {
+    private void postNotification(String message, String conversationId, boolean allowReply) throws JSONException {
         User currentUser = UserManager.getInstance().getUser();
         boolean soundNotification = currentUser == null || currentUser.settings.notification;
         mNotificationId = getID();
@@ -127,33 +129,33 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
             notificationBuilder
                     .setPriority(Notification.PRIORITY_HIGH);
         }
-        //do not show double BZZZ, will change if use title for other meaning
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        if (allowReply) {
+            //do not show double BZZZ, will change if use title for other meaning
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                notificationBuilder
+                        .setContentTitle("BZZZ");
+            } else {
+                // 1. Build label
+                String replyLabel = getString(R.string.notif_action_reply);
+                RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
+                        .setLabel(replyLabel)
+                        .build();
 
 
-            notificationBuilder
-                    .setContentTitle("BZZZ");
-        }else{
-            // 1. Build label
-            String replyLabel = getString(R.string.notif_action_reply);
-            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
-                    .setLabel(replyLabel)
-                    .build();
+                Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
+                PendingIntent.getBroadcast(context, 100, intent1,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
 
+                // 2. Build action
+                NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                        R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+                        .addRemoteInput(remoteInput)
+                        .setAllowGeneratedReplies(true)
+                        .build();
+                notificationBuilder.addAction(replyAction);
 
-            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            PendingIntent.getBroadcast(context, 100, intent1,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            // 2. Build action
-            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                    R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
-                    PendingIntent.FLAG_UPDATE_CURRENT))
-                    .addRemoteInput(remoteInput)
-                    .setAllowGeneratedReplies(true)
-                    .build();
-            notificationBuilder.addAction(replyAction);
-
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.

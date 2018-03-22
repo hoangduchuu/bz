@@ -134,8 +134,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("message", body);
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
-        object.addProperty("ios_category", "incoming_message");
-        object.addProperty("notificationType", "incoming_message");
+        object.addProperty("ios_category", "game_status");
+        object.addProperty("notificationType", "game_status");
         object.addProperty("senderName", displayName);
         object.addProperty("conversationId", conversationId);
         object.addProperty("senderId", senderId);

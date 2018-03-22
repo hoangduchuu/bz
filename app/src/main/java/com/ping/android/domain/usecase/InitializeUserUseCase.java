@@ -57,7 +57,6 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
                                 });
                     }
                 })
-                .doOnNext(qbUser -> userManager.setQbUser(qbUser))
                 .map(qbUser -> true);
     }
 
