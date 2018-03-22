@@ -7,7 +7,6 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
@@ -18,9 +17,6 @@ import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
 import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AudioCallPresenter;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
 

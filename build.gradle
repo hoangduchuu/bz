@@ -41,7 +41,7 @@ ext {
     targetSdkVersion = 27
 
     supportLibVersion = '27.0.2'
-    qbSdkVersion = '3.4.1'
+    qbSdkVersion = '3.8.0'
     robotoTextViewVersion = '2.4.3'
     okhttpLibraryVersion = '3.9.1'
 

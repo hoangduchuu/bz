@@ -13,25 +13,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.SelectContactActivity;
-import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
-import com.ping.android.domain.usecase.group.CreateGroupUseCase;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
+import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Toaster;
 import com.ping.android.view.ChipsEditText;
-import com.bzzzchat.cleanarchitecture.UIThread;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,8 +51,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     private LinearLayout noResultsView;
     private AVLoadingIndicatorView avi;
     private Button btnDone;
-
-    private User fromUser;
 
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers = new ArrayList<>();
@@ -113,8 +108,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
-        fromUser = UserManager.getInstance().getUser();
-
         adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
             if (isSelected) {
                 selectedUsers.add(contact);
@@ -256,8 +249,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             // TODO create group then send message
             List<User> toUsers = new ArrayList<>();
             toUsers.addAll(selectedUsers);
-            toUsers.add(fromUser);
-            createGroup(toUsers, edMessage.getText().toString());
+            presenter.createGroup(toUsers, edMessage.getText().toString());
         } else {
             User toUser = selectedUsers.get(0);
             CreatePVPConversationUseCase.Params params = new CreatePVPConversationUseCase.Params();
@@ -265,19 +257,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             params.message = edMessage.getText().toString();
             presenter.createPVPConversation(params);
         }
-    }
-
-    private void createGroup(List<User> toUsers, String msg) {
-        List<String> displayNames = new ArrayList<>();
-        for (User user : toUsers) {
-            displayNames.add(user.getDisplayName());
-        }
-        CreateGroupUseCase.Params params = new CreateGroupUseCase.Params();
-        params.users = toUsers;
-        params.groupName = TextUtils.join(", ", displayNames);
-        params.groupProfileImage = "";
-        params.message = msg;
-        presenter.createGroup(params);
     }
 
     @Override

@@ -3,8 +3,12 @@ package com.ping.android.fragment.transphabet;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,34 +20,43 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
+import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
+import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
 import com.ping.android.form.Mapping;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.utils.KeyboardHelpers;
-import com.vanniktech.emoji.EmojiEditText;
+import com.ping.android.presentation.presenters.ManualMappingPresenter;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MappingFragment extends BaseFragment implements View.OnClickListener {
+public class MappingFragment extends BaseFragment implements View.OnClickListener, ManualMappingPresenter.View {
     private List<Mapping> mMappings;
 
     //Views UI
     private ImageView btBack;
     private Button btReset;
 
-    private User currentUser;
-
     private View rootView;
+
+    @Inject
+    ManualMappingPresenter presenter;
+    ManualMappingComponent component;
 
     public static MappingFragment newInstance() {
         return new MappingFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getComponent().inject(this);
     }
 
     @Override
@@ -52,7 +65,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_mapping, container, false);
         bindViews(rootView);
-        init();
+        presenter.create();
         return rootView;
     }
 
@@ -72,9 +85,34 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
-    private void renderMapping() {
-        for (Mapping mapping : mMappings) {
-            int resId = getResources().getIdentifier("mapping_" + mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
+    private void onClickMapping(String id) {
+        if (!id.contains("mapping_")) {
+            return;
+        }
+        char mapKey = id.charAt(id.length() - 1);
+        presenter.handleMappingItemClick(mapKey - 'a');
+    }
+
+    private void changeMapping(Mapping mapping, String value) {
+        presenter.changeMapping(mapping.mapKey, value);
+    }
+
+    private void resetMapping() {
+        presenter.resetMapping();
+    }
+
+    private void bindViews(View view) {
+        btBack = view.findViewById(R.id.mapping_back);
+        btBack.setOnClickListener(this);
+        btReset = view.findViewById(R.id.mapping_reset);
+        btReset.setOnClickListener(this);
+    }
+
+    @Override
+    public void updateMapping(List<Mapping> mappings) {
+        for (Mapping mapping : mappings) {
+            int resId = getResources().getIdentifier("mapping_" +
+                    mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
             RelativeLayout mappingItem = rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 
@@ -92,13 +130,8 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
-    private void onClickMapping(String id) {
-        if (!id.contains("mapping_")) {
-            return;
-        }
-        char mapKey = id.charAt(id.length() - 1);
-        Mapping mapping = mMappings.get(mapKey - 'a');
-
+    @Override
+    public void editMappingItem(Mapping mapping) {
         LayoutInflater li = LayoutInflater.from(getContext());
         View promptsView = li.inflate(R.layout.dialog_input_mapping, null);
 
@@ -107,8 +140,31 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
-        final EmojiEditText userInput = promptsView.findViewById(R.id.input_mapping_value);
+        final EditText userInput = promptsView.findViewById(R.id.input_mapping_value);
         userInput.setText(mapping.mapValue);
+        userInput.addTextChangedListener(new TextWatcher() {
+            String oldValue = "";
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String newValue = editable.toString();
+                if (TextUtils.isEmpty(oldValue) || TextUtils.isEmpty(newValue)) {
+                    oldValue = newValue;
+                } else if (!TextUtils.equals(oldValue, newValue)) {
+                    userInput.setText(oldValue);
+                }
+            }
+        });
 
         // set dialog message
         alertDialogBuilder
@@ -130,41 +186,16 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        int length = userInput.getText().length();
-        userInput.setSelection(0, length);
+        userInput.setSelection(0, mapping.mapValue.length());
         // show it
         alertDialog.show();
     }
 
-    private void changeMapping(Mapping mapping, String value) {
-        if (!mapping.mapValue.equals(value)) {
-            mapping.mapValue = value;
-            renderMapping();
-            saveMapping();
+    public ManualMappingComponent getComponent() {
+        if (component == null) {
+            component = getComponent(TransphabetComponent.class)
+                    .provideManualMappingComponent(new ManualMappingModule(this));
         }
-    }
-
-    private void saveMapping() {
-        currentUser.mappings = ServiceManager.getInstance().getMappingFromList(mMappings);
-        ServiceManager.getInstance().updateMapping(currentUser.mappings);
-    }
-
-    private void resetMapping() {
-        mMappings = ServiceManager.getInstance().getDefaultMappingList();
-        KeyboardHelpers.hideSoftInputKeyboard(getActivity());
-        renderMapping();
-    }
-
-    private void bindViews(View view) {
-        btBack = view.findViewById(R.id.mapping_back);
-        btBack.setOnClickListener(this);
-        btReset = view.findViewById(R.id.mapping_reset);
-        btReset.setOnClickListener(this);
-    }
-
-    private void init() {
-        currentUser = UserManager.getInstance().getUser();
-        mMappings = ServiceManager.getInstance().getListFromMapping(currentUser.mappings);
-        renderMapping();
+        return component;
     }
 }

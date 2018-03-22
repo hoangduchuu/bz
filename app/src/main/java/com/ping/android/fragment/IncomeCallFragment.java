@@ -1,12 +1,10 @@
 package com.ping.android.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,27 +18,12 @@ import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.incoming.IncomingCallComponent;
 import com.ping.android.dagger.loggedin.call.incoming.IncomingCallModule;
-import com.ping.android.db.QbUsersDbManager;
-import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.presenters.IncomingCallPresenter;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.UserRepository;
-import com.ping.android.ultility.Callback;
-import com.ping.android.utils.CollectionsUtils;
 import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.utils.UsersUtils;
-import com.ping.android.utils.WebRtcSessionManager;
-import com.quickblox.chat.QBChatService;
-import com.quickblox.users.model.QBUser;
-import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;

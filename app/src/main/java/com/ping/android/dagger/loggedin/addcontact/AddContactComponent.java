@@ -10,7 +10,7 @@ import dagger.Subcomponent;
  * Created by tuanluong on 1/25/18.
  */
 @PerActivity
-@Subcomponent(modules = { SearchUserModule.class })
+@Subcomponent(modules = { AddContactModule.class, SearchUserModule.class })
 public interface AddContactComponent {
     void inject(AddContactActivity addContactActivity);
 }

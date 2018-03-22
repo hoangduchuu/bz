@@ -22,6 +22,7 @@ public class Call {
     public User opponentUser;
     public String opponentName;
     public String conversationId;
+    public CallType type;
 
     public Call() {}
 
@@ -57,5 +58,9 @@ public class Call {
         result.put("timestamp", timestamp);
         result.put("deleteStatuses", deleteStatuses);
         return result;
+    }
+
+    public enum CallType {
+        OUTGOING, INCOMING, MISSED
     }
 }

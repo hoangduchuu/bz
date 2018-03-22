@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
+import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,24 +24,27 @@ import io.reactivex.Observable;
 public class TogglePuzzlePictureUseCase extends UseCase<Boolean, TogglePuzzlePictureUseCase.Params> {
     @Inject
     CommonRepository commonRepository;
-    UserManager userManager;
+    @Inject
+    UserRepository userRepository;
 
     @Inject
     public TogglePuzzlePictureUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        String userId = userManager.getUser().key;
-        Map<String, Object> updateValue = new HashMap<>();
-        //updateValue.put(String.format("conversations/%s/puzzleMessages/%s", params.conversation, userId), params.value);
-        for(String userID: params.memberIds) {
-            updateValue.put(String.format("conversations/%s/%s/puzzleMessages/%s", userID, params.conversationId, userId), params.value);
-        }
-        return commonRepository.updateBatchData(updateValue);
+        return userRepository.getCurrentUser()
+                .flatMap(user -> {
+                    Map<String, Object> updateValue = new HashMap<>();
+                    //updateValue.put(String.format("conversations/%s/puzzleMessages/%s", params.conversation, userId), params.value);
+                    for (String userID : params.memberIds) {
+                        updateValue.put(String.format("conversations/%s/%s/puzzleMessages/%s", userID,
+                                params.conversationId, user.key), params.value);
+                    }
+                    return commonRepository.updateBatchData(updateValue);
+                });
     }
 
     public static class Params {

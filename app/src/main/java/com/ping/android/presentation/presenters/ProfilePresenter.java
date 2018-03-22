@@ -11,6 +11,12 @@ import com.ping.android.model.User;
 public interface ProfilePresenter extends BasePresenter {
     void logout();
 
+    void toggleNotificationSetting(boolean checked);
+
+    void togglePrivateProfileSetting(boolean checked);
+
+    void uploadUserProfile(String profileFilePath);
+
     interface View extends BaseView {
 
         void updateUser(User user);

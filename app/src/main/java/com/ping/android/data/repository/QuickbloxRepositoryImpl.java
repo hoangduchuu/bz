@@ -18,6 +18,8 @@ import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCClient;
 
+import org.jivesoftware.smack.SmackException;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -88,6 +90,16 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
                 }
             });
         });
+    }
+
+    @Override
+    public Observable<Boolean> logout() {
+        try {
+            QBChatService.getInstance().logout();
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        }
+        return Observable.just(true);
     }
 
     private QBUser getQBUser(int qbId, String pingId) {

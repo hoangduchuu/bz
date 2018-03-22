@@ -19,21 +19,20 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.activity.CoreActivity;
-import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.NicknameActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.SelectContactActivity;
-import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.fragment.BaseFragment;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
+import com.ping.android.presentation.view.activity.SelectContactActivity;
+import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
@@ -149,7 +148,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
                 onPuzzleSetting();
                 break;
             case R.id.group_profile_image:
-                openPicker();
+                presenter.handleGroupProfileImagePress();
                 break;
             case R.id.profile_nickname:
                 onNickNameClicked();
@@ -159,33 +158,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     private void onNickNameClicked() {
         presenter.handleNicknameClicked();
-    }
-
-    private void openPicker() {
-        if (getContext() == null) return;
-        User currentUser = UserManager.getInstance().getUser();
-        String profileFileFolder = getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator +
-                "profile" + File.separator + currentUser.key;
-        double timestamp = System.currentTimeMillis() / 1000d;
-        String profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
-        String profileFilePath = profileFileFolder + File.separator + profileFileName;
-        imagePickerHelper = ImagePickerHelper.from(this)
-                .setFilePath(profileFilePath)
-                .setCrop(true)
-                .setListener(new ImagePickerHelper.ImagePickerListener() {
-                    @Override
-                    public void onImageReceived(File file) {
-
-                    }
-
-                    @Override
-                    public void onFinalImage(File... files) {
-                        groupProfileImage = files[0];
-                        UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
-                        presenter.uploadGroupProfile(groupProfileImage.getAbsolutePath());
-                    }
-                });
-        imagePickerHelper.openPicker();
     }
 
     private void onPuzzleSetting() {
@@ -334,5 +306,36 @@ public class ConversationGroupDetailFragment extends BaseFragment
         if (getActivity() != null) {
             getActivity().finishAfterTransition();
         }
+    }
+
+    @Override
+    public void initProfileImagePath(String key) {
+        if (getContext() == null) return;
+//        String profileFileFolder = getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator +
+//                "profile" + File.separator + key;
+//        double timestamp = System.currentTimeMillis() / 1000d;
+//        String profileFileName = "" + timestamp + "-" + key + ".png";
+//        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        imagePickerHelper = ImagePickerHelper.from(this)
+//                .setFilePath(profileFilePath)
+                .setCrop(true)
+                .setListener(new ImagePickerHelper.ImagePickerListener() {
+                    @Override
+                    public void onImageReceived(File file) {
+
+                    }
+
+                    @Override
+                    public void onFinalImage(File... files) {
+                        groupProfileImage = files[0];
+                        UiUtils.displayProfileAvatar(groupProfile, groupProfileImage);
+                        presenter.uploadGroupProfile(groupProfileImage.getAbsolutePath());
+                    }
+                });
+    }
+
+    @Override
+    public void openPicker() {
+        imagePickerHelper.openPicker();
     }
 }

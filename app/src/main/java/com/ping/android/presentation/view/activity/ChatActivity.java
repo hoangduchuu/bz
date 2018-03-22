@@ -86,6 +86,8 @@ import javax.inject.Inject;
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
+    public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
+    public static final String EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME";
     private final int REPEAT_INTERVAL = 40;
 
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
@@ -440,11 +442,19 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void bindViews() {
+        Bundle extras = getIntent().getExtras();
+        String conversationName = extras.getString(EXTRA_CONVERSATION_NAME);
+        String conversationTransionName = extras.getString(EXTRA_CONVERSATION_TRANSITION_NAME);
+
         btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
         tvChatName = findViewById(R.id.chat_person_name);
         tvChatName.setOnClickListener(this);
         tvChatStatus = findViewById(R.id.chat_person_status);
+
+        tvChatName.setTransitionName(conversationTransionName);
+        tvChatName.setText(conversationName);
+
         recycleChatView = findViewById(R.id.chat_list_view);
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
@@ -617,11 +627,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         Message lastMessage = getLastMessage();
         if (lastMessage == null) return;
         presenter.loadMoreMessage(lastMessage.timestamp);
-    }
-
-    private void startChat() {
-        //bindConversationSetting();
-        BadgesHelper.getInstance().removeCurrentUserBadges(conversationID);
     }
 
     private void notifyTyping() {
@@ -1113,8 +1118,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
         }
-        // FIXME
-        startChat();
     }
 
     @Override

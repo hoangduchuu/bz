@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.activity.CallActivity;
 import com.ping.android.domain.usecase.call.LoginChatServiceUseCase;
+import com.ping.android.domain.usecase.call.LogoutChatServiceUseCase;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.SharedPrefsHelper;
@@ -34,6 +35,8 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
     Application context;
     @Inject
     LoginChatServiceUseCase loginChatServiceUseCase;
+    @Inject
+    LogoutChatServiceUseCase logoutChatServiceUseCase;
 
     Map<String, QBRTCSession> sessionMap;
 
@@ -67,7 +70,13 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void logout() {
-
+        logoutChatServiceUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                QBChatService.getInstance().destroy();
+                QBRTCClient.getInstance(context).destroy();
+            }
+        }, null);
     }
 
     @Override
@@ -118,6 +127,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void onReceiveNewSession(QBRTCSession session) {
+        Log.d("onReceiveNewSession " + session.getState().toString());
         this.sessionMap.put(session.getSessionID(), session);
         if (callbacks != null) {
             callbacks.onReceiveNewSession(session);
@@ -128,17 +138,17 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void onUserNoActions(QBRTCSession qbrtcSession, Integer integer) {
-        Log.d("onUserNoActions");
+        Log.d("onUserNoActions " + qbrtcSession.getState().toString());
     }
 
     @Override
     public void onSessionStartClose(QBRTCSession qbrtcSession) {
-        Log.d("onSessionStartClose");
+        Log.d("onSessionStartClose " + qbrtcSession.getState().toString());
     }
 
     @Override
     public void onUserNotAnswer(QBRTCSession qbrtcSession, Integer integer) {
-        Log.d("onUserNotAnswer");
+        Log.d("onUserNotAnswer " + qbrtcSession.getState().toString());
         if (callbacks != null) {
             callbacks.onUserNotAnswer(qbrtcSession, integer);
         }
@@ -146,7 +156,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void onCallRejectByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        Log.d("onCallRejectByUser");
+        Log.d("onCallRejectByUser " + qbrtcSession.getState().toString());
         if (callbacks != null) {
             callbacks.onCallRejectByUser(qbrtcSession, integer, map);
         }
@@ -154,7 +164,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void onCallAcceptByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        Log.d("onCallAcceptByUser");
+        Log.d("onCallAcceptByUser " + qbrtcSession.getState().toString());
         if (callbacks != null) {
             callbacks.onCallAcceptByUser(qbrtcSession, integer, map);
         }
@@ -162,7 +172,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        Log.d("onReceiveHangUpFromUser");
+        Log.d("onReceiveHangUpFromUser " + qbrtcSession.getState().toString());
         if (callbacks != null) {
             callbacks.onReceiveHangUpFromUser(qbrtcSession, integer, map);
         }

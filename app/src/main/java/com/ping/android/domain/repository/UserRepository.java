@@ -49,4 +49,18 @@ public interface UserRepository {
     Observable<User> getUserByQuickBloxId(Integer qbId);
 
     Observable<Boolean> addCallHistory(Call call);
+
+    Observable<Boolean> removeUserBadge(String userId, String key);
+
+    Observable<ChildEvent> observeBlockedContacts(String key);
+
+    Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean);
+
+    Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean);
+
+    Observable<Boolean> updateUserProfileImage(String userId, String s);
+
+    Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue);
+
+    Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings);
 }

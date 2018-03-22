@@ -7,7 +7,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.managers.UserManager;
 import com.ping.android.ultility.Callback;
 
 import java.util.Map;
@@ -91,12 +90,4 @@ public class BadgesHelper {
             }
         });
     }
-
-    public void removeCurrentUserBadges(String key){
-        dbReference.child("users").child(UserManager.getInstance().getUser().key).child("badges").child(key).setValue(null);
-
-        //update app-icon badges count
-
-    }
-
 }

@@ -12,6 +12,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.User;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +53,19 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                     String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
                                     String conversationID = userId.compareTo(opponentUserId) > 0 ? userId + opponentUserId : opponentUserId + userId;
                                     call.conversationId = conversationID;
+                                    if (call.status == Constant.CALL_STATUS_SUCCESS) {
+                                        if (call.senderId.equals(currentUser.key)) {
+                                            call.type = Call.CallType.OUTGOING;
+                                        } else {
+                                            call.type = Call.CallType.INCOMING;
+                                        }
+                                    } else {
+                                        if (call.senderId.equals(currentUser.key)) {
+                                            call.type = Call.CallType.OUTGOING;
+                                        } else {
+                                            call.type = Call.CallType.MISSED;
+                                        }
+                                    }
                                     Map<String, Boolean> memberIDs = new HashMap<>();
                                     memberIDs.put(call.senderId, true);
                                     memberIDs.put(call.receiveId, true);

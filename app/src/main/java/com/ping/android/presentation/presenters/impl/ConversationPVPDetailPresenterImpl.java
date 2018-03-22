@@ -1,10 +1,11 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleNotificationSettingUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
@@ -26,11 +27,13 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Inject
     ObserveConversationUpdateUseCase observeConversationUpdateUseCase;
     @Inject
-    ToggleNotificationSettingUseCase toggleNotificationSettingUseCase;
+    ToggleConversationNotificationSettingUseCase toggleConversationNotificationSettingUseCase;
     @Inject
     ToggleMaskIncomingUseCase toggleMaskIncomingUseCase;
     @Inject
     TogglePuzzlePictureUseCase togglePuzzlePictureUseCase;
+    @Inject
+    ToggleBlockUserUseCase toggleBlockUserUseCase;
     @Inject
     ConversationPVPDetailPresenter.View view;
 
@@ -65,7 +68,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Override
     public void toggleNotification(boolean isEnable) {
         view.showLoading();
-        toggleNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
+        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean) {
@@ -78,7 +81,8 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, new ToggleNotificationSettingUseCase.Params(conversation.key, isEnable));
+        }, new ToggleConversationNotificationSettingUseCase.Params(conversation.key,
+                new ArrayList<>(conversation.memberIDs.keySet()), isEnable));
     }
 
     @Override
@@ -125,9 +129,25 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     }
 
     @Override
+    public void toggleBlockUser(String key, boolean checked) {
+        view.showLoading();
+        toggleBlockUserUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.hideLoading();
+            }
+        }, new ToggleBlockUserUseCase.Params(key, checked));
+    }
+
+    @Override
     public void destroy() {
         observeConversationUpdateUseCase.dispose();
-        toggleNotificationSettingUseCase.dispose();
+        toggleConversationNotificationSettingUseCase.dispose();
         toggleMaskIncomingUseCase.dispose();
         togglePuzzlePictureUseCase.dispose();
         observeCurrentUserUseCase.dispose();

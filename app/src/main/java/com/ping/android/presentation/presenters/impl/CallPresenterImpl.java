@@ -15,7 +15,9 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.WebRtcSessionManager;
+import com.quickblox.chat.QBChatService;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
@@ -158,6 +160,7 @@ public class CallPresenterImpl implements CallPresenter,
     @Override
     public void reject() {
         if (this.currentSession != null) {
+            Log.d("reject call " + this.currentSession.getState());
             this.currentSession.rejectCall(new HashMap<>());
         }
     }
@@ -245,6 +248,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onConnectedToUser(QBRTCSession qbrtcSession, Integer integer) {
+        Log.d("onDisconnectedFromUser " + qbrtcSession.getState().toString());
         callStarted = true;
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onCallStarted();
@@ -253,12 +257,12 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onDisconnectedFromUser(QBRTCSession qbrtcSession, Integer integer) {
-
+        Log.d("onDisconnectedFromUser");
     }
 
     @Override
     public void onConnectionClosedForUser(QBRTCSession qbrtcSession, Integer integer) {
-
+        Log.d("onConnectionClosedForUser");
     }
 
     // endregion
@@ -267,7 +271,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onSuccessSendingPacket(QBSignalingSpec.QBSignalCMD qbSignalCMD, Integer integer) {
-
+        Log.d("onSuccessSendingPacket");
     }
 
     @Override

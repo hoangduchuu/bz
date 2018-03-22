@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,14 +9,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
+import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
+import com.ping.android.presentation.presenters.BlockContactPresenter;
 import com.ping.android.presentation.view.adapter.BlockAdapter;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.service.firebase.UserRepository;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,10 +23,10 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlockActivity extends CoreActivity implements View.OnClickListener, BlockAdapter.ClickListener {
+import javax.inject.Inject;
 
+public class BlockActivity extends CoreActivity implements View.OnClickListener, BlockAdapter.ClickListener, BlockContactPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
-    private ChildEventListener observeBlockEvent;
 
     private RecyclerView rvListBlock;
     private LinearLayoutManager mLinearLayoutManager;
@@ -36,18 +35,20 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     private TextView bottomText;
 
     private BlockAdapter adapter;
-    private User currentUser;
     private List<String> blockIds = new ArrayList<>();
 
-    private UserRepository userRepository;
-    private DatabaseReference mBlockDatabase;
+    @Inject
+    BlockContactPresenter presenter;
+    BlockContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_block);
+        getComponent().inject(this);
         bindViews();
         init();
+        presenter.create();
     }
 
     @Override
@@ -60,6 +61,10 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
         super.onStop();
     }
 
+    @Override
+    public BlockContactPresenter getPresenter() {
+        return presenter;
+    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
@@ -86,53 +91,9 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
     }
 
     private void init() {
-        userRepository = new UserRepository();
-        currentUser = UserManager.getInstance().getUser();
         adapter = new BlockAdapter(new ArrayList<>(), this, this);
         rvListBlock.setAdapter(adapter);
         rvListBlock.setLayoutManager(mLinearLayoutManager);
-        observeBlocks();
-    }
-
-    private void observeBlocks() {
-        observeBlockEvent = new ChildEventListener() {
-
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String blockID = dataSnapshot.getKey();
-                userRepository.getUser(blockID, (error, data) -> {
-                    if (error == null) {
-                        User blockContact = (User) data[0];
-                        adapter.addContact(blockContact);
-                        actionButton.setEnabled(true);
-                        blockIds.add(blockID);
-                    }
-                });
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String blockID = dataSnapshot.getKey();
-                adapter.removeContact(blockID);
-                if (adapter.getItemCount() == 0) {
-                    actionButton.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        mBlockDatabase = userRepository.getDatabaseReference().child(currentUser.key).child("blocks");
-        mBlockDatabase.addChildEventListener(observeBlockEvent);
     }
 
     @Override
@@ -175,13 +136,36 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
     private void blockContact(List<User> contacts) {
         for (User contact : contacts) {
-            userRepository.toggleBlockUser(contact.key, true, null);
+            presenter.toggleBlockUser(contact.key, true);
         }
     }
 
     private void unBlockContact(List<User> contacts) {
         for (User contact : contacts) {
-            userRepository.toggleBlockUser(contact.key, false, null);
+            presenter.toggleBlockUser(contact.key, false);
         }
+    }
+
+    public BlockContactComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent()
+                    .provideBlockContactComponent(new BlockContactModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void removeBlockedUser(String key) {
+        adapter.removeContact(key);
+        if (adapter.getItemCount() == 0) {
+            actionButton.setEnabled(false);
+        }
+    }
+
+    @Override
+    public void addBlockedUser(User data) {
+        adapter.addContact(data);
+        actionButton.setEnabled(true);
+        blockIds.add(data.key);
     }
 }

@@ -10,6 +10,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.quickblox.users.model.QBUser;
@@ -220,6 +221,62 @@ public class UserRepositoryImpl implements UserRepository {
         updateValue.put(String.format("calls/%s/%s", call.senderId, callId), call.toMap());
         updateValue.put(String.format("calls/%s/%s", call.receiveId, callId), call.toMap());
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> removeUserBadge(String userId, String key) {
+        DatabaseReference databaseReference = database.getReference("users")
+                .child(userId).child("badges").child(key);
+        return RxFirebaseDatabase.setValue(databaseReference, null)
+                .map(databaseReference1 -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<ChildEvent> observeBlockedContacts(String key) {
+        Query query = database.getReference("users").child(key).child("blocks");
+        return RxFirebaseDatabase.getInstance(query)
+                .onChildEvent();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean) {
+        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("notification");
+        return RxFirebaseDatabase.setValue(reference, aBoolean)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean) {
+        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("private_profile");
+        return RxFirebaseDatabase.setValue(reference, aBoolean)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserProfileImage(String userId, String s) {
+        DatabaseReference reference = database.getReference("users").child(userId).child("profile");
+        return RxFirebaseDatabase.setValue(reference, s)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue) {
+        DatabaseReference reference = database.getReference("users").child(key).child("mappings").child(mapKey);
+        return RxFirebaseDatabase.setValue(reference, mapValue)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings) {
+        DatabaseReference reference = database.getReference("users").child(key).child("mappings");
+        return RxFirebaseDatabase.setValue(reference, mappings)
+                .map(databaseReference -> true)
                 .toObservable();
     }
 

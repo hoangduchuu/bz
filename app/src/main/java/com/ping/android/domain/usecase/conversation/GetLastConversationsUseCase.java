@@ -72,10 +72,16 @@ public class GetLastConversationsUseCase extends UseCase<List<Conversation>, Voi
                                                                 String nickName = conversation.nickNames.get(user1.key);
                                                                 String conversationName = TextUtils.isEmpty(nickName) ? user1.getDisplayName() : nickName;
                                                                 conversation.conversationName = conversationName;
+                                                                List<String> filterTextList = new ArrayList<>();
+                                                                filterTextList.add(user.getDisplayName());
+                                                                filterTextList.add(nickName);
+                                                                conversation.filterText = TextUtils.join(" ", filterTextList);
                                                                 return conversation;
                                                             });
                                                 }
                                             }
+                                        } else {
+                                            conversation.filterText = conversation.conversationName;
                                         }
                                         return Observable.just(conversation);
                                     })

@@ -1,4 +1,4 @@
-package com.ping.android.activity;
+package com.ping.android.presentation.view.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,16 +10,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.ping.android.presentation.view.adapter.SelectContactAdapter;
-import com.ping.android.managers.UserManager;
+import com.ping.android.activity.CoreActivity;
+import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.selectcontact.SelectContactComponent;
+import com.ping.android.dagger.loggedin.selectcontact.SelectContactModule;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.presentation.presenters.SelectContactPresenter;
+import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SelectContactActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class SelectContactActivity extends CoreActivity implements View.OnClickListener, SelectContactPresenter.View {
     public static final String SELECTED_USERS_KEY = "SELECTED_USERS";
 
     private RecyclerView rvListContact;
@@ -29,15 +34,19 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     private Button btSelect;
 
     private String selectedId;
-    private User currentUser;
     private ArrayList<User> mContacts;
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers;
+
+    @Inject
+    SelectContactPresenter presenter;
+    SelectContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_contact);
+        getComponent().inject(this);
         selectedId = getIntent().getStringExtra("SELECTED_ID");
         selectedUsers = getIntent().getParcelableArrayListExtra(SELECTED_USERS_KEY);
         if (selectedUsers == null) {
@@ -45,6 +54,12 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         }
         bindViews();
         init();
+        presenter.create();
+    }
+
+    @Override
+    public SelectContactPresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews() {
@@ -70,18 +85,11 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
                 return true;
             }
         });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        searchView.setOnClickListener(v -> searchView.setIconified(false));
     }
 
     private void init() {
-        currentUser = UserManager.getInstance().getUser();
-        mContacts = new ArrayList<>(currentUser.friendList);
-
+        mContacts = new ArrayList<>();
         // TODO SelectContactAdapter
         adapter = new SelectContactAdapter(this, mContacts, new SelectContactAdapter.ClickListener() {
             @Override
@@ -140,5 +148,17 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         returnIntent.putParcelableArrayListExtra(SELECTED_USERS_KEY, selectedUsers);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
+    }
+
+    public SelectContactComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideSelectContactComponent(new SelectContactModule(this));
+        }
+        return component;
+    }
+
+    @Override
+    public void addFriend(User data) {
+        adapter.addContact(data);
     }
 }

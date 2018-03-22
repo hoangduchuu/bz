@@ -17,6 +17,10 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -60,8 +64,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                     return Observable.just(childData);
                                 }
                             }
-                            boolean readStatus = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
-                            conversation.isRead = readStatus;
+                            conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;
@@ -73,9 +76,15 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                     String nickName = conversation.nickNames.get(user.key);
                                                     String conversationName = TextUtils.isEmpty(nickName) ? user.getDisplayName() : nickName;
                                                     conversation.conversationName = conversationName;
+                                                    List<String> filterTextList = new ArrayList<>();
+                                                    filterTextList.add(user.getDisplayName());
+                                                    filterTextList.add(nickName);
+                                                    conversation.filterText = TextUtils.join(" ", filterTextList);
                                                     break;
                                                 }
                                             }
+                                        } else {
+                                            conversation.filterText = conversation.conversationName;
                                         }
                                         ChildData<Conversation> childData = new ChildData<>();
                                         childData.data = conversation;

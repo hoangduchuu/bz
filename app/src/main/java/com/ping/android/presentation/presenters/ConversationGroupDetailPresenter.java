@@ -30,6 +30,8 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void updateGroupName(String name);
 
+    void handleGroupProfileImagePress();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -46,5 +48,9 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
         void openNicknameScreen(Conversation conversation);
 
         void navigateBack();
+
+        void initProfileImagePath(String key);
+
+        void openPicker();
     }
 }
