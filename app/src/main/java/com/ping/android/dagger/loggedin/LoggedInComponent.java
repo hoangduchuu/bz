@@ -11,6 +11,8 @@ import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
+import com.ping.android.dagger.loggedin.game.GameComponent;
+import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
@@ -61,4 +63,6 @@ public interface LoggedInComponent {
     NicknameComponent provideNickNameComponent(NicknameModule nicknameModule);
 
     ChangePasswordComponent provideChangePasswordComponent(ChangePasswordModule changePasswordModule);
+
+    GameComponent provideGameComponent(GameModule gameModule);
 }

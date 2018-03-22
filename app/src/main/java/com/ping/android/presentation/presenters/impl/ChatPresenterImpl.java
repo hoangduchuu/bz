@@ -26,6 +26,7 @@ import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
+import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -95,6 +96,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ToggleConversationTypingUseCase toggleConversationTypingUseCase;
     @Inject
     RemoveUserBadgeUseCase removeUserBadgeUseCase;
+    @Inject
+    SendMessageNotificationUseCase sendMessageNotificationUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -233,7 +236,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
-                view.sendNotification(conversation, message1);
+                sendNotification(conversation, message1);
             }
 
             @Override
@@ -260,7 +263,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
                     view.addCacheMessage(item);
                 } else {
-                    view.sendNotification(conversation, message);
+                    sendNotification(conversation, message);
                 }
             }
 
@@ -288,7 +291,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
                     view.addCacheMessage(item);
                 } else {
-                    view.sendNotification(conversation, message);
+                    sendNotification(conversation, message);
                 }
             }
 
@@ -311,7 +314,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (!message.isCached) {
-                    view.sendNotification(conversation, message);
+                    sendNotification(conversation, message);
                 }
             }
 
@@ -518,6 +521,11 @@ public class ChatPresenterImpl implements ChatPresenter {
             toggleConversationTypingUseCase.execute(new DefaultObserver<>(),
                     new ToggleConversationTypingUseCase.Params(currentUser.key, conversation, typing));
         }
+    }
+
+    private void sendNotification(Conversation conversation, Message message) {
+        sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
+                new SendMessageNotificationUseCase.Params(conversation, message));
     }
 
     private void checkMessageError(Message message) {

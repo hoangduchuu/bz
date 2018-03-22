@@ -62,7 +62,7 @@ public class UserManager {
         this.notifyUserUpdated();
         SharedPrefsHelper.getInstance().save("quickbloxId", user.quickBloxID);
         SharedPrefsHelper.getInstance().save("pingId", user.pingID);
-        // TODO Temporary set user for ServiceManager
+        // TODO Temporary set opponentUser for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
     }
 

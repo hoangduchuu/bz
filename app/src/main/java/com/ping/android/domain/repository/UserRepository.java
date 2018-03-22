@@ -63,4 +63,6 @@ public interface UserRepository {
     Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue);
 
     Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings);
+
+    Observable<Integer> readBadgeNumbers(String userId);
 }

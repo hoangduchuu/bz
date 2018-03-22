@@ -1,4 +1,4 @@
-package com.ping.android.form;
+package com.ping.android.model;
 
 public class Mapping {
     public String mapKey;

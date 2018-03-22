@@ -50,7 +50,6 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
-import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -1161,11 +1160,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             isEndOfConvesation = true;
             updateLoadMoreButtonStatus(false);
         }
-    }
-
-    @Override
-    public void sendNotification(Conversation conversation, Message message) {
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
     }
 
     @Override

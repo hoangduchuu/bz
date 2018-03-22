@@ -23,7 +23,7 @@ import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
-import com.ping.android.form.Mapping;
+import com.ping.android.model.Mapping;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
 
 import org.apache.commons.lang3.StringUtils;

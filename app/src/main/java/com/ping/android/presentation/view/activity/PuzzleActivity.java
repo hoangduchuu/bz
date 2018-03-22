@@ -8,12 +8,17 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.game.GameComponent;
+import com.ping.android.dagger.loggedin.game.GameModule;
+import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.UiUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class PuzzleActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class PuzzleActivity extends CoreActivity implements View.OnClickListener, GamePresenter.View {
     private ImageView btBack;
     private ToggleButton btPuzzle;
     private ImageView ivPuzzle;
@@ -23,9 +28,21 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     private String localImage;
     private Boolean puzzledstatus;
 
+    @Inject
+    GamePresenter presenter;
+    GameComponent component;
+
+    public GameComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
+        }
+        return component;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         setContentView(R.layout.activity_puzzle);
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
@@ -43,6 +60,11 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
         }
+    }
+
+    @Override
+    public GamePresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews() {

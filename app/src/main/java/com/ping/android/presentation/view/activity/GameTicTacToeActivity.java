@@ -207,7 +207,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
             quitGame();
             return;
         }
-        // If current player is not user, return
+        // If current player is not opponentUser, return
         if (game.currentPlayer() == TicTacToeGame.PLAYER_TWO) return;
         onTileClick(tiles.indexOf(view));
     }

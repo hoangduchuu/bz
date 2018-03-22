@@ -62,7 +62,5 @@ public interface CallPresenter extends BasePresenter {
         void updateOpponentInfo(User user);
 
         void initUserData(Integer callerId, List<Integer> opponents);
-
-        void sendMissedCallNotification(String userId, int quickBloxID);
     }
 }

@@ -938,7 +938,7 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
             }
 
             //
-            // OnTouchImageViewListener is set: TouchImageView dragged by user.
+            // OnTouchImageViewListener is set: TouchImageView dragged by opponentUser.
             //
             if (touchImageViewListener != null) {
                 touchImageViewListener.onMove();
@@ -952,7 +952,7 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
     }
 
     /**
-     * ScaleListener detects user two finger scaling and scales image.
+     * ScaleListener detects opponentUser two finger scaling and scales image.
      *
      * @author Ortiz
      */
@@ -968,7 +968,7 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
             scaleImage(detector.getScaleFactor(), detector.getFocusX(), detector.getFocusY(), true);
 
             //
-            // OnTouchImageViewListener is set: TouchImageView pinch zoomed by user.
+            // OnTouchImageViewListener is set: TouchImageView pinch zoomed by opponentUser.
             //
             if (touchImageViewListener != null) {
                 touchImageViewListener.onMove();
@@ -1156,7 +1156,7 @@ public class TouchImageView1 extends android.support.v7.widget.AppCompatImageVie
         public void run() {
 
             //
-            // OnTouchImageViewListener is set: TouchImageView listener has been flung by user.
+            // OnTouchImageViewListener is set: TouchImageView listener has been flung by opponentUser.
             // Listener runnable updated with each frame of fling animation.
             //
             if (touchImageViewListener != null) {

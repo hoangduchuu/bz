@@ -11,6 +11,9 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.game.GameComponent;
+import com.ping.android.dagger.loggedin.game.GameModule;
+import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
@@ -21,7 +24,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GameMemoryActivity extends BaseGameActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class GameMemoryActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
     private static final int GAME_STEPS = 6;
     private ImageButton imgRed;
     private ImageButton imgGreen;
@@ -35,13 +40,30 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
     private Handler handler = new Handler(Looper.getMainLooper());
     private boolean playingMode = false;
 
+    @Inject
+    GamePresenter presenter;
+    GameComponent component;
+
+    public GameComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
+        }
+        return component;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_memory);
+        getComponent().inject(this);
         initResources(getIntent());
 
         showStartGameDialog();
+    }
+
+    @Override
+    public GamePresenter getPresenter() {
+        return presenter;
     }
 
     private void generateGamePatterns() {

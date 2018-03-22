@@ -123,7 +123,7 @@ public class ConversationRepository extends BaseFirebaseDatabase {
                                    Map<String, Boolean> readAllowance) {
         Map<String, Object> updateData = new HashMap<>();
         //updateData.put(String.format("conversations/%s", conversationID), conversation.toMap());
-        // Update message for conversation for each user
+        // Update message for conversation for each opponentUser
         for (String toUserId : conversation.memberIDs.keySet()) {
             if (!readAllowance.containsKey(toUserId)) continue;
             updateData.put(String.format("conversations/%s/%s", toUserId, conversationID), conversation.toMap());

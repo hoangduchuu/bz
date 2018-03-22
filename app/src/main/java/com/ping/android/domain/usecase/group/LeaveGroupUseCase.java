@@ -43,7 +43,7 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Group> {
                     group.memberIDs.remove(userId);
                     group.deleteStatuses.put(userId, true);
 
-                    // 1. Remove group and conversation for current user
+                    // 1. Remove group and conversation for current opponentUser
                     updateValue.put(String.format("groups/%s/%s", userId, group.key), null);
                     updateValue.put(String.format("conversations/%s/%s", userId, group.conversationID), null);
 

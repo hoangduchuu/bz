@@ -11,10 +11,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.ping.android.App;
-import com.ping.android.activity.R;
-import com.ping.android.form.Mapping;
-import com.ping.android.form.Setting;
+import com.ping.android.model.Mapping;
+import com.ping.android.model.Setting;
 import com.ping.android.model.Call;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
@@ -363,7 +361,7 @@ public class ServiceManager {
                 mDatabase.child("conversations").child(user.key).child(group.conversationID).
                         child("deleteTimestamps").child(currentUser.key).setValue(timestamp);
                 // TODO logical delete message belong conversation
-                // mDatabase.child("users").child(user.key).child("messages").child(conversation.key).setValue(null);
+                // mDatabase.child("users").child(opponentUser.key).child("messages").child(conversation.key).setValue(null);
             }
         }
     }

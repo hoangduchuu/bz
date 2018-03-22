@@ -61,8 +61,6 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore);
 
-        void sendNotification(Conversation conversation, Message message);
-
         void addCacheMessage(MessageBaseItem message);
 
         void switchOffEditMode();

@@ -230,11 +230,11 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 //            for (final Iterator<Map.Entry<Integer, QBRTCVideoTrack>> entryIterator
 //                 = videoTrackMap.entrySet().iterator(); entryIterator.hasNext(); ) {
 //                final Map.Entry<Integer, QBRTCVideoTrack> entry = entryIterator.next();
-//                Log.d(TAG, "check ability to restoreSession for user:" + entry.getKey());
+//                Log.d(TAG, "check ability to restoreSession for opponentUser:" + entry.getKey());
 //                //if connection with peer wasn't closed do restore it otherwise remove from collection
 //                if (currentSession.getPeerChannel(entry.getKey()).getState() !=
 //                        QBRTCTypes.QBRTCConnectionState.QB_RTC_CONNECTION_CLOSED) {
-//                    Log.d(TAG, "execute restoreSession for user:" + entry.getKey());
+//                    Log.d(TAG, "execute restoreSession for opponentUser:" + entry.getKey());
 //                    mainHandler.postDelayed(new Runnable() {
 //                        @Override
 //                        public void run() {
@@ -291,7 +291,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        // If user changed camera state few times and last state was CameraState.ENABLED_FROM_USER
+        // If opponentUser changed camera state few times and last state was CameraState.ENABLED_FROM_USER
         // than we turn on cam, else we nothing change
 //        if (cameraState != CameraState.DISABLED_FROM_USER) {
 //            toggleCamera(true);
@@ -788,8 +788,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
             @Override
             public void run() {
                 for (QBUser user : newUsers) {
-                    Log.d(TAG, "runUpdateUsersNames. foreach, user = " + user.getFullName());
-                    //updateNameForOpponent(user.getId(), user.getFullName());
+                    Log.d(TAG, "runUpdateUsersNames. foreach, opponentUser = " + user.getFullName());
+                    //updateNameForOpponent(opponentUser.getId(), opponentUser.getFullName());
                 }
             }
         }, UPDATING_USERS_DELAY);

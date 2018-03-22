@@ -32,7 +32,6 @@ import com.ping.android.presentation.view.fragment.VideoConversationFragment;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
-import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.ultility.Consts;
@@ -902,7 +901,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 
     @Override
     public void startOutgoingCall(User opponentUser, boolean isVideoCall) {
-        NotificationHelper.getInstance().sendCallingNotificationToUser(opponentUser.quickBloxID, isVideoCall ? "video": "voice");
         BaseFragment fragment = isVideoCall ?
                 VideoConversationFragment.newInstance(opponentUser) : AudioConversationFragment.newInstance();
         navigator.openAsRoot(fragment);
@@ -1003,11 +1001,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     @Override
     public void initUserData(Integer callerId, List<Integer> opponents) {
         startLoadAbsentUsers(callerId, opponents);
-    }
-
-    @Override
-    public void sendMissedCallNotification(String userId, int quickBloxID) {
-        NotificationHelper.getInstance().sendNotificationForMissedCall(userId, quickBloxID, isVideoCall ? "video" : "voice");
     }
 
     public interface OnChangeDynamicToggle {

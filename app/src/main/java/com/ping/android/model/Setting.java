@@ -1,4 +1,4 @@
-package com.ping.android.form;
+package com.ping.android.model;
 
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.ultility.CommonMethod;

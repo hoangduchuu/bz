@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.ping.android.activity.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.service.NotificationHelper;
+import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 
@@ -34,7 +34,7 @@ public abstract class BaseGameActivity extends CoreActivity {
 
     protected void onGamePassed() {
         //send game status to sender
-        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, true);
+        sendNotification(true);
         ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
@@ -57,7 +57,7 @@ public abstract class BaseGameActivity extends CoreActivity {
 
     protected void onGameFailed() {
         //send game status to sender
-        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, false);
+        sendNotification(false);
         ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(gameTitle())
@@ -70,8 +70,14 @@ public abstract class BaseGameActivity extends CoreActivity {
     }
 
     protected void quitGame() {
-        NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, false);
+        sendNotification(false);
         ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
         finish();
+    }
+
+    protected void sendNotification(boolean isPass) {
+        if (getPresenter() instanceof GamePresenter) {
+            ((GamePresenter) getPresenter()).sendGameStatus(conversation, isPass);
+        }
     }
 }

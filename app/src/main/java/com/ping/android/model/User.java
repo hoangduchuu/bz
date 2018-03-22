@@ -7,14 +7,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
-import com.ping.android.form.Setting;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -41,7 +38,7 @@ public class User implements Parcelable {
     public Map<String, Boolean> blockBys = new HashMap<>();
 
     /**
-     * Map contains devices that user logged in, if count bigger than 0, it means users is online
+     * Map contains devices that opponentUser logged in, if count bigger than 0, it means users is online
      */
     public Map<String, Double> devices = new HashMap<>();
 

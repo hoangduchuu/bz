@@ -17,7 +17,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
-import com.ping.android.service.NotificationHelper;
+import com.ping.android.dagger.loggedin.game.GameComponent;
+import com.ping.android.dagger.loggedin.game.GameModule;
+import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -26,7 +28,9 @@ import com.ping.android.utils.UiUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GameActivity extends BaseGameActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class GameActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
     private Button btnExit;
     private ImageView puzzleSelect;
     private LinearLayout puzzleView;
@@ -46,9 +50,21 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     private boolean isGameNotificationSent = false;
     private Vibrator vibrator;
 
+    @Inject
+    GamePresenter presenter;
+    GameComponent component;
+
+    public GameComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
+        }
+        return component;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         setContentView(R.layout.activity_game);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         initResources(getIntent());
@@ -109,7 +125,7 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
         }
         if(!isGameNotificationSent) {
             //send game status to sender
-            NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+            sendNotification(gameWin);
             isGameNotificationSent = true;
         }
         originalBitmap = null;
@@ -118,6 +134,11 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
         }
         chunkedImages.clear();
         chunkedImages = null;
+    }
+
+    @Override
+    public GamePresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews() {
@@ -272,7 +293,7 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
         boolean gameWin = checkGameStatus();
         if ((gameWin || isTimeOut) & !isGameNotificationSent) {
             //send game status to sender
-            NotificationHelper.getInstance().sendGameStatusNotificationToSender(sender, conversation, gameWin);
+            sendNotification(gameWin);
             isGameNotificationSent = true;
         }
 
@@ -293,4 +314,5 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     protected String gameTitle() {
         return getString(R.string.puzzle_game_title);
     }
+
 }

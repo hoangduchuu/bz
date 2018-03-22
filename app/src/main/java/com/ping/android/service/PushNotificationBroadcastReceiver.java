@@ -15,12 +15,11 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
-import com.ping.android.presentation.view.activity.ReplyActivity;
-import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.Log;
@@ -31,7 +30,7 @@ import org.json.JSONException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ping.android.service.NotificationHelper.KEY_REPLY;
+import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
 import static com.ping.android.utils.ResourceUtils.getString;
 
 /**
@@ -186,12 +185,12 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private boolean needDisplayNotification(String conversationId) {
         Activity activeActivity = ActivityLifecycle.getInstance().getForegroundActivity();
         boolean isForeground = ActivityLifecycle.getInstance().isForeground();
-        //do not display notification if user already logged out
+        //do not display notification if opponentUser already logged out
         if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)) {
-            Log.d("user not logged-in");
+            Log.d("opponentUser not logged-in");
             return false;
         }
-        //do not display notification if user is opening same conversation
+        //do not display notification if opponentUser is opening same conversation
         if (activeActivity != null && activeActivity instanceof ChatActivity && isForeground) {
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
@@ -201,22 +200,4 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         }
         return true;
     }
-
-    private PendingIntent getReplyPendingIntent() {
-        Intent intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // start a
-            // (i)  broadcast receiver which runs on the UI thread or
-            // (ii) service for a background task to b executed , but for the purpose of this code lab, will be doing a broadcast receiver
-            intent = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            return PendingIntent.getBroadcast(context, 100, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            // start your activity
-            intent = ReplyActivity.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            return PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
-    }
-
 }

@@ -3,35 +3,32 @@ package com.ping.android.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.widget.Toast;
+import android.support.v4.app.RemoteInput;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
-import com.ping.android.CoreApp;
-import com.ping.android.domain.usecase.GetCurrentUserUseCase;
-import com.ping.android.domain.usecase.InitializeUserUseCase;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.User;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.activity.R;
+import com.ping.android.domain.usecase.notification.ReplyMessageFromNotificationUseCase;
+
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-
-import static com.ping.android.service.NotificationHelper.REPLY_ACTION;
 
 /**
  * Created by bzzz on 2/28/18.
  */
 
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
-
+    private static String REPLY_ACTION = "com.ping.android.service.NotificationHelper.REPLY_ACTION";
     private static String KEY_NOTIFICATION_ID = "key_notification_id";
     private static String KEY_MESSAGE_ID = "key_message_id";
+    public static String KEY_REPLY = "key_reply_message";
 
     @Inject
-    InitializeUserUseCase initializeUserUseCase;
+    ReplyMessageFromNotificationUseCase replyMessageFromNotificationUseCase;
 
     public static Intent getReplyMessageIntent(Context context, int notificationId, String messageId) {
         Intent intent = new Intent(context, NotificationBroadcastReceiver.class);
@@ -50,32 +47,21 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         if (!REPLY_ACTION.equals(intent.getAction())) {
             return;
         }
-        CharSequence message = NotificationHelper.getReplyMessage(intent);
+        ((App)context.getApplicationContext()).getComponent().inject(this);
+        CharSequence message = getReplyMessage(intent);
         String messageId = intent.getStringExtra(KEY_MESSAGE_ID);
-        if (UserManager.getInstance().getUser() == null){
+        replyMessageFromNotificationUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                int notifyId = intent.getIntExtra(KEY_NOTIFICATION_ID, 1);
+                updateNotification(context, notifyId);
+            }
 
-            ((App) context.getApplicationContext()).getComponent().inject(this);
-            initializeUserUseCase.execute(new DefaultObserver<Boolean>() {
-                @Override
-                public void onNext(Boolean aBoolean) {
-                    // do whatever you want with the message. Send to the server or add to the db.
-                    // for this tutorial, we'll just show it in a toast;
-                    NotificationHelper.getInstance().sendMessage(message.toString(), messageId);
-
-                    // update notification
-                    int notifyId = intent.getIntExtra(KEY_NOTIFICATION_ID, 1);
-                    updateNotification(context, notifyId);
-                }
-
-            }, null);
-        }else{
-            NotificationHelper.getInstance().sendMessage(message.toString(), messageId);
-
-            // update notification
-            int notifyId = intent.getIntExtra(KEY_NOTIFICATION_ID, 1);
-            updateNotification(context, notifyId);
-        }
-
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, new ReplyMessageFromNotificationUseCase.Params(message.toString(), messageId));
     }
 
     private void updateNotification(Context context, int notifyId) {
@@ -86,5 +72,13 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
                 .setContentText(context.getString(R.string.notif_content_sent));
 
         notificationManager.notify(notifyId, builder.build());
+    }
+
+    public CharSequence getReplyMessage(Intent intent) {
+        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+        if (remoteInput != null) {
+            return remoteInput.getCharSequence(KEY_REPLY);
+        }
+        return null;
     }
 }

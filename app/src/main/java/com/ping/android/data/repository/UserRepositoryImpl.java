@@ -280,6 +280,27 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<Integer> readBadgeNumbers(String userId) {
+        final DatabaseReference userBadgesRef = database.getReference("users").child(userId).child("badges");
+        userBadgesRef.keepSynced(true);
+        DatabaseReference refreshMockReference = database.getReference("users").child(userId).child("badges")
+                .child("refreshMock");
+        return RxFirebaseDatabase.setValue(refreshMockReference, 0)
+                .flatMap(databaseReference -> RxFirebaseDatabase.getInstance(userBadgesRef)
+                        .onSingleValueEvent()
+                        .map(dataSnapshot -> {
+                            Map<String, Long> badges = (Map<String, Long>)dataSnapshot.getValue();
+                            int result = 0;
+                            for (Map.Entry<String, Long> entry: badges.entrySet()
+                                    ) {
+                                result += entry.getValue();
+                            }
+                            return result;
+                        })
+                ).toObservable();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

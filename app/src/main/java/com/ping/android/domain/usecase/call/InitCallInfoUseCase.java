@@ -17,7 +17,7 @@ import io.reactivex.Observable;
 
 /**
  * Init call information.
- * This use case will get current user info with nickname if have any.
+ * This use case will get current opponentUser info with nickname if have any.
  *
  * Created by tuanluong on 3/20/18.
  */
