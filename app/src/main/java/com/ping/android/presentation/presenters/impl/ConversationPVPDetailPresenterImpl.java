@@ -10,6 +10,7 @@ import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
+import com.ping.android.ultility.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +42,8 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     private User currentUser;
 
     @Inject
-    public ConversationPVPDetailPresenterImpl() {}
+    public ConversationPVPDetailPresenterImpl() {
+    }
 
     @Override
     public void initConversation(String conversationId) {
@@ -60,7 +62,12 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
             @Override
             public void onNext(User user) {
                 currentUser = user;
-                view.updateBlockStatus(user);
+                if (conversation != null) {
+                    view.updateNotification(CommonMethod.getBooleanFrom(conversation.notifications, currentUser.key));
+                    view.updateMask(CommonMethod.getBooleanFrom(conversation.maskMessages, currentUser.key));
+                    view.updatePuzzlePicture(CommonMethod.getBooleanFrom(conversation.puzzleMessages, currentUser.key));
+                }
+                view.updateBlockStatus(user.blocks.containsKey(conversation.opponentUser.key));
             }
         }, null);
     }
@@ -68,7 +75,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Override
     public void toggleNotification(boolean isEnable) {
         view.showLoading();
-        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
+        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean) {
@@ -129,7 +136,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     }
 
     @Override
-    public void toggleBlockUser(String key, boolean checked) {
+    public void toggleBlockUser(boolean checked) {
         view.showLoading();
         toggleBlockUserUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -141,7 +148,17 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, new ToggleBlockUserUseCase.Params(key, checked));
+        }, new ToggleBlockUserUseCase.Params(conversation.opponentUser.key, checked));
+    }
+
+    @Override
+    public void handleVideoCallPress() {
+        view.openCallScreen(currentUser, conversation.opponentUser, true);
+    }
+
+    @Override
+    public void handleVoiceCallPress() {
+        view.openCallScreen(currentUser, conversation.opponentUser, false);
     }
 
     @Override

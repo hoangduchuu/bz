@@ -1,6 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsChildEventUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
@@ -23,6 +24,9 @@ public class ContactPresenterImpl implements ContactPresenter {
     ObserveFriendsChildEventUseCase observeFriendsChildEventUseCase;
     @Inject
     CreatePVPConversationUseCase createPVPConversationUseCase;
+    @Inject
+    ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    private User currentUser;
 
     @Inject
     public ContactPresenterImpl() {
@@ -48,12 +52,20 @@ public class ContactPresenterImpl implements ContactPresenter {
                 exception.printStackTrace();
             }
         }, null);
+
+        observeCurrentUserUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                currentUser = user;
+            }
+        }, null);
     }
 
     @Override
     public void destroy() {
         observeFriendsChildEventUseCase.dispose();
         createPVPConversationUseCase.dispose();
+        observeCurrentUserUseCase.dispose();
     }
 
     @Override
@@ -67,5 +79,15 @@ public class ContactPresenterImpl implements ContactPresenter {
                 view.openConversation(s);
             }
         }, params);
+    }
+
+    @Override
+    public void handleVoiceCallPress(User contact) {
+        view.openCallScreen(currentUser, contact, false);
+    }
+
+    @Override
+    public void handleVideoCallPress(User contact) {
+        view.openCallScreen(currentUser, contact, true);
     }
 }

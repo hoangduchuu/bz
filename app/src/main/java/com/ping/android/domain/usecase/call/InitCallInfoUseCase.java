@@ -1,7 +1,5 @@
 package com.ping.android.domain.usecase.call;
 
-import android.text.TextUtils;
-
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;

@@ -1,21 +1,12 @@
 package com.ping.android.managers;
 
 import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.Intent;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.model.User;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.Consts;
-import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.SharedPrefsHelper;
-import com.quickblox.users.model.QBUser;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.prefs.Preferences;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -48,10 +39,6 @@ public class UserManager {
         SharedPrefsHelper.getInstance().save("pingId", user.pingID);
         // TODO Temporary set opponentUser for ServiceManager
         ServiceManager.getInstance().setCurrentUser(user);
-    }
-
-    public User getUser() {
-        return user;
     }
 
     public void logout() {

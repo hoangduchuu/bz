@@ -107,9 +107,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     CallPresenter presenter;
     CallComponent component;
 
-    public static void start(Context context, User otherUser, Boolean isVideoCall) {
+    public static void start(Context context, User currentUser, User otherUser, Boolean isVideoCall) {
         int userQBID = otherUser.quickBloxID;
-        User currentUser = UserManager.getInstance().getUser();
 
         if (!ServiceManager.getInstance().getNetworkStatus(context)) {
             Toast.makeText(context, "Please check network connection", Toast.LENGTH_SHORT).show();

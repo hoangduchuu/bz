@@ -3,11 +3,8 @@ package com.ping.android.data.repository;
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.google.gson.JsonObject;
 import com.ping.android.domain.repository.NotificationRepository;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.quickblox.core.server.Performer;
 import com.quickblox.messages.QBPushNotifications;
@@ -30,7 +27,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
     @Override
     public Observable<Boolean> sendCallingNotificationToUser(int quickBloxId, String callType) {
-        String messageData = String.format("%s is %s calling.", UserManager.getInstance().getUser().getDisplayName(), callType);
+        // FIXME: this type of notification just notify opponent user to start call service in case of turned off
+        String messageData = String.format("%s is %s calling.", "", callType);
         JsonObject object = new JsonObject();
         object.addProperty("data", messageData);
         object.addProperty("message", messageData);
@@ -47,11 +45,10 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
-    public Observable<Boolean> sendMissedCallNotificationToUser(int quickBloxId, String callType, int badgeNumber) {
-        String messageData = String.format("You missed a %s call from %s.", callType, UserManager.getInstance().getUser().getDisplayName());
+    public Observable<Boolean> sendMissedCallNotificationToUser(String body, int quickBloxId, String callType, int badgeNumber) {
         JsonObject object = new JsonObject();
-        object.addProperty("data", messageData);
-        object.addProperty("message", messageData);
+        object.addProperty("data", body);
+        object.addProperty("message", body);
         object.addProperty("ios_badge", badgeNumber + 1);
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
@@ -66,36 +63,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
-    public Observable<Boolean> sendMessageNotification(String senderName, Conversation conversation, Message message,
+    public Observable<Boolean> sendMessageNotification(String senderId, String body, String conversationId, Message message,
                                                        User user, int badgeNumber) {
-        //get incoming mask of target opponentUser
-        boolean incomingMask = false;
-        if (conversation.maskMessages != null
-                && conversation.maskMessages.containsKey(user.key)){
-            incomingMask = conversation.maskMessages.get(user.key);
-        }
-
-        String body = "";
-        switch (message.messageType) {
-            case Constant.MSG_TYPE_TEXT:
-                String messageText = message.message;
-                if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                    messageText = ServiceManager.getInstance().encodeMessage(user.mappings, message.message);
-                }
-                body = String.format("%s: %s", senderName, messageText);
-                break;
-            case Constant.MSG_TYPE_VOICE:
-                body = senderName + ": sent a voice message.";
-                break;
-            case Constant.MSG_TYPE_IMAGE:
-                body = senderName + ": sent a picture message.";
-                break;
-            case Constant.MSG_TYPE_GAME:
-                body = senderName + ": sent a game.";
-                break;
-            default:
-                break;
-        }
         JsonObject object = new JsonObject();
         object.addProperty("data", body);
         object.addProperty("message", body);
@@ -106,12 +75,12 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("timestamp", message.timestamp);
         object.addProperty("originMessage", message.message);
         object.addProperty("senderName", message.senderName);
-        object.addProperty("conversationId", conversation.key);
+        object.addProperty("conversationId", conversationId);
         object.addProperty("photoUrl", message.photoUrl);
         object.addProperty("thumbUrl", message.thumbUrl);
         object.addProperty("audioUrl", message.audioUrl);
         object.addProperty("gameUrl", message.gameUrl);
-        object.addProperty("senderId", UserManager.getInstance().getUser().key);
+        object.addProperty("senderId", senderId);
         object.addProperty("messageType", message.messageType);
         object.addProperty("ios_badge", badgeNumber + 1);
 

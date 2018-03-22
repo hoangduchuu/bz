@@ -50,8 +50,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
 
-//    private UserRepository userRepository;
-//    private BzzzStorage bzzzStorage;
     @Inject
     ProfilePresenter presenter;
     ProfileComponent component;
@@ -66,7 +64,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        init();
         bindViews(view);
         presenter.create();
         return view;
@@ -106,11 +103,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         UiUtils.displayProfileImage(getContext(), profileImage, currentUser, true);
         rbNotification.setChecked(currentUser.settings.notification);
         rbShowProfile.setChecked(currentUser.settings.private_profile);
-    }
-
-    private void init() {
-//        bzzzStorage = new BzzzStorage();
-//        userRepository = new UserRepository();
     }
 
     @Override

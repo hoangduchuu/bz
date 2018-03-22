@@ -91,12 +91,12 @@ public class ContactFragment extends BaseFragment
 
     @Override
     public void onVoiceCall(User contact) {
-        CallActivity.start(getContext(), contact, false);
+        presenter.handleVoiceCallPress(contact);
     }
 
     @Override
     public void onVideoCall(User contact) {
-        CallActivity.start(getContext(), contact, true);
+        presenter.handleVideoCallPress(contact);
     }
 
     @Override
@@ -182,5 +182,10 @@ public class ContactFragment extends BaseFragment
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         startActivity(intent);
+    }
+
+    @Override
+    public void openCallScreen(User currentUser, User otherUser, boolean isVideo) {
+        CallActivity.start(getContext(), currentUser, otherUser, isVideo);
     }
 }

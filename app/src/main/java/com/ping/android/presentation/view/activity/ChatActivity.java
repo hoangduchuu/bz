@@ -1067,11 +1067,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onVoiceCall() {
-        CallActivity.start(this, originalConversation.opponentUser, false);
+        presenter.handleVoiceCallPress();
     }
 
     private void onVideoCall() {
-        CallActivity.start(this, originalConversation.opponentUser, true);
+        presenter.handleVideoCallPress();
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
@@ -1189,6 +1189,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void showErrorUserBlocked(String username) {
         Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
+    }
+
+    @Override
+    public void openCallScreen(User currentUser, User opponentUser, boolean isVideo) {
+        CallActivity.start(this, currentUser, opponentUser, isVideo);
     }
 
     @Override

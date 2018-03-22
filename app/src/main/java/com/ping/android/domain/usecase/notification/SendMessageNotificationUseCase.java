@@ -5,11 +5,12 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,7 +51,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                     }
                     ArrayList<User> validUsers = new ArrayList<>();
                     for (User user : params.conversation.members) {
-                        if (user.quickBloxID > 0 && !user.key.equals(UserManager.getInstance().getUser().key)) {
+                        if (user.quickBloxID > 0 && !user.key.equals(sender.key)) {
                             if (!needSendNotification(params.conversation, user, sender)) continue;
                             validUsers.add(user);
                         }
@@ -60,8 +61,34 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                             .flatMap(object -> {
                                 User user = (User) object;
                                 return userRepository.readBadgeNumbers(user.key)
-                                        .flatMap(integer -> notificationRepository.sendMessageNotification(userName, params.conversation,
-                                                params.message, user, integer));
+                                        .flatMap(integer -> {
+                                            //get incoming mask of target opponentUser
+                                            boolean incomingMask = CommonMethod.getBooleanFrom(params.conversation.maskMessages, user.key);
+                                            String body = "";
+                                            switch (params.message.messageType) {
+                                                case Constant.MSG_TYPE_TEXT:
+                                                    String messageText = params.message.message;
+                                                    if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
+                                                        messageText = ServiceManager.getInstance().encodeMessage(user.mappings, params.message.message);
+                                                    }
+                                                    body = String.format("%s: %s", userName, messageText);
+                                                    break;
+                                                case Constant.MSG_TYPE_VOICE:
+                                                    body = userName + ": sent a voice message.";
+                                                    break;
+                                                case Constant.MSG_TYPE_IMAGE:
+                                                    body = userName + ": sent a picture message.";
+                                                    break;
+                                                case Constant.MSG_TYPE_GAME:
+                                                    body = userName + ": sent a game.";
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            return notificationRepository.sendMessageNotification(
+                                                    sender.key, body, params.conversation.key,
+                                                    params.message, user, integer);
+                                        });
                             })
                             .take(validUsers.size());
                 });

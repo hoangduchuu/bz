@@ -41,7 +41,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
     private Switch swPuzzle;
     private Switch swBlock;
 
-    private Conversation conversation;
     private String conversationId;
 
     @Inject
@@ -99,11 +98,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
     }
 
-    private void bindConversationSetting(Conversation conversation) {
-        swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
-        swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
-        swPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
-    }
+//    private void bindConversationSetting(Conversation conversation) {
+//        swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
+//        swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
+//        swPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
+//    }
 
     @Override
     public void onClick(View view) {
@@ -151,11 +150,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
     }
 
     private void onVoiceCall() {
-        CallActivity.start(getContext(), conversation.opponentUser, false);
+        presenter.handleVoiceCallPress();
     }
 
     private void onVideoCall() {
-        CallActivity.start(getContext(), conversation.opponentUser, true);
+        presenter.handleVideoCallPress();
     }
 
     private void onPuzzleSetting() {
@@ -175,13 +174,12 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     private void onBlock() {
         showLoading();
-        presenter.toggleBlockUser(conversation.opponentUser.key, swBlock.isChecked());
+        presenter.toggleBlockUser(swBlock.isChecked());
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
-        this.conversation = conversation;
-        bindConversationSetting(conversation);
+//        bindConversationSetting(conversation);
         userName.setText(conversation.opponentUser.getDisplayName());
 
 
@@ -204,8 +202,13 @@ public class ConversationPVPDetailFragment extends BaseFragment
     }
 
     @Override
-    public void updateBlockStatus(User user) {
-        swBlock.setChecked(user.blocks.containsKey(conversation.opponentUser.key));
+    public void updateBlockStatus(boolean isBlocked) {
+        swBlock.setChecked(isBlocked);
+    }
+
+    @Override
+    public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
+        CallActivity.start(getContext(), currentUser, otherUser, isVideoCall);
     }
 
     @Override

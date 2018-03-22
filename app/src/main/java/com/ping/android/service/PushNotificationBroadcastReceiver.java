@@ -15,7 +15,10 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
+import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.App;
 import com.ping.android.activity.R;
+import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.ChatActivity;
@@ -30,6 +33,8 @@ import org.json.JSONException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
 import static com.ping.android.utils.ResourceUtils.getString;
 
@@ -43,6 +48,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private BadgeHelper badgeHelper;
     private int mNotificationId;
     private String mConversationId;
+    @Inject
+    GetCurrentUserUseCase getCurrentUserUseCase;
 
     private final static AtomicInteger c = new AtomicInteger(0);
     public static int getID() {
@@ -53,6 +60,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         this.badgeHelper = new BadgeHelper(context);
         this.context = context;
+        ((App)context.getApplicationContext()).getComponent().inject(this);
         try {
             String message = intent.getStringExtra("data");
 
@@ -72,7 +80,16 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
                     this.badgeHelper.increaseMissedCall();
                 }
                 boolean allowReply = notificationType.equals("incoming_message");
-                this.postNotification(message, conversationId, allowReply);
+                getCurrentUserUseCase.execute(new DefaultObserver<User>() {
+                    @Override
+                    public void onNext(User user) {
+                        try {
+                            postNotification(user, message, conversationId, allowReply);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null);
             } else if (TextUtils.equals(notificationType, "incoming_call")) {
                 Log.d("incoming call");
                 if (ActivityLifecycle.getInstance().isForeground()) {
@@ -89,15 +106,12 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 //                Log.d("going to start activity");
 //                context.startActivity(intentNew);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void postNotification(String message, String conversationId, boolean allowReply) throws JSONException {
-        User currentUser = UserManager.getInstance().getUser();
+    private void postNotification(User currentUser, String message, String conversationId, boolean allowReply) throws JSONException {
         boolean soundNotification = currentUser == null || currentUser.settings.notification;
         mNotificationId = getID();
         mConversationId = conversationId;

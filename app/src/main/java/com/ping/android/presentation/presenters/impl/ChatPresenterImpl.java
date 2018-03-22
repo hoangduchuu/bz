@@ -523,6 +523,16 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
+    @Override
+    public void handleVideoCallPress() {
+        view.openCallScreen(currentUser, conversation.opponentUser, true);
+    }
+
+    @Override
+    public void handleVoiceCallPress() {
+        view.openCallScreen(currentUser, conversation.opponentUser, false);
+    }
+
     private void sendNotification(Conversation conversation, Message message) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message));

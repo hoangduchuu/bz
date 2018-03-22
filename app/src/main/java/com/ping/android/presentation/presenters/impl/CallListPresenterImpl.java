@@ -1,12 +1,15 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.DeleteCallsUseCase;
 import com.ping.android.domain.usecase.ObserveCallUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.model.Call;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -19,6 +22,8 @@ public class CallListPresenterImpl implements CallListPresenter {
     ObserveCallUseCase observeCallUseCase;
     @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    @Inject
+    DeleteCallsUseCase deleteCallsUseCase;
     @Inject
     CallListPresenter.View view;
     private User currentUser;
@@ -68,15 +73,21 @@ public class CallListPresenterImpl implements CallListPresenter {
     public void handleCallPressed(Call call, boolean isVideo) {
         for (User user : call.members) {
             if (!user.key.equals(this.currentUser.key)) {
-                view.callUser(user, isVideo);
+                view.callUser(currentUser, user, isVideo);
                 break;
             }
         }
     }
 
     @Override
+    public void deleteCalls(ArrayList<Call> selectedCalls) {
+        deleteCallsUseCase.execute(new DefaultObserver<>(), selectedCalls);
+    }
+
+    @Override
     public void destroy() {
         observeCallUseCase.dispose();
         observeCurrentUserUseCase.dispose();
+        deleteCallsUseCase.dispose();
     }
 }

@@ -19,6 +19,10 @@ public interface UserDetailPresenter extends BasePresenter {
 
     void addContact(String key);
 
+    void handleVoiceCallPress(User otherUser);
+
+    void handleVideoCallPress(User otherUser);
+
     interface View extends BaseView {
 
         void toggleBlockUser(User user);
@@ -26,5 +30,7 @@ public interface UserDetailPresenter extends BasePresenter {
         void openConversation(String s);
 
         void updateFriendStatus(boolean isFriend);
+
+        void openCallScreen(User currentUser, User otherUser, boolean isVideoCall);
     }
 }

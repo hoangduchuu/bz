@@ -123,7 +123,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onDeleteCall(Call call) {
-        ServiceManager.getInstance().deleteCall(call);
+        //ServiceManager.getInstance().deleteCall(call);
         // TODO exit edit when there is no record
     }
 
@@ -230,10 +230,10 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     private void onDelete() {
         ArrayList<Call> selectedCalls = new ArrayList<>(adapter.getSelectCall());
-        ServiceManager.getInstance().deleteCalls(selectedCalls);
-        for (Call call : selectedCalls) {
-            adapter.deleteCall(call.key);
-        }
+        presenter.deleteCalls(selectedCalls);
+//        for (Call call : selectedCalls) {
+//            adapter.deleteCall(call.key);
+//        }
         adapter.cleanSelectCall();
         onExitEdit();
     }
@@ -264,8 +264,8 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void callUser(User user, boolean isVideoCall) {
-        CallActivity.start(getContext(), user, isVideoCall);
+    public void callUser(User currentUser, User user, boolean isVideoCall) {
+        CallActivity.start(getContext(), currentUser, user, isVideoCall);
     }
 
     private void listenConversationChange() {

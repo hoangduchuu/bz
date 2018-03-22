@@ -1,6 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
@@ -27,6 +28,8 @@ import javax.inject.Inject;
 
 public class ConversationGroupDetailPresenterImpl implements ConversationGroupDetailPresenter {
     @Inject
+    ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    @Inject
     ObserveConversationUpdateUseCase observeConversationUpdateUseCase;
     @Inject
     AddGroupMembersUseCase addGroupMembersUseCase;
@@ -45,9 +48,21 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Inject
     View view;
     private Conversation conversation;
+    private User currentUser;
 
     @Inject
-    public ConversationGroupDetailPresenterImpl() {}
+    public ConversationGroupDetailPresenterImpl() {
+    }
+
+    @Override
+    public void create() {
+        observeCurrentUserUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                currentUser = user;
+            }
+        }, null);
+    }
 
     @Override
     public void initConversation(String conversationId) {
@@ -57,6 +72,11 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
             public void onNext(Conversation data) {
                 conversation = data;
                 view.updateConversation(data);
+                if (currentUser != null) {
+                    view.updateNotification(CommonMethod.getBooleanFrom(data.notifications, currentUser.key));
+                    view.updateMask(CommonMethod.getBooleanFrom(data.maskMessages, currentUser.key));
+                    view.updatePuzzlePicture(CommonMethod.getBooleanFrom(data.puzzleMessages, currentUser.key));
+                }
                 view.hideLoading();
             }
 
@@ -115,7 +135,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Override
     public void toggleNotification(boolean isEnable) {
         view.showLoading();
-        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>(){
+        toggleConversationNotificationSettingUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean) {
@@ -209,6 +229,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     @Override
     public void destroy() {
+        observeCurrentUserUseCase.dispose();
         observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();
         leaveGroupUseCase.dispose();
