@@ -17,6 +17,8 @@
 package com.ping.android.presentation.view.custom;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -30,6 +32,7 @@ import java.util.List;
  * A {@link FrameLayout} that allows the user to drag and reposition child views.
  */
 public class DragFrameLayout extends FrameLayout {
+    private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
 
     /**
      * The list of {@link View}s that will be draggable.
@@ -42,6 +45,12 @@ public class DragFrameLayout extends FrameLayout {
     private DragFrameLayoutController mDragFrameLayoutController;
 
     private ViewDragHelper mDragHelper;
+
+    private int mDraggingState = 0;
+    private int mDraggingLeft;
+    private int mDraggingTop;
+    private int mVerticalRange;
+    private int mHorizontalRange;
 
     public DragFrameLayout(Context context) {
         this(context, null, 0, 0);
@@ -64,23 +73,53 @@ public class DragFrameLayout extends FrameLayout {
          */
         mDragHelper = ViewDragHelper.create(this, 1.0f, new ViewDragHelper.Callback() {
             @Override
+            public void onViewDragStateChanged(int state) {
+                if (state == mDraggingState) { // no change
+                    return;
+                }
+//                if ((mDraggingState == ViewDragHelper.STATE_DRAGGING || mDraggingState == ViewDragHelper.STATE_SETTLING) &&
+//                        state == ViewDragHelper.STATE_IDLE) {
+//                    // the view stopped from moving.
+//
+//                    if (mDraggingLeft == 0) {
+//                        onStopDraggingToClosed();
+//                    } else if (mDraggingLeft == mVerticalRange) {
+//                        mIsOpen = true;
+//                    }
+//                }
+//                if (state == ViewDragHelper.STATE_DRAGGING) {
+//                    onStartDragging();
+//                }
+                mDraggingState = state;
+            }
+
+            @Override
             public boolean tryCaptureView(View child, int pointerId) {
                 return mDragViews.contains(child);
             }
 
             @Override
             public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+                mVerticalRange = getHeight() - changedView.getHeight();
+                mHorizontalRange = getWidth() - changedView.getWidth();
                 super.onViewPositionChanged(changedView, left, top, dx, dy);
+                mDraggingLeft = left;
+                mDraggingTop = top;
             }
 
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
-                return left;
+                final int leftBound = getPaddingStart();
+                final int rightBound = mHorizontalRange;
+                return Math.min(Math.max(left, leftBound), rightBound);
             }
 
             @Override
             public int clampViewPositionVertical(View child, int top, int dy) {
-                return top;
+                //return top;
+                final int topBound = getPaddingTop();
+                final int bottomBound = mVerticalRange;
+                return Math.min(Math.max(top, topBound), bottomBound);
             }
 
             @Override
@@ -93,12 +132,49 @@ public class DragFrameLayout extends FrameLayout {
 
             @Override
             public void onViewReleased(View releasedChild, float xvel, float yvel) {
-                super.onViewReleased(releasedChild, xvel, yvel);
+                final float rangeToCheck = mHorizontalRange;
+                boolean settleToOpen = false;
+                if (mDraggingLeft > rangeToCheck / 2) {
+                    settleToOpen = true;
+                } else if (mDraggingLeft < rangeToCheck / 2) {
+                    settleToOpen = false;
+                }
+
+                int margin = ((LayoutParams) releasedChild.getLayoutParams()).leftMargin;
+                final int settleDestX = settleToOpen ? mHorizontalRange - margin : margin;
+                final int settleDestY = mDraggingTop < margin ? margin
+                        : (mDraggingTop > (mVerticalRange - margin) ? mVerticalRange - margin : mDraggingTop);
+                if(mDragHelper.settleCapturedViewAt(settleDestX, settleDestY)) {
+                    ViewCompat.postInvalidateOnAnimation(DragFrameLayout.this);
+                }
                 if (mDragFrameLayoutController != null) {
                     mDragFrameLayoutController.onDragDrop(false);
                 }
             }
+
+            @Override
+            public int getViewVerticalDragRange(@NonNull View child) {
+                return mVerticalRange;
+            }
+
+            @Override
+            public int getViewHorizontalDragRange(@NonNull View child) {
+                return mHorizontalRange;
+            }
         });
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        //mVerticalRange = h - 200;
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    public void computeScroll() {
+        if (mDragHelper.continueSettling(true)) {
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
     }
 
     @Override
