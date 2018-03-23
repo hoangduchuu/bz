@@ -42,6 +42,10 @@ public interface ChatPresenter extends BasePresenter {
 
     void handleUserTypingStatus(boolean typing);
 
+    void handleVideoCallPress();
+
+    void handleVoiceCallPress();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -61,8 +65,6 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore);
 
-        void sendNotification(Conversation conversation, Message message);
-
         void addCacheMessage(MessageBaseItem message);
 
         void switchOffEditMode();
@@ -72,5 +74,7 @@ public interface ChatPresenter extends BasePresenter {
         void toggleTyping(boolean b);
 
         void showErrorUserBlocked(String username);
+
+        void openCallScreen(User currentUser, User opponentUser, boolean isVideoCall);
     }
 }

@@ -1,8 +1,7 @@
 package com.ping.android.dagger.loggedin.call.video;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.fragment.AudioConversationFragment;
-import com.ping.android.fragment.VideoConversationFragment;
+import com.ping.android.presentation.view.fragment.VideoConversationFragment;
 
 import dagger.Subcomponent;
 

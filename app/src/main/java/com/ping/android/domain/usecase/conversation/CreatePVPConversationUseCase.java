@@ -72,7 +72,7 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                             .flatMap(conversation -> {
                                 conversation.opponentUser = params.toUser;
                                 conversation.members = members;
-                                // Turn notifications on for this user
+                                // Turn notifications on for this opponentUser
                                 Map<String, Object> updateValue = new HashMap<>();
                                 //updateValue.put(String.format("conversations/%s/notifications/%s", conversation, userId), value);
                                 updateValue.put(String.format("conversations/%s/%s/notifications/%s", user.key, conversationID, user.key), true);

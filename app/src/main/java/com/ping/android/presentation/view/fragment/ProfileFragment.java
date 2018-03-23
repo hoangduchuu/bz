@@ -12,16 +12,15 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.ping.android.activity.BeforeLoginActivity;
+import com.ping.android.presentation.view.activity.BeforeLoginActivity;
 import com.ping.android.presentation.view.activity.BlockActivity;
-import com.ping.android.activity.ChangePasswordActivity;
-import com.ping.android.activity.PrivacyAndTermActivity;
+import com.ping.android.presentation.view.activity.ChangePasswordActivity;
+import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.TransphabetActivity;
+import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
@@ -51,8 +50,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
 
-//    private UserRepository userRepository;
-//    private BzzzStorage bzzzStorage;
     @Inject
     ProfilePresenter presenter;
     ProfileComponent component;
@@ -67,7 +64,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        init();
         bindViews(view);
         presenter.create();
         return view;
@@ -107,11 +103,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         UiUtils.displayProfileImage(getContext(), profileImage, currentUser, true);
         rbNotification.setChecked(currentUser.settings.notification);
         rbShowProfile.setChecked(currentUser.settings.private_profile);
-    }
-
-    private void init() {
-//        bzzzStorage = new BzzzStorage();
-//        userRepository = new UserRepository();
     }
 
     @Override

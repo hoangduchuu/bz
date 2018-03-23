@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;

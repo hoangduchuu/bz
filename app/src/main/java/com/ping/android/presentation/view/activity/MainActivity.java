@@ -21,10 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.PhoneActivity;
 import com.ping.android.activity.R;
-import com.ping.android.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.model.Call;

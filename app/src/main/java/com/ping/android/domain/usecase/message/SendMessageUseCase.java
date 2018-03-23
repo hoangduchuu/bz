@@ -72,7 +72,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     }
                     Conversation conversation = params.getNewConversation();
                     Map<String, Object> updateData = new HashMap<>();
-                    // Update message for conversation for each user
+                    // Update message for conversation for each opponentUser
                     updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
                             message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {

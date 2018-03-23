@@ -4,6 +4,7 @@ import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.service.CallService;
 import com.ping.android.service.NotificationBroadcastReceiver;
+import com.ping.android.service.PushNotificationBroadcastReceiver;
 
 import javax.inject.Singleton;
 
@@ -22,4 +23,6 @@ public interface ApplicationComponent {
     void inject(CallService service);
 
     void inject(NotificationBroadcastReceiver receiver);
+
+    void inject(PushNotificationBroadcastReceiver receiver);
 }

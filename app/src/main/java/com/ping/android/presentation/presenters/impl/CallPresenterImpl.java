@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.activity.CallActivity;
+import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
+import com.ping.android.domain.usecase.notification.SendStartCallNotificationUseCase;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.domain.usecase.AddCallHistoryUseCase;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.GetUserByKeyUseCase;
@@ -17,7 +19,6 @@ import com.ping.android.service.CallServiceHandler;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.WebRtcSessionManager;
-import com.quickblox.chat.QBChatService;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
@@ -28,7 +29,6 @@ import com.quickblox.videochat.webrtc.callbacks.QBRTCSignalingCallback;
 import com.quickblox.videochat.webrtc.exception.QBRTCSignalException;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;
@@ -59,6 +59,10 @@ public class CallPresenterImpl implements CallPresenter,
     GetCurrentUserUseCase getCurrentUserUseCase;
     @Inject
     InitCallInfoUseCase initCallInfoUseCase;
+    @Inject
+    SendStartCallNotificationUseCase sendStartCallNotificationUseCase;
+    @Inject
+    SendMissedCallNotificationUseCase sendMissedCallNotificationUseCase;
 
     private User currentUser;
     private User opponentUser;
@@ -71,7 +75,8 @@ public class CallPresenterImpl implements CallPresenter,
     private boolean callStarted = true;
 
     @Inject
-    public CallPresenterImpl() {}
+    public CallPresenterImpl() {
+    }
 
     @Override
     public void init(Intent intent, boolean isInComingCall, boolean isVideoCall) {
@@ -100,6 +105,7 @@ public class CallPresenterImpl implements CallPresenter,
                     opponentNickname = output.opponentNickname;
                     initCall(opponentUser, isVideoCall, isInComingCall);
                     view.startOutgoingCall(opponentUser, isVideoCall);
+                    sendStartCallNotification(isVideoCall);
                 }
 
                 @Override
@@ -173,7 +179,8 @@ public class CallPresenterImpl implements CallPresenter,
 //        userInfo.put("display_name", currentUser.getDisplayName());
 //        userInfo.put("avatar_url", avatar);
         this.currentSession.acceptCall(new HashMap<>());
-        boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(this.currentSession.getConferenceType());;
+        boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(this.currentSession.getConferenceType());
+        ;
         view.initCallViews(isVideo, true);
     }
 
@@ -181,6 +188,10 @@ public class CallPresenterImpl implements CallPresenter,
     public void hangup() {
         if (!isIncomingCall) {
             addCallHistory(callAccepted ? Constant.CALL_STATUS_SUCCESS : Constant.CALL_STATUS_MISS);
+            if (!callAccepted) {
+                sendMissedCallNotification(this.currentSession.getConferenceType()
+                        == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO);
+            }
         }
         this.currentSession.hangUp(new HashMap<>());
         view.finishCall();
@@ -242,6 +253,20 @@ public class CallPresenterImpl implements CallPresenter,
     public void destroy() {
         callService.removeSessionCallbacks();
         //observeCurrentUserUseCase.dispose();
+    }
+
+    private void sendStartCallNotification(boolean isVideoCall) {
+        sendStartCallNotificationUseCase.execute(new DefaultObserver<Boolean>() {
+
+        }, new SendStartCallNotificationUseCase.Params(opponentUser.quickBloxID, isVideoCall ? "video" : "voice"));
+    }
+
+    private void sendMissedCallNotification(boolean isVideoCall) {
+        sendMissedCallNotificationUseCase.execute(
+                new DefaultObserver<>(),
+                new SendMissedCallNotificationUseCase.Params(opponentUser.key,
+                        opponentUser.quickBloxID, isVideoCall ? "video" : "voice")
+        );
     }
 
     // region QBRTCSessionStateCallback
@@ -307,7 +332,8 @@ public class CallPresenterImpl implements CallPresenter,
     public void onUserNotAnswer(QBRTCSession qbrtcSession, Integer integer) {
         view.stopRingtone();
         addCallHistory(Constant.CALL_STATUS_MISS);
-        view.sendMissedCallNotification(opponentUser.key, opponentUser.quickBloxID);
+        sendMissedCallNotification(qbrtcSession.getConferenceType()
+                == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO);
     }
 
     @Override

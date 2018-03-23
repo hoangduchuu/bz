@@ -1,6 +1,6 @@
 package com.ping.android.dagger.loggedin.addcontact;
 
-import com.ping.android.activity.AddContactActivity;
+import com.ping.android.presentation.view.activity.AddContactActivity;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.scopes.PerActivity;
 

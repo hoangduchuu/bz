@@ -4,7 +4,7 @@ import android.app.Application;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.domain.usecase.call.LoginChatServiceUseCase;
 import com.ping.android.domain.usecase.call.LogoutChatServiceUseCase;
 import com.ping.android.utils.Log;

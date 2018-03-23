@@ -18,13 +18,12 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.NicknameActivity;
+import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
@@ -33,8 +32,6 @@ import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
@@ -70,6 +67,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     ConversationGroupDetailPresenter presenter;
     private ConversationDetailGroupComponent component;
     private String profileImageKey;
+    private boolean isFirstLoad = true;
 
     public static ConversationGroupDetailFragment newInstance(Bundle extras) {
         ConversationGroupDetailFragment fragment = new ConversationGroupDetailFragment();
@@ -87,6 +85,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         } else {
             throw new NullPointerException("Must set extras data");
         }
+        presenter.create();
     }
 
     @Override
@@ -188,7 +187,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void onBack() {
-        if(TextUtils.isEmpty(groupName.getText())) {
+        if (TextUtils.isEmpty(groupName.getText())) {
             Toast.makeText(getContext(), "Please input group name", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -236,20 +235,17 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void bindData(Conversation conversation) {
-        if (conversation.group != null) {
-            groupName.setText(conversation.group.groupName);
-            if (getActivity() != null && !getActivity().isDestroyed()) {
-                UiUtils.displayProfileAvatar(groupProfile, conversation.group.groupAvatar, new Callback() {
-                    @Override
-                    public void complete(Object error, Object... data) {
-                        getActivity().startPostponedEnterTransition();
-                    }
-                });
-            }
+        groupName.setText(conversation.conversationName);
+        if (getActivity() != null) {
+            UiUtils.displayProfileAvatar(groupProfile, conversation.conversationAvatarUrl,
+                    (error, data) -> {
+                        if (isFirstLoad) {
+                            isFirstLoad = false;
+                            getActivity().startPostponedEnterTransition();
+                        }
+                    });
         }
-        swNotification.setChecked(ServiceManager.getInstance().getNotificationsSetting(conversation.notifications));
-        swMask.setChecked(ServiceManager.getInstance().getMaskSetting(conversation.maskMessages));
-        cbPuzzle.setChecked(ServiceManager.getInstance().getPuzzleSetting(conversation.puzzleMessages));
+
         adapter.initContact(conversation.members);
         adapter.updateNickNames(conversation.nickNames);
     }

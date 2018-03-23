@@ -12,6 +12,8 @@ public interface SplashPresenter extends BasePresenter {
 
     void finishTimer();
 
+    void handleNewConversation(String conversationId);
+
     interface View extends BaseView {
 
         void navigateToMainScreen();
@@ -21,5 +23,7 @@ public interface SplashPresenter extends BasePresenter {
         void startCallService();
 
         void showAppUpdateDialog(String appId, String currentVersion);
+
+        void navigateToMainScreenWithExtra(String conversationId);
     }
 }

@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.selectcontact.SelectContactComponent;
 import com.ping.android.dagger.loggedin.selectcontact.SelectContactModule;

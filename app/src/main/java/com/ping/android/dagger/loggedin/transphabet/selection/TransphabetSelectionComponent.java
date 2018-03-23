@@ -1,8 +1,8 @@
 package com.ping.android.dagger.loggedin.transphabet.selection;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.fragment.transphabet.SelectiveCategoriesFragment;
-import com.ping.android.fragment.transphabet.TransphabetFragment;
+import com.ping.android.presentation.view.fragment.SelectiveCategoriesFragment;
+import com.ping.android.presentation.view.fragment.TransphabetFragment;
 
 import dagger.Subcomponent;
 

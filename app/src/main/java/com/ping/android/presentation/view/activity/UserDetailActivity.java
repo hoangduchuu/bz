@@ -9,8 +9,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
@@ -147,7 +145,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        CallActivity.start(this, user, false);
+        presenter.handleVoiceCallPress(user);
     }
 
     private void onVideoCall() {
@@ -155,7 +153,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        CallActivity.start(this, user, true);
+        presenter.handleVideoCallPress(user);
     }
 
     private void onBlock() {
@@ -195,5 +193,10 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             layoutSaveContact.setVisibility(View.VISIBLE);
             layoutDeleteContact.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
+        CallActivity.start(this, currentUser, otherUser, isVideoCall);
     }
 }

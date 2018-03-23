@@ -18,7 +18,6 @@ import android.widget.Toast;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;

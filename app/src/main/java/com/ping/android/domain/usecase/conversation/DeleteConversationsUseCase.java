@@ -41,8 +41,8 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                     double timestamp = System.currentTimeMillis() / 1000d;
                     Map<String, Object> updateValue = new HashMap<>();
                     for (Conversation conversation : conversations) {
-                        //updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, user.key), true);
-                        //updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, user.key), timestamp);
+                        //updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, opponentUser.key), true);
+                        //updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, opponentUser.key), timestamp);
                         for (String userId : conversation.memberIDs.keySet()) {
                             updateValue.put(String.format("conversations/%s/%s/deleteStatuses/%s", userId, conversation.key, user.key), true);
                             updateValue.put(String.format("conversations/%s/%s/deleteTimestamps/%s", userId, conversation.key, user.key), timestamp);

@@ -114,7 +114,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.ping.android.view.TouchImageView
+        <com.ping.android.presentation.view.custom.TouchImageView
             android:id="@+id/game_layout_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

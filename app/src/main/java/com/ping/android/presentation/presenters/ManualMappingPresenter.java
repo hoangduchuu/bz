@@ -2,7 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
-import com.ping.android.form.Mapping;
+import com.ping.android.model.Mapping;
 
 import java.util.List;
 

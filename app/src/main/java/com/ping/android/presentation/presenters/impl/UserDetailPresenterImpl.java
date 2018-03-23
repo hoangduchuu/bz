@@ -143,4 +143,14 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
             }
         }, key);
     }
+
+    @Override
+    public void handleVoiceCallPress(User otherUser) {
+        view.openCallScreen(currentUser, otherUser, false);
+    }
+
+    @Override
+    public void handleVideoCallPress(User otherUser) {
+        view.openCallScreen(currentUser, otherUser, true);
+    }
 }

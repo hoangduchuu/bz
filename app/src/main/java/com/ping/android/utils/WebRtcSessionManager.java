@@ -1,8 +1,5 @@
 package com.ping.android.utils;
 
-import android.util.Log;
-
-import com.ping.android.activity.CallActivity;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.callbacks.QBRTCClientSessionCallbacksImpl;
 

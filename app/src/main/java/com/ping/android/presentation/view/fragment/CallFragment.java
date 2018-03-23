@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.activity.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
@@ -20,15 +20,13 @@ import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.call.CallComponent;
 import com.ping.android.dagger.loggedin.main.call.CallModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
-import com.ping.android.view.CustomSwitch;
+import com.ping.android.presentation.view.custom.CustomSwitch;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -124,7 +122,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onDeleteCall(Call call) {
-        ServiceManager.getInstance().deleteCall(call);
+        //ServiceManager.getInstance().deleteCall(call);
         // TODO exit edit when there is no record
     }
 
@@ -231,10 +229,10 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     private void onDelete() {
         ArrayList<Call> selectedCalls = new ArrayList<>(adapter.getSelectCall());
-        ServiceManager.getInstance().deleteCalls(selectedCalls);
-        for (Call call : selectedCalls) {
-            adapter.deleteCall(call.key);
-        }
+        presenter.deleteCalls(selectedCalls);
+//        for (Call call : selectedCalls) {
+//            adapter.deleteCall(call.key);
+//        }
         adapter.cleanSelectCall();
         onExitEdit();
     }
@@ -265,8 +263,8 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void callUser(User user, boolean isVideoCall) {
-        CallActivity.start(getContext(), user, isVideoCall);
+    public void callUser(User currentUser, User user, boolean isVideoCall) {
+        CallActivity.start(getContext(), currentUser, user, isVideoCall);
     }
 
     private void listenConversationChange() {

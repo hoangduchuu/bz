@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,12 +40,6 @@ import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.view.IconicsImageView;
-import com.ping.android.activity.CallActivity;
-import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.GameActivity;
-import com.ping.android.activity.GameMemoryActivity;
-import com.ping.android.activity.GameTicTacToeActivity;
-import com.ping.android.activity.PuzzleActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
@@ -57,8 +50,6 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
-import com.ping.android.service.BadgesHelper;
-import com.ping.android.service.NotificationHelper;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -67,7 +58,7 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
-import com.ping.android.view.RecorderVisualizerView;
+import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
@@ -442,9 +433,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void bindViews() {
-        Bundle extras = getIntent().getExtras();
-        String conversationName = extras.getString(EXTRA_CONVERSATION_NAME);
-        String conversationTransionName = extras.getString(EXTRA_CONVERSATION_TRANSITION_NAME);
+        String conversationName = getIntent().getStringExtra(EXTRA_CONVERSATION_NAME);
+        String conversationTransionName = getIntent().getStringExtra(EXTRA_CONVERSATION_TRANSITION_NAME);
 
         btBack = findViewById(R.id.chat_back);
         btBack.setOnClickListener(this);
@@ -928,7 +918,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onExitChat() {
-        finish();
+        finishAfterTransition();
     }
 
     private void onSentMessage(String text) {
@@ -1077,11 +1067,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onVoiceCall() {
-        CallActivity.start(this, originalConversation.opponentUser, false);
+        presenter.handleVoiceCallPress();
     }
 
     private void onVideoCall() {
-        CallActivity.start(this, originalConversation.opponentUser, true);
+        presenter.handleVideoCallPress();
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
@@ -1172,11 +1162,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void sendNotification(Conversation conversation, Message message) {
-        NotificationHelper.getInstance().sendNotificationForConversation(conversation, message);
-    }
-
-    @Override
     public void addCacheMessage(MessageBaseItem message) {
         messagesAdapter.addOrUpdate(message);
         //recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
@@ -1204,6 +1189,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void showErrorUserBlocked(String username) {
         Toaster.shortToast(String.format(getApplicationContext().getString(R.string.msg_account_msg_blocked), username, username));
+    }
+
+    @Override
+    public void openCallScreen(User currentUser, User opponentUser, boolean isVideo) {
+        CallActivity.start(this, currentUser, opponentUser, isVideo);
     }
 
     @Override

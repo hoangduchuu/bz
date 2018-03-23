@@ -15,13 +15,14 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
+import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
-import com.ping.android.activity.ReplyActivity;
-import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.activity.R;
+import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.Log;
@@ -32,7 +33,9 @@ import org.json.JSONException;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.ping.android.service.NotificationHelper.KEY_REPLY;
+import javax.inject.Inject;
+
+import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
 import static com.ping.android.utils.ResourceUtils.getString;
 
 /**
@@ -45,6 +48,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private BadgeHelper badgeHelper;
     private int mNotificationId;
     private String mConversationId;
+    @Inject
+    GetCurrentUserUseCase getCurrentUserUseCase;
 
     private final static AtomicInteger c = new AtomicInteger(0);
     public static int getID() {
@@ -55,6 +60,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         this.badgeHelper = new BadgeHelper(context);
         this.context = context;
+        ((App)context.getApplicationContext()).getComponent().inject(this);
         try {
             String message = intent.getStringExtra("data");
 
@@ -62,17 +68,28 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
             String notificationType = intent.getStringExtra("notificationType");
             Log.d("new message: " + message + conversationId + notificationType);
             if (TextUtils.equals(notificationType, "incoming_message")
-                    || TextUtils.equals(notificationType, "missed_call")) {
+                    || TextUtils.equals(notificationType, "missed_call")
+                    || TextUtils.equals(notificationType, "game_status")) {
                 Log.d("incoming message");
                 if (!needDisplayNotification(conversationId)) {
                     return;
                 }
-                if (!TextUtils.isEmpty(conversationId)) {
+                if (TextUtils.equals(notificationType, "incoming_message")) {
                     this.badgeHelper.increaseBadgeCount(conversationId);
-                } else {
+                } else if (TextUtils.equals(notificationType, "missed_call")) {
                     this.badgeHelper.increaseMissedCall();
                 }
-                this.postNotification(message, conversationId, context);
+                boolean allowReply = notificationType.equals("incoming_message");
+                getCurrentUserUseCase.execute(new DefaultObserver<User>() {
+                    @Override
+                    public void onNext(User user) {
+                        try {
+                            postNotification(user, message, conversationId, allowReply);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, null);
             } else if (TextUtils.equals(notificationType, "incoming_call")) {
                 Log.d("incoming call");
                 if (ActivityLifecycle.getInstance().isForeground()) {
@@ -89,15 +106,12 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 //                Log.d("going to start activity");
 //                context.startActivity(intentNew);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (NullPointerException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void postNotification(String message, String conversationId, Context context) throws JSONException {
-        User currentUser = UserManager.getInstance().getUser();
+    private void postNotification(User currentUser, String message, String conversationId, boolean allowReply) throws JSONException {
         boolean soundNotification = currentUser == null || currentUser.settings.notification;
         mNotificationId = getID();
         mConversationId = conversationId;
@@ -129,33 +143,33 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
             notificationBuilder
                     .setPriority(Notification.PRIORITY_HIGH);
         }
-        //do not show double BZZZ, will change if use title for other meaning
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        if (allowReply) {
+            //do not show double BZZZ, will change if use title for other meaning
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                notificationBuilder
+                        .setContentTitle("BZZZ");
+            } else {
+                // 1. Build label
+                String replyLabel = getString(R.string.notif_action_reply);
+                RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
+                        .setLabel(replyLabel)
+                        .build();
 
 
-            notificationBuilder
-                    .setContentTitle("BZZZ");
-        }else{
-            // 1. Build label
-            String replyLabel = getString(R.string.notif_action_reply);
-            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
-                    .setLabel(replyLabel)
-                    .build();
+                Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
+                PendingIntent.getBroadcast(context, 100, intent1,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
 
+                // 2. Build action
+                NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                        R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
+                        PendingIntent.FLAG_UPDATE_CURRENT))
+                        .addRemoteInput(remoteInput)
+                        .setAllowGeneratedReplies(true)
+                        .build();
+                notificationBuilder.addAction(replyAction);
 
-            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            PendingIntent.getBroadcast(context, 100, intent1,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-
-            // 2. Build action
-            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                    R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
-                    PendingIntent.FLAG_UPDATE_CURRENT))
-                    .addRemoteInput(remoteInput)
-                    .setAllowGeneratedReplies(true)
-                    .build();
-            notificationBuilder.addAction(replyAction);
-
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.
@@ -187,12 +201,12 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private boolean needDisplayNotification(String conversationId) {
         Activity activeActivity = ActivityLifecycle.getInstance().getForegroundActivity();
         boolean isForeground = ActivityLifecycle.getInstance().isForeground();
-        //do not display notification if user already logged out
+        //do not display notification if opponentUser already logged out
         if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)) {
-            Log.d("user not logged-in");
+            Log.d("opponentUser not logged-in");
             return false;
         }
-        //do not display notification if user is opening same conversation
+        //do not display notification if opponentUser is opening same conversation
         if (activeActivity != null && activeActivity instanceof ChatActivity && isForeground) {
             ChatActivity chatActivity = (ChatActivity) activeActivity;
 
@@ -202,22 +216,4 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         }
         return true;
     }
-
-    private PendingIntent getReplyPendingIntent() {
-        Intent intent;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // start a
-            // (i)  broadcast receiver which runs on the UI thread or
-            // (ii) service for a background task to b executed , but for the purpose of this code lab, will be doing a broadcast receiver
-            intent = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            return PendingIntent.getBroadcast(context, 100, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            // start your activity
-            intent = ReplyActivity.getReplyMessageIntent(context, mNotificationId, mConversationId);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            return PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
-    }
-
 }

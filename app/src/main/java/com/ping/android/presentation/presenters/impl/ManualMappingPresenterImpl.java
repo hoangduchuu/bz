@@ -4,7 +4,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.ResetUserMappingsUseCase;
 import com.ping.android.domain.usecase.UpdateUserMappingUseCase;
-import com.ping.android.form.Mapping;
+import com.ping.android.model.Mapping;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
 

@@ -11,7 +11,6 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.bzzzchat.flexibleadapter.baseitems.LoadingItem;
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -21,11 +20,9 @@ import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessa
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.view.viewholders.BaseMessageViewHolder;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

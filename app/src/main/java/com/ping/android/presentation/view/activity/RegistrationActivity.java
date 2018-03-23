@@ -23,8 +23,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.activity.CoreActivity;
-import com.ping.android.activity.PhoneActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.registration.RegistrationComponent;
 import com.ping.android.dagger.loggedout.registration.RegistrationModule;

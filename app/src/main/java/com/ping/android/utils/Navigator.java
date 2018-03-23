@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.view.View;
 
-import com.ping.android.fragment.BaseFragment;
+import com.ping.android.presentation.view.fragment.BaseFragment;
 
 import java.util.List;
 

@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- To auto-complete the email text field in the activity_login form with the user's emails -->
+    <!-- To auto-complete the email text field in the activity_login form with opponentUseruser's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> -->
@@ -102,7 +102,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BeforeLoginActivity"
+            android:name="com.ping.android.presentation.view.activity.BeforeLoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
@@ -117,7 +117,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".PhoneActivity"
+            android:name="com.ping.android.presentation.view.activity.PhoneActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -147,39 +147,39 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AddContactActivity"
+            android:name="com.ping.android.presentation.view.activity.AddContactActivity"
             android:label="Add Contact"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".PuzzleActivity"
+            android:name="com.ping.android.presentation.view.activity.PuzzleActivity"
             android:label="PuzzleActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".GameActivity"
+            android:name="com.ping.android.presentation.view.activity.GameActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name=".ChangePasswordActivity"
+            android:name="com.ping.android.presentation.view.activity.ChangePasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name="com.ping.android.presentation.view.activity.ForgotPasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CallActivity"
+            android:name="com.ping.android.presentation.view.activity.CallActivity"
             android:label="GameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name=".PermissionsActivity"
+            android:name="com.ping.android.presentation.view.activity.PermissionsActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -199,27 +199,27 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".TransphabetActivity"
+            android:name="com.ping.android.presentation.view.activity.TransphabetActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".PrivacyAndTermActivity"
+            android:name="com.ping.android.presentation.view.activity.PrivacyAndTermActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.cameraview.CameraActivity"
+            android:name="com.ping.android.presentation.view.cameraview.CameraActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.cameraview.PicturePreviewActivity"
+            android:name="com.ping.android.presentation.view.cameraview.PicturePreviewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
-            android:name=".GameMemoryActivity"
+            android:name="com.ping.android.presentation.view.activity.GameMemoryActivity"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name=".GameTicTacToeActivity"
+            android:name="com.ping.android.presentation.view.activity.GameTicTacToeActivity"
             android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
@@ -240,7 +240,7 @@
             android:name="com.ping.android.presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".NicknameActivity"
+        <activity android:name="com.ping.android.presentation.view.activity.NicknameActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

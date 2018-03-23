@@ -10,7 +10,7 @@
     android:paddingTop="45dp"
     android:background="@color/background_app_color"
     android:gravity="center"
-    tools:context="com.ping.android.activity.ReplyActivity">
+    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.ReplyActivity">
 
     <EditText
         android:id="@+id/edit_reply"

@@ -4,7 +4,6 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.form.Mapping;
 
 import org.jetbrains.annotations.NotNull;
 

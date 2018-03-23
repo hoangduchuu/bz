@@ -4,29 +4,15 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.ping.android.App;
 import com.ping.android.ultility.Consts;
-import com.ping.android.managers.ChatPingAlarmManager;
-import com.ping.android.utils.SettingsUtil;
-import com.ping.android.utils.WebRtcSessionManager;
-import com.ping.android.utils.bus.BusProvider;
 import com.quickblox.chat.QBChatService;
-import com.quickblox.chat.QBSignaling;
-import com.quickblox.chat.QBWebRTCSignaling;
-import com.quickblox.chat.listeners.QBVideoChatSignalingManagerListener;
-import com.quickblox.core.QBEntityCallback;
-import com.quickblox.core.exception.QBResponseException;
-import com.quickblox.messages.services.SubscribeService;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCClient;
-import com.quickblox.videochat.webrtc.QBRTCConfig;
-
-import org.jivesoftware.smackx.ping.PingFailedListener;
 
 import javax.inject.Inject;
 

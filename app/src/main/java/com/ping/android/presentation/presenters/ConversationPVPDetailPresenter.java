@@ -20,7 +20,11 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
     void handleNicknameClicked();
 
-    void toggleBlockUser(String key, boolean checked);
+    void toggleBlockUser(boolean checked);
+
+    void handleVideoCallPress();
+
+    void handleVoiceCallPress();
 
     interface View extends BaseView {
 
@@ -34,6 +38,8 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
         void updatePuzzlePicture(boolean isEnable);
 
-        void updateBlockStatus(User user);
+        void updateBlockStatus(boolean isBlocked);
+
+        void openCallScreen(User currentUser, User otherUser, boolean isVideoCall);
     }
 }

@@ -22,20 +22,15 @@ import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
-import com.ping.android.fragment.BaseFragment;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.activity.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.MessageAdapter;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.service.firebase.ConversationRepository;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
@@ -258,7 +253,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         bundle.putParcelable("CONVERSATION", conversation);
         Intent intent = new Intent(getContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
-        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, sharedElements[0].second);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, conversation.conversationName);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
         intent.putExtras(bundle);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),

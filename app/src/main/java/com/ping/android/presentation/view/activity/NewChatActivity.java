@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.activity.CoreActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
@@ -28,7 +27,7 @@ import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Toaster;
-import com.ping.android.view.ChipsEditText;
+import com.ping.android.presentation.view.custom.ChipsEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.apache.commons.lang3.StringUtils;

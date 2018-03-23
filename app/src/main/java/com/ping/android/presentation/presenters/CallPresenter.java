@@ -3,13 +3,12 @@ package com.ping.android.presentation.presenters;
 import android.content.Intent;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.ping.android.activity.CallActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.model.User;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 
 import org.webrtc.CameraVideoCapturer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,7 +62,5 @@ public interface CallPresenter extends BasePresenter {
         void updateOpponentInfo(User user);
 
         void initUserData(Integer callerId, List<Integer> opponents);
-
-        void sendMissedCallNotification(String userId, int quickBloxID);
     }
 }

@@ -49,7 +49,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                 Call call = Call.from(childEvent.dataSnapshot);
                                 ChildEvent.Type type = call.deleteStatuses.containsKey(userId) && call.deleteStatuses.get(userId)
                                         ? ChildEvent.Type.CHILD_REMOVED : ChildEvent.Type.CHILD_ADDED;
-                                if (type == ChildEvent.Type.CHILD_ADDED) {
+                                if (childEvent.type == ChildEvent.Type.CHILD_ADDED && type == ChildEvent.Type.CHILD_ADDED) {
                                     String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
                                     String conversationID = userId.compareTo(opponentUserId) > 0 ? userId + opponentUserId : opponentUserId + userId;
                                     call.conversationId = conversationID;
@@ -86,7 +86,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                                         return new ChildData<>(call, type);
                                                     }));
                                 } else {
-                                    return Observable.just(new ChildData<>(call, type));
+                                    return Observable.just(new ChildData<>(call, childEvent.type));
                                 }
                             });
                 });

@@ -1,8 +1,7 @@
 package com.ping.android.dagger.loggedin.call.audio;
 
 import com.ping.android.dagger.scopes.PerFragment;
-import com.ping.android.fragment.AudioConversationFragment;
-import com.ping.android.fragment.IncomeCallFragment;
+import com.ping.android.presentation.view.fragment.AudioConversationFragment;
 
 import dagger.Subcomponent;
 
