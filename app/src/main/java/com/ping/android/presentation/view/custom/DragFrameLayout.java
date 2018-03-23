@@ -166,7 +166,8 @@ public class DragFrameLayout extends FrameLayout {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        //mVerticalRange = h - 200;
+        mVerticalRange = getHeight();
+        mHorizontalRange = getWidth();
         super.onSizeChanged(w, h, oldw, oldh);
     }
 

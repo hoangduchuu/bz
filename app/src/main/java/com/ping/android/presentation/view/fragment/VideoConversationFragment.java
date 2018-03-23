@@ -2,14 +2,12 @@ package com.ping.android.presentation.view.fragment;
 
 import android.animation.ValueAnimator;
 import android.content.ClipData;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -147,7 +145,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     public void onCallStarted() {
         super.onCallStarted();
         connectionEstablished = true;
-        // TODO animate local view to current position
         animateLocalViewToInitialPosition();
         if (ringtonePlayer != null) {
             ringtonePlayer.stop();
@@ -161,7 +158,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         ValueAnimator animator = ValueAnimator.ofInt(height, finalHeight);
         FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) localVideoView.getLayoutParams();
         layoutParams.setMarginStart(ResourceUtils.dpToPx(20));
-        layoutParams.topMargin = ResourceUtils.dpToPx(100);
+        layoutParams.topMargin = ResourceUtils.dpToPx(20);
         animator.addUpdateListener(animation -> {
             int currentHeight = (int) animation.getAnimatedValue();
             int currentWidth = (int) ((double) currentHeight / height * width);
