@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
@@ -28,6 +30,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.ping.android.presentation.view.adapter.OpponentsFromCallAdapter;
 import com.ping.android.presentation.view.custom.DragFrameLayout;
+import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
@@ -144,9 +147,32 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     public void onCallStarted() {
         super.onCallStarted();
         connectionEstablished = true;
+        // TODO animate local view to current position
+        animateLocalViewToInitialPosition();
         if (ringtonePlayer != null) {
             ringtonePlayer.stop();
         }
+    }
+
+    private void animateLocalViewToInitialPosition() {
+        int width = localVideoView.getWidth();
+        int height = localVideoView.getHeight();
+        int finalHeight = ResourceUtils.dpToPx(150);
+        ValueAnimator animator = ValueAnimator.ofInt(height, finalHeight);
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) localVideoView.getLayoutParams();
+        layoutParams.setMarginStart(ResourceUtils.dpToPx(20));
+        layoutParams.topMargin = ResourceUtils.dpToPx(100);
+        animator.addUpdateListener(animation -> {
+            int currentHeight = (int) animation.getAnimatedValue();
+            int currentWidth = (int) ((double) currentHeight / height * width);
+            layoutParams.width = currentWidth;
+            layoutParams.height = currentHeight;
+            localVideoView.setLayoutParams(layoutParams);
+        });
+        animator.setDuration(500);
+        animator.start();
+//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(100, 150);
+//        localVideoView.setLayoutParams(params);
     }
 
     public void setDuringCallActionBar() {

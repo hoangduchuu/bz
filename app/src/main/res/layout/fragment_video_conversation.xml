@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Add android:background="@android:color/transparent" did the trick-->
     <com.ping.android.presentation.view.custom.DragFrameLayout
         android:id="@+id/drag_layout"
         android:layout_width="match_parent"
@@ -19,11 +20,8 @@
 
         <com.quickblox.videochat.webrtc.view.QBRTCSurfaceView
             android:id="@+id/local_video_view"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:layout_gravity="end|bottom"
-            android:layout_marginStart="@dimen/margin_small"
-            android:layout_marginTop="@dimen/action_bar_height" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </com.ping.android.presentation.view.custom.DragFrameLayout>
 
     <LinearLayout
