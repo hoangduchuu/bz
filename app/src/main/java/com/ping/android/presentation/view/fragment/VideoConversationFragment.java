@@ -1,14 +1,19 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.content.ClipData;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,6 +27,7 @@ import com.ping.android.dagger.loggedin.call.video.VideoCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.ping.android.presentation.view.adapter.OpponentsFromCallAdapter;
+import com.ping.android.presentation.view.custom.DragFrameLayout;
 import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
@@ -101,6 +107,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         view = super.onCreateView(inflater, container, savedInstanceState);
         outgoingViewContainer = view.findViewById(R.id.layout_background_outgoing_screen);
         presenter.create();
+        //localVideoView.setOnTouchListener(new MyTouchListener());
         return view;
     }
 
@@ -202,8 +209,14 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         isRemoteShown = false;
         isCurrentCameraFront = true;
         localVideoView = view.findViewById(R.id.local_video_view);
-        initCorrectSizeForLocalView();
+        //initCorrectSizeForLocalView(view);
         localVideoView.setZOrderMediaOverlay(true);
+
+        DragFrameLayout dragLayout = view.findViewById(R.id.drag_layout);
+        dragLayout.setDragFrameController(captured -> {
+        });
+
+        dragLayout.addDragView(localVideoView);
 
         remoteFullScreenVideoView = view.findViewById(R.id.remote_video_view);
         remoteFullScreenVideoView.setOnClickListener(localViewOnClickListener);
@@ -249,7 +262,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 //        }
 //    }
 
-    private void initCorrectSizeForLocalView() {
+    private void initCorrectSizeForLocalView(View rootView) {
         ViewGroup.LayoutParams params = localVideoView.getLayoutParams();
         DisplayMetrics displaymetrics = getResources().getDisplayMetrics();
 
@@ -257,6 +270,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         Log.d(TAG, "screenWidthPx " + screenWidthPx);
         params.width = (int) (screenWidthPx * 0.3);
         params.height = (params.width / 2) * 3;
+        TransitionManager.beginDelayedTransition((ViewGroup) rootView);
         localVideoView.setLayoutParams(params);
     }
 
@@ -445,8 +459,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         cameraState = CameraState.NONE;
 
 
-        if (remoteFullScreenVideoView != null) {
-            fillVideoView(remoteFullScreenVideoView, localVideoTrack, false);
+        if (localVideoView != null) {
+            fillVideoView(localVideoView, localVideoTrack, false);
         }
     }
 
@@ -454,9 +468,9 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     public void onRemoteVideoTrackReceive(QBRTCSession session, final QBRTCVideoTrack videoTrack, final Integer userID) {
         Log.d(TAG, "onRemoteVideoTrackReceive for opponent= " + userID);
 
-        if (localVideoTrack != null) {
-            fillVideoView(localVideoView, localVideoTrack, false);
-        }
+//        if (localVideoTrack != null) {
+//            fillVideoView(localVideoView, localVideoTrack, false);
+//        }
         isLocalVideoFullScreen = false;
 
         setDuringCallActionBar();
@@ -884,6 +898,57 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         }
         return component;
     }
+
+    private final class MyTouchListener implements View.OnTouchListener {
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                        view);
+                view.startDrag(null, shadowBuilder, view, 0);
+                //view.setVisibility(View.INVISIBLE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+//    class MyDragListener implements View.OnDragListener {
+//        Drawable enterShape = getResources().getDrawable(
+//                R.drawable.shape_droptarget);
+//        Drawable normalShape = getResources().getDrawable(R.drawable.shape);
+//
+//        @Override
+//        public boolean onDrag(View v, DragEvent event) {
+//            int action = event.getAction();
+//            switch (event.getAction()) {
+//                case DragEvent.ACTION_DRAG_STARTED:
+//                    // do nothing
+//                    break;
+//                case DragEvent.ACTION_DRAG_ENTERED:
+//                    v.setBackgroundDrawable(enterShape);
+//                    break;
+//                case DragEvent.ACTION_DRAG_EXITED:
+//                    v.setBackgroundDrawable(normalShape);
+//                    break;
+//                case DragEvent.ACTION_DROP:
+//                    // Dropped, reassign View to ViewGroup
+//                    View view = (View) event.getLocalState();
+//                    ViewGroup owner = (ViewGroup) view.getParent();
+//                    owner.removeView(view);
+//                    LinearLayout container = (LinearLayout) v;
+//                    container.addView(view);
+//                    view.setVisibility(View.VISIBLE);
+//                    break;
+//                case DragEvent.ACTION_DRAG_ENDED:
+//                    v.setBackgroundDrawable(normalShape);
+//                default:
+//                    break;
+//            }
+//            return true;
+//        }
+//    }
 }
 
 
