@@ -24,6 +24,7 @@ import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.presentation.view.fragment.CallFragment;
@@ -75,10 +76,17 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        UserManager.getInstance().startCallService(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         //UserManager.getInstance().removeValueEventListener();
     }
+
     @Override
     public void onBackPressed() {
     }

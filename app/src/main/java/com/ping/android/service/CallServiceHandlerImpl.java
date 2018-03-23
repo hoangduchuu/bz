@@ -10,8 +10,10 @@ import com.ping.android.domain.usecase.call.LogoutChatServiceUseCase;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.SharedPrefsHelper;
+import com.quickblox.chat.QBChat;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.chat.QBWebRTCSignaling;
+import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCClient;
 import com.quickblox.videochat.webrtc.QBRTCConfig;
 import com.quickblox.videochat.webrtc.QBRTCSession;
@@ -58,6 +60,12 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
 
     @Override
     public void loginUser(int qbId, String pingId) {
+        if (QBChatService.getInstance().isLoggedIn()) {
+            QBUser qbUser = QBChatService.getInstance().getUser();
+            if (qbUser.getId() == qbId) {
+                return;
+            }
+        }
         loginChatServiceUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
