@@ -46,6 +46,7 @@ public class DragFrameLayout extends FrameLayout {
 
     private ViewDragHelper mDragHelper;
 
+    private View draggableView;
     private int mDraggingState = 0;
     private int mDraggingLeft;
     private int mDraggingTop;
@@ -100,6 +101,7 @@ public class DragFrameLayout extends FrameLayout {
 
             @Override
             public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
+                draggableView = changedView;
                 mVerticalRange = getHeight() - changedView.getHeight();
                 mHorizontalRange = getWidth() - changedView.getWidth();
                 super.onViewPositionChanged(changedView, left, top, dx, dy);
@@ -169,6 +171,18 @@ public class DragFrameLayout extends FrameLayout {
         mVerticalRange = getHeight();
         mHorizontalRange = getWidth();
         super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (draggableView != null) {
+            int margin = ((LayoutParams) draggableView.getLayoutParams()).leftMargin;
+            final int settleDestX = mDraggingLeft - margin;
+            final int settleDestY = mDraggingTop - margin;
+            draggableView.offsetLeftAndRight(settleDestX);
+            draggableView.offsetTopAndBottom(settleDestY);
+        }
     }
 
     @Override

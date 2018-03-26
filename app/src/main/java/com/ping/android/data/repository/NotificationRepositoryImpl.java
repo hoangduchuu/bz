@@ -34,6 +34,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("message", messageData);
         //object.addProperty("ios_badge", "1");
         object.addProperty("ios_sound", "default");
+        object.addProperty("ios_voip", 1);
+        object.addProperty("VOIPCall", 1);
         object.addProperty("notificationType", "incoming_call");
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);

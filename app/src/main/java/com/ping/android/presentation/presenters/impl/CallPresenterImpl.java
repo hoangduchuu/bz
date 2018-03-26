@@ -142,8 +142,6 @@ public class CallPresenterImpl implements CallPresenter,
             callTimestamp = System.currentTimeMillis() / 1000;
             WebRtcSessionManager.getInstance().setCurrentSession(session);
             view.configCallSettings(session.getOpponents());
-            boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(session.getConferenceType());
-            view.initAudioSettings(isVideo);
             view.initUserData(currentSession.getCallerID(), currentSession.getOpponents());
             callService.registerSessionCallbacks(this);
             session.addSessionCallbacksListener(this);
@@ -180,8 +178,8 @@ public class CallPresenterImpl implements CallPresenter,
 //        userInfo.put("avatar_url", avatar);
         this.currentSession.acceptCall(new HashMap<>());
         boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(this.currentSession.getConferenceType());
-        ;
         view.initCallViews(isVideo, true);
+        view.updateAudioSetting(isIncomingCall, isVideo);
     }
 
     @Override
@@ -273,7 +271,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onConnectedToUser(QBRTCSession qbrtcSession, Integer integer) {
-        Log.d("onDisconnectedFromUser " + qbrtcSession.getState().toString());
+        Log.d("onConnectedToUser " + qbrtcSession.getState().toString());
         callStarted = true;
         view.onCallStarted();
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
@@ -284,6 +282,9 @@ public class CallPresenterImpl implements CallPresenter,
     @Override
     public void onDisconnectedFromUser(QBRTCSession qbrtcSession, Integer integer) {
         Log.d("onDisconnectedFromUser");
+        for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
+            callback.onCallStopped();
+        }
     }
 
     @Override
@@ -331,32 +332,37 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onUserNotAnswer(QBRTCSession qbrtcSession, Integer integer) {
-        view.stopRingtone();
         addCallHistory(Constant.CALL_STATUS_MISS);
         sendMissedCallNotification(qbrtcSession.getConferenceType()
                 == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO);
+        for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
+            callback.onCallStopped();
+        }
     }
 
     @Override
     public void onCallRejectByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        view.stopRingtone();
         addCallHistory(Constant.CALL_STATUS_MISS);
+        for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
+            callback.onCallStopped();
+        }
     }
 
     @Override
     public void onCallAcceptByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        view.stopRingtone();
         callAccepted = true;
     }
 
     @Override
     public void onReceiveHangUpFromUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
         if (qbrtcSession.equals(this.currentSession)) {
-//            this.currentSession.hangUp(new HashMap<>());
-//            view.finishCall();
+            for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
+                callback.onCallStopped();
+            }
             if (!isIncomingCall) {
                 addCallHistory(Constant.CALL_STATUS_SUCCESS);
             }
+
         }
     }
 

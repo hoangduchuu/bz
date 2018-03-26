@@ -87,7 +87,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_gravity="center_vertical"
                 android:background="@drawable/selector_toggle_speaker"
-                android:checked="true"
+                android:checked="false"
                 android:textOff=""
                 android:textOn="" />
         </RelativeLayout>

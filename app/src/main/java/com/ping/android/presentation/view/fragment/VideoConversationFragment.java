@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -88,6 +90,10 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 //    private UserRepository userRepository;
 
     private ImageView firstOpponentAvatarImageView;
+
+    private Animation animation1;
+    private Animation animation2;
+
 
     @Inject
     VideoCallPresenter presenter;
@@ -227,6 +233,11 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     @Override
     protected void initViews(View view) {
         super.initViews(view);
+        animation1 = AnimationUtils.loadAnimation(getContext(), R.anim.to_middle);
+        //animation1.setAnimationListener(this);
+        animation2 = AnimationUtils.loadAnimation(getContext(), R.anim.from_middle);
+        //animation2.setAnimationListener(this);
+
         Log.i(TAG, "initViews");
 //        opponentViewHolders = new SparseArray<>(opponents.size());
         isRemoteShown = false;
@@ -442,6 +453,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
                 Log.d(TAG, "camera switched, bool = " + b);
                 isCurrentCameraFront = b;
                 toggleCameraInternal();
+                localVideoView.setAnimation(animation1);
+                localVideoView.startAnimation(animation1);
             }
 
             @Override
@@ -454,7 +467,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     private void toggleCameraInternal() {
         Log.d(TAG, "Camera was switched!");
-        updateVideoView(isLocalVideoFullScreen ? remoteFullScreenVideoView : localVideoView, isCurrentCameraFront);
+        updateVideoView(localVideoView, isCurrentCameraFront);
         toggleCamera(true);
     }
 
@@ -464,10 +477,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     private void toggleCamera(boolean isNeedEnableCam) {
         presenter.toggleVideoLocal(isNeedEnableCam);
-//        if (currentSession != null && currentSession.getMediaStreamManager() != null) {
-//
-////            conversationFragmentCallbackListener.onSetVideoEnabled(isNeedEnableCam);
-//        }
         if (connectionEstablished && !cameraToggle.isEnabled()) {
             cameraToggle.setEnabled(true);
         }
@@ -840,7 +849,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Override
     public void playRingtone() {
-        ringtonePlayer = new RingtonePlayer(getContext(), R.raw.beep);
+        //ringtonePlayer = new RingtonePlayer(getContext(), R.raw.beep);
         //ringtonePlayer.play(true);
     }
 

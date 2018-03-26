@@ -136,11 +136,11 @@ public class AudioConversationFragment extends BaseConversationFragment
 
         audioSwitchToggleButton.setEnabled(!plugged);
         if (plugged) {
-            audioSwitchToggleButton.setChecked(true);
-        } else if (previousDeviceEarPiece) {
-            audioSwitchToggleButton.setChecked(true);
-        } else {
             audioSwitchToggleButton.setChecked(false);
+        } else if (previousDeviceEarPiece) {
+            audioSwitchToggleButton.setChecked(false);
+        } else {
+            audioSwitchToggleButton.setChecked(true);
         }
 
     }

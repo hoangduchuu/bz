@@ -1,6 +1,7 @@
 package com.ping.android.managers;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.model.User;
@@ -27,10 +28,10 @@ public class UserManager {
     private UserManager() {
     }
 
-    public void startCallService(Activity activity) {
+    public void startCallService(Context context) {
         Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
         String pingId = SharedPrefsHelper.getInstance().get("pingId");
-        CallService.start(activity, qbId, pingId);
+        CallService.start(context, qbId, pingId);
     }
 
     public void setUser(User user) {
