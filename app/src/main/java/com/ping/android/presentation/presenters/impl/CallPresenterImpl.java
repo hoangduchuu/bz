@@ -275,6 +275,7 @@ public class CallPresenterImpl implements CallPresenter,
     public void onConnectedToUser(QBRTCSession qbrtcSession, Integer integer) {
         Log.d("onDisconnectedFromUser " + qbrtcSession.getState().toString());
         callStarted = true;
+        view.onCallStarted();
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onCallStarted();
         }

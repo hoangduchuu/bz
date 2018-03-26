@@ -9,10 +9,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.ping.android.App;
-import com.ping.android.ultility.Consts;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.users.model.QBUser;
-import com.quickblox.videochat.webrtc.QBRTCClient;
 
 import javax.inject.Inject;
 
@@ -27,11 +25,6 @@ public class CallService extends Service {
 
     public static final String EXTRA_QB_ID = "EXTRA_QB_ID";
     public static final String EXTRA_PING_ID = "EXTRA_PING_ID";
-
-    private QBRTCClient rtcClient;
-    private PendingIntent pendingIntent;
-    private int currentCommand;
-    private QBUser currentUser;
 
     @Inject
     CallServiceHandler handler;
@@ -104,136 +97,9 @@ public class CallService extends Service {
         }
     }
 
-    private void parseIntentExtras(Intent intent) {
-        if (intent != null && intent.getExtras() != null) {
-            currentCommand = intent.getIntExtra(Consts.EXTRA_COMMAND_TO_SERVICE, Consts.COMMAND_NOT_FOUND);
-            pendingIntent = intent.getParcelableExtra(Consts.EXTRA_PENDING_INTENT);
-            currentUser = (QBUser) intent.getSerializableExtra(Consts.EXTRA_QB_USER);
-        }
-    }
-
-//    private void startSuitableActions() {
-//        if (currentCommand == Consts.COMMAND_LOGIN) {
-//            startLoginToChat();
-//        } else if (currentCommand == Consts.COMMAND_LOGOUT) {
-//            logout();
-//        }
-//    }
-
     private void initChatService() {
         QBChatService.setDebugEnabled(true);
     }
-
-//    private void startLoginToChat() {
-//        if (currentUser == null || currentUser.getId() == null) return;
-//        if (!chatService.isLoggedIn()) {
-//            loginToChat(currentUser);
-//        } else {
-//            sendResultToActivity(true, null);
-//        }
-//    }
-
-//    private void loginToChat(QBUser qbUser) {
-//        chatService.login(qbUser, new QBEntityCallback<QBUser>() {
-//            @Override
-//            public void onSuccess(QBUser qbUser, Bundle bundle) {
-//                Log.d(TAG, "login onSuccess");
-//                startActionsOnSuccessLogin();
-//            }
-//
-//            @Override
-//            public void onError(QBResponseException e) {
-//                Log.d(TAG, "login onError " + e.getMessage());
-//                sendResultToActivity(false, e.getMessage() != null
-//                        ? e.getMessage()
-//                        : "Login error");
-//            }
-//        });
-//    }
-
-//    private void startActionsOnSuccessLogin() {
-//        initPingListener();
-//        initQBRTCClient();
-//        SubscribeService.subscribeToPushes(getApplicationContext(), false);
-//        sendResultToActivity(true, null);
-//    }
-
-//    private void initPingListener() {
-//        ChatPingAlarmManager.onCreate(this);
-//        ChatPingAlarmManager.addPingListener(new PingFailedListener() {
-//            @Override
-//            public void pingFailed() {
-//                Log.d(TAG, "Ping chat server failed");
-//            }
-//        });
-//    }
-
-//    private void initQBRTCClient() {
-//        rtcClient = QBRTCClient.getInstance(getApplicationContext());
-//
-//        // Add signalling manager
-//        // FIXME: issue https://github.com/QuickBlox/quickblox-android-sdk/issues/441
-//        chatService.getVideoChatWebRTCSignalingManager().addSignalingManagerListener(new QBVideoChatSignalingManagerListener() {
-//            @Override
-//            public void signalingCreated(QBSignaling qbSignaling, boolean createdLocally) {
-//                if (!createdLocally) {
-//                    rtcClient.addSignaling((QBWebRTCSignaling) qbSignaling);
-//                }
-//            }
-//        });
-//
-//        // Configure
-//        QBRTCConfig.setDebugEnabled(true);
-//        SettingsUtil.configRTCTimers(this);
-//
-//        // Add service as callback to RTCClient
-//        rtcClient.addSessionCallbacksListener(WebRtcSessionManager.getInstance());
-//        rtcClient.prepareToProcessCalls();
-//    }
-
-//    private void sendResultToActivity(boolean isSuccess, String errorMessage) {
-//        if (pendingIntent != null) {
-//            Log.d(TAG, "sendResultToActivity()");
-//            try {
-//                Intent intent = new Intent();
-//                intent.putExtra(Consts.EXTRA_LOGIN_RESULT, isSuccess);
-//                intent.putExtra(Consts.EXTRA_LOGIN_ERROR_MESSAGE, errorMessage);
-//
-//                pendingIntent.send(CallService.this, Consts.EXTRA_LOGIN_RESULT_CODE, intent);
-//            } catch (PendingIntent.CanceledException e) {
-//                String errorMessageSendingResult = e.getMessage();
-//                Log.d(TAG, errorMessageSendingResult != null
-//                        ? errorMessageSendingResult
-//                        : "Error sending result to activity");
-//            }
-//        }
-//    }
-
-//    private void logout() {
-//        destroyRtcClientAndChat();
-//    }
-
-//    private void destroyRtcClientAndChat() {
-//        if (rtcClient != null) {
-//            rtcClient.destroy();
-//        }
-//        //TODO ChatPingAlarmManager.onDestroy();
-//        if (chatService != null) {
-//            chatService.logout(new QBEntityCallback<Void>() {
-//                @Override
-//                public void onSuccess(Void aVoid, Bundle bundle) {
-//                    chatService.destroy();
-//                }
-//
-//                @Override
-//                public void onError(QBResponseException e) {
-//                    Log.d(TAG, "logout onError " + e.getMessage());
-//                    chatService.destroy();
-//                }
-//            });
-//        }
-//        stopSelf();
-//    }
 
     @Override
     public void onDestroy() {

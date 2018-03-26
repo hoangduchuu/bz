@@ -1001,6 +1001,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         startLoadAbsentUsers(callerId, opponents);
     }
 
+    @Override
+    public void onCallStarted() {
+        callStarted = true;
+    }
+
     public interface OnChangeDynamicToggle {
         void enableDynamicToggle(boolean plugged, boolean wasEarpiece);
     }
