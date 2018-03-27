@@ -36,7 +36,7 @@ public class SearchRepositoryImpl implements SearchRepository {
         }
         Map<String, Object> query = new HashMap<>();
         query.put("index", "firebase");
-        query.put("type", "opponentUser");
+        query.put("type", "user");
         query.put("q", text);
         DatabaseReference searchReference = database.getReference().child("search");
         DatabaseReference requestReference = searchReference.child("request").push();

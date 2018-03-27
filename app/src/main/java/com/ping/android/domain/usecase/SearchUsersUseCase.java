@@ -1,13 +1,12 @@
 package com.ping.android.domain.usecase;
 
-import com.ping.android.domain.repository.SearchRepository;
-import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.domain.repository.SearchRepository;
+import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.model.User;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,12 +25,10 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
     SearchRepository searchRepository;
     @Inject
     UserRepository userRepository;
-    UserManager userManager;
 
     @Inject
     public SearchUsersUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull
