@@ -16,6 +16,8 @@ public interface ConversationListPresenter extends BasePresenter {
 
     void deleteConversations(List<Conversation> conversations);
 
+    void loadMore();
+
     interface View extends BaseView {
         void addConversation(Conversation conversation);
 
@@ -28,5 +30,7 @@ public interface ConversationListPresenter extends BasePresenter {
         void updateConversationList(List<Conversation> conversations);
 
         void notifyConversationChange(Conversation data);
+
+        void appendConversations(List<Conversation> conversations);
     }
 }

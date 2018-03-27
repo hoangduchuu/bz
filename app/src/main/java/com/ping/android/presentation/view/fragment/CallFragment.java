@@ -31,6 +31,7 @@ import com.ping.android.presentation.view.custom.CustomSwitch;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -147,6 +148,18 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     private void bindViews(View view) {
         rvListCall = view.findViewById(R.id.call_recycle_view);
+        // FIXME: Enable load more feature but affect to search function
+        /*rvListCall.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int totalItemCount = mLinearLayoutManager.getItemCount();
+                int lastVisibleItem = mLinearLayoutManager
+                        .findLastVisibleItemPosition();
+                if (totalItemCount <= (lastVisibleItem + 5)) {
+                    presenter.loadMore();
+                }
+            }
+        });*/
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = view.findViewById(R.id.call_search_view);
         //CommonMethod.UpdateSearchViewLayout(searchView);
@@ -265,6 +278,16 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void callUser(User currentUser, User user, boolean isVideoCall) {
         CallActivity.start(getContext(), currentUser, user, isVideoCall);
+    }
+
+    @Override
+    public void updateCalls(List<Call> callList) {
+        adapter.updateData(callList);
+    }
+
+    @Override
+    public void appendCalls(List<Call> callList) {
+        adapter.appendCalls(callList);
     }
 
     private void listenConversationChange() {

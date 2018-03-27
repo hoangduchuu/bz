@@ -1,20 +1,20 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveConversationsUseCase;
-import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
-import com.ping.android.domain.usecase.conversation.GetLastConversationsUseCase;
+import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -26,23 +26,30 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     @Inject
     ObserveConversationsUseCase observeConversationsUseCase;
     @Inject
-    GetLastConversationsUseCase getLastConversationsUseCase;
-    @Inject
     DeleteConversationsUseCase deleteConversationsUseCase;
+    @Inject
+    LoadMoreConversationUseCase loadMoreConversationUseCase;
     @Inject
     ConversationListPresenter.View view;
 
-    int unreadNum;
+    private boolean canLoadMore = true;
+    private double lastTimestamp = Double.MAX_VALUE;
+    private AtomicBoolean isLoading;
 
     @Inject
-    public ConversationListPresenterImpl() {}
+    public ConversationListPresenterImpl() {
+        isLoading = new AtomicBoolean(false);
+    }
 
     @Override
     public void getConversations() {
-        getLastConversationsUseCase.execute(new DefaultObserver<List<Conversation>>() {
+        loadMoreConversationUseCase.execute(new DefaultObserver<LoadMoreConversationUseCase.Output>() {
             @Override
-            public void onNext(List<Conversation> conversations) {
-                view.updateConversationList(conversations);
+            public void onNext(LoadMoreConversationUseCase.Output output) {
+                Collections.sort(output.conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
+                view.updateConversationList(output.conversations);
+                canLoadMore = output.canLoadMore;
+                lastTimestamp = output.lastTimestamp;
                 observeConversations();
             }
 
@@ -51,7 +58,7 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                 exception.printStackTrace();
                 observeConversations();
             }
-        }, null);
+        }, lastTimestamp);
     }
 
     private void observeConversations() {
@@ -93,7 +100,24 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     }
 
     @Override
+    public void loadMore() {
+        if (isLoading.get() || !canLoadMore) return;
+        isLoading.set(true);
+        lastTimestamp = lastTimestamp - 0.001;
+        loadMoreConversationUseCase.execute(new DefaultObserver<LoadMoreConversationUseCase.Output>() {
+            @Override
+            public void onNext(LoadMoreConversationUseCase.Output output) {
+                canLoadMore = output.canLoadMore;
+                lastTimestamp = output.lastTimestamp;
+                view.appendConversations(output.conversations);
+                isLoading.set(false);
+            }
+        }, lastTimestamp);
+    }
+
+    @Override
     public void destroy() {
         observeConversationsUseCase.dispose();
+        loadMoreConversationUseCase.dispose();
     }
 }

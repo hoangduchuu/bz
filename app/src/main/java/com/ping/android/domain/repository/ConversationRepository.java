@@ -17,7 +17,7 @@ import io.reactivex.ObservableSource;
 public interface ConversationRepository {
     Observable<String> getKey();
 
-    Observable<DataSnapshot> getLastConversations(String userId);
+    Observable<DataSnapshot> loadMoreConversation(String userId, double endTimestamps);
 
     Observable<Boolean> createConversation(Conversation conversation);
 
