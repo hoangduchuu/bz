@@ -13,12 +13,13 @@ import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
 
 import io.fabric.sdk.android.Fabric;
+import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 
 public class App extends CoreApp {
 
     private ApplicationComponent component;
     private LoggedInComponent loggedInComponent;
-
     private LoggedOutComponent loggedOutComponent;
 
     @Override
@@ -36,6 +37,7 @@ public class App extends CoreApp {
 
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
+        setupRxErrorHandler();
     }
 
     public ApplicationComponent getComponent() {
@@ -60,5 +62,9 @@ public class App extends CoreApp {
             loggedOutComponent = getComponent().provideLoggedOutComponent();
         }
         return loggedOutComponent;
+    }
+
+    private void setupRxErrorHandler() {
+        RxJavaPlugins.setErrorHandler(throwable -> throwable.printStackTrace());
     }
 }
