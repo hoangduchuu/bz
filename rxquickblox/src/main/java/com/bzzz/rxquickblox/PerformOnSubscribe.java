@@ -9,6 +9,7 @@ import com.quickblox.core.server.Performer;
 
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.exceptions.UndeliverableException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.exceptions.CompositeException;
@@ -33,13 +34,16 @@ public class PerformOnSubscribe<T> implements FlowableOnSubscribe<T> {
 
         try {
             emitter.onError(e);
-        } catch (Throwable var5) {
+        } catch (UndeliverableException e1) {
+            e1.printStackTrace();
+            CompositeException composite = new CompositeException(e, e1);
+            RxJavaPlugins.getInstance().getErrorHandler().handleError(composite);
+        } catch (Exception var5) {
             Lo.g(TAG + ":error result " + var5.getLocalizedMessage());
             Exceptions.throwIfFatal(var5);
             CompositeException composite = new CompositeException(e, var5);
             RxJavaPlugins.getInstance().getErrorHandler().handleError(composite);
         }
-
     }
 
     @Override

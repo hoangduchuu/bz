@@ -29,6 +29,8 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     UserRepository userRepository;
     @Inject
     SendTextMessageUseCase sendTextMessageUseCase;
+    @Inject
+    SendMessageNotificationUseCase sendMessageNotificationUseCase;
 
     @Inject
     public ReplyMessageFromNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -62,7 +64,11 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
                                     .setMarkStatus(maskStatus)
                                     .build();
                             return sendTextMessageUseCase.buildUseCaseObservable(messageParams)
-                                    .map(message -> true);
+                                    .flatMap(message -> {
+                                        SendMessageNotificationUseCase.Params notificationParams =
+                                                new SendMessageNotificationUseCase.Params(conversation, message);
+                                        return sendMessageNotificationUseCase.buildUseCaseObservable(notificationParams);
+                                    });
                         })
                 );
     }
