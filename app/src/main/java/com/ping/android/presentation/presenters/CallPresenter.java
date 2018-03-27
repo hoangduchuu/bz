@@ -49,13 +49,11 @@ public interface CallPresenter extends BasePresenter {
 
         void configCallSettings(List<Integer> users);
 
-        void initAudioSettings(boolean isVideo);
+        void updateAudioSetting(boolean isIncomingCall, boolean isVideo);
 
         void finishCall();
 
         void initCallViews(boolean isVideo, boolean isIncoming);
-
-        void stopRingtone();
 
         void showErrorSendingPacket();
 

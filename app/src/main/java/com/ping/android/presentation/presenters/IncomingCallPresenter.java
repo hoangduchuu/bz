@@ -18,5 +18,7 @@ public interface IncomingCallPresenter extends BasePresenter {
         void showConferenceType(QBRTCTypes.QBConferenceType conferenceType);
 
         void showOpponentInfo(String displayName, String avatar);
+
+        void stopCallNotification();
     }
 }

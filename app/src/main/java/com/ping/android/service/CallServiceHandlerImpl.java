@@ -140,7 +140,8 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
         if (callbacks != null) {
             callbacks.onReceiveNewSession(session);
         } else {
-            CallActivity.start(context, session.getSessionID(), true);
+            boolean isVideoCall = session.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO;
+            CallActivity.start(context, session.getSessionID(), true, isVideoCall);
         }
     }
 

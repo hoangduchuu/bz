@@ -2,6 +2,10 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
@@ -43,7 +47,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     private Vibrator vibrator;
     private long lastClickTime = 0l;
-    private RingtonePlayer ringtonePlayer;
+    private MediaPlayer mediaPlayer;
 //    private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
 
     @Inject
@@ -74,7 +78,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         View view = inflater.inflate(R.layout.fragment_income_call, container, false);
         initUI(view);
         initButtonsListener();
-        ringtonePlayer = new RingtonePlayer(getActivity());
+        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        mediaPlayer = MediaPlayer.create(getContext(), ringtoneUri);
         presenter.create();
         return view;
     }
@@ -103,7 +108,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     public void startCallNotification() {
-        ringtonePlayer.play(true);
+        mediaPlayer.start();
+        //ringtonePlayer.play(true);
         vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         long[] vibrationCycle = {0, 1000, 1000};
         if (vibrator.hasVibrator()) {
@@ -112,21 +118,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     }
 
-    private void stopCallNotification() {
-        Log.d(TAG, "stopCallNotification()");
-
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
-
-        if (vibrator != null) {
-            vibrator.cancel();
-        }
-    }
-
     @Override
     public void onStop() {
-        stopCallNotification();
         super.onStop();
         Log.d(TAG, "onStop() from IncomeCallFragment");
     }
@@ -194,6 +187,16 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         UiUtils.displayProfileAvatar(callerAvatarImageView, avatar);
         if (!TextUtils.isEmpty(displayName)) {
             callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(displayName.length()));
+        }
+    }
+
+    @Override
+    public void stopCallNotification() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        if (vibrator != null) {
+            vibrator.cancel();
         }
     }
 }

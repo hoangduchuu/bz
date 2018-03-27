@@ -23,6 +23,7 @@ import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.data.db.QbUsersDbManager;
+import com.ping.android.managers.UserManager;
 import com.ping.android.presentation.view.fragment.AudioConversationFragment;
 import com.ping.android.presentation.view.fragment.BaseConversationFragment;
 import com.ping.android.presentation.view.fragment.BaseFragment;
@@ -158,7 +159,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 
     public static void start(Context context, User otherUser, boolean isVideoCall,
                              boolean isIncomingCall) {
-
+        UserManager.getInstance().startCallService(context);
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(EXTRA_IS_VIDEO_CALL, isVideoCall);
@@ -168,7 +169,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     }
 
     public static void start(Context context, String sessionId,
-                             boolean isIncomingCall) {
+                             boolean isIncomingCall, boolean isVideoCall) {
 
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -176,6 +177,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         intent.putExtra(EXTRA_IS_INCOMING_CALL, isIncomingCall);
         intent.putExtra(EXTRA_SESSION_ID, sessionId);
+        intent.putExtra(EXTRA_IS_VIDEO_CALL, isVideoCall);
         context.startActivity(intent);
     }
 
@@ -201,6 +203,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         checker = new PermissionsChecker(getApplicationContext());
 
         initWiFiManagerListener();
+        initAudioSettings();
         initQBRTCClient();
         findViewById(R.id.call_back).setOnClickListener(this);
         if (checkPermission()) {
@@ -911,7 +914,15 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     }
 
     @Override
-    public void initAudioSettings(boolean isVideo) {
+    public void updateAudioSetting(boolean isIncomingCall, boolean isVideo) {
+        if (isVideo) {
+            setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        } else {
+            setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.EARPIECE);
+        }
+    }
+
+    public void initAudioSettings() {
         audioManager = AppRTCAudioManager.create(this, new AppRTCAudioManager.OnAudioManagerStateListener() {
             @Override
             public void onAudioChangedState(AppRTCAudioManager.AudioDevice audioDevice) {
@@ -927,16 +938,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 }
             }
         });
-
-        if (isVideoCall) {
-            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
-            Log.d(TAG, "AppRTCAudioManager.AudioDevice.SPEAKER_PHONE");
-        } else {
-            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
-            previousDeviceEarPiece = true;
-            Log.d(TAG, "AppRTCAudioManager.AudioDevice.EARPIECE");
-        }
-
+        audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
         audioManager.setOnWiredHeadsetStateListener((plugged, hasMicrophone) -> {
             headsetPlugged = plugged;
             if (callStarted) {
@@ -977,13 +979,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     public void initCallViews(boolean isVideo, boolean isIncoming) {
         addConversationFragment(isVideo, isIncoming);
         showOngoingCallNotification();
-    }
-
-    @Override
-    public void stopRingtone() {
-//        if (ringtonePlayer != null) {
-//            ringtonePlayer.stop();
-//        }
     }
 
     @Override
