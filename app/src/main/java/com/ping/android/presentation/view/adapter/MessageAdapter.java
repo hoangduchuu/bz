@@ -106,7 +106,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         return unread;
     }
 
-    public void updateConversation(Conversation conversation) {
+    public void updateConversation(Conversation conversation, boolean ignoreWhenDuplicate) {
         boolean isAdd = true;
         int index = -1;
         int previousIndex = -1;
@@ -119,6 +119,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         for (int i = 0; i < displayConversations.size(); i++) {
             Conversation item = displayConversations.get(i);
             if (item.key.equals(conversation.key)) {
+                if (ignoreWhenDuplicate) {
+                    return;
+                }
                 isAdd = false;
                 previousIndex = i;
                 if (index == -1) {
@@ -248,10 +251,18 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public void updateData(List<Conversation> conversations) {
-        Collections.sort(conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
+//        Collections.sort(callList, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
         this.originalConversations = new ArrayList<>(conversations);
         this.displayConversations = new ArrayList<>(conversations);
         notifyDataSetChanged();
+    }
+
+    public void appendConversations(List<Conversation> conversations) {
+        Collections.sort(conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
+        int size = displayConversations.size();
+        this.originalConversations.addAll(conversations);
+        this.displayConversations.addAll(conversations);
+        notifyItemRangeInserted(size, conversations.size());
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

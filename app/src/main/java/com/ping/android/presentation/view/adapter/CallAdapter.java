@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.ping.android.activity.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -21,7 +22,9 @@ import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
@@ -175,7 +178,6 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         return CommonMethod.isFiltered(call.opponentUser, text);
     }
 
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_call, parent, false);
@@ -217,6 +219,20 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             }
         }
         notifyDataSetChanged();
+    }
+
+    public void updateData(List<Call> callList) {
+        this.originalCalls.addAll(callList);
+        this.displayCalls.addAll(callList);
+        notifyDataSetChanged();
+    }
+
+    public void appendCalls(List<Call> calls) {
+        Collections.sort(calls, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
+        int size = displayCalls.size();
+        this.originalCalls.addAll(calls);
+        this.displayCalls.addAll(calls);
+        notifyItemRangeInserted(size, calls.size());
     }
 
     public interface ClickListener {

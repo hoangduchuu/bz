@@ -116,6 +116,7 @@ public class UiUtils {
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
                     .error(R.drawable.ic_avatar_gray)
+                    .override(200, 200)
                     .apply(RequestOptions.circleCropTransform())
                     .into(imageView);
         } else {
@@ -136,6 +137,7 @@ public class UiUtils {
                     .load(gsReference)
                     .error(R.drawable.ic_avatar_gray)
                     .apply(RequestOptions.circleCropTransform())
+                    .override(200, 200)
                     .dontAnimate()
                     .listener(new RequestListener<Drawable>() {
                         @Override
@@ -167,6 +169,7 @@ public class UiUtils {
         }
         GlideApp.with(imageView.getContext())
                 .load(filePath)
+                .override(200, 200)
                 .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
     }
@@ -179,6 +182,7 @@ public class UiUtils {
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
+                .override(200, 200)
                 .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
     }
@@ -195,6 +199,7 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
+                .override(200, 200)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {
                     @Override

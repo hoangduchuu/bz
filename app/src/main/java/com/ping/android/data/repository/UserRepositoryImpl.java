@@ -119,10 +119,25 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<ChildEvent> getCalls(String userId) {
-        DatabaseReference callReference = database.getReference("calls").child(userId);
-        return RxFirebaseDatabase.getInstance(callReference)
+    public Observable<ChildEvent> observeLatestCalls(String userId) {
+        Query query =
+                database.getReference("calls").child(userId)
+                .orderByChild("timestamp");
+                //.limitToLast(15);
+        return RxFirebaseDatabase.getInstance(query)
                 .onChildEvent();
+    }
+
+    @Override
+    public Observable<DataSnapshot> loadMoreCalls(String key, Double timestamp) {
+        Query query = database.getReference("calls")
+                .child(key)
+                .orderByChild("timesstamps")
+                .endAt(timestamp)
+                .limitToLast(15);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
     }
 
     @Override

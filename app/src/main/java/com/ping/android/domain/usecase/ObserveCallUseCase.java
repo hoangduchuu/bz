@@ -8,7 +8,6 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.User;
@@ -44,7 +43,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
         return userRepository.getCurrentUser()
                 .flatMap(currentUser -> {
                     String userId = currentUser.key;
-                    return userRepository.getCalls(userId)
+                    return userRepository.observeLatestCalls(userId)
                             .flatMap(childEvent -> {
                                 Call call = Call.from(childEvent.dataSnapshot);
                                 ChildEvent.Type type = call.deleteStatuses.containsKey(userId) && call.deleteStatuses.get(userId)

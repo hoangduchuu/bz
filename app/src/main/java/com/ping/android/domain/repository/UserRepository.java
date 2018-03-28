@@ -30,7 +30,9 @@ public interface UserRepository {
 
     Observable<List<User>> getUserList(Map<String, Boolean> userIds);
 
-    Observable<ChildEvent> getCalls(String userId);
+    Observable<ChildEvent> observeLatestCalls(String userId);
+
+    Observable<DataSnapshot> loadMoreCalls(String key, Double params);
 
     Observable<Boolean> updateQuickbloxId(int qbId);
 

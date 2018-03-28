@@ -137,6 +137,19 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private void bindData() {
         listChat.setLayoutManager(linearLayoutManager);
         listChat.setAdapter(adapter);
+        // FIXME: Enable load more feature but affect to search function
+        /*listChat.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int totalItemCount = linearLayoutManager.getItemCount();
+                int lastVisibleItem = linearLayoutManager
+                        .findLastVisibleItemPosition();
+                if (totalItemCount <= (lastVisibleItem + 5)) {
+                    presenter.loadMore();
+                }
+            }
+        });*/
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -200,7 +213,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
 //    private void onRead() {
 //        ArrayList<Conversation> unreadConversations = new ArrayList<>();
-//        for (Conversation conversation : conversations) {
+//        for (Conversation conversation : callList) {
 //            Boolean readStatus = conversation.readStatuses.get(currentUser.key);
 //            if (!readStatus) {
 //                unreadConversations.add(conversation);
@@ -282,14 +295,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void addConversation(Conversation conversation) {
-        adapter.updateConversation(conversation);
-        scrollToTop();
+        adapter.updateConversation(conversation, true);
+        //scrollToTop();
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
-        adapter.updateConversation(conversation);
-        scrollToTop();
+        adapter.updateConversation(conversation, false);
+        //scrollToTop();
     }
 
     @Override
@@ -313,6 +326,11 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         event.conversationId = data.key;
         event.nickName = data.conversationName;
         busProvider.post(event);
+    }
+
+    @Override
+    public void appendConversations(List<Conversation> conversations) {
+        adapter.appendConversations(conversations);
     }
 
     private void listenTransphabetChanged() {
