@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.User;
 import com.quickblox.users.model.QBUser;
+import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
 
@@ -36,8 +37,8 @@ public interface VideoCallPresenter extends BasePresenter {
 
         void onOpponentsListUpdated(ArrayList<QBUser> newUsers);
 
-        void onLocalVideoTrackReceive(QBRTCSession qbrtcSession, final QBRTCVideoTrack videoTrack);
+        void onLocalVideoTrackReceive(BaseSession qbrtcSession, final QBRTCVideoTrack videoTrack);
 
-        void onRemoteVideoTrackReceive(QBRTCSession qbrtcSession, QBRTCVideoTrack qbrtcVideoTrack, Integer integer);
+        void onRemoteVideoTrackReceive(BaseSession qbrtcSession, QBRTCVideoTrack qbrtcVideoTrack, Integer integer);
     }
 }

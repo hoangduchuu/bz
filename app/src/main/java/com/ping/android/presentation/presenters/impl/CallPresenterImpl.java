@@ -20,6 +20,7 @@ import com.ping.android.service.CallServiceHandler;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.WebRtcSessionManager;
+import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
@@ -304,18 +305,23 @@ public class CallPresenterImpl implements CallPresenter,
     // region QBRTCSessionStateCallback
 
     @Override
-    public void onConnectedToUser(QBRTCSession qbrtcSession, Integer integer) {
-        Log.d("onConnectedToUser " + qbrtcSession.getState().toString());
+    public void onStateChanged(BaseSession baseSession, BaseSession.QBRTCSessionState qbrtcSessionState) {
+
+    }
+
+    @Override
+    public void onConnectedToUser(BaseSession baseSession, Integer integer) {
+        Log.d("onConnectedToUser " + baseSession.getState().toString());
         callStarted = true;
         view.onCallStarted();
-        notification.showOngoingCallNotification(qbrtcSession.getSessionID());
+        notification.showOngoingCallNotification(baseSession.getSessionID());
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onCallStarted();
         }
     }
 
     @Override
-    public void onDisconnectedFromUser(QBRTCSession qbrtcSession, Integer integer) {
+    public void onDisconnectedFromUser(BaseSession baseSession, Integer integer) {
         Log.d("onDisconnectedFromUser");
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onCallStopped();
@@ -323,7 +329,7 @@ public class CallPresenterImpl implements CallPresenter,
     }
 
     @Override
-    public void onConnectionClosedForUser(QBRTCSession qbrtcSession, Integer integer) {
+    public void onConnectionClosedForUser(BaseSession baseSession, Integer integer) {
         Log.d("onConnectionClosedForUser");
     }
 
@@ -411,6 +417,5 @@ public class CallPresenterImpl implements CallPresenter,
         }
         this.currentSession = null;
     }
-
     // endregion
 }

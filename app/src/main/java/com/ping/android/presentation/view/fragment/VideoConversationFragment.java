@@ -34,6 +34,7 @@ import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
+import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.view.QBRTCSurfaceView;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
@@ -462,32 +463,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         }
     }
 
-    ////////////////////////////  callbacks from QBRTCClientVideoTracksCallbacks ///////////////////
-    @Override
-    public void onLocalVideoTrackReceive(QBRTCSession qbrtcSession, final QBRTCVideoTrack videoTrack) {
-        Log.d(TAG, "onLocalVideoTrackReceive() run");
-        localVideoTrack = videoTrack;
-        cameraState = CameraState.NONE;
-
-
-        if (localVideoView != null) {
-            fillVideoView(localVideoView, localVideoTrack, false);
-        }
-    }
-
-    @Override
-    public void onRemoteVideoTrackReceive(QBRTCSession session, final QBRTCVideoTrack videoTrack, final Integer userID) {
-        Log.d(TAG, "onRemoteVideoTrackReceive for opponent= " + userID);
-
-//        if (localVideoTrack != null) {
-//            fillVideoView(localVideoView, localVideoTrack, false);
-//        }
-        setDuringCallActionBar();
-        fillVideoView(userID, remoteFullScreenVideoView, videoTrack, true);
-        updateVideoView(remoteFullScreenVideoView, false);
-    }
-    /////////////////////////////////////////    end    ////////////////////////////////////////////
-
     //last opponent view is bind
 //    @Override
 //    public void OnBindLastViewHolder(final OpponentsFromCallAdapter.ViewHolder holder, final int position) {
@@ -792,6 +767,30 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 //        updateAllOpponentsList(newUsers);
         Log.d(TAG, "updateOpponentsList(), newUsers = " + newUsers);
         runUpdateUsersNames(newUsers);
+    }
+
+    @Override
+    public void onLocalVideoTrackReceive(BaseSession qbrtcSession, QBRTCVideoTrack videoTrack) {
+        Log.d(TAG, "onLocalVideoTrackReceive() run");
+        localVideoTrack = videoTrack;
+        cameraState = CameraState.NONE;
+
+
+        if (localVideoView != null) {
+            fillVideoView(localVideoView, localVideoTrack, false);
+        }
+    }
+
+    @Override
+    public void onRemoteVideoTrackReceive(BaseSession qbrtcSession, QBRTCVideoTrack qbrtcVideoTrack, Integer integer) {
+        Log.d(TAG, "onRemoteVideoTrackReceive for opponent= " + integer);
+
+//        if (localVideoTrack != null) {
+//            fillVideoView(localVideoView, localVideoTrack, false);
+//        }
+        setDuringCallActionBar();
+        fillVideoView(integer, remoteFullScreenVideoView, qbrtcVideoTrack, true);
+        updateVideoView(remoteFullScreenVideoView, false);
     }
 
 //    private void updateAllOpponentsList(ArrayList<QBUser> newUsers) {

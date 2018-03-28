@@ -117,7 +117,7 @@ dependencies {
         exclude group: 'com.google.android.gms', module: 'play-services-gcm'
         exclude group: 'com.google.firebase', module: 'firebase-messaging'
     }
-    implementation 'com.quickblox:quickblox-android-sdk-videochat-webrtc:3.3.0'
+    implementation "com.quickblox:quickblox-android-sdk-videochat-webrtc:$rootProject.qbSdkVersion"
     implementation('com.hbb20:ccp:1.7.6') {
         exclude group: 'com.android.support'
     }
