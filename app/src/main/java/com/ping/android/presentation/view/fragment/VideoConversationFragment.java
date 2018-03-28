@@ -84,27 +84,20 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     private boolean connectionEstablished;
     private boolean allCallbacksInit;
     private boolean isCurrentCameraFront;
-    private boolean isLocalVideoFullScreen;
-
-    //private User opponentUser;
-//    private UserRepository userRepository;
 
     private ImageView firstOpponentAvatarImageView;
 
     private Animation animation1;
-    private Animation animation2;
 
 
     @Inject
     VideoCallPresenter presenter;
     VideoCallComponent component;
-    private RingtonePlayer ringtonePlayer;
     private LinearLayout outgoingViewContainer;
 
-    public static VideoConversationFragment newInstance(User opponentUser) {
+    public static VideoConversationFragment newInstance() {
         VideoConversationFragment fragment = new VideoConversationFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("opponentUser", opponentUser);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -152,9 +145,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         super.onCallStarted();
         connectionEstablished = true;
         animateLocalViewToInitialPosition();
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
     }
 
     private void animateLocalViewToInitialPosition() {
@@ -217,9 +207,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     @Override
     protected void hangup() {
         presenter.hangup();
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
     }
 
     @Override
@@ -234,9 +221,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     protected void initViews(View view) {
         super.initViews(view);
         animation1 = AnimationUtils.loadAnimation(getContext(), R.anim.to_middle);
-        //animation1.setAnimationListener(this);
-        animation2 = AnimationUtils.loadAnimation(getContext(), R.anim.from_middle);
-        //animation2.setAnimationListener(this);
 
         Log.i(TAG, "initViews");
 //        opponentViewHolders = new SparseArray<>(opponents.size());
@@ -367,10 +351,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         } else {
             Log.d(TAG, "We are in dialing process yet!");
         }
-
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
     }
 
     private void removeVideoTrackRenderers() {
@@ -487,7 +467,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     public void onLocalVideoTrackReceive(QBRTCSession qbrtcSession, final QBRTCVideoTrack videoTrack) {
         Log.d(TAG, "onLocalVideoTrackReceive() run");
         localVideoTrack = videoTrack;
-        isLocalVideoFullScreen = true;
         cameraState = CameraState.NONE;
 
 
@@ -503,8 +482,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 //        if (localVideoTrack != null) {
 //            fillVideoView(localVideoView, localVideoTrack, false);
 //        }
-        isLocalVideoFullScreen = false;
-
         setDuringCallActionBar();
         fillVideoView(userID, remoteFullScreenVideoView, videoTrack, true);
         updateVideoView(remoteFullScreenVideoView, false);

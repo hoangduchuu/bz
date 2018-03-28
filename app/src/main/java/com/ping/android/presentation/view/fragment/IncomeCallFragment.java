@@ -48,6 +48,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     private Vibrator vibrator;
     private long lastClickTime = 0l;
     private MediaPlayer mediaPlayer;
+    private Ringtone ringtonePlayer;
 //    private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
 
     @Inject
@@ -80,6 +81,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         initButtonsListener();
         Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         mediaPlayer = MediaPlayer.create(getContext(), ringtoneUri);
+        ringtonePlayer = RingtoneManager.getRingtone(getContext(), ringtoneUri);
         presenter.create();
         return view;
     }
@@ -108,8 +110,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     public void startCallNotification() {
-        mediaPlayer.start();
-        //ringtonePlayer.play(true);
+//        mediaPlayer.start();
+        ringtonePlayer.play();
         vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         long[] vibrationCycle = {0, 1000, 1000};
         if (vibrator.hasVibrator()) {
@@ -192,8 +194,11 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     @Override
     public void stopCallNotification() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+//        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+//            mediaPlayer.stop();
+//        }
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
         }
         if (vibrator != null) {
             vibrator.cancel();

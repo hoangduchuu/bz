@@ -7,7 +7,9 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.ping.android.device.Device;
+import com.ping.android.device.Notification;
 import com.ping.android.device.impl.DeviceImpl;
+import com.ping.android.device.impl.NotificationImpl;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.service.CallServiceHandlerImpl;
 
@@ -50,6 +52,12 @@ public class ApplicationModule {
     @Singleton
     public Device provideDevice(DeviceImpl device) {
         return device;
+    }
+
+    @Provides
+    @Singleton
+    public Notification provideNotification() {
+        return new NotificationImpl(application);
     }
 
     @Provides

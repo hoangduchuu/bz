@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.device.Notification;
 import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
 import com.ping.android.domain.usecase.notification.SendStartCallNotificationUseCase;
 import com.ping.android.presentation.view.activity.CallActivity;
@@ -63,6 +64,8 @@ public class CallPresenterImpl implements CallPresenter,
     SendStartCallNotificationUseCase sendStartCallNotificationUseCase;
     @Inject
     SendMissedCallNotificationUseCase sendMissedCallNotificationUseCase;
+    @Inject
+    Notification notification;
 
     private User currentUser;
     private User opponentUser;
@@ -72,7 +75,7 @@ public class CallPresenterImpl implements CallPresenter,
     private boolean isIncomingCall;
     private double callTimestamp;
     private boolean callAccepted = false;
-    private boolean callStarted = true;
+    private boolean callStarted = false;
 
     @Inject
     public CallPresenterImpl() {
@@ -180,11 +183,12 @@ public class CallPresenterImpl implements CallPresenter,
         boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(this.currentSession.getConferenceType());
         view.initCallViews(isVideo, true);
         view.updateAudioSetting(isIncomingCall, isVideo);
+        notification.showOngoingCallNotification(this.currentSession.getSessionID());
     }
 
     @Override
     public void hangup() {
-        if (!isIncomingCall) {
+        if (isOugoingCall()) {
             addCallHistory(callAccepted ? Constant.CALL_STATUS_SUCCESS : Constant.CALL_STATUS_MISS);
             if (!callAccepted) {
                 sendMissedCallNotification(this.currentSession.getConferenceType()
@@ -192,6 +196,7 @@ public class CallPresenterImpl implements CallPresenter,
             }
         }
         this.currentSession.hangUp(new HashMap<>());
+        notification.cancelOngoingCall(this.currentSession.getSessionID());
         view.finishCall();
     }
 
@@ -251,6 +256,35 @@ public class CallPresenterImpl implements CallPresenter,
     public void destroy() {
         callService.removeSessionCallbacks();
         //observeCurrentUserUseCase.dispose();
+        if (this.currentSession != null) {
+            if (callStarted) {
+                this.currentSession.hangUp(new HashMap<>());
+                notification.cancelOngoingCall(this.currentSession.getSessionID());
+                if (isOugoingCall()) {
+                    addCallHistory(Constant.CALL_STATUS_SUCCESS);
+                }
+            } else {
+                if (isOugoingCall()) {
+                    addCallHistory(Constant.CALL_STATUS_MISS);
+                    // FIXME Currently, it can not add history record if I send miss call notification here
+                    //sendMissedCallNotification(isVideoCall());
+                    this.currentSession.hangUp(new HashMap<>());
+                } else {
+                    this.currentSession.rejectCall(new HashMap<>());
+                    for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
+                        callback.onCallStopped();
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isVideoCall() {
+        return this.currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO;
+    }
+
+    private boolean isOugoingCall() {
+        return !isIncomingCall;
     }
 
     private void sendStartCallNotification(boolean isVideoCall) {
@@ -274,6 +308,7 @@ public class CallPresenterImpl implements CallPresenter,
         Log.d("onConnectedToUser " + qbrtcSession.getState().toString());
         callStarted = true;
         view.onCallStarted();
+        notification.showOngoingCallNotification(qbrtcSession.getSessionID());
         for (CallActivity.CurrentCallStateCallback callback : currentCallStateCallbackList) {
             callback.onCallStarted();
         }
@@ -351,6 +386,7 @@ public class CallPresenterImpl implements CallPresenter,
     @Override
     public void onCallAcceptByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
         callAccepted = true;
+        //callStarted = true;
     }
 
     @Override
@@ -362,7 +398,7 @@ public class CallPresenterImpl implements CallPresenter,
             if (!isIncomingCall) {
                 addCallHistory(Constant.CALL_STATUS_SUCCESS);
             }
-
+            notification.cancelOngoingCall(qbrtcSession.getSessionID());
         }
     }
 
@@ -373,6 +409,7 @@ public class CallPresenterImpl implements CallPresenter,
         if (qbrtcSession.equals(this.currentSession)) {
             view.finishCall();
         }
+        this.currentSession = null;
     }
 
     // endregion
