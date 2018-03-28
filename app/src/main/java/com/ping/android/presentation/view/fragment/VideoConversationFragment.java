@@ -159,7 +159,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         animator.addUpdateListener(animation -> {
             int currentHeight = (int) animation.getAnimatedValue();
             int currentWidth = (int) ((double) currentHeight / height * width);
-            layoutParams.width = currentWidth;
+            layoutParams.width = FrameLayout.LayoutParams.WRAP_CONTENT;
             layoutParams.height = currentHeight;
             localVideoView.setLayoutParams(layoutParams);
         });
@@ -599,7 +599,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     }
 
     protected void updateVideoView(SurfaceViewRenderer surfaceViewRenderer, boolean mirror) {
-        updateVideoView(surfaceViewRenderer, mirror, RendererCommon.ScalingType.SCALE_ASPECT_FILL);
+        updateVideoView(surfaceViewRenderer, mirror, RendererCommon.ScalingType.SCALE_ASPECT_FIT);
     }
 
     protected void updateVideoView(SurfaceViewRenderer surfaceViewRenderer, boolean mirror, RendererCommon.ScalingType scalingType) {

@@ -47,25 +47,11 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     private Vibrator vibrator;
     private long lastClickTime = 0l;
-    private MediaPlayer mediaPlayer;
     private Ringtone ringtonePlayer;
-//    private IncomeCallFragmentCallbackListener incomeCallFragmentCallbackListener;
 
     @Inject
     IncomingCallPresenter presenter;
     IncomingCallComponent component;
-
-//    @Override
-//    public void onAttach(Activity activity) {
-//        super.onAttach(activity);
-
-//        try {
-//            incomeCallFragmentCallbackListener = (IncomeCallFragmentCallbackListener) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString()
-//                    + " must implement OnCallEventsController");
-//        }
-//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,7 +66,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         initUI(view);
         initButtonsListener();
         Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        mediaPlayer = MediaPlayer.create(getContext(), ringtoneUri);
         ringtonePlayer = RingtoneManager.getRingtone(getContext(), ringtoneUri);
         presenter.create();
         return view;
@@ -110,7 +95,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     public void startCallNotification() {
-//        mediaPlayer.start();
         ringtonePlayer.play();
         vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         long[] vibrationCycle = {0, 1000, 1000};
@@ -127,8 +111,15 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     @Override
-    public void onClick(View v) {
+    public void onDestroy() {
+        super.onDestroy();
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
+        }
+    }
 
+    @Override
+    public void onClick(View v) {
         if ((SystemClock.uptimeMillis() - lastClickTime) < CLICK_DELAY) {
             return;
         }
@@ -194,9 +185,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     @Override
     public void stopCallNotification() {
-//        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-//            mediaPlayer.stop();
-//        }
         if (ringtonePlayer != null) {
             ringtonePlayer.stop();
         }
