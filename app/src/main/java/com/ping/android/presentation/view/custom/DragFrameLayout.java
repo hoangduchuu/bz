@@ -32,6 +32,8 @@ import java.util.List;
  * A {@link FrameLayout} that allows the user to drag and reposition child views.
  */
 public class DragFrameLayout extends FrameLayout {
+    private static final float MAX_X_MOVE = 70;
+    private static final float MAX_Y_MOVE = 70;
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
 
     /**
@@ -52,6 +54,9 @@ public class DragFrameLayout extends FrameLayout {
     private int mDraggingTop;
     private int mVerticalRange;
     private int mHorizontalRange;
+
+    private float deltaX;
+    private float deltaY;
 
     public DragFrameLayout(Context context) {
         this(context, null, 0, 0);
@@ -221,6 +226,22 @@ public class DragFrameLayout extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         mDragHelper.processTouchEvent(ev);
+        final int action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            deltaX = ev.getX();
+            deltaY = ev.getY();
+        }
+        if (action == MotionEvent.ACTION_MOVE) {
+            if (Math.abs(ev.getX() - deltaX) > MAX_X_MOVE && Math.abs(ev.getY() - deltaY) > MAX_Y_MOVE) {
+                deltaX = Float.MAX_VALUE;
+                deltaY = Float.MAX_VALUE;
+            }
+        }
+        if (action == MotionEvent.ACTION_UP) {
+            if (Math.abs(ev.getX() - deltaX) < MAX_X_MOVE && Math.abs(ev.getY() - deltaY) < MAX_Y_MOVE) {
+                performClick();
+            }
+        }
         return true;
     }
 
