@@ -70,12 +70,17 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 
             String conversationId = intent.getStringExtra("conversationId");
             String notificationType = intent.getStringExtra("notificationType");
-            boolean isVideo = Boolean.parseBoolean(intent.getStringExtra("isVideo"));
             Log.d("new message: " + message + conversationId + notificationType);
             if (TextUtils.equals(notificationType, "missed_call")) {
+                int isVideo = 0;
+                try {
+                    isVideo = Integer.parseInt(intent.getStringExtra("isVideo"));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
                 String senderId = intent.getStringExtra("senderId");
                 showMissedCallNotificationUseCase.execute(new DefaultObserver<>()
-                        , new ShowMissedCallNotificationUseCase.Params(senderId, message, isVideo));
+                        , new ShowMissedCallNotificationUseCase.Params(senderId, message, isVideo == 1));
             } else if (TextUtils.equals(notificationType, "incoming_message")
                     || TextUtils.equals(notificationType, "missed_call")
                     || TextUtils.equals(notificationType, "game_status")) {

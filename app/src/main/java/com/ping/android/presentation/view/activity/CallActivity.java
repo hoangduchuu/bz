@@ -578,7 +578,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 }
             }
         });
-        audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        if (isInComingCall) {
+            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        } else {
+            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+        }
         audioManager.setOnWiredHeadsetStateListener((plugged, hasMicrophone) -> {
             headsetPlugged = plugged;
             if (callStarted) {

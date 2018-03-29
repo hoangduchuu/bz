@@ -131,6 +131,11 @@ public class AudioConversationFragment extends BaseConversationFragment
     }
 
     @Override
+    public void initAudio(boolean isVideo) {
+        audioSwitchToggleButton.setChecked(false);
+    }
+
+    @Override
     public void enableDynamicToggle(boolean plugged, boolean previousDeviceEarPiece) {
         headsetPlugged = plugged;
 

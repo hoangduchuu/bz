@@ -57,7 +57,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_content_available", 1);
         object.addProperty("notificationType", "missed_call");
         object.addProperty("senderId", senderId);
-        object.addProperty("isVideo", isVideo);
+        object.addProperty("isVideo", isVideo ? 1 : 0);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(quickBloxId);

@@ -24,5 +24,7 @@ public interface AudioCallPresenter extends BasePresenter {
         void onCallStarted();
 
         void onCallStopped();
+
+        void initAudio(boolean isVideo);
     }
 }

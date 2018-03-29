@@ -46,7 +46,8 @@ public class NotificationImpl implements Notification {
                 .setColor(context.getResources().getColor(R.color.colorAccent))
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                 .setAutoCancel(false)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                .setCategory(android.app.Notification.CATEGORY_CALL);
         Intent endCallIntent = new Intent(context, CallActivity.class);
         endCallIntent.putExtra("ENDCALL", true);
         NotificationCompat.Action endCallAction = new NotificationCompat.Action.Builder(
@@ -78,7 +79,8 @@ public class NotificationImpl implements Notification {
                 .setColor(context.getResources().getColor(R.color.colorAccent))
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                 .setAutoCancel(true)
-                .setContentIntent(contentIntent);
+                .setContentIntent(contentIntent)
+                .setCategory(android.app.Notification.CATEGORY_CALL);
         if (ActivityLifecycle.getInstance().isForeground() && !enableSound) {
             builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
         } else {
