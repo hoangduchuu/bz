@@ -29,8 +29,8 @@
         style="@style/MatchParent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="60dp"
-        android:orientation="vertical" >
+        android:layout_marginTop="40dp"
+        android:orientation="vertical">
 
         <ImageView
             android:id="@+id/image_caller_avatar"
@@ -62,60 +62,58 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_action_buttons"
         style="@style/MatchWidth"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_above="@+id/layout_action_buttons"
-        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
         android:gravity="center"
-        android:orientation="horizontal" >
+        android:orientation="vertical">
 
         <Chronometer
             android:id="@+id/chronometer_timer_call"
             style="@style/WrapContent"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
             android:textColor="@color/text_color_also_on_call"
             android:textSize="18sp"
-            android:visibility="invisible" />
-    </LinearLayout>
+            android:visibility="visible"
+            tools:text="12:00" />
 
-    <LinearLayout
-        android:id="@+id/layout_action_buttons"
-        style="@style/MatchWidth"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp"
-        android:background="@android:color/transparent"
-        android:gravity="center_horizontal|bottom"
-        android:orientation="horizontal" >
+        <LinearLayout
+            style="@style/MatchWidth"
+            android:background="@android:color/transparent"
+            android:gravity="center_horizontal|bottom"
+            android:orientation="horizontal">
 
-        <ToggleButton
-            android:id="@+id/toggle_mic"
-            android:layout_width="@dimen/toggle_button_params"
-            android:layout_height="@dimen/toggle_button_params"
-            android:background="@drawable/selector_toggle_mic"
-            android:checked="true"
-            android:gravity="center_vertical|center_horizontal"
-            android:textOff=""
-            android:textOn="" />
+            <ToggleButton
+                android:id="@+id/toggle_mic"
+                android:layout_width="@dimen/toggle_button_params"
+                android:layout_height="@dimen/toggle_button_params"
+                android:background="@drawable/selector_toggle_mic"
+                android:checked="true"
+                android:gravity="center_vertical|center_horizontal"
+                android:textOff=""
+                android:textOn="" />
 
-        <ImageButton
-            android:id="@+id/button_hangup_call"
-            style="@style/CallActionImageButton"
-            android:layout_marginLeft="@dimen/element_fragment_margin"
-            android:layout_marginStart="@dimen/element_fragment_margin"
-            android:background="@drawable/ic_call_hang_up" />
+            <ImageButton
+                android:id="@+id/button_hangup_call"
+                style="@style/CallActionImageButton"
+                android:layout_marginStart="@dimen/element_fragment_margin"
+                android:background="@drawable/ic_call_hang_up" />
 
-        <ToggleButton
-            android:id="@+id/toggle_camera"
-            android:layout_width="@dimen/toggle_button_params"
-            android:layout_height="@dimen/toggle_button_params"
-            android:layout_marginLeft="@dimen/element_fragment_margin"
-            android:layout_marginStart="@dimen/element_fragment_margin"
-            android:background="@drawable/selector_toggle_cam"
-            android:checked="true"
-            android:textOff=""
-            android:textOn="" />
+            <ToggleButton
+                android:id="@+id/toggle_camera"
+                android:layout_width="@dimen/toggle_button_params"
+                android:layout_height="@dimen/toggle_button_params"
+                android:layout_marginStart="@dimen/element_fragment_margin"
+                android:background="@drawable/selector_toggle_cam"
+                android:checked="true"
+                android:textOff=""
+                android:textOn="" />
 
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -32,6 +32,8 @@ import java.util.List;
  * A {@link FrameLayout} that allows the user to drag and reposition child views.
  */
 public class DragFrameLayout extends FrameLayout {
+    private static final float MAX_X_MOVE = 70;
+    private static final float MAX_Y_MOVE = 70;
     private final double AUTO_OPEN_SPEED_LIMIT = 800.0;
 
     /**
@@ -52,6 +54,9 @@ public class DragFrameLayout extends FrameLayout {
     private int mDraggingTop;
     private int mVerticalRange;
     private int mHorizontalRange;
+
+    private float deltaX;
+    private float deltaY;
 
     public DragFrameLayout(Context context) {
         this(context, null, 0, 0);
@@ -146,7 +151,7 @@ public class DragFrameLayout extends FrameLayout {
                 final int settleDestX = settleToOpen ? mHorizontalRange - margin : margin;
                 final int settleDestY = mDraggingTop < margin ? margin
                         : (mDraggingTop > (mVerticalRange - margin) ? mVerticalRange - margin : mDraggingTop);
-                if(mDragHelper.settleCapturedViewAt(settleDestX, settleDestY)) {
+                if (mDragHelper.settleCapturedViewAt(settleDestX, settleDestY)) {
                     ViewCompat.postInvalidateOnAnimation(DragFrameLayout.this);
                 }
                 if (mDragFrameLayoutController != null) {
@@ -168,8 +173,14 @@ public class DragFrameLayout extends FrameLayout {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mVerticalRange = getHeight();
-        mHorizontalRange = getWidth();
+        mVerticalRange = h;
+        if (draggableView != null) {
+            mVerticalRange = h - draggableView.getHeight();
+        }
+        mHorizontalRange = w;
+        if (draggableView != null) {
+            mHorizontalRange = w - draggableView.getWidth();
+        }
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
@@ -178,10 +189,20 @@ public class DragFrameLayout extends FrameLayout {
         super.onLayout(changed, left, top, right, bottom);
         if (draggableView != null) {
             int margin = ((LayoutParams) draggableView.getLayoutParams()).leftMargin;
-            final int settleDestX = mDraggingLeft - margin;
-            final int settleDestY = mDraggingTop - margin;
-            draggableView.offsetLeftAndRight(settleDestX);
-            draggableView.offsetTopAndBottom(settleDestY);
+            int rangeToCheck = mHorizontalRange / 2;
+            int settleX = mDraggingLeft - margin;
+            int settleY = mDraggingTop - margin;
+            if (rangeToCheck > margin && settleX > rangeToCheck) {
+                settleX = getWidth() - draggableView.getWidth() - 2 * margin;
+            } else {
+                settleX = 0;
+            }
+            int verticalPoint = mVerticalRange - 2 * margin;
+            if (verticalPoint > margin && settleY > verticalPoint) {
+                settleY = verticalPoint;
+            }
+            draggableView.offsetLeftAndRight(settleX);
+            draggableView.offsetTopAndBottom(settleY);
         }
     }
 
@@ -205,11 +226,28 @@ public class DragFrameLayout extends FrameLayout {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         mDragHelper.processTouchEvent(ev);
+        final int action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            deltaX = ev.getX();
+            deltaY = ev.getY();
+        }
+        if (action == MotionEvent.ACTION_MOVE) {
+            if (Math.abs(ev.getX() - deltaX) > MAX_X_MOVE && Math.abs(ev.getY() - deltaY) > MAX_Y_MOVE) {
+                deltaX = Float.MAX_VALUE;
+                deltaY = Float.MAX_VALUE;
+            }
+        }
+        if (action == MotionEvent.ACTION_UP) {
+            if (Math.abs(ev.getX() - deltaX) < MAX_X_MOVE && Math.abs(ev.getY() - deltaY) < MAX_Y_MOVE) {
+                performClick();
+            }
+        }
         return true;
     }
 
     /**
      * Adds a new {@link View} to the list of views that are draggable within the container.
+     *
      * @param dragView the {@link View} to make draggable
      */
     public void addDragView(View dragView) {
@@ -218,6 +256,7 @@ public class DragFrameLayout extends FrameLayout {
 
     /**
      * Sets the {@link DragFrameLayoutController} that will receive the drag events.
+     *
      * @param dragFrameLayoutController a {@link DragFrameLayoutController}
      */
     public void setDragFrameController(DragFrameLayoutController dragFrameLayoutController) {

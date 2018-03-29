@@ -5,6 +5,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.quickblox.users.model.QBUser;
+import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.callbacks.QBRTCClientVideoTracksCallbacks;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
@@ -91,12 +92,12 @@ public class VideoCallPresenterImpl implements VideoCallPresenter, CallActivity.
     }
 
     @Override
-    public void onLocalVideoTrackReceive(QBRTCSession qbrtcSession, QBRTCVideoTrack qbrtcVideoTrack) {
-        view.onLocalVideoTrackReceive(qbrtcSession, qbrtcVideoTrack);
+    public void onLocalVideoTrackReceive(BaseSession baseSession, QBRTCVideoTrack qbrtcVideoTrack) {
+        view.onLocalVideoTrackReceive(baseSession, qbrtcVideoTrack);
     }
 
     @Override
-    public void onRemoteVideoTrackReceive(QBRTCSession qbrtcSession, QBRTCVideoTrack qbrtcVideoTrack, Integer integer) {
-        view.onRemoteVideoTrackReceive(qbrtcSession, qbrtcVideoTrack, integer);
+    public void onRemoteVideoTrackReceive(BaseSession baseSession, QBRTCVideoTrack qbrtcVideoTrack, Integer integer) {
+        view.onRemoteVideoTrackReceive(baseSession, qbrtcVideoTrack, integer);
     }
 }

@@ -303,7 +303,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     private void initQBRTCClient() {
         rtcClient = QBRTCClient.getInstance(this);
 
-        rtcClient.setCameraErrorHendler(new CameraVideoCapturer.CameraEventsHandler() {
+        rtcClient.setCameraErrorHandler(new CameraVideoCapturer.CameraEventsHandler() {
             @Override
             public void onCameraError(final String s) {
             }
