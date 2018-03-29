@@ -20,8 +20,7 @@ android {
         }
     }
     compileSdkVersion 27
-    buildToolsVersion rootProject.ext.buildToolsVersion
-//    dataBinding {
+    //    dataBinding {
 //        enabled = true
 //    }
     defaultConfig {
@@ -58,6 +57,7 @@ android {
             outputFileName = fileName
         }
     }
+    buildToolsVersion '27.0.3'
 }
 
 def libraries = rootProject.ext.libraries

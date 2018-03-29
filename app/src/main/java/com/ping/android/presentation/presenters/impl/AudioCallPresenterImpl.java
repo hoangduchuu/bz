@@ -6,6 +6,7 @@ import com.ping.android.presentation.presenters.AudioCallPresenter;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCSession;
+import com.quickblox.videochat.webrtc.QBRTCTypes;
 
 import java.util.ArrayList;
 
@@ -56,6 +57,7 @@ public class AudioCallPresenterImpl implements AudioCallPresenter, CallActivity.
     @Override
     public void onCallStarted() {
         view.onCallStarted();
+        view.initAudio(this.currentSession.getConferenceType() == QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO);
     }
 
     @Override

@@ -152,7 +152,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         CallActivity.start(context, otherUser, isVideoCall, false);
     }
 
-    public static void start(Context context, User otherUser, boolean isVideoCall,
+    private static void start(Context context, User otherUser, boolean isVideoCall,
                              boolean isIncomingCall) {
         UserManager.getInstance().startCallService(context);
         Intent intent = new Intent(context, CallActivity.class);
@@ -578,7 +578,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 }
             }
         });
-        audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        if (isInComingCall) {
+            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        } else {
+            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+        }
         audioManager.setOnWiredHeadsetStateListener((plugged, hasMicrophone) -> {
             headsetPlugged = plugged;
             if (callStarted) {

@@ -96,12 +96,13 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     public void startCallNotification() {
         ringtonePlayer.play();
-        vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        long[] vibrationCycle = {0, 1000, 1000};
-        if (vibrator.hasVibrator()) {
-            vibrator.vibrate(vibrationCycle, 1);
+        if (getActivity() != null) {
+            vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+            long[] vibrationCycle = {0, 1000, 1000};
+            if (vibrator.hasVibrator()) {
+                vibrator.vibrate(vibrationCycle, 1);
+            }
         }
-
     }
 
     @Override
@@ -115,6 +116,9 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         super.onDestroy();
         if (ringtonePlayer != null) {
             ringtonePlayer.stop();
+        }
+        if (vibrator != null) {
+            vibrator.cancel();
         }
     }
 
