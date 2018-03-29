@@ -15,7 +15,8 @@ public interface NotificationRepository {
     Observable<Boolean> sendMissedCallNotificationToUser(String senderId, String body,
                                                          int quickBloxId, boolean isVideo, int badgeNumber);
 
-    Observable<Boolean> sendMessageNotification(String senderId, String body, String conversationId, Message message,
+    Observable<Boolean> sendMessageNotification(String senderId, String senderProfile,
+                                                String body, String conversationId, Message message,
                                                 User user, int badgeNumber);
 
     Observable<Boolean> sendGameStatusNotificationToSender(String senderId, String displayName,

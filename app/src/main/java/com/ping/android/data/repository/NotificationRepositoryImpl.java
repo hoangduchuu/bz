@@ -68,7 +68,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
-    public Observable<Boolean> sendMessageNotification(String senderId, String body, String conversationId, Message message,
+    public Observable<Boolean> sendMessageNotification(String senderId, String senderProfileImage, String body,
+                                                       String conversationId, Message message,
                                                        User user, int badgeNumber) {
         JsonObject object = new JsonObject();
         object.addProperty("data", body);
@@ -86,6 +87,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("audioUrl", message.audioUrl);
         object.addProperty("gameUrl", message.gameUrl);
         object.addProperty("senderId", senderId);
+        object.addProperty("senderProfile", senderProfileImage);
         object.addProperty("messageType", message.messageType);
         object.addProperty("ios_badge", badgeNumber + 1);
 

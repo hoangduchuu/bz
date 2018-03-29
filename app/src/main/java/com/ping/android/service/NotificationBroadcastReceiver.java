@@ -68,16 +68,17 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         if (REPLY_ACTION.equals(intent.getAction())) {
             CharSequence message = getReplyMessage(intent);
             String messageId = intent.getStringExtra(KEY_MESSAGE_ID);
+            int notifyId = intent.getIntExtra(KEY_NOTIFICATION_ID, 1);
             replyMessageFromNotificationUseCase.execute(new DefaultObserver<Boolean>() {
                 @Override
                 public void onNext(Boolean aBoolean) {
-                    int notifyId = intent.getIntExtra(KEY_NOTIFICATION_ID, 1);
                     updateNotification(context, notifyId);
                 }
 
                 @Override
                 public void onError(@NotNull Throwable exception) {
                     exception.printStackTrace();
+                    updateNotification(context, notifyId);
                 }
             }, new ReplyMessageFromNotificationUseCase.Params(message.toString(), messageId));
         } else if (CALLBACK_ACTION.equals(intent.getAction())) {
@@ -102,9 +103,10 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     private void updateNotification(Context context, int notifyId) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentText(context.getString(R.string.notif_content_sent));
+                .setContentText(context.getString(R.string.notif_content_sent))
+                .setTimeoutAfter(60000); // Dismiss after 1min
 
         notificationManager.notify(notifyId, builder.build());
     }
