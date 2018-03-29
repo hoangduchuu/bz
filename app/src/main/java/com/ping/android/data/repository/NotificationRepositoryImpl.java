@@ -47,7 +47,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     }
 
     @Override
-    public Observable<Boolean> sendMissedCallNotificationToUser(String body, int quickBloxId, String callType, int badgeNumber) {
+    public Observable<Boolean> sendMissedCallNotificationToUser(String senderId, String body,
+                                                                int quickBloxId, boolean isVideo, int badgeNumber) {
         JsonObject object = new JsonObject();
         object.addProperty("data", body);
         object.addProperty("message", body);
@@ -55,6 +56,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
         object.addProperty("notificationType", "missed_call");
+        object.addProperty("senderId", senderId);
+        object.addProperty("isVideo", isVideo);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(quickBloxId);

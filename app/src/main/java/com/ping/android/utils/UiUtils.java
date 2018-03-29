@@ -317,6 +317,7 @@ public class UiUtils {
     }
 
     public static void setUpHideSoftKeyboard(final Activity activity, final View view) {
+        if (view == null) return;
         //Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
             view.setOnTouchListener(new View.OnTouchListener() {

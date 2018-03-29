@@ -19,6 +19,8 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
 import com.ping.android.activity.R;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
+import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
+import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUseCase;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.ChatActivity;
@@ -50,6 +52,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private String mConversationId;
     @Inject
     GetCurrentUserUseCase getCurrentUserUseCase;
+    @Inject
+    ShowMissedCallNotificationUseCase showMissedCallNotificationUseCase;
 
     private final static AtomicInteger c = new AtomicInteger(0);
     public static int getID() {
@@ -66,8 +70,13 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 
             String conversationId = intent.getStringExtra("conversationId");
             String notificationType = intent.getStringExtra("notificationType");
+            boolean isVideo = Boolean.parseBoolean(intent.getStringExtra("isVideo"));
             Log.d("new message: " + message + conversationId + notificationType);
-            if (TextUtils.equals(notificationType, "incoming_message")
+            if (TextUtils.equals(notificationType, "missed_call")) {
+                String senderId = intent.getStringExtra("senderId");
+                showMissedCallNotificationUseCase.execute(new DefaultObserver<>()
+                        , new ShowMissedCallNotificationUseCase.Params(senderId, message, isVideo));
+            } else if (TextUtils.equals(notificationType, "incoming_message")
                     || TextUtils.equals(notificationType, "missed_call")
                     || TextUtils.equals(notificationType, "game_status")) {
                 Log.d("incoming message");
@@ -109,7 +118,6 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         boolean soundNotification = currentUser == null || currentUser.settings.notification;
         mNotificationId = getID();
         mConversationId = conversationId;
-
 
         // 3. Build notification
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
@@ -189,7 +197,6 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         }
 
         notificationManager.notify(mNotificationId, notificationBuilder.build());
-
     }
 
     private boolean needDisplayNotification(String conversationId) {

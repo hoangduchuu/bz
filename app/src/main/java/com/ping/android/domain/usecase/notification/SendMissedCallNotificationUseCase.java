@@ -44,7 +44,7 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
                                         String messageData = String.format("You missed a %s call from %s.",
                                                 params.callType, senderNickname.isEmpty() ? user.getDisplayName() : senderNickname);
                                         return notificationRepository
-                                                .sendMissedCallNotificationToUser(messageData, params.quickBloxId, params.callType, integer);
+                                                .sendMissedCallNotificationToUser(user.key, messageData, params.quickBloxId, params.isVideo, integer);
                                     }));
                 });
     }
@@ -53,11 +53,13 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
         private String opponentUserId;
         private int quickBloxId;
         private String callType;
+        private boolean isVideo;
 
-        public Params(String opponentUserId, int quickBloxId, String callType) {
+        public Params(String opponentUserId, int quickBloxId, boolean isVideo) {
             this.opponentUserId = opponentUserId;
             this.quickBloxId = quickBloxId;
-            this.callType = callType;
+            this.isVideo = isVideo;
+            this.callType = isVideo ? "video" : "voice";
         }
     }
 }

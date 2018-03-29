@@ -298,7 +298,7 @@ public class CallPresenterImpl implements CallPresenter,
         sendMissedCallNotificationUseCase.execute(
                 new DefaultObserver<>(),
                 new SendMissedCallNotificationUseCase.Params(opponentUser.key,
-                        opponentUser.quickBloxID, isVideoCall ? "video" : "voice")
+                        opponentUser.quickBloxID, isVideoCall)
         );
     }
 
