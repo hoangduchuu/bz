@@ -86,7 +86,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                     break;
                                             }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, body, params.conversation.key,
+                                                    sender.key, sender.profile, body, params.conversation.key,
                                                     params.message, user, integer);
                                         });
                             })
