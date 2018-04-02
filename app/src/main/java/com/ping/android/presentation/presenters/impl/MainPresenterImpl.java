@@ -8,8 +8,11 @@ import com.ping.android.domain.usecase.LoginQuickBloxUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
+
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
@@ -38,6 +41,7 @@ public class MainPresenterImpl implements MainPresenter {
 
     @Override
     public void create() {
+        loginQuickBlox();
         observeCurrentUserUseCase.execute(new DefaultObserver<User>() {
             @Override
             public void onNext(User user) {
@@ -74,7 +78,21 @@ public class MainPresenterImpl implements MainPresenter {
     @Override
     public void onNetworkAvailable() {
         if (this.currentUser != null) {
-            loginQuickBloxUseCase.execute(new DefaultObserver<>(), null);
+            loginQuickBlox();
         }
+    }
+
+    private void loginQuickBlox() {
+        loginQuickBloxUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.startCallService();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, null);
     }
 }

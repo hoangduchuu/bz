@@ -36,6 +36,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.UsersUtils;
+import com.quickblox.messages.services.SubscribeService;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -330,6 +331,12 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
                         ServiceManager.getInstance().updateShowMappingConfirm(true);
                     }
                 }).show();
+    }
+
+    @Override
+    public void startCallService() {
+        UserManager.getInstance().startCallService(this);
+        SubscribeService.subscribeToPushes(this, false);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
