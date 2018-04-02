@@ -3,6 +3,8 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.repository.QuickbloxRepository;
+import com.ping.android.domain.usecase.LoginQuickBloxUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -24,6 +26,8 @@ public class MainPresenterImpl implements MainPresenter {
     ObserveFriendsStatusUseCase observeFriendsStatusUseCase;
     @Inject
     RemoveUserBadgeUseCase removeUserBadgeUseCase;
+    @Inject
+    LoginQuickBloxUseCase loginQuickBloxUseCase;
     private User currentUser;
     private boolean isInit = false;
 
@@ -65,5 +69,12 @@ public class MainPresenterImpl implements MainPresenter {
     @Override
     public void removeMissedCallsBadge() {
         removeUserBadgeUseCase.execute(new DefaultObserver<>(), "missed_call");
+    }
+
+    @Override
+    public void onNetworkAvailable() {
+        if (this.currentUser != null) {
+            loginQuickBloxUseCase.execute(new DefaultObserver<>(), null);
+        }
     }
 }
