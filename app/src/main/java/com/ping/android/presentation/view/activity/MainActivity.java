@@ -221,23 +221,23 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         View v;
         switch (position) {
             case 0:
-                iconID = selected ? R.drawable.ic_tab_messages_orange : R.drawable.ic_tab_messages_gray;
+                iconID = selected ? R.drawable.ic_home_message_selected : R.drawable.ic_home_message;
                 title = "Messages";
                 break;
             case 1:
-                iconID = selected ? R.drawable.ic_tab_calls_orange : R.drawable.ic_tab_calls_gray;
+                iconID = selected ? R.drawable.ic_home_call_selected : R.drawable.ic_home_call;
                 title = "Calls";
                 break;
             case 2:
-                iconID = selected ? R.drawable.ic_tab_group_orange : R.drawable.ic_tab_group_gray;
+                iconID = selected ? R.drawable.ic_home_group_selected : R.drawable.ic_home_group;
                 title = "Groups";
                 break;
             case 3:
-                iconID = selected ? R.drawable.ic_tab_contacts_orange : R.drawable.ic_tab_contacts_gray;
+                iconID = selected ? R.drawable.ic_home_friend_selected : R.drawable.ic_home_friend;
                 title = "Contacts";
                 break;
             case 4:
-                iconID = selected ? R.drawable.ic_tab_profile_orange : R.drawable.ic_tab_profile_gray;
+                iconID = selected ? R.drawable.ic_home_profile_selected : R.drawable.ic_home_profile;
                 title = "Profile";
                 break;
         }

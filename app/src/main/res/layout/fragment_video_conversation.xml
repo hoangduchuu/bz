@@ -102,7 +102,7 @@
                 android:id="@+id/button_hangup_call"
                 style="@style/CallActionImageButton"
                 android:layout_marginStart="@dimen/element_fragment_margin"
-                android:background="@drawable/ic_call_hang_up" />
+                android:background="@drawable/ic_call_reject" />
 
             <ToggleButton
                 android:id="@+id/toggle_camera"
