@@ -92,6 +92,13 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
 
     @Override
+    public void connectivityChanged(boolean availableNow) {
+        if (availableNow) {
+            presenter.onNetworkAvailable();
+        }
+    }
+
+    @Override
     public MainPresenter getPresenter() {
         return presenter;
     }

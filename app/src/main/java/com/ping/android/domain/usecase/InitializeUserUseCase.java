@@ -41,21 +41,12 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
         return userRepository.initializeUser()
-                .flatMap(user -> {
+                .map(user -> {
                     String deviceId = device.getDeviceId();
                     user.devices.put(deviceId, ((double) System.currentTimeMillis() / 1000));
                     updateDevicesId(user);
                     userManager.setUser(user);
-                    if (user.quickBloxID > 0) {
-                        return quickbloxRepository.signIn(user.quickBloxID, user.pingID);
-                    } else {
-                        return quickbloxRepository.signUp(user.pingID)
-                                .flatMap(qbUser -> {
-                                    user.quickBloxID = qbUser.getId();
-                                    return userRepository.updateQuickbloxId(qbUser.getId())
-                                            .map(aBoolean1 -> qbUser);
-                                });
-                    }
+                    return user;
                 })
                 .map(qbUser -> true);
     }

@@ -120,13 +120,14 @@ public class NotificationImpl implements Notification {
         } else {
             builder.setSmallIcon(R.mipmap.ic_launcher);
         }
-        Intent callbackIntent = NotificationBroadcastReceiver.getCallbackIntent(context, opponentUserId, isVideo);
+        // FIXME: Move to sprint 4
+        /*Intent callbackIntent = NotificationBroadcastReceiver.getCallbackIntent(context, opponentUserId, isVideo);
         PendingIntent callbackPendingIntent = PendingIntent.getBroadcast(context, 124,
                 callbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action callbackAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_action_send_now, "CALLBACK", callbackPendingIntent)
+                R.drawable.ic_action_send_now, "CALL BACK", callbackPendingIntent)
                 .build();
-        builder.addAction(callbackAction);
+        builder.addAction(callbackAction);*/
         android.app.Notification notification = builder.build();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -240,7 +241,7 @@ public class NotificationImpl implements Notification {
     }
 
     private void prepareProfileImage(Context context, String profileImage, Callback callback) {
-        if (!profileImage.isEmpty() && profileImage.startsWith("gs://")) {
+        if (profileImage != null && !profileImage.isEmpty() && profileImage.startsWith("gs://")) {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(profileImage);
             SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
                 @Override
