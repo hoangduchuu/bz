@@ -17,5 +17,7 @@ public interface MainPresenter extends BasePresenter {
         void openPhoneRequireView();
 
         void showMappingConfirm();
+
+        void startCallService();
     }
 }

@@ -124,7 +124,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void resume() {
-        //observeMessageUpdate();
+        observeMessageUpdate();
         isInBackground.set(false);
         for (ChildData<Message> message : messagesInBackground) {
             MessageBaseItem item = MessageBaseItem.from(message.data, currentUser.key, conversation.conversationType);
@@ -145,7 +145,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void pause() {
-        //observeMessageUseCase.unsubscribe();
+        observeMessageUseCase.unsubscribe();
         isInBackground.set(true);
     }
 
@@ -170,6 +170,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void observeMessageUpdate() {
+        if (conversation == null) return;
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
