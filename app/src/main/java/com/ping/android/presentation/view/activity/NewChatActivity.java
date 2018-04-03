@@ -30,8 +30,6 @@ import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.ChipsEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -235,7 +233,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         }
 
         String text = edMessage.getText().toString();
-        if (StringUtils.isEmpty(text)) {
+        if (TextUtils.isEmpty(text)) {
             Toaster.shortToast("Please enter message.");
             return;
         }

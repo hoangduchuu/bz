@@ -9,11 +9,9 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
-import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -90,7 +88,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     }
 
     public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-        if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(user.key)) {
+        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
             return 0.0d;
         }
         Object value = conversation.deleteTimestamps.get(user.key);

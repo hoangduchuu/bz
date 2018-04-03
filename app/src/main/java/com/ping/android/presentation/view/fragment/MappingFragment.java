@@ -26,8 +26,6 @@ import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingM
 import com.ping.android.model.Mapping;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
 import javax.inject.Inject;
@@ -118,7 +116,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
             TextView keyTV = mappingItem.findViewById(R.id.mapping_item_key);
             keyTV.setText(mapping.mapKey.toLowerCase());
             TextView valueTV = mappingItem.findViewById(R.id.mapping_item_value);
-            if (StringUtils.isEmpty(mapping.mapValue)) {
+            if (TextUtils.isEmpty(mapping.mapValue)) {
                 keyTV.setBackgroundResource(R.drawable.mapping_main_bg);
                 valueTV.setVisibility(View.GONE);
             } else {

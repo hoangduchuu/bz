@@ -30,8 +30,6 @@ import com.ping.android.utils.UiUtils;
 import com.ping.android.presentation.view.custom.ChipsEditText;
 import com.wang.avi.AVLoadingIndicatorView;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +214,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void checkReadySend() {
-        if (StringUtils.isEmpty(edMessage.getText().toString().trim())
+        if (TextUtils.isEmpty(edMessage.getText().toString().trim())
                 || selectedUsers.size() <= 0
                 || TextUtils.isEmpty(etGroupName.getText().toString().trim())) {
             btSendMessage.setEnabled(false);
@@ -233,7 +231,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     private void onCreateGroup() {
         String groupNames = etGroupName.getText().toString().trim();
-        if (StringUtils.isEmpty(groupNames)) {
+        if (TextUtils.isEmpty(groupNames)) {
             Toaster.shortToast("Name this group.");
             return;
         }

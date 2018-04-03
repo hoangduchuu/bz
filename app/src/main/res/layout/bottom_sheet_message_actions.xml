@@ -17,11 +17,11 @@
         android:layout_weight="1"
         android:gravity="center">
 
-        <com.mikepenz.iconics.view.IconicsImageView
+        <ImageView
             android:id="@+id/img_copy"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:iiv_icon="cmd_content_copy" />
+            android:src="@drawable/ic_content_copy" />
     </LinearLayout>
 
     <LinearLayout
@@ -31,11 +31,10 @@
         android:layout_weight="1"
         android:gravity="center">
 
-        <com.mikepenz.iconics.view.IconicsImageView
+        <ImageView
             android:id="@+id/img_delete"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            app:iiv_icon="cmd_content_copy"
-            app:iiv_size="24dp" />
+            android:src="@drawable/ic_delete" />
     </LinearLayout>
 </LinearLayout>

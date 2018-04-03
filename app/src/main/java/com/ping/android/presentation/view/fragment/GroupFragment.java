@@ -28,8 +28,6 @@ import com.ping.android.model.Group;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.service.ServiceManager;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -196,7 +194,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
             bottomMenu.setVisibility(View.GONE);
         }
 
-        if (CollectionUtils.isEmpty(adapter.getSelectGroup())) {
+        if (adapter.getSelectGroup().size() == 0) {
             btnLeaveGroup.setEnabled(false);
             btnDeleteGroup.setEnabled(false);
         } else {

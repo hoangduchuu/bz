@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -38,8 +39,6 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.UsersUtils;
 import com.quickblox.messages.services.SubscribeService;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         getComponent().inject(this);
         presenter.create();
         String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        if (StringUtils.isNotEmpty(conversationId)){
+        if (!TextUtils.isEmpty(conversationId)){
             Intent intent1 = new Intent(MainActivity.this, ChatActivity.class);
             intent1.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
             startActivity(intent1);

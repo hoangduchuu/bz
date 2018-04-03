@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -13,8 +14,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.activity.R;
 import com.ping.android.model.User;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class ForgotPasswordActivity extends CoreActivity implements View.OnClickListener {
 
@@ -64,11 +63,11 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
         String phoneLast4n = txtPhoneLast4n.getText().toString().trim();
         String email = txtEmail.getText().toString().trim();
 
-        if (StringUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(email)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_email), Toast.LENGTH_SHORT).show();
             return;
         }
-        if (StringUtils.isEmpty(phoneLast4n)) {
+        if (TextUtils.isEmpty(phoneLast4n)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_phone_4n), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -107,16 +106,16 @@ public class ForgotPasswordActivity extends CoreActivity implements View.OnClick
         if (!phoneLast4nCorrect.equals(phoneLast4n)) {
             resetInfoFlg = false;
         }
-        if (StringUtils.isEmpty(user.firstName) && !StringUtils.isEmpty(firstName)) {
+        if (TextUtils.isEmpty(user.firstName) && !TextUtils.isEmpty(firstName)) {
             resetInfoFlg = false;
         }
-        if (!StringUtils.isEmpty(user.firstName) && !user.firstName.equals(firstName)) {
+        if (!TextUtils.isEmpty(user.firstName) && !user.firstName.equals(firstName)) {
             resetInfoFlg = false;
         }
-        if (StringUtils.isEmpty(user.lastName) && !StringUtils.isEmpty(lastName)) {
+        if (TextUtils.isEmpty(user.lastName) && !TextUtils.isEmpty(lastName)) {
             resetInfoFlg = false;
         }
-        if (!StringUtils.isEmpty(user.lastName) && !user.lastName.equals(lastName)) {
+        if (!TextUtils.isEmpty(user.lastName) && !user.lastName.equals(lastName)) {
             resetInfoFlg = false;
         }
 

@@ -37,9 +37,6 @@ import android.widget.Toast;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.mikepenz.community_material_typeface_library.CommunityMaterial;
-import com.mikepenz.iconics.IconicsDrawable;
-import com.mikepenz.iconics.view.IconicsImageView;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
@@ -62,11 +59,10 @@ import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +143,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     ChatPresenter presenter;
     ChatComponent component;
     private boolean isVisible = false;
+    private List<Integer> actionButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +168,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void initView() {
+        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
+                , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
+        actionButtons = new ArrayList<>(buttonIDs.length);
+        for (int buttonId : buttonIDs) {
+            actionButtons.add(buttonId);
+        }
         notifyTyping();
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
@@ -333,12 +336,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setButtonsState(int selectedViewId) {
-        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
-                , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
-        if (!ArrayUtils.contains(buttonIDs, selectedViewId) && selectedViewId != 0) {
+        if (!actionButtons.contains(selectedViewId) && selectedViewId != 0) {
             return;
         }
-        for (int viewId : buttonIDs) {
+        for (int viewId : actionButtons) {
             ImageButton imageButton = findViewById(viewId);
             imageButton.setSelected(viewId == selectedViewId);
         }
@@ -545,17 +546,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         copyContainer.setOnClickListener(this);
         messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
 
-        IconicsDrawable drawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_content_copy)
-                .sizeDp(24)
-                .color(ContextCompat.getColor(this, R.color.colorAccent));
-        IconicsImageView copyImageView = messageActionsView.findViewById(R.id.img_copy);
-        copyImageView.setIcon(drawable);
-
-        IconicsDrawable deleteDrawable = new IconicsDrawable(this, CommunityMaterial.Icon.cmd_delete)
-                .sizeDp(24)
-                .color(ContextCompat.getColor(this, R.color.colorAccent));
-        IconicsImageView deleteImageView = messageActionsView.findViewById(R.id.img_delete);
-        deleteImageView.setIcon(deleteDrawable);
         messageActions = new BottomSheetDialog(this);
         messageActions.setContentView(messageActionsView);
         messageActions.setOnDismissListener(dialog -> hideSelectedMessage());

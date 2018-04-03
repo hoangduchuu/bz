@@ -45,7 +45,6 @@ import com.ping.android.utils.GlideApp;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -195,7 +194,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
 
                 // 2. Build action
                 NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                        R.drawable.ic_action_send_now, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
+                        android.R.drawable.ic_menu_send, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
                         PendingIntent.FLAG_UPDATE_CURRENT))
                         .addRemoteInput(remoteInput)
                         .setAllowGeneratedReplies(true)
@@ -284,10 +283,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
         //do not display notification if opponentUser is opening same conversation
         if (activeActivity != null && activeActivity instanceof ChatActivity && isForeground) {
             ChatActivity chatActivity = (ChatActivity) activeActivity;
-
-            if (StringUtils.equals(chatActivity.getConversationId(), conversationId)) {
-                return false;
-            }
+            return !conversationId.equals(chatActivity.getConversationId());
         }
         return true;
     }

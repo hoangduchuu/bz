@@ -28,8 +28,6 @@ import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.presentation.view.custom.CustomSwitch;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,7 +220,7 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     private void updateEditMenu() {
-        if (CollectionUtils.isEmpty(adapter.getSelectCall())) {
+        if (adapter.getSelectCall().size() == 0) {
             btnDeleteCall.setEnabled(false);
         } else {
             btnDeleteCall.setEnabled(true);

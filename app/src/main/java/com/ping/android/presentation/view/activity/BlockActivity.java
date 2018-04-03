@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -16,8 +17,6 @@ import com.ping.android.presentation.presenters.BlockContactPresenter;
 import com.ping.android.presentation.view.adapter.BlockAdapter;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Constant;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +128,7 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
     private void add() {
         Intent i = new Intent(this, SelectContactActivity.class);
-        i.putExtra("SELECTED_ID", StringUtils.join(blockIds, ","));
+        i.putExtra("SELECTED_ID", TextUtils.join(",", blockIds));
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST);
     }
 
