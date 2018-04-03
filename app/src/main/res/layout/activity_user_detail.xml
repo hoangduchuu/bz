@@ -96,7 +96,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_username" />
+                            android:src="@drawable/ic_profile_username" />
 
                         <TextView
                             style="@style/ItemSettingText"
