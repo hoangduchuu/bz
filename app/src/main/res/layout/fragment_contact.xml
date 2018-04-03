@@ -17,7 +17,7 @@
             style="@style/ActionButton.TopMenu"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_add" />
+            android:src="@drawable/ic_add_circle" />
     </RelativeLayout>
 
     <LinearLayout style="@style/SearchLayout">
