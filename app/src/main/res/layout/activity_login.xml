@@ -27,7 +27,7 @@
             <EditText
                 android:id="@+id/login_name"
                 style="@style/InputTextStyle"
-                android:drawableLeft="@drawable/ic_email"
+                android:drawableLeft="@drawable/ic_login_email"
                 android:hint="Email or Username" />
 
             <View style="@style/InputUnderLineStyle" />
@@ -35,7 +35,7 @@
             <EditText
                 android:id="@+id/login_password"
                 style="@style/InputTextStyle"
-                android:drawableLeft="@drawable/ic_password"
+                android:drawableLeft="@drawable/ic_login_password"
                 android:hint="Password"
                 android:inputType="textPassword" />
 

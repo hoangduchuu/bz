@@ -77,7 +77,7 @@ public class NotificationImpl implements Notification {
         Intent endCallIntent = new Intent(context, CallActivity.class);
         endCallIntent.putExtra("ENDCALL", true);
         NotificationCompat.Action endCallAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_action_send_now, "END CALL", PendingIntent.getActivity(context, 100, endCallIntent,
+                android.R.drawable.ic_menu_send, "END CALL", PendingIntent.getActivity(context, 100, endCallIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT))
                 .build();
         builder.addAction(endCallAction);
@@ -196,7 +196,7 @@ public class NotificationImpl implements Notification {
 
             // 2. Build action
             NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                    R.drawable.ic_action_send_now, replyLabel, replyPendingIntent)
+                    android.R.drawable.ic_menu_send, replyLabel, replyPendingIntent)
                     .addRemoteInput(remoteInput)
                     .setAllowGeneratedReplies(true)
                     .build();

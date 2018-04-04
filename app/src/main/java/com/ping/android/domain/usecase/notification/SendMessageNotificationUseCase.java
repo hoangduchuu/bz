@@ -85,8 +85,12 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 default:
                                                     break;
                                             }
+                                            String profile = sender.profile;
+                                            if (user.settings.private_profile) {
+                                                profile = "";
+                                            }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, sender.profile, body, params.conversation.key,
+                                                    sender.key, profile, body, params.conversation.key,
                                                     params.message, user, integer);
                                         });
                             })

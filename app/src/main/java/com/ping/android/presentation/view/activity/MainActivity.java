@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -38,8 +39,6 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.UsersUtils;
 import com.quickblox.messages.services.SubscribeService;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         getComponent().inject(this);
         presenter.create();
         String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        if (StringUtils.isNotEmpty(conversationId)){
+        if (!TextUtils.isEmpty(conversationId)){
             Intent intent1 = new Intent(MainActivity.this, ChatActivity.class);
             intent1.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
             startActivity(intent1);
@@ -221,23 +220,23 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         View v;
         switch (position) {
             case 0:
-                iconID = selected ? R.drawable.ic_tab_messages_orange : R.drawable.ic_tab_messages_gray;
+                iconID = selected ? R.drawable.ic_home_message_selected : R.drawable.ic_home_message;
                 title = "Messages";
                 break;
             case 1:
-                iconID = selected ? R.drawable.ic_tab_calls_orange : R.drawable.ic_tab_calls_gray;
+                iconID = selected ? R.drawable.ic_home_call_selected : R.drawable.ic_home_call;
                 title = "Calls";
                 break;
             case 2:
-                iconID = selected ? R.drawable.ic_tab_group_orange : R.drawable.ic_tab_group_gray;
+                iconID = selected ? R.drawable.ic_home_group_selected : R.drawable.ic_home_group;
                 title = "Groups";
                 break;
             case 3:
-                iconID = selected ? R.drawable.ic_tab_contacts_orange : R.drawable.ic_tab_contacts_gray;
+                iconID = selected ? R.drawable.ic_home_friend_selected : R.drawable.ic_home_friend;
                 title = "Contacts";
                 break;
             case 4:
-                iconID = selected ? R.drawable.ic_tab_profile_orange : R.drawable.ic_tab_profile_gray;
+                iconID = selected ? R.drawable.ic_home_profile_selected : R.drawable.ic_home_profile;
                 title = "Profile";
                 break;
         }

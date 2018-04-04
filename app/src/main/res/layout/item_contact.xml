@@ -13,17 +13,17 @@
         android:src="@drawable/ic_avatar_gray" />
 
     <RelativeLayout
-        android:layout_marginLeft="@dimen/default_padding"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/default_padding"
         android:layout_weight="1">
 
         <LinearLayout
-            android:layout_marginRight="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_centerVertical="true">
+            android:layout_centerVertical="true"
+            android:layout_marginRight="8dp"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/friend_name"
@@ -39,17 +39,19 @@
                 android:id="@+id/friend_message"
                 style="@style/list_item_btn"
                 android:background="@null"
-                android:src="@drawable/start_message" />
+                android:src="@drawable/ic_message_border" />
 
             <ImageView
                 android:id="@+id/friend_call_voice"
                 style="@style/list_item_btn"
-                android:src="@drawable/start_voice_call" />
+                android:src="@drawable/ic_chat_audio"
+                android:tint="@color/colorPrimaryDark" />
 
             <ImageView
                 android:id="@+id/friend_call_video"
                 style="@style/list_item_btn"
-                android:src="@drawable/start_video_call"
+                android:src="@drawable/ic_chat_video"
+                android:tint="@color/colorPrimaryDark"
                 android:visibility="gone" />
         </LinearLayout>
 

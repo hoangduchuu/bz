@@ -64,7 +64,7 @@
                 <ImageView
                     android:id="@+id/contact_send_message"
                     style="@style/list_item_btn"
-                    android:src="@drawable/start_message" />
+                    android:src="@drawable/ic_message_border" />
 
                 <ToggleButton
                     android:id="@+id/contact_add_friend"

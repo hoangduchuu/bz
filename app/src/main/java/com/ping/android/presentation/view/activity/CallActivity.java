@@ -111,13 +111,13 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         }
 
         if (ServiceManager.getInstance().isBlockBy(otherUser)) {
-            String username = ServiceManager.getInstance().getFirstName(otherUser);
+            String username = otherUser.getFirstName();
             Toaster.shortToast(String.format(context.getString(R.string.msg_account_blocked_by), username));
             return;
         }
 
         if (ServiceManager.getInstance().isBlock(otherUser.key)) {
-            String username = ServiceManager.getInstance().getFirstName(otherUser);
+            String username = otherUser.getFirstName();
             Toaster.shortToast(String.format(context.getString(R.string.msg_account_call_blocked), username, username));
             return;
         }

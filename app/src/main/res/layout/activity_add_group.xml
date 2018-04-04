@@ -82,7 +82,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="center"
-                android:src="@drawable/ic_plus" />
+                android:src="@drawable/ic_add_circle" />
 
         </LinearLayout>
 

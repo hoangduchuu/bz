@@ -17,8 +17,6 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.utils.UiUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +114,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     }
 
     private boolean isFiltered(Group group, String text) {
-        if (StringUtils.isEmpty(text)) {
+        if (TextUtils.isEmpty(text)) {
             return true;
         }
         return group.groupName.toUpperCase().contains(text.toUpperCase());
@@ -251,7 +249,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             List<String> displayNames = new ArrayList<>();
             for (User contact : group.members) {
                 if (group.deleteStatuses.containsKey(contact.key)) continue;
-                displayNames.add(ServiceManager.getInstance().getFirstName(contact));
+                displayNames.add(contact.getFirstName());
             }
             tvGroupMember.setText(TextUtils.join(", ", displayNames));
             ivProfileImage.setTransitionName("imageProfile" + getAdapterPosition());

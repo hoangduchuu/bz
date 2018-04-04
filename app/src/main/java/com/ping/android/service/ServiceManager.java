@@ -3,37 +3,20 @@ package com.ping.android.service;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.text.TextUtils;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
-import com.ping.android.model.Mapping;
-import com.ping.android.model.Setting;
-import com.ping.android.model.Call;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Group;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public class ServiceManager {
@@ -64,11 +47,6 @@ public class ServiceManager {
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
-
-    public String getFirstName(User user) {
-        return !StringUtils.isEmpty(user.firstName) ? user.firstName : user.pingID;
-    }
-
 
     public void updateShowMappingConfirm(Boolean value) {
         currentUser.showMappingConfirm = value;
@@ -156,7 +134,7 @@ public class ServiceManager {
 //    }
 
     public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses, Map<String, Boolean> maskMessages) {
-        if (MapUtils.isEmpty(markStatuses) || !markStatuses.containsKey(currentUser.key)) {
+        if (markStatuses == null || !markStatuses.containsKey(currentUser.key)) {
             return getMaskSetting(maskMessages);
         }
 
@@ -178,7 +156,7 @@ public class ServiceManager {
 //    }
 
     public int getCurrentStatus(Map<String, Integer> statuses) {
-        if (MapUtils.isEmpty(statuses) || !statuses.containsKey(currentUser.key)) {
+        if (statuses == null || !statuses.containsKey(currentUser.key)) {
             return Constant.MESSAGE_STATUS_SENT;
         }
         return statuses.get(currentUser.key);
@@ -192,7 +170,7 @@ public class ServiceManager {
 //    }
 
     public Boolean getMaskSetting(Map<String, Boolean> maskMessages) {
-        if (MapUtils.isEmpty(maskMessages) || !maskMessages.containsKey(currentUser.key)) {
+        if (maskMessages == null || !maskMessages.containsKey(currentUser.key)) {
             return false;
         }
         return maskMessages.get(currentUser.key);
@@ -480,7 +458,7 @@ public class ServiceManager {
 //    }
 
     public String encodeMessage(Context context, String message) {
-        if (StringUtils.isEmpty(message))
+        if (TextUtils.isEmpty(message))
             return message;
         Map<String, String> mappings = currentUser.mappings;
 
@@ -497,7 +475,7 @@ public class ServiceManager {
 
             try {
                 Object value = mappings.get(key);
-                if (mappings.containsKey(key) && !StringUtils.isEmpty(value.toString())) {
+                if (mappings.containsKey(key) && !TextUtils.isEmpty(value.toString())) {
                     returnMessage += value.toString();
                 } else {
                     returnMessage += chars[i];
@@ -511,7 +489,7 @@ public class ServiceManager {
     }
 
     public String encodeMessage(Map<String, String> mappings, String message) {
-        if (StringUtils.isEmpty(message))
+        if (TextUtils.isEmpty(message))
             return message;
 
         String modifyMessage = message;
@@ -527,7 +505,7 @@ public class ServiceManager {
             }
             String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
             Object value = mappings.get(key);
-            if (value != null && !StringUtils.isEmpty(value.toString())) {
+            if (value != null && !TextUtils.isEmpty(value.toString())) {
                 returnMessage += mappings.get(key);
             } else {
                 returnMessage += chars[i];

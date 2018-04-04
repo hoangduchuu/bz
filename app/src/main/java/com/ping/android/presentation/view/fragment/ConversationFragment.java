@@ -36,8 +36,6 @@ import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.utils.bus.events.TransphabetEvent;
 
-import org.apache.commons.collections4.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,7 +184,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void updateEditMenu() {
-        if (CollectionUtils.isEmpty(adapter.getSelectConversation())) {
+        if (adapter.getSelectConversation().size() == 0) {
             btnDeleteMessage.setEnabled(false);
         } else {
             btnDeleteMessage.setEnabled(true);

@@ -2,6 +2,7 @@ package com.ping.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
@@ -11,7 +12,6 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -155,11 +155,15 @@ public class User implements Parcelable {
     }
 
     public String getDisplayName() {
-        if (StringUtils.isEmpty(firstName) && StringUtils.isEmpty(lastName)) {
+        if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
             return pingID;
         } else {
             return String.format("%s %s", firstName, lastName).trim();
         }
+    }
+
+    public String getFirstName() {
+        return !TextUtils.isEmpty(firstName) ? firstName : pingID;
     }
 
     @Override

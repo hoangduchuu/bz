@@ -57,12 +57,15 @@
             <ImageView
                 android:id="@+id/item_call_voice"
                 style="@style/list_item_btn"
-                android:src="@drawable/start_voice_call" />
+                android:src="@drawable/ic_chat_audio"
+                android:tint="@color/colorPrimaryDark"/>
 
             <ImageView
                 android:id="@+id/item_call_video"
                 style="@style/list_item_btn"
-                android:src="@drawable/start_video_call" />
+                android:layout_width="44dp"
+                android:src="@drawable/ic_chat_video"
+                android:tint="@color/colorPrimaryDark"/>
         </LinearLayout>
         <View
             style="@style/horizontal_divider"

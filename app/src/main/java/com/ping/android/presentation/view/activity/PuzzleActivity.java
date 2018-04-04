@@ -14,8 +14,6 @@ import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.UiUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
 import javax.inject.Inject;
 
 public class PuzzleActivity extends CoreActivity implements View.OnClickListener, GamePresenter.View {
@@ -57,7 +55,7 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     @Override
     protected void onStop() {
         super.onStop();
-        if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
+        if (!TextUtils.isEmpty(conversationID) && !TextUtils.isEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
         }
     }
@@ -120,7 +118,7 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
         puzzledstatus = !btPuzzle.isChecked();
         displayImage();
 
-        if (StringUtils.isNotEmpty(conversationID) && StringUtils.isNotEmpty(messageID)) {
+        if (!TextUtils.isEmpty(conversationID) && !TextUtils.isEmpty(messageID)) {
             ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
         }
     }

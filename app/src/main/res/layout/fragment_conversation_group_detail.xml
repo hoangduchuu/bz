@@ -71,7 +71,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_notifications" />
+                            android:src="@drawable/ic_conversation_notification" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -90,7 +90,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_nickname" />
+                            android:src="@drawable/ic_conversation_nickname" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -105,7 +105,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_mask" />
+                            android:src="@drawable/ic_conversation_mask_message" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -123,7 +123,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_puzzle" />
+                            android:src="@drawable/ic_conversation_mask_image" />
 
                         <TextView
                             style="@style/ItemSettingText"

@@ -6,20 +6,13 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
-import com.ping.android.activity.BuildConfig;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedout.splash.SplashComponent;
 import com.ping.android.dagger.loggedout.splash.SplashModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
-import org.apache.commons.lang3.StringUtils;
-
 import javax.inject.Inject;
-
-import io.fabric.sdk.android.Fabric;
 
 public class SplashActivity extends CoreActivity implements SplashPresenter.View {
     @Inject

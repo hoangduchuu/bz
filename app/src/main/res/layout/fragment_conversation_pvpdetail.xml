@@ -58,7 +58,7 @@
                         android:layout_marginLeft="10dp"
                         android:background="@null"
                         android:padding="5dp"
-                        android:src="@drawable/start_message" />
+                        android:src="@drawable/ic_message_border" />
 
                     <ImageView
                         android:id="@+id/user_profile_voice"
@@ -67,17 +67,19 @@
                         android:layout_marginLeft="10dp"
                         android:background="@null"
                         android:padding="5dp"
-                        android:src="@drawable/start_voice_call" />
+                        android:src="@drawable/ic_chat_audio"
+                        android:tint="@color/colorPrimaryDark" />
 
                     <ImageView
                         android:id="@+id/user_profile_video"
-                        android:layout_width="30dp"
+                        android:layout_width="40dp"
                         android:layout_height="30dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:background="@null"
                         android:padding="5dp"
-                        android:src="@drawable/start_video_call" />
+                        android:src="@drawable/ic_chat_video"
+                        android:tint="@color/colorPrimaryDark" />
                 </LinearLayout>
 
                 <View style="@style/ItemViewSeparate" />
@@ -86,7 +88,7 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/ic_notifications" />
+                        android:src="@drawable/ic_conversation_notification" />
 
                     <TextView
                         style="@style/ItemSettingText"
@@ -105,11 +107,10 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/profile_nickname" />
+                        android:src="@drawable/ic_conversation_nickname" />
 
                     <TextView
                         style="@style/ItemSettingText"
-                        android:enabled="false"
                         android:text="Nickname" />
 
                     <ImageView style="@style/ItemSettingIconRight" />
@@ -121,7 +122,7 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/profile_mask" />
+                        android:src="@drawable/ic_conversation_mask_message" />
 
                     <TextView
                         style="@style/ItemSettingText"
@@ -138,7 +139,7 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/profile_puzzle" />
+                        android:src="@drawable/ic_conversation_mask_image" />
 
                     <TextView
                         style="@style/ItemSettingText"
@@ -156,7 +157,7 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/profile_lock" />
+                        android:src="@drawable/ic_block" />
 
                     <TextView
                         style="@style/ItemSettingText"

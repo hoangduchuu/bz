@@ -15,7 +15,6 @@ import com.ping.android.model.User;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
-import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
@@ -116,7 +115,7 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {
-        if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
+        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
             return 0.0d;
         }
         Object value = conversation.deleteTimestamps.get(currentUser.key);

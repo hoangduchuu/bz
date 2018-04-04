@@ -64,7 +64,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:background="@null"
-                        android:src="@drawable/start_message" />
+                        android:src="@drawable/ic_message_border" />
 
                     <ImageView
                         android:id="@+id/user_detail_voice"
@@ -72,15 +72,17 @@
                         android:layout_height="20dp"
                         android:layout_marginLeft="20dp"
                         android:background="@null"
-                        android:src="@drawable/start_voice_call" />
+                        android:src="@drawable/ic_chat_audio"
+                        android:tint="@color/colorPrimaryDark"/>
 
                     <ImageView
                         android:id="@+id/user_detail_video"
-                        android:layout_width="20dp"
+                        android:layout_width="30dp"
                         android:layout_height="20dp"
                         android:layout_marginLeft="20dp"
                         android:background="@null"
-                        android:src="@drawable/start_video_call" />
+                        android:src="@drawable/ic_chat_video"
+                        android:tint="@color/colorPrimaryDark"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -94,7 +96,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_username" />
+                            android:src="@drawable/ic_username" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -121,7 +123,7 @@
 
                             <ImageView
                                 style="@style/ItemSettingIconLeft"
-                                android:src="@drawable/ic_plus" />
+                                android:src="@drawable/ic_add_circle" />
 
                             <TextView
                                 style="@style/ItemSettingText"
@@ -135,7 +137,7 @@
 
                             <ImageView
                                 style="@style/ItemSettingIconLeft"
-                                android:src="@drawable/delete" />
+                                android:src="@drawable/ic_delete" />
 
                             <TextView
                                 style="@style/ItemSettingText"
@@ -156,7 +158,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/icon_block" />
+                            android:src="@drawable/ic_block" />
 
                         <TextView
                             style="@style/ItemSettingText"

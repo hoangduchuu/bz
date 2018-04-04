@@ -1,30 +1,26 @@
-    package com.ping.android.ultility;
+package com.ping.android.ultility;
 
-    import android.graphics.Bitmap;
-    import android.graphics.Canvas;
-    import android.text.TextUtils;
-    import android.text.format.DateFormat;
-    import android.text.format.DateUtils;
-    import android.view.Gravity;
-    import android.widget.AutoCompleteTextView;
-    import android.widget.SearchView;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.text.TextUtils;
+import android.text.format.DateFormat;
+import android.text.format.DateUtils;
+import android.widget.AutoCompleteTextView;
+import android.widget.SearchView;
 
-    import com.google.firebase.database.DataSnapshot;
-    import com.google.firebase.storage.FirebaseStorage;
-    import com.ping.android.model.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.ping.android.model.User;
 
-    import org.apache.commons.collections4.MapUtils;
-    import org.apache.commons.lang3.StringUtils;
-
-    import java.io.File;
-    import java.security.MessageDigest;
-    import java.security.NoSuchAlgorithmException;
-    import java.util.ArrayList;
-    import java.util.Collections;
-    import java.util.Map;
-    import java.util.regex.Matcher;
-    import java.util.regex.Pattern;
-    import java.util.regex.PatternSyntaxException;
+import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
     public class CommonMethod {
         private static final String EMAIL_PATTERN =
@@ -98,49 +94,49 @@
         }
 
         public static boolean isFilteredContact(User contact, String text) {
-            if (StringUtils.isEmpty(text)) {
+            if (TextUtils.isEmpty(text)) {
                 return false;
             }
-            if (!StringUtils.isEmpty(contact.email) && text.equals(contact.email)) {
+            if (!TextUtils.isEmpty(contact.email) && text.equals(contact.email)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.phone) && text.equals(contact.phone)) {
+            if (!TextUtils.isEmpty(contact.phone) && text.equals(contact.phone)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.pingID) && contact.pingID.startsWith(text)) {
+            if (!TextUtils.isEmpty(contact.pingID) && contact.pingID.startsWith(text)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.firstName) && contact.firstName.toUpperCase().startsWith(text.toUpperCase())) {
+            if (!TextUtils.isEmpty(contact.firstName) && contact.firstName.toUpperCase().startsWith(text.toUpperCase())) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.lastName) && contact.lastName.toUpperCase().startsWith(text.toUpperCase())) {
+            if (!TextUtils.isEmpty(contact.lastName) && contact.lastName.toUpperCase().startsWith(text.toUpperCase())) {
                 return true;
             }
             String fullName = String.format("%s %s", contact.firstName, contact.lastName).trim();
-            return !StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
+            return !TextUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
         }
 
         public static boolean isFiltered(User contact, String text) {
-            if (StringUtils.isEmpty(text)) {
+            if (TextUtils.isEmpty(text)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.email) && text.equals(contact.email)) {
+            if (!TextUtils.isEmpty(contact.email) && text.equals(contact.email)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.phone) && text.equals(contact.phone)) {
+            if (!TextUtils.isEmpty(contact.phone) && text.equals(contact.phone)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.pingID) && contact.pingID.startsWith(text)) {
+            if (!TextUtils.isEmpty(contact.pingID) && contact.pingID.startsWith(text)) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.firstName) && contact.firstName.toUpperCase().startsWith(text.toUpperCase())) {
+            if (!TextUtils.isEmpty(contact.firstName) && contact.firstName.toUpperCase().startsWith(text.toUpperCase())) {
                 return true;
             }
-            if (!StringUtils.isEmpty(contact.lastName) && contact.lastName.toUpperCase().startsWith(text.toUpperCase())) {
+            if (!TextUtils.isEmpty(contact.lastName) && contact.lastName.toUpperCase().startsWith(text.toUpperCase())) {
                 return true;
             }
             String fullName = String.format("%s %s", contact.firstName, contact.lastName).trim();
-            return !StringUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
+            return !TextUtils.isEmpty(fullName) && fullName.toUpperCase().startsWith(text.toUpperCase());
         }
 
         public static String getStringOf(Object object) {
@@ -359,14 +355,14 @@
         }
 
         public static boolean getCurrentReadStatus(String userId, Map<String, Boolean> readStatuses) {
-            if (MapUtils.isEmpty(readStatuses) || !readStatuses.containsKey(userId)) {
+            if (readStatuses == null || !readStatuses.containsKey(userId)) {
                 return false;
             }
             return readStatuses.get(userId);
         }
 
         public static int getCurrentStatus(String userId, Map<String, Integer> statuses) {
-            if (MapUtils.isEmpty(statuses) || !statuses.containsKey(userId)) {
+            if (statuses == null || !statuses.containsKey(userId)) {
                 return Constant.MESSAGE_STATUS_SENT;
             }
             return statuses.get(userId);
