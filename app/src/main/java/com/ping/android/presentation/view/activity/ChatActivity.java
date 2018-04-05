@@ -1097,6 +1097,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
+            findViewById(R.id.spacing_voice).setVisibility(View.GONE);
+            findViewById(R.id.spacing_audio).setVisibility(View.GONE);
+        } else {
+            btVideoCall.setVisibility(View.VISIBLE);
+            btVoiceCall.setVisibility(View.VISIBLE);
+            findViewById(R.id.spacing_voice).setVisibility(View.VISIBLE);
+            findViewById(R.id.spacing_audio).setVisibility(View.VISIBLE);
         }
     }
 
