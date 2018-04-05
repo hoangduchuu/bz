@@ -75,9 +75,11 @@
             <ImageButton
                 android:id="@+id/button_hangup_call"
                 style="@style/CallActionImageButton"
+                android:layout_width="@dimen/toggle_button_params"
+                android:layout_height="@dimen/toggle_button_params"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/ic_call_reject" />
+                android:background="@drawable/ic_call_hangup" />
 
             <ToggleButton
                 android:id="@+id/toggle_speaker"

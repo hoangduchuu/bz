@@ -1,7 +1,6 @@
 package com.ping.android;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,14 +8,13 @@ import android.util.Log;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.ping.android.model.QbConfigs;
 import com.ping.android.service.NotificationBroadcastReceiver;
-import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.CoreConfigUtils;
 import com.quickblox.auth.session.QBSettings;
 import com.quickblox.core.ServiceZone;
 import com.quickblox.core.SubscribePushStrategy;
 import com.quickblox.messages.services.QBPushManager;
 import com.vanniktech.emoji.EmojiManager;
-import com.vanniktech.emoji.ios.IosEmojiProvider;
+import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 
 public class CoreApp extends Application {
@@ -36,7 +34,7 @@ public class CoreApp extends Application {
         initQbConfigs();
         initCredentials();
         initPushManager();
-        EmojiManager.install(new IosEmojiProvider());
+        EmojiManager.install(new GoogleEmojiProvider());
 
         Intent intent = new Intent(this, NotificationBroadcastReceiver.class);
         intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);

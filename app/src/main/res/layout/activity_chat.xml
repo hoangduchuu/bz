@@ -181,6 +181,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:orientation="horizontal">
 
                 <ImageButton
@@ -188,35 +190,72 @@
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_text_selector" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
                 <ImageButton
                     android:id="@+id/chat_emoji_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_emoji_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_camera_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_camera_selector" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
                 <ImageButton
                     android:id="@+id/chat_image_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_picture_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_game_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_game_selector" />
 
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
                 <ImageButton
                     android:id="@+id/chat_voice_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_voice_selector" />
 
+                <View
+                    android:id="@+id/spacing_voice"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
                 <ImageButton
                     android:id="@+id/chat_voice_call_btn"
                     style="@style/ChatTypeIcon"
                     android:src="@drawable/chat_call_selector" />
+
+                <View
+                    android:id="@+id/spacing_audio"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_video_call_btn"
