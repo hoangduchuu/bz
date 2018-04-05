@@ -81,7 +81,7 @@ public class AudioConversationFragment extends BaseConversationFragment
         audioSwitchToggleButton = view.findViewById(R.id.toggle_speaker);
         audioSwitchToggleButton.setVisibility(View.VISIBLE);
 
-        actionButtonsEnabled(false);
+        actionButtonsEnabled(true);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class AudioConversationFragment extends BaseConversationFragment
                 //conversationFragmentCallbackListener.onSwitchAudio();
                 Activity activity = getActivity();
                 if (activity instanceof CallActivity) {
-                    ((CallActivity) activity).onSwitchAudio();
+                    ((CallActivity) activity).onSwitchAudio(audioSwitchToggleButton.isChecked());
                 }
             }
         });
@@ -132,7 +132,7 @@ public class AudioConversationFragment extends BaseConversationFragment
 
     @Override
     public void initAudio(boolean isVideo) {
-        audioSwitchToggleButton.setChecked(false);
+//        audioSwitchToggleButton.setChecked(false);
     }
 
     @Override

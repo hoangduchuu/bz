@@ -172,7 +172,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
     }
 
     private boolean isFiltered(Call call, String text, Boolean isAll) {
-        if (!isAll && call.status == Constant.CALL_STATUS_SUCCESS) {
+        if (!isAll && (call.type == Call.CallType.OUTGOING || call.type == Call.CallType.INCOMING)) {
             return false;
         }
         return CommonMethod.isFiltered(call.opponentUser, text);

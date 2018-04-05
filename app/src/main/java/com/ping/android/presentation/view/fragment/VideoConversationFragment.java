@@ -198,7 +198,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
         firstOpponentAvatarImageView = view.findViewById(R.id.image_caller_avatar);
 
-        actionButtonsEnabled(false);
+        actionButtonsEnabled(true);
         //restoreSession();
     }
 
@@ -297,12 +297,16 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Override
     protected void toggleAudio(boolean isEnable) {
-        startTimerHideControls();
+        if (connectionEstablished) {
+            startTimerHideControls();
+        }
         presenter.toggleAudio(isEnable);
     }
 
     private void switchCamera() {
-        startTimerHideControls();
+        if (connectionEstablished) {
+            startTimerHideControls();
+        }
         if (cameraState == CameraState.DISABLED_FROM_USER) {
             return;
         }
