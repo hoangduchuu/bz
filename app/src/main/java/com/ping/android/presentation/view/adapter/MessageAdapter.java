@@ -221,7 +221,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             for (MessageViewHolder holder : boundsViewHolder) {
                 holder.setEditMode(isEditMode);
             }
-        }, 100);
+        }, 10);
     }
 
     public void setListener(ConversationItemListener listener) {
