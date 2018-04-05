@@ -16,15 +16,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hbb20.CountryCodePicker;
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.addphone.AddPhoneComponent;
+import com.ping.android.dagger.loggedin.addphone.AddPhoneModule;
+import com.ping.android.presentation.presenters.AddPhonePresenter;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 
-public class PhoneActivity extends CoreActivity implements View.OnClickListener {
+import javax.inject.Inject;
+
+public class PhoneActivity extends CoreActivity implements View.OnClickListener, AddPhonePresenter.View {
 
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
     private CountryCodePicker countryCodePicker;
     private EditText etPhone;
+
+    @Inject
+    AddPhonePresenter presenter;
+    AddPhoneComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,11 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
                 registerPhone();
                 break;
         }
+    }
+
+    @Override
+    public AddPhonePresenter getPresenter() {
+        return presenter;
     }
 
     private void bindViews() {
@@ -87,7 +101,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
                 if (dataSnapshot.exists()) {
                     Toast.makeText(getApplicationContext(), getString(R.string.msg_duplicate_phone), Toast.LENGTH_SHORT).show();
                 } else {
-                    ServiceManager.getInstance().updatePhone(phone);
+                    presenter.updatePhone(phone);
                     startActivity(new Intent(PhoneActivity.this, MainActivity.class));
                     finish();
                 }
@@ -98,5 +112,12 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener 
                 hideLoading();
             }
         });
+    }
+
+    public AddPhoneComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideAddPhoneComponent(new AddPhoneModule(this));
+        }
+        return component;
     }
 }

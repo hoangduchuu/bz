@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.user;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
@@ -11,23 +11,19 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 
-/**
- * Created by tuanluong on 3/21/18.
- */
-
-public class ToggleUserPrivateProfileSettingUseCase extends UseCase<Boolean, Boolean> {
+public class UpdatePhoneNumberUseCase extends UseCase<Boolean, String> {
     @Inject
     UserRepository userRepository;
 
     @Inject
-    public ToggleUserPrivateProfileSettingUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public UpdatePhoneNumberUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
     @NotNull
     @Override
-    public Observable<Boolean> buildUseCaseObservable(Boolean aBoolean) {
+    public Observable<Boolean> buildUseCaseObservable(String s) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> userRepository.updateUserPrivateProfileSetting(user.key, aBoolean));
+                .flatMap(user -> userRepository.updatePhoneNumber(user.key, s));
     }
 }

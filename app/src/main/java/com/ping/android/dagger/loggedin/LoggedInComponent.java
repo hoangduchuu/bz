@@ -2,6 +2,8 @@ package com.ping.android.dagger.loggedin;
 
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
+import com.ping.android.dagger.loggedin.addphone.AddPhoneComponent;
+import com.ping.android.dagger.loggedin.addphone.AddPhoneModule;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
 import com.ping.android.dagger.loggedin.call.CallComponent;
@@ -65,4 +67,6 @@ public interface LoggedInComponent {
     ChangePasswordComponent provideChangePasswordComponent(ChangePasswordModule changePasswordModule);
 
     GameComponent provideGameComponent(GameModule gameModule);
+
+    AddPhoneComponent provideAddPhoneComponent(AddPhoneModule module);
 }

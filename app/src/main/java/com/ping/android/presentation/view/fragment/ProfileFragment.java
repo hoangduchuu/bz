@@ -235,7 +235,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         CallService.logout(getContext());
 
         UsersUtils.removeUserData(getContext());
-        ServiceManager.getInstance().updateLoginStatus(false);
         ShortcutBadger.applyCount(getActivity(), 0);
         getActivity().finish();
         startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
