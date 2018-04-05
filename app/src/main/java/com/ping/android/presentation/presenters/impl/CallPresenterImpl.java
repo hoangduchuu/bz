@@ -391,7 +391,10 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void onCallAcceptByUser(QBRTCSession qbrtcSession, Integer integer, Map<String, String> map) {
-        callAccepted = true;
+        if (this.currentSession != null && this.currentSession.equals(qbrtcSession)) {
+            callAccepted = true;
+            view.updateAudioSetting(isIncomingCall, isVideoCall());
+        }
         //callStarted = true;
     }
 
