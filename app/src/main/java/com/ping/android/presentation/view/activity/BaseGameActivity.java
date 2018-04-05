@@ -35,7 +35,8 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected void onGamePassed() {
         //send game status to sender
         sendNotification(true);
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
+
+        updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
@@ -58,7 +59,7 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected void onGameFailed() {
         //send game status to sender
         sendNotification(false);
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
+        updateMessageStatus(Constant.MESSAGE_STATUS_GAME_FAIL);
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(gameTitle())
                 .setMessage(R.string.memory_game_game_over)
@@ -71,13 +72,19 @@ public abstract class BaseGameActivity extends CoreActivity {
 
     protected void quitGame() {
         sendNotification(false);
-        ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
+        updateMessageStatus(Constant.MESSAGE_STATUS_GAME_FAIL);
         finish();
     }
 
     protected void sendNotification(boolean isPass) {
         if (getPresenter() instanceof GamePresenter) {
             ((GamePresenter) getPresenter()).sendGameStatus(conversation, isPass);
+        }
+    }
+
+    protected void updateMessageStatus(int status) {
+        if (getPresenter() instanceof GamePresenter) {
+            ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, status);
         }
     }
 }

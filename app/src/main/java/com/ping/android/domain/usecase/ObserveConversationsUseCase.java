@@ -13,6 +13,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
@@ -65,6 +66,21 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 }
                             }
                             conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
+                            if (conversation.messageType == Constant.MSG_TYPE_TEXT) {
+                                boolean maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, currentUser.key);
+                                boolean maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, currentUser.key);
+                                if (maskMessage || maskStatus) {
+                                    conversation.displayMessage = CommonMethod.encodeMessage(conversation.message, currentUser.mappings);
+                                } else {
+                                    conversation.displayMessage = conversation.message;
+                                }
+                            } else if (model.messageType == Constant.MSG_TYPE_IMAGE) {
+                                message = "[Picture]";
+                            } else if (model.messageType == Constant.MSG_TYPE_VOICE) {
+                                message = "[Voice]";
+                            } else if (model.messageType == Constant.MSG_TYPE_GAME) {
+                                message = "[Game]";
+                            }
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;

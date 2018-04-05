@@ -354,21 +354,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.conversation = model;
             this.tvSender.setText(model.conversationName);
             this.tvTime.setText(CommonMethod.convertTimestampToTime(model.timesstamps));
-            String message = "";
-            if (model.messageType == Constant.MSG_TYPE_TEXT) {
-                if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
-                    message = ServiceManager.getInstance().encodeMessage(itemView.getContext(), model.message);
-                } else {
-                    message = model.message;
-                }
-            } else if (model.messageType == Constant.MSG_TYPE_IMAGE) {
-                message = "[Picture]";
-            } else if (model.messageType == Constant.MSG_TYPE_VOICE) {
-                message = "[Voice]";
-            } else if (model.messageType == Constant.MSG_TYPE_GAME) {
-                message = "[Game]";
-            }
-            this.tvMessage.setText(message);
+            this.tvMessage.setText(model.displayMessage);
             this.setReadStatus(model.isRead);
             this.setEditMode(isEditMode);
             this.setSelect(isSelected);

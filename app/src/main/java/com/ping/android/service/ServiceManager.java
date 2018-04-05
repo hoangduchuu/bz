@@ -538,10 +538,10 @@ public class ServiceManager {
         mDatabase.child("conversations").child(currentUser.key).child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
     }
 
-    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
-        mDatabase.child("messages").child(conversationID).child(messageID).child("status").
-                child(currentUser.key).setValue(messageStatus);
-    }
+//    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
+//        mDatabase.child("messages").child(conversationID).child(messageID).child("status").
+//                child(currentUser.key).setValue(messageStatus);
+//    }
 
     // Network
     public boolean getNetworkStatus(Context context) {
