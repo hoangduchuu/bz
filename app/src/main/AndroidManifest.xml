@@ -69,7 +69,7 @@
         <meta-data
             android:name="com.quickblox.messages.SENDER_ID"
             android:value="@string/sender_id" />
-        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="PRODUCTION" />
+        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="DEVELOPMENT" />
 
         <receiver
             android:name="com.ping.android.service.PushNotificationBroadcastReceiver"

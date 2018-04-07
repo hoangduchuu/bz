@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -47,7 +48,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     private Vibrator vibrator;
     private long lastClickTime = 0l;
-    private Ringtone ringtonePlayer;
+//    private Ringtone ringtonePlayer;
 
     @Inject
     IncomingCallPresenter presenter;
@@ -65,8 +66,8 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         View view = inflater.inflate(R.layout.fragment_income_call, container, false);
         initUI(view);
         initButtonsListener();
-        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        ringtonePlayer = RingtoneManager.getRingtone(getContext(), ringtoneUri);
+//        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+//        ringtonePlayer = RingtoneManager.getRingtone(getContext(), ringtoneUri);
         presenter.create();
         return view;
     }
@@ -95,8 +96,13 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     public void startCallNotification() {
-        ringtonePlayer.play();
+//        ringtonePlayer.play();
         if (getActivity() != null) {
+            AudioManager audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager == null
+                    || audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+                return;
+            }
             vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
             long[] vibrationCycle = {0, 1000, 1000};
             if (vibrator.hasVibrator()) {
@@ -114,9 +120,9 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
+//        if (ringtonePlayer != null) {
+//            ringtonePlayer.stop();
+//        }
         if (vibrator != null) {
             vibrator.cancel();
         }
@@ -189,9 +195,9 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     @Override
     public void stopCallNotification() {
-        if (ringtonePlayer != null) {
-            ringtonePlayer.stop();
-        }
+//        if (ringtonePlayer != null) {
+//            ringtonePlayer.stop();
+//        }
         if (vibrator != null) {
             vibrator.cancel();
         }
