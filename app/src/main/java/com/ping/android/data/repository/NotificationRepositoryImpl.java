@@ -2,6 +2,7 @@ package com.ping.android.data.repository;
 
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.google.gson.JsonObject;
+import com.ping.android.activity.BuildConfig;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -22,6 +23,8 @@ import io.reactivex.Observable;
  */
 
 public class NotificationRepositoryImpl implements NotificationRepository {
+    private QBEnvironment environment = BuildConfig.DEBUG ? QBEnvironment.DEVELOPMENT: QBEnvironment.PRODUCTION;
+
     @Inject
     public NotificationRepositoryImpl() {}
 
@@ -42,7 +45,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         event.addUserIds(quickBloxId);
         event.setType(QBEventType.ONE_SHOT);
         event.setMessage(object.toString());
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        event.setEnvironment(environment);
         return createQBEvent(event);
     }
 
@@ -63,7 +66,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         event.addUserIds(quickBloxId);
         event.setType(QBEventType.ONE_SHOT);
         event.setMessage(object.toString());
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        event.setEnvironment(environment);
         return createQBEvent(event);
     }
 
@@ -96,7 +99,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         event.addUserIds(user.quickBloxID);
         event.setType(QBEventType.ONE_SHOT);
         event.setMessage(object.toString());
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        event.setEnvironment(environment);
         //this notification will send to both android and ios
         return createQBEvent(event);
     }
@@ -122,7 +125,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         event.addUserIds(opponentQbId);
         event.setType(QBEventType.ONE_SHOT);
         event.setMessage(object.toString());
-        event.setEnvironment(QBEnvironment.DEVELOPMENT);
+        event.setEnvironment(environment);
         //this notification will send to both android and ios
         return createQBEvent(event);
     }
