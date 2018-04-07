@@ -170,6 +170,7 @@ public class CallPresenterImpl implements CallPresenter,
         if (this.currentSession != null) {
             Log.d("reject call " + this.currentSession.getState());
             this.currentSession.rejectCall(new HashMap<>());
+            view.stopRingtone();
         }
     }
 
@@ -183,6 +184,7 @@ public class CallPresenterImpl implements CallPresenter,
         this.currentSession.acceptCall(new HashMap<>());
         boolean isVideo = QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO.equals(this.currentSession.getConferenceType());
         view.initCallViews(isVideo, true);
+        view.stopRingtone();
         view.updateAudioSetting(isIncomingCall, isVideo);
         notification.showOngoingCallNotification(this.currentSession.getSessionID());
     }

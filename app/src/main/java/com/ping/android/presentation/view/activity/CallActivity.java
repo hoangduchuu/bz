@@ -35,6 +35,7 @@ import com.ping.android.utils.FragmentExecuotr;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.PermissionsChecker;
+import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UsersUtils;
@@ -98,6 +99,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     private PermissionsChecker checker;
 
     private Navigator navigator;
+    private RingtonePlayer ringtonePlayer;
 
     @Inject
     CallPresenter presenter;
@@ -533,6 +535,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     @Override
     public void startInComingCall(boolean isVideoCall) {
         navigator.openAsRoot(new IncomeCallFragment());
+        ringtonePlayer.play(isInComingCall, true);
     }
 
     @Override
@@ -540,6 +543,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         BaseFragment fragment = isVideoCall ?
                 VideoConversationFragment.newInstance() : AudioConversationFragment.newInstance();
         navigator.openAsRoot(fragment);
+        ringtonePlayer.play(isInComingCall, true);
     }
 
     @Override
@@ -552,10 +556,9 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     public void updateAudioSetting(boolean isIncomingCall, boolean isVideo) {
         if (isVideo) {
             setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        } else if (isIncomingCall) {
+            setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.EARPIECE);
         }
-//          else {
-//            setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.EARPIECE);
-//        }
     }
 
     public void initAudioSettings() {
@@ -575,11 +578,17 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 //                }
 //            }
 //        });
-        //if (isInComingCall) {
-        audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
-//        } else {
-//            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
-//        }
+        if (isInComingCall) {
+            ringtonePlayer = new RingtonePlayer(this);
+            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+        } else {
+            ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
+            if (isVideoCall) {
+                audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+            } else {
+                audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+            }
+        }
         audioManager.setOnWiredHeadsetStateListener((plugged, hasMicrophone) -> {
             headsetPlugged = plugged;
             if (callStarted) {
@@ -610,6 +619,12 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRingtone();
     }
 
     @Override
@@ -646,6 +661,14 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     @Override
     public void onCallStarted() {
         callStarted = true;
+        stopRingtone();
+    }
+
+    @Override
+    public void stopRingtone() {
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
+        }
     }
 
     public interface OnChangeDynamicToggle {

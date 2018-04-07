@@ -62,5 +62,7 @@ public interface CallPresenter extends BasePresenter {
         void initUserData(Integer callerId, List<Integer> opponents);
 
         void onCallStarted();
+
+        void stopRingtone();
     }
 }

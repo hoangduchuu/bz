@@ -1,5 +1,9 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -17,6 +21,7 @@ import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.activity.R;
 import com.ping.android.data.db.QbUsersDbManager;
 import com.ping.android.ultility.Consts;
+import com.ping.android.utils.RingtonePlayer;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.users.model.QBUser;
 
@@ -35,6 +40,8 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
     private boolean isIncomingCall;
     private ToggleButton btnToggleMic;
     private ImageButton btnHangup;
+
+    private RingtonePlayer ringtonePlayer;
 
     public static BaseConversationFragment newInstance(BaseConversationFragment baseConversationFragment, boolean isIncomingCall) {
         Log.d(TAG, "isIncomingCall =  " + isIncomingCall);
@@ -209,4 +216,18 @@ public abstract class BaseConversationFragment extends BaseToolBarFragment imple
 //        }
 //    }
 
+    protected void initRingtone() {
+        //ringtonePlayer.
+//        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+//        ringtone = RingtoneManager.getRingtone(getContext(), ringtoneUri);
+        //MediaPlayer mediaPlayer = new MediaPlayer()
+    }
+
+//    protected void playRingtone() {
+//        ringtone.play();
+//    }
+//
+//    protected void stopRingtone() {
+//        ringtone.stop();
+//    }
 }
