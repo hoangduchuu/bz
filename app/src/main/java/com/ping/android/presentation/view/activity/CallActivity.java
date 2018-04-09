@@ -35,6 +35,7 @@ import com.ping.android.utils.FragmentExecuotr;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.PermissionsChecker;
+import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UsersUtils;
@@ -53,6 +54,7 @@ import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -97,6 +99,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     private PermissionsChecker checker;
 
     private Navigator navigator;
+    private RingtonePlayer ringtonePlayer;
 
     @Inject
     CallPresenter presenter;
@@ -153,7 +156,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     }
 
     private static void start(Context context, User otherUser, boolean isVideoCall,
-                             boolean isIncomingCall) {
+                              boolean isIncomingCall) {
         UserManager.getInstance().startCallService(context);
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -253,8 +256,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         PermissionsActivity.startActivity(this, checkOnlyAudio, ACTIVITY_REQUEST_CODE, Consts.PERMISSIONS);
     }
 
-
-
     private void startLoadAbsentUsers(Integer callerId, List<Integer> opponentsIdsList) {
         ArrayList<QBUser> usersFromDb = dbManager.getAllUsers();
         ArrayList<Integer> allParticipantsOfCall = new ArrayList<>();
@@ -291,12 +292,9 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     }
 
     private void setAudioDeviceDelayed(final AppRTCAudioManager.AudioDevice audioDevice) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showToastAfterHeadsetPlugged = true;
-                audioManager.setAudioDevice(audioDevice);
-            }
+        new Handler().postDelayed(() -> {
+            showToastAfterHeadsetPlugged = true;
+            audioManager.selectAudioDevice(audioDevice);
         }, 500);
     }
 
@@ -501,8 +499,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
 
     private void addConversationFragment(boolean isVideo, boolean isIncomingCall) {
         BaseConversationFragment conversationFragment = isVideo
-                        ? VideoConversationFragment.newInstance()
-                        : AudioConversationFragment.newInstance();
+                ? VideoConversationFragment.newInstance()
+                : AudioConversationFragment.newInstance();
         FragmentExecuotr.addFragment(getSupportFragmentManager(), R.id.fragment_container, conversationFragment, conversationFragment.getClass().getSimpleName());
     }
 
@@ -520,12 +518,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     public void onBackPressed() {
     }
 
-    public void onSwitchAudio() {
-        if (audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.WIRED_HEADSET
-                || audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.EARPIECE) {
-            audioManager.setAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+    public void onSwitchAudio(boolean isSpeaker) {
+        if (isSpeaker) {
+            audioManager.selectAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
         } else {
-            audioManager.setAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+            audioManager.selectAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
         }
     }
 
@@ -538,6 +535,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     @Override
     public void startInComingCall(boolean isVideoCall) {
         navigator.openAsRoot(new IncomeCallFragment());
+        ringtonePlayer.play(isInComingCall, true);
     }
 
     @Override
@@ -545,6 +543,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         BaseFragment fragment = isVideoCall ?
                 VideoConversationFragment.newInstance() : AudioConversationFragment.newInstance();
         navigator.openAsRoot(fragment);
+        ringtonePlayer.play(isInComingCall, true);
     }
 
     @Override
@@ -557,31 +556,38 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     public void updateAudioSetting(boolean isIncomingCall, boolean isVideo) {
         if (isVideo) {
             setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
-        } else {
+        } else if (isIncomingCall) {
             setAudioDeviceDelayed(AppRTCAudioManager.AudioDevice.EARPIECE);
         }
     }
 
     public void initAudioSettings() {
-        audioManager = AppRTCAudioManager.create(this, new AppRTCAudioManager.OnAudioManagerStateListener() {
-            @Override
-            public void onAudioChangedState(AppRTCAudioManager.AudioDevice audioDevice) {
-                if (callStarted) {
-                    if (audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.EARPIECE) {
-                        previousDeviceEarPiece = true;
-                    } else if (audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.SPEAKER_PHONE) {
-                        previousDeviceEarPiece = false;
-                    }
-                    if (showToastAfterHeadsetPlugged) {
-                        //Toaster.shortToast("Audio device switched to  " + audioDevice);
-                    }
-                }
-            }
-        });
+        audioManager = AppRTCAudioManager.create(this);
+//        , new AppRTCAudioManager.OnAudioManagerStateListener() {
+//            @Override
+//            public void onAudioChangedState(AppRTCAudioManager.AudioDevice audioDevice) {
+//                if (callStarted) {
+//                    if (audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.EARPIECE) {
+//                        previousDeviceEarPiece = true;
+//                    } else if (audioManager.getSelectedAudioDevice() == AppRTCAudioManager.AudioDevice.SPEAKER_PHONE) {
+//                        previousDeviceEarPiece = false;
+//                    }
+//                    if (showToastAfterHeadsetPlugged) {
+//                        //Toaster.shortToast("Audio device switched to  " + audioDevice);
+//                    }
+//                }
+//            }
+//        });
         if (isInComingCall) {
+            ringtonePlayer = new RingtonePlayer(this);
             audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
         } else {
-            audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+            ringtonePlayer = new RingtonePlayer(this, R.raw.beep);
+            if (isVideoCall) {
+                audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.SPEAKER_PHONE);
+            } else {
+                audioManager.setDefaultAudioDevice(AppRTCAudioManager.AudioDevice.EARPIECE);
+            }
         }
         audioManager.setOnWiredHeadsetStateListener((plugged, hasMicrophone) -> {
             headsetPlugged = plugged;
@@ -601,13 +607,30 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
                 onChangeDynamicCallback.enableDynamicToggle(plugged, previousDeviceEarPiece);
             }
         });
-        audioManager.init();
+        audioManager.start((audioDevice, set) -> {
+            if (callStarted) {
+                if (audioDevice == AppRTCAudioManager.AudioDevice.EARPIECE) {
+                    previousDeviceEarPiece = true;
+                } else if (audioDevice == AppRTCAudioManager.AudioDevice.SPEAKER_PHONE) {
+                    previousDeviceEarPiece = false;
+                }
+                if (showToastAfterHeadsetPlugged) {
+                    //Toaster.shortToast("Audio device switched to  " + audioDevice);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopRingtone();
     }
 
     @Override
     public void finishCall() {
         if (audioManager != null) {
-            audioManager.close();
+            audioManager.stop();
         }
         releaseCurrentSession();
         closeByWifiStateAllow = true;
@@ -638,6 +661,14 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     @Override
     public void onCallStarted() {
         callStarted = true;
+        stopRingtone();
+    }
+
+    @Override
+    public void stopRingtone() {
+        if (ringtonePlayer != null) {
+            ringtonePlayer.stop();
+        }
     }
 
     public interface OnChangeDynamicToggle {

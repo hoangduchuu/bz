@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.ping.android.activity.BuildConfig;
 import com.ping.android.model.QbConfigs;
 import com.ping.android.service.NotificationBroadcastReceiver;
 import com.ping.android.utils.configs.CoreConfigUtils;
@@ -54,8 +55,11 @@ public class CoreApp extends Application {
             QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.ALWAYS);
 
             if (!TextUtils.isEmpty(qbConfigs.getApiDomain()) && !TextUtils.isEmpty(qbConfigs.getChatDomain())) {
-                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
-                QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
+                //QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
+                //QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
+                ServiceZone serviceZone = BuildConfig.DEBUG ? ServiceZone.DEVELOPMENT: ServiceZone.PRODUCTION;
+                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), serviceZone);
+                QBSettings.getInstance().setZone(serviceZone);
             }
         }
     }
