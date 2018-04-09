@@ -133,6 +133,21 @@
                             android:id="@+id/group_profile_puzzle"
                             style="@style/ItemSettingIconRight.Toggle" />
                     </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/profile_gallery"
+                        style="@style/ItemSetting">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/ic_chat_image_selected" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="@string/conversation_detail_gallery" />
+
+                        <ImageView style="@style/ItemSettingIconRight" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <View style="@style/ItemViewSeparate" />

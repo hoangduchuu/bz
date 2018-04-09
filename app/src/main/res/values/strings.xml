@@ -241,5 +241,6 @@
     <string name="hint_reply">Write reply</string>
     <string name="notif_content_sent">Sent</string>
     <string name="notif_action_reply">Reply</string>
+    <string name="conversation_detail_gallery">Conversation Gallery</string>
 
 </resources>

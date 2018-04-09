@@ -19,6 +19,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
@@ -152,7 +153,14 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
+            case R.id.profile_gallery:
+                onGalleryClicked();
         }
+    }
+
+    private void onGalleryClicked() {
+        Intent intent = new Intent(getContext(), GalleryActivity.class);
+        startActivity(intent);
     }
 
     private void onNickNameClicked() {
@@ -228,6 +236,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
+        view.findViewById(R.id.profile_gallery).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
