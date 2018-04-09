@@ -43,8 +43,12 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
                                     .flatMap(integer -> {
                                         String messageData = String.format("You missed a %s call from %s.",
                                                 params.callType, senderNickname.isEmpty() ? user.getDisplayName() : senderNickname);
+                                        String profile = user.profile;
+                                        if (user.settings.private_profile) {
+                                            profile = "";
+                                        }
                                         return notificationRepository
-                                                .sendMissedCallNotificationToUser(user.key, messageData, params.quickBloxId, params.isVideo, integer);
+                                                .sendMissedCallNotificationToUser(user.key, profile, messageData, params.quickBloxId, params.isVideo, integer);
                                     }));
                 });
     }

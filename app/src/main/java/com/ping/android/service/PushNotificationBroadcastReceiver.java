@@ -18,12 +18,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.google.firebase.storage.FirebaseStorage;
@@ -31,10 +27,8 @@ import com.google.firebase.storage.StorageReference;
 import com.ping.android.App;
 import com.ping.android.activity.R;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
-import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
 import com.ping.android.domain.usecase.notification.ShowIncomingMessageNotificationUseCase;
 import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUseCase;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
@@ -98,7 +92,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
                 String senderId = intent.getStringExtra("senderId");
                 this.badgeHelper.increaseMissedCall();
                 showMissedCallNotificationUseCase.execute(new DefaultObserver<>()
-                        , new ShowMissedCallNotificationUseCase.Params(senderId, message, isVideo == 1));
+                        , new ShowMissedCallNotificationUseCase.Params(senderId, senderProfile, message, isVideo == 1));
             } else if (TextUtils.equals(notificationType, "incoming_message")) {
                 if (!needDisplayNotification(conversationId)) {
                     return;
