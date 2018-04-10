@@ -36,17 +36,21 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.Toaster;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -108,6 +112,7 @@ public class ChatPresenterImpl implements ChatPresenter {
      */
     private List<ChildData<Message>> messagesInBackground;
     private AtomicBoolean isInBackground;
+    private TreeMap<Long, MessageHeaderItem> headerItemMap;
 
     User currentUser;
 
@@ -115,6 +120,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     public ChatPresenterImpl() {
         isInBackground = new AtomicBoolean(false);
         messagesInBackground = new ArrayList<>();
+        headerItemMap = new TreeMap<>();
     }
 
     @Override
@@ -179,19 +185,18 @@ public class ChatPresenterImpl implements ChatPresenter {
                     messagesInBackground.add(messageChildData);
                     return;
                 }
-                MessageBaseItem item = MessageBaseItem.from(messageChildData.data, currentUser.key, conversation.conversationType);
                 switch (messageChildData.type) {
                     case CHILD_ADDED:
                         // Check error message
                         checkMessageError(messageChildData.data);
                         updateConversationReadStatus();
-                        view.addNewMessage(item);
+                        addMessage(messageChildData.data);
                         break;
                     case CHILD_REMOVED:
                         view.removeMessage(messageChildData.data);
                         break;
                     case CHILD_CHANGED:
-                        view.updateMessage(item);
+                        addMessage(messageChildData.data);
                         break;
                 }
             }
@@ -215,13 +220,31 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
-        Collections.sort(messages, (o1, o2) -> Double.compare(o1.timestamp, o2.timestamp));
-        List<MessageBaseItem> messageBaseItems = new ArrayList<>();
+        MessageHeaderItem headerItem;
         for (Message message : messages) {
+            headerItem = headerItemMap.get(message.days);
+            if (headerItem == null) {
+                headerItem = new MessageHeaderItem();
+                headerItemMap.put(message.days, headerItem);
+            }
             MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-            messageBaseItems.add(item);
+            headerItem.addChildItem(item);
+            //messageBaseItems.add(item);
         }
-        view.updateLastMessages(messageBaseItems, canLoadMore);
+        //headerItemMap = CommonMethod.sortByKeys(headerItemMap);
+        List<MessageHeaderItem> headerItems = new ArrayList<>(headerItemMap.values());
+        view.updateLastMessages(headerItems, canLoadMore);
+    }
+
+    private void addMessage(Message message) {
+        MessageHeaderItem headerItem = headerItemMap.get(message.days);
+        if (headerItem == null) {
+            headerItem = new MessageHeaderItem();
+            headerItemMap.put(message.days, headerItem);
+        }
+        MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+        boolean added = headerItem.addChildItem(item);
+        view.updateMessage(item, headerItem, added);
     }
 
     @Override

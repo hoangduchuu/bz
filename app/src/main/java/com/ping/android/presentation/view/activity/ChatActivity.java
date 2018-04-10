@@ -47,6 +47,7 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -477,7 +478,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
                 boolean loadMoreVisibility = pastVisibleItems <= 3 && pastVisibleItems >= 0 && !isEndOfConvesation;
                 updateLoadMoreButtonStatus(loadMoreVisibility);
-                isScrollToTop = pastVisibleItems == 0;
+
+                int lastVisibleItem = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
 
@@ -1150,8 +1153,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore) {
-        messagesAdapter.appendHistoryItems(messages);
+    public void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore) {
+        messagesAdapter.updateData(messages);
         if (!canLoadMore) {
             isEndOfConvesation = true;
             updateLoadMoreButtonStatus(false);
@@ -1191,6 +1194,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void openCallScreen(User currentUser, User opponentUser, boolean isVideo) {
         CallActivity.start(this, currentUser, opponentUser, isVideo);
+    }
+
+    @Override
+    public void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
+        messagesAdapter.handleNewMessage(item, headerItem, added);
+        if (isScrollToTop) {
+            recycleChatView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        }
     }
 
     @Override

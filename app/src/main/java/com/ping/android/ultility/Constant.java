@@ -53,6 +53,8 @@ public class Constant {
     public static final int LATEST_RECENT_MESSAGES = 50;
     public static final int LOAD_MORE_MESSAGE_AMOUNT = 20;
 
+    public static final double MILLISECOND_PER_DAY = 1000 * 60 * 60 * 24;
+
     public enum TYPE_FRIEND {
         NON_FRIEND,
         IS_FRIEND

@@ -90,6 +90,14 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         this.nickNames = nickNames;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MessageBaseItem) {
+            return ((MessageBaseItem) obj).message.equals(message);
+        }
+        return false;
+    }
+
     public static abstract class ViewHolder extends BaseMessageViewHolder implements View.OnClickListener {
         protected RadioButton rbSelection;
         protected ImageView senderProfileImage;

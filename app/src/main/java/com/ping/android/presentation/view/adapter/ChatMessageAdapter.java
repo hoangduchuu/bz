@@ -10,6 +10,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
 
@@ -290,6 +291,40 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public FlexibleItem getItem(int i) {
         return this.items.get(i);
+    }
+
+    public void updateData(List<MessageHeaderItem> messages) {
+        this.items.clear();
+        for (MessageHeaderItem headerItem : messages) {
+            this.items.add(headerItem);
+            this.items.addAll(headerItem.getChildItems());
+        }
+        notifyDataSetChanged();
+    }
+
+    public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
+        int headerIndex = this.items.indexOf(headerItem);
+        if (headerIndex < 0) {
+            int size = this.items.size();
+            this.items.add(headerItem);
+            headerIndex = size;
+            notifyItemInserted(size);
+        }
+        if (added) {
+            int childIndex = headerItem.findChildIndex(item);
+            int finalIndex = headerIndex + childIndex + 1;
+            this.items.add(finalIndex, item);
+            notifyItemInserted(finalIndex);
+            if (finalIndex == getItemCount() - 1 && finalIndex > 0) {
+                notifyItemChanged(finalIndex - 1);
+            }
+        } else {
+            int index = this.items.indexOf(item);
+            if (index > 0) {
+                this.items.set(index, item);
+                notifyItemChanged(index);
+            }
+        }
     }
 
     public interface ChatMessageListener {
