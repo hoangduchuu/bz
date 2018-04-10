@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:layout_weight="1"
-        android:background="@color/gray_bg" />
+        android:background="@color/main_background_gray" />
 
     <TextView
         android:id="@+id/tv_date"
@@ -26,5 +26,5 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:layout_weight="1"
-        android:background="@color/gray_bg" />
+        android:background="@color/main_background_gray" />
 </LinearLayout>

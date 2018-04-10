@@ -22,6 +22,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +134,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             rbSelection.setVisibility(item.isEditMode ? View.VISIBLE : View.GONE);
             rbSelection.setChecked(item.isSelected);
             rbSelection.setSelected(item.isSelected);
-            setSenderImage(item.message.sender);
+            setSenderImage(item.message);
             setMessageInfo(item.message);
             setMessageStatus(item.message, lastItem);
         }
@@ -193,21 +194,33 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         private void setMessageInfo(Message message) {
             if (tvMessageInfo == null) return;
 
-            String time = CommonMethod.convertTimestampToTime(message.timestamp);
-            if (!message.currentUserId.equals(message.senderId)
-                    && item.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                String nickName = (String) item.nickNames.get(message.senderId);
-                String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
-                tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName) + ", " + time);
+            if (!message.showExtraInfo) {
+                tvMessageInfo.setVisibility(View.GONE);
             } else {
-                tvMessageInfo.setText(time);
+                tvMessageInfo.setVisibility(View.VISIBLE);
+                String time = DateUtils.toString("h:mm a", message.timestamp);
+                if (!message.currentUserId.equals(message.senderId)
+                        && item.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
+                    String nickName = (String) item.nickNames.get(message.senderId);
+                    String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
+                    tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName) + ", " + time);
+                } else {
+                    tvMessageInfo.setText(time);
+                }
             }
-            tvMessageInfo.setVisibility(View.VISIBLE);
         }
 
-        private void setSenderImage(User sender) {
-            if (sender != null && senderProfileImage != null) {
-                UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+        private void setSenderImage(Message message) {
+            if (senderProfileImage == null) return;
+
+            if (message.showExtraInfo) {
+                senderProfileImage.setVisibility(View.VISIBLE);
+                User sender = message.sender;
+                if (sender != null && senderProfileImage != null) {
+                    UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+                }
+            } else {
+                senderProfileImage.setVisibility(View.INVISIBLE);
             }
         }
 

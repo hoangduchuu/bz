@@ -16,6 +16,11 @@ public class DateUtils {
         return dateFormat.format(date);
     }
 
+    public static String toString(String format, double timestamp) {
+        long finalTimestamp = (long)timestamp * 1000;
+        return toString(format, new Date(finalTimestamp));
+    }
+
     public static String toHeaderString(Date date) {
         if (isSameDay(date.getTime(), new Date().getTime())) {
             return "Today, " + toString("h:mm a", date);
@@ -23,7 +28,7 @@ public class DateUtils {
             return "Yesterday, " + toString("h:mm a", date);
         } else {
             if (withinOneWeek(date)) {
-                return toString("EEE, h:mm a", date);
+                return toString("EEEE, h:mm a", date);
             } else {
                 return toString("MMMM d, yyyy", date);
             }

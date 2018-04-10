@@ -40,6 +40,10 @@ public class Message {
     public String messageStatus;
     public int messageStatusCode;
     public long days;
+    /**
+     * Indicates whether show user profile and date time or not
+     */
+    public boolean showExtraInfo = true;
 
     public Message() {
     }

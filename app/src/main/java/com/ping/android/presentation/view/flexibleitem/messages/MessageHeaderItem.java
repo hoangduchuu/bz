@@ -56,6 +56,7 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         }
         childItemTreeMap.put(item.message.timestamp, item);
         childItems = new ArrayList<>(childItemTreeMap.values());
+        prepareMessage(item);
         return isAdded;
     }
 
@@ -66,6 +67,14 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     public int findChildIndex(MessageBaseItem item) {
         int index = childItems.indexOf(item);
         return index > 0 ? index : 0;
+    }
+
+    private void prepareMessage(MessageBaseItem item) {
+        int newAddedIndex = findChildIndex(item);
+        if (newAddedIndex > 0 && newAddedIndex < childItems.size()) {
+            MessageBaseItem previousMessage = childItems.get(newAddedIndex - 1);
+            item.message.showExtraInfo = !item.message.senderId.equals(previousMessage.message.senderId);
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
