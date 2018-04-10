@@ -1122,7 +1122,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void updateUserStatus(boolean isOnline) {
-        tvChatStatus.setText(isOnline ? "Online" : "Offline");
+        tvChatStatus.setText(isOnline ? "Active" : "Inactive");
     }
 
     @Override
