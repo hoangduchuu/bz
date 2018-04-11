@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -31,8 +33,10 @@ import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
+import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
 
@@ -56,9 +60,11 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private Switch swNotification;
     private Switch swMask;
     private Switch cbPuzzle;
+    private BottomSheetDialog colorPickerBottomSheetDialog;
 
     private String conversationId;
     private GroupProfileAdapter adapter;
+    private ColorAdapter colorAdapter;
 
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
@@ -152,7 +158,14 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
+            case R.id.group_profile_color:
+                onColorClicked();
+                break;
         }
+    }
+
+    private void onColorClicked() {
+        colorPickerBottomSheetDialog.show();
     }
 
     private void onNickNameClicked() {
@@ -228,10 +241,19 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
+        view.findViewById(R.id.group_profile_color).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
+
+        View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
+        colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
+        colorPickerBottomSheetDialog.setContentView(colorPickerView);
+        RecyclerView recyclerView = colorPickerView.findViewById(R.id.color_list);
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
+        colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
+        recyclerView.setAdapter(colorAdapter);
     }
 
     private void bindData(Conversation conversation) {
