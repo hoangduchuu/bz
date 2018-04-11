@@ -21,10 +21,12 @@ import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -350,10 +352,25 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.clickListener = clickListener;
         }
 
+        private String getDisplayTime(double timestamps) {
+            Date date = new Date((long)timestamps * 1000);
+            if (DateUtils.isSameDay(date.getTime(), new Date().getTime())) {
+                return DateUtils.toString("h:mm a", date);
+            } else if (DateUtils.isYesterday(date)) {
+                return "Yesterday";
+            } else {
+                if (DateUtils.withinOneWeek(date)) {
+                    return DateUtils.toString("EEEE", date);
+                } else {
+                    return DateUtils.toString("MMMM d, yyyy", date);
+                }
+            }
+        }
+
         public void bindData(Conversation model, boolean isSelected) {
             this.conversation = model;
             this.tvSender.setText(model.conversationName);
-            this.tvTime.setText(CommonMethod.convertTimestampToTime(model.timesstamps));
+            this.tvTime.setText(getDisplayTime(model.timesstamps));
             String message = "";
             if (model.messageType == Constant.MSG_TYPE_TEXT) {
                 if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
