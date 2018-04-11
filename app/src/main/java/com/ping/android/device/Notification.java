@@ -14,7 +14,7 @@ public interface Notification {
 
     void cancelOngoingCall(String tag);
 
-    void showMissedCallNotification(String opponentUserId, String message,
+    void showMissedCallNotification(String opponentUserId, String opponentProfile, String message,
                                     boolean isVideo, String tag, boolean enableSound);
 
     void showMessageNotification(User user, String message, String conversationId, String senderProfile);

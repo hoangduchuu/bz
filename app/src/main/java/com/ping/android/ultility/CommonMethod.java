@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.model.User;
+import com.ping.android.utils.Log;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -29,6 +30,7 @@ public class CommonMethod {
     private static final String PING_ID_PATTERN = "^[a-zA-Z0-9]*$";
     private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢¶•ªº«\\\\/<>?:;|=., 0-9]{1,20}$";
     private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
+    private static final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
 
     public static boolean isValidName(String name) {
         Pattern p = Pattern.compile(NAME_PATTERN);
@@ -204,6 +206,36 @@ public class CommonMethod {
         return -1;
     }
 
+    public static String encodeMessage(String message, Map<String, String> mappings) {
+        if (TextUtils.isEmpty(message))
+            return message;
+
+        String returnMessage = "";
+        String[] chars = message.split("");
+
+        for (int i = 0; i < chars.length; i++) {
+            Pattern p = Pattern.compile(emojiRegex);
+            if (p.matcher(chars[i]).matches()) {
+                returnMessage += chars[i];
+                continue;
+            }
+            String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
+
+            try {
+                Object value = mappings.get(key);
+                if (mappings.containsKey(key) && !TextUtils.isEmpty(value.toString())) {
+                    returnMessage += value.toString();
+                } else {
+                    returnMessage += chars[i];
+                }
+            } catch (ClassCastException exception) {
+                Log.e(key + "\n" + mappings.toString());
+                exception.printStackTrace();
+            }
+        }
+        return returnMessage;
+    }
+
     public static String convertTimestampToTime(double seconds) {
         long milliSeconds = (long) (seconds * 1000);
 
@@ -238,8 +270,8 @@ public class CommonMethod {
     }
 
     public static boolean isYesterday(Date date) {
-        long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
-        long days = (long)(date.getTime() / Constant.MILLISECOND_PER_DAY);
+        long currentDays = (long) (new Date().getTime() / Constant.MILLISECOND_PER_DAY);
+        long days = (long) (date.getTime() / Constant.MILLISECOND_PER_DAY);
         return currentDays - days == 1;
     }
 
@@ -261,7 +293,7 @@ public class CommonMethod {
         return (long) (first / Constant.MILLISECOND_PER_DAY) == (long) (second / Constant.MILLISECOND_PER_DAY);
     }
 
-    public static <K extends Comparable, V> Map<K,V> sortByKeys(Map<K,V> map) {
+    public static <K extends Comparable, V> Map<K, V> sortByKeys(Map<K, V> map) {
         return new TreeMap<>(map);
     }
 

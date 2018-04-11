@@ -9,6 +9,7 @@ import com.ping.android.model.Message;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +39,9 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
         return userRepository.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
-                    for (Message message : params.messages) {
+                    for (String message : params.messageKeys) {
                         updateValue.put(String.format("messages/%s/%s/markStatuses/%s", params.conversationId,
-                                message.key, user.key), params.isMask);
+                                message, user.key), params.isMask);
                     }
                     if (params.isLastMessage) {
                         updateValue.put(String.format("conversations/%s/%s/markStatuses/%s/", user.key,
@@ -51,9 +52,26 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
     }
 
     public static class Params {
-        public List<Message> messages;
+        public List<String> messageKeys;
         public String conversationId;
         public boolean isLastMessage;
         public boolean isMask;
+
+        public void setMessages(List<Message> messages) {
+            this.messageKeys = new ArrayList<>();
+            for (Message message : messages) {
+                messageKeys.add(message.key);
+            }
+        }
+
+        public void setMessage(Message message) {
+            this.messageKeys = new ArrayList<>();
+            this.messageKeys.add(message.key);
+        }
+
+        public void setMessageId(String messageId) {
+            this.messageKeys = new ArrayList<>();
+            this.messageKeys.add(messageId);
+        }
     }
 }

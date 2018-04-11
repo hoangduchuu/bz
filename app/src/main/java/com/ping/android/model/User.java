@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DataProvider;
 
 import org.json.JSONObject;
 
@@ -30,6 +31,7 @@ public class User implements Parcelable {
     public String email;
     public String phone;
     public String profile;
+    // FIXME: consider remove this property
     public Boolean loginStatus;
     public boolean showMappingConfirm;
     public Map<String, String> mappings = new HashMap<>();
@@ -72,7 +74,7 @@ public class User implements Parcelable {
         this.devices = dataSnapshot.hasChild("devices") ? (Map<String, Double>) dataSnapshot.child("devices").getValue() : new HashMap<>();
         if (this.blockBys == null) this.blockBys = new HashMap<>();
         if (this.mappings == null) {
-            this.mappings = ServiceManager.getInstance().getDefaultMapping();
+            this.mappings = DataProvider.getDefaultMapping();
         }
         if (this.settings == null) {
             this.settings = Setting.defaultSetting();
@@ -93,7 +95,7 @@ public class User implements Parcelable {
         this.phone = "";
         this.password = password;
         this.showMappingConfirm = false;
-        this.mappings = ServiceManager.getInstance().getDefaultMapping();
+        this.mappings = DataProvider.getDefaultMapping();
         this.settings = Setting.defaultSetting();
     }
 

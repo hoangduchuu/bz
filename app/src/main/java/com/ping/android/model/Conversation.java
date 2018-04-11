@@ -55,6 +55,7 @@ public class Conversation implements Parcelable {
     public User opponentUser;
     public boolean isRead = false;
     public String filterText;
+    public String displayMessage;
 
     protected Conversation(Parcel in) {
         key = in.readString();

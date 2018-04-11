@@ -4,16 +4,13 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.AddContactUseCase;
 import com.ping.android.domain.usecase.DeleteFriendUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
-import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.ObserveSpecificFriendStatusUseCase;
-import com.ping.android.domain.usecase.ToggleBlockUserUseCase;
+import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 import javax.inject.Inject;
 
