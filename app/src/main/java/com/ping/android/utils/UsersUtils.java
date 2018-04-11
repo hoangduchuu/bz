@@ -92,7 +92,7 @@ public class UsersUtils {
         dbManager.clearDB();
     }
 
-    public static void randomizeTransphabet() {
+    public static Map<String, String> randomizeTransphabet() {
         Map<String, String> mappings = new HashMap<>();
         List<String> values = Arrays.asList(UsersUtils.MAPING_VALUE_CHARACTERS);
         Collections.shuffle(values);
@@ -100,11 +100,10 @@ public class UsersUtils {
         for(int i = 0; i < keys.length; i++) {
             mappings.put(keys[i], values.get(i));
         }
-
-        ServiceManager.getInstance().updateMapping(mappings);
+        return mappings;
     }
 
-    public static void randomizeTransphabet(Transphabet transphabet) {
+    public static Map<String, String> randomizeTransphabet(Transphabet transphabet) {
         Map<String, String> mappings = new HashMap<>();
         String[] keys = UsersUtils.MAPING_KEY_CHARACTERS;
         char[] values = transphabet.characters.toCharArray();
@@ -114,10 +113,10 @@ public class UsersUtils {
             int index = random.nextInt((int) count);
             mappings.put(key, Character.toString(values[index]));
         }
-        ServiceManager.getInstance().updateMapping(mappings);
+        return mappings;
     }
 
-    public static void randomizeEmojiTransphabet(Transphabet transphabet) {
+    public static Map<String, String> randomizeEmojiTransphabet(Transphabet transphabet) {
         Map<String, String> mappings = new HashMap<>();
         String[] keys = UsersUtils.MAPING_KEY_CHARACTERS;
         List<EmojiRange> emojis = EmojiUtils.emojis(transphabet.characters);
@@ -127,6 +126,6 @@ public class UsersUtils {
             int index = random.nextInt(count);
             mappings.put(key, emojis.get(index).emoji.getUnicode());
         }
-        ServiceManager.getInstance().updateMapping(mappings);
+        return mappings;
     }
 }

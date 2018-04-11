@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.user;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
@@ -15,12 +15,12 @@ import io.reactivex.Observable;
  * Created by tuanluong on 3/21/18.
  */
 
-public class ToggleUserNotificationSettingUseCase extends UseCase<Boolean, Boolean> {
+public class ToggleUserPrivateProfileSettingUseCase extends UseCase<Boolean, Boolean> {
     @Inject
     UserRepository userRepository;
 
     @Inject
-    public ToggleUserNotificationSettingUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public ToggleUserPrivateProfileSettingUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
@@ -28,6 +28,6 @@ public class ToggleUserNotificationSettingUseCase extends UseCase<Boolean, Boole
     @Override
     public Observable<Boolean> buildUseCaseObservable(Boolean aBoolean) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> userRepository.updateUserNotificationSetting(user.key, aBoolean));
+                .flatMap(user -> userRepository.updateUserPrivateProfileSetting(user.key, aBoolean));
     }
 }

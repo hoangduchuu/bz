@@ -12,7 +12,7 @@ import io.reactivex.Observable;
 public interface NotificationRepository {
     Observable<Boolean> sendCallingNotificationToUser(int quickBloxId, String callType);
 
-    Observable<Boolean> sendMissedCallNotificationToUser(String senderId, String body,
+    Observable<Boolean> sendMissedCallNotificationToUser(String senderId, String profileImage, String body,
                                                          int quickBloxId, boolean isVideo, int badgeNumber);
 
     Observable<Boolean> sendMessageNotification(String senderId, String senderProfile,

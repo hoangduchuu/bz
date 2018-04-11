@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.user;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;

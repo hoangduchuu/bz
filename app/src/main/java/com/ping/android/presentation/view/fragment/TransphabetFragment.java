@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
+import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
@@ -18,18 +20,22 @@ import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.TransphabetEvent;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TransphabetFragment extends BaseFragment implements View.OnClickListener {
+public class TransphabetFragment extends BaseFragment implements View.OnClickListener, TransphabetPresenter.View {
 
     public static TransphabetFragment newInstance() {
         return new TransphabetFragment();
     }
     @Inject
     BusProvider busProvider;
+    @Inject
+    TransphabetPresenter presenter;
     TransphabetSelectionComponent component;
 
     @Override
@@ -49,6 +55,11 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
         view.findViewById(R.id.v_selective_languages).setOnClickListener(this);
         view.findViewById(R.id.v_selective_emojis).setOnClickListener(this);
         return view;
+    }
+
+    @Override
+    public TransphabetPresenter getPresenter() {
+        return presenter;
     }
 
     @Override
@@ -81,18 +92,20 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
                 .setTitle("CONFIRM")
                 .setMessage("Your Transphabet will be randomize. Go to \"Manual Set-up\" to view details.")
                 .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
-                    UsersUtils.randomizeTransphabet();
-                    // TODO: should notify conversation fragment to reload
+                    Map<String, String> mappings = UsersUtils.randomizeTransphabet();
+                    presenter.randomizeTransphabet(mappings);
+                    // TODO: should notify conversation fragment to reload conversations with latest transphabet setting
                     busProvider.post(new TransphabetEvent());
                 })
                 .setNegativeButton(android.R.string.cancel, null).show();
 
-        ServiceManager.getInstance().updateShowMappingConfirm(true);
+        //ServiceManager.getInstance().updateShowMappingConfirm(true);
     }
 
     public TransphabetSelectionComponent getComponent() {
         if (component == null) {
-            component = getComponent(TransphabetComponent.class).provideTransphabetSelectionComponent();
+            component = getComponent(TransphabetComponent.class)
+                    .provideTransphabetSelectionComponent(new TransphabetModule(this));
         }
         return component;
     }

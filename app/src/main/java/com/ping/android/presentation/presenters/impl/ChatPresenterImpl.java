@@ -399,7 +399,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.conversationId = conversation.key;
         params.isLastMessage = isLastMessage;
         params.isMask = isMask;
-        params.messages = messages;
+        params.setMessages(messages);
         //view.showLoading();
         updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
             @Override

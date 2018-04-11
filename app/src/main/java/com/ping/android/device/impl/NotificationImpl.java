@@ -93,7 +93,7 @@ public class NotificationImpl implements Notification {
     }
 
     @Override
-    public void showMissedCallNotification(String opponentUserId, String message,
+    public void showMissedCallNotification(String opponentUserId, String opponentProfile, String message,
                                            boolean isVideo, String tag, boolean enableSound) {
         Intent intent = new Intent(context, SplashActivity.class);
         intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
@@ -103,32 +103,22 @@ public class NotificationImpl implements Notification {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentText(message)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                 .setAutoCancel(true)
-                .setContentIntent(contentIntent)
-                .setCategory(android.app.Notification.CATEGORY_CALL);
+                .setContentIntent(contentIntent);
+                //.setCategory(android.app.Notification.CATEGORY_CALL);
         if (ActivityLifecycle.getInstance().isForeground() && !enableSound) {
             builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
         } else {
             builder.setDefaults(android.app.Notification.DEFAULT_ALL);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.
-                    setSmallIcon(R.drawable.ic_notification).
-                    setColor(context.getResources().getColor(R.color.colorAccent)).
-                    setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
-        } else {
-            builder.setSmallIcon(R.mipmap.ic_launcher);
-        }
-        // FIXME: Move to sprint 4
-        /*Intent callbackIntent = NotificationBroadcastReceiver.getCallbackIntent(context, opponentUserId, isVideo);
+        Intent callbackIntent = NotificationBroadcastReceiver.getCallbackIntent(context, opponentUserId, isVideo);
         PendingIntent callbackPendingIntent = PendingIntent.getBroadcast(context, 124,
                 callbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action callbackAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_action_send_now, "CALL BACK", callbackPendingIntent)
+                R.drawable.ic_chat_audio_selected, "CALL BACK", callbackPendingIntent)
                 .build();
-        builder.addAction(callbackAction);*/
-        android.app.Notification notification = builder.build();
+        builder.addAction(callbackAction);
+        //android.app.Notification notification = builder.build();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel =
@@ -143,7 +133,26 @@ public class NotificationImpl implements Notification {
             }
             //builder.setChannelId("missed_call");
         }
-        notificationManager.notify(tag, ONGOING_NOTIFICATION_ID, notification);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> prepareProfileImage(context, opponentProfile, (error, data) -> {
+                if (error != null) {
+                    builder.
+                            setSmallIcon(R.drawable.ic_notification).
+                            setColor(context.getResources().getColor(R.color.colorAccent)).
+                            setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+                } else {
+                    builder.
+                            setSmallIcon(R.drawable.ic_notification).
+                            setColor(context.getResources().getColor(R.color.colorAccent)).
+                            setLargeIcon((Bitmap) data[0]);
+                }
+                notificationManager.notify(tag, ONGOING_NOTIFICATION_ID, builder.build());
+            }));
+        } else {
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            notificationManager.notify(tag, ONGOING_NOTIFICATION_ID, builder.build());
+        }
     }
 
     @Override

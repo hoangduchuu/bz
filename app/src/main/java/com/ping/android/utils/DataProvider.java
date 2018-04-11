@@ -4,7 +4,9 @@ import com.ping.android.model.Transphabet;
 import com.ping.android.model.enums.Color;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataProvider {
     public static List<Transphabet> getLanguages() {
@@ -38,7 +40,7 @@ public class DataProvider {
     }
 
     public static List<Color> getDefaultColors() {
-        Color[] list = new Color[] {
+        Color[] list = new Color[]{
                 Color.COLOR_1,
                 Color.COLOR_2,
                 Color.COLOR_3,
@@ -50,5 +52,14 @@ public class DataProvider {
                 Color.COLOR_9
         };
         return Arrays.asList(list);
+    }
+
+    public static Map<String, String> getDefaultMapping() {
+        Map<String, String> mappings = new HashMap<>();
+        for (int i = 0; i < 26; i++) {
+            String mapKey = "" + (char) ('A' + i);
+            mappings.put(mapKey, "");
+        }
+        return mappings;
     }
 }

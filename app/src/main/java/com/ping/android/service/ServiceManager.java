@@ -48,15 +48,15 @@ public class ServiceManager {
         this.currentUser = currentUser;
     }
 
-    public void updateShowMappingConfirm(Boolean value) {
-        currentUser.showMappingConfirm = value;
-        mDatabase.child("users").child(currentUser.key).child("show_mapping_confirm").setValue(value);
-    }
+//    public void updateShowMappingConfirm(Boolean value) {
+//        currentUser.showMappingConfirm = value;
+//        mDatabase.child("users").child(currentUser.key).child("show_mapping_confirm").setValue(value);
+//    }
 
-    public void updatePhone(String phone) {
-        currentUser.phone = phone;
-        mDatabase.child("users").child(currentUser.key).child("phone").setValue(phone);
-    }
+//    public void updatePhone(String phone) {
+//        currentUser.phone = phone;
+//        mDatabase.child("users").child(currentUser.key).child("phone").setValue(phone);
+//    }
 
 //    public void updateProfile(String profile) {
 //        currentUser.profile = profile;
@@ -68,16 +68,16 @@ public class ServiceManager {
 //        mDatabase.child("users").child(currentUser.key).child("quickBloxID").setValue(quickBloxID);
 //    }
 
-    public void updateLoginStatus(Boolean status) {
-        if (currentUser != null) {
-            currentUser.loginStatus = status;
-            mDatabase.child("users").child(currentUser.key).child("loginStatus").setValue(status);
-        }
-        if (!status) {
-            currentUser = null;
-        }
-        SharedPrefsHelper.getInstance().save("isLoggedIn", status);
-    }
+//    public void updateLoginStatus(Boolean status) {
+//        if (currentUser != null) {
+//            currentUser.loginStatus = status;
+//            mDatabase.child("users").child(currentUser.key).child("loginStatus").setValue(status);
+//        }
+//        if (!status) {
+//            currentUser = null;
+//        }
+//        SharedPrefsHelper.getInstance().save("isLoggedIn", status);
+//    }
 
 
 //    public List<Bitmap> getProfileImage(List<User> members) {
@@ -155,12 +155,12 @@ public class ServiceManager {
 //        return readStatuses.get(currentUser.key);
 //    }
 
-    public int getCurrentStatus(Map<String, Integer> statuses) {
-        if (statuses == null || !statuses.containsKey(currentUser.key)) {
-            return Constant.MESSAGE_STATUS_SENT;
-        }
-        return statuses.get(currentUser.key);
-    }
+//    public int getCurrentStatus(Map<String, Integer> statuses) {
+//        if (statuses == null || !statuses.containsKey(currentUser.key)) {
+//            return Constant.MESSAGE_STATUS_SENT;
+//        }
+//        return statuses.get(currentUser.key);
+//    }
 
 //    public Boolean getNotificationsSetting(Map<String, Boolean> notifications) {
 //        if (MapUtils.isEmpty(notifications) || !notifications.containsKey(currentUser.key)) {
@@ -247,14 +247,14 @@ public class ServiceManager {
     //-------------------------------------------------------
     // Start Mapping region
     //-------------------------------------------------------
-    public Map<String, String> getDefaultMapping() {
-        Map<String, String> mappings = new HashMap<>();
-        for (int i = 0; i < 26; i++) {
-            String mapKey = "" + (char) ('A' + i);
-            mappings.put(mapKey, "");
-        }
-        return mappings;
-    }
+//    public Map<String, String> getDefaultMapping() {
+//        Map<String, String> mappings = new HashMap<>();
+//        for (int i = 0; i < 26; i++) {
+//            String mapKey = "" + (char) ('A' + i);
+//            mappings.put(mapKey, "");
+//        }
+//        return mappings;
+//    }
 
 //    public List<Mapping> getDefaultMappingList() {
 //        List<Mapping> mappings = new ArrayList<>();
@@ -270,10 +270,10 @@ public class ServiceManager {
 //        return mappings;
 //    }
 
-    public void updateMapping(Map<String, String> mappings) {
-        currentUser.mappings = mappings;
-        mDatabase.child("users").child(currentUser.key).child("mappings").setValue(mappings);
-    }
+//    public void updateMapping(Map<String, String> mappings) {
+//        currentUser.mappings = mappings;
+//        mDatabase.child("users").child(currentUser.key).child("mappings").setValue(mappings);
+//    }
 
 //    public Map<String, String> getMappingFromList(List<Mapping> mappings) {
 //        Map<String, String> mappingMap = new HashMap<>();
@@ -538,10 +538,10 @@ public class ServiceManager {
         mDatabase.child("conversations").child(currentUser.key).child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
     }
 
-    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
-        mDatabase.child("messages").child(conversationID).child(messageID).child("status").
-                child(currentUser.key).setValue(messageStatus);
-    }
+//    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
+//        mDatabase.child("messages").child(conversationID).child(messageID).child("status").
+//                child(currentUser.key).setValue(messageStatus);
+//    }
 
     // Network
     public boolean getNetworkStatus(Context context) {

@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ping.android.activity.R;
+import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
+import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.adapter.TransphabetCategoryAdapter;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
@@ -23,19 +25,23 @@ import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SelectiveCategoriesFragment extends BaseFragment implements View.OnClickListener, TransphabetCategoryAdapter.OnClickListener {
+public class SelectiveCategoriesFragment extends BaseFragment implements View.OnClickListener,
+        TransphabetCategoryAdapter.OnClickListener, TransphabetPresenter.View {
     public static final String SELECTIVE_CATEGORY_KEY = "SELECTIVE_CATEGORY_KEY";
 
     private boolean isEmoji = false;
 
     @Inject
     BusProvider busProvider;
+    @Inject
+    TransphabetPresenter presenter;
     TransphabetSelectionComponent component;
 
     public static SelectiveCategoriesFragment newInstance(boolean isEmoji) {
@@ -74,7 +80,7 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
 
     public void setupView(View view) {
         view.findViewById(R.id.iv_back).setOnClickListener(this);
-        ((TextView)view.findViewById(R.id.tv_title)).setText(isEmoji ? R.string.setting_selective_emojis : R.string.setting_selective_languages);
+        ((TextView) view.findViewById(R.id.tv_title)).setText(isEmoji ? R.string.setting_selective_emojis : R.string.setting_selective_languages);
 
         RecyclerView recyclerView = view.findViewById(R.id.language_list);
         List<Transphabet> transphabets = isEmoji ? DataProvider.getEmojis() : DataProvider.getLanguages();
@@ -93,11 +99,13 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
                 .setTitle("Warning")
                 .setMessage(description)
                 .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                    Map<String, String> mappings;
                     if (isEmoji) {
-                        UsersUtils.randomizeEmojiTransphabet(transphabet);
+                        mappings = UsersUtils.randomizeEmojiTransphabet(transphabet);
                     } else {
-                        UsersUtils.randomizeTransphabet(transphabet);
+                        mappings = UsersUtils.randomizeTransphabet(transphabet);
                     }
+                    presenter.randomizeTransphabet(mappings);
                     busProvider.post(new TransphabetEvent());
                     getActivity().onBackPressed();
                 })
@@ -106,7 +114,8 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
 
     public TransphabetSelectionComponent getComponent() {
         if (component == null) {
-            component = getComponent(TransphabetComponent.class).provideTransphabetSelectionComponent();
+            component = getComponent(TransphabetComponent.class)
+                    .provideTransphabetSelectionComponent(new TransphabetModule(this));
         }
         return component;
     }

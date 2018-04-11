@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.ToggleBlockUserUseCase;
+import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;

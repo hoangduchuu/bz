@@ -10,7 +10,7 @@ import dagger.Subcomponent;
  * Created by tuanluong on 2/2/18.
  */
 @PerFragment
-@Subcomponent
+@Subcomponent(modules = { TransphabetModule.class })
 public interface TransphabetSelectionComponent {
     void inject(TransphabetFragment fragment);
 
