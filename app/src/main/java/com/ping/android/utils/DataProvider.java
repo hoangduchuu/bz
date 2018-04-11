@@ -49,7 +49,8 @@ public class DataProvider {
                 Color.COLOR_6,
                 Color.COLOR_7,
                 Color.COLOR_8,
-                Color.COLOR_9
+                Color.COLOR_9,
+                Color.DEFAULT
         };
         return Arrays.asList(list);
     }

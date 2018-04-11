@@ -14,7 +14,8 @@ import com.ping.android.model.enums.Color;
 import java.util.List;
 
 public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ViewHolder> {
-    List<Color> colors;
+    private List<Color> colors;
+    private ColorListener listener;
 
     public ColorAdapter(List<Color> colors) {
         this.colors = colors;
@@ -31,11 +32,20 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Color color = colors.get(position);
         holder.applyColor(color);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onClick(color);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return colors.size();
+    }
+
+    public void setListener(ColorListener listener) {
+        this.listener = listener;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -48,5 +58,9 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ViewHolder> 
             itemView.setBackgroundTintList(ColorStateList
                     .valueOf(ContextCompat.getColor(itemView.getContext(), color.getColor())));
         }
+    }
+
+    public interface ColorListener {
+        void onClick(Color color);
     }
 }

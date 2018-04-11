@@ -151,6 +151,20 @@
                         style="@style/ItemSettingIconRight.Toggle" />
                 </LinearLayout>
 
+                <LinearLayout style="@style/ItemSetting">
+
+                    <ImageView
+                        style="@style/ItemSettingIconLeft"
+                        android:src="@drawable/ic_color_lens" />
+
+                    <TextView
+                        android:id="@+id/group_profile_color"
+                        style="@style/ItemSettingText"
+                        android:text="Colors" />
+
+                    <ImageView style="@style/ItemSettingIconRight" />
+                </LinearLayout>
+
                 <View style="@style/ItemViewSeparate" />
 
                 <LinearLayout style="@style/ItemSetting">

@@ -310,6 +310,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             headerIndex = size;
             notifyItemInserted(size);
         }
+        item.setMessageListener(this);
         if (added) {
             int childIndex = headerItem.findChildIndex(item);
             int finalIndex = headerIndex + childIndex + 1;

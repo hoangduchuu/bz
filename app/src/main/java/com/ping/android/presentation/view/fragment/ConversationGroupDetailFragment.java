@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
@@ -38,7 +39,9 @@ import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.bus.BusProvider;
 
 import java.io.File;
 import java.util.List;
@@ -69,6 +72,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
 
+    @Inject
+    BusProvider busProvider;
     @Inject
     ConversationGroupDetailPresenter presenter;
     private ConversationDetailGroupComponent component;
@@ -253,6 +258,10 @@ public class ConversationGroupDetailFragment extends BaseFragment
         RecyclerView recyclerView = colorPickerView.findViewById(R.id.color_list);
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
+        colorAdapter.setListener(color -> {
+            busProvider.post(color);
+            getActivity().finish();
+        });
         recyclerView.setAdapter(colorAdapter);
     }
 

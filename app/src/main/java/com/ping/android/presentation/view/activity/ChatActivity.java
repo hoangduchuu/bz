@@ -43,6 +43,7 @@ import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
@@ -55,8 +56,10 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.RecorderVisualizerView;
+import com.ping.android.utils.bus.BusProvider;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
@@ -70,6 +73,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
+
+import io.reactivex.functions.Consumer;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
@@ -141,6 +146,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private BadgeHelper badgeHelper;
 
     @Inject
+    BusProvider busProvider;
+    @Inject
     ChatPresenter presenter;
     ChatComponent component;
     private boolean isVisible = false;
@@ -149,6 +156,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ThemeUtils.onActivityCreateSetTheme(this);
         setContentView(R.layout.activity_chat);
         getComponent().inject(this);
 
@@ -180,6 +188,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
+        registerEvent(
+                busProvider.getEvents().subscribe(o -> {
+                    if (o instanceof Color) {
+                        ThemeUtils.changeToTheme(ChatActivity.this, (Color) o);
+                    }
+                })
+        );
     }
 
     @Override

@@ -44,6 +44,7 @@ public class Conversation implements Parcelable {
     public Map<String, Boolean> puzzleMessages = new HashMap<>();
     public Map<String, Boolean> maskOutputs = new HashMap<>();
     public Map<String, String> nickNames = new HashMap<>();
+    public Theme theme;
 
 //    public boolean notificationSetting;
 //    public boolean maskMessagesSetting;

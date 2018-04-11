@@ -3,7 +3,10 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +24,12 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.adapter.ColorAdapter;
+import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.bus.BusProvider;
 
 import javax.inject.Inject;
 
@@ -43,6 +50,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     private String conversationId;
 
+    private ColorAdapter colorAdapter;
+    private BottomSheetDialog colorPickerBottomSheetDialog;
+
+    @Inject
+    BusProvider busProvider;
     @Inject
     ConversationPVPDetailPresenter presenter;
     ConversationDetailPVPComponent component;
@@ -96,6 +108,19 @@ public class ConversationPVPDetailFragment extends BaseFragment
         view.findViewById(R.id.user_profile_voice).setOnClickListener(this);
         view.findViewById(R.id.user_profile_video).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
+        view.findViewById(R.id.group_profile_color).setOnClickListener(this);
+
+        View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
+        colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
+        colorPickerBottomSheetDialog.setContentView(colorPickerView);
+        RecyclerView recyclerView = colorPickerView.findViewById(R.id.color_list);
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
+        colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
+        colorAdapter.setListener(color -> {
+            busProvider.post(color);
+            getActivity().finish();
+        });
+        recyclerView.setAdapter(colorAdapter);
     }
 
 //    private void bindConversationSetting(Conversation conversation) {
@@ -134,7 +159,14 @@ public class ConversationPVPDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
+            case R.id.group_profile_color:
+                onColorClicked();
+                break;
         }
+    }
+
+    private void onColorClicked() {
+        colorPickerBottomSheetDialog.show();
     }
 
     private void onNickNameClicked() {
