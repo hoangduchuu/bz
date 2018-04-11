@@ -17,7 +17,6 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;

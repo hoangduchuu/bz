@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.user;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
@@ -17,12 +17,12 @@ import io.reactivex.Observable;
  * Created by tuanluong on 3/21/18.
  */
 
-public class ResetUserMappingsUseCase extends UseCase<Boolean, Map<String, String>> {
+public class UpdateUserTransphabetUseCase extends UseCase<Boolean, Map<String, String>> {
     @Inject
     UserRepository userRepository;
 
     @Inject
-    public ResetUserMappingsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public UpdateUserTransphabetUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
@@ -30,6 +30,6 @@ public class ResetUserMappingsUseCase extends UseCase<Boolean, Map<String, Strin
     @Override
     public Observable<Boolean> buildUseCaseObservable(Map<String, String> mappings) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> userRepository.updateUserMappings(user.key, mappings));
+                    .flatMap(user -> userRepository.updateUserMappings(user.key, mappings));
     }
 }

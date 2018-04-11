@@ -35,7 +35,7 @@ public class ShowMissedCallNotificationUseCase extends UseCase<Boolean, ShowMiss
                     User currentUser = userUserPair.first;
                     User opponentUser = userUserPair.second;
                     boolean soundNotification = currentUser.settings.notification;
-                    notification.showMissedCallNotification(opponentUser.key, params.message,
+                    notification.showMissedCallNotification(opponentUser.key, params.opponentProfile, params.message,
                             params.isVideo, opponentUser.key, soundNotification);
                     return true;
                 });
@@ -43,11 +43,13 @@ public class ShowMissedCallNotificationUseCase extends UseCase<Boolean, ShowMiss
 
     public static class Params {
         private String opponentUserId;
+        private String opponentProfile;
         private String message;
         private boolean isVideo;
 
-        public Params(String opponentUserId, String message, boolean isVideo) {
+        public Params(String opponentUserId, String opponentProfile, String message, boolean isVideo) {
             this.opponentUserId = opponentUserId;
+            this.opponentProfile = opponentProfile;
             this.message = message;
             this.isVideo = isVideo;
         }

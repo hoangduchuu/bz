@@ -119,9 +119,9 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
         gameCountDown.cancel();
         boolean gameWin = checkGameStatus();
         if (gameWin) {
-            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_PASS);
+            updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
         } else {
-            ServiceManager.getInstance().updateMessageStatus(conversationID, messageID, Constant.MESSAGE_STATUS_GAME_FAIL);
+            updateMessageStatus(Constant.MESSAGE_STATUS_GAME_FAIL);
         }
         if(!isGameNotificationSent) {
             //send game status to sender

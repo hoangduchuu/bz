@@ -316,6 +316,22 @@ public class UserRepositoryImpl implements UserRepository {
                 ).toObservable();
     }
 
+    @Override
+    public Observable<Boolean> turnOffMappingConfirmation(String key) {
+        DatabaseReference reference = database.getReference().child("users").child(key).child("show_mapping_confirm");
+        return RxFirebaseDatabase.setValue(reference, true)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updatePhoneNumber(String userKey, String s) {
+        DatabaseReference reference = database.getReference().child("users").child(userKey).child("phone");
+        return RxFirebaseDatabase.setValue(reference, s)
+                .map(databaseReference -> true)
+                .toObservable();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();
