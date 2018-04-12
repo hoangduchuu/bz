@@ -14,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
@@ -23,13 +21,12 @@ import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetai
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
-import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.utils.bus.BusProvider;
 
 import javax.inject.Inject;
 
@@ -53,8 +50,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
     private ColorAdapter colorAdapter;
     private BottomSheetDialog colorPickerBottomSheetDialog;
 
-    @Inject
-    BusProvider busProvider;
     @Inject
     ConversationPVPDetailPresenter presenter;
     ConversationDetailPVPComponent component;
@@ -117,8 +112,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
         colorAdapter.setListener(color -> {
-            busProvider.post(color);
-            getActivity().finish();
+            presenter.updateColor(color.getCode());
         });
         recyclerView.setAdapter(colorAdapter);
     }
@@ -241,6 +235,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
     @Override
     public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
         CallActivity.start(getContext(), currentUser, otherUser, isVideoCall);
+    }
+
+    @Override
+    public void navigateBack() {
+        getActivity().finish();
     }
 
     @Override

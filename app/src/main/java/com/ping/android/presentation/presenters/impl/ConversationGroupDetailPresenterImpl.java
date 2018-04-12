@@ -6,6 +6,7 @@ import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUse
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateConversationColorUseCase;
 import com.ping.android.domain.usecase.group.AddGroupMembersUseCase;
 import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
 import com.ping.android.domain.usecase.group.UpdateGroupNameUseCase;
@@ -45,6 +46,8 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     UploadGroupProfileImageUseCase uploadGroupProfileImageUseCase;
     @Inject
     UpdateGroupNameUseCase updateGroupNameUseCase;
+    @Inject
+    UpdateConversationColorUseCase updateConversationColorUseCase;
     @Inject
     View view;
     private Conversation conversation;
@@ -225,6 +228,18 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     public void handleGroupProfileImagePress() {
         view.initProfileImagePath(conversation.key);
         view.openPicker();
+    }
+
+    @Override
+    public void updateColor(int color) {
+        UpdateConversationColorUseCase.Params params =
+                new UpdateConversationColorUseCase.Params(currentUser.key, conversation, color);
+        updateConversationColorUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.navigateBack();
+            }
+        }, params);
     }
 
     @Override

@@ -3,12 +3,11 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationColorUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
@@ -32,6 +31,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ChatPresenter;
@@ -39,14 +39,10 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
-import com.ping.android.utils.Toaster;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +98,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     RemoveUserBadgeUseCase removeUserBadgeUseCase;
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
+    @Inject
+    ObserveConversationColorUseCase observeConversationColorUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -115,6 +113,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private TreeMap<Long, MessageHeaderItem> headerItemMap;
 
     User currentUser;
+    private Color currentColor;
 
     @Inject
     public ChatPresenterImpl() {
@@ -496,6 +495,17 @@ public class ChatPresenterImpl implements ChatPresenter {
                              }
                          },
                         new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));
+        observeConversationColorUseCase.execute(new DefaultObserver<Integer>() {
+                                                    @Override
+                                                    public void onNext(Integer integer) {
+                                                        Color color = Color.from(integer);
+                                                        if (currentColor != color) {
+                                                            currentColor = color;
+                                                            view.changeTheme(color);
+                                                        }
+                                                    }
+                                                },
+                new ObserveConversationColorUseCase.Params(conversation.key, currentUser.key));
     }
 
     private void handleConversationUpdate(Conversation conversation) {
@@ -557,6 +567,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         view.openCallScreen(currentUser, conversation.opponentUser, false);
     }
 
+    @Override
+    public void initThemeColor(Color currentColor) {
+        this.currentColor = currentColor;
+    }
+
     private void sendNotification(Conversation conversation, Message message) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message));
@@ -594,6 +609,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         deleteMessagesUseCase.dispose();
         updateMaskMessagesUseCase.dispose();
         toggleConversationTypingUseCase.dispose();
+        observeConversationColorUseCase.dispose();
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();

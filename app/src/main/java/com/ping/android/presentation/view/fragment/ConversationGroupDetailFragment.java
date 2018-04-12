@@ -20,19 +20,20 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.ping.android.model.enums.Color;
-import com.ping.android.presentation.view.activity.CoreActivity;
-import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
@@ -41,7 +42,6 @@ import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.UiUtils;
-import com.ping.android.utils.bus.BusProvider;
 
 import java.io.File;
 import java.util.List;
@@ -72,8 +72,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
 
-    @Inject
-    BusProvider busProvider;
     @Inject
     ConversationGroupDetailPresenter presenter;
     private ConversationDetailGroupComponent component;
@@ -259,8 +257,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
         colorAdapter.setListener(color -> {
-            busProvider.post(color);
-            getActivity().finish();
+            presenter.updateColor(color.getCode());
         });
         recyclerView.setAdapter(colorAdapter);
     }

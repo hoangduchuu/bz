@@ -26,6 +26,8 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
     void handleVoiceCallPress();
 
+    void updateColor(int color);
+
     interface View extends BaseView {
 
         void updateConversation(Conversation conversation);
@@ -41,5 +43,7 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
         void updateBlockStatus(boolean isBlocked);
 
         void openCallScreen(User currentUser, User otherUser, boolean isVideoCall);
+
+        void navigateBack();
     }
 }

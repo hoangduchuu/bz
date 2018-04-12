@@ -122,6 +122,20 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
+    public Observable<Integer> observeConversationColor(String userId, String conversationId) {
+        Query query = database.getReference("conversations").child(userId).child(conversationId)
+                .child("themes").child(userId).child("mainColor");
+        return RxFirebaseDatabase.getInstance(query)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return dataSnapshot.getValue(Integer.class);
+                    }
+                    return 0;
+                });
+    }
+
+    @Override
     public Observable<Boolean> createConversation(Conversation conversation) {
 //        DatabaseReference groupReference = database.getReference("conversation");
 //        return RxFirebaseDatabase.setValue(groupReference, group.toMap())

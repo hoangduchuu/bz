@@ -32,6 +32,8 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void handleGroupProfileImagePress();
 
+    void updateColor(int color);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

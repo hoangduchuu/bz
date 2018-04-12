@@ -10,7 +10,12 @@
         android:background="@color/main_background_gray"
         android:orientation="vertical">
 
-        <RelativeLayout style="@style/TopMenu">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:background="#F1F2F2"
+            style="?attr/backgroundTheme">
 
             <ImageView
                 android:id="@+id/group_profile_back"

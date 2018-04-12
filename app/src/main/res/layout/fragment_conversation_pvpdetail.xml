@@ -3,11 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background_gray"
-    android:orientation="vertical"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:orientation="vertical">
 
-    <RelativeLayout style="@style/TopMenu">
+    <RelativeLayout
+        style="?attr/backgroundTheme"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="#F1F2F2"
+        android:gravity="center_vertical">
 
         <ImageView
             android:id="@+id/user_profile_back"
@@ -52,6 +57,7 @@
                         android:text="User name" />
 
                     <ImageView
+                        style="?attr/backgroundTheme"
                         android:id="@+id/user_profile_message"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -61,16 +67,17 @@
                         android:src="@drawable/ic_message_border" />
 
                     <ImageView
+                        style="?attr/backgroundTheme"
                         android:id="@+id/user_profile_voice"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_marginLeft="10dp"
                         android:background="@null"
                         android:padding="5dp"
-                        android:src="@drawable/ic_chat_audio"
-                        android:tint="@color/colorPrimaryDark" />
+                        android:src="@drawable/ic_chat_audio" />
 
                     <ImageView
+                        style="?attr/backgroundTheme"
                         android:id="@+id/user_profile_video"
                         android:layout_width="40dp"
                         android:layout_height="30dp"
@@ -78,8 +85,7 @@
                         android:layout_marginRight="10dp"
                         android:background="@null"
                         android:padding="5dp"
-                        android:src="@drawable/ic_chat_video"
-                        android:tint="@color/colorPrimaryDark" />
+                        android:src="@drawable/ic_chat_video" />
                 </LinearLayout>
 
                 <View style="@style/ItemViewSeparate" />
@@ -87,7 +93,10 @@
                 <LinearLayout style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_conversation_notification" />
 
                     <TextView
@@ -106,7 +115,10 @@
                     style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_conversation_nickname" />
 
                     <TextView
@@ -121,7 +133,10 @@
                 <LinearLayout style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_conversation_mask_message" />
 
                     <TextView
@@ -138,7 +153,10 @@
                 <LinearLayout style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_conversation_mask_image" />
 
                     <TextView
@@ -154,7 +172,10 @@
                 <LinearLayout style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_color_lens" />
 
                     <TextView
@@ -170,7 +191,10 @@
                 <LinearLayout style="@style/ItemSetting">
 
                     <ImageView
-                        style="@style/ItemSettingIconLeft"
+                        android:layout_height="20dp"
+                        android:layout_width="20dp"
+                        android:layout_marginEnd="8dp"
+                        style="?attr/backgroundTheme"
                         android:src="@drawable/ic_block" />
 
                     <TextView

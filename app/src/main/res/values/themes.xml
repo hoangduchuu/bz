@@ -2,38 +2,47 @@
 <resources>
     <style name="AppTheme.Theme1" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle1</item>
+        <item name="colorAccent">@color/color_accent_1</item>
     </style>
 
     <style name="AppTheme.Theme2" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle2</item>
+        <item name="colorAccent">@color/color_accent_2</item>
     </style>
 
     <style name="AppTheme.Theme3" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle3</item>
+        <item name="colorAccent">@color/color_accent_3</item>
     </style>
 
     <style name="AppTheme.Theme4" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle4</item>
+        <item name="colorAccent">@color/color_accent_4</item>
     </style>
 
     <style name="AppTheme.Theme5" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle5</item>
+        <item name="colorAccent">@color/color_accent_5</item>
     </style>
 
     <style name="AppTheme.Theme6" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle6</item>
+        <item name="colorAccent">@color/color_accent_6</item>
     </style>
 
     <style name="AppTheme.Theme7" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle7</item>
+        <item name="colorAccent">@color/color_accent_7</item>
     </style>
 
     <style name="AppTheme.Theme8" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle8</item>
+        <item name="colorAccent">@color/color_accent_8</item>
     </style>
 
     <style name="AppTheme.Theme9" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle9</item>
+        <item name="colorAccent">@color/color_accent_9</item>
     </style>
 
     <style name="BackgroundTintStyle1">

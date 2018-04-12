@@ -38,6 +38,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         setContentView(R.layout.activity_phone);
         bindViews();
         init();
