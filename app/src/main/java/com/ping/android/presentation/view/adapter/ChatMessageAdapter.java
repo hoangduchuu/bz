@@ -1,6 +1,8 @@
 package com.ping.android.presentation.view.adapter;
 
+import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -8,6 +10,8 @@ import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewContainer;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -15,25 +19,40 @@ import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by tuanluong on 3/2/18.
  */
 
-public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements MessageBaseItem.MessageListener {
+public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
+        MessageBaseItem.MessageListener, RevealableViewContainer.RevealableCallback {
+    public static float xDiff = 0;
     private ChatMessageListener messageListener;
-    List<MessageBaseItem> selectedMessages;
+    private List<MessageBaseItem> selectedMessages;
     private TypingItem typingItem;
     private PaddingItem paddingItem;
+
+    private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
 
     public ChatMessageAdapter() {
         super();
         addPadding();
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        boundsViewHolder.remove(holder);
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        boundsViewHolder.add(holder);
+        super.onBindViewHolder(holder, position);
     }
 
     public void setMessageListener(ChatMessageListener messageListener) {
@@ -324,6 +343,24 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             if (index > 0) {
                 this.items.set(index, item);
                 notifyItemChanged(index);
+            }
+        }
+    }
+
+    @Override
+    public void onDragged(float xDiff) {
+        for (RecyclerView.ViewHolder viewHolder : boundsViewHolder) {
+            if (viewHolder instanceof RevealableViewHolder) {
+                ((RevealableViewHolder) viewHolder).transform(xDiff);
+            }
+        }
+    }
+
+    @Override
+    public void onReset() {
+        for (RecyclerView.ViewHolder viewHolder : boundsViewHolder) {
+            if (viewHolder instanceof RevealableViewHolder) {
+                ((RevealableViewHolder) viewHolder).transform(0);
             }
         }
     }

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -47,6 +49,7 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewContainer;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
@@ -90,7 +93,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView btBack, btLoadMoreChat;
     private Button btSendRecord;
     private Button tbRecord;
-    private CheckBox tgMarkOut;
+    private AppCompatCheckBox tgMarkOut;
     private TextView tvChatStatus;
     private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
@@ -98,6 +101,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
     private Button btCancelRecord;
+    private RevealableViewContainer revealableViewContainer;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -190,6 +194,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
+
+        revealableViewContainer = findViewById(R.id.revealable_container);
+        revealableViewContainer.setCallback(messagesAdapter);
     }
 
     @Override
@@ -902,9 +909,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {
+            updateMaskTintColor(true);
             edMessage.setText(ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText));
             select = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText.substring(0, select)).length();
         } else {
+            updateMaskTintColor(false);
+            //int color = ContextCompat.getColor(this, R.color.gray_color);
             edMessage.setText(originalText);
         }
         try {
@@ -1129,6 +1139,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateMaskSetting(boolean isEnable) {
         tgMarkOut.setChecked(isEnable);
+        updateMaskTintColor(isEnable);
     }
 
     @Override
@@ -1251,5 +1262,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         List<Message> messages = new ArrayList<>(1);
         messages.add(message);
         presenter.updateMaskMessages(messages, lastItem, maskStatus);
+    }
+
+    private void updateMaskTintColor(boolean isEnable) {
+        if (isEnable) {
+            int color = ContextCompat.getColor(this, originalConversation.currentColor.getColor());
+            tgMarkOut.setButtonTintList(ColorStateList.valueOf(color));
+        } else {
+            tgMarkOut.setButtonTintList(null);
+        }
     }
 }

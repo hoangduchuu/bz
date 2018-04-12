@@ -1,66 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ItemChat"
-    android:orientation="horizontal">
-
-    <RadioButton
-        android:id="@+id/item_chat_select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginRight="10dp"
-        android:background="@null" />
-
-    <ImageView
-        android:id="@+id/item_chat_user_profile"
-        android:layout_width="@dimen/user_profile_icon_chat_width"
-        android:layout_height="@dimen/user_profile_icon_chat_height"
-        android:layout_gravity="bottom"
-        android:src="@drawable/ic_avatar_gray" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="5dp">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="@dimen/item_chat_margin"
-        android:orientation="vertical">
+        style="@style/ItemChat"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/item_chat_info"
-            style="@style/AppTextAppearance.VerySmall.Grey"
+        <RadioButton
+            android:id="@+id/item_chat_select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="10:20 AM" />
+            android:layout_gravity="bottom"
+            android:layout_marginRight="10dp"
+            android:background="@null" />
+
+        <ImageView
+            android:id="@+id/item_chat_user_profile"
+            android:layout_width="@dimen/user_profile_icon_chat_width"
+            android:layout_height="@dimen/user_profile_icon_chat_height"
+            android:layout_gravity="bottom"
+            android:src="@drawable/ic_avatar_gray" />
 
         <LinearLayout
-            android:id="@+id/item_chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_chat_left"
-            android:orientation="vertical"
-            android:paddingBottom="5dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="5dp">
+            android:layout_marginEnd="@dimen/item_chat_margin"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
 
-            <com.vanniktech.emoji.EmojiTextView
-                android:id="@+id/item_chat_text"
+            <TextView
+                android:id="@+id/item_chat_info"
+                style="@style/AppTextAppearance.VerySmall.Grey"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxWidth="240dp"
-                android:padding="2dp"
-                android:textIsSelectable="false"
-                android:textSelectHandle="@null"
-                android:textSize="@dimen/text_size_large"
-                tools:text="a" />
-        </LinearLayout>
+                android:text="10:20 AM" />
 
-        <TextView
-            android:id="@+id/item_chat_status"
-            style="@style/AppTextAppearance.VerySmall.Grey"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:text="Delivered" />
+            <LinearLayout
+                android:id="@+id/item_chat_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_chat_left"
+                android:orientation="vertical"
+                android:paddingBottom="5dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="5dp">
+
+                <com.vanniktech.emoji.EmojiTextView
+                    android:id="@+id/item_chat_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="240dp"
+                    android:padding="2dp"
+                    android:textIsSelectable="false"
+                    android:textSelectHandle="@null"
+                    android:textSize="@dimen/text_size_large"
+                    tools:text="a" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/item_chat_status"
+                style="@style/AppTextAppearance.VerySmall.Grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Delivered" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+
+    <TextView
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:id="@+id/revealable_view"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:gravity="end"
+        android:paddingEnd="10dp"
+        android:translationX="80dp" />
+</RelativeLayout>

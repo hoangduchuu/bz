@@ -68,6 +68,7 @@
     <color name="bg_network_noconnect">@color/color_grey</color>
     <color name="yellow">#f7dc2d</color>
 
+    <color name="gray_color">#A9A9AA</color>
     <color name="color_1">#5856d6</color>
     <color name="color_accent_1">#4846ae</color>
     <color name="color_2">#007aff</color>
