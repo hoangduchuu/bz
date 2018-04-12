@@ -241,5 +241,6 @@
     <string name="hint_reply">Write reply</string>
     <string name="notif_content_sent">Sent</string>
     <string name="notif_action_reply">Reply</string>
+    <string name="color_picker_description">Pick a color for this conversation</string>
 
 </resources>

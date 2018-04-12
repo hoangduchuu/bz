@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme.Theme1" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle1</item>
+        <item name="colorAccent">@color/color_accent_1</item>
+    </style>
+
+    <style name="AppTheme.Theme2" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle2</item>
+        <item name="colorAccent">@color/color_accent_2</item>
+    </style>
+
+    <style name="AppTheme.Theme3" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle3</item>
+        <item name="colorAccent">@color/color_accent_3</item>
+    </style>
+
+    <style name="AppTheme.Theme4" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle4</item>
+        <item name="colorAccent">@color/color_accent_4</item>
+    </style>
+
+    <style name="AppTheme.Theme5" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle5</item>
+        <item name="colorAccent">@color/color_accent_5</item>
+    </style>
+
+    <style name="AppTheme.Theme6" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle6</item>
+        <item name="colorAccent">@color/color_accent_6</item>
+    </style>
+
+    <style name="AppTheme.Theme7" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle7</item>
+        <item name="colorAccent">@color/color_accent_7</item>
+    </style>
+
+    <style name="AppTheme.Theme8" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle8</item>
+        <item name="colorAccent">@color/color_accent_8</item>
+    </style>
+
+    <style name="AppTheme.Theme9" parent="@style/AppTheme.NoActionBar">
+        <item name="backgroundTheme">@style/BackgroundTintStyle9</item>
+        <item name="colorAccent">@color/color_accent_9</item>
+    </style>
+
+    <style name="BackgroundTintStyle1">
+        <item name="android:backgroundTint">@color/color_1</item>
+        <item name="android:tint">@color/color_1</item>
+    </style>
+    <style name="BackgroundTintStyle2">
+        <item name="android:backgroundTint">@color/color_2</item>
+        <item name="android:tint">@color/color_2</item>
+    </style>
+    <style name="BackgroundTintStyle3">
+        <item name="android:backgroundTint">@color/color_3</item>
+        <item name="android:tint">@color/color_3</item>
+    </style>
+    <style name="BackgroundTintStyle4">
+        <item name="android:backgroundTint">@color/color_4</item>
+        <item name="android:tint">@color/color_4</item>
+    </style>
+    <style name="BackgroundTintStyle5">
+        <item name="android:backgroundTint">@color/color_5</item>
+        <item name="android:tint">@color/color_5</item>
+    </style>
+    <style name="BackgroundTintStyle6">
+        <item name="android:backgroundTint">@color/color_6</item>
+        <item name="android:tint">@color/color_6</item>
+    </style>
+    <style name="BackgroundTintStyle7">
+        <item name="android:backgroundTint">@color/color_7</item>
+        <item name="android:tint">@color/color_7</item>
+    </style>
+    <style name="BackgroundTintStyle8">
+        <item name="android:backgroundTint">@color/color_8</item>
+        <item name="android:tint">@color/color_8</item>
+    </style>
+    <style name="BackgroundTintStyle9">
+        <item name="android:backgroundTint">@color/color_9</item>
+        <item name="android:tint">@color/color_9</item>
+    </style>
+
+    <style name="iconActionStyle1" parent="@style/ChatTypeIcon">
+        <item name="android:backgroundTint">@color/color_1</item>
+    </style>
+</resources>

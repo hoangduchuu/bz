@@ -64,6 +64,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 }
                             }
                             conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
+                            conversation.currentColor = conversation.getColor(currentUser.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;

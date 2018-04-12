@@ -3,7 +3,10 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
@@ -20,8 +21,11 @@ import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetai
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
-import com.ping.android.service.ServiceManager;
+import com.ping.android.presentation.view.activity.NicknameActivity;
+import com.ping.android.presentation.view.adapter.ColorAdapter;
+import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -42,6 +46,9 @@ public class ConversationPVPDetailFragment extends BaseFragment
     private Switch swBlock;
 
     private String conversationId;
+
+    private ColorAdapter colorAdapter;
+    private BottomSheetDialog colorPickerBottomSheetDialog;
 
     @Inject
     ConversationPVPDetailPresenter presenter;
@@ -96,6 +103,18 @@ public class ConversationPVPDetailFragment extends BaseFragment
         view.findViewById(R.id.user_profile_voice).setOnClickListener(this);
         view.findViewById(R.id.user_profile_video).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
+        view.findViewById(R.id.group_profile_color).setOnClickListener(this);
+
+        View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
+        colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
+        colorPickerBottomSheetDialog.setContentView(colorPickerView);
+        RecyclerView recyclerView = colorPickerView.findViewById(R.id.color_list);
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
+        colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
+        colorAdapter.setListener(color -> {
+            presenter.updateColor(color.getCode());
+        });
+        recyclerView.setAdapter(colorAdapter);
     }
 
 //    private void bindConversationSetting(Conversation conversation) {
@@ -134,7 +153,14 @@ public class ConversationPVPDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
+            case R.id.group_profile_color:
+                onColorClicked();
+                break;
         }
+    }
+
+    private void onColorClicked() {
+        colorPickerBottomSheetDialog.show();
     }
 
     private void onNickNameClicked() {
@@ -209,6 +235,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
     @Override
     public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
         CallActivity.start(getContext(), currentUser, otherUser, isVideoCall);
+    }
+
+    @Override
+    public void navigateBack() {
+        getActivity().finish();
     }
 
     @Override

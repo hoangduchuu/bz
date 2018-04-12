@@ -43,6 +43,7 @@ import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
@@ -55,6 +56,7 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
@@ -63,7 +65,6 @@ import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
     public static final String EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME";
+    public static final String EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR";
     private final int REPEAT_INTERVAL = 40;
 
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
@@ -149,18 +151,26 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
         getComponent().inject(this);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            originalConversation = bundle.getParcelable("CONVERSATION");
+            Color currentColor = Color.DEFAULT;
+            if (bundle.containsKey(EXTRA_CONVERSATION_COLOR)) {
+                int color = bundle.getInt(EXTRA_CONVERSATION_COLOR);
+                currentColor = Color.from(color);
+                ThemeUtils.onActivityCreateSetTheme(this, currentColor);
+            }
+            presenter.initThemeColor(currentColor);
+        }
+        setContentView(R.layout.activity_chat);
 
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            originalConversation = bundle.getParcelable("CONVERSATION");
-        }
+
         init();
         initView();
         presenter.create();
@@ -783,6 +793,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         Bundle extras = new Bundle();
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, originalConversation.key);
         extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation.conversationType);
+        extras.putInt(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         intent.putExtras(extras);
         startActivity(intent);
     }
@@ -1202,6 +1213,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (isScrollToTop) {
             recycleChatView.scrollToPosition(messagesAdapter.getItemCount() - 1);
         }
+    }
+
+    @Override
+    public void changeTheme(Color from) {
+        Bundle extras = getIntent().getExtras();
+        if (extras == null) {
+            extras = new Bundle();
+        }
+        extras.putInt(EXTRA_CONVERSATION_COLOR, from.getCode());
+        ThemeUtils.changeToTheme(this, extras);
     }
 
     @Override

@@ -68,4 +68,23 @@
     <color name="bg_network_noconnect">@color/color_grey</color>
     <color name="yellow">#f7dc2d</color>
 
+    <color name="color_1">#5856d6</color>
+    <color name="color_accent_1">#4846ae</color>
+    <color name="color_2">#007aff</color>
+    <color name="color_accent_2">#0166d4</color>
+    <color name="color_3">#34aadc</color>
+    <color name="color_accent_3">#277ea3</color>
+    <color name="color_4">#5ac8fa</color>
+    <color name="color_accent_4">#459bc2</color>
+    <color name="color_5">#4cd964</color>
+    <color name="color_accent_5">#359746</color>
+    <color name="color_6">#ff2d55</color>
+    <color name="color_accent_6">#b9203d</color>
+    <color name="color_7">#ff3b30</color>
+    <color name="color_accent_7">#bc2b23</color>
+    <color name="color_8">#ffcc00</color>
+    <color name="color_accent_8">#c49d01</color>
+    <color name="color_9">#8e8e93</color>
+    <color name="color_accent_9">#5c5c60</color>
+
 </resources>
