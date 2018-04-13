@@ -5,8 +5,10 @@ import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void handleVoiceCallPress();
 
+    void initThemeColor(Color currentColor);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -63,7 +67,7 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateMessage(MessageBaseItem data);
 
-        void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore);
+        void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
 
         void addCacheMessage(MessageBaseItem message);
 
@@ -76,5 +80,9 @@ public interface ChatPresenter extends BasePresenter {
         void showErrorUserBlocked(String username);
 
         void openCallScreen(User currentUser, User opponentUser, boolean isVideoCall);
+
+        void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added);
+
+        void changeTheme(Color from);
     }
 }

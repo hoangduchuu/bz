@@ -250,6 +250,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         Bundle extras = new Bundle();
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, conversation.key);
         intent.putExtra(ConversationDetailActivity.EXTRA_IMAGE_KEY, sharedElements[0].second);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtras(extras);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),
@@ -265,6 +266,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         Intent intent = new Intent(getContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, conversation.conversationName);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
         intent.putExtras(bundle);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(

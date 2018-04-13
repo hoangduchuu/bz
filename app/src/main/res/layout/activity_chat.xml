@@ -1,5 +1,4 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +13,11 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            style="@style/TopMenu">
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical"
+            android:background="#F1F2F2"
+            style="?attr/backgroundTheme">
 
             <Button
                 android:id="@+id/chat_cancel_edit"
@@ -105,11 +108,13 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/revealable_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:animateLayoutChanges="true">
 
-            <android.support.v7.widget.RecyclerView
+            <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
                 android:id="@+id/chat_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -142,16 +147,19 @@
                 android:background="#fff"
                 android:orientation="horizontal">
 
-                <CheckBox
+                <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/chat_tgl_outcoming"
                     style="@style/ActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:button="@null"
+                    android:button="@drawable/toggle_mask_msg"
+                    android:text=""
+                    android:minWidth="0dp"
+                    android:gravity="center"
                     android:checked="false"
-                    android:drawableStart="@drawable/toggle_mask_msg"
-                    android:padding="10dp"/>
+                    android:layout_marginStart="10dp"
+                    android:padding="6dp"/>
 
                 <com.vanniktech.emoji.EmojiEditText
                     android:id="@+id/chat_message_tv"
@@ -187,8 +195,16 @@
 
                 <ImageButton
                     android:id="@+id/chat_text_btn"
-                    style="@style/ChatTypeIcon"
-                    android:src="@drawable/chat_text_selector" />
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
+                    android:src="@drawable/chat_text_selector"  />
 
                 <View
                     android:layout_width="0dp"
@@ -197,7 +213,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_emoji_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_emoji_selector" />
 
                 <View
@@ -207,7 +231,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_camera_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_camera_selector" />
 
                 <View
@@ -217,7 +249,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_image_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_picture_selector" />
 
                 <View
@@ -227,7 +267,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_game_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_game_selector" />
 
                 <View
@@ -237,7 +285,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_voice_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_voice_selector" />
 
                 <View
@@ -248,7 +304,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_voice_call_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_call_selector" />
 
                 <View
@@ -259,7 +323,15 @@
 
                 <ImageButton
                     android:id="@+id/chat_video_call_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_video_selector" />
 
             </LinearLayout>

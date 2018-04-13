@@ -7,6 +7,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.Log;
 
 import junit.framework.Assert;
 
@@ -38,6 +39,11 @@ public class Message {
     public String currentUserId;
     public String messageStatus;
     public int messageStatusCode;
+    public long days;
+    /**
+     * Indicates whether show user profile and date time or not
+     */
+    public boolean showExtraInfo = true;
 
     public Message() {
     }
@@ -55,7 +61,7 @@ public class Message {
         message.senderId = wrapper.getStringValue("senderId");
         message.senderName = wrapper.getStringValue("senderName");
         message.gameType = wrapper.getIntValue("gameType", 0);
-
+        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
         if (status != null) {
@@ -180,5 +186,13 @@ public class Message {
         result.put("readAllowed", readAllowed);
         result.put("gameType", gameType);
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Message) {
+            return timestamp == ((Message) obj).timestamp;
+        }
+        return false;
     }
 }

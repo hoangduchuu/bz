@@ -39,6 +39,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
         return userRepository.getCurrentUser()
                 .flatMap(user -> conversationRepository.getConversation(user.key, s)
                         .flatMap(conversation -> {
+                            conversation.currentColor = conversation.getColor(user.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         conversation.members = users;

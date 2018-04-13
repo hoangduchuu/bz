@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -18,9 +20,6 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.ping.android.presentation.view.activity.CoreActivity;
-import com.ping.android.presentation.view.activity.GalleryActivity;
-import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
@@ -29,11 +28,16 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
+import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.UiUtils;
 
@@ -57,9 +61,11 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private Switch swNotification;
     private Switch swMask;
     private Switch cbPuzzle;
+    private BottomSheetDialog colorPickerBottomSheetDialog;
 
     private String conversationId;
     private GroupProfileAdapter adapter;
+    private ColorAdapter colorAdapter;
 
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
@@ -155,12 +161,20 @@ public class ConversationGroupDetailFragment extends BaseFragment
                 break;
             case R.id.profile_gallery:
                 onGalleryClicked();
+                break;
+            case R.id.group_profile_color:
+                onColorClicked();
+                break;
         }
     }
 
     private void onGalleryClicked() {
         Intent intent = new Intent(getContext(), GalleryActivity.class);
         startActivity(intent);
+    }
+
+    private void onColorClicked() {
+        colorPickerBottomSheetDialog.show();
     }
 
     private void onNickNameClicked() {
@@ -237,10 +251,22 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
         view.findViewById(R.id.profile_gallery).setOnClickListener(this);
+        view.findViewById(R.id.group_profile_color).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
         rvListMember.setLayoutManager(mLinearLayoutManager);
+
+        View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
+        colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
+        colorPickerBottomSheetDialog.setContentView(colorPickerView);
+        RecyclerView recyclerView = colorPickerView.findViewById(R.id.color_list);
+        recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
+        colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
+        colorAdapter.setListener(color -> {
+            presenter.updateColor(color.getCode());
+        });
+        recyclerView.setAdapter(colorAdapter);
     }
 
     private void bindData(Conversation conversation) {

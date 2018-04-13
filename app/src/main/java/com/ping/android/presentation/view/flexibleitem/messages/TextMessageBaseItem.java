@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
+import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 
@@ -64,6 +65,11 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
             if (messageListener != null) {
                 messageListener.updateMessageMask(item.message, maskStatus, lastItem);
             }
+        }
+
+        @Override
+        public View getSlideView() {
+            return messageContainer;
         }
 
         private void setTextMessage(Message message) {

@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class GridGalleryFragment : Fragment() {
 
-    @Inject lateinit var presenter: GalleryPresenter
+    lateinit var presenter: GalleryPresenter
 
     private val galleryList by lazy {
         adapter = GalleryAdapter()

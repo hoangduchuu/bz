@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
@@ -35,11 +36,13 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
-        ImageView imageView;
+        private LinearLayout container;
+        private ImageView imageView;
         private boolean isUpdated;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+            container = itemView.findViewById(R.id.container);
             imageView = itemView.findViewById(R.id.item_chat_image);
 
             initGestureListener();
@@ -90,6 +93,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
             super.bindData(item, lastItem);
             setImageMessage(item.message);
+        }
+
+        @Override
+        public View getSlideView() {
+            return container;
         }
 
         private void handleImagePress(boolean isPuzzled) {
