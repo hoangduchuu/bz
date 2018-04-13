@@ -80,7 +80,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                android:layout_height="20dp"
+                                android:layout_width="20dp"
+                                android:layout_marginEnd="8dp"
+                                style="?attr/backgroundTheme"
                                 android:src="@drawable/ic_conversation_notification" />
 
                             <TextView
@@ -99,7 +102,10 @@
                             style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                android:layout_height="20dp"
+                                android:layout_width="20dp"
+                                android:layout_marginEnd="8dp"
+                                style="?attr/backgroundTheme"
                                 android:src="@drawable/ic_conversation_nickname" />
 
                             <TextView
@@ -114,7 +120,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                android:layout_height="20dp"
+                                android:layout_width="20dp"
+                                android:layout_marginEnd="8dp"
+                                style="?attr/backgroundTheme"
                                 android:src="@drawable/ic_conversation_mask_message" />
 
                             <TextView
@@ -132,7 +141,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                android:layout_height="20dp"
+                                android:layout_width="20dp"
+                                android:layout_marginEnd="8dp"
+                                style="?attr/backgroundTheme"
                                 android:src="@drawable/ic_conversation_mask_image" />
 
                             <TextView
@@ -147,7 +159,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                android:layout_height="20dp"
+                                android:layout_width="20dp"
+                                android:layout_marginEnd="8dp"
+                                style="?attr/backgroundTheme"
                                 android:src="@drawable/ic_color_lens" />
 
                             <TextView

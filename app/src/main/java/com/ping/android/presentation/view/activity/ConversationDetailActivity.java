@@ -27,13 +27,11 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
         super.onCreate(savedInstanceState);
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            Color currentColor = Color.DEFAULT;
             if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
                 int color = bundle.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR);
-                currentColor = Color.from(color);
+                Color currentColor = Color.from(color);
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
             }
-            //presenter.initThemeColor(currentColor);
         }
         setContentView(R.layout.activity_conversation_detail);
         postponeEnterTransition();
