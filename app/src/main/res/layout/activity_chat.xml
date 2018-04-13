@@ -107,14 +107,14 @@
                 tools:visibility="gone" />
         </RelativeLayout>
 
-        <com.ping.android.presentation.view.custom.revealable.RevealableViewContainer
+        <RelativeLayout
             android:id="@+id/revealable_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:animateLayoutChanges="true">
 
-            <android.support.v7.widget.RecyclerView
+            <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
                 android:id="@+id/chat_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -131,7 +131,7 @@
                     style="@style/LoadMoreButton"
                     android:visibility="gone" />
             </LinearLayout>
-        </com.ping.android.presentation.view.custom.revealable.RevealableViewContainer>
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -10,7 +10,7 @@ import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.presentation.view.custom.revealable.RevealableViewContainer;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
@@ -29,7 +29,7 @@ import java.util.Set;
  */
 
 public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
-        MessageBaseItem.MessageListener, RevealableViewContainer.RevealableCallback {
+        MessageBaseItem.MessageListener, RevealableViewRecyclerView.RevealableCallback {
     public static float xDiff = 0;
     private ChatMessageListener messageListener;
     private List<MessageBaseItem> selectedMessages;

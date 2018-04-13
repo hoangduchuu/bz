@@ -28,7 +28,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,7 +48,7 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
-import com.ping.android.presentation.view.custom.revealable.RevealableViewContainer;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
@@ -101,7 +100,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
     private Button btCancelRecord;
-    private RevealableViewContainer revealableViewContainer;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -194,9 +192,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
-
-        revealableViewContainer = findViewById(R.id.revealable_container);
-        revealableViewContainer.setCallback(messagesAdapter);
+        ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
     }
 
     @Override

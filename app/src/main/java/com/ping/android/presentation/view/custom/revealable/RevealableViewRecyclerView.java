@@ -3,41 +3,35 @@ package com.ping.android.presentation.view.custom.revealable;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.view.MotionEventCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
-import com.ping.android.utils.Log;
-
-public class RevealableViewContainer extends RelativeLayout {
+public class RevealableViewRecyclerView extends RecyclerView {
     private int mTouchSlop;
     private boolean mIsBeingDragged;
     private float mInitialMotionX;
 
     private RevealableCallback callback;
 
-    public RevealableViewContainer(Context context) {
+    public RevealableViewRecyclerView(Context context) {
         super(context);
         init(context);
     }
 
-    public RevealableViewContainer(Context context, @Nullable AttributeSet attrs) {
+    public RevealableViewRecyclerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public RevealableViewContainer(Context context, @Nullable AttributeSet attrs, int defStyle) {
+    public RevealableViewRecyclerView(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
     }
 
     public void init(Context context) {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-        //mTouchSlop = 50;
     }
 
     @Override
@@ -82,37 +76,30 @@ public class RevealableViewContainer extends RelativeLayout {
             }
         }
 
-        return false;
+        return super.onInterceptTouchEvent(e);
     }
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent ev) {
         int action = ev.getAction();
-        Log.e("HEHEHE action " + action);
-//        if (action == MotionEvent.ACTION_DOWN && !mIsBeingDragged) {
-//            mIsBeingDragged = true;
-//            mInitialMotionX = ev.getX();
-//            return true;
-//        } else
-        if (action == MotionEvent.ACTION_MOVE) {
+        if (action == MotionEvent.ACTION_DOWN && !mIsBeingDragged) {
+            mIsBeingDragged = true;
+            mInitialMotionX = ev.getX();
+            return true;
+        } else if (action == MotionEvent.ACTION_MOVE) {
             if (mIsBeingDragged) {
                 final float x = ev.getX();
                 final float xDiff = x - mInitialMotionX;
                 updateFrames(xDiff);
             }
-        } else if (action == MotionEvent.ACTION_UP) {
-            mIsBeingDragged = false;
-            if (callback != null) {
-                callback.onReset();
-            }
-        } else if (action == MotionEvent.ACTION_CANCEL) {
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             mIsBeingDragged = false;
             if (callback != null) {
                 callback.onReset();
             }
         }
 
-        return true;
+        return super.onTouchEvent(ev);
     }
 
     public void setCallback(RevealableCallback callback) {
