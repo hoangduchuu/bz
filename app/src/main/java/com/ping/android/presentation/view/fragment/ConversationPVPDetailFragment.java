@@ -26,6 +26,7 @@ import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.utils.DataProvider;
+import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -50,6 +51,8 @@ public class ConversationPVPDetailFragment extends BaseFragment
     private ColorAdapter colorAdapter;
     private BottomSheetDialog colorPickerBottomSheetDialog;
 
+    @Inject
+    Navigator navigator;
     @Inject
     ConversationPVPDetailPresenter presenter;
     ConversationDetailPVPComponent component;
@@ -104,6 +107,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
         view.findViewById(R.id.user_profile_video).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
+        view.findViewById(R.id.profile_background).setOnClickListener(this);
 
         View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
         colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
@@ -156,7 +160,14 @@ public class ConversationPVPDetailFragment extends BaseFragment
             case R.id.group_profile_color:
                 onColorClicked();
                 break;
+            case R.id.profile_background:
+                onBackgroundClicked();
+                break;
         }
+    }
+
+    private void onBackgroundClicked() {
+        presenter.handleBackgroundClicked();
     }
 
     private void onColorClicked() {
@@ -247,6 +258,11 @@ public class ConversationPVPDetailFragment extends BaseFragment
         Intent intent = new Intent(getContext(), NicknameActivity.class);
         intent.putExtra(NicknameActivity.CONVERSATION_KEY, conversation);
         startActivity(intent);
+    }
+
+    @Override
+    public void moveToSelectBackground(Conversation conversation) {
+        navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
     }
 
     public ConversationDetailPVPComponent getComponent() {

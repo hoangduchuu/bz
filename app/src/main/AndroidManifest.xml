@@ -37,8 +37,8 @@
 
         <!-- </service> -->
         <service
-            android:enabled="true"
             android:name="com.ping.android.service.CallService"
+            android:enabled="true"
             android:exported="false"
             android:stopWithTask="false" />
 
@@ -69,7 +69,9 @@
         <meta-data
             android:name="com.quickblox.messages.SENDER_ID"
             android:value="@string/sender_id" />
-        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="DEVELOPMENT" />
+        <meta-data
+            android:name="com.quickblox.messages.QB_ENVIRONMENT"
+            android:value="DEVELOPMENT" />
 
         <receiver
             android:name="com.ping.android.service.PushNotificationBroadcastReceiver"
@@ -83,11 +85,12 @@
         <receiver
             android:name="com.ping.android.service.NotificationBroadcastReceiver"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.ping.android.service.NotificationHelper.REPLY_ACTION" />
             </intent-filter>
         </receiver>
+
         <activity
             android:name="com.ping.android.presentation.view.activity.SplashActivity"
             android:launchMode="singleTop"
@@ -124,8 +127,8 @@
             android:label="Message"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize" />
         <activity
             android:name="com.ping.android.presentation.view.activity.ChatActivity"
             android:label="Chat"
@@ -172,10 +175,10 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="com.ping.android.presentation.view.activity.CallActivity"
+            android:configChanges="orientation|screenSize"
             android:label="GameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="fullUser"
-            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name="com.ping.android.presentation.view.activity.PermissionsActivity"
@@ -213,7 +216,10 @@
             android:name="com.ping.android.presentation.view.cameraview.PicturePreviewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
+
         <activity
             android:name="com.ping.android.presentation.view.activity.GameMemoryActivity"
             android:theme="@style/AppTheme.Fullscreen" />
@@ -239,8 +245,12 @@
             android:name="com.ping.android.presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.ping.android.presentation.view.activity.NicknameActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name="com.ping.android.presentation.view.activity.NicknameActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="com.ping.android.presentation.view.activity.GalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

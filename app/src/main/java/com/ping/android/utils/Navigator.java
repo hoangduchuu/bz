@@ -11,6 +11,8 @@ import com.ping.android.presentation.view.fragment.BaseFragment;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 
 /**
@@ -22,6 +24,8 @@ public class Navigator {
     private FragmentManager mFragmentManager;
     private NavigationListener mNavigationListener;
     private String rootTag;
+
+    public Navigator() {}
 
     /**
      * Initialize the NavigatorImpl with a FragmentManager, which will be used at the

@@ -136,6 +136,20 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
+    public Observable<String> observeConversationBackground(String userId, String conversationId) {
+        Query query = database.getReference("conversations").child(userId).child(conversationId)
+                .child("themes").child(userId).child("backgroundUrl");
+        return RxFirebaseDatabase.getInstance(query)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return dataSnapshot.getValue(String.class);
+                    }
+                    return "";
+                });
+    }
+
+    @Override
     public Observable<Boolean> createConversation(Conversation conversation) {
 //        DatabaseReference groupReference = database.getReference("conversation");
 //        return RxFirebaseDatabase.setValue(groupReference, group.toMap())

@@ -35,9 +35,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ping.android.activity.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
@@ -48,6 +51,7 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.custom.BitmapViewBackgroundTarget;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -55,6 +59,7 @@ import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
+import com.ping.android.utils.GlideApp;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
@@ -85,6 +90,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
 
     //Views UI
+    private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
     private RelativeLayout layoutVoice, layoutBottomMenu;
@@ -496,6 +502,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
+        backgroundImage = findViewById(R.id.backgroundImage);
 
         findViewById(R.id.chat_person_name).setOnClickListener(this);
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
@@ -1230,6 +1237,21 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         extras.putInt(EXTRA_CONVERSATION_COLOR, from.getCode());
         ThemeUtils.changeToTheme(this, extras);
+    }
+
+    @Override
+    public void updateBackground(String s) {
+        if (TextUtils.isEmpty(s) || !s.startsWith("gs://")) {
+            backgroundImage.setImageDrawable(null);
+            return;
+        }
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(s);
+        GlideApp.with(this)
+                .asBitmap()
+                .load(storageReference)
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(backgroundImage);
     }
 
     @Override

@@ -26,9 +26,7 @@ import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDet
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
@@ -40,7 +38,7 @@ import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
-import com.ping.android.utils.ThemeUtils;
+import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
 
 import java.io.File;
@@ -74,6 +72,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     @Inject
     ConversationGroupDetailPresenter presenter;
+    @Inject
+    Navigator navigator;
     private ConversationDetailGroupComponent component;
     private String profileImageKey;
     private boolean isFirstLoad = true;
@@ -161,10 +161,17 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
+            case R.id.profile_background:
+                onBackgroundClicked();
+                break;
             case R.id.group_profile_color:
                 onColorClicked();
                 break;
         }
+    }
+
+    private void onBackgroundClicked() {
+        presenter.handleBackgroundClicked();
     }
 
     private void onColorClicked() {
@@ -244,6 +251,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
+        view.findViewById(R.id.profile_background).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
@@ -361,5 +369,10 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void openPicker() {
         imagePickerHelper.openPicker();
+    }
+
+    @Override
+    public void moveToSelectBackground(Conversation conversation) {
+        navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
     }
 }

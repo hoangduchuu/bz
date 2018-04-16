@@ -53,7 +53,7 @@ abstract class UseCase<T, in Params>(private val threadExecutor: ThreadExecutor,
      * by [.buildUseCaseObservable] ()} method.
      * @param params   Parameters (Optional) used to build/execute this use case.
      */
-    fun execute(observer: DisposableObserver<T>, params: Params) {
+    fun <O> execute(observer: O, params: Params) where O: DisposableObserver<T> {
         val observable = this.buildUseCaseObservable(params)
                 .subscribeOn(Schedulers.from(threadExecutor))
                 .observeOn(postExecutionThread.scheduler)

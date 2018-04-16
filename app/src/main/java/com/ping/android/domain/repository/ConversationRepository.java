@@ -38,4 +38,6 @@ public interface ConversationRepository {
     Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId);
 
     Observable<Integer> observeConversationColor(String userId, String conversationId);
+
+    Observable<String> observeConversationBackground(String userId, String conversationId);
 }
