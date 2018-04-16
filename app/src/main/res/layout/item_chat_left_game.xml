@@ -1,59 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/ItemChat"
-    android:orientation="horizontal">
-
-    <RadioButton
-        android:id="@+id/item_chat_select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginEnd="10dp"
-        android:background="@null" />
-
-    <ImageView
-        android:id="@+id/item_chat_user_profile"
-        android:layout_width="@dimen/user_profile_icon_chat_width"
-        android:layout_height="@dimen/user_profile_icon_chat_height"
-        android:layout_gravity="bottom"
-        android:src="@drawable/ic_avatar_gray" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="5dp">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="@dimen/item_chat_margin"
-        android:orientation="vertical">
+        style="@style/ItemChat"
+        android:orientation="horizontal">
 
-        <TextView
-            style="@style/AppTextAppearance.VerySmall.Grey"
-            android:id="@+id/item_chat_info"
+        <RadioButton
+            android:id="@+id/item_chat_select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="user"/>
+            android:layout_gravity="bottom"
+            android:layout_marginEnd="10dp"
+            android:background="@null" />
 
-        <com.joooonho.SelectableRoundedImageView
-            android:id="@+id/item_chat_image"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/img_loading_image"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            app:sriv_left_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-            app:sriv_left_top_corner_radius="@dimen/chat_bg_corner_radius"
-            app:sriv_right_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-            app:sriv_right_top_corner_radius="@dimen/chat_bg_corner_radius" />
+        <ImageView
+            android:id="@+id/item_chat_user_profile"
+            android:layout_width="@dimen/user_profile_icon_chat_width"
+            android:layout_height="@dimen/user_profile_icon_chat_height"
+            android:layout_gravity="bottom"
+            android:src="@drawable/ic_avatar_gray" />
 
-        <TextView
-            android:id="@+id/item_chat_status"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="start"
-            android:padding="5dp"
-            style="@style/AppTextAppearance.VerySmall.Grey"
-            tools:text="Game Delivered" />
+            android:layout_marginEnd="@dimen/item_chat_margin"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_chat_info"
+                style="@style/AppTextAppearance.VerySmall.Grey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="user" />
+
+            <com.joooonho.SelectableRoundedImageView
+                android:id="@+id/item_chat_image"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/img_loading_image"
+                app:sriv_left_bottom_corner_radius="@dimen/chat_bg_corner_radius"
+                app:sriv_left_top_corner_radius="@dimen/chat_bg_corner_radius"
+                app:sriv_right_bottom_corner_radius="@dimen/chat_bg_corner_radius"
+                app:sriv_right_top_corner_radius="@dimen/chat_bg_corner_radius" />
+
+            <TextView
+                android:id="@+id/item_chat_status"
+                style="@style/AppTextAppearance.VerySmall.Grey"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="5dp"
+                tools:text="Game Delivered" />
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+    <TextView
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:id="@+id/revealable_view"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:gravity="end"
+        android:paddingEnd="10dp"
+        android:translationX="80dp" />
+</RelativeLayout>

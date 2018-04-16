@@ -108,11 +108,13 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/revealable_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:animateLayoutChanges="true">
 
-            <android.support.v7.widget.RecyclerView
+            <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
                 android:id="@+id/chat_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -145,16 +147,19 @@
                 android:background="#fff"
                 android:orientation="horizontal">
 
-                <CheckBox
+                <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/chat_tgl_outcoming"
                     style="@style/ActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:button="@null"
+                    android:button="@drawable/toggle_mask_msg"
+                    android:text=""
+                    android:minWidth="0dp"
+                    android:gravity="center"
                     android:checked="false"
-                    android:drawableStart="@drawable/toggle_mask_msg"
-                    android:padding="10dp"/>
+                    android:layout_marginStart="10dp"
+                    android:padding="6dp"/>
 
                 <com.vanniktech.emoji.EmojiEditText
                     android:id="@+id/chat_message_tv"
