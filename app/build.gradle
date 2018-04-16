@@ -62,6 +62,10 @@ android {
     buildToolsVersion '27.0.3'
 }
 
+kapt {
+    generateStubs = true
+}
+
 def libraries = rootProject.ext.libraries
 
 dependencies {
@@ -121,7 +125,6 @@ dependencies {
     implementation('com.github.bumptech.glide:glide:4.4.0') {
         transitive = true
     }
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
     kapt 'com.github.bumptech.glide:compiler:4.4.0'
     implementation 'jp.wasabeef:glide-transformations:3.0.1'
 
@@ -135,9 +138,8 @@ dependencies {
     implementation 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1'
     implementation "io.reactivex.rxjava2:rxandroid:${libraries.rx_android}"
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
-    annotationProcessor "com.google.dagger:dagger-compiler:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
 }
 

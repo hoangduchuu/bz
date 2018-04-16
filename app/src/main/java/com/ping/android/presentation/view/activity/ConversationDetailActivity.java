@@ -13,11 +13,14 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
 
+import javax.inject.Inject;
+
 public class ConversationDetailActivity extends CoreActivity implements HasComponent<ConversationDetailComponent> {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
 
+    @Inject
     Navigator navigator;
 
     ConversationDetailComponent component;
@@ -25,6 +28,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
@@ -35,7 +39,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
         }
         setContentView(R.layout.activity_conversation_detail);
         postponeEnterTransition();
-        navigator = new Navigator();
+
         navigator.init(getSupportFragmentManager(), R.id.fragment_container);
 
         Bundle extras = getIntent().getExtras();

@@ -186,7 +186,7 @@
 
                             <TextView
                                 style="@style/ItemSettingText"
-                                android:text="@string/conversation_detail_gallery" />
+                                android:text="@string/conversation_detail_background" />
 
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>

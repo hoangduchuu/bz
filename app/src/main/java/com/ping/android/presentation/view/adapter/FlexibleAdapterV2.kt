@@ -11,18 +11,20 @@ object AdapterConstants {
     const val IMAGE = 2
 }
 
-class GalleryAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private val items: ArrayList<ViewType>
 
     private val delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
 
     init {
         delegateAdapters.put(AdapterConstants.LOADING, LoadingDelegateAdapter())
-        delegateAdapters.put(AdapterConstants.IMAGE, GalleryImageDelegateAdapter())
         items = ArrayList()
     }
 
     fun registerItemType(type: Int, viewTypeDelegate: ViewTypeDelegateAdapter) {
+        if (delegateAdapters[type] != null) {
+            throw RuntimeException("Register same view type for multiple delegate")
+        }
         delegateAdapters.put(type, viewTypeDelegate)
     }
 
@@ -38,5 +40,10 @@ class GalleryAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int {
         return items[position].getViewType()
+    }
+
+    fun addItems(newItems: List<ViewType>) {
+        items.addAll(newItems)
+        notifyDataSetChanged()
     }
 }

@@ -7,6 +7,7 @@ import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationBackgroundUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationColorUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
@@ -100,6 +101,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
     @Inject
     ObserveConversationColorUseCase observeConversationColorUseCase;
+    @Inject
+    ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -165,6 +168,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void initConversationData(String conversationId) {
+        view.showLoading();
         getConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
             @Override
             public void onNext(Conversation conv) {
@@ -506,6 +510,13 @@ public class ChatPresenterImpl implements ChatPresenter {
                                                     }
                                                 },
                 new ObserveConversationColorUseCase.Params(conversation.key, currentUser.key));
+        observeConversationBackgroundUseCase.execute(new DefaultObserver<String>() {
+                                                         @Override
+                                                         public void onNext(String s) {
+                                                             view.updateBackground(s);
+                                                         }
+                                                     },
+                new ObserveConversationBackgroundUseCase.Params(conversation.key, currentUser.key));
     }
 
     private void handleConversationUpdate(Conversation conversation) {
@@ -513,6 +524,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         this.conversation = conversation;
         view.updateConversation(conversation);
+        view.hideLoading();
         observeConversationUpdate();
         updateConversationReadStatus();
         //observeMessageUpdate();

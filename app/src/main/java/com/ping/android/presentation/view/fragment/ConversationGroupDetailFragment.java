@@ -29,7 +29,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
-import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
@@ -39,6 +38,7 @@ import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
 
 import java.io.File;
@@ -72,6 +72,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     @Inject
     ConversationGroupDetailPresenter presenter;
+    @Inject
+    Navigator navigator;
     private ConversationDetailGroupComponent component;
     private String profileImageKey;
     private boolean isFirstLoad = true;
@@ -160,7 +162,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
                 onNickNameClicked();
                 break;
             case R.id.profile_gallery:
-                onGalleryClicked();
+                onBackgroundClicked();
                 break;
             case R.id.group_profile_color:
                 onColorClicked();
@@ -168,9 +170,10 @@ public class ConversationGroupDetailFragment extends BaseFragment
         }
     }
 
-    private void onGalleryClicked() {
-        Intent intent = new Intent(getContext(), GalleryActivity.class);
-        startActivity(intent);
+    private void onBackgroundClicked() {
+//        Intent intent = new Intent(getContext(), BackgroundFragment.class);
+//        startActivity(intent);
+        presenter.handleBackgroundClicked();
     }
 
     private void onColorClicked() {
@@ -368,5 +371,10 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void openPicker() {
         imagePickerHelper.openPicker();
+    }
+
+    @Override
+    public void moveToSelectBackground(Conversation conversation) {
+        navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
     }
 }

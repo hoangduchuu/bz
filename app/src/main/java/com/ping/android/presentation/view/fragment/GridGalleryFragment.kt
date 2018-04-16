@@ -10,22 +10,21 @@ import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.activity.R
 import com.ping.android.presentation.presenters.GalleryPresenter
-import com.ping.android.presentation.view.adapter.GalleryAdapter
+import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
-import javax.inject.Inject
 
 class GridGalleryFragment : Fragment() {
 
     lateinit var presenter: GalleryPresenter
 
     private val galleryList by lazy {
-        adapter = GalleryAdapter()
+        adapter = FlexibleAdapterV2()
         gallery_list.adapter = adapter
         gallery_list.layoutManager = GridLayoutManager(context, 3)
         gallery_list
     }
 
-    private lateinit var adapter: GalleryAdapter
+    private lateinit var adapter: FlexibleAdapterV2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

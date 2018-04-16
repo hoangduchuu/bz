@@ -34,6 +34,8 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void updateColor(int color);
 
+    void handleBackgroundClicked();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -54,5 +56,7 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
         void initProfileImagePath(String key);
 
         void openPicker();
+
+        void moveToSelectBackground(Conversation conversation);
     }
 }
