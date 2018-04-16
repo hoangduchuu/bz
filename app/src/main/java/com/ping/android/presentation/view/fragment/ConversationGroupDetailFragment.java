@@ -161,7 +161,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.profile_nickname:
                 onNickNameClicked();
                 break;
-            case R.id.profile_gallery:
+            case R.id.profile_background:
                 onBackgroundClicked();
                 break;
             case R.id.group_profile_color:
@@ -171,8 +171,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void onBackgroundClicked() {
-//        Intent intent = new Intent(getContext(), BackgroundFragment.class);
-//        startActivity(intent);
         presenter.handleBackgroundClicked();
     }
 
@@ -253,7 +251,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.group_profile_add_member).setOnClickListener(this);
         view.findViewById(R.id.group_profile_leave_group).setOnClickListener(this);
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
-        view.findViewById(R.id.profile_gallery).setOnClickListener(this);
+        view.findViewById(R.id.profile_background).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();

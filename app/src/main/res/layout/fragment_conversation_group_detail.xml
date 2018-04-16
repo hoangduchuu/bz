@@ -156,6 +156,8 @@
                                 style="@style/ItemSettingIconRight.Toggle" />
                         </LinearLayout>
 
+                        <View style="@style/ItemSettingSeparate" />
+
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
@@ -173,8 +175,10 @@
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>
 
+                        <View style="@style/ItemSettingSeparate" />
+
                         <LinearLayout
-                            android:id="@+id/profile_gallery"
+                            android:id="@+id/profile_background"
                             style="@style/ItemSetting">
 
                             <ImageView

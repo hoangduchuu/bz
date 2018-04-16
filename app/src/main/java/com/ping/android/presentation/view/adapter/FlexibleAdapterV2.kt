@@ -3,12 +3,13 @@ package com.ping.android.presentation.view.adapter
 import android.support.v4.util.SparseArrayCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.ping.android.presentation.view.adapter.delegate.GalleryImageDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.LoadingDelegateAdapter
 
 object AdapterConstants {
     const val LOADING = 1
     const val IMAGE = 2
+    const val GALLERY = 3
+    const val CAMERA = 4
 }
 
 class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {

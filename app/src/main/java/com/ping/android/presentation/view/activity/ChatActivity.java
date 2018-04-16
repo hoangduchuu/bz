@@ -90,7 +90,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
 
     //Views UI
-    private RelativeLayout chatContainer;
+    private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
     private RelativeLayout layoutVoice, layoutBottomMenu;
@@ -502,7 +502,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
-        chatContainer = findViewById(R.id.chat_container);
+        backgroundImage = findViewById(R.id.backgroundImage);
 
         findViewById(R.id.chat_person_name).setOnClickListener(this);
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
@@ -1242,7 +1242,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateBackground(String s) {
         if (TextUtils.isEmpty(s) || !s.startsWith("gs://")) {
-            chatContainer.setBackground(null);
+            backgroundImage.setImageDrawable(null);
             return;
         }
         StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(s);
@@ -1251,7 +1251,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 .load(storageReference)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(new BitmapViewBackgroundTarget(chatContainer));
+                .into(backgroundImage);
     }
 
     @Override

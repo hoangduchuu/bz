@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         style="@style/AVLoadingIndicatorView"
         android:visibility="visible"
-        app:indicatorName="BallPulseIndicator"
+        app:indicatorName="LineScaleIndicator"
         app:indicatorColor="@color/colorAccent"
         />
 </LinearLayout>

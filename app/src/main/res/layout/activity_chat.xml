@@ -114,6 +114,13 @@
             android:layout_weight="1"
             android:animateLayoutChanges="true">
 
+            <ImageView
+                android:id="@+id/backgroundImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                tools:background="@drawable/background1" />
+
             <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
                 android:id="@+id/chat_list_view"
                 android:layout_width="match_parent"

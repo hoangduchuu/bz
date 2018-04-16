@@ -4,24 +4,43 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.activity.R
-import com.ping.android.model.GalleryItem
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
+import kotlinx.android.synthetic.main.item_media.view.*
 
-class GalleryImageDelegateAdapter: ViewTypeDelegateAdapter {
+class GalleryItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegateAdapter {
 
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent)
+    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
-        (holder as ViewHolder).bindData(item as GalleryItem)
+
     }
 
-    class ViewHolder(parent: ViewGroup): RecyclerView.ViewHolder(
-            parent.inflate(R.layout.item_gallery_image)
+    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : RecyclerView.ViewHolder(
+            parent.inflate(R.layout.item_media)
     ) {
-        fun bindData(galleryItem: GalleryItem) {
 
+        init {
+            itemView.image.setImageResource(R.drawable.ic_chat_image)
+            itemView.setOnClickListener { clickListener() }
         }
     }
 }
 
+class CameraItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegateAdapter {
+
+    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
+
+    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    }
+
+    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : RecyclerView.ViewHolder(
+            parent.inflate(R.layout.item_media)
+    ) {
+
+        init {
+            itemView.image.setImageResource(R.drawable.ic_chat_camera)
+            itemView.setOnClickListener { clickListener() }
+        }
+    }
+}

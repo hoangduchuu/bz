@@ -27,7 +27,7 @@ import android.text.TextUtils;
 import com.ping.android.activity.BuildConfig;
 import com.ping.android.presentation.view.cameraview.CameraActivity;
 import com.ping.android.ultility.Constant;
-import com.soundcloud.android.crop.Crop;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,6 +36,9 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.subjects.PublishSubject;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -51,6 +54,8 @@ public class ImagePickerHelper {
     private String filePath;
     private String thumbnailFilePath;
     private ImagePickerListener listener;
+
+    private PublishSubject<File> imageSubject = PublishSubject.create();
 
     private Activity activity;
     private Fragment fragment;
@@ -143,19 +148,39 @@ public class ImagePickerHelper {
                     if (listener != null) {
                         listener.onImageReceived(file);
                     }
-                    tuningFinalImage(file, file.getName());
+                    if (isCrop) {
+                        Uri photoUri = getUriFromFile(getContext(), file);
+                        performCrop(photoUri);
+                    } else {
+                        tuningFinalImage(file, file.getName());
+                    }
                 }
             }
-        } else if (requestCode == Crop.REQUEST_CROP) {
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                Uri croppedUri = Crop.getOutput(data);
-                Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
-                saveImage(getFilePath(), scaleBitmap);
+                Uri croppedUri = result.getUri();
                 if (listener != null) {
+                    Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
+                    saveImage(getFilePath(), scaleBitmap);
                     listener.onFinalImage(new File(getFilePath()));
+                } else {
+                    saveFile(croppedUri)
+                            .subscribe();
                 }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                imageSubject.onError(error);
             }
         }
+    }
+
+    private Observable<File> saveFile(Uri croppedUri) {
+        return Observable.create(e -> {
+            Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
+            saveImage(getFilePath(), scaleBitmap);
+            imageSubject.onNext(new File(getFilePath()));
+        });
     }
 
     private static class TuningImage extends AsyncTask<Void, Void, List<File>> {
@@ -222,12 +247,19 @@ public class ImagePickerHelper {
     }
 
     private void performCrop(Uri photoUri) {
-        File file = new File(getFilePath());
         if (activity != null) {
-            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(activity);
+            CropImage.activity(photoUri)
+                    //.setAspectRatio(1, 1)
+                    .start(activity);
         } else {
-            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(getContext(), fragment);
+            CropImage.activity(photoUri)
+                    //.setAspectRatio(1, 1)
+                    .start(getContext(), fragment);
         }
+    }
+
+    public Observable<File> getFileObservable() {
+        return imageSubject.share();
     }
 
     public void openPicker() {
