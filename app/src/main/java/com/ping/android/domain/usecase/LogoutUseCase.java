@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.device.Device;
+import com.ping.android.device.Notification;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 
@@ -22,6 +23,8 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
     UserRepository userRepository;
     @Inject
     Device device;
+    @Inject
+    Notification notification;
     UserManager userManager;
 
     @Inject
@@ -35,6 +38,7 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
         userManager.logout();
         String deviceId = device.getDeviceId();
+        notification.clearAll();
         return userRepository.logout(deviceId);
     }
 }

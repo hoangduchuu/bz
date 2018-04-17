@@ -42,15 +42,13 @@ public class LoginQuickBloxUseCase extends UseCase<Boolean, Void> {
     }
 
     private Observable<QBUser> loginWithQuickBlox(User user) {
-        if (user.quickBloxID > 0) {
-            return quickbloxRepository.signIn(user.quickBloxID, user.pingID);
-        } else {
+        return quickbloxRepository.getUser(user.pingID).flatMap(qbUser-> quickbloxRepository.signIn(user.quickBloxID, user.pingID)).onErrorResumeNext(error->{
             return quickbloxRepository.signUp(user.pingID)
                     .flatMap(qbUser -> {
                         user.quickBloxID = qbUser.getId();
                         return userRepository.updateQuickbloxId(qbUser.getId())
-                                .map(aBoolean1 -> qbUser);
+                                .flatMap(aBoolean1 -> quickbloxRepository.signIn(user.quickBloxID, user.pingID));
                     });
-        }
+        });
     }
 }

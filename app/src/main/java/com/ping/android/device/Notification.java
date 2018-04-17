@@ -18,4 +18,6 @@ public interface Notification {
                                     boolean isVideo, String tag, boolean enableSound);
 
     void showMessageNotification(User user, String message, String conversationId, String senderProfile);
+
+    void clearAll();
 }

@@ -11,6 +11,8 @@ import io.reactivex.Observable;
 public interface QuickbloxRepository {
     Observable<QBUser> signIn(int qbId, String pingId);
 
+    Observable<QBUser> getUser(String pingId);
+
     Observable<QBUser> signUp(String pingId);
 
     Observable<Boolean> loginChat(int qbId, String pingId);

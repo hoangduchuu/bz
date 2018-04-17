@@ -10,6 +10,7 @@ import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -50,12 +51,16 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
                             if (users.size() > 0) {
                                 return userRepository.getCurrentUser()
                                         .map(user -> {
+                                            List<User> result = new ArrayList<>();
                                             for (User u : users) {
-                                                // TODO
+                                                if (u.key.equals(user.key)) {
+                                                    continue;
+                                                }
                                                 u.typeFriend = user.friends.containsKey(u.key)
                                                         ? Constant.TYPE_FRIEND.IS_FRIEND : Constant.TYPE_FRIEND.NON_FRIEND;
+                                                result.add(u);
                                             }
-                                            return users;
+                                            return result;
                                         });
                             } else {
                                 return Observable.just(users);
