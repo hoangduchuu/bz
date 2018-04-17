@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
@@ -26,7 +28,6 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,10 +44,13 @@ import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
@@ -54,6 +58,7 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
@@ -62,7 +67,6 @@ import com.vanniktech.emoji.EmojiPopup;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +79,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
     public static final String EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME";
+    public static final String EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR";
     private final int REPEAT_INTERVAL = 40;
 
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
@@ -87,7 +92,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView btBack, btLoadMoreChat;
     private Button btSendRecord;
     private Button tbRecord;
-    private CheckBox tgMarkOut;
+    private AppCompatCheckBox tgMarkOut;
     private TextView tvChatStatus;
     private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
@@ -148,18 +153,26 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
         getComponent().inject(this);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            originalConversation = bundle.getParcelable("CONVERSATION");
+            Color currentColor = Color.DEFAULT;
+            if (bundle.containsKey(EXTRA_CONVERSATION_COLOR)) {
+                int color = bundle.getInt(EXTRA_CONVERSATION_COLOR);
+                currentColor = Color.from(color);
+                ThemeUtils.onActivityCreateSetTheme(this, currentColor);
+            }
+            presenter.initThemeColor(currentColor);
+        }
+        setContentView(R.layout.activity_chat);
 
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            originalConversation = bundle.getParcelable("CONVERSATION");
-        }
+
         init();
         initView();
         presenter.create();
@@ -179,6 +192,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
+        ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
     }
 
     @Override
@@ -477,7 +491,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
                 boolean loadMoreVisibility = pastVisibleItems <= 3 && pastVisibleItems >= 0 && !isEndOfConvesation;
                 updateLoadMoreButtonStatus(loadMoreVisibility);
-                isScrollToTop = pastVisibleItems == 0;
+
+                int lastVisibleItem = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
 
@@ -780,6 +796,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         Bundle extras = new Bundle();
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, originalConversation.key);
         extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation.conversationType);
+        extras.putInt(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         intent.putExtras(extras);
         startActivity(intent);
     }
@@ -888,9 +905,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {
+            updateMaskTintColor(true);
             edMessage.setText(ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText));
             select = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText.substring(0, select)).length();
         } else {
+            updateMaskTintColor(false);
+            //int color = ContextCompat.getColor(this, R.color.gray_color);
             edMessage.setText(originalText);
         }
         try {
@@ -1115,11 +1135,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateMaskSetting(boolean isEnable) {
         tgMarkOut.setChecked(isEnable);
+        updateMaskTintColor(isEnable);
     }
 
     @Override
     public void updateUserStatus(boolean isOnline) {
-        tvChatStatus.setText(isOnline ? "Online" : "Offline");
+        tvChatStatus.setText(isOnline ? "Active" : "Inactive");
     }
 
     @Override
@@ -1150,8 +1171,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void updateLastMessages(List<MessageBaseItem> messages, boolean canLoadMore) {
-        messagesAdapter.appendHistoryItems(messages);
+    public void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore) {
+        messagesAdapter.updateData(messages);
         if (!canLoadMore) {
             isEndOfConvesation = true;
             updateLoadMoreButtonStatus(false);
@@ -1194,6 +1215,24 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
+        messagesAdapter.handleNewMessage(item, headerItem, added);
+        if (isScrollToTop) {
+            recycleChatView.scrollToPosition(messagesAdapter.getItemCount() - 1);
+        }
+    }
+
+    @Override
+    public void changeTheme(Color from) {
+        Bundle extras = getIntent().getExtras();
+        if (extras == null) {
+            extras = new Bundle();
+        }
+        extras.putInt(EXTRA_CONVERSATION_COLOR, from.getCode());
+        ThemeUtils.changeToTheme(this, extras);
+    }
+
+    @Override
     public ChatComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent().provideChatComponent(new ChatModule(this));
@@ -1219,5 +1258,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         List<Message> messages = new ArrayList<>(1);
         messages.add(message);
         presenter.updateMaskMessages(messages, lastItem, maskStatus);
+    }
+
+    private void updateMaskTintColor(boolean isEnable) {
+        if (isEnable) {
+            int color = ContextCompat.getColor(this, originalConversation.currentColor.getColor());
+            tgMarkOut.setButtonTintList(ColorStateList.valueOf(color));
+        } else {
+            tgMarkOut.setButtonTintList(null);
+        }
     }
 }

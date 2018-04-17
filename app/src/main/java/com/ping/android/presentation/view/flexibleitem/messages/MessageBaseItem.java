@@ -14,6 +14,10 @@ import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.custom.revealable.RevealStyle;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
@@ -22,10 +26,14 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DateUtils;
+import com.ping.android.utils.Log;
+import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -90,15 +98,26 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         this.nickNames = nickNames;
     }
 
-    public static abstract class ViewHolder extends BaseMessageViewHolder implements View.OnClickListener {
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MessageBaseItem) {
+            return ((MessageBaseItem) obj).message.equals(message);
+        }
+        return false;
+    }
+
+    public static abstract class ViewHolder extends BaseMessageViewHolder
+            implements View.OnClickListener, RevealableViewHolder {
         protected RadioButton rbSelection;
         protected ImageView senderProfileImage;
         protected TextView tvMessageInfo;
         protected TextView tvStatus;
+        protected TextView revealableView;
 
         protected MessageBaseItem item;
         protected boolean maskStatus;
         public boolean lastItem;
+        private float mInitialTranslateX = ResourceUtils.dpToPx(80);
 
         protected MessageListener messageListener;
 
@@ -112,6 +131,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 senderProfileImage.setOnClickListener(this);
             }
             rbSelection.setOnClickListener(this);
+            revealableView = itemView.findViewById(R.id.revealable_view);
         }
 
         public void setMessageListener(MessageListener messageListener) {
@@ -125,9 +145,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             rbSelection.setVisibility(item.isEditMode ? View.VISIBLE : View.GONE);
             rbSelection.setChecked(item.isSelected);
             rbSelection.setSelected(item.isSelected);
-            setSenderImage(item.message.sender);
+            setSenderImage(item.message);
             setMessageInfo(item.message);
             setMessageStatus(item.message, lastItem);
+            transform(ChatMessageAdapter.xDiff);
         }
 
         @Override
@@ -168,6 +189,42 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             }
         }
 
+        @Override
+        public View getRevealView() {
+            return revealableView;
+        }
+
+        @Override
+        public View getSlideView() {
+            return itemView;
+        }
+
+        @Override
+        public RevealStyle getRevealStyle() {
+            if (item != null) {
+                return item.message.isFromMe() ? RevealStyle.SLIDE : RevealStyle.OVER;
+            }
+            return RevealStyle.OVER;
+        }
+
+        @Override
+        public void transform(float xDiff) {
+            if (getRevealView() != null) {
+                float finalDistance = Math.max(xDiff, -mInitialTranslateX);
+                if (finalDistance > 0)
+                    return;
+
+                View revealView = getRevealView();
+                revealView.setTranslationX(mInitialTranslateX + finalDistance);
+                if (getRevealStyle() == RevealStyle.SLIDE) {
+                    View slideView = getSlideView();
+                    if (slideView != null) {
+                        slideView.setTranslationX(finalDistance);
+                    }
+                }
+            }
+        }
+
         private void handleSelection() {
             boolean toggleStatus = !rbSelection.isSelected();
             item.setSelected(toggleStatus);
@@ -183,23 +240,33 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         }
 
         private void setMessageInfo(Message message) {
-            if (tvMessageInfo == null) return;
-
-            String time = CommonMethod.convertTimestampToTime(message.timestamp);
-            if (!message.currentUserId.equals(message.senderId)
-                    && item.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                String nickName = (String) item.nickNames.get(message.senderId);
-                String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
-                tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName) + ", " + time);
-            } else {
-                tvMessageInfo.setText(time);
+            String time = DateUtils.toString("h:mm a", message.timestamp);
+            if (revealableView != null) {
+                revealableView.setText(time);
             }
-            tvMessageInfo.setVisibility(View.VISIBLE);
+            if (tvMessageInfo != null) {
+                if (!message.showExtraInfo || item.conversationType != Constant.CONVERSATION_TYPE_GROUP) {
+                    tvMessageInfo.setVisibility(View.GONE);
+                } else {
+                    tvMessageInfo.setVisibility(View.VISIBLE);
+                    String nickName = (String) item.nickNames.get(message.senderId);
+                    String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
+                    tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName));
+                }
+            }
         }
 
-        private void setSenderImage(User sender) {
-            if (sender != null && senderProfileImage != null) {
-                UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+        private void setSenderImage(Message message) {
+            if (senderProfileImage == null) return;
+
+            if (message.showExtraInfo) {
+                senderProfileImage.setVisibility(View.VISIBLE);
+                User sender = message.sender;
+                if (sender != null && senderProfileImage != null) {
+                    UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+                }
+            } else {
+                senderProfileImage.setVisibility(View.INVISIBLE);
             }
         }
 

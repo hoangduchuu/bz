@@ -9,6 +9,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
 import com.google.gson.Gson;
+import com.ping.android.model.enums.Color;
 import com.ping.android.ultility.Constant;
 
 import junit.framework.Assert;
@@ -44,6 +45,7 @@ public class Conversation implements Parcelable {
     public Map<String, Boolean> puzzleMessages = new HashMap<>();
     public Map<String, Boolean> maskOutputs = new HashMap<>();
     public Map<String, String> nickNames = new HashMap<>();
+    public Map<String, Theme> themes = new HashMap<>();
 
 //    public boolean notificationSetting;
 //    public boolean maskMessagesSetting;
@@ -55,6 +57,8 @@ public class Conversation implements Parcelable {
     public User opponentUser;
     public boolean isRead = false;
     public String filterText;
+    public String displayMessage;
+    public Color currentColor = Color.DEFAULT;
 
     protected Conversation(Parcel in) {
         key = in.readString();
@@ -172,6 +176,7 @@ public class Conversation implements Parcelable {
             this.members = originalConversation.members;
             this.group = originalConversation.group;
             this.nickNames = originalConversation.nickNames;
+            this.themes = originalConversation.themes;
             if (!TextUtils.isEmpty(groupID)) {
                 this.conversationName = originalConversation.conversationName;
                 this.conversationAvatarUrl = originalConversation.conversationAvatarUrl;
@@ -253,7 +258,16 @@ public class Conversation implements Parcelable {
         result.put("puzzleMessages", puzzleMessages);
         result.put("maskOutputs", maskOutputs);
         result.put("nickNames", nickNames);
+        result.put("themes", themes);
 
         return result;
+    }
+
+    public Color getColor(String key) {
+        if (themes != null && themes.containsKey(key)) {
+            Theme theme = themes.get(key);
+            return Color.from(theme.mainColor);
+        }
+        return Color.DEFAULT;
     }
 }

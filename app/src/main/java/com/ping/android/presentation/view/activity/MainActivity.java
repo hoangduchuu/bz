@@ -41,6 +41,7 @@ import com.quickblox.messages.services.SubscribeService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -320,14 +321,17 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
                     public void onClick(DialogInterface dialog, int whichButton) {
                         startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
-                        ServiceManager.getInstance().updateShowMappingConfirm(true);
+                        presenter.turnOffMappingConfirmation();
+                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UsersUtils.randomizeTransphabet();
-                        ServiceManager.getInstance().updateShowMappingConfirm(true);
+                        Map<String, String> mappings = UsersUtils.randomizeTransphabet();
+                        presenter.randomizeTransphabet(mappings);
+                        presenter.turnOffMappingConfirmation();
+                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
                     }
                 }).show();
     }

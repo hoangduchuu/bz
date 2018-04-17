@@ -252,7 +252,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     @Override
     public void navigateToMainScreen() {
         UserManager.getInstance().startCallService(this);
-        ServiceManager.getInstance().updateLoginStatus(true);
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }

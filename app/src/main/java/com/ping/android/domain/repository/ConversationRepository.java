@@ -36,4 +36,6 @@ public interface ConversationRepository {
     Observable<Boolean> updateReadStatus(String conversationId, String userId);
 
     Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId);
+
+    Observable<Integer> observeConversationColor(String userId, String conversationId);
 }

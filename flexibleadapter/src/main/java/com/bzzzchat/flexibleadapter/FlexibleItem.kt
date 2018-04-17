@@ -17,3 +17,7 @@ interface FlexibleItem<V> where V: RecyclerView.ViewHolder{
 
     fun onBindViewHolder(holder: V, lastItem: Boolean)
 }
+
+interface HeaderItem<T, V> where T: FlexibleItem<V>, V: RecyclerView.ViewHolder {
+    val childItems: ArrayList<FlexibleItem<V>>
+}

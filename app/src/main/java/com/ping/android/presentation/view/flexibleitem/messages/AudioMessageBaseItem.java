@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -116,6 +117,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         private static final int AUDIO_PROGRESS_UPDATE_TIME = 100;
 
         private FirebaseStorage storage;
+        private LinearLayout container;
         private TextView duration;
         private SeekBar seekBar;
         private ImageView btnPlay;
@@ -130,6 +132,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         public ViewHolder(View itemView) {
             super(itemView);
             storage = FirebaseStorage.getInstance();
+            container = itemView.findViewById(R.id.item_chat_audio);
             duration = itemView.findViewById(R.id.playback_time);
             seekBar = itemView.findViewById(R.id.media_seekbar);
             loadingAudioPreparing = itemView.findViewById(R.id.loading_audio_preparing);
@@ -173,6 +176,11 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     initPlayer(audioStatus);
                     break;
             }
+        }
+
+        @Override
+        public View getSlideView() {
+            return container;
         }
 
         private Runnable mUpdateProgress = new Runnable() {

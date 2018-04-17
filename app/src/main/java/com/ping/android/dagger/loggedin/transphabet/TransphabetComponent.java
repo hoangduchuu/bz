@@ -1,6 +1,7 @@
 package com.ping.android.dagger.loggedin.transphabet;
 
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
+import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
 import com.ping.android.dagger.scopes.PerActivity;
@@ -13,7 +14,7 @@ import dagger.Subcomponent;
 @PerActivity
 @Subcomponent
 public interface TransphabetComponent {
-    TransphabetSelectionComponent provideTransphabetSelectionComponent();
+    TransphabetSelectionComponent provideTransphabetSelectionComponent(TransphabetModule module);
 
     ManualMappingComponent provideManualMappingComponent(ManualMappingModule manualMappingModule);
 }

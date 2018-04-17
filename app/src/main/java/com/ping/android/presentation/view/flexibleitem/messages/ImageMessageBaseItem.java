@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.ping.android.activity.R;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.UiUtils;
 
@@ -34,11 +36,13 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
-        ImageView imageView;
+        private LinearLayout container;
+        private ImageView imageView;
         private boolean isUpdated;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+            container = itemView.findViewById(R.id.container);
             imageView = itemView.findViewById(R.id.item_chat_image);
 
             initGestureListener();
@@ -91,6 +95,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             setImageMessage(item.message);
         }
 
+        @Override
+        public View getSlideView() {
+            return container;
+        }
+
         private void handleImagePress(boolean isPuzzled) {
             if (TextUtils.isEmpty(item.message.localImage)) {
                 String photoUrl = !TextUtils.isEmpty(item.message.photoUrl)
@@ -111,7 +120,8 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 return;
             }
             // Only play game for player
-            int status = ServiceManager.getInstance().getCurrentStatus(item.message.status);
+            int status = CommonMethod.getIntFrom(item.message.status, item.message.currentUserId);
+            //int status = ServiceManager.getInstance().getCurrentStatus(item.message.status);
             if (!item.message.currentUserId.equals(item.message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
@@ -150,7 +160,8 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
-            int status = ServiceManager.getInstance().getCurrentStatus(message.status);
+            int status = CommonMethod.getIntFrom(message.status, message.currentUserId);
+            //int status = ServiceManager.getInstance().getCurrentStatus(message.status);
             if (!TextUtils.isEmpty(message.gameUrl) && !message.currentUserId.equals(message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     imageView.setImageResource(R.drawable.img_game_over);

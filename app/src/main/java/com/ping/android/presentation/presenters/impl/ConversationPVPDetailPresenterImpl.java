@@ -1,7 +1,8 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.ToggleBlockUserUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateConversationColorUseCase;
+import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
@@ -37,6 +38,8 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     ToggleBlockUserUseCase toggleBlockUserUseCase;
     @Inject
     ConversationPVPDetailPresenter.View view;
+    @Inject
+    UpdateConversationColorUseCase updateConversationColorUseCase;
 
     private Conversation conversation;
     private User currentUser;
@@ -159,6 +162,18 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Override
     public void handleVoiceCallPress() {
         view.openCallScreen(currentUser, conversation.opponentUser, false);
+    }
+
+    @Override
+    public void updateColor(int color) {
+        UpdateConversationColorUseCase.Params params =
+                new UpdateConversationColorUseCase.Params(currentUser.key, conversation, color);
+        updateConversationColorUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.navigateBack();
+            }
+        }, params);
     }
 
     @Override

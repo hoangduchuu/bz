@@ -3,11 +3,9 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.LogoutUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
-import com.ping.android.domain.usecase.ToggleUserNotificationSettingUseCase;
-import com.ping.android.domain.usecase.ToggleUserPrivateProfileSettingUseCase;
-import com.ping.android.domain.usecase.UploadUserProfileImageUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
-import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
+import com.ping.android.domain.usecase.user.ToggleUserNotificationSettingUseCase;
+import com.ping.android.domain.usecase.user.ToggleUserPrivateProfileSettingUseCase;
+import com.ping.android.domain.usecase.user.UploadUserProfileImageUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 

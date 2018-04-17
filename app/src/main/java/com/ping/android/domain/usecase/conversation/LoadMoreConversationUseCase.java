@@ -59,6 +59,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                     }
                                     boolean readStatus = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
                                     conversation.isRead = readStatus;
+                                    conversation.currentColor = conversation.getColor(user.key);
                                     conversations.add(conversation);
                                 }
                             }

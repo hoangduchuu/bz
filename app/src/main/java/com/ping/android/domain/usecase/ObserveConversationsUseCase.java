@@ -17,7 +17,6 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +64,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 }
                             }
                             conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
+                            conversation.currentColor = conversation.getColor(currentUser.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;

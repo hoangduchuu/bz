@@ -2,8 +2,8 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
-import com.ping.android.domain.usecase.ResetUserMappingsUseCase;
-import com.ping.android.domain.usecase.UpdateUserMappingUseCase;
+import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
+import com.ping.android.domain.usecase.user.UpdateUserMappingUseCase;
 import com.ping.android.model.Mapping;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
@@ -28,7 +28,7 @@ public class ManualMappingPresenterImpl implements ManualMappingPresenter {
     @Inject
     UpdateUserMappingUseCase updateUserMappingUseCase;
     @Inject
-    ResetUserMappingsUseCase resetUserMappingsUseCase;
+    UpdateUserTransphabetUseCase updateUserTransphabetUseCase;
 
     private List<Mapping> mappings = new ArrayList<>();
 
@@ -50,7 +50,7 @@ public class ManualMappingPresenterImpl implements ManualMappingPresenter {
     @Override
     public void resetMapping() {
         mappings = getDefaultMappingList();
-        resetUserMappingsUseCase.execute(new DefaultObserver<Boolean>() {
+        updateUserTransphabetUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
                 view.updateMapping(mappings);
@@ -83,7 +83,7 @@ public class ManualMappingPresenterImpl implements ManualMappingPresenter {
     public void destroy() {
         getCurrentUserUseCase.dispose();
         updateUserMappingUseCase.dispose();
-        resetUserMappingsUseCase.dispose();
+        updateUserTransphabetUseCase.dispose();
     }
 
     private void updateMapping(Mapping mapping) {
