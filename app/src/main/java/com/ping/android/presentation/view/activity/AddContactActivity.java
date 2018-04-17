@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.dagger.loggedin.addcontact.AddContactModule;

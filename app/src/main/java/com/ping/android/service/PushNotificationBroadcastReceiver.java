@@ -25,7 +25,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.App;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.notification.ShowIncomingMessageNotificationUseCase;
 import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUseCase;

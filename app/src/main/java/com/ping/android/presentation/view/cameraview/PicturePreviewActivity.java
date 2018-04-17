@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.otaliastudios.cameraview.CameraUtils;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;

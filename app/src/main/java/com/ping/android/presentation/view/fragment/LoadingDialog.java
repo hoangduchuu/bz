@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.wang.avi.AVLoadingIndicatorView;
 
 public class LoadingDialog extends DialogFragment {

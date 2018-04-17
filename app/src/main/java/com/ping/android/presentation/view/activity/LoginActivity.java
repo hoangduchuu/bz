@@ -20,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.managers.UserManager;

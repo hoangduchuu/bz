@@ -17,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -30,7 +29,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 

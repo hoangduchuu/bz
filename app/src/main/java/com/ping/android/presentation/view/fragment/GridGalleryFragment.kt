@@ -2,13 +2,12 @@ package com.ping.android.presentation.view.fragment
 
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
-import com.ping.android.activity.R
+import com.ping.android.R
 import com.ping.android.model.Conversation
 import com.ping.android.presentation.presenters.GalleryPresenter
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2

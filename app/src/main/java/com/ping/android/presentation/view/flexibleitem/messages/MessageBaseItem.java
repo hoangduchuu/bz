@@ -11,10 +11,9 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
@@ -27,13 +26,11 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DateUtils;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;

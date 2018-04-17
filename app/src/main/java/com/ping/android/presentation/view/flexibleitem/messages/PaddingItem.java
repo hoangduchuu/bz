@@ -1,13 +1,12 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import org.jetbrains.annotations.NotNull;
 

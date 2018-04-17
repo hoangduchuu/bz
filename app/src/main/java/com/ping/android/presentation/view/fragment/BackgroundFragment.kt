@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
-import com.ping.android.activity.R
+import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule
@@ -25,9 +25,7 @@ import com.ping.android.presentation.view.adapter.delegate.FirebaseBackgroundDel
 import com.ping.android.presentation.view.adapter.delegate.GalleryItemDelegateAdapter
 import com.ping.android.utils.DataProvider
 import com.ping.android.utils.ImagePickerHelper
-import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.fragment_background.*
-import java.io.File
 import javax.inject.Inject
 
 class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {

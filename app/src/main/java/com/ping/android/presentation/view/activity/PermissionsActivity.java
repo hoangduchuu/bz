@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.utils.PermissionsChecker;
 import com.ping.android.utils.Toaster;
 

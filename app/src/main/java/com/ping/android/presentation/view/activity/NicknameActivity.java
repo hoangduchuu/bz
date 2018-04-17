@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
 import com.ping.android.dagger.loggedin.nickname.NicknameModule;
 import com.ping.android.presentation.presenters.NicknamePresenter;

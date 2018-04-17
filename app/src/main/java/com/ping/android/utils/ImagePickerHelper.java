@@ -24,7 +24,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
-import com.ping.android.activity.BuildConfig;
+import com.ping.android.BuildConfig;
 import com.ping.android.presentation.view.cameraview.CameraActivity;
 import com.ping.android.ultility.Constant;
 import com.theartofdev.edmodo.cropper.CropImage;

@@ -15,8 +15,8 @@ import com.otaliastudios.cameraview.CameraLogger;
 import com.otaliastudios.cameraview.CameraOptions;
 import com.otaliastudios.cameraview.CameraView;
 import com.otaliastudios.cameraview.Size;
-import com.ping.android.activity.BuildConfig;
-import com.ping.android.activity.R;
+import com.ping.android.BuildConfig;
+import com.ping.android.R;
 
 import java.io.File;
 

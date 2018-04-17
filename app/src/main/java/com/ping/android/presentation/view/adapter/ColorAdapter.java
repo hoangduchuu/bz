@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.enums.Color;
 
 import java.util.List;

@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.ping.android.activity.BuildConfig;
 import com.ping.android.model.QbConfigs;
 import com.ping.android.service.NotificationBroadcastReceiver;
 import com.ping.android.utils.configs.CoreConfigUtils;

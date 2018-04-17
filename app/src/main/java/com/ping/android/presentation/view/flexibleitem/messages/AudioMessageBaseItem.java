@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.utils.Log;

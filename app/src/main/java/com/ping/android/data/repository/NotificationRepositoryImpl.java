@@ -2,7 +2,7 @@ package com.ping.android.data.repository;
 
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.google.gson.JsonObject;
-import com.ping.android.activity.BuildConfig;
+import com.ping.android.BuildConfig;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;

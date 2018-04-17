@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.video.VideoCallComponent;
 import com.ping.android.dagger.loggedin.call.video.VideoCallModule;

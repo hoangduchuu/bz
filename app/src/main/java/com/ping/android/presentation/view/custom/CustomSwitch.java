@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 public class CustomSwitch extends LinearLayout {
 

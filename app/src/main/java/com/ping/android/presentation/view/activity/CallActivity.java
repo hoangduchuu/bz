@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.data.db.QbUsersDbManager;

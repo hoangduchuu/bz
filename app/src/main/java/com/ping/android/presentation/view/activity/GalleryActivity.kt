@@ -2,8 +2,7 @@ package com.ping.android.presentation.view.activity
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import com.ping.android.activity.R
-import com.ping.android.presentation.view.fragment.GridGalleryFragment
+import com.ping.android.R
 
 class GalleryActivity : AppCompatActivity() {
 

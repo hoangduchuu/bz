@@ -9,13 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
 import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.TransphabetEvent;

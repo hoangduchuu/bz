@@ -12,7 +12,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.otaliastudios.cameraview.CameraView;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import java.util.ArrayList;
 

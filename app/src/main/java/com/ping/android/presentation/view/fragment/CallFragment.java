@@ -14,7 +14,7 @@ import android.widget.Button;
 
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;

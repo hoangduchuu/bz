@@ -1,6 +1,6 @@
 package com.ping.android.utils;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Transphabet;
 import com.ping.android.model.enums.Color;
 

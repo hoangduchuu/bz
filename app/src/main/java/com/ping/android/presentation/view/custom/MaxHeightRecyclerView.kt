@@ -3,7 +3,7 @@ package com.ping.android.presentation.view.custom
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
-import com.ping.android.activity.R
+import com.ping.android.R
 
 class MaxHeightRecyclerView @JvmOverloads constructor(
         context: Context,

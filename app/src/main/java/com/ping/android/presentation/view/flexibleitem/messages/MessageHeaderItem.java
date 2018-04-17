@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;

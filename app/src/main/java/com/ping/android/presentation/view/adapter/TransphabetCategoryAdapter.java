@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Transphabet;
 
 import java.util.List;
