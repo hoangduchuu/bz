@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ping.android.activity">
 
+    <!--<permission-->
+        <!--android:name="com.ping.android.debug.permission.C2D_MESSAGE"-->
+        <!--android:protectionLevel="signature" />-->
+
     <application
         android:name="com.ping.android.App"
         android:icon="@mipmap/ic_launcher"
