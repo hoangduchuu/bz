@@ -144,7 +144,8 @@
                                 style="@style/ItemSettingIconRight.Toggle" />
                         </LinearLayout>
 
-                        <LinearLayout style="@style/ItemSetting">
+                        <LinearLayout style="@style/ItemSetting"
+                            android:visibility="gone">
 
                             <ImageView
                                 style="@style/ItemSettingIconLeft"
