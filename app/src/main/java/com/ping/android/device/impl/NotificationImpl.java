@@ -249,6 +249,11 @@ public class NotificationImpl implements Notification {
         }
     }
 
+    @Override
+    public void clearAll() {
+        notificationManager.cancelAll();
+    }
+
     private void prepareProfileImage(Context context, String profileImage, Callback callback) {
         if (profileImage != null && !profileImage.isEmpty() && profileImage.startsWith("gs://")) {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(profileImage);

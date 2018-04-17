@@ -269,7 +269,8 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     private boolean needDisplayNotification(String conversationId) {
         Activity activeActivity = ActivityLifecycle.getInstance().getForegroundActivity();
         boolean isForeground = ActivityLifecycle.getInstance().isForeground();
-        //do not display notification if opponentUser already logged out
+        // do not display notification if opponentUser already logged out
+        // Note: use this params to detect in case of user reinstall app
         if (!SharedPrefsHelper.getInstance().get("isLoggedIn", false)) {
             Log.d("opponentUser not logged-in");
             return false;
