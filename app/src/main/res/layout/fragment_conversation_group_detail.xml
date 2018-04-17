@@ -194,6 +194,26 @@
 
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_gallery"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_chat_image_selected" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/conversation_detail_media" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View style="@style/ItemViewSeparate" />

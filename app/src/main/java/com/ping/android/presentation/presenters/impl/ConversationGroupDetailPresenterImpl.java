@@ -248,6 +248,11 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     @Override
+    public void handleGalleryClicked() {
+        view.moveToGallery(conversation);
+    }
+
+    @Override
     public void destroy() {
         observeCurrentUserUseCase.dispose();
         observeConversationUpdateUseCase.dispose();

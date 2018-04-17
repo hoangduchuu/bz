@@ -167,6 +167,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.group_profile_color:
                 onColorClicked();
                 break;
+            case R.id.profile_gallery:
+                presenter.handleGalleryClicked();
+                break;
         }
     }
 
@@ -374,5 +377,10 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void moveToSelectBackground(Conversation conversation) {
         navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
+    }
+
+    @Override
+    public void moveToGallery(Conversation conversation) {
+        navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
     }
 }

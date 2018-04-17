@@ -12,7 +12,7 @@ class GalleryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_gallery)
 
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.container, GridGalleryFragment.newInstance())
+        //transaction.add(R.id.container, GridGalleryFragment.newInstance())
         transaction.commit()
     }
 }

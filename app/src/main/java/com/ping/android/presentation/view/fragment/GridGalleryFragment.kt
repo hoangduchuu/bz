@@ -9,11 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.activity.R
+import com.ping.android.model.Conversation
 import com.ping.android.presentation.presenters.GalleryPresenter
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
 
-class GridGalleryFragment : Fragment() {
+class GridGalleryFragment : BaseFragment() {
 
     lateinit var presenter: GalleryPresenter
 
@@ -28,6 +29,12 @@ class GridGalleryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        arguments.let {
+            val conversation = arguments?.get("conversation") as? Conversation
+            if (conversation != null) {
+                presenter.initConversation(conversation)
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +45,9 @@ class GridGalleryFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance() = GridGalleryFragment()
+        fun newInstance(conversation: Conversation) = GridGalleryFragment().apply {
+            arguments = Bundle()
+            arguments?.putParcelable("conversation", conversation)
+        }
     }
 }

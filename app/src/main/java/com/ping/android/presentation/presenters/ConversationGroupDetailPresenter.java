@@ -36,6 +36,8 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void handleBackgroundClicked();
 
+    void handleGalleryClicked();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -58,5 +60,7 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
         void openPicker();
 
         void moveToSelectBackground(Conversation conversation);
+
+        void moveToGallery(Conversation conversation);
     }
 }
