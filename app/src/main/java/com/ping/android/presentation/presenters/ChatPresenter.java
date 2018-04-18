@@ -63,7 +63,7 @@ public interface ChatPresenter extends BasePresenter {
 
         void addNewMessage(MessageBaseItem data);
 
-        void removeMessage(Message data);
+        void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data);
 
         void updateMessage(MessageBaseItem data);
 

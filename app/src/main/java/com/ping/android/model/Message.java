@@ -191,7 +191,7 @@ public class Message {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Message) {
-            return timestamp == ((Message) obj).timestamp;
+            return timestamp == ((Message) obj).timestamp && key.equals(((Message) obj).key);
         }
         return false;
     }
