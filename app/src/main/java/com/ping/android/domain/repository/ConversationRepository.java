@@ -2,6 +2,7 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 

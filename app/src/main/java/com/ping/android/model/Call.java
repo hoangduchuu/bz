@@ -18,7 +18,6 @@ public class Call {
     public double timestamp;
     public Map<String, Boolean> deleteStatuses = new HashMap<>();
 
-    public List<User> members = new ArrayList<>();
     public User opponentUser;
     public String opponentName;
     public String conversationId;

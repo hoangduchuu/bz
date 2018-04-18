@@ -59,6 +59,7 @@ public class Conversation implements Parcelable {
     public String filterText;
     public String displayMessage;
     public Color currentColor = Color.DEFAULT;
+    public double deleteTimestamp = 0.0;
 
     protected Conversation(Parcel in) {
         key = in.readString();
@@ -269,5 +270,9 @@ public class Conversation implements Parcelable {
             return Color.from(theme.mainColor);
         }
         return Color.DEFAULT;
+    }
+
+    public boolean isValid() {
+        return timesstamps > deleteTimestamp;
     }
 }

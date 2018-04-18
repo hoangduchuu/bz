@@ -27,3 +27,9 @@ data class LocalBackgroundItem(var resId: Int) : ViewType {
         return AdapterConstants.IMAGE
     }
 }
+
+data class ImageMessage(var message: Message) : ViewType {
+    override fun getViewType(): Int {
+        return AdapterConstants.IMAGE
+    }
+}

@@ -52,13 +52,11 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                         lastTimestamp = conversation.timesstamps;
                                     }
                                     if (!conversation.memberIDs.containsKey(user.key)) continue;
-                                    if (conversation.deleteTimestamps.containsKey(user.key)
-                                            && conversation.deleteTimestamps.get(user.key) > conversation.timesstamps) {
+                                    conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);
+                                    if (!conversation.isValid()) {
                                         continue;
-                                        //conversation will not show if last message time stamp less than conversation deleted time
                                     }
-                                    boolean readStatus = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
-                                    conversation.isRead = readStatus;
+                                    conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
                                     conversation.currentColor = conversation.getColor(user.key);
                                     conversations.add(conversation);
                                 }

@@ -8,18 +8,27 @@ import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
+import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
+import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
+import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule
+import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent
 import com.ping.android.model.Conversation
 import com.ping.android.presentation.presenters.GalleryPresenter
+import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
+import com.ping.android.presentation.view.adapter.delegate.FirebaseMessageDelegateAdapter
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
+import javax.inject.Inject
 
-class GridGalleryFragment : BaseFragment() {
+class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
+    @Inject lateinit var presenter: GalleryPresenter
 
-    lateinit var presenter: GalleryPresenter
+    val component: GalleryComponent by lazy {
+        getComponent(ConversationDetailComponent::class.java)
+                .provideGalleryComponent(GalleryModule(this))
+    }
 
     private val galleryList by lazy {
-        adapter = FlexibleAdapterV2()
-        gallery_list.adapter = adapter
         gallery_list.layoutManager = GridLayoutManager(context, 3)
         gallery_list
     }
@@ -28,6 +37,7 @@ class GridGalleryFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        component.inject(this)
         arguments.let {
             val conversation = arguments?.get("conversation") as? Conversation
             if (conversation != null) {
@@ -40,6 +50,24 @@ class GridGalleryFragment : BaseFragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return container?.inflate(R.layout.fragment_grid_gallery, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        btn_back.setOnClickListener { activity?.onBackPressed() }
+        adapter = FlexibleAdapterV2()
+        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(clickListener = {
+            // Open image in viewpager
+        }))
+        galleryList.adapter = adapter
+    }
+
+    override fun showLoading() {
+        super<BaseFragment>.showLoading()
+    }
+
+    override fun hideLoading() {
+        super<BaseFragment>.hideLoading()
     }
 
     companion object {

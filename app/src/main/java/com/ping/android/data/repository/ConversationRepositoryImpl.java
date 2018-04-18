@@ -37,8 +37,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Observable<DataSnapshot> loadMoreConversation(String userId, double endTimestamps) {
-        Query query = database.getReference("conversations")
-                .child(userId)
+        DatabaseReference reference = database.getReference("conversations")
+                .child(userId);
+        reference.keepSynced(true);
+        Query query = reference
                 .orderByChild("timesstamps")
                 .endAt(endTimestamps)
                 .limitToLast(15);
@@ -49,8 +51,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Observable<ChildEvent> registerConversationsUpdate(String userId) {
-        Query query = database.getReference("conversations")
-                .child(userId)
+        DatabaseReference reference = database.getReference("conversations")
+                .child(userId);
+        reference.keepSynced(true);
+        Query query = reference
                 .orderByChild("timesstamps");
                 //.limitToLast(15);
         return RxFirebaseDatabase.getInstance(query).onChildEvent();

@@ -256,6 +256,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
         view.findViewById(R.id.profile_background).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
+        view.findViewById(R.id.profile_gallery).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);

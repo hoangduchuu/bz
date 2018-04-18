@@ -9,7 +9,9 @@ import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationBackgroundUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationColorUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
@@ -483,6 +485,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void observeConversationUpdate() {
+
         observeConversationValueFromExistsConversationUseCase
                 .execute(new DefaultObserver<Conversation>() {
                              @Override

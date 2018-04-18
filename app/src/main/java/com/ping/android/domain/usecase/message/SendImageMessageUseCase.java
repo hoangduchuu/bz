@@ -89,6 +89,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/photoUrl", params1.getConversation().key, message.key), message.photoUrl);
                     updateValue.put(String.format("messages/%s/%s/thumbUrl", params1.getConversation().key, message.key), message.thumbUrl);
+                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
                     return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
                 });
     }

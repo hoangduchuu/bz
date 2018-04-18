@@ -51,15 +51,8 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                                                     break;
                                                 }
                                             }
-                                            return Observable.just(conversation);
-                                        } else {
-                                            return groupRepository.getGroup(user.key, conversation.groupID)
-                                                    .map(group -> {
-                                                        group.members = conversation.members;
-                                                        conversation.group = group;
-                                                        return conversation;
-                                                    });
                                         }
+                                        return Observable.just(conversation);
                                     });
                         }));
     }

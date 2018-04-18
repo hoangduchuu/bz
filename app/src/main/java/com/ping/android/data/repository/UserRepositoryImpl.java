@@ -32,6 +32,9 @@ public class UserRepositoryImpl implements UserRepository {
     private User user;
     private QBUser qbUser;
     private Map<String, Boolean> friends;
+    // Currently, users will be cached for later use.
+    // Should improve by invalidate user after a certain of time
+    private Map<String, User> cachedUsers = new HashMap<>();
 
     @Inject
     public UserRepositoryImpl() {
@@ -99,11 +102,16 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<User> getUser(String userId) {
+        User cachedUser = cachedUsers.get(userId);
+        if (cachedUser != null) {
+            return Observable.just(cachedUser);
+        }
         DatabaseReference userReference = database.getReference("users").child(userId);
         return RxFirebaseDatabase.getInstance(userReference)
                 .onSingleValueEvent()
                 .map(dataSnapshot -> {
                     User user = new User(dataSnapshot);
+                    cachedUsers.put(userId, user);
                     return user;
                 })
                 .toObservable();
