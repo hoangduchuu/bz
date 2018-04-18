@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase
 import com.ping.android.model.Conversation
+import com.ping.android.model.Message
 import javax.inject.Inject
 
 interface GalleryPresenter : BasePresenter {
@@ -12,7 +13,7 @@ interface GalleryPresenter : BasePresenter {
     fun loadMedia()
 
     interface View : BaseView {
-
+        fun displayMedia(messages: List<Message>)
     }
 }
 
@@ -31,7 +32,11 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
 
     override fun loadMedia() {
         val observer = object : DefaultObserver<LoadConversationMediaUseCase.Output>() {
-
+            override fun onNext(t: LoadConversationMediaUseCase.Output) {
+                super.onNext(t)
+                t.messages.sortBy { it.timestamp }
+                view.displayMedia(t.messages)
+            }
         }
         loadConversationMediaUseCase.execute(observer,
                 LoadConversationMediaUseCase.Params(conversation, lastTimestamp))

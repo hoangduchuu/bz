@@ -181,8 +181,10 @@ public class UiUtils {
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
-                .override(200, 200)
+                .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(imageView);
     }
 
@@ -198,7 +200,9 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
-                .override(200, 200)
+                .override(100, 100)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {
                     @Override

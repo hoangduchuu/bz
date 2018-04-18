@@ -39,6 +39,8 @@ public class Message {
     public String messageStatus;
     public int messageStatusCode;
     public long days;
+    public boolean isMask;
+
     /**
      * Indicates whether show user profile and date time or not
      */

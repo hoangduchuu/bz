@@ -40,6 +40,9 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
                     Conversation conversation = Conversation.from(dataSnapshot);
                     conversation.opponentUser = params.conversation.opponentUser;
                     conversation.group = params.conversation.group;
+                    conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, params.user.key);
+                    conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, params.user.key);
+                    conversation.currentColor = conversation.getColor(params.user.key);
                     if (conversation.memberIDs.keySet().size() != params.conversation.memberIDs.keySet().size()) {
                         return initMemberList(conversation)
                                 .map(users -> {

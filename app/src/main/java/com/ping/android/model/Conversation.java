@@ -85,6 +85,8 @@ public class Conversation implements Parcelable {
         puzzleMessages = gson.fromJson(in.readString(), Map.class);
         maskOutputs = gson.fromJson(in.readString(), Map.class);
         nickNames = gson.fromJson(in.readString(), Map.class);
+
+        deleteTimestamp = in.readDouble();
     }
 
     @Override
@@ -122,6 +124,8 @@ public class Conversation implements Parcelable {
         dest.writeString(jsonObject.toString());
         jsonObject = new JSONObject(nickNames);
         dest.writeString(jsonObject.toString());
+
+        dest.writeDouble(deleteTimestamp);
     }
 
     @Override

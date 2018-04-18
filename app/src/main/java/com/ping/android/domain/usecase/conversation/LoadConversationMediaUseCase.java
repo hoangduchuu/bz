@@ -35,6 +35,12 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Params params) {
+        if (params.conversation.deleteTimestamp > params.lastTimestamp) {
+            LoadConversationMediaUseCase.Output output = new LoadConversationMediaUseCase.Output();
+            output.messages = new ArrayList<>();
+            output.canLoadMore = false;
+            return Observable.just(output);
+        }
         return userRepository.getCurrentUser()
         .flatMap(user -> messageRepository.loadConversationMedia(params.conversation.key, params.lastTimestamp)
                 .map(dataSnapshot -> {
@@ -42,6 +48,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                         List<Message> messages = new ArrayList<>();
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             Message message = Message.from(child);
+                            message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                             boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                             if (isDeleted) {
                                 continue;
@@ -51,7 +58,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                     && !message.readAllowed.containsKey(user.key))
                                 continue;
 
-                            if (message.timestamp < getLastDeleteTimeStamp(params.conversation, user)) {
+                            if (message.timestamp < params.conversation.deleteTimestamp) {
                                 continue;
                             }
 
@@ -76,18 +83,6 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
             }
         }
         return null;
-    }
-
-    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(user.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
     }
 
     public static class Params {

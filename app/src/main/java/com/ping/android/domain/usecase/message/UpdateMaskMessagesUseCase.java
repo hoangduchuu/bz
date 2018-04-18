@@ -42,6 +42,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
                     for (String message : params.messageKeys) {
                         updateValue.put(String.format("messages/%s/%s/markStatuses/%s", params.conversationId,
                                 message, user.key), params.isMask);
+                        updateValue.put(String.format("media/%s/%s/markStatuses/%s", params.conversationId, message, user.key),
+                                params.isMask);
                     }
                     if (params.isLastMessage) {
                         updateValue.put(String.format("conversations/%s/%s/markStatuses/%s/", user.key,

@@ -13,6 +13,8 @@ import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryCompon
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule
 import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent
 import com.ping.android.model.Conversation
+import com.ping.android.model.ImageMessage
+import com.ping.android.model.Message
 import com.ping.android.presentation.presenters.GalleryPresenter
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
@@ -60,6 +62,7 @@ class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
             // Open image in viewpager
         }))
         galleryList.adapter = adapter
+        presenter.loadMedia()
     }
 
     override fun showLoading() {
@@ -68,6 +71,13 @@ class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
 
     override fun hideLoading() {
         super<BaseFragment>.hideLoading()
+    }
+
+    override fun displayMedia(messages: List<Message>) {
+        val data = messages.map {
+            ImageMessage(it)
+        }
+        adapter.addItems(data)
     }
 
     companion object {
