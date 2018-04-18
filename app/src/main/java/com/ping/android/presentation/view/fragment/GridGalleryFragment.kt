@@ -19,11 +19,13 @@ import com.ping.android.presentation.presenters.GalleryPresenter
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.delegate.FirebaseMessageDelegateAdapter
+import com.ping.android.utils.Navigator
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
 import javax.inject.Inject
 
 class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
     @Inject lateinit var presenter: GalleryPresenter
+    @Inject lateinit var navigationManager: Navigator
 
     val component: GalleryComponent by lazy {
         getComponent(ConversationDetailComponent::class.java)
@@ -58,8 +60,9 @@ class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
         super.onViewCreated(view, savedInstanceState)
         btn_back.setOnClickListener { activity?.onBackPressed() }
         adapter = FlexibleAdapterV2()
-        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(clickListener = {
+        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(clickListener = { imageMessage: ImageMessage, map: Map<String, View> ->
             // Open image in viewpager
+            navigationManager.moveToFragment(ViewPagerGalleryFragment.newInstance(), map)
         }))
         galleryList.adapter = adapter
         presenter.loadMedia()

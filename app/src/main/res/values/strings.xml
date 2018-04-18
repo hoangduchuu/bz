@@ -245,4 +245,7 @@
     <string name="conversation_detail_media">Gallery</string>
     <string name="color_picker_description">Pick a color for this conversation</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

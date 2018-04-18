@@ -10,6 +10,7 @@ import android.view.View;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -117,11 +118,11 @@ public class Navigator {
         }
     }
 
-    public void moveToFragment(BaseFragment fragment, List<Pair<View, String>> lstPair) {
+    public void moveToFragment(BaseFragment fragment, Map<String, View> map) {
             FragmentTransaction transaction = mFragmentManager.beginTransaction();
             transaction.replace(containerId, fragment);
-            for (Pair<View, String> pair : lstPair) {
-                transaction.addSharedElement(pair.first, pair.second);
+            for (String key : map.keySet()) {
+                transaction.addSharedElement(map.get(key), key);
             }
             transaction.addToBackStack(fragment.getClass().getName())
                     .commit();

@@ -71,6 +71,7 @@ def libraries = rootProject.ext.libraries
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:support-v4:27.1.1'
     testImplementation 'junit:junit:4.12'
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')

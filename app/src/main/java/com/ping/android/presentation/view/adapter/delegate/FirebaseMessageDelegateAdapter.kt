@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.adapter.delegate
 
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
+import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.signature.ObjectKey
@@ -16,19 +17,24 @@ import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
-class FirebaseMessageDelegateAdapter(var clickListener: (ImageMessage) -> Unit): ViewTypeDelegateAdapter {
+class FirebaseMessageDelegateAdapter(var clickListener: (ImageMessage, Map<String, View>) -> Unit): ViewTypeDelegateAdapter {
     override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as ImageMessage)
     }
 
-    class ViewHolder(parent: ViewGroup, var clickListener: (ImageMessage) -> Unit): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, var clickListener: (ImageMessage, Map<String, View>) -> Unit): RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_gallery_image)
     ) {
         private lateinit var item: ImageMessage
         init {
-            itemView.setOnClickListener { clickListener(item) }
+            itemView.setOnClickListener {
+                itemView.image.transitionName = item.message.key
+                var map = HashMap<String, View>()
+                map[item.message.key] = itemView.image
+                clickListener(item, map)
+            }
         }
 
         fun bindData(item: ImageMessage) {
