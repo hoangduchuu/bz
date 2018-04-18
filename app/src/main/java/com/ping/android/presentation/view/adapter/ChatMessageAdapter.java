@@ -37,6 +37,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private PaddingItem paddingItem;
 
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
+    private boolean isEditMode = false;
 
     public ChatMessageAdapter() {
         super();
@@ -131,6 +132,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (!isEditMode) {
             selectedMessages.clear();
         }
+        this.isEditMode = isEditMode;
         for (FlexibleItem item : this.items) {
             if (item instanceof MessageBaseItem) {
                 ((MessageBaseItem) item).setEditMode(isEditMode);
@@ -347,6 +349,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     @Override
     public void onDragged(float xDiff) {
+        if (isEditMode) return;
         for (RecyclerView.ViewHolder viewHolder : boundsViewHolder) {
             if (viewHolder instanceof RevealableViewHolder) {
                 ((RevealableViewHolder) viewHolder).transform(xDiff);

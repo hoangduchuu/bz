@@ -4,6 +4,7 @@ import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -131,6 +132,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 senderProfileImage.setOnClickListener(this);
             }
             rbSelection.setOnClickListener(this);
+            itemView.setOnClickListener(this);
             revealableView = itemView.findViewById(R.id.revealable_view);
         }
 
@@ -152,8 +154,18 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         }
 
         @Override
-        public void onSingleTap() {
+        protected boolean handleTouchEvent(MotionEvent motionEvent) {
+            if (item.isEditMode) {
+                return false;
+            }
+            return super.handleTouchEvent(motionEvent);
+        }
 
+        @Override
+        public void onSingleTap() {
+            if (item.isEditMode) {
+                handleSelection();
+            }
         }
 
         @Override
