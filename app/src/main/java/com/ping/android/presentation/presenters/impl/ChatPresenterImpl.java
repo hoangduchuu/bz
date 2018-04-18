@@ -41,6 +41,7 @@ import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,18 +133,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeMessageUpdate();
         isInBackground.set(false);
         for (ChildData<Message> message : messagesInBackground) {
-            MessageBaseItem item = MessageBaseItem.from(message.data, currentUser.key, conversation.conversationType);
-            switch (message.type) {
-                case CHILD_ADDED:
-                    view.addNewMessage(item);
-                    break;
-                case CHILD_REMOVED:
-                    view.removeMessage(message.data);
-                    break;
-                case CHILD_CHANGED:
-                    view.updateMessage(item);
-                    break;
-            }
+            handleMessageData(message);
         }
         messagesInBackground.clear();
     }
@@ -179,25 +169,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
-                updateMessageStatus(messageChildData.data);
-                if (isInBackground.get()) {
-                    messagesInBackground.add(messageChildData);
-                    return;
-                }
-                switch (messageChildData.type) {
-                    case CHILD_ADDED:
-                        // Check error message
-                        checkMessageError(messageChildData.data);
-                        updateConversationReadStatus();
-                        addMessage(messageChildData.data);
-                        break;
-                    case CHILD_REMOVED:
-                        view.removeMessage(messageChildData.data);
-                        break;
-                    case CHILD_CHANGED:
-                        addMessage(messageChildData.data);
-                        break;
-                }
+                handleMessageData(messageChildData);
             }
 
             @Override
@@ -216,6 +188,34 @@ public class ChatPresenterImpl implements ChatPresenter {
                 updateLastMessages(output.messages, output.canLoadMore);
             }
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
+    }
+
+    private void handleMessageData(ChildData<Message> messageChildData) {
+        updateMessageStatus(messageChildData.data);
+        if (isInBackground.get()) {
+            messagesInBackground.add(messageChildData);
+            return;
+        }
+        switch (messageChildData.type) {
+            case CHILD_ADDED:
+                // Check error message
+                checkMessageError(messageChildData.data);
+                updateConversationReadStatus();
+                addMessage(messageChildData.data);
+                break;
+            case CHILD_REMOVED:
+                MessageHeaderItem headerItem = headerItemMap.get(messageChildData.data.days);
+                if (headerItem != null) {
+                    MessageBaseItem item = headerItem.getChildItem(messageChildData.data);
+                    if (item != null) {
+                        view.removeMessage(headerItem, item);
+                    }
+                }
+                break;
+            case CHILD_CHANGED:
+                addMessage(messageChildData.data);
+                break;
+        }
     }
 
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
@@ -357,11 +357,20 @@ public class ChatPresenterImpl implements ChatPresenter {
         resendMessageUseCase.execute(new DefaultObserver<>(), params);
     }
 
+    /**
+     * Update conversation with last message. This method will be called when user delete message in conversation.
+     * @param lastMessage Last message in conversation. Null if there is no message in conversation
+     */
     @Override
-    public void updateConversationLastMessage(Message lastMessage) {
-        Conversation conversation = new Conversation(this.conversation.conversationType, lastMessage.messageType,
-                lastMessage.message, this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs, lastMessage.markStatuses,
-                this.conversation.readStatuses, lastMessage.timestamp, this.conversation);
+    public void updateConversationLastMessage(@Nullable Message lastMessage) {
+        Conversation conversation = new Conversation(this.conversation.conversationType,
+                lastMessage != null ? lastMessage.messageType : Constant.MSG_TYPE_TEXT,
+                lastMessage != null ? lastMessage.message : "",
+                this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs,
+                lastMessage != null ? lastMessage.markStatuses : new HashMap<>(),
+                this.conversation.readStatuses,
+                lastMessage != null ? lastMessage.timestamp : System.currentTimeMillis() / 1000L,
+                this.conversation);
         conversation.key = this.conversation.key;
         HashMap<String, Boolean> allowance = new HashMap<>();
         allowance.put(currentUser.key, true);
