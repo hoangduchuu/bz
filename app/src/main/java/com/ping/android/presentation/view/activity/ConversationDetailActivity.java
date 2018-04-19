@@ -19,6 +19,10 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
+    /**
+     * Params used for gallery grid and viewpager
+     */
+    public static int currentPosition = 0;
 
     @Inject
     Navigator navigator;

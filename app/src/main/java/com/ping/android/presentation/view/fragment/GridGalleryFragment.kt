@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.fragment
 
 
 import android.os.Bundle
+import android.support.transition.TransitionInflater
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -58,6 +59,7 @@ class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        prepareTransitions()
         btn_back.setOnClickListener { activity?.onBackPressed() }
         adapter = FlexibleAdapterV2()
         adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(clickListener = { imageMessage: ImageMessage, map: Map<String, View> ->
@@ -66,6 +68,11 @@ class GridGalleryFragment : BaseFragment(), GalleryPresenter.View {
         }))
         galleryList.adapter = adapter
         presenter.loadMedia()
+    }
+
+    private fun prepareTransitions() {
+        exitTransition = TransitionInflater.from(getContext())
+                .inflateTransition(R.transition.grid_exit_transition)
     }
 
     override fun showLoading() {
