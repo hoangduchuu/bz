@@ -26,9 +26,7 @@ import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDet
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
@@ -40,7 +38,6 @@ import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
-import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.UiUtils;
 
 import java.io.File;

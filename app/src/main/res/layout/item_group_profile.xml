@@ -13,29 +13,38 @@
         android:src="@drawable/ic_avatar_gray" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/default_padding"
-        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/group_profile_item_name"
-            style="@style/AppTextAppearance"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            tools:text="First last Name" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/group_profile_item_username"
-            style="@style/AppTextAppearance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            tools:text="Username" />
+            <TextView
+                android:id="@+id/group_profile_item_name"
+                style="@style/AppTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                tools:text="First last Name" />
+
+            <TextView
+                android:id="@+id/group_profile_item_username"
+                style="@style/AppTextAppearance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                tools:text="Username" />
+        </LinearLayout>
+
         <View
-            style="@style/horizontal_divider" />
+            style="@style/horizontal_divider"
+            android:gravity="bottom" />
     </LinearLayout>
 </LinearLayout>
