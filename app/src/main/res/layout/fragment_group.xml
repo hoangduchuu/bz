@@ -30,7 +30,7 @@
 
     <LinearLayout style="@style/SearchLayout">
 
-        <android.support.v7.widget.SearchView
+        <com.ping.android.presentation.view.custom.BzzzSearchView
             android:id="@+id/group_search_view"
             style="@style/SearchView" />
 

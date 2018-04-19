@@ -301,24 +301,16 @@
         <item name="android:background">#E6E7E8</item>
     </style>
 
-    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+    <style name="SearchView">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:layout_marginTop">0dp</item>
-        <item name="android:layout_marginBottom">0dp</item>
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:queryHint">Search</item>
-        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">3dp</item>
         <item name="android:background">@drawable/round_corner</item>
-        <item name="android:queryBackground">@null</item>
-        <item name="queryBackground">@null</item>
-        <item name="submitBackground">@null</item>
-        <item name="defaultQueryHint">Search</item>
-        <item name="closeIcon">@drawable/ic_search_close</item>
-        <item name="searchIcon">@drawable/ic_seach_hint_icon</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:hint">@string/hint_search</item>
     </style>
 
     <style name="BackIcon" parent="WrapContent">

@@ -243,4 +243,7 @@
     <string name="notif_action_reply">Reply</string>
     <string name="color_picker_description">Pick a color for this conversation</string>
 
+    <string name="hint_search">Search</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_bzzz">bzzz...</string>
 </resources>

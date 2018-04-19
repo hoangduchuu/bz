@@ -36,6 +36,7 @@ import com.ping.android.presentation.view.fragment.ProfileFragment;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
+import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.UsersUtils;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -296,6 +297,22 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         viewPagerAdapter.addFrag(profileFragment, "Profile");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(5);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                KeyboardHelpers.hideSoftInputKeyboard(MainActivity.this);
+            }
+        });
     }
 
     @Override
