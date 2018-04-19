@@ -7,7 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.R;
+import com.ping.android.activity.R;
+import com.ping.android.model.Message;
 import com.ping.android.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -60,6 +61,13 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         return isAdded;
     }
 
+    public int removeMessage(MessageBaseItem data) {
+        int index = findChildIndex(data);
+        childItemTreeMap.remove(data.message.timestamp);
+        childItems = new ArrayList<>(childItemTreeMap.values());
+        return index;
+    }
+
     public List<MessageBaseItem> getChildItems() {
         return childItems;
     }
@@ -75,6 +83,10 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
             MessageBaseItem previousMessage = childItems.get(newAddedIndex - 1);
             item.message.showExtraInfo = !item.message.senderId.equals(previousMessage.message.senderId);
         }
+    }
+
+    public MessageBaseItem getChildItem(Message data) {
+        return childItemTreeMap.get(data.timestamp);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

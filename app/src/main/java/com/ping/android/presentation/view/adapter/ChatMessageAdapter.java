@@ -37,6 +37,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private PaddingItem paddingItem;
 
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
+    private boolean isEditMode = false;
 
     public ChatMessageAdapter() {
         super();
@@ -97,34 +98,32 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
-    public void deleteMessage(String key) {
-        MessageBaseItem deleteItem = null;
-        for (int i = getItemCount() - 1; i >= 0; i--) {
-            FlexibleItem item = this.items.get(i);
-            if (item instanceof MessageBaseItem) {
-                Message message = ((MessageBaseItem) item).message;
-                if (key.equals(message.key)) {
-                    deleteItem = (MessageBaseItem) item;
-                    break;
-                }
+    public void deleteMessage(MessageHeaderItem headerItem, MessageBaseItem item) {
+        boolean shouldUpdateLastConversationMessage = false;
+        Message message = getLastMessage();
+        if (message != null && message.key.equals(item.message.key)) {
+            shouldUpdateLastConversationMessage = true;
+        }
+
+        int headerIndex = items.indexOf(headerItem);
+        if (headerIndex >= 0) {
+            int childIndex = headerItem.removeMessage(item);
+            if (headerIndex + childIndex < items.size()) {
+                // Must plus 1 because childIndex is start from 0
+                int finalIndex = headerIndex + childIndex + 1;
+                item.setMessageListener(null);
+                items.remove(finalIndex);
+                notifyItemRemoved(finalIndex);
+            }
+            if (headerItem.getChildItems().size() == 0) {
+                items.remove(headerIndex);
+                notifyItemRemoved(headerIndex);
             }
         }
-        if (deleteItem != null) {
-            boolean shouldUpdateLastConversationMessage = false;
-            Message message = getLastMessage();
-            if (message != null && message.key.equals(key)) {
-                shouldUpdateLastConversationMessage = true;
-            }
-            deleteItem.setMessageListener(null);
-            int index = this.items.indexOf(deleteItem);
-            this.items.remove(index);
-            notifyItemRemoved(index);
-
-            if (shouldUpdateLastConversationMessage) {
-                Message lastMessage = getLastMessage();
-                if (messageListener != null && lastMessage != null) {
-                    messageListener.updateLastConversationMessage(lastMessage);
-                }
+        if (shouldUpdateLastConversationMessage) {
+            Message lastMessage = getLastMessage();
+            if (messageListener != null) {
+                messageListener.updateLastConversationMessage(lastMessage);
             }
         }
     }
@@ -133,6 +132,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (!isEditMode) {
             selectedMessages.clear();
         }
+        this.isEditMode = isEditMode;
         for (FlexibleItem item : this.items) {
             if (item instanceof MessageBaseItem) {
                 ((MessageBaseItem) item).setEditMode(isEditMode);
@@ -349,6 +349,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     @Override
     public void onDragged(float xDiff) {
+        if (isEditMode) return;
         for (RecyclerView.ViewHolder viewHolder : boundsViewHolder) {
             if (viewHolder instanceof RevealableViewHolder) {
                 ((RevealableViewHolder) viewHolder).transform(xDiff);

@@ -1165,9 +1165,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void removeMessage(Message data) {
+    public void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data) {
         //adapter.deleteMessage(data.key);
-        messagesAdapter.deleteMessage(data.key);
+        messagesAdapter.deleteMessage(headerItem, data);
         //this.updateConversationLastMessage();
     }
 
