@@ -84,5 +84,7 @@ public interface ChatPresenter extends BasePresenter {
         void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added);
 
         void changeTheme(Color from);
+
+        void updateBackground(String s);
     }
 }

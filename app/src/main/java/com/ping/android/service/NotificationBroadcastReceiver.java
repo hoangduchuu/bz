@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.device.impl.NotificationImpl;
 import com.ping.android.domain.usecase.CallbackUseCase;
 import com.ping.android.domain.usecase.notification.ReplyMessageFromNotificationUseCase;

@@ -12,7 +12,7 @@ class JobExecutor : ThreadExecutor {
     private val threadPoolExecutor: ThreadPoolExecutor
 
     init {
-        this.threadPoolExecutor = ThreadPoolExecutor(3, 5, 10, TimeUnit.SECONDS,
+        this.threadPoolExecutor = ThreadPoolExecutor(7, 10, 10, TimeUnit.SECONDS,
                 LinkedBlockingQueue(), JobThreadFactory())
     }
 

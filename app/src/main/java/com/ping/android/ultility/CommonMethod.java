@@ -206,6 +206,13 @@ public class CommonMethod {
         return -1;
     }
 
+    public static double getDoubleFrom(Map<String, Double> map, String key) {
+        if (map != null && map.containsKey(key)) {
+            return map.get(key);
+        }
+        return -1;
+    }
+
     public static String encodeMessage(String message, Map<String, String> mappings) {
         if (TextUtils.isEmpty(message))
             return message;

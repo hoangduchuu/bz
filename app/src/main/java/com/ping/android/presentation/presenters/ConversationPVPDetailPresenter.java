@@ -28,6 +28,8 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
     void updateColor(int color);
 
+    void handleBackgroundClicked();
+
     interface View extends BaseView {
 
         void updateConversation(Conversation conversation);
@@ -45,5 +47,7 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
         void openCallScreen(User currentUser, User otherUser, boolean isVideoCall);
 
         void navigateBack();
+
+        void moveToSelectBackground(Conversation conversation);
     }
 }

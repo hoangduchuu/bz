@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.ping.android.activity">
+    package="com.ping.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -20,9 +19,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
-    <permission
-        android:name="com.ping.android.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
+    <!--<permission-->
+        <!--android:name="com.ping.android.permission.C2D_MESSAGE"-->
+        <!--android:protectionLevel="signature" />-->
 
     <uses-permission android:name="com.quickblox.sample.messages.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
@@ -38,8 +37,8 @@
 
         <!-- </service> -->
         <service
-            android:enabled="true"
             android:name="com.ping.android.service.CallService"
+            android:enabled="true"
             android:exported="false"
             android:stopWithTask="false" />
 
@@ -84,13 +83,14 @@
         <receiver
             android:name="com.ping.android.service.NotificationBroadcastReceiver"
             android:enabled="true"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.ping.android.service.NotificationHelper.REPLY_ACTION" />
             </intent-filter>
         </receiver>
+
         <activity
-            android:name="com.ping.android.presentation.view.activity.SplashActivity"
+            android:name=".presentation.view.activity.SplashActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
@@ -101,125 +101,128 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.ping.android.presentation.view.activity.BeforeLoginActivity"
+            android:name=".presentation.view.activity.BeforeLoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.LoginActivity"
+            android:name=".presentation.view.activity.LoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.RegistrationActivity"
+            android:name=".presentation.view.activity.RegistrationActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.PhoneActivity"
+            android:name=".presentation.view.activity.PhoneActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.MainActivity"
+            android:name=".presentation.view.activity.MainActivity"
             android:label="Message"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.ChatActivity"
+            android:name=".presentation.view.activity.ChatActivity"
             android:label="Chat"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.NewChatActivity"
+            android:name=".presentation.view.activity.NewChatActivity"
             android:label="Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.SelectContactActivity"
+            android:name=".presentation.view.activity.SelectContactActivity"
             android:label="Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.AddContactActivity"
+            android:name=".presentation.view.activity.AddContactActivity"
             android:label="Add Contact"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.PuzzleActivity"
+            android:name=".presentation.view.activity.PuzzleActivity"
             android:label="PuzzleActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.GameActivity"
+            android:name=".presentation.view.activity.GameActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.ChangePasswordActivity"
+            android:name=".presentation.view.activity.ChangePasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.ForgotPasswordActivity"
+            android:name=".presentation.view.activity.ForgotPasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.CallActivity"
+            android:name=".presentation.view.activity.CallActivity"
+            android:configChanges="orientation|screenSize"
             android:label="GameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="fullUser"
-            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.PermissionsActivity"
+            android:name=".presentation.view.activity.PermissionsActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.AddGroupActivity"
+            android:name=".presentation.view.activity.AddGroupActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.BlockActivity"
+            android:name=".presentation.view.activity.BlockActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.UserDetailActivity"
+            android:name=".presentation.view.activity.UserDetailActivity"
             android:label="Add Group"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.TransphabetActivity"
+            android:name=".presentation.view.activity.TransphabetActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.PrivacyAndTermActivity"
+            android:name=".presentation.view.activity.PrivacyAndTermActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.ping.android.presentation.view.cameraview.CameraActivity"
+            android:name=".presentation.view.cameraview.CameraActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.presentation.view.cameraview.PicturePreviewActivity"
+            android:name=".presentation.view.cameraview.PicturePreviewActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
-        <activity android:name="com.soundcloud.android.crop.CropImageActivity" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.GameMemoryActivity"
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
+
+        <activity
+            android:name=".presentation.view.activity.GameMemoryActivity"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
-            android:name="com.ping.android.presentation.view.activity.GameTicTacToeActivity"
+            android:name=".presentation.view.activity.GameTicTacToeActivity"
             android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
@@ -237,11 +240,15 @@
         </provider>
 
         <activity
-            android:name="com.ping.android.presentation.view.activity.ConversationDetailActivity"
+            android:name=".presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.ping.android.presentation.view.activity.NicknameActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".presentation.view.activity.NicknameActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".presentation.view.activity.GalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

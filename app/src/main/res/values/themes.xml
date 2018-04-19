@@ -45,6 +45,9 @@
         <item name="colorAccent">@color/color_accent_9</item>
     </style>
 
+    <style name="BackgroundTintDefault">
+        <item name="android:tint">@color/orange</item>
+    </style>
     <style name="BackgroundTintStyle1">
         <item name="android:backgroundTint">@color/color_1</item>
         <item name="android:tint">@color/color_1</item>

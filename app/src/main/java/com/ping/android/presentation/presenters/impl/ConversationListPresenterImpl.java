@@ -1,7 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.ObserveConversationsUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
 import com.ping.android.model.ChildData;
@@ -11,7 +11,6 @@ import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

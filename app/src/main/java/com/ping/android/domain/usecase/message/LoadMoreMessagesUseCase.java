@@ -39,6 +39,12 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Params params) {
+        if (params.endTimestamp < params.conversation.deleteTimestamp) {
+            Output output = new Output();
+            output.messages = new ArrayList<>();
+            output.canLoadMore = false;
+            return Observable.just(output);
+        }
         return userRepository.getCurrentUser()
                 .flatMap(user -> messageRepository.loadMoreMessages(params.conversation.key, params.endTimestamp)
                         .map(dataSnapshot -> {
@@ -55,7 +61,7 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                             && !message.readAllowed.containsKey(user.key))
                                         continue;
 
-                                    if (message.timestamp < getLastDeleteTimeStamp(params.conversation, user)) {
+                                    if (message.timestamp < params.conversation.deleteTimestamp) {
                                         continue;
                                     }
 
@@ -80,18 +86,6 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
             }
         }
         return null;
-    }
-
-    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(user.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
     }
 
     public static class Params {

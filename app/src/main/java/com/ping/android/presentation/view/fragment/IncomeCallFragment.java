@@ -3,10 +3,6 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
@@ -19,12 +15,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.incoming.IncomingCallComponent;
 import com.ping.android.dagger.loggedin.call.incoming.IncomingCallModule;
 import com.ping.android.presentation.presenters.IncomingCallPresenter;
-import com.ping.android.utils.RingtonePlayer;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
 

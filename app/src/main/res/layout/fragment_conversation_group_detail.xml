@@ -1,5 +1,5 @@
-<android.support.design.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,11 +11,11 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            style="?attr/backgroundTheme"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:gravity="center_vertical"
             android:background="#F1F2F2"
-            style="?attr/backgroundTheme">
+            android:gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/group_profile_back"
@@ -80,7 +80,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_conversation_notification" />
 
                             <TextView
@@ -99,7 +102,10 @@
                             style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_conversation_nickname" />
 
                             <TextView
@@ -114,7 +120,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_conversation_mask_message" />
 
                             <TextView
@@ -132,7 +141,10 @@
                         <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_conversation_mask_image" />
 
                             <TextView
@@ -144,17 +156,61 @@
                                 style="@style/ItemSettingIconRight.Toggle" />
                         </LinearLayout>
 
-                        <LinearLayout style="@style/ItemSetting"
-                            android:visibility="gone">
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_color_lens" />
 
                             <TextView
                                 android:id="@+id/group_profile_color"
                                 style="@style/ItemSettingText"
                                 android:text="Colors" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_background"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_chat_image_selected" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/conversation_detail_background" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_gallery"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_chat_image_selected" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/conversation_detail_media" />
 
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>
@@ -177,11 +233,12 @@
 
                     <View style="@style/ItemViewSeparate" />
 
-                    <android.support.v7.widget.RecyclerView
+                    <com.ping.android.presentation.view.custom.MaxHeightRecyclerView
                         android:id="@+id/group_profile_list_member"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/white" />
+                        android:background="@color/white"
+                        app:maxHeight="200dp" />
 
                     <View style="@style/ItemViewSeparate" />
 
@@ -197,7 +254,6 @@
                             android:textColor="@color/orange" />
                     </LinearLayout>
                 </LinearLayout>
-
             </LinearLayout>
         </ScrollView>
 

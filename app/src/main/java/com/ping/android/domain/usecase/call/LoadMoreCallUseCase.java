@@ -74,22 +74,13 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
                                 return Observable.fromArray(callList.toArray())
                                         .flatMap(object -> {
                                             Call call = (Call) object;
-                                            Map<String, Boolean> memberIDs = new HashMap<>();
-                                            memberIDs.put(call.senderId, true);
-                                            memberIDs.put(call.receiveId, true);
-                                            return userRepository.getUserList(memberIDs)
-                                                    .map(users -> {
-                                                        call.members = users;
-                                                        for (User u : call.members) {
-                                                            if (!u.key.equals(user.key)) {
-                                                                call.opponentUser = u;
-                                                                break;
-                                                            }
-                                                        }
+                                            String opponentUserId = user.key.equals(call.senderId) ? call.receiveId : call.senderId;
+                                            return getUser(opponentUserId)
+                                                    .map(opponentUser -> {
+                                                        call.opponentUser = opponentUser;
                                                         return call;
                                                     })
                                                     .flatMap(call1 -> {
-                                                        String opponentUserId = user.key.equals(call.senderId) ? call.receiveId : call.senderId;
                                                         String conversationID = user.key.compareTo(opponentUserId) > 0 ? user.key + opponentUserId : opponentUserId + user.key;
                                                         call.conversationId = conversationID;
                                                         return conversationRepository.getConversationNickName(user.key, conversationID, opponentUserId)
@@ -116,6 +107,10 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
                             }
                         })
                 );
+    }
+
+    private Observable<User> getUser(String userId) {
+        return userRepository.getUser(userId);
     }
 
     public static class Output {

@@ -3,7 +3,7 @@ package com.ping.android.presentation.view.activity;
 import android.os.Bundle;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;
@@ -13,11 +13,18 @@ import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
 
+import javax.inject.Inject;
+
 public class ConversationDetailActivity extends CoreActivity implements HasComponent<ConversationDetailComponent> {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
+    /**
+     * Params used for gallery grid and viewpager
+     */
+    public static int currentPosition = 0;
 
+    @Inject
     Navigator navigator;
 
     ConversationDetailComponent component;
@@ -25,19 +32,18 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            Color currentColor = Color.DEFAULT;
             if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
                 int color = bundle.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR);
-                currentColor = Color.from(color);
+                Color currentColor = Color.from(color);
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
             }
-            //presenter.initThemeColor(currentColor);
         }
         setContentView(R.layout.activity_conversation_detail);
         postponeEnterTransition();
-        navigator = new Navigator();
+
         navigator.init(getSupportFragmentManager(), R.id.fragment_container);
 
         Bundle extras = getIntent().getExtras();

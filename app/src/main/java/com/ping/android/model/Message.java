@@ -7,7 +7,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.Log;
 
 import junit.framework.Assert;
 
@@ -40,6 +39,8 @@ public class Message {
     public String messageStatus;
     public int messageStatusCode;
     public long days;
+    public boolean isMask;
+
     /**
      * Indicates whether show user profile and date time or not
      */

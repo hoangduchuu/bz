@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 
 public class VideoPreviewActivity extends Activity {

@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.presentation.view.activity.AddContactActivity;
 import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactModule;

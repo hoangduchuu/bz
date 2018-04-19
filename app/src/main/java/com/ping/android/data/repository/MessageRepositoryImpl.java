@@ -47,6 +47,19 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Observable<DataSnapshot> loadConversationMedia(String conversationId, double lastTimestamp) {
+        DatabaseReference reference = database.getReference("media").child(conversationId);
+        reference.keepSynced(true);
+        Query query = reference
+                .orderByChild("timestamp")
+                .endAt(lastTimestamp)
+                .limitToLast(20);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
+    }
+
+    @Override
     public Observable<ChildEvent> observeMessageUpdate(String conversationId) {
         Query query = database.getReference("messages").child(conversationId)
                 .orderByChild("timestamp")

@@ -18,4 +18,8 @@
     </declare-styleable>
 
     <attr name="backgroundTheme" format="reference" />
+
+    <declare-styleable name="MaxHeightRecyclerView">
+        <attr name="maxHeight" format="integer" />
+    </declare-styleable>
 </resources>

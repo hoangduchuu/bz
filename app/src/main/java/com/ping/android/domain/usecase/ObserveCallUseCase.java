@@ -65,18 +65,9 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                             call.type = Call.CallType.MISSED;
                                         }
                                     }
-                                    Map<String, Boolean> memberIDs = new HashMap<>();
-                                    memberIDs.put(call.senderId, true);
-                                    memberIDs.put(call.receiveId, true);
-                                    return userRepository.getUserList(memberIDs)
-                                            .map(users -> {
-                                                call.members = users;
-                                                for (User user : call.members) {
-                                                    if (!user.key.equals(userId)) {
-                                                        call.opponentUser = user;
-                                                        break;
-                                                    }
-                                                }
+                                    return getUser(opponentUserId)
+                                            .map(opponentUser -> {
+                                                call.opponentUser = opponentUser;
                                                 return call;
                                             })
                                             .flatMap(call1 -> conversationRepository.getConversationNickName(userId, conversationID, opponentUserId)
@@ -84,10 +75,16 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                                         call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
                                                         return new ChildData<>(call, type);
                                                     }));
+
                                 } else {
                                     return Observable.just(new ChildData<>(call, childEvent.type));
                                 }
                             });
                 });
+
+    }
+
+    private Observable<User> getUser(String userId) {
+        return userRepository.getUser(userId);
     }
 }

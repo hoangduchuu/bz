@@ -2,6 +2,7 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 
@@ -38,4 +39,6 @@ public interface ConversationRepository {
     Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId);
 
     Observable<Integer> observeConversationColor(String userId, String conversationId);
+
+    Observable<String> observeConversationBackground(String userId, String conversationId);
 }

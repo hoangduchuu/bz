@@ -13,13 +13,10 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
-import com.ping.android.managers.UserManager;
+import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;

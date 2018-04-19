@@ -57,7 +57,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                             && !message.readAllowed.containsKey(user.key))
                                         continue;
 
-                                    if (message.timestamp < getLastDeleteTimeStamp(conversation, user)) {
+                                    if (message.timestamp < conversation.deleteTimestamp) {
                                         continue;
                                     }
 
@@ -87,17 +87,17 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
         return null;
     }
 
-    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(user.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
-    }
+//    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
+//        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
+//            return 0.0d;
+//        }
+//        Object value = conversation.deleteTimestamps.get(user.key);
+//        if (value instanceof Long) {
+//            return ((Long) value).doubleValue();
+//        } else {
+//            return (Double) value;
+//        }
+//    }
 
     public static class Output {
         public List<Message> messages;

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedout.splash.SplashComponent;
 import com.ping.android.dagger.loggedout.splash.SplashModule;
 import com.ping.android.managers.UserManager;

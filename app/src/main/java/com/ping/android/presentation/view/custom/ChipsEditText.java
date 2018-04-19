@@ -14,7 +14,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import java.util.ArrayList;
 import java.util.Timer;

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 public class MessageView extends LinearLayout {
 

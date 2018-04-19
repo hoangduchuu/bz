@@ -37,8 +37,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Observable<DataSnapshot> loadMoreConversation(String userId, double endTimestamps) {
-        Query query = database.getReference("conversations")
-                .child(userId)
+        DatabaseReference reference = database.getReference("conversations")
+                .child(userId);
+        reference.keepSynced(true);
+        Query query = reference
                 .orderByChild("timesstamps")
                 .endAt(endTimestamps)
                 .limitToLast(15);
@@ -49,8 +51,10 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 
     @Override
     public Observable<ChildEvent> registerConversationsUpdate(String userId) {
-        Query query = database.getReference("conversations")
-                .child(userId)
+        DatabaseReference reference = database.getReference("conversations")
+                .child(userId);
+        reference.keepSynced(true);
+        Query query = reference
                 .orderByChild("timesstamps");
                 //.limitToLast(15);
         return RxFirebaseDatabase.getInstance(query).onChildEvent();
@@ -132,6 +136,20 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                         return dataSnapshot.getValue(Integer.class);
                     }
                     return 0;
+                });
+    }
+
+    @Override
+    public Observable<String> observeConversationBackground(String userId, String conversationId) {
+        Query query = database.getReference("conversations").child(userId).child(conversationId)
+                .child("themes").child(userId).child("backgroundUrl");
+        return RxFirebaseDatabase.getInstance(query)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return dataSnapshot.getValue(String.class);
+                    }
+                    return "";
                 });
     }
 

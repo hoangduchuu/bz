@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import java.util.ArrayList;
 import java.util.List;

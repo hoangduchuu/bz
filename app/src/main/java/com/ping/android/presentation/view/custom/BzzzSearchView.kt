@@ -6,9 +6,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.widget.AppCompatEditText
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
-import android.widget.EditText
-import com.ping.android.activity.R
+import com.ping.android.R
 
 class BzzzSearchView : AppCompatEditText {
     private var leftDrawable: Drawable? = null

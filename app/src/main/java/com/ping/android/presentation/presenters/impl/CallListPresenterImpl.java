@@ -99,12 +99,8 @@ public class CallListPresenterImpl implements CallListPresenter {
 
     @Override
     public void handleCallPressed(Call call, boolean isVideo) {
-        for (User user : call.members) {
-            if (!user.key.equals(this.currentUser.key)) {
-                view.callUser(currentUser, user, isVideo);
-                break;
-            }
-        }
+        User opponentUser = call.opponentUser;
+        view.callUser(currentUser, opponentUser, isVideo);
     }
 
     @Override

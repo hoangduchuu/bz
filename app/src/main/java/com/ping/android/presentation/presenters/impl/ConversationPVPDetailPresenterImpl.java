@@ -177,6 +177,11 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     }
 
     @Override
+    public void handleBackgroundClicked() {
+        view.moveToSelectBackground(conversation);
+    }
+
+    @Override
     public void destroy() {
         observeConversationUpdateUseCase.dispose();
         toggleConversationNotificationSettingUseCase.dispose();
