@@ -44,6 +44,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
+import com.ping.android.device.impl.ShakeEventManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -74,9 +75,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
+
+import io.reactivex.functions.Consumer;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
@@ -127,6 +131,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextWatcher textWatcher;
 
     private ImagePickerHelper imagePickerHelper;
+    private ShakeEventManager shakeEventManager;
 
     private boolean isScrollToTop = false, isEndOfConvesation = false;
     private EmojiPopup emojiPopup;
@@ -248,6 +253,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (this.shakeEventManager != null) {
+            this.shakeEventManager.unregister();
+        }
         messagesAdapter.destroy();
     }
 
@@ -619,6 +627,29 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 updateMessageCount(messageCount);
             }
         };
+
+        shakeEventManager = new ShakeEventManager(this);
+        registerEvent(shakeEventManager.getShakeEvent()
+                .debounce(700, TimeUnit.MILLISECONDS)
+                .subscribe(o -> {
+                    handleShakePhone();
+                }));
+    }
+
+    private void handleShakePhone() {
+        // Find visible items
+        Log.d("handleShakePhone");
+        int firstVisible = mLinearLayoutManager.findFirstVisibleItemPosition();
+        int lastVisible = mLinearLayoutManager.findLastVisibleItemPosition();
+        List<Message> visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible);
+        boolean isMask = false;
+        for (Message message : visibleMessages) {
+            if (!message.isMask) {
+                isMask = true;
+                break;
+            }
+        }
+        presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.getItemCount() - 1, isMask);
     }
 
     private void updateSendButtonStatus(boolean isEnable) {
@@ -1119,6 +1150,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void updateConversation(Conversation conv) {
+        if (this.shakeEventManager != null) {
+            this.shakeEventManager.register();
+        }
         this.originalConversation = conv;
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);

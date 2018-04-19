@@ -50,6 +50,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void initThemeColor(Color currentColor);
 
+    void handleShakePhone();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

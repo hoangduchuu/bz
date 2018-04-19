@@ -195,11 +195,14 @@
                             <ImageView style="@style/ItemSettingIconRight" />
                         </LinearLayout>
 
-                        <View style="@style/ItemSettingSeparate" />
+                        <View
+                            style="@style/ItemSettingSeparate"
+                            android:visibility="gone" />
 
                         <LinearLayout
                             android:id="@+id/profile_gallery"
-                            style="@style/ItemSetting">
+                            style="@style/ItemSetting"
+                            android:visibility="gone">
 
                             <ImageView
                                 style="?attr/backgroundTheme"

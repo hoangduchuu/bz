@@ -371,6 +371,20 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
+    public List<Message> findMessages(int firstVisible, int lastVisible) {
+        List<Message> messageBaseItems = new ArrayList<>();
+        if (firstVisible >= 0 && firstVisible < getItemCount()
+                && lastVisible >= 0 && lastVisible < getItemCount()) {
+            for (int i = firstVisible; i <= lastVisible; i++) {
+                FlexibleItem item = items.get(i);
+                if (item instanceof MessageBaseItem) {
+                    messageBaseItems.add(((MessageBaseItem) item).message);
+                }
+            }
+        }
+        return messageBaseItems;
+    }
+
     public interface ChatMessageListener {
         void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
 

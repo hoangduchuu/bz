@@ -2,16 +2,30 @@
 <com.ping.android.presentation.view.custom.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:gravity="center"
     android:layout_margin="5dp">
 
-    <ImageView
-        android:id="@+id/image"
-        style="?attr/backgroundTheme"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_chat_camera" />
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/cardview_light_background"
+        android:clickable="true"
+        android:clipChildren="false"
+        android:foreground="?android:selectableItemBackground"
+        card_view:cardCornerRadius="2dp"
+        card_view:cardElevation="2dp"
+        card_view:cardPreventCornerOverlap="true"
+        card_view:cardUseCompatPadding="true">
+
+        <ImageView
+            android:id="@+id/image"
+            style="?attr/backgroundTheme"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_chat_camera"
+            android:layout_gravity="center"/>
+    </android.support.v7.widget.CardView>
 </com.ping.android.presentation.view.custom.SquareLayout>
