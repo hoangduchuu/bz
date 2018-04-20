@@ -24,14 +24,16 @@ import com.ping.android.utils.UiUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
     private static boolean isEditMode = false;
-    private ArrayList<Conversation> originalConversations;
+    private Map<String, Conversation> originalConversations;
     private ArrayList<Conversation> displayConversations;
     private ArrayList<Conversation> selectConversations;
     private RecyclerView recyclerView;
@@ -39,10 +41,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private ConversationItemListener listener;
 
-    public MessageAdapter(ArrayList<Conversation> conversations) {
+    public MessageAdapter() {
         isEditMode = false;
-        this.originalConversations = conversations;
-        this.displayConversations = (ArrayList<Conversation>) conversations.clone();
+        this.originalConversations = new HashMap<>();
+        this.displayConversations = new ArrayList<>();
         selectConversations = new ArrayList<>();
     }
 
@@ -97,7 +99,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public int unreadNum() {
         int unread = 0;
-        for (Conversation conversation : originalConversations) {
+        for (Conversation conversation : originalConversations.values()) {
             if (!conversation.isRead) {
                 unread++;
             }
@@ -109,12 +111,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         boolean isAdd = true;
         int index = -1;
         int previousIndex = -1;
-        for (int i = 0; i < originalConversations.size(); i++) {
+        /*for (int i = 0; i < originalConversations.size(); i++) {
             if (originalConversations.get(i).key.equals(conversation.key)) {
-                originalConversations.remove(i);
+                if (!ignoreWhenDuplicate) {
+                    originalConversations.remove(i);
+                }
                 break;
             }
-        }
+        }*/
         for (int i = 0; i < displayConversations.size(); i++) {
             Conversation item = displayConversations.get(i);
             if (item.key.equals(conversation.key)) {
@@ -155,20 +159,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 }
             }
         }
-        originalConversations.add(conversation);
-        Collections.sort(originalConversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
+        originalConversations.put(conversation.key, conversation);
+        //Collections.sort(originalConversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
     }
 
     public void deleteConversation(String conversationID) {
-        Conversation deletedConversation = null;
-        int index = -1;
-        for (Conversation conversation : originalConversations) {
-            if (conversation.key.equals(conversationID)) {
-                deletedConversation = conversation;
-            }
-        }
+        Conversation deletedConversation = originalConversations.get(conversationID);
         if (deletedConversation != null) {
-            index = displayConversations.indexOf(deletedConversation);
+            int index = displayConversations.indexOf(deletedConversation);
             originalConversations.remove(deletedConversation);
             displayConversations.remove(deletedConversation);
             selectConversations.remove(deletedConversation);
@@ -183,11 +181,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void filter(String text) {
         displayConversations = new ArrayList<>();
-        for (Conversation conversation : originalConversations) {
+        for (Conversation conversation : originalConversations.values()) {
             if (isFiltered(conversation, text)) {
                 displayConversations.add(conversation);
             }
         }
+        Collections.sort(displayConversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
         notifyDataSetChanged();
     }
 
@@ -241,7 +240,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             int displayIndex = displayConversations.indexOf(updateConversation);
             // Update data for original list
             updateConversation.group = group;
-            originalConversations.set(index, updateConversation);
+            originalConversations.put(updateConversation.key, updateConversation);
             if (displayIndex >= 0 && displayIndex < displayConversations.size()) {
                 displayConversations.set(displayIndex, updateConversation);
                 notifyItemChanged(displayIndex);
@@ -251,7 +250,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void updateData(List<Conversation> conversations) {
 //        Collections.sort(callList, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
-        this.originalConversations = new ArrayList<>(conversations);
+        for (Conversation conversation : conversations) {
+            this.originalConversations.put(conversation.key, conversation);
+        }
         this.displayConversations = new ArrayList<>(conversations);
         notifyDataSetChanged();
     }
@@ -259,7 +260,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void appendConversations(List<Conversation> conversations) {
         Collections.sort(conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
         int size = displayConversations.size();
-        this.originalConversations.addAll(conversations);
+        for (Conversation conversation : conversations) {
+            this.originalConversations.put(conversation.key, conversation);
+        }
         this.displayConversations.addAll(conversations);
         notifyItemRangeInserted(size, conversations.size());
     }

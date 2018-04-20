@@ -276,6 +276,14 @@ public class Conversation implements Parcelable {
         return Color.DEFAULT;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Conversation) {
+            return key.equals(((Conversation) obj).key);
+        }
+        return false;
+    }
+
     public boolean isValid() {
         return timesstamps > deleteTimestamp;
     }

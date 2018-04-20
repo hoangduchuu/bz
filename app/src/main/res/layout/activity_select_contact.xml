@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.AddContactActivity">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +31,7 @@
 
         <LinearLayout style="@style/SearchLayout">
 
-            <android.support.v7.widget.SearchView
+            <com.ping.android.presentation.view.custom.BzzzSearchView
                 android:id="@+id/select_contact_search_view"
                 style="@style/SearchView" />
         </LinearLayout>

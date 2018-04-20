@@ -19,6 +19,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private List<MessageBaseItem> selectedMessages;
     private TypingItem typingItem;
     private PaddingItem paddingItem;
+
+    private Map<String, String> nickNames = new HashMap<>();
 
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
     private boolean isEditMode = false;
@@ -283,6 +286,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     public void updateNickNames(Map<String, String> nickNames) {
+        this.nickNames = nickNames;
         for (FlexibleItem item : this.items) {
             if (item instanceof MessageBaseItem) {
                 ((MessageBaseItem) item).setNickNames(nickNames);
@@ -330,6 +334,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             notifyItemInserted(size);
         }
         item.setMessageListener(this);
+        item.setNickNames(nickNames);
         if (added) {
             int childIndex = headerItem.findChildIndex(item);
             int finalIndex = headerIndex + childIndex + 1;
