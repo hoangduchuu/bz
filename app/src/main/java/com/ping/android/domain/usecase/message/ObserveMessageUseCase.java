@@ -47,6 +47,7 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                     if (childEvent.dataSnapshot.exists()) {
                         Message message = Message.from(childEvent.dataSnapshot);
                         message.currentUserId = currentUser.key;
+                        message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
                         return new ChildData<>(message, childEvent.type);
                     } else {
                         throw new NullPointerException();

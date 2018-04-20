@@ -25,7 +25,7 @@ class FirebaseBackgroundDelegateAdapter(var clickListener: (FirebaseImageItem) -
     ) {
         private lateinit var item: FirebaseImageItem
         init {
-            itemView.setOnClickListener { clickListener(item) }
+            itemView.card_view.setOnClickListener { clickListener(item) }
         }
 
         fun bindData(item: FirebaseImageItem) {

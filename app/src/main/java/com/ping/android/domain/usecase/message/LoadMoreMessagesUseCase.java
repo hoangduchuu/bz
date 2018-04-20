@@ -52,6 +52,7 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     Message message = Message.from(child);
+                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted) {
                                         continue;

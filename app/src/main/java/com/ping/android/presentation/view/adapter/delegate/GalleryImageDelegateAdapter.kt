@@ -22,7 +22,7 @@ class GalleryItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelega
 
         init {
             itemView.image.setImageResource(R.drawable.ic_chat_image)
-            itemView.setOnClickListener { clickListener() }
+            itemView.card_view.setOnClickListener { clickListener() }
         }
     }
 }
@@ -40,7 +40,7 @@ class CameraItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegat
 
         init {
             itemView.image.setImageResource(R.drawable.ic_chat_camera)
-            itemView.setOnClickListener { clickListener() }
+            itemView.card_view.setOnClickListener { clickListener() }
         }
     }
 }

@@ -596,6 +596,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         this.currentColor = currentColor;
     }
 
+    @Override
+    public void handleShakePhone() {
+
+    }
+
     private void sendNotification(Conversation conversation, Message message) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message));
