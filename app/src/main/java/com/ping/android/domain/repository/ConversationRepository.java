@@ -6,6 +6,7 @@ import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -41,4 +42,6 @@ public interface ConversationRepository {
     Observable<Integer> observeConversationColor(String userId, String conversationId);
 
     Observable<String> observeConversationBackground(String userId, String conversationId);
+
+    Observable<DataSnapshot> getDefaultBackgrounds();
 }

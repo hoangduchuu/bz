@@ -1,6 +1,5 @@
 package com.ping.android.utils;
 
-import com.ping.android.R;
 import com.ping.android.model.Transphabet;
 import com.ping.android.model.enums.Color;
 
@@ -63,23 +62,5 @@ public class DataProvider {
             mappings.put(mapKey, "");
         }
         return mappings;
-    }
-
-    public static List<Integer> getBackgroundRes() {
-        Integer[] backgrounds = new Integer[] {
-                R.drawable.background1,
-                R.drawable.background2,
-                R.drawable.background3,
-        };
-        return Arrays.asList(backgrounds);
-    }
-
-    public static List<String> getDefaultBackgrounds() {
-        String[] backgrounds = new String[] {
-                "gs://ping-android-dev.appspot.com/conversations/backgrounds/background1.png",
-                "gs://ping-android-dev.appspot.com/conversations/backgrounds/background2.png",
-                "gs://ping-android-dev.appspot.com/conversations/backgrounds/background3.png"
-        };
-        return Arrays.asList(backgrounds);
     }
 }
