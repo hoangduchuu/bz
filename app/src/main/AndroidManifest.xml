@@ -242,6 +242,7 @@
         <activity
             android:name=".presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".presentation.view.activity.NicknameActivity"
