@@ -4,17 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout style="@style/TopMenu">
-
-        <ImageView
-            android:id="@+id/backButton"
-            style="@style/BackButton"/>
-
-        <TextView
-            style="@style/TextTitle"
-            android:text="CONVERSATION GALLERY" />
-
-    </RelativeLayout>
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"

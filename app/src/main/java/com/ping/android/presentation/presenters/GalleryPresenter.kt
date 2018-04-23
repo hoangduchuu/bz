@@ -10,10 +10,16 @@ import javax.inject.Inject
 
 interface GalleryPresenter : BasePresenter {
     fun initConversation(conversation: Conversation)
+
     fun loadMedia()
 
+    fun getMessageList(): List<Message>
+
+    var currentPosition: Int
+
     interface View : BaseView {
-        fun displayMedia(messages: List<Message>)
+        fun showGridGallery()
+        //fun displayMedia(messages: List<Message>)
     }
 }
 
@@ -24,6 +30,8 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
     @Inject
     lateinit var loadConversationMediaUseCase: LoadConversationMediaUseCase
     lateinit var conversation: Conversation
+    override var currentPosition = 0
+    var messages: List<Message> = ArrayList()
     var lastTimestamp = Double.MAX_VALUE
 
     override fun initConversation(conversation: Conversation) {
@@ -31,16 +39,25 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
     }
 
     override fun loadMedia() {
+        view.showLoading()
         val observer = object : DefaultObserver<LoadConversationMediaUseCase.Output>() {
             override fun onNext(t: LoadConversationMediaUseCase.Output) {
                 super.onNext(t)
+                view.hideLoading()
                 t.messages.sortBy { it.timestamp }
-                view.displayMedia(t.messages)
+                messages = t.messages
+                view.showGridGallery()
+            }
+
+            override fun onError(exception: Throwable) {
+                view.hideLoading()
             }
         }
         loadConversationMediaUseCase.execute(observer,
                 LoadConversationMediaUseCase.Params(conversation, lastTimestamp))
     }
 
-
+    override fun getMessageList(): List<Message> {
+        return messages
+    }
 }

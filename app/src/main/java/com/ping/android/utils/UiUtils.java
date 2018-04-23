@@ -117,6 +117,8 @@ public class UiUtils {
                     .error(R.drawable.ic_avatar_gray)
                     .override(200, 200)
                     .apply(RequestOptions.circleCropTransform())
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
                     .into(imageView);
         } else {
             imageView.setImageResource(IMG_DEFAULT);

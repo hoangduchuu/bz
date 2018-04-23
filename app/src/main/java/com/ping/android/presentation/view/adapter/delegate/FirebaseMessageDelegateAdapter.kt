@@ -17,32 +17,33 @@ import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
-class FirebaseMessageDelegateAdapter(var clickListener: (ImageMessage, Map<String, View>) -> Unit): ViewTypeDelegateAdapter {
+class FirebaseMessageDelegateAdapter(var clickListener: (Int, Map<String, View>) -> Unit): ViewTypeDelegateAdapter {
     override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as ImageMessage)
     }
 
-    class ViewHolder(parent: ViewGroup, var clickListener: (ImageMessage, Map<String, View>) -> Unit): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, var clickListener: (Int, Map<String, View>) -> Unit): RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_gallery_image)
     ) {
         private lateinit var item: ImageMessage
         init {
-            itemView.setOnClickListener {
+            itemView.card_view.setOnClickListener {
                 itemView.image.transitionName = item.message.key
-                var map = HashMap<String, View>()
+                val map = HashMap<String, View>()
                 map[item.message.key] = itemView.image
-                clickListener(item, map)
+                clickListener(adapterPosition, map)
             }
         }
 
         fun bindData(item: ImageMessage) {
             this.item = item
-            var url: String = when (item.message.messageType) {
+            val url: String = when (item.message.messageType) {
                 Constant.MSG_TYPE_IMAGE -> item.message.photoUrl
                 else -> item.message.gameUrl
             }
+            itemView.image.transitionName = item.message.key
             if (TextUtils.isEmpty(url) || !url.startsWith("gs://")) {
                 return
             }

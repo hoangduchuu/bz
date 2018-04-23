@@ -41,6 +41,7 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                 .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
                         .flatMap(dataSnapshot -> {
                             Conversation conversation = Conversation.from(dataSnapshot);
+                            conversation.currentColor = conversation.getColor(user.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         conversation.members = users;

@@ -26,7 +26,7 @@
 
             <TextView
                 style="@style/TextTitle"
-                android:text="GALLERY" />
+                android:text="GALLERY GRID" />
         </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView

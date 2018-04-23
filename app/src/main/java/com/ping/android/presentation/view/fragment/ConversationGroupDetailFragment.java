@@ -29,6 +29,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
@@ -382,6 +383,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     @Override
     public void moveToGallery(Conversation conversation) {
-        navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
+        //navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
+        Intent intent = new Intent(getContext(), GalleryActivity.class);
+        intent.putExtra("conversation", conversation);
+        startActivity(intent);
     }
 }

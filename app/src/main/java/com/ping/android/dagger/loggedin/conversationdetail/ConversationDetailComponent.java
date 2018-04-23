@@ -2,12 +2,10 @@ package com.ping.android.dagger.loggedin.conversationdetail;
 
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule;
-import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
-import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 
@@ -24,8 +22,6 @@ public interface ConversationDetailComponent {
     ConversationDetailGroupComponent provideConversationDetailGroupComponent(ConversationDetailGroupModule module);
 
     BackgroundComponent provideBackgroundComponent(BackgroundModule module);
-
-    GalleryComponent provideGalleryComponent(GalleryModule module);
 
     void inject(ConversationDetailActivity conversationDetailActivity);
 }
