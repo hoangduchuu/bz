@@ -87,6 +87,7 @@ public class Conversation implements Parcelable {
         nickNames = gson.fromJson(in.readString(), Map.class);
 
         deleteTimestamp = in.readDouble();
+        currentColor = Color.valueOf(in.readString());
     }
 
     @Override
@@ -126,6 +127,7 @@ public class Conversation implements Parcelable {
         dest.writeString(jsonObject.toString());
 
         dest.writeDouble(deleteTimestamp);
+        dest.writeString(currentColor.toString());
     }
 
     @Override
