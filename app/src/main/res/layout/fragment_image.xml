@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="com.ping.android.presentation.view.fragment.ImageFragment">
 
-    <ImageView
+    <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

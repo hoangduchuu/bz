@@ -14,11 +14,8 @@ import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryModule
-import com.ping.android.model.Conversation
 import com.ping.android.model.ImageMessage
-import com.ping.android.model.Message
 import com.ping.android.presentation.presenters.GalleryPresenter
-import com.ping.android.presentation.view.activity.ConversationDetailActivity
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.delegate.FirebaseMessageDelegateAdapter
@@ -26,12 +23,12 @@ import com.ping.android.utils.Navigator
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
 import javax.inject.Inject
 
-class GridGalleryFragment : BaseFragment() {
+class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.FirebaseMessageListener {
     @Inject
     lateinit var navigationManager: Navigator
+
     @Inject
     lateinit var galleryPresenter: GalleryPresenter
-
     val component: GridGalleryComponent by lazy {
         getComponent(GalleryComponent::class.java)
                 .provideGridGalleryComponent(GridGalleryModule())
@@ -49,7 +46,7 @@ class GridGalleryFragment : BaseFragment() {
         // Inflate the layout for this fragment
         val view = container?.inflate(R.layout.fragment_grid_gallery, false)
         prepareTransitions()
-//        postponeEnterTransition()
+        postponeEnterTransition()
         return view
     }
 
@@ -57,13 +54,7 @@ class GridGalleryFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         btn_back.setOnClickListener { activity?.onBackPressed() }
         adapter = FlexibleAdapterV2()
-        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(clickListener = { position: Int, map: Map<String, View> ->
-            // Open image in viewpager
-            galleryPresenter.currentPosition = position
-            (exitTransition as TransitionSet).excludeTarget(view, true)
-
-            navigationManager.moveToFragment(ViewPagerGalleryFragment.newInstance(), map)
-        }))
+        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(this))
         val messages = galleryPresenter.getMessageList()
         val data = messages.map {
             ImageMessage(it)
@@ -71,6 +62,20 @@ class GridGalleryFragment : BaseFragment() {
         gallery_list.layoutManager = GridLayoutManager(context, 3)
         adapter.addItems(data)
         gallery_list.adapter = adapter
+    }
+
+    override fun onClick(view: View, position: Int, map: Map<String, View>) {
+        // Open image in viewpager
+        galleryPresenter.currentPosition = position
+        (exitTransition as TransitionSet).excludeTarget(view, true)
+
+        navigationManager.moveToFragment(ViewPagerGalleryFragment.newInstance(), map)
+    }
+
+    override fun onLoaded(position: Int) {
+        if (galleryPresenter.currentPosition == position) {
+            startPostponedEnterTransition()
+        }
     }
 
     private fun prepareTransitions() {

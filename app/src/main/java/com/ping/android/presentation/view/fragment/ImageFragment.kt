@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.fragment
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -55,19 +56,19 @@ class ImageFragment : Fragment() {
             return
         }
         val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
-        val listener = object : RequestListener<Drawable> {
-            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+        val listener = object : RequestListener<Bitmap> {
+            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
                 parentFragment?.startPostponedEnterTransition()
                 return false
             }
 
-            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+            override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                 parentFragment?.startPostponedEnterTransition()
                 return false
             }
-
         }
         GlideApp.with(context)
+                .asBitmap()
                 .load(gsReference)
                 .override(500)
                 .skipMemoryCache(true)

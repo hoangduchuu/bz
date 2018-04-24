@@ -23,7 +23,8 @@ import javax.inject.Inject
  *
  */
 class ViewPagerGalleryFragment : BaseFragment() {
-    @Inject lateinit var presenter: GalleryPresenter
+    @Inject
+    lateinit var presenter: GalleryPresenter
 
     val component: GridGalleryComponent by lazy {
         getComponent(GalleryComponent::class.java).provideGridGalleryComponent(GridGalleryModule())
@@ -38,9 +39,9 @@ class ViewPagerGalleryFragment : BaseFragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_view_pager_gallery, container, false)
-        if (savedInstanceState == null) {
-            postponeEnterTransition()
-        }
+        //if (savedInstanceState == null) {
+        postponeEnterTransition()
+        //}
         prepareSharedElementTransition()
         return view
     }
@@ -86,7 +87,7 @@ class ViewPagerGalleryFragment : BaseFragment() {
                 // instantiateItem with the selection position.
                 // At this stage, the method will simply return the fragment at the
                 // position and will not create a new one.
-                val currentFragment= viewpager.adapter?.instantiateItem(viewpager, presenter.currentPosition) as? Fragment
+                val currentFragment = viewpager.adapter?.instantiateItem(viewpager, presenter.currentPosition) as? Fragment
                 if (currentFragment?.view != null && names != null && sharedElements != null) {
                     sharedElements[names[0]] = currentFragment.view!!.findViewById(R.id.image_detail)
                 }
