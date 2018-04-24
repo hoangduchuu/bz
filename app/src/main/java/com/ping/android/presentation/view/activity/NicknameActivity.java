@@ -17,6 +17,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.ThemeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,13 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        conversation = getIntent().getParcelableExtra(CONVERSATION_KEY);
+        if (conversation != null) {
+            ThemeUtils.onActivityCreateSetTheme(this, conversation.currentColor);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
         getComponent().inject(this);
-        conversation = getIntent().getParcelableExtra(CONVERSATION_KEY);
         initView();
         presenter.init(conversation);
     }

@@ -49,7 +49,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     if (!child.exists()) continue;
                                     Message message = Message.from(child);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
-                                    if (isDeleted) {
+                                    boolean isOld = message.timestamp < conversation.deleteTimestamp;
+                                    if (isDeleted || isOld) {
                                         continue;
                                     }
 

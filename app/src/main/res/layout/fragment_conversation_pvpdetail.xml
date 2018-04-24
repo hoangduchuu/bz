@@ -67,7 +67,7 @@
                         android:src="@drawable/ic_message_border" />
 
                     <ImageView
-                        android:tint="@color/orange"
+                        style="?attr/backgroundTheme"
                         android:id="@+id/user_profile_voice"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -77,7 +77,7 @@
                         android:src="@drawable/ic_chat_audio" />
 
                     <ImageView
-                        android:tint="@color/orange"
+                        style="?attr/backgroundTheme"
                         android:id="@+id/user_profile_video"
                         android:layout_width="40dp"
                         android:layout_height="30dp"

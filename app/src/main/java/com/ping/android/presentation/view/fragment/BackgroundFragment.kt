@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
+import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
@@ -62,14 +63,11 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-        val data = DataProvider.getDefaultBackgrounds()
-        var models: MutableList<ViewType> = ArrayList()
+        val models: MutableList<ViewType> = ArrayList()
         models.add(CameraItem())
         models.add(GalleryItem())
-        models.addAll(data.map {
-            FirebaseImageItem(it)
-        })
         adapter.addItems(models)
+        presenter.create()
     }
 
     private fun initView() {
@@ -130,6 +128,17 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     }
 
     // region BackgroundPresenter.View
+
+    override fun updateBackgrounds(t: List<String>) {
+        val models = ArrayList<FirebaseImageItem>()
+        val storageReference = FirebaseStorage.getInstance().reference
+        for (s in t) {
+            val path = "gs://" + storageReference.bucket + "/" + s
+            models.add(FirebaseImageItem(path))
+        }
+        adapter.addItems(models)
+    }
+
     override fun navigateBack() {
         activity?.onBackPressed()
     }
