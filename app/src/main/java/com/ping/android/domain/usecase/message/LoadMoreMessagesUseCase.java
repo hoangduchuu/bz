@@ -49,9 +49,13 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                 .flatMap(user -> messageRepository.loadMoreMessages(params.conversation.key, params.endTimestamp)
                         .map(dataSnapshot -> {
                             if (dataSnapshot.getChildrenCount() > 0) {
+                                double lastTimestamp = Double.MAX_VALUE;
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     Message message = Message.from(child);
+                                    if (lastTimestamp > message.timestamp) {
+                                        lastTimestamp = message.timestamp;
+                                    }
                                     message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted) {
@@ -72,7 +76,8 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                 }
                                 Output output = new Output();
                                 output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
+                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT
+                                        && lastTimestamp > params.conversation.deleteTimestamp;
                                 return output;
                             }
                             throw new NullPointerException();

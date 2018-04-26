@@ -9,9 +9,7 @@ import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationBackgroundUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationColorUseCase;
-import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
-import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
@@ -20,7 +18,8 @@ import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
-import com.ping.android.domain.usecase.message.ObserveMessageUseCase;
+import com.ping.android.domain.usecase.message.ObserveLastMessageUseCase;
+import com.ping.android.domain.usecase.message.ObserveMessageChangeUseCase;
 import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
@@ -67,7 +66,9 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
     @Inject
-    ObserveMessageUseCase observeMessageUseCase;
+    ObserveLastMessageUseCase observeLastMessageUseCase;
+    @Inject
+    ObserveMessageChangeUseCase observeMessageChangeUseCase;
     @Inject
     ObserveGroupValueUseCase observeGroupValueUseCase;
     @Inject
@@ -145,7 +146,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void pause() {
-        observeMessageUseCase.unsubscribe();
+        observeLastMessageUseCase.unsubscribe();
         isInBackground.set(true);
     }
 
@@ -172,7 +173,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void observeMessageUpdate() {
         if (conversation == null) return;
-        observeMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
+        observeLastMessageUseCase.execute(new DefaultObserver<ChildData<Message>>() {
             @Override
             public void onNext(ChildData<Message> messageChildData) {
                 handleMessageData(messageChildData);
@@ -182,7 +183,13 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
             }
-        }, new ObserveMessageUseCase.Params(conversation, currentUser));
+        }, new ObserveLastMessageUseCase.Params(conversation, currentUser));
+        observeMessageChangeUseCase.execute(new DefaultObserver<ChildData<Message>>() {
+            @Override
+            public void onNext(ChildData<Message> messageChildData) {
+                handleMessageData(messageChildData);
+            }
+        }, new ObserveMessageChangeUseCase.Params(conversation, currentUser));
     }
 
     @Override
@@ -192,6 +199,13 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(LoadMoreMessagesUseCase.Output output) {
                 updateLastMessages(output.messages, output.canLoadMore);
+                view.hideRefreshView();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                super.onError(exception);
+                view.hideRefreshView();
             }
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
@@ -232,8 +246,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                 headerItem = new MessageHeaderItem();
                 headerItemMap.put(message.days, headerItem);
             }
+
             MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-            headerItem.addChildItem(item);
+            headerItem.addNewItem(item);
             //messageBaseItems.add(item);
         }
         //headerItemMap = CommonMethod.sortByKeys(headerItemMap);
@@ -291,8 +306,6 @@ public class ChatPresenterImpl implements ChatPresenter {
                 if (message.isCached) {
                     message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                     addMessage(message);
-//                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-//                    view.addCacheMessage(item);
                 } else {
                     sendNotification(conversation, message);
                 }
@@ -319,9 +332,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-//                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-//
-//                    view.addCacheMessage(item);
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                     addMessage(message);
                 } else {
                     sendNotification(conversation, message);
@@ -635,7 +646,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void destroy() {
         observeCurrentUserUseCase.dispose();
         getConversationValueUseCase.dispose();
-        observeMessageUseCase.dispose();
+        observeLastMessageUseCase.dispose();
+        observeMessageChangeUseCase.dispose();
         observeTypingEventUseCase.dispose();
         observeConversationValueFromExistsConversationUseCase.dispose();
         getLastMessagesUseCase.dispose();

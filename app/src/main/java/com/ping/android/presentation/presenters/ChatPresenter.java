@@ -67,8 +67,6 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
 
-        void addCacheMessage(MessageBaseItem message);
-
         void switchOffEditMode();
 
         void updateNickNames(Map<String, String> nickNames);
@@ -84,5 +82,7 @@ public interface ChatPresenter extends BasePresenter {
         void changeTheme(Color from);
 
         void updateBackground(String s);
+
+        void hideRefreshView();
     }
 }

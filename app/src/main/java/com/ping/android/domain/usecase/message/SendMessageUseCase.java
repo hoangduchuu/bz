@@ -126,6 +126,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String thumbUrl;
             private String messageKey;
             private String cacheImage;
+            private double timestamp;
+
+            public Builder() {
+                timestamp = System.currentTimeMillis() / 1000d;
+            }
 
             public Builder setCurrentUser(User currentUser) {
                 this.currentUser = currentUser;
@@ -209,7 +214,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             }
 
             private Message buildAudioMessage(User currentUser, String audioUrl) {
-                double timestamp = System.currentTimeMillis() / 1000d;
+
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createAudioMessage(audioUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), null,
@@ -218,7 +223,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             private Message buildMessage(User currentUser, String text) {
                 this.currentUser = currentUser;
-                double timestamp = System.currentTimeMillis() / 1000d;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
@@ -226,7 +230,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             private Message buildImageMessage(User currentUser, String photoUrl, String thumbUrl) {
                 this.currentUser = currentUser;
-                double timestamp = System.currentTimeMillis() / 1000d;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createImageMessage(photoUrl, thumbUrl, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses(), allowance);
@@ -234,7 +237,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             private Message buildGameMessage(User currentUser, String imageUrl, GameType gameType) {
                 this.currentUser = currentUser;
-                double timestamp = System.currentTimeMillis() / 1000d;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createGameMessage(imageUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
