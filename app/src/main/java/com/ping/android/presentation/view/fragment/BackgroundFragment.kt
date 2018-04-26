@@ -13,14 +13,12 @@ import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule
-import com.ping.android.model.CameraItem
-import com.ping.android.model.Conversation
-import com.ping.android.model.FirebaseImageItem
-import com.ping.android.model.GalleryItem
+import com.ping.android.model.*
 import com.ping.android.presentation.presenters.BackgroundPresenter
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.ViewType
+import com.ping.android.presentation.view.adapter.delegate.BlankItemDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.CameraItemDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.FirebaseBackgroundDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.GalleryItemDelegateAdapter
@@ -66,6 +64,7 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
         val models: MutableList<ViewType> = ArrayList()
         models.add(CameraItem())
         models.add(GalleryItem())
+        models.add(BlankItem())
         adapter.addItems(models)
         presenter.create()
     }
@@ -82,15 +81,23 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
         adapter.registerItemType(AdapterConstants.GALLERY, GalleryItemDelegateAdapter(clickListener = {
             this.handleGalleryClicked()
         }))
+        adapter.registerItemType(AdapterConstants.BLANK, BlankItemDelegateAdapter({
+            this.handleBlankItemClicked()
+        }))
         galleryList.adapter = adapter
 
         imagePickerHelper = ImagePickerHelper
                 .from(this)
                 .setCrop(true)
+                .setView(this)
 
         registerEvent(imagePickerHelper.fileObservable.subscribe({
             presenter.uploadConversationBackground(it.absolutePath)
         }))
+    }
+
+    private fun handleBlankItemClicked() {
+        presenter.changeBackground("")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -140,7 +147,7 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     }
 
     override fun navigateBack() {
-        activity?.onBackPressed()
+        activity?.finish()
     }
 
     // endregion

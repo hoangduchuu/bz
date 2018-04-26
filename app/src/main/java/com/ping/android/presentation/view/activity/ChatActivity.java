@@ -1263,6 +1263,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             backgroundImage.setImageDrawable(null);
             return;
         }
+        if (isDestroyed()) return;
         StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(s);
         GlideApp.with(this)
                 .asBitmap()

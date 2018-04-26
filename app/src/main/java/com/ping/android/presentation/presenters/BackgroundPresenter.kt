@@ -52,13 +52,15 @@ class BackgroundPresenterImpl @Inject constructor() : BackgroundPresenter {
             }
 
             override fun onNext(t: Boolean) {
+                view.hideLoading()
                 view.navigateBack()
             }
 
             override fun onError(e: Throwable) {
-
+                view.hideLoading()
             }
         }
+        view.showLoading()
         updateConversationBackgroundUseCase.execute(observer = observer,
                 params = UpdateConversationBackgroundUseCase.Params(this.conversation, url))
     }

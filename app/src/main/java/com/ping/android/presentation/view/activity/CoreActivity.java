@@ -159,7 +159,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     public void hideLoading() {
         if (loadingDialog != null) {
-            loadingDialog.dismiss();
+            loadingDialog.dismissAllowingStateLoss();
         }
     }
 }
