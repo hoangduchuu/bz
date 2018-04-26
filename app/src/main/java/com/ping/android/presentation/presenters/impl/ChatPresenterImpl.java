@@ -289,8 +289,10 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-                    view.addCacheMessage(item);
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    addMessage(message);
+//                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+//                    view.addCacheMessage(item);
                 } else {
                     sendNotification(conversation, message);
                 }
@@ -317,8 +319,10 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
-                    view.addCacheMessage(item);
+//                    MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+//
+//                    view.addCacheMessage(item);
+                    addMessage(message);
                 } else {
                     sendNotification(conversation, message);
                 }

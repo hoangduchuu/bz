@@ -226,7 +226,7 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(filePath)
                 .placeholder(placeholder)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
                 .signature(key)

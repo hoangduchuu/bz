@@ -55,6 +55,11 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                 })
                 .onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
+                    if (childData.type == ChildEvent.Type.CHILD_REMOVED) {
+                        // We do not handle child removed event for message
+                        return Observable.empty();
+                    }
+
                     Message message = childData.data;
                     boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0
                             && !message.readAllowed.containsKey(currentUser.key);
@@ -62,7 +67,6 @@ public class ObserveMessageUseCase extends UseCase<ChildData<Message>, ObserveMe
                     if (isOldMessage || unReadable) {
                         return Observable.empty();
                     }
-
                     boolean isDeleted = CommonMethod.getBooleanFrom(childData.data.deleteStatuses, currentUser.key);
                     if (isDeleted) {
                         if (childData.type == ChildEvent.Type.CHILD_CHANGED) {

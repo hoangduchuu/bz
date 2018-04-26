@@ -200,6 +200,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         notifyTyping();
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
+        //messagesAdapter.setHasStableIds();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
         ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
@@ -1189,25 +1190,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void addNewMessage(MessageBaseItem data) {
-        //adapter.addOrUpdate(data);
-        data.setEditMode(isEditMode);
-        messagesAdapter.addOrUpdate(data);
-        if (!isEditMode && isVisible) {
-            recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
-        }
-    }
-
-    @Override
     public void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data) {
         //adapter.deleteMessage(data.key);
         messagesAdapter.deleteMessage(headerItem, data);
         //this.updateConversationLastMessage();
-    }
-
-    @Override
-    public void updateMessage(MessageBaseItem data) {
-        messagesAdapter.addOrUpdate(data);
     }
 
     @Override
