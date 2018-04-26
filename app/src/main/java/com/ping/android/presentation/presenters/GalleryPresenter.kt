@@ -44,7 +44,7 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
             override fun onNext(t: LoadConversationMediaUseCase.Output) {
                 super.onNext(t)
                 view.hideLoading()
-                t.messages.sortBy { it.timestamp }
+                t.messages.sortByDescending { it.timestamp }
                 messages = t.messages
                 view.showGridGallery()
             }

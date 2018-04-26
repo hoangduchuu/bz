@@ -1,8 +1,11 @@
 package com.ping.android.domain.usecase.conversation;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.google.android.gms.common.internal.service.Common;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -64,7 +67,15 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
 
                             message.sender = getUser(message.senderId, params.conversation);
                             message.currentUserId = user.key;
-                            messages.add(message);
+
+                            int status = CommonMethod.getIntFrom(message.status, user.key);
+                            if (message.messageType == Constant.MSG_TYPE_GAME && !TextUtils.equals(message.senderId, user.key)) {
+                                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                                    messages.add(message);
+                                }
+                            } else {
+                                messages.add(message);
+                            }
                         }
                         LoadConversationMediaUseCase.Output output = new LoadConversationMediaUseCase.Output();
                         output.messages = messages;

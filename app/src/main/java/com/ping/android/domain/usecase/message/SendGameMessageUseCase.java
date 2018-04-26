@@ -86,6 +86,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                     Message message = params1.getMessage();
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
+                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
                     return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
                 });
     }
