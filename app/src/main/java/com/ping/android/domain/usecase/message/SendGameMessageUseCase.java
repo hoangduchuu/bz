@@ -14,6 +14,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -60,6 +61,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
         Message cachedMessage = builder.build().getMessage();
         cachedMessage.isCached = true;
         cachedMessage.localImage = params.filePath;
+        cachedMessage.days = (long) (cachedMessage.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
                     message.key = s;

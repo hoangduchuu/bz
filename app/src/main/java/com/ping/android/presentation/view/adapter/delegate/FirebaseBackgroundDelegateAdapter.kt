@@ -36,7 +36,7 @@ class FirebaseBackgroundDelegateAdapter(var clickListener: (FirebaseImageItem) -
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(item.imageUrl)
             GlideApp.with(itemView.context)
                     .load(gsReference)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(itemView.image)
         }
     }

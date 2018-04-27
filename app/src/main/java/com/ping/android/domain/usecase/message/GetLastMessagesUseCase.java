@@ -44,12 +44,17 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                         .map(dataSnapshot -> {
                             Output output = new Output();
                             if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                                double lastTimestamp = Double.MAX_VALUE;
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
                                     Message message = Message.from(child);
+                                    if (lastTimestamp > message.timestamp) {
+                                        lastTimestamp = message.timestamp;
+                                    }
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
-                                    if (isDeleted) {
+                                    boolean isOld = message.timestamp < conversation.deleteTimestamp;
+                                    if (isDeleted || isOld) {
                                         continue;
                                     }
 
@@ -60,14 +65,16 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     if (message.timestamp < conversation.deleteTimestamp) {
                                         continue;
                                     }
-
+                                    
+                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     message.sender = getUser(message.senderId, conversation);
                                     message.currentUserId = user.key;
                                     messages.add(message);
                                 }
 
                                 output.messages = messages;
-                                output.canLoadMore = messages.size() >= Constant.LATEST_RECENT_MESSAGES;
+                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LATEST_RECENT_MESSAGES
+                                        && lastTimestamp > conversation.deleteTimestamp;
                                 return output;
                             } else {
                                 output.messages = new ArrayList<>();
@@ -86,18 +93,6 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
         }
         return null;
     }
-
-//    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-//        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
-//            return 0.0d;
-//        }
-//        Object value = conversation.deleteTimestamps.get(user.key);
-//        if (value instanceof Long) {
-//            return ((Long) value).doubleValue();
-//        } else {
-//            return (Double) value;
-//        }
-//    }
 
     public static class Output {
         public List<Message> messages;

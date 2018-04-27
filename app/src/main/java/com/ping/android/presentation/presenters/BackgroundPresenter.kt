@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
+import com.ping.android.domain.usecase.conversation.GetDefaultBackgroundsUseCase
 import com.ping.android.domain.usecase.conversation.UpdateConversationBackgroundUseCase
 import com.ping.android.domain.usecase.conversation.UploadConversationBackgroundUseCase
 import com.ping.android.model.Conversation
@@ -15,12 +16,15 @@ interface BackgroundPresenter: BasePresenter {
 
     interface View: BaseView {
         fun navigateBack()
+        fun updateBackgrounds(t: List<String>)
     }
 }
 
 class BackgroundPresenterImpl @Inject constructor() : BackgroundPresenter {
     @Inject
     lateinit var view: BackgroundPresenter.View
+    @Inject
+    lateinit var getDefaultBackgroundsUseCase: GetDefaultBackgroundsUseCase
     @Inject
     lateinit var updateConversationBackgroundUseCase: UpdateConversationBackgroundUseCase
     @Inject
@@ -32,20 +36,31 @@ class BackgroundPresenterImpl @Inject constructor() : BackgroundPresenter {
         this.conversation = conversation
     }
 
+    override fun create() {
+        val observer = object : DefaultObserver<List<String>>() {
+            override fun onNext(t: List<String>) {
+                view.updateBackgrounds(t)
+            }
+        }
+        getDefaultBackgroundsUseCase.execute(observer, null)
+    }
+
     override fun changeBackground(url: String) {
-        var observer = object : DefaultObserver<Boolean>() {
+        val observer = object : DefaultObserver<Boolean>() {
             override fun onComplete() {
 
             }
 
             override fun onNext(t: Boolean) {
+                view.hideLoading()
                 view.navigateBack()
             }
 
             override fun onError(e: Throwable) {
-
+                view.hideLoading()
             }
         }
+        view.showLoading()
         updateConversationBackgroundUseCase.execute(observer = observer,
                 params = UpdateConversationBackgroundUseCase.Params(this.conversation, url))
     }

@@ -154,6 +154,14 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
+    public Observable<DataSnapshot> getDefaultBackgrounds() {
+        Query query = database.getReference().child("backgrounds");
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .toObservable();
+    }
+
+    @Override
     public Observable<Boolean> createConversation(Conversation conversation) {
 //        DatabaseReference groupReference = database.getReference("conversation");
 //        return RxFirebaseDatabase.setValue(groupReference, group.toMap())

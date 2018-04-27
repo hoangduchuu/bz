@@ -11,6 +11,7 @@ import android.content.res.ColorStateList;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
@@ -18,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -98,7 +100,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private LinearLayoutManager mLinearLayoutManager;
     private RelativeLayout layoutVoice, layoutBottomMenu;
     private LinearLayout layoutText, layoutMsgType;
-    private ImageView btBack, btLoadMoreChat;
+    private ImageView btBack;
     private Button btSendRecord;
     private Button tbRecord;
     private AppCompatCheckBox tgMarkOut;
@@ -113,6 +115,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private BottomSheetDialog messageActions;
 
     private LinearLayout copyContainer;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private String conversationID;
     private Conversation originalConversation;
@@ -133,7 +136,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImagePickerHelper imagePickerHelper;
     private ShakeEventManager shakeEventManager;
 
-    private boolean isScrollToTop = false, isEndOfConvesation = false;
+    private boolean isScrollToTop = false;
     private EmojiPopup emojiPopup;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
@@ -200,6 +203,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         notifyTyping();
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
+        //messagesAdapter.setHasStableIds();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
         ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
@@ -332,10 +336,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_emoji_btn:
                 showEmojiEditor();
                 break;
-            case R.id.load_more:
-                loadMoreChats();
-                isScrollToTop = true;
-                break;
+//            case R.id.load_more:
+//                loadMoreChats();
+//                //isScrollToTop = true;
+//                break;
             case R.id.btn_copy:
                 onCopySelectedMessageText();
                 break;
@@ -501,15 +505,19 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                int pastVisibleItems = mLinearLayoutManager.findFirstCompletelyVisibleItemPosition();
-                boolean loadMoreVisibility = pastVisibleItems <= 3 && pastVisibleItems >= 0 && !isEndOfConvesation;
-                updateLoadMoreButtonStatus(loadMoreVisibility);
 
                 int lastVisibleItem = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
                 isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
         backgroundImage = findViewById(R.id.backgroundImage);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadMoreChats();
+            }
+        });
 
         findViewById(R.id.chat_person_name).setOnClickListener(this);
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
@@ -536,8 +544,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btEdit.setOnClickListener(this);
         btCancelEdit = findViewById(R.id.chat_cancel_edit);
         btCancelEdit.setOnClickListener(this);
-        btLoadMoreChat = findViewById(R.id.load_more);
-        btLoadMoreChat.setOnClickListener(this);
 
         layoutText = findViewById(R.id.chat_layout_text);
         layoutVoice = findViewById(R.id.chat_layout_voice);
@@ -613,6 +619,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         FlexibleItem item = messagesAdapter.getItem(1);
         if (item instanceof MessageBaseItem) {
             return ((MessageBaseItem) item).message;
+        } else if (item instanceof MessageHeaderItem) {
+            return ((MessageHeaderItem) item).getChildItems().get(0).message;
         }
         return null;
     }
@@ -644,9 +652,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         List<Message> visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible);
         boolean isMask = false;
         for (Message message : visibleMessages) {
-            if (!message.isMask) {
-                isMask = true;
-                break;
+            if (message.messageType == Constant.MSG_TYPE_TEXT || message.messageType == Constant.MSG_TYPE_IMAGE) {
+                if (!message.isMask) {
+                    isMask = true;
+                    break;
+                }
             }
         }
         presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.getItemCount() - 1, isMask);
@@ -658,7 +668,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void loadMoreChats() {
         Message lastMessage = getLastMessage();
-        if (lastMessage == null) return;
+        if (lastMessage == null) {
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         presenter.loadMoreMessage(lastMessage.timestamp);
     }
 
@@ -1144,10 +1157,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         presenter.handleUserTypingStatus(typing);
     }
 
-    private void updateLoadMoreButtonStatus(boolean isShow) {
-        btLoadMoreChat.setVisibility(isShow ? View.VISIBLE : View.GONE);
-    }
-
     @Override
     public void updateConversation(Conversation conv) {
         if (this.shakeEventManager != null) {
@@ -1189,16 +1198,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void addNewMessage(MessageBaseItem data) {
-        //adapter.addOrUpdate(data);
-        data.setEditMode(isEditMode);
-        messagesAdapter.addOrUpdate(data);
-        if (!isEditMode && isVisible) {
-            recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
-        }
-    }
-
-    @Override
     public void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data) {
         //adapter.deleteMessage(data.key);
         messagesAdapter.deleteMessage(headerItem, data);
@@ -1206,23 +1205,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void updateMessage(MessageBaseItem data) {
-        messagesAdapter.addOrUpdate(data);
-    }
-
-    @Override
     public void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore) {
         messagesAdapter.updateData(messages);
         if (!canLoadMore) {
-            isEndOfConvesation = true;
-            updateLoadMoreButtonStatus(false);
+            swipeRefreshLayout.setEnabled(false);
         }
-    }
-
-    @Override
-    public void addCacheMessage(MessageBaseItem message) {
-        messagesAdapter.addOrUpdate(message);
-        //recycleChatView.scrollToPosition(recycleChatView.getAdapter().getItemCount() - 1);
     }
 
     @Override
@@ -1278,6 +1265,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             backgroundImage.setImageDrawable(null);
             return;
         }
+        if (isDestroyed()) return;
         StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(s);
         GlideApp.with(this)
                 .asBitmap()
@@ -1285,6 +1273,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(backgroundImage);
+    }
+
+    @Override
+    public void hideRefreshView() {
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override

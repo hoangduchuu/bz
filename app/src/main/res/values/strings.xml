@@ -246,6 +246,7 @@
     <string name="color_picker_description">Pick a color for this conversation</string>
 
     <string name="hint_search">Search</string>
+    <string name="hint_search_friends">Search by Names, Username, or Phone</string>
     <string name="hint_username">Username</string>
     <string name="hint_bzzz">bzzz...</string>
 </resources>
