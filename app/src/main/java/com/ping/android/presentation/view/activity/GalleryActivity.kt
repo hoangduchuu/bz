@@ -36,14 +36,11 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
         navigator.init(supportFragmentManager, R.id.container)
         presenter.initConversation(conversation)
         presenter.loadMedia()
+        navigator.openAsRoot(GridGalleryFragment.newInstance())
     }
 
     override fun onBackPressed() {
         navigator.navigateBack(this)
-    }
-
-    override fun showGridGallery() {
-        navigator.openAsRoot(GridGalleryFragment.newInstance())
     }
 
     override fun showLoading() {

@@ -59,7 +59,8 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                     boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0
                             && !message.readAllowed.containsKey(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
-                    if (isOldMessage || unReadable) {
+                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
+                    if (isDeleted || isOldMessage || unReadable) {
                         return Observable.empty();
                     }
                     int status = CommonMethod.getIntFrom(message.status, currentUser.key);

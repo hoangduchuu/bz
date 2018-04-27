@@ -1,6 +1,5 @@
 package com.ping.android.presentation.view.fragment
 
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -16,13 +15,11 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
-import com.ping.android.model.ImageMessage
 import com.ping.android.model.Message
 import com.ping.android.ultility.Constant
 import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.GlideApp
 import kotlinx.android.synthetic.main.fragment_image.*
-import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class ImageFragment : Fragment() {
     private lateinit var message: Message
@@ -69,7 +66,7 @@ class ImageFragment : Fragment() {
         }
         GlideApp.with(context)
                 .load(gsReference)
-                .override(500)
+                .override(512)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .transform(BitmapEncode(message.isMask))

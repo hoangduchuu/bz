@@ -53,7 +53,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                             Message message = Message.from(child);
                             message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                             boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
-                            if (isDeleted) {
+                            if (isDeleted || TextUtils.isEmpty(message.senderId)) {
                                 continue;
                             }
 

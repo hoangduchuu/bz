@@ -14,7 +14,7 @@ object AdapterConstants {
 }
 
 class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val items: ArrayList<ViewType>
+    private var items: ArrayList<ViewType>
 
     private val delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
 
@@ -45,7 +45,13 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     fun addItems(newItems: List<ViewType>) {
+        val size = items.size
         items.addAll(newItems)
+        notifyItemRangeInserted(size, newItems.size)
+    }
+
+    fun updateItems(items: List<ViewType>) {
+        this.items = ArrayList(items)
         notifyDataSetChanged()
     }
 }
