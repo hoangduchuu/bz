@@ -65,7 +65,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     if (message.timestamp < conversation.deleteTimestamp) {
                                         continue;
                                     }
-
+                                    
+                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     message.sender = getUser(message.senderId, conversation);
                                     message.currentUserId = user.key;
                                     messages.add(message);

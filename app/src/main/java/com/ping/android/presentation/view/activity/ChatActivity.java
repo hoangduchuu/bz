@@ -652,9 +652,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         List<Message> visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible);
         boolean isMask = false;
         for (Message message : visibleMessages) {
-            if (!message.isMask) {
-                isMask = true;
-                break;
+            if (message.messageType == Constant.MSG_TYPE_TEXT || message.messageType == Constant.MSG_TYPE_IMAGE) {
+                if (!message.isMask) {
+                    isMask = true;
+                    break;
+                }
             }
         }
         presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.getItemCount() - 1, isMask);
