@@ -13,11 +13,11 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            style="?attr/backgroundTheme"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:gravity="center_vertical"
             android:background="#F1F2F2"
-            style="?attr/backgroundTheme">
+            android:gravity="center_vertical">
 
             <Button
                 android:id="@+id/chat_cancel_edit"
@@ -121,23 +121,18 @@
                 android:scaleType="centerCrop"
                 tools:background="@drawable/background1" />
 
-            <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
-                android:id="@+id/chat_list_view"
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swiperefresh"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="none" />
+                android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:background="@android:color/transparent">
+                <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
+                    android:id="@+id/chat_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none" />
 
-                <ImageView
-                    android:id="@+id/load_more"
-                    style="@style/LoadMoreButton"
-                    android:visibility="gone" />
-            </LinearLayout>
+            </android.support.v4.widget.SwipeRefreshLayout>
         </RelativeLayout>
 
         <LinearLayout
@@ -160,13 +155,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:button="@drawable/toggle_mask_msg"
-                    android:text=""
-                    android:minWidth="0dp"
-                    android:gravity="center"
-                    android:checked="false"
                     android:layout_marginStart="10dp"
-                    android:padding="6dp"/>
+                    android:button="@drawable/toggle_mask_msg"
+                    android:checked="false"
+                    android:gravity="center"
+                    android:minWidth="0dp"
+                    android:padding="6dp"
+                    android:text="" />
 
                 <com.vanniktech.emoji.EmojiEditText
                     android:id="@+id/chat_message_tv"
@@ -177,10 +172,10 @@
                     android:background="@null"
                     android:hint="@string/hint_bzzz"
                     android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
-                    android:scrollHorizontally="false"
                     android:maxLines="5"
+                    android:scrollHorizontally="false"
                     android:textSize="@dimen/text_size_medium"
-                    tools:text=""/>
+                    tools:text="" />
 
                 <Button
                     android:id="@+id/chat_send_message_btn"
@@ -196,9 +191,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:gravity="center"
-                android:paddingStart="10dp"
+                android:orientation="horizontal"
                 android:paddingEnd="10dp"
-                android:orientation="horizontal">
+                android:paddingStart="10dp">
 
                 <ImageButton
                     android:id="@+id/chat_text_btn"
@@ -211,7 +206,7 @@
                     android:paddingEnd="5dp"
                     android:paddingStart="5dp"
                     android:scaleType="center"
-                    android:src="@drawable/chat_text_selector"  />
+                    android:src="@drawable/chat_text_selector" />
 
                 <View
                     android:layout_width="0dp"

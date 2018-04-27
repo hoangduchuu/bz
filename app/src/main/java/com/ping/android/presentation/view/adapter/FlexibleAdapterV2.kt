@@ -10,6 +10,7 @@ object AdapterConstants {
     const val IMAGE = 2
     const val GALLERY = 3
     const val CAMERA = 4
+    const val BLANK = 5
 }
 
 class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
