@@ -18,5 +18,7 @@ public interface MessageRepository {
 
     Observable<ChildEvent> observeMessageUpdate(String conversationId);
 
+    Observable<ChildEvent> observeLastMessage(String conversationId);
+
     Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
 }

@@ -1,9 +1,9 @@
 package com.ping.android.presentation.view.adapter;
 
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.bzzzchat.flexibleadapter.FlexibleAdapter;
@@ -42,9 +42,20 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
     private boolean isEditMode = false;
 
+    public static MediaPlayer audioPlayerInstance = null;
+    public static AudioMessageBaseItem currentPlayingMessage = null;
+
     public ChatMessageAdapter() {
         super();
         addPadding();
+        if (audioPlayerInstance == null) {
+            audioPlayerInstance = new MediaPlayer();
+            audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
+                if (currentPlayingMessage != null) {
+                    onCompletePlayAudio(currentPlayingMessage);
+                }
+            });
+        }
     }
 
     @Override
@@ -56,49 +67,16 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         boundsViewHolder.add(holder);
+        if (holder instanceof MessageBaseItem.ViewHolder) {
+            ((MessageBaseItem.ViewHolder) holder).setMessageListener(this);
+            ((MessageBaseItem.ViewHolder) holder).setNickNames(nickNames);
+        }
         super.onBindViewHolder(holder, position);
     }
 
     public void setMessageListener(ChatMessageListener messageListener) {
         this.messageListener = messageListener;
         selectedMessages = new ArrayList<>();
-    }
-
-    public void addOrUpdate(MessageBaseItem messageItem) {
-        boolean isAdd = true;
-        int size = getItemCount();
-        int index = getItemCount();
-        for (int i = size - 1; i >= 0; i--) {
-            FlexibleItem item = items.get(i);
-            if (!(item instanceof MessageBaseItem)) {
-                continue;
-            }
-            if (messageItem.message.key.equals(((MessageBaseItem) item).message.key)) {
-                index = i;
-                if (!TextUtils.isEmpty(((MessageBaseItem) item).message.localImage)) {
-                    // Keep local image
-
-                    messageItem.message.localImage = ((MessageBaseItem) item).message.localImage;
-                }
-                ((MessageBaseItem) item).message = messageItem.message;
-                update(item, index);
-                isAdd = false;
-                break;
-            }
-            if (messageItem.message.timestamp > ((MessageBaseItem) item).message.timestamp) {
-                index = i + 1;
-                break;
-            }
-        }
-
-        if (isAdd) {
-            messageItem.setMessageListener(this);
-            add(messageItem, index);
-            // If new message has come, add to list then update previous message to hide its status
-            if (index == getItemCount() - 1 && index > 0) {
-                notifyItemChanged(index - 1);
-            }
-        }
     }
 
     public void deleteMessage(MessageHeaderItem headerItem, MessageBaseItem item) {
@@ -114,7 +92,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             if (headerIndex + childIndex < items.size()) {
                 // Must plus 1 because childIndex is start from 0
                 int finalIndex = headerIndex + childIndex + 1;
-                item.setMessageListener(null);
+                //item.setMessageListener(null);
                 items.remove(finalIndex);
                 notifyItemRemoved(finalIndex);
             }
@@ -215,15 +193,17 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     public void pause() {
-        if (AudioMessageBaseItem.currentPlayingMessage != null) {
-            AudioMessageBaseItem.currentPlayingMessage.stopSelf();
-            onPauseAudioMessage(AudioMessageBaseItem.currentPlayingMessage);
+        if (currentPlayingMessage != null) {
+            currentPlayingMessage.stopSelf();
+            onPauseAudioMessage(currentPlayingMessage);
         }
     }
 
     public void destroy() {
-        if (AudioMessageBaseItem.currentPlayingMessage != null) {
-            AudioMessageBaseItem.currentPlayingMessage.release();
+        if (audioPlayerInstance != null) {
+            audioPlayerInstance.stop();
+            audioPlayerInstance.release();
+            audioPlayerInstance = null;
         }
     }
 
@@ -287,22 +267,12 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public void updateNickNames(Map<String, String> nickNames) {
         this.nickNames = nickNames;
-        for (FlexibleItem item : this.items) {
-            if (item instanceof MessageBaseItem) {
-                ((MessageBaseItem) item).setNickNames(nickNames);
-            }
-        }
+//        for (FlexibleItem item : this.items) {
+//            if (item instanceof MessageBaseItem) {
+//                //((MessageBaseItem) item).setNickNames(nickNames);
+//            }
+//        }
         notifyDataSetChanged();
-    }
-
-    public void appendHistoryItems(List<MessageBaseItem> messages) {
-        for (MessageBaseItem item : messages) {
-            item.setMessageListener(this);
-        }
-        int startIndex = this.items.size() >= 1 ? 1 : 0;
-        int endIndex = messages.size();
-        this.items.addAll(startIndex, messages);
-        notifyItemRangeInserted(startIndex, endIndex);
     }
 
     private void addPadding() {
@@ -316,13 +286,30 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return this.items.get(i);
     }
 
-    public void updateData(List<MessageHeaderItem> messages) {
-        this.items.clear();
-        for (MessageHeaderItem headerItem : messages) {
-            this.items.add(headerItem);
-            this.items.addAll(headerItem.getChildItems());
+    public void updateData(List<MessageHeaderItem> headerItems) {
+        //this.items.clear();
+        for (int i = headerItems.size() - 1; i >= 0; i--) {
+            MessageHeaderItem headerItem = headerItems.get(i);
+            int newItemsSize = headerItem.getNewItems().size();
+            if (newItemsSize > 0) {
+                // Find header index
+                int index = this.items.indexOf(headerItem);
+                if (index < 0) {
+                    index = 0;
+                    // Add header to list
+                    this.items.add(index, headerItem);
+                    notifyItemInserted(index);
+                }
+                List<MessageBaseItem> items = headerItem.getNewItems();
+
+                this.items.addAll(index + 1, headerItem.getNewItems());
+                headerItem.processNewItems();
+                notifyItemRangeInserted(index + 1, newItemsSize);
+//                this.items.add(headerItem);
+//                this.items.addAll(headerItem.getChildItems());
+            }
         }
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
     public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
@@ -333,8 +320,8 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             headerIndex = size;
             notifyItemInserted(size);
         }
-        item.setMessageListener(this);
-        item.setNickNames(nickNames);
+//        item.setMessageListener(this);
+        //item.setNickNames(nickNames);
         if (added) {
             int childIndex = headerItem.findChildIndex(item);
             int finalIndex = headerIndex + childIndex + 1;

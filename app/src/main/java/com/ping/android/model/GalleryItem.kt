@@ -3,6 +3,12 @@ package com.ping.android.model
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.ViewType
 
+class BlankItem: ViewType {
+    override fun getViewType(): Int {
+        return AdapterConstants.BLANK
+    }
+}
+
 class GalleryItem : ViewType {
     override fun getViewType(): Int {
         return AdapterConstants.GALLERY

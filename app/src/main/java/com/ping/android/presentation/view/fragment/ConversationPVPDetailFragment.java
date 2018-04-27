@@ -250,7 +250,9 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     @Override
     public void navigateBack() {
-        getActivity().finish();
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 
     @Override

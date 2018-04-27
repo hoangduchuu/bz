@@ -41,12 +41,11 @@ import java.util.Map;
  */
 
 public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> implements FlexibleItem<VH> {
-    private Map<String, String> nickNames = new HashMap<>();
+    //private Map<String, String> nickNames = new HashMap<>();
     public Message message;
     public int conversationType;
     protected boolean isEditMode = false;
     protected boolean isSelected = false;
-    protected MessageListener messageListener;
 
     public static MessageBaseItem from(Message message, String currentUserID, int conversationType) {
         MessageBaseItem baseItem;
@@ -85,16 +84,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
     @Override
     public void onBindViewHolder(@NotNull VH holder, boolean lastItem) {
         holder.bindData(this, lastItem);
-        holder.setMessageListener(messageListener);
     }
 
-    public void setMessageListener(MessageListener messageListener) {
-        this.messageListener = messageListener;
-    }
-
-    public void setNickNames(Map<String, String> nickNames) {
-        this.nickNames = nickNames;
-    }
+//    public void setNickNames(Map<String, String> nickNames) {
+//        this.nickNames = nickNames;
+//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -106,6 +100,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public static abstract class ViewHolder extends BaseMessageViewHolder
             implements View.OnClickListener, RevealableViewHolder {
+        private Map<String, String> nickNames = new HashMap<>();
         protected RadioButton rbSelection;
         protected ImageView senderProfileImage;
         protected TextView tvMessageInfo;
@@ -135,6 +130,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         public void setMessageListener(MessageListener messageListener) {
             this.messageListener = messageListener;
+        }
+
+        public void setNickNames(Map<String, String> nickNames) {
+            this.nickNames = nickNames;
         }
 
         public void bindData(MessageBaseItem item, boolean lastItem) {
@@ -258,7 +257,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     tvMessageInfo.setVisibility(View.GONE);
                 } else {
                     tvMessageInfo.setVisibility(View.VISIBLE);
-                    String nickName = (String) item.nickNames.get(message.senderId);
+                    String nickName = (String) nickNames.get(message.senderId);
                     String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
                     tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName));
                 }
@@ -271,8 +270,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             if (message.showExtraInfo) {
                 senderProfileImage.setVisibility(View.VISIBLE);
                 User sender = message.sender;
-                if (sender != null && senderProfileImage != null) {
+                if (sender != null) {
                     UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+                } else {
+                    senderProfileImage.setImageResource(R.drawable.ic_avatar_gray);
                 }
             } else {
                 senderProfileImage.setVisibility(View.INVISIBLE);
@@ -281,9 +282,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         private void handleProfileImagePress() {
             if (messageListener != null) {
-                String imageName = "imageProfile" + getAdapterPosition();
-                Pair imagePair = Pair.create(senderProfileImage, imageName);
-                messageListener.handleProfileImagePress(item.message.sender, imagePair);
+                if (item.message.sender != null) {
+                    String imageName = "imageProfile" + getAdapterPosition();
+                    Pair imagePair = Pair.create(senderProfileImage, imageName);
+                    messageListener.handleProfileImagePress(item.message.sender, imagePair);
+                }
             }
         }
 
