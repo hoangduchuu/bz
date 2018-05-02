@@ -4,6 +4,7 @@ import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,10 +12,9 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
@@ -27,13 +27,11 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.DateUtils;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,12 +41,11 @@ import java.util.Map;
  */
 
 public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> implements FlexibleItem<VH> {
-    private Map<String, String> nickNames = new HashMap<>();
+    //private Map<String, String> nickNames = new HashMap<>();
     public Message message;
     public int conversationType;
     protected boolean isEditMode = false;
     protected boolean isSelected = false;
-    protected MessageListener messageListener;
 
     public static MessageBaseItem from(Message message, String currentUserID, int conversationType) {
         MessageBaseItem baseItem;
@@ -87,16 +84,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
     @Override
     public void onBindViewHolder(@NotNull VH holder, boolean lastItem) {
         holder.bindData(this, lastItem);
-        holder.setMessageListener(messageListener);
     }
 
-    public void setMessageListener(MessageListener messageListener) {
-        this.messageListener = messageListener;
-    }
-
-    public void setNickNames(Map<String, String> nickNames) {
-        this.nickNames = nickNames;
-    }
+//    public void setNickNames(Map<String, String> nickNames) {
+//        this.nickNames = nickNames;
+//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -108,6 +100,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public static abstract class ViewHolder extends BaseMessageViewHolder
             implements View.OnClickListener, RevealableViewHolder {
+        private Map<String, String> nickNames = new HashMap<>();
         protected RadioButton rbSelection;
         protected ImageView senderProfileImage;
         protected TextView tvMessageInfo;
@@ -131,11 +124,16 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 senderProfileImage.setOnClickListener(this);
             }
             rbSelection.setOnClickListener(this);
+            itemView.setOnClickListener(this);
             revealableView = itemView.findViewById(R.id.revealable_view);
         }
 
         public void setMessageListener(MessageListener messageListener) {
             this.messageListener = messageListener;
+        }
+
+        public void setNickNames(Map<String, String> nickNames) {
+            this.nickNames = nickNames;
         }
 
         public void bindData(MessageBaseItem item, boolean lastItem) {
@@ -152,8 +150,18 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         }
 
         @Override
-        public void onSingleTap() {
+        protected boolean handleTouchEvent(MotionEvent motionEvent) {
+            if (item.isEditMode) {
+                return false;
+            }
+            return super.handleTouchEvent(motionEvent);
+        }
 
+        @Override
+        public void onSingleTap() {
+            if (item.isEditMode) {
+                handleSelection();
+            }
         }
 
         @Override
@@ -249,7 +257,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     tvMessageInfo.setVisibility(View.GONE);
                 } else {
                     tvMessageInfo.setVisibility(View.VISIBLE);
-                    String nickName = (String) item.nickNames.get(message.senderId);
+                    String nickName = (String) nickNames.get(message.senderId);
                     String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
                     tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName));
                 }
@@ -262,8 +270,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             if (message.showExtraInfo) {
                 senderProfileImage.setVisibility(View.VISIBLE);
                 User sender = message.sender;
-                if (sender != null && senderProfileImage != null) {
+                if (sender != null) {
                     UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
+                } else {
+                    senderProfileImage.setImageResource(R.drawable.ic_avatar_gray);
                 }
             } else {
                 senderProfileImage.setVisibility(View.INVISIBLE);
@@ -272,9 +282,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         private void handleProfileImagePress() {
             if (messageListener != null) {
-                String imageName = "imageProfile" + getAdapterPosition();
-                Pair imagePair = Pair.create(senderProfileImage, imageName);
-                messageListener.handleProfileImagePress(item.message.sender, imagePair);
+                if (item.message.sender != null) {
+                    String imageName = "imageProfile" + getAdapterPosition();
+                    Pair imagePair = Pair.create(senderProfileImage, imageName);
+                    messageListener.handleProfileImagePress(item.message.sender, imagePair);
+                }
             }
         }
 

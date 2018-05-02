@@ -25,9 +25,10 @@
 
         <LinearLayout style="@style/SearchLayout">
 
-            <android.support.v7.widget.SearchView
+            <com.ping.android.presentation.view.custom.BzzzSearchView
                 android:id="@+id/add_contact_search_view"
-                style="@style/SearchView" />
+                style="@style/SearchView"
+                android:hint="@string/hint_search_friends"/>
         </LinearLayout>
 
         <RelativeLayout

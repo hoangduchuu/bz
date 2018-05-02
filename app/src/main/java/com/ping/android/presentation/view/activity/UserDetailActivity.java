@@ -9,7 +9,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;

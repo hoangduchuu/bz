@@ -1,4 +1,4 @@
-package com.ping.android.domain.usecase;
+package com.ping.android.domain.usecase.conversation;
 
 import android.text.TextUtils;
 
@@ -54,14 +54,12 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                             if (!conversation.memberIDs.containsKey(currentUser.key)) {
                                 return Observable.empty();
                             }
-                            if (conversation.deleteTimestamps.containsKey(currentUser.key)) {
-                                //conversation will not show if last message time stamp less than conversation deleted time
-                                if (conversation.deleteTimestamps.get(currentUser.key) > conversation.timesstamps) {
-                                    ChildData<Conversation> childData = new ChildData<>();
-                                    childData.data = conversation;
-                                    childData.type = ChildEvent.Type.CHILD_REMOVED;
-                                    return Observable.just(childData);
-                                }
+                            conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, currentUser.key);
+                            if (!conversation.isValid()) {
+                                ChildData<Conversation> childData = new ChildData<>();
+                                childData.data = conversation;
+                                childData.type = ChildEvent.Type.CHILD_REMOVED;
+                                return Observable.just(childData);
                             }
                             conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
                             conversation.currentColor = conversation.getColor(currentUser.key);

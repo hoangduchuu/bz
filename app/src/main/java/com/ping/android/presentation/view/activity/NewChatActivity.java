@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
 import com.ping.android.dagger.loggedin.newchat.NewChatModule;

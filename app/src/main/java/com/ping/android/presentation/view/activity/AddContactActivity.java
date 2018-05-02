@@ -6,15 +6,15 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.UIThread;
-import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
-import com.ping.android.activity.R;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
 import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
@@ -34,7 +34,7 @@ import javax.inject.Inject;
 public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener, SearchUserPresenter.View, AddContactPresenter.View {
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
-    private SearchView searchView;
+    private EditText searchView;
     private ImageView btBack;
     private AVLoadingIndicatorView avi;
 
@@ -79,11 +79,10 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         noResultsView = findViewById(R.id.no_results);
         avi = findViewById(R.id.avi);
 
-        registerEvent(RxSearchView.queryTextChangeEvents(searchView)
+        registerEvent(RxTextView.textChanges(searchView)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(new UIThread().getScheduler())
-                .subscribe(searchViewQueryTextEvent -> searchUserPresenter.searchUsers(searchViewQueryTextEvent.queryText().toString())));
-        searchView.setOnClickListener(v -> searchView.setIconified(false));
+                .subscribe(searchViewQueryTextEvent -> searchUserPresenter.searchUsers(searchViewQueryTextEvent.toString())));
     }
 
     private void init() {

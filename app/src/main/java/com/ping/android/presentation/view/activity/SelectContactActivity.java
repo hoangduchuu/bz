@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.ping.android.activity.R;
+import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.ping.android.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.selectcontact.SelectContactComponent;
 import com.ping.android.dagger.loggedin.selectcontact.SelectContactModule;
 import com.ping.android.model.User;
@@ -28,7 +30,7 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
 
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
-    private SearchView searchView;
+    private EditText searchView;
     private ImageView btBack;
     private Button btSelect;
 
@@ -71,20 +73,8 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = findViewById(R.id.select_contact_search_view);
         //CommonMethod.UpdateSearchViewLayout(searchView);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                adapter.filter(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
-                return true;
-            }
-        });
-        searchView.setOnClickListener(v -> searchView.setIconified(false));
+        registerEvent(RxTextView.textChanges(searchView)
+                .subscribe(charSequence -> adapter.filter(charSequence.toString())));
     }
 
     private void init() {

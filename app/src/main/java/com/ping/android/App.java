@@ -4,7 +4,6 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
-import com.ping.android.activity.BuildConfig;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
@@ -13,7 +12,6 @@ import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
 
 import io.fabric.sdk.android.Fabric;
-import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 
 public class App extends CoreApp {

@@ -3,7 +3,7 @@ package com.ping.android.presentation.view.adapter.delegate
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
-import com.ping.android.activity.R
+import com.ping.android.R
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
 import kotlinx.android.synthetic.main.item_media.view.*
@@ -22,7 +22,7 @@ class GalleryItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelega
 
         init {
             itemView.image.setImageResource(R.drawable.ic_chat_image)
-            itemView.setOnClickListener { clickListener() }
+            itemView.card_view.setOnClickListener { clickListener() }
         }
     }
 }
@@ -40,7 +40,7 @@ class CameraItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegat
 
         init {
             itemView.image.setImageResource(R.drawable.ic_chat_camera)
-            itemView.setOnClickListener { clickListener() }
+            itemView.card_view.setOnClickListener { clickListener() }
         }
     }
 }

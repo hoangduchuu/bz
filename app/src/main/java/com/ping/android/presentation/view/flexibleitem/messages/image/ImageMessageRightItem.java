@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages.image;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.presentation.view.flexibleitem.messages.ImageMessageBaseItem;
 

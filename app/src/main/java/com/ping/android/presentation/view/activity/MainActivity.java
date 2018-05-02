@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.managers.UserManager;
@@ -33,9 +33,9 @@ import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
+import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.UsersUtils;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -296,6 +296,22 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         viewPagerAdapter.addFrag(profileFragment, "Profile");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(5);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                KeyboardHelpers.hideSoftInputKeyboard(MainActivity.this);
+            }
+        });
     }
 
     @Override

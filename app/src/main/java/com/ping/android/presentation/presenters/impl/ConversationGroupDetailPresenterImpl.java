@@ -9,9 +9,11 @@ import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationColorUseCase;
 import com.ping.android.domain.usecase.group.AddGroupMembersUseCase;
 import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
+import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.group.UpdateGroupNameUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.ultility.CommonMethod;
@@ -30,6 +32,8 @@ import javax.inject.Inject;
 public class ConversationGroupDetailPresenterImpl implements ConversationGroupDetailPresenter {
     @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
+    @Inject
+    ObserveGroupValueUseCase observeGroupValueUseCase;
     @Inject
     ObserveConversationUpdateUseCase observeConversationUpdateUseCase;
     @Inject
@@ -74,6 +78,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
             @Override
             public void onNext(Conversation data) {
                 conversation = data;
+                observeGroupValue();
                 view.updateConversation(data);
                 if (currentUser != null) {
                     view.updateNotification(CommonMethod.getBooleanFrom(data.notifications, currentUser.key));
@@ -89,6 +94,15 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 view.hideLoading();
             }
         }, conversationId);
+    }
+
+    private void observeGroupValue() {
+        observeGroupValueUseCase.execute(new DefaultObserver<Group>() {
+            @Override
+            public void onNext(Group group) {
+                conversation.group = group;
+            }
+        }, conversation.groupID);
     }
 
     @Override
@@ -245,6 +259,11 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Override
     public void handleBackgroundClicked() {
         view.moveToSelectBackground(conversation);
+    }
+
+    @Override
+    public void handleGalleryClicked() {
+        view.moveToGallery(conversation);
     }
 
     @Override

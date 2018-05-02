@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.extensions.inflate
 import com.google.firebase.storage.FirebaseStorage
-import com.ping.android.activity.R
+import com.ping.android.R
 import com.ping.android.model.FirebaseImageItem
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
@@ -25,7 +25,7 @@ class FirebaseBackgroundDelegateAdapter(var clickListener: (FirebaseImageItem) -
     ) {
         private lateinit var item: FirebaseImageItem
         init {
-            itemView.setOnClickListener { clickListener(item) }
+            itemView.card_view.setOnClickListener { clickListener(item) }
         }
 
         fun bindData(item: FirebaseImageItem) {
@@ -36,7 +36,7 @@ class FirebaseBackgroundDelegateAdapter(var clickListener: (FirebaseImageItem) -
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(item.imageUrl)
             GlideApp.with(itemView.context)
                     .load(gsReference)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(itemView.image)
         }
     }

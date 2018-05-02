@@ -19,8 +19,9 @@ import android.widget.TextView;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
+import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.utils.Log;
 
@@ -35,8 +36,6 @@ import java.util.concurrent.TimeUnit;
  */
 
 public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageBaseItem.ViewHolder> {
-    protected static MediaPlayer audioPlayerInstance = null;
-    public static AudioMessageBaseItem currentPlayingMessage = null;
 
     private int audioDuration = 0;
     private int currentPosition = 0;
@@ -44,41 +43,25 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
     public AudioMessageBaseItem(Message message) {
         super(message);
-        if (audioPlayerInstance == null) {
-            audioPlayerInstance = new MediaPlayer();
-            audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
-                if (currentPlayingMessage != null) {
-                    currentPlayingMessage.completePlaying();
-                }
-            });
-        }
     }
 
     private void completePlaying() {
         currentPosition = 0;
         audioStatus = AudioStatus.INITIALIZED;
-        if (messageListener != null) {
-            messageListener.onCompletePlayAudio(this);
-        }
+//        if (messageListener != null) {
+//            messageListener.onCompletePlayAudio(this);
+//        }
 
     }
 
     public void stopSelf() {
-        if (currentPlayingMessage == this) {
-            if (audioPlayerInstance != null) {
-                audioPlayerInstance.pause();
+        if (ChatMessageAdapter.currentPlayingMessage == this) {
+            if (ChatMessageAdapter.audioPlayerInstance != null) {
+                ChatMessageAdapter.audioPlayerInstance.pause();
             }
             if (audioStatus == AudioStatus.PLAYING) {
                 audioStatus = AudioStatus.PAUSED;
             }
-        }
-    }
-
-    public void release() {
-        if (audioPlayerInstance != null) {
-            audioPlayerInstance.stop();
-            audioPlayerInstance.release();
-            audioPlayerInstance = null;
         }
     }
 
@@ -200,14 +183,14 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         };
 
         private void play() {
-            if (currentPlayingMessage != item) {
-                if (currentPlayingMessage != null) {
-                    currentPlayingMessage.stopSelf();
+            if (ChatMessageAdapter.currentPlayingMessage != item) {
+                if (ChatMessageAdapter.currentPlayingMessage != null) {
+                    ChatMessageAdapter.currentPlayingMessage.stopSelf();
                     if (messageListener != null) {
-                        messageListener.onPauseAudioMessage(currentPlayingMessage);
+                        messageListener.onPauseAudioMessage(ChatMessageAdapter.currentPlayingMessage);
                     }
                 }
-                currentPlayingMessage = (AudioMessageBaseItem) item;
+                ChatMessageAdapter.currentPlayingMessage = (AudioMessageBaseItem) item;
             }
             if (mMediaPlayer == null) {
                 showLoading();
@@ -235,11 +218,11 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
                 int position = ((AudioMessageBaseItem) item).getCurrentPosition();
                 mMediaPlayer.seekTo(position);
-                if (currentPlayingMessage != item) {
+                if (ChatMessageAdapter.currentPlayingMessage != item) {
                     if (messageListener != null) {
                         messageListener.onPauseAudioMessage((AudioMessageBaseItem) item);
                     }
-                    currentPlayingMessage = (AudioMessageBaseItem) item;
+                    ChatMessageAdapter.currentPlayingMessage = (AudioMessageBaseItem) item;
                 }
                 mMediaPlayer.start();
             }
@@ -337,7 +320,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
             if (audioStatus == AudioStatus.PLAYING) {
                 showPause();
-                mMediaPlayer = audioPlayerInstance;
+                mMediaPlayer = ChatMessageAdapter.audioPlayerInstance;
                 mProgressUpdateHandler.postDelayed(mUpdateProgress, AUDIO_PROGRESS_UPDATE_TIME);
             } else {
                 showPlay(false);
@@ -345,7 +328,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private void initMediaPlayer(MediaPlayer.OnPreparedListener listener) {
-            mMediaPlayer = audioPlayerInstance;
+            mMediaPlayer = ChatMessageAdapter.audioPlayerInstance;
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(listener);
             String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator

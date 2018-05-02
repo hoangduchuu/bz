@@ -4,8 +4,8 @@ import com.ping.android.dagger.loggedin.conversationdetail.background.Background
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
-import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 

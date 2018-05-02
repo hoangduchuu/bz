@@ -11,7 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.utils.QBRTCSessionUtils;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.QBRTCSession;

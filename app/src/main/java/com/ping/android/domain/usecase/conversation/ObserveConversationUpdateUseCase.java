@@ -41,6 +41,7 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                 .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
                         .flatMap(dataSnapshot -> {
                             Conversation conversation = Conversation.from(dataSnapshot);
+                            conversation.currentColor = conversation.getColor(user.key);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         conversation.members = users;
@@ -51,15 +52,8 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                                                     break;
                                                 }
                                             }
-                                            return Observable.just(conversation);
-                                        } else {
-                                            return groupRepository.getGroup(user.key, conversation.groupID)
-                                                    .map(group -> {
-                                                        group.members = conversation.members;
-                                                        conversation.group = group;
-                                                        return conversation;
-                                                    });
                                         }
+                                        return Observable.just(conversation);
                                     });
                         }));
     }

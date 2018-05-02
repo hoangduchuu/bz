@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Nickname;
 import com.ping.android.utils.UiUtils;
 

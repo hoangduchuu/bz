@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
 import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;

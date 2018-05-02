@@ -11,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.dagger.loggedin.main.MainComponent;
@@ -33,11 +35,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.functions.Consumer;
+
 public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
-    private SearchView searchView;
+    private EditText searchView;
     private CustomSwitch customSwitch;
     private LinearLayoutManager mLinearLayoutManager;
     private RecyclerView rvListCall;
@@ -178,22 +182,11 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
         rvListCall.setAdapter(adapter);
         rvListCall.setLayoutManager(mLinearLayoutManager);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                search = query;
-                adapter.filter(query, isAll);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                search = newText;
-                adapter.filter(newText, isAll);
-                return true;
-            }
-        });
-        searchView.setOnClickListener(v -> searchView.setIconified(false));
+        registerEvent(RxTextView.textChanges(searchView)
+        .subscribe(charSequence -> {
+            search = charSequence.toString();
+            adapter.filter(charSequence.toString(), isAll);
+        }));
         customSwitch.setSwitchToggleListener(switchToggleState -> {
             isAll = switchToggleState == CustomSwitch.SwitchToggleState.LEFT;
             adapter.filter(search, isAll);

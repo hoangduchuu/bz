@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -11,12 +12,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
@@ -24,7 +28,7 @@ import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.MessageAdapter;
 import com.ping.android.model.Conversation;
@@ -41,13 +45,15 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.functions.Consumer;
+
 public class ConversationFragment extends BaseFragment implements View.OnClickListener,
         MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
 
     private LinearLayoutManager linearLayoutManager;
-    private SearchView searchView;
+    private EditText searchEdt;
     private RecyclerView listChat;
     private Button btnDeleteMessage, btnEditMessage;
     private ImageView btnNewMessage;
@@ -110,7 +116,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     private void init() {
         conversations = new ArrayList<>();
-        adapter = new MessageAdapter(conversations);
+        adapter = new MessageAdapter();
         adapter.setListener(this);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -123,7 +129,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private void bindViews(View view) {
         listChat = view.findViewById(R.id.message_recycle_view);
         linearLayoutManager = new LinearLayoutManager(getActivity());
-        searchView = view.findViewById(R.id.message_search_view);
+        //searchView = view.findViewById(R.id.message_search_view);
+        searchEdt = view.findViewById(R.id.search_edt);
         btnEditMessage = view.findViewById(R.id.message_edit);
         btnEditMessage.setOnClickListener(this);
         btnDeleteMessage = view.findViewById(R.id.message_delete);
@@ -148,8 +155,18 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
                 }
             }
         });*/
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        registerEvent(RxTextView.textChanges(searchEdt)
+                .subscribe(charSequence -> {
+                    adapter.filter(charSequence.toString());
+                    /*if (charSequence.length() > 0) {
+                        // Show X icon
+                        searchEdt.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_search, 0, R.drawable.ic_search_close, 0);
+                    } else {
+                        // Hide x icon
+                        searchEdt.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_search, 0, 0, 0);
+                    }*/
+                }));
+        /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 adapter.filter(query);
@@ -163,6 +180,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
             }
         });
         searchView.setOnClickListener(v -> searchView.setIconified(false));
+        */
         updateEditMode();
     }
 
@@ -317,7 +335,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void updateConversationList(List<Conversation> conversations) {
-        adapter.updateData(conversations);
+        adapter.updateData(new ArrayList<>(conversations));
     }
 
     @Override

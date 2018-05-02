@@ -3,7 +3,7 @@ package com.ping.android.presentation.view.activity;
 import android.os.Bundle;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;

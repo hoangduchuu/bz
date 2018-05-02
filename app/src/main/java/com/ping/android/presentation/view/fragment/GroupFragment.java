@@ -12,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
@@ -22,7 +24,7 @@ import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.presentation.view.adapter.GroupAdapter;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
@@ -32,11 +34,13 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import io.reactivex.functions.Consumer;
+
 public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener, GroupPresenter.View {
     private RelativeLayout bottomMenu;
     private RecyclerView listGroup;
     private LinearLayoutManager linearLayoutManager;
-    private SearchView searchView;
+    private EditText searchView;
     private Button btnEditGroup, btnAddGroup, btnLeaveGroup, btnDeleteGroup;
 
     private GroupAdapter adapter;
@@ -123,20 +127,9 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
         listGroup.setAdapter(adapter);
         listGroup.setLayoutManager(linearLayoutManager);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                adapter.filter(query);
-                return true;
-            }
+        registerEvent(RxTextView.textChanges(searchView)
+                .subscribe(charSequence -> adapter.filter(charSequence.toString())));
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
-                return true;
-            }
-        });
-        searchView.setOnClickListener(v -> searchView.setIconified(false));
         updateEditMode();
     }
 

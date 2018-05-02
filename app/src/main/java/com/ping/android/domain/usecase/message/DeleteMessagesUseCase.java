@@ -41,6 +41,8 @@ public class DeleteMessagesUseCase extends UseCase<Boolean, DeleteMessagesUseCas
                     for (Message message : params.messages) {
                         updateValue.put(String.format("messages/%s/%s/deleteStatuses/%s", params.conversationId,
                                 message.key, user.key), true);
+                        updateValue.put(String.format("media/%s/%s/deleteStatuses/%s", params.conversationId,
+                                message.key, user.key), true);
                     }
                     return commonRepository.updateBatchData(updateValue);
                 });

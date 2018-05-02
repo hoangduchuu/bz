@@ -20,7 +20,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
@@ -29,6 +29,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
@@ -167,6 +168,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.group_profile_color:
                 onColorClicked();
                 break;
+            case R.id.profile_gallery:
+                presenter.handleGalleryClicked();
+                break;
         }
     }
 
@@ -253,6 +257,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
         view.findViewById(R.id.profile_background).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
+        view.findViewById(R.id.profile_gallery).setOnClickListener(this);
 
         adapter = new GroupProfileAdapter();
         rvListMember.setAdapter(adapter);
@@ -374,5 +379,13 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void moveToSelectBackground(Conversation conversation) {
         navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
+    }
+
+    @Override
+    public void moveToGallery(Conversation conversation) {
+        //navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
+        Intent intent = new Intent(getContext(), GalleryActivity.class);
+        intent.putExtra("conversation", conversation);
+        startActivity(intent);
     }
 }

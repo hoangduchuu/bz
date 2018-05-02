@@ -8,9 +8,30 @@
     android:focusable="true"
     tools:context="com.ping.android.presentation.view.fragment.GridGalleryFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/gallery_list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <RelativeLayout
+            style="?attr/backgroundTheme"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#F1F2F2"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                style="@style/BackButton" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="GALLERY" />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/gallery_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 </FrameLayout>

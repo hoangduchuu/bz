@@ -29,8 +29,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 73
-        versionName "2.1.0"
+        versionCode 80
+        versionName "2.2.3"
         multiDexEnabled true
     }
     buildTypes {
@@ -41,6 +41,7 @@ android {
             signingConfig signingConfigs.config
         }
         debug {
+            applicationIdSuffix ".debug"
             // Disable fabric build ID generation for debug builds
             ext.enableCrashlytics = false
         }
@@ -70,6 +71,7 @@ def libraries = rootProject.ext.libraries
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:support-v4:27.1.1'
     testImplementation 'junit:junit:4.12'
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
@@ -141,6 +143,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
+
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -15,11 +15,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hbb20.CountryCodePicker;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.addphone.AddPhoneComponent;
 import com.ping.android.dagger.loggedin.addphone.AddPhoneModule;
 import com.ping.android.presentation.presenters.AddPhonePresenter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 
 import javax.inject.Inject;

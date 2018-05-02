@@ -3,7 +3,7 @@ package com.ping.android.model.enums;
 import android.support.annotation.ColorRes;
 import android.support.annotation.StyleRes;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 public enum Color {
     COLOR_1,

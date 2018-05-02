@@ -10,11 +10,13 @@ import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.presentation.view.activity.AddContactActivity;
 import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactComponent;
 import com.ping.android.dagger.loggedin.main.contact.ContactModule;
@@ -28,11 +30,13 @@ import com.ping.android.ultility.Constant;
 
 import javax.inject.Inject;
 
+import io.reactivex.functions.Consumer;
+
 public class ContactFragment extends BaseFragment
         implements View.OnClickListener, ContactAdapter.ClickListener, ContactPresenter.View {
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
-    private SearchView searchView;
+    private EditText searchView;
     private ContactAdapter adapter;
 
     @Inject
@@ -129,25 +133,8 @@ public class ContactFragment extends BaseFragment
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                adapter.filter(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                adapter.filter(newText);
-                return true;
-            }
-        });
-        searchView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchView.setIconified(false);
-            }
-        });
+        registerEvent(RxTextView.textChanges(searchView)
+        .subscribe(charSequence -> adapter.filter(charSequence.toString())));
     }
 
     private void onAddContact(View view) {

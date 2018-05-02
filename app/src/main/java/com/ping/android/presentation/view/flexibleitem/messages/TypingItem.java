@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 import org.jetbrains.annotations.NotNull;
 

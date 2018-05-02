@@ -50,6 +50,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void initThemeColor(Color currentColor);
 
+    void handleShakePhone();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -61,15 +63,9 @@ public interface ChatPresenter extends BasePresenter {
 
         void hideUserStatus();
 
-        void addNewMessage(MessageBaseItem data);
-
-        void removeMessage(Message data);
-
-        void updateMessage(MessageBaseItem data);
+        void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data);
 
         void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
-
-        void addCacheMessage(MessageBaseItem message);
 
         void switchOffEditMode();
 
@@ -86,5 +82,7 @@ public interface ChatPresenter extends BasePresenter {
         void changeTheme(Color from);
 
         void updateBackground(String s);
+
+        void hideRefreshView();
     }
 }

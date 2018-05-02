@@ -7,11 +7,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 
 public abstract class BaseGameActivity extends CoreActivity {

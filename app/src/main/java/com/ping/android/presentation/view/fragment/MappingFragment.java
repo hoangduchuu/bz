@@ -19,7 +19,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
 import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;

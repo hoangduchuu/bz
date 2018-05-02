@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 
 public class BeforeLoginActivity extends CoreActivity implements View.OnClickListener {
     @Override

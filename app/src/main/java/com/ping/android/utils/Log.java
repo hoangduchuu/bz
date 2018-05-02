@@ -3,7 +3,7 @@ package com.ping.android.utils;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
-import com.ping.android.activity.BuildConfig;
+import com.ping.android.BuildConfig;
 
 /**
  * Wrapper class for Log.{d,w,e}

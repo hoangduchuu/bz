@@ -16,7 +16,7 @@ import com.ping.android.presentation.view.activity.BeforeLoginActivity;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;

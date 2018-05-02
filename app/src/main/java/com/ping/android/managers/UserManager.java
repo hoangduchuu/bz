@@ -36,6 +36,7 @@ public class UserManager {
 
     public void setUser(User user) {
         this.user = user;
+        SharedPrefsHelper.getInstance().save("isLoggedIn", true);
         SharedPrefsHelper.getInstance().save("quickbloxId", user.quickBloxID);
         SharedPrefsHelper.getInstance().save("pingId", user.pingID);
         // TODO Temporary set opponentUser for ServiceManager
@@ -43,6 +44,7 @@ public class UserManager {
     }
 
     public void logout() {
+        SharedPrefsHelper.getInstance().save("isLoggedIn", false);
         SharedPrefsHelper.getInstance().save("quickbloxId", 0);
         SharedPrefsHelper.getInstance().save("pingId", "");
         FirebaseAuth auth = FirebaseAuth.getInstance();

@@ -7,7 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.ping.android.activity.R;
+import com.ping.android.R;
+import com.ping.android.model.Message;
 import com.ping.android.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,10 +21,12 @@ import java.util.TreeMap;
 public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHolder> {
     private TreeMap<Double, MessageBaseItem> childItemTreeMap;
     private List<MessageBaseItem> childItems;
+    private List<MessageBaseItem> newItems;
 
     public MessageHeaderItem() {
         childItemTreeMap = new TreeMap<>();
         childItems = new ArrayList<>();
+        newItems = new ArrayList<>();
     }
 
     @Override
@@ -60,8 +63,23 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         return isAdded;
     }
 
+    public void addNewItem(MessageBaseItem item) {
+        newItems.add(item);
+    }
+
+    public int removeMessage(MessageBaseItem data) {
+        int index = findChildIndex(data);
+        childItemTreeMap.remove(data.message.timestamp);
+        childItems = new ArrayList<>(childItemTreeMap.values());
+        return index;
+    }
+
     public List<MessageBaseItem> getChildItems() {
         return childItems;
+    }
+
+    public List<MessageBaseItem> getNewItems() {
+        return newItems;
     }
 
     public int findChildIndex(MessageBaseItem item) {
@@ -75,6 +93,17 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
             MessageBaseItem previousMessage = childItems.get(newAddedIndex - 1);
             item.message.showExtraInfo = !item.message.senderId.equals(previousMessage.message.senderId);
         }
+    }
+
+    public MessageBaseItem getChildItem(Message data) {
+        return childItemTreeMap.get(data.timestamp);
+    }
+
+    public void processNewItems() {
+        for (MessageBaseItem item : newItems) {
+            addChildItem(item);
+        }
+        newItems = new ArrayList<>();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

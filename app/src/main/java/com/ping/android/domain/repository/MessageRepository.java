@@ -14,7 +14,11 @@ public interface MessageRepository {
 
     Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp);
 
+    Observable<DataSnapshot> loadConversationMedia(String conversationId, double lastTimestamp);
+
     Observable<ChildEvent> observeMessageUpdate(String conversationId);
+
+    Observable<ChildEvent> observeLastMessage(String conversationId);
 
     Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
 }

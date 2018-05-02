@@ -59,6 +59,7 @@ public class Conversation implements Parcelable {
     public String filterText;
     public String displayMessage;
     public Color currentColor = Color.DEFAULT;
+    public double deleteTimestamp = 0.0;
 
     protected Conversation(Parcel in) {
         key = in.readString();
@@ -84,6 +85,9 @@ public class Conversation implements Parcelable {
         puzzleMessages = gson.fromJson(in.readString(), Map.class);
         maskOutputs = gson.fromJson(in.readString(), Map.class);
         nickNames = gson.fromJson(in.readString(), Map.class);
+
+        deleteTimestamp = in.readDouble();
+        currentColor = Color.valueOf(in.readString());
     }
 
     @Override
@@ -121,6 +125,9 @@ public class Conversation implements Parcelable {
         dest.writeString(jsonObject.toString());
         jsonObject = new JSONObject(nickNames);
         dest.writeString(jsonObject.toString());
+
+        dest.writeDouble(deleteTimestamp);
+        dest.writeString(currentColor.toString());
     }
 
     @Override
@@ -269,5 +276,17 @@ public class Conversation implements Parcelable {
             return Color.from(theme.mainColor);
         }
         return Color.DEFAULT;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Conversation) {
+            return key.equals(((Conversation) obj).key);
+        }
+        return false;
+    }
+
+    public boolean isValid() {
+        return timesstamps > deleteTimestamp;
     }
 }

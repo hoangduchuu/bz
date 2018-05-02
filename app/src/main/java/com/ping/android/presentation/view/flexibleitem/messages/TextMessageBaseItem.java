@@ -6,9 +6,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.CommonMethod;
 

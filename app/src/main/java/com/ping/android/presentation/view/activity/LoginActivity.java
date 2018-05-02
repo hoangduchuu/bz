@@ -20,7 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.managers.UserManager;
@@ -252,7 +252,9 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     @Override
     public void navigateToMainScreen() {
         UserManager.getInstance().startCallService(this);
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
         finish();
     }
 }

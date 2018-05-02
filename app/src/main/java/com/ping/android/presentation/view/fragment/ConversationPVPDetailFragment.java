@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
 import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
@@ -250,7 +250,9 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     @Override
     public void navigateBack() {
-        getActivity().finish();
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 
     @Override

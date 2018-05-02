@@ -58,6 +58,16 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
     }
 
     @Override
+    public Observable<QBUser> getUser(String pingId) {
+        Performer<QBUser> performer = QBUsers.getUserByLogin(pingId);
+        return ((Observable<QBUser>) performer.convertTo(RxJava2PerformProcessor.INSTANCE))
+                .map(qbUser -> {
+                    qbUser.setPassword(DEFAULT_USER_PASSWORD);
+                    return qbUser;
+                });
+    }
+
+    @Override
     public Observable<QBUser> signUp(String pingId) {
         QBUser qbUser = new QBUser();
 

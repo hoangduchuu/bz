@@ -39,13 +39,24 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Params params) {
+        if (params.endTimestamp < params.conversation.deleteTimestamp) {
+            Output output = new Output();
+            output.messages = new ArrayList<>();
+            output.canLoadMore = false;
+            return Observable.just(output);
+        }
         return userRepository.getCurrentUser()
                 .flatMap(user -> messageRepository.loadMoreMessages(params.conversation.key, params.endTimestamp)
                         .map(dataSnapshot -> {
                             if (dataSnapshot.getChildrenCount() > 0) {
+                                double lastTimestamp = Double.MAX_VALUE;
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     Message message = Message.from(child);
+                                    if (lastTimestamp > message.timestamp) {
+                                        lastTimestamp = message.timestamp;
+                                    }
+                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted) {
                                         continue;
@@ -55,7 +66,7 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                             && !message.readAllowed.containsKey(user.key))
                                         continue;
 
-                                    if (message.timestamp < getLastDeleteTimeStamp(params.conversation, user)) {
+                                    if (message.timestamp < params.conversation.deleteTimestamp) {
                                         continue;
                                     }
 
@@ -65,7 +76,8 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                 }
                                 Output output = new Output();
                                 output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
+                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT
+                                        && lastTimestamp > params.conversation.deleteTimestamp;
                                 return output;
                             }
                             throw new NullPointerException();
@@ -80,18 +92,6 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
             }
         }
         return null;
-    }
-
-    public Double getLastDeleteTimeStamp(Conversation conversation, User user) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(user.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(user.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
     }
 
     public static class Params {

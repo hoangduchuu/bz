@@ -24,7 +24,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
-import com.ping.android.activity.BuildConfig;
+import com.bzzzchat.cleanarchitecture.BaseView;
+import com.bzzzchat.cleanarchitecture.JobExecutor;
+import com.ping.android.BuildConfig;
 import com.ping.android.presentation.view.cameraview.CameraActivity;
 import com.ping.android.ultility.Constant;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -38,6 +40,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 
 import static android.app.Activity.RESULT_OK;
@@ -64,6 +69,8 @@ public class ImagePickerHelper {
     private boolean isScale = true;
     private boolean isCrop = false;
     private boolean isGenerateThumbnail = false;
+
+    private BaseView view;
 
     private ImagePickerHelper(Activity activity) {
         this.activity = activity;
@@ -102,6 +109,11 @@ public class ImagePickerHelper {
 
     public ImagePickerHelper setCrop(boolean isCrop) {
         this.isCrop = isCrop;
+        return this;
+    }
+
+    public ImagePickerHelper setView(BaseView view) {
+        this.view = view;
         return this;
     }
 
@@ -165,8 +177,13 @@ public class ImagePickerHelper {
                     saveImage(getFilePath(), scaleBitmap);
                     listener.onFinalImage(new File(getFilePath()));
                 } else {
-                    saveFile(croppedUri)
-                            .subscribe();
+                    view.showLoading();
+                    Disposable disposable = saveFile(croppedUri)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(file -> {
+                                view.hideLoading();
+                                imageSubject.onNext(file);
+                            });
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
@@ -179,7 +196,7 @@ public class ImagePickerHelper {
         return Observable.create(e -> {
             Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
             saveImage(getFilePath(), scaleBitmap);
-            imageSubject.onNext(new File(getFilePath()));
+            e.onNext(new File(getFilePath()));
         });
     }
 

@@ -21,9 +21,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.device.Notification;
-import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
@@ -247,6 +246,11 @@ public class NotificationImpl implements Notification {
             notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
             notificationManager.notify(notificationId, notificationBuilder.build());
         }
+    }
+
+    @Override
+    public void clearAll() {
+        notificationManager.cancelAll();
     }
 
     private void prepareProfileImage(Context context, String profileImage, Callback callback) {

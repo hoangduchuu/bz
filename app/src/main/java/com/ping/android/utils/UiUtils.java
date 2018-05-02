@@ -17,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -30,7 +29,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
@@ -118,6 +117,8 @@ public class UiUtils {
                     .error(R.drawable.ic_avatar_gray)
                     .override(200, 200)
                     .apply(RequestOptions.circleCropTransform())
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
                     .into(imageView);
         } else {
             imageView.setImageResource(IMG_DEFAULT);
@@ -182,8 +183,10 @@ public class UiUtils {
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
-                .override(200, 200)
+                .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(imageView);
     }
 
@@ -199,7 +202,9 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
-                .override(200, 200)
+                .override(100, 100)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {
                     @Override
@@ -223,7 +228,7 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(filePath)
                 .placeholder(placeholder)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
                 .signature(key)

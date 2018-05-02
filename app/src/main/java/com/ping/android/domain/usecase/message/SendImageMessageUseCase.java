@@ -14,6 +14,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
@@ -89,6 +90,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/photoUrl", params1.getConversation().key, message.key), message.photoUrl);
                     updateValue.put(String.format("messages/%s/%s/thumbUrl", params1.getConversation().key, message.key), message.thumbUrl);
+                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
                     return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
                 });
     }

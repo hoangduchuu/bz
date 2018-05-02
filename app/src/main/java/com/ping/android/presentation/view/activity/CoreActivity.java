@@ -12,7 +12,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.App;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
@@ -159,7 +159,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     public void hideLoading() {
         if (loadingDialog != null) {
-            loadingDialog.dismiss();
+            loadingDialog.dismissAllowingStateLoss();
         }
     }
 }

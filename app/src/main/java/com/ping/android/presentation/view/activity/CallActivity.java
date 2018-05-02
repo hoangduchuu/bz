@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.data.db.QbUsersDbManager;
@@ -26,7 +26,6 @@ import com.ping.android.presentation.view.fragment.AudioConversationFragment;
 import com.ping.android.presentation.view.fragment.BaseConversationFragment;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.IncomeCallFragment;
-import com.ping.android.presentation.view.fragment.OnCallEventsController;
 import com.ping.android.presentation.view.fragment.VideoConversationFragment;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
@@ -54,7 +53,6 @@ import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -62,7 +60,6 @@ import javax.inject.Inject;
  * QuickBlox team
  */
 public class CallActivity extends CoreActivity implements CallPresenter.View, View.OnClickListener,
-        OnCallEventsController,
         NetworkConnectionChecker.OnConnectivityChangedListener, HasComponent<CallComponent> {
     private static final int ACTIVITY_REQUEST_CODE = 100;
     public static final String INCOME_CALL_FRAGMENT = "income_call_fragment";

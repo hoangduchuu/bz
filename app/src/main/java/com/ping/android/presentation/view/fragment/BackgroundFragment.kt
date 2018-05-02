@@ -8,26 +8,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
-import com.ping.android.activity.R
+import com.google.firebase.storage.FirebaseStorage
+import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
 import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule
-import com.ping.android.model.CameraItem
-import com.ping.android.model.Conversation
-import com.ping.android.model.FirebaseImageItem
-import com.ping.android.model.GalleryItem
+import com.ping.android.model.*
 import com.ping.android.presentation.presenters.BackgroundPresenter
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.ViewType
+import com.ping.android.presentation.view.adapter.delegate.BlankItemDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.CameraItemDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.FirebaseBackgroundDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.GalleryItemDelegateAdapter
 import com.ping.android.utils.DataProvider
 import com.ping.android.utils.ImagePickerHelper
-import io.reactivex.functions.Consumer
 import kotlinx.android.synthetic.main.fragment_background.*
-import java.io.File
 import javax.inject.Inject
 
 class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
@@ -64,14 +61,12 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initView()
-        val data = DataProvider.getDefaultBackgrounds()
-        var models: MutableList<ViewType> = ArrayList()
+        val models: MutableList<ViewType> = ArrayList()
         models.add(CameraItem())
         models.add(GalleryItem())
-        models.addAll(data.map {
-            FirebaseImageItem(it)
-        })
+        models.add(BlankItem())
         adapter.addItems(models)
+        presenter.create()
     }
 
     private fun initView() {
@@ -86,15 +81,23 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
         adapter.registerItemType(AdapterConstants.GALLERY, GalleryItemDelegateAdapter(clickListener = {
             this.handleGalleryClicked()
         }))
+        adapter.registerItemType(AdapterConstants.BLANK, BlankItemDelegateAdapter({
+            this.handleBlankItemClicked()
+        }))
         galleryList.adapter = adapter
 
         imagePickerHelper = ImagePickerHelper
                 .from(this)
                 .setCrop(true)
+                .setView(this)
 
         registerEvent(imagePickerHelper.fileObservable.subscribe({
             presenter.uploadConversationBackground(it.absolutePath)
         }))
+    }
+
+    private fun handleBlankItemClicked() {
+        presenter.changeBackground("")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -132,8 +135,19 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     }
 
     // region BackgroundPresenter.View
+
+    override fun updateBackgrounds(t: List<String>) {
+        val models = ArrayList<FirebaseImageItem>()
+        val storageReference = FirebaseStorage.getInstance().reference
+        for (s in t) {
+            val path = "gs://" + storageReference.bucket + "/" + s
+            models.add(FirebaseImageItem(path))
+        }
+        adapter.addItems(models)
+    }
+
     override fun navigateBack() {
-        activity?.onBackPressed()
+        activity?.finish()
     }
 
     // endregion
@@ -141,8 +155,9 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     companion object {
         @JvmStatic
         fun newInstance(conversation: Conversation) = BackgroundFragment().apply {
-            arguments = Bundle()
-            arguments?.putParcelable("conversation", conversation)
+            arguments = Bundle().apply {
+                putParcelable("conversation", conversation)
+            }
         }
     }
 }

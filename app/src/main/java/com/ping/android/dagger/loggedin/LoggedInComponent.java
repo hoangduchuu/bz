@@ -13,6 +13,8 @@ import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent;
+import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule;
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.dagger.loggedin.main.MainComponent;
@@ -49,6 +51,8 @@ public interface LoggedInComponent {
     AddContactComponent provideAddContactComponent(AddContactModule contactModule, SearchUserModule searchUserModule);
 
     ConversationDetailComponent provideConversationDetailComponent();
+
+    GalleryComponent provideGalleryComponent(GalleryModule galleryModule);
 
     TransphabetComponent provideTransphabetComponent();
 

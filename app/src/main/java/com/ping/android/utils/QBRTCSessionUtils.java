@@ -2,7 +2,7 @@ package com.ping.android.utils;
 
 import android.util.SparseIntArray;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
 
 public class QBRTCSessionUtils {
