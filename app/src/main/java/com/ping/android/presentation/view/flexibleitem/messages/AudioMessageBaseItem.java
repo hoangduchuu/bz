@@ -45,7 +45,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         super(message);
     }
 
-    private void completePlaying() {
+    public void completePlaying() {
         currentPosition = 0;
         audioStatus = AudioStatus.INITIALIZED;
 //        if (messageListener != null) {

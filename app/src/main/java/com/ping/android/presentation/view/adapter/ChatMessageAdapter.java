@@ -52,6 +52,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             audioPlayerInstance = new MediaPlayer();
             audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
                 if (currentPlayingMessage != null) {
+                    currentPlayingMessage.completePlaying();
                     onCompletePlayAudio(currentPlayingMessage);
                 }
             });
