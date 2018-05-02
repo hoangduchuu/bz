@@ -145,6 +145,8 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
 
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+
+    implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

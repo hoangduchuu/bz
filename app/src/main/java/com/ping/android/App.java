@@ -10,9 +10,11 @@ import com.ping.android.dagger.DaggerApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
+import com.ping.android.utils.Log;
 
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.plugins.RxJavaPlugins;
+import nl.bravobit.ffmpeg.FFmpeg;
 
 public class App extends CoreApp {
 
@@ -36,6 +38,12 @@ public class App extends CoreApp {
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
         setupRxErrorHandler();
+
+        if (FFmpeg.getInstance(this).isSupported()) {
+            Log.e("FFmpeg is supported");
+        } else {
+            Log.e("FFmpeg is not supported");
+        }
     }
 
     public ApplicationComponent getComponent() {
