@@ -46,6 +46,11 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                         for (String userId : conversation.memberIDs.keySet()) {
                             updateValue.put(String.format("conversations/%s/%s/deleteStatuses/%s", userId, conversation.key, user.key), true);
                             updateValue.put(String.format("conversations/%s/%s/deleteTimestamps/%s", userId, conversation.key, user.key), timestamp);
+                            // Reset conversation setting
+                            updateValue.put(String.format("conversations/%s/%s/notifications/%s", userId, conversation.key, user.key), true);
+                            updateValue.put(String.format("conversations/%s/%s/maskMessages/%s", userId, conversation.key, user.key), false);
+                            updateValue.put(String.format("conversations/%s/%s/puzzleMessages/%s", userId, conversation.key, user.key), false);
+                            updateValue.put(String.format("conversations/%s/%s/themes/%s", userId, conversation.key, user.key), null);
                         }
                     }
                     return commonRepository.updateBatchData(updateValue);

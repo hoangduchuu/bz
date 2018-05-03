@@ -1,18 +1,10 @@
 package com.bzzz.rxquickblox;
 
-import android.os.Bundle;
-import android.util.Log;
-
-import com.quickblox.chat.QBChatService;
-import com.quickblox.core.QBEntityCallback;
-import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.server.Performer;
 import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 
 /**
@@ -64,26 +56,5 @@ public class RxQuickblox {
         qbUser.setLogin(pingId);
         qbUser.setPassword(DEFAULT_USER_PASSWORD);
         return qbUser;
-    }
-
-    private static Observable<Boolean> loginChat(final int qbId, final String pingId) {
-        return Observable.create(new ObservableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(final ObservableEmitter<Boolean> emitter) throws Exception {
-                QBUser user = getQBUser(qbId, pingId);
-                QBChatService.getInstance().login(user, new QBEntityCallback<QBUser>() {
-                    @Override
-                    public void onSuccess(QBUser qbUser, Bundle bundle) {
-                        Log.d(TAG, "login onSuccess");
-                        emitter.onNext(true);
-                    }
-
-                    @Override
-                    public void onError(QBResponseException e) {
-                        emitter.onError(e);
-                    }
-                });
-            }
-        });
     }
 }

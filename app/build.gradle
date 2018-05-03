@@ -21,7 +21,7 @@ android {
             storePassword '123456'
         }
     }
-    compileSdkVersion 27
+    compileSdkVersion rootProject.ext.compileSdkVersion
     //    dataBinding {
 //        enabled = true
 //    }
@@ -60,6 +60,9 @@ android {
             outputFileName = fileName
         }
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
     buildToolsVersion '27.0.3'
 }
 
@@ -71,11 +74,12 @@ def libraries = rootProject.ext.libraries
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:support-v4:27.1.1'
     testImplementation 'junit:junit:4.12'
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
-    implementation project(path: ':rxfirebase')
+    implementation(project(path: ':rxfirebase')) {
+        exclude group: 'com.google.firebase'
+    }
     implementation project(path: ':rxquickblox')
 
     //SUPPORT ANDROID
@@ -90,19 +94,18 @@ dependencies {
     // AUTH
 
     //implementation 'com.google.android.gms:play-services-auth:10.0.1'
-    implementation "com.google.android.gms:play-services-gcm:${libraries.firebase}"
-    implementation "com.google.firebase:firebase-auth:${libraries.firebase}"
+    implementation "com.google.android.gms:play-services-gcm:15.0.1"
+    implementation "com.google.firebase:firebase-core:${libraries.firebase}"
+    implementation "com.google.firebase:firebase-auth:${libraries.firebase_auth}"
     implementation "com.google.firebase:firebase-messaging:${libraries.firebase}"
 
     //DATABASE FIREBASE,UI
-    implementation "com.google.firebase:firebase-database:${libraries.firebase}"
-
-    //implementation 'com.firebaseui:firebase-ui-database:1.0.1'
-
+    implementation "com.google.firebase:firebase-database:${libraries.firebase_database}"
     //STORAGE FIREBASE
     implementation "com.google.firebase:firebase-storage:${libraries.firebase}"
-    implementation('com.firebaseui:firebase-ui-storage:3.1.0') {
+    implementation('com.firebaseui:firebase-ui-storage:3.3.1') {
         exclude group: 'com.android.support'
+        exclude group: 'com.github.bumptech.glide'
     }
     implementation "com.google.firebase:firebase-config:${libraries.firebase}"
 
@@ -110,7 +113,8 @@ dependencies {
     implementation 'me.leolin:ShortcutBadger:1.1.19@aar'
     implementation("com.quickblox:quickblox-android-sdk-messages:$rootProject.qbSdkVersion") {
         exclude group: 'com.google.android.gms', module: 'play-services-gcm'
-        exclude group: 'com.google.firebase', module: 'firebase-messaging'
+        exclude group: 'com.google.firebase'
+        exclude group: 'com.android.support'
     }
     implementation "com.quickblox:quickblox-android-sdk-videochat-webrtc:$rootProject.qbSdkVersion"
     implementation('com.hbb20:ccp:1.7.6') {
@@ -123,24 +127,36 @@ dependencies {
     implementation 'com.wang.avi:library:2.1.3'
 
     //Emoji
-    implementation 'com.vanniktech:emoji-google:0.5.1'
-    implementation('com.github.bumptech.glide:glide:4.4.0') {
+    implementation('com.vanniktech:emoji-google:0.5.1') {
+        exclude group: 'com.android.support'
+    }
+    implementation('com.github.bumptech.glide:glide:4.6.1') {
         transitive = true
     }
-    kapt 'com.github.bumptech.glide:compiler:4.4.0'
-    implementation 'jp.wasabeef:glide-transformations:3.0.1'
+    kapt 'com.github.bumptech.glide:compiler:4.6.1'
+    implementation('jp.wasabeef:glide-transformations:3.0.1') {
+        exclude group: 'com.github.bumptech.glide'
+    }
 
     // If you want to use the GPU Filters
     implementation 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'
     implementation('com.otaliastudios:cameraview:1.4.1') {
         exclude group: 'com.android.support'
     }
-    implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.0'
-    implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
-    implementation 'com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1'
+    implementation('com.theartofdev.edmodo:android-image-cropper:2.6.0') {
+        exclude group: 'com.android.support'
+    }
+    implementation('com.jakewharton.rxbinding2:rxbinding:2.1.1') {
+        exclude group: 'io.reactivex.rxjava2'
+    }
+    implementation('com.jakewharton.rxbinding2:rxbinding-appcompat-v7:2.1.1') {
+        exclude group: 'io.reactivex.rxjava2'
+        exclude group: 'com.android.support'
+        exclude group: 'com.jakewharton.rxbinding2'
+    }
     implementation "io.reactivex.rxjava2:rxandroid:${libraries.rx_android}"
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
 
