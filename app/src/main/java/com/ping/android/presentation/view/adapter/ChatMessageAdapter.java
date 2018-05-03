@@ -254,10 +254,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return null;
     }
 
-    public void resetSelectedMessages() {
-        selectedMessages.clear();
-    }
-
     public void update(MessageBaseItem selectedMessage) {
         int index = this.items.indexOf(selectedMessage);
         if (index >= 0 && index < getItemCount()) {
@@ -268,19 +264,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public void updateNickNames(Map<String, String> nickNames) {
         this.nickNames = nickNames;
-//        for (FlexibleItem item : this.items) {
-//            if (item instanceof MessageBaseItem) {
-//                //((MessageBaseItem) item).setNickNames(nickNames);
-//            }
-//        }
         notifyDataSetChanged();
-    }
-
-    private void addPadding() {
-        if (paddingItem == null) {
-            paddingItem = new PaddingItem();
-        }
-        add(paddingItem);
     }
 
     public FlexibleItem getItem(int i) {

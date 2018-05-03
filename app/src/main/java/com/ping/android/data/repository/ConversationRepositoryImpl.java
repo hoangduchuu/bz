@@ -11,6 +11,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.ultility.Constant;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -98,7 +99,13 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         Query query = database.getReference("conversations").child(userId).child(conversationId).child("typingIndicator");
         return RxFirebaseDatabase.getInstance(query)
                 .onValueEvent()
-                .map(dataSnapshot -> (Map<String, Boolean>) dataSnapshot.getValue());
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return (Map<String, Boolean>) dataSnapshot.getValue();
+                    } else {
+                        return new HashMap<>();
+                    }
+                });
     }
 
     @Override
