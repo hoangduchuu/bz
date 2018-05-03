@@ -264,12 +264,15 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             CommonMethod.createFolder(imageLocalFolder);
 
             if (audioLocal.exists()) {
+                prepareAudioMask(audioLocal);
                 initPlayer(AudioStatus.UNKNOWN);
             } else {
                 Log.d("audioUrl = " + audioUrl);
                 try {
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
+                        // Prepare audio file
+                        prepareAudioMask(audioLocal);
                         initPlayer(AudioStatus.UNKNOWN);
                     }).addOnFailureListener(exception -> {
                         // Handle any errors
@@ -278,6 +281,13 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     Log.e(ex);
                 }
             }
+        }
+
+        private void prepareAudioMask(File audioLocal) {
+            String transformFileName = "transform" + audioLocal.getName();
+            File transformFile = new File(audioLocal.getParent(), transformFileName);
+            String command = String.format("-i %s -vcodec h263 -acodec aac -af asetrate=44100*3/4 %s", audioLocal.getAbsolutePath(), transformFile.getAbsolutePath());
+
         }
 
         private void initPlayer(AudioStatus status) {
