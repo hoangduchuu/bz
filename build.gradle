@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.2.40'
+    ext.kotlin_version = '1.2.41'
     repositories {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.2'
-        classpath 'com.google.gms:google-services:3.1.2'
+        classpath 'com.google.gms:google-services:3.2.1'
         classpath 'io.fabric.tools:gradle:1.+'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
@@ -26,9 +26,6 @@ allprojects {
             url "https://github.com/QuickBlox/quickblox-android-sdk-releases/raw/master/"
         }
         maven { url 'https://maven.fabric.io/public' }
-
-//        maven { url 'https://github.com/500px/500px-android-blur/raw/master/releases/' }
-
         google()
     }
 }
@@ -51,8 +48,9 @@ ext {
             rx_java     : "2.1.12",
             arrow       : "1.0.0",
             retrofit    : "2.2.0",
-            firebase    : "15.0.0",
-            quickblox   : "3.3.0"
+            firebase    : "15.0.2",
+            firebase_database: "15.0.1",
+            firebase_auth: "15.1.0",
     ]
 }
 

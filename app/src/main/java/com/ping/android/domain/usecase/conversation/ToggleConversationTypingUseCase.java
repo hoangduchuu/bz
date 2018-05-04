@@ -34,9 +34,9 @@ public class ToggleConversationTypingUseCase extends UseCase<Boolean, ToggleConv
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         Map<String, Object> updateData = new HashMap<>();
-        for (User user: params.conversation.members) {
+        for (String userKey: params.conversation.memberIDs.keySet()) {
             updateData.put(String.format("conversations/%s/%s/typingIndicator/%s",
-                    user.key, params.conversation.key, params.userId), params.value);
+                    userKey, params.conversation.key, params.userId), params.value);
         }
         return commonRepository.updateBatchData(updateData);
     }
