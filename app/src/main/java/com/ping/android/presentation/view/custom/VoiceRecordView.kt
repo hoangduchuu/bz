@@ -2,28 +2,30 @@ package com.ping.android.presentation.view.custom
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.AudioVisualization
-import com.cleveroad.audiovisualization.DbmHandler
 import com.ping.android.R
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingDbmHandler
-import kotlinx.android.synthetic.main.activity_mapping.view.*
-
+import com.ping.android.utils.Log
 import kotlinx.android.synthetic.main.view_voice_record.view.*
 import java.util.*
+
+enum class RecordViewState {
+    DEFAULT, CANCEL
+}
 
 class VoiceRecordView : LinearLayout {
     private lateinit var audioVisualization: AudioVisualization
     private lateinit var audioRecorder: AudioRecorder
     private lateinit var handler: AudioRecordingDbmHandler
     private lateinit var timer: Timer
-    private var lengthInMilis: Long = 0
+    private var lengthInMillis: Long = 0
+    private var state: RecordViewState = RecordViewState.DEFAULT
 
     constructor(context: Context) : super(context) {
         this.initView()
@@ -49,9 +51,9 @@ class VoiceRecordView : LinearLayout {
         btnRecord.setOnTouchListener(TouchListener())
     }
 
-    private fun updateTimer(){
-        val minuteLeft = (lengthInMilis / 1000) / 60
-        val secondsLeft = lengthInMilis / 1000
+    private fun updateTimer() {
+        val minuteLeft = (lengthInMillis / 1000) / 60
+        val secondsLeft = lengthInMillis / 1000
         val secondsStr = secondsLeft.toString()
         val finalTime = "$minuteLeft:${if (secondsStr.length == 2) secondsStr else "0$secondsStr"}"
         tvTimer.text = finalTime
@@ -69,7 +71,22 @@ class VoiceRecordView : LinearLayout {
         btnRecord.setBackgroundResource(R.drawable.background_circle_gray)
     }
 
-    private fun slideRecordButton(diff: Float) {
+    private fun slideRecordButton(_diff: Float) {
+        var diff = _diff
+        if (diff < -50) {
+            // Show cancel button
+            btnCancel.animate().alpha(1.0f).setDuration(0).start()
+        } else {
+            btnCancel.animate().alpha(0.0f).setDuration(0).start()
+        }
+        val distanceToCancel = btnCancel.y - (btnRecord.y - btnRecord.translationY)
+        Log.d("slideRecordButton $diff, $distanceToCancel, ${btnRecord.translationY}")
+        if (diff < distanceToCancel) {
+            diff = distanceToCancel
+            state = RecordViewState.CANCEL
+        } else {
+            state = RecordViewState.DEFAULT
+        }
         btnRecord.animate()
                 .translationY(diff)
                 .setDuration(0)
@@ -79,13 +96,14 @@ class VoiceRecordView : LinearLayout {
     private fun startRecord() {
         audioRecorder.startRecord()
         // Start timer
-        lengthInMilis = 0
+        lengthInMillis = 0
         updateTimer()
+        tvTimer.visibility = View.VISIBLE
         timer = Timer()
-        val task = object: TimerTask() {
+        val task = object : TimerTask() {
             override fun run() {
                 // update timer
-                lengthInMilis += 1000
+                lengthInMillis += 1000
                 tvTimer.post { updateTimer() }
             }
         }
@@ -99,7 +117,18 @@ class VoiceRecordView : LinearLayout {
         timer.cancel()
     }
 
-    inner class TouchListener: OnTouchListener {
+    private fun onReleaseView() {
+        if (state == RecordViewState.CANCEL) {
+            // reset timer
+            tvTimer.visibility = View.GONE
+        }
+        slideRecordButton(0.0f)
+        // TODO stop & send record
+        disableRecordMode()
+        stopRecord()
+    }
+
+    inner class TouchListener : OnTouchListener {
         var lastY: Float = 0.0f
         private val mTouchslop = ViewConfiguration.get(context).scaledTouchSlop
         private var mBeingDragged = false
@@ -116,10 +145,7 @@ class VoiceRecordView : LinearLayout {
             }
             if (action == MotionEvent.ACTION_UP) {
                 mBeingDragged = false
-                slideRecordButton(0.0f)
-                // TODO stop & send record
-                disableRecordMode()
-                stopRecord()
+                onReleaseView()
             }
             if (action == MotionEvent.ACTION_MOVE) {
                 val diff = event.rawY - lastY
