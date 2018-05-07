@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="200dp">
+
+    <ImageButton
+        android:id="@+id/btnRecord"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/background_record_voice"
+        android:src="@drawable/ic_chat_voice_selected" />
+
+    <RelativeLayout
+        android:id="@+id/tutorial_message"
+        android:layout_above="@id/btnRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="20dp"
+        android:layout_centerHorizontal="true">
+
+        <LinearLayout
+            android:id="@+id/txt_tutorial_message"
+            android:layout_width="wrap_content"
+            android:padding="10dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rectangle">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tap and hold me to record. Release to send" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_below="@+id/txt_tutorial_message"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="13dp"
+            android:translationX="-3dp"
+            android:rotation="180"
+            android:src="@drawable/triangle" />
+    </RelativeLayout>
+</RelativeLayout>

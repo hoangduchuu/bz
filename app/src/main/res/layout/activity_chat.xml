@@ -136,6 +136,7 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/bottom_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -338,58 +339,62 @@
 
             </LinearLayout>
 
-            <RelativeLayout
+            <com.ping.android.presentation.view.custom.VoiceRecordView
                 android:id="@+id/chat_layout_voice"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:layout_height="wrap_content" />
+            <!--<RelativeLayout-->
+                <!--android:id="@+id/chat_layout_voice"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="120dp"-->
+                <!--android:orientation="vertical"-->
+                <!--android:visibility="gone"-->
+                <!--tools:visibility="visible">-->
 
-                <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="2dp">
+                <!--<FrameLayout-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background_circle_orange="@android:color/white"-->
+                    <!--android:padding="2dp">-->
 
-                    <com.ping.android.presentation.view.custom.RecorderVisualizerView
-                        android:id="@+id/visualizer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/background_light" />
-                </FrameLayout>
+                    <!--<com.ping.android.presentation.view.custom.RecorderVisualizerView-->
+                        <!--android:id="@+id/visualizer"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="match_parent"-->
+                        <!--android:background_circle_orange="@android:color/background_light" />-->
+                <!--</FrameLayout>-->
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerInParent="true"
-                    android:layout_centerVertical="true"
-                    android:orientation="horizontal"
-                    tools:visibility="visible">
+                <!--<RelativeLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_alignParentBottom="true"-->
+                    <!--android:layout_centerInParent="true"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:orientation="horizontal"-->
+                    <!--tools:visibility="visible">-->
 
-                    <Button
-                        android:id="@+id/chat_cancel_record"
-                        style="@style/ActionButton"
-                        android:text="Cancel"
-                        android:textAllCaps="false" />
+                    <!--<Button-->
+                        <!--android:id="@+id/chat_cancel_record"-->
+                        <!--style="@style/ActionButton"-->
+                        <!--android:text="Cancel"-->
+                        <!--android:textAllCaps="false" />-->
 
-                    <Button
-                        android:id="@+id/chat_start_record"
-                        style="@style/ActionButton"
-                        android:layout_centerInParent="true"
-                        android:text="RECORD" />
+                    <!--<Button-->
+                        <!--android:id="@+id/chat_start_record"-->
+                        <!--style="@style/ActionButton"-->
+                        <!--android:layout_centerInParent="true"-->
+                        <!--android:text="RECORD" />-->
 
-                    <Button
-                        android:id="@+id/chat_send_record"
-                        style="@style/ActionButton"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="Send"
-                        android:textAllCaps="false" />
-                </RelativeLayout>
-            </RelativeLayout>
+                    <!--<Button-->
+                        <!--android:id="@+id/chat_send_record"-->
+                        <!--style="@style/ActionButton"-->
+                        <!--android:layout_alignParentEnd="true"-->
+                        <!--android:layout_alignParentRight="true"-->
+                        <!--android:layout_centerVertical="true"-->
+                        <!--android:text="Send"-->
+                        <!--android:textAllCaps="false" />-->
+                <!--</RelativeLayout>-->
+            <!--</RelativeLayout>-->
         </LinearLayout>
 
         <RelativeLayout

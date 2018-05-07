@@ -15,6 +15,8 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.transition.Slide;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +30,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -98,11 +101,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
-    private RelativeLayout layoutVoice, layoutBottomMenu;
+    private RelativeLayout layoutBottomMenu;
+    private LinearLayout layoutVoice;
     private LinearLayout layoutText, layoutMsgType;
     private ImageView btBack;
-    private Button btSendRecord;
-    private Button tbRecord;
     private AppCompatCheckBox tgMarkOut;
     private TextView tvChatStatus;
     private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
@@ -110,7 +112,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private Button btnSend;
-    private Button btCancelRecord;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -315,15 +316,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_send_message_btn:
                 onSentMessage(originalText);
                 break;
-            case R.id.chat_start_record:
-                onStartRecord();
-                break;
-            case R.id.chat_cancel_record:
-                onStopRecord();
-                break;
-            case R.id.chat_send_record:
-                onSendRecord();
-                break;
+//            case R.id.chat_start_record:
+//                onStartRecord();
+//                break;
+//            case R.id.chat_cancel_record:
+//                onStopRecord();
+//                break;
+//            case R.id.chat_send_record:
+//                onSendRecord();
+//                break;
             case R.id.chat_tgl_outcoming:
                 onChangeTypingMark();
                 break;
@@ -553,13 +554,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         //edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
 
 
-        visualizerView = findViewById(R.id.visualizer);
-        btCancelRecord = findViewById(R.id.chat_cancel_record);
-        btCancelRecord.setOnClickListener(this);
-        tbRecord = findViewById(R.id.chat_start_record);
-        tbRecord.setOnClickListener(this);
-        btSendRecord = findViewById(R.id.chat_send_record);
-        btSendRecord.setOnClickListener(this);
+//        visualizerView = findViewById(R.id.visualizer);
+//        btCancelRecord = findViewById(R.id.chat_cancel_record);
+//        btCancelRecord.setOnClickListener(this);
+//        tbRecord = findViewById(R.id.chat_start_record);
+//        tbRecord.setOnClickListener(this);
+//        btSendRecord = findViewById(R.id.chat_send_record);
+//        btSendRecord.setOnClickListener(this);
 
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tgMarkOut.setOnClickListener(this);
@@ -914,21 +915,18 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             layoutText.setVisibility(View.VISIBLE);
             layoutVoice.setVisibility(View.GONE);
             edMessage.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(edMessage, InputMethodManager.SHOW_IMPLICIT);
+            KeyboardHelpers.showKeyboard(this, edMessage);
         } else if (type == Constant.MESSAGE_TYPE.VOICE) {
+            View view = findViewById(R.id.bottom_container);
             layoutText.setVisibility(View.GONE);
+            TransitionManager.beginDelayedTransition((ViewGroup) view, new Slide());
             layoutVoice.setVisibility(View.VISIBLE);
             //btSendRecord.setEnabled(false);
-            setRecordMode(false);
+            //setRecordMode(false);
         }
 
         if (type != Constant.MESSAGE_TYPE.TEXT) {
-            View view = this.getCurrentFocus();
-            if (view != null) {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
+            KeyboardHelpers.hideSoftInputKeyboard(this);
         }
     }
 
@@ -941,13 +939,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setRecordMode(boolean isRecording) {
-        if (isRecording) {
-            btCancelRecord.setVisibility(View.VISIBLE);
-            btSendRecord.setVisibility(View.VISIBLE);
-        } else {
-            btCancelRecord.setVisibility(View.GONE);
-            btSendRecord.setVisibility(View.GONE);
-        }
+//        if (isRecording) {
+//            btCancelRecord.setVisibility(View.VISIBLE);
+//            btSendRecord.setVisibility(View.VISIBLE);
+//        } else {
+//            btCancelRecord.setVisibility(View.GONE);
+//            btSendRecord.setVisibility(View.GONE);
+//        }
     }
 
     private void onChangeTypingMark() {
