@@ -56,6 +56,20 @@
                 android:src="@drawable/ic_clear"
                 tools:alpha="0.8" />
 
+            <ImageView
+                android:id="@+id/btnTransform"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/background_circle_border"
+                android:padding="10dp"
+                android:alpha="0"
+                android:tint="@color/main_background_gray"
+                android:src="@drawable/ic_transform"
+                tools:alpha="0.8" />
+
             <ImageButton
                 android:id="@+id/btnRecord"
                 android:layout_width="50dp"
@@ -84,7 +98,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tap and hold me to record. Release to send" />
+                        android:text="@string/voice_record_instruction_tap_to_record" />
                 </LinearLayout>
 
                 <ImageView
@@ -97,6 +111,53 @@
                     android:src="@drawable/triangle"
                     android:translationX="-3dp" />
             </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/reviewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_background_gray"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:gravity="center_horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:padding="10dp"
+                    android:background="@drawable/background_circle_gray_dark"
+                    android:elevation="5dp"
+                    android:src="@drawable/ic_chipmunk"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+                    android:padding="10dp"
+                    android:background="@drawable/background_circle_gray_dark"
+                    android:elevation="5dp"
+                    android:src="@drawable/ic_female" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/btnPlay"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/background_circle_gray_dark"
+                android:padding="10dp"
+                android:tint="@color/orange"
+                android:src="@drawable/ic_play_arrow" />
         </RelativeLayout>
     </FrameLayout>
 </FrameLayout>

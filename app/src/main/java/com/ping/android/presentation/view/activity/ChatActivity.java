@@ -57,6 +57,8 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
+import com.ping.android.presentation.view.custom.VoiceRecordView;
+import com.ping.android.presentation.view.custom.VoiceRecordViewListener;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -73,6 +75,8 @@ import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -102,7 +106,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
     private RelativeLayout layoutBottomMenu;
-    private LinearLayout layoutVoice;
+    private VoiceRecordView layoutVoice;
     private LinearLayout layoutText, layoutMsgType;
     private ImageView btBack;
     private AppCompatCheckBox tgMarkOut;
@@ -111,6 +115,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
+    private TextView tvInstruction;
     private Button btnSend;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
@@ -185,7 +190,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         bindViews();
-
 
         init();
         initView();
@@ -262,6 +266,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             this.shakeEventManager.unregister();
         }
         messagesAdapter.destroy();
+        layoutVoice.release();
     }
 
     @Override
@@ -470,15 +475,47 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         String conversationTransionName = getIntent().getStringExtra(EXTRA_CONVERSATION_TRANSITION_NAME);
 
         btBack = findViewById(R.id.chat_back);
-        btBack.setOnClickListener(this);
         tvChatName = findViewById(R.id.chat_person_name);
-        tvChatName.setOnClickListener(this);
         tvChatStatus = findViewById(R.id.chat_person_status);
-
-        tvChatName.setTransitionName(conversationTransionName);
-        tvChatName.setText(conversationName);
-
+        tvInstruction = findViewById(R.id.instruction);
         recycleChatView = findViewById(R.id.chat_list_view);
+        backgroundImage = findViewById(R.id.backgroundImage);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
+        btnSend = findViewById(R.id.chat_send_message_btn);
+        btVoiceCall = findViewById(R.id.chat_voice_call_btn);
+        btVideoCall = findViewById(R.id.chat_video_call_btn);
+        btMask = findViewById(R.id.chat_mask);
+        btUnMask = findViewById(R.id.chat_unmask);
+        btDelete = findViewById(R.id.chat_delete);
+        btEdit = findViewById(R.id.chat_edit);
+        btCancelEdit = findViewById(R.id.chat_cancel_edit);
+        layoutText = findViewById(R.id.chat_layout_text);
+        layoutVoice = findViewById(R.id.chat_layout_voice);
+        tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
+        tvNewMsgCount = findViewById(R.id.chat_new_message_count);
+        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
+        btEmoji = findViewById(R.id.chat_emoji_btn);
+
+        btBack.setOnClickListener(this);
+        tvChatName.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
+        btnSend.setEnabled(false);
+        btVoiceCall.setOnClickListener(this);
+        btVideoCall.setOnClickListener(this);
+        btMask.setOnClickListener(this);
+        btUnMask.setOnClickListener(this);
+        btDelete.setOnClickListener(this);
+        btEdit.setOnClickListener(this);
+        btCancelEdit.setOnClickListener(this);
+        tgMarkOut.setOnClickListener(this);
+        findViewById(R.id.chat_person_name).setOnClickListener(this);
+        findViewById(R.id.chat_text_btn).setOnClickListener(this);
+        findViewById(R.id.chat_image_btn).setOnClickListener(this);
+        findViewById(R.id.chat_camera_btn).setOnClickListener(this);
+        findViewById(R.id.chat_voice_btn).setOnClickListener(this);
+        findViewById(R.id.chat_game_btn).setOnClickListener(this);
+        findViewById(R.id.chat_header_center).setOnClickListener(this);
+
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
@@ -511,43 +548,23 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
             }
         });
-        backgroundImage = findViewById(R.id.backgroundImage);
-        swipeRefreshLayout = findViewById(R.id.swiperefresh);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+        swipeRefreshLayout.setOnRefreshListener(this::loadMoreChats);
+
+        tvChatName.setText(conversationName);
+        tvChatName.setTransitionName(conversationTransionName);
+        layoutVoice.setListener(new VoiceRecordViewListener() {
             @Override
-            public void onRefresh() {
-                loadMoreChats();
+            public void showInstruction(@NotNull String instruction) {
+                tvInstruction.setVisibility(View.VISIBLE);
+                tvInstruction.setText(instruction);
+            }
+
+            @Override
+            public void hideInstruction() {
+                tvInstruction.setVisibility(View.GONE);
             }
         });
-
-        findViewById(R.id.chat_person_name).setOnClickListener(this);
-        findViewById(R.id.chat_text_btn).setOnClickListener(this);
-        findViewById(R.id.chat_image_btn).setOnClickListener(this);
-        findViewById(R.id.chat_camera_btn).setOnClickListener(this);
-        findViewById(R.id.chat_voice_btn).setOnClickListener(this);
-        findViewById(R.id.chat_game_btn).setOnClickListener(this);
-        btnSend = findViewById(R.id.chat_send_message_btn);
-        btnSend.setOnClickListener(this);
-        btnSend.setEnabled(false);
-
-        btVoiceCall = findViewById(R.id.chat_voice_call_btn);
-        btVoiceCall.setOnClickListener(this);
-        btVideoCall = findViewById(R.id.chat_video_call_btn);
-        btVideoCall.setOnClickListener(this);
-
-        btMask = findViewById(R.id.chat_mask);
-        btMask.setOnClickListener(this);
-        btUnMask = findViewById(R.id.chat_unmask);
-        btUnMask.setOnClickListener(this);
-        btDelete = findViewById(R.id.chat_delete);
-        btDelete.setOnClickListener(this);
-        btEdit = findViewById(R.id.chat_edit);
-        btEdit.setOnClickListener(this);
-        btCancelEdit = findViewById(R.id.chat_cancel_edit);
-        btCancelEdit.setOnClickListener(this);
-
-        layoutText = findViewById(R.id.chat_layout_text);
-        layoutVoice = findViewById(R.id.chat_layout_voice);
         layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
         edMessage = findViewById(R.id.chat_message_tv);
@@ -562,15 +579,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 //        btSendRecord = findViewById(R.id.chat_send_record);
 //        btSendRecord.setOnClickListener(this);
 
-        tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
-        tgMarkOut.setOnClickListener(this);
-
-        tvNewMsgCount = findViewById(R.id.chat_new_message_count);
-        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
         //emoji
-        findViewById(R.id.chat_header_center).setOnClickListener(this);
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(edMessage);
-        btEmoji = findViewById(R.id.chat_emoji_btn);
         btEmoji.setOnClickListener(this);
 
 //        LinearLayout llBottomSheet = findViewById(R.id.bottom_sheet);
@@ -578,20 +588,20 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 //        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
 
+        // Bottom message action
         View messageActionsView = getLayoutInflater().inflate(R.layout.bottom_sheet_message_actions, null);
         copyContainer = messageActionsView.findViewById(R.id.btn_copy);
         copyContainer.setOnClickListener(this);
         messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
-
         messageActions = new BottomSheetDialog(this);
         messageActions.setContentView(messageActionsView);
         messageActions.setOnDismissListener(dialog -> hideSelectedMessage());
 
+        // Bottom chat menu
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_game_menu, null);
         chatGameMenu = new BottomSheetDialog(this);
         chatGameMenu.setContentView(view);
         chatGameMenu.setOnDismissListener(dialogInterface -> setButtonsState(0));
-
         view.findViewById(R.id.puzzle_game).setOnClickListener(this);
         view.findViewById(R.id.memory_game).setOnClickListener(this);
         view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
@@ -1082,6 +1092,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
         myAudioRecorder.setOutputFile(currentOutFile);
+
         try {
             myAudioRecorder.prepare();
             myAudioRecorder.start();
