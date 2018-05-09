@@ -279,4 +279,12 @@ public class Message implements Parcelable {
         jsonObject = new JSONObject(readAllowed);
         dest.writeString(jsonObject.toString());
     }
+
+    public boolean isReadable(String key) {
+        if (readAllowed != null
+                && readAllowed.containsKey(key)) {
+            return readAllowed.get(key);
+        }
+        return true;
+    }
 }

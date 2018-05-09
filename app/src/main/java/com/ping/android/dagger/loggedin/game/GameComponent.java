@@ -3,6 +3,7 @@ package com.ping.android.dagger.loggedin.game;
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.view.activity.GameActivity;
 import com.ping.android.presentation.view.activity.GameMemoryActivity;
+import com.ping.android.presentation.view.activity.GameTicTacToeActivity;
 import com.ping.android.presentation.view.activity.PuzzleActivity;
 
 import dagger.Subcomponent;
@@ -18,4 +19,6 @@ public interface GameComponent {
     void inject(PuzzleActivity activity);
 
     void inject(GameMemoryActivity activity);
+
+    void inject(GameTicTacToeActivity gameTicTacToeActivity);
 }

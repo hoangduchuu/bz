@@ -16,29 +16,51 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
+import com.ping.android.dagger.loggedin.game.GameComponent;
+import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.model.TicTacToeGame;
+import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class GameTicTacToeActivity extends BaseGameActivity implements View.OnClickListener {
+public class GameTicTacToeActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
     private final TicTacToeGame game = new TicTacToeGame();
     private List<ImageButton> tiles;
     private CountDownTimer gameCountDown;
     private android.os.Vibrator vibrator;
     private TextView tvTimer;
 
+    @Inject
+    GamePresenter presenter;
+    GameComponent component;
+
+    public GameComponent getComponent() {
+        if (component == null) {
+            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
+        }
+        return component;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getComponent().inject(this);
         setContentView(R.layout.activity_game_tic_tac_toe);
         initResources(getIntent());
         showStartDialog();
+    }
+
+    @Override
+    public GamePresenter getPresenter() {
+        return presenter;
     }
 
     private void showStartDialog() {
@@ -161,7 +183,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
      * Used in tandem with RxLifecycle, we can do this in a non-leaky and responsive way.
      */
     private void simulateCpuMove() {
-        game.getCpuMove()
+        registerEvent(game.getCpuMove()
                 .subscribeOn(Schedulers.computation())
                 .doOnSubscribe(disposable -> {
                 })
@@ -173,7 +195,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
                     // Set image for specific tile
                     setTileView(nextCpuMove, TicTacToeGame.PLAYER_TWO);
                     handleMove(game.getNextCpuMove());
-                });
+                }));
     }
 
     private void handleMove(int position) {
