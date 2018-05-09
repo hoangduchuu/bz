@@ -1,7 +1,5 @@
 package com.ping.android.domain.usecase.message;
 
-import android.text.TextUtils;
-
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -56,15 +54,14 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                 .onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
                     Message message = childData.data;
-                    boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0
-                            && !message.readAllowed.containsKey(currentUser.key);
+                    boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
-                    if (isDeleted || isOldMessage || unReadable) {
+                    if (isDeleted || isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
-                    int status = CommonMethod.getIntFrom(message.status, currentUser.key);
-                    updateReadStatus(message, params.conversation, status);
+                    /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
+                    updateReadStatus(message, params.conversation, status);*/
                     return userRepository.getUser(childData.data.senderId)
                             .map(user -> {
                                 childData.data.sender = user;

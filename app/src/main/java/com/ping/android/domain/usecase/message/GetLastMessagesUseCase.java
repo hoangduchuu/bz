@@ -54,18 +54,15 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     }
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     boolean isOld = message.timestamp < conversation.deleteTimestamp;
-                                    if (isDeleted || isOld) {
+                                    boolean isReadable = message.isReadable(user.key);
+                                    if (isDeleted || isOld || !isReadable) {
                                         continue;
                                     }
 
-                                    if (message.readAllowed != null && message.readAllowed.size() > 0
-                                            && !message.readAllowed.containsKey(user.key))
+                                    if (message.readAllowed != null
+                                            && (message.readAllowed.containsKey(user.key) && !message.readAllowed.get(user.key)))
                                         continue;
 
-                                    if (message.timestamp < conversation.deleteTimestamp) {
-                                        continue;
-                                    }
-                                    
                                     message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     message.sender = getUser(message.senderId, conversation);
                                     message.currentUserId = user.key;
