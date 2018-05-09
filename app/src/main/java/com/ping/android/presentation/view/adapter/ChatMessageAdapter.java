@@ -52,6 +52,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             audioPlayerInstance = new MediaPlayer();
             audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
                 if (currentPlayingMessage != null) {
+                    currentPlayingMessage.completePlaying();
                     onCompletePlayAudio(currentPlayingMessage);
                 }
             });
@@ -207,10 +208,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return null;
     }
 
-    public void resetSelectedMessages() {
-        selectedMessages.clear();
-    }
-
     public void update(MessageBaseItem selectedMessage) {
         int index = this.items.indexOf(selectedMessage);
         if (index >= 0 && index < getItemCount()) {
@@ -219,11 +216,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
-    private void addPadding() {
-        if (paddingItem == null) {
-            paddingItem = new PaddingItem();
-        }
-        add(paddingItem);
     }
 
     public FlexibleItem getItem(int i) {
