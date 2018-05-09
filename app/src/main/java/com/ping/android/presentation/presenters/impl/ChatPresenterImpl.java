@@ -260,6 +260,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
+            prepareMessageStatus(message);
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
