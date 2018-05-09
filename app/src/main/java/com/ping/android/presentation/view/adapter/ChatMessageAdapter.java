@@ -216,8 +216,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
-    }
-
     public FlexibleItem getItem(int i) {
         return this.items.get(i);
     }
