@@ -53,16 +53,14 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         throw new NullPointerException();
                     }
                 })
-                .onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
                     if (childData.type != ChildEvent.Type.CHILD_CHANGED) {
                         return Observable.empty();
                     }
                     Message message = childData.data;
-                    boolean unReadable = message.readAllowed != null && message.readAllowed.size() > 0
-                            && !message.readAllowed.containsKey(currentUser.key);
+                    boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
-                    if (isOldMessage || unReadable) {
+                    if (isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
                     boolean isDeleted = CommonMethod.getBooleanFrom(childData.data.deleteStatuses, currentUser.key);
@@ -86,9 +84,9 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                                             .subscribe();
                                 }
                             }
-                            updateReadStatus(message, params.conversation, status);
+                            //updateReadStatus(message, params.conversation, status);
                         } else if (childData.type == ChildEvent.Type.CHILD_ADDED) {
-                            updateReadStatus(message, params.conversation, status);
+                            //updateReadStatus(message, params.conversation, status);
                         }
                         return userRepository.getUser(childData.data.senderId)
                                 .map(user -> {
@@ -96,7 +94,8 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                                     return childData;
                                 });
                     }
-                });
+                })
+                .onErrorResumeNext(Observable.empty());
     }
 
     /**

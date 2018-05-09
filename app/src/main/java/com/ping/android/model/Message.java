@@ -196,4 +196,12 @@ public class Message {
         }
         return false;
     }
+
+    public boolean isReadable(String key) {
+        if (readAllowed != null
+                && readAllowed.containsKey(key)) {
+            return readAllowed.get(key);
+        }
+        return true;
+    }
 }

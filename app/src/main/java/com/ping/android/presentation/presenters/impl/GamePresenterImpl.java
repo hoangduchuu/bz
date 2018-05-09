@@ -9,6 +9,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.presentation.presenters.GamePresenter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,12 @@ public class GamePresenterImpl implements GamePresenter {
 
     @Override
     public void updateMessageStatus(String conversationId, String messageID, int status) {
-        updateMessageStatusUseCase.execute(new DefaultObserver<>(),
+        updateMessageStatusUseCase.execute(new DefaultObserver<Boolean>() {
+                                               @Override
+                                               public void onError(@NotNull Throwable exception) {
+                                                   exception.printStackTrace();
+                                               }
+                                           },
                 new UpdateMessageStatusUseCase.Params(conversationId, status, messageID));
     }
 
