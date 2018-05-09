@@ -64,7 +64,7 @@ class ImageFragment : Fragment() {
                 return false
             }
         }
-        GlideApp.with(context)
+        GlideApp.with(this)
                 .load(gsReference)
                 .override(512)
                 .skipMemoryCache(true)
