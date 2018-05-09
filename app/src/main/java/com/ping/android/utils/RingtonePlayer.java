@@ -43,23 +43,24 @@ public class RingtonePlayer {
     public RingtonePlayer(Context context, int resource) {
         this.context = context;
         mediaPlayer = android.media.MediaPlayer.create(context, resource);
+        mediaPlayer.setLooping(false);
         handler = new Handler();
         audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
 
-        AudioAttributes atrs = (new AudioAttributes.Builder()).setLegacyStreamType(AudioManager.STREAM_VOICE_CALL).build();
-        mediaPlayer.setAudioAttributes(atrs);
-        int maxVolumeMusic = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        ringingMode = audioManager.getRingerMode();
-        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+//        AudioAttributes atrs = (new AudioAttributes.Builder()).setLegacyStreamType(AudioManager.STREAM_VOICE_CALL).build();
+//        mediaPlayer.setAudioAttributes(atrs);
+//        int maxVolumeMusic = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+//        ringingMode = audioManager.getRingerMode();
+//        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
 
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeMusic,AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+//        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeMusic,AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 if (!looping){
                     return;
                 }
-                handler.postDelayed(loopingRunnable, 5000);
+                handler.postDelayed(loopingRunnable, 3000);
             }
         });
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -69,11 +70,12 @@ public class RingtonePlayer {
                 return true;
             }
         });
-        play(true);
+        //play(true);
     }
 
     public RingtonePlayer(Context context) {
         this.context = context;
+        audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
         Uri notification = getNotification();
         if (notification != null) {
             mediaPlayer = android.media.MediaPlayer.create(context, notification);
@@ -97,8 +99,17 @@ public class RingtonePlayer {
         return notification;
     }
 
-    public void play(boolean looping) {
+    public void play(boolean isInComing, boolean looping) {
         Log.i(TAG, "play");
+        if (isInComing) {
+            switch (audioManager.getRingerMode()) {
+                case AudioManager.RINGER_MODE_SILENT:
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    return;
+                default:
+                    break;
+            }
+        }
         if (mediaPlayer == null) {
             Log.i(TAG, "mediaPlayer isn't created ");
             return;

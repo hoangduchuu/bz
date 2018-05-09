@@ -1,0 +1,90 @@
+package com.ping.android.domain.usecase;
+
+import android.text.TextUtils;
+
+import com.bzzzchat.cleanarchitecture.PostExecutionThread;
+import com.bzzzchat.cleanarchitecture.ThreadExecutor;
+import com.bzzzchat.cleanarchitecture.UseCase;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.model.Call;
+import com.ping.android.model.ChildData;
+import com.ping.android.model.User;
+import com.ping.android.ultility.Constant;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import io.reactivex.Observable;
+
+/**
+ * Created by tuanluong on 1/30/18.
+ */
+
+public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
+    @Inject
+    UserRepository userRepository;
+    @Inject
+    ConversationRepository conversationRepository;
+
+    @Inject
+    public ObserveCallUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
+    }
+
+    @NotNull
+    @Override
+    public Observable<ChildData<Call>> buildUseCaseObservable(Void aVoid) {
+        return userRepository.getCurrentUser()
+                .flatMap(currentUser -> {
+                    String userId = currentUser.key;
+                    return userRepository.observeLatestCalls(userId)
+                            .flatMap(childEvent -> {
+                                Call call = Call.from(childEvent.dataSnapshot);
+                                ChildEvent.Type type = call.deleteStatuses.containsKey(userId) && call.deleteStatuses.get(userId)
+                                        ? ChildEvent.Type.CHILD_REMOVED : ChildEvent.Type.CHILD_ADDED;
+                                if (childEvent.type == ChildEvent.Type.CHILD_ADDED && type == ChildEvent.Type.CHILD_ADDED) {
+                                    String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
+                                    String conversationID = userId.compareTo(opponentUserId) > 0 ? userId + opponentUserId : opponentUserId + userId;
+                                    call.conversationId = conversationID;
+                                    if (call.status == Constant.CALL_STATUS_SUCCESS) {
+                                        if (call.senderId.equals(currentUser.key)) {
+                                            call.type = Call.CallType.OUTGOING;
+                                        } else {
+                                            call.type = Call.CallType.INCOMING;
+                                        }
+                                    } else {
+                                        if (call.senderId.equals(currentUser.key)) {
+                                            call.type = Call.CallType.OUTGOING;
+                                        } else {
+                                            call.type = Call.CallType.MISSED;
+                                        }
+                                    }
+                                    return getUser(opponentUserId)
+                                            .map(opponentUser -> {
+                                                call.opponentUser = opponentUser;
+                                                return call;
+                                            })
+                                            .flatMap(call1 -> conversationRepository.getConversationNickName(userId, conversationID, opponentUserId)
+                                                    .map(nickName -> {
+                                                        call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
+                                                        return new ChildData<>(call, type);
+                                                    }));
+
+                                } else {
+                                    return Observable.just(new ChildData<>(call, childEvent.type));
+                                }
+                            });
+                });
+
+    }
+
+    private Observable<User> getUser(String userId) {
+        return userRepository.getUser(userId);
+    }
+}

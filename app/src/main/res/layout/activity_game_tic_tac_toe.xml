@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.ping.android.presentation.view.custom.TouchImageView
+        android:id="@+id/game_layout_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/game_container"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:background="@color/black">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/b00"
+                style="@style/TicTacToe.Tile"/>
+
+            <ImageButton
+                android:id="@+id/b01"
+                style="@style/TicTacToe.Tile" />
+
+            <ImageButton
+                android:id="@+id/b02"
+                style="@style/TicTacToe.Tile"
+                android:layout_marginEnd="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/b03"
+                style="@style/TicTacToe.Tile" />
+
+            <ImageButton
+                android:id="@+id/b04"
+                style="@style/TicTacToe.Tile" />
+
+            <ImageButton
+                android:id="@+id/b05"
+                style="@style/TicTacToe.Tile"
+                android:layout_marginEnd="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageButton
+                android:id="@+id/b06"
+                style="@style/TicTacToe.Tile"
+                android:layout_marginBottom="0dp" />
+
+            <ImageButton
+                android:id="@+id/b07"
+                style="@style/TicTacToe.Tile"
+                android:layout_marginBottom="0dp" />
+
+            <ImageButton
+                android:id="@+id/b08"
+                style="@style/TicTacToe.Tile"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="0dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/game_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:textSize="26sp"
+        android:text="20" />
+
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+        android:text="Quit Game"
+        android:textAllCaps="true" />
+</RelativeLayout>

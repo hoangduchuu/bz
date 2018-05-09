@@ -1,7 +1,6 @@
 package com.ping.android;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,14 +8,13 @@ import android.util.Log;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.ping.android.model.QbConfigs;
 import com.ping.android.service.NotificationBroadcastReceiver;
-import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.CoreConfigUtils;
 import com.quickblox.auth.session.QBSettings;
 import com.quickblox.core.ServiceZone;
 import com.quickblox.core.SubscribePushStrategy;
 import com.quickblox.messages.services.QBPushManager;
 import com.vanniktech.emoji.EmojiManager;
-import com.vanniktech.emoji.ios.IosEmojiProvider;
+import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 
 public class CoreApp extends Application {
@@ -36,7 +34,7 @@ public class CoreApp extends Application {
         initQbConfigs();
         initCredentials();
         initPushManager();
-        EmojiManager.install(new IosEmojiProvider());
+        EmojiManager.install(new GoogleEmojiProvider());
 
         Intent intent = new Intent(this, NotificationBroadcastReceiver.class);
         intent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -56,9 +54,32 @@ public class CoreApp extends Application {
             QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.ALWAYS);
 
             if (!TextUtils.isEmpty(qbConfigs.getApiDomain()) && !TextUtils.isEmpty(qbConfigs.getChatDomain())) {
-                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
-                QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
+                //QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
+                //QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
+                ServiceZone serviceZone = BuildConfig.DEBUG ? ServiceZone.DEVELOPMENT: ServiceZone.PRODUCTION;
+                QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), serviceZone);
+                QBSettings.getInstance().setZone(serviceZone);
             }
+            QBPushManager.getInstance().addListener(new QBPushManager.QBSubscribeListener() {
+                @Override
+                public void onSubscriptionCreated() {
+                    Log.d(TAG, "onSubscriptionCreated");
+                }
+
+                @Override
+                public void onSubscriptionError(Exception e, int i) {
+                    Log.e(TAG, "onSubscriptionError" + e);
+                    if (i >= 0) {
+                        Log.e(TAG, "Google play service exception " + i);
+                    }
+                    Log.e(TAG, "onSubscriptionError " + e.getMessage());
+                }
+
+                @Override
+                public void onSubscriptionDeleted(boolean b) {
+                    Log.e(TAG, "onSubscriptionDeleted " + b);
+                }
+            });
         }
     }
 

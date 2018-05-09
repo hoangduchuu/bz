@@ -2,7 +2,7 @@
     android:id="@+id/notify_network_layout"
     android:layout_width="match_parent"
     android:layout_height="36dp"
-    android:layout_marginTop="64dp"
+    android:layout_marginTop="45dp"
     android:background="@color/bg_network_connecting"
     android:gravity="center">
 

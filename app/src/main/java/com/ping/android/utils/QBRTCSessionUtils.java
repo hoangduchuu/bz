@@ -1,13 +1,13 @@
 package com.ping.android.utils;
 
-import android.util.SparseArray;
+import android.util.SparseIntArray;
 
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
 
 public class QBRTCSessionUtils {
 
-    private static final SparseArray<Integer> peerStateDescriptions = new SparseArray<>();
+    private static final SparseIntArray peerStateDescriptions = new SparseIntArray();
 
     static {
         peerStateDescriptions.put(

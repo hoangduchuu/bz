@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
-    tools:context=".AddGroupActivity">
+    tools:context="com.ping.android.presentation.view.activity.AddGroupActivity">
 
     <LinearLayout
         android:id="@+id/contentRoot"
@@ -68,7 +68,7 @@
                 android:layout_marginLeft="@dimen/default_padding"
                 android:text="To: " />
 
-            <com.ping.android.view.ChipsEditText
+            <com.ping.android.presentation.view.custom.ChipsEditText
                 android:id="@+id/edt_to"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="center"
-                android:src="@drawable/ic_plus" />
+                android:src="@drawable/ic_add_circle" />
 
         </LinearLayout>
 

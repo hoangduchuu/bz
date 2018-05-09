@@ -27,7 +27,7 @@ public class Constant {
     public static final int MESSAGE_STATUS_ERROR = 2;
     public static final int MESSAGE_STATUS_GAME_PASS = 3;
     public static final int MESSAGE_STATUS_GAME_FAIL = 4;
-    public static final int MESSAGE_STATUS_GAME_INIT = 5;
+    public static final int MESSAGE_STATUS_READ = 5;
     public static final int MESSAGE_STATUS_GAME_DELIVERED = 6;
 
     public static final int CALL_STATUS_SUCCESS = 0;
@@ -52,6 +52,8 @@ public class Constant {
 
     public static final int LATEST_RECENT_MESSAGES = 50;
     public static final int LOAD_MORE_MESSAGE_AMOUNT = 20;
+
+    public static final double MILLISECOND_PER_DAY = 1000 * 60 * 60 * 24;
 
     public enum TYPE_FRIEND {
         NON_FRIEND,

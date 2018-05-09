@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.AddContactActivity">
+    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.AddContactActivity">
 
     <LinearLayout
         android:id="@+id/contentRoot"
@@ -51,6 +51,7 @@
             android:id="@+id/block_list_view"
             style="@style/RecyclerView"
             android:layout_weight="1"
+            android:layout_height="0dp"
             android:background="@color/main_background_white" />
 
 

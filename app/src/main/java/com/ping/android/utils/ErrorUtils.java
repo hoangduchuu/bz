@@ -9,7 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 
 import com.ping.android.CoreApp;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.quickblox.core.exception.QBResponseException;
 
 import java.util.List;

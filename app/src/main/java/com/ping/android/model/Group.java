@@ -19,8 +19,8 @@ public class Group {
     public String groupName;
     public double timestamp;
     public String groupAvatar;
-    public Map<String, Boolean> memberIDs;
-    public Map<String, Boolean> deleteStatuses;
+    public Map<String, Boolean> memberIDs = new HashMap<>();
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
 
     public List<User> members = new ArrayList<>();
 
@@ -29,9 +29,15 @@ public class Group {
     }
 
     public static Group from(DataSnapshot dataSnapshot) {
-        Group group = dataSnapshot.getValue(Group.class);
-        Assert.assertNotNull(group);
-        if (group.deleteStatuses == null) group.deleteStatuses = new HashMap<>();
+        //Group group = dataSnapshot.getValue(Group.class);
+        Group group = new Group();
+        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
+        group.conversationID = wrapper.getStringValue("conversationID");
+        group.groupName = wrapper.getStringValue("groupName");
+        group.timestamp = wrapper.getDoubleValue("timestamp");
+        group.groupAvatar = wrapper.getStringValue("groupAvatar");
+        group.memberIDs = wrapper.getMapValue("memberIDs");
+        group.deleteStatuses = wrapper.getMapValue("deleteStatuses");
         group.key = dataSnapshot.getKey();
         return group;
     }

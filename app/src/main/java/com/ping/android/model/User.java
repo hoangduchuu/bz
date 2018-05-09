@@ -2,17 +2,18 @@ package com.ping.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.ping.android.form.Setting;
+import com.google.gson.Gson;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
+import com.ping.android.utils.DataProvider;
 
-import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,18 +31,25 @@ public class User implements Parcelable {
     public String email;
     public String phone;
     public String profile;
+    // FIXME: consider remove this property
     public Boolean loginStatus;
     public boolean showMappingConfirm;
-    public Map<String, String> mappings;
+    public Map<String, String> mappings = new HashMap<>();
     public Setting settings;
-    public Map<String, Boolean> friends;
-    public Map<String, Boolean> blocks;
-    public Map<String, Boolean> blockBys;
+    public Map<String, Boolean> blocks = new HashMap<>();
+    public Map<String, Boolean> blockBys = new HashMap<>();
+
+    /**
+     * Map contains devices that opponentUser logged in, if count bigger than 0, it means users is online
+     */
+    public Map<String, Double> devices = new HashMap<>();
 
     // Local variable
+    public Map<String, Boolean> friends = new HashMap<>();
     public ArrayList<User> friendList  = new ArrayList<>();
-    public Constant.TYPE_FRIEND typeFriend;
-
+    public Constant.TYPE_FRIEND typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
+    public String nickName;
+    
     public User() {}
 
     public User(DataSnapshot dataSnapshot) {
@@ -58,21 +66,22 @@ public class User implements Parcelable {
         this.showMappingConfirm = CommonMethod.getBooleanOf(dataSnapshot.child("show_mapping_confirm").getValue());
         this.mappings = (Map<String, String>) dataSnapshot.child("mappings").getValue();
         this.settings = new Setting(dataSnapshot.child("settings"));
-        this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
-        if (friends == null) friends = new HashMap<>();
+//        this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
+//        if (friends == null) friends = new HashMap<>();
         this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
         if (blocks == null) blocks = new HashMap<>();
         this.blockBys = (Map<String, Boolean>) dataSnapshot.child("blockBys").getValue();
+        this.devices = dataSnapshot.hasChild("devices") ? (Map<String, Double>) dataSnapshot.child("devices").getValue() : new HashMap<>();
         if (this.blockBys == null) this.blockBys = new HashMap<>();
         if (this.mappings == null) {
-            this.mappings = ServiceManager.getInstance().getDefaultMapping();
+            this.mappings = DataProvider.getDefaultMapping();
         }
         if (this.settings == null) {
             this.settings = Setting.defaultSetting();
         }
-        if (this.friends == null) {
-            this.friends = new HashMap();
-        }
+//        if (this.friends == null) {
+//            this.friends = new HashMap();
+//        }
         if (this.blocks == null) {
             this.blocks = new HashMap();
         }
@@ -86,7 +95,7 @@ public class User implements Parcelable {
         this.phone = "";
         this.password = password;
         this.showMappingConfirm = false;
-        this.mappings = ServiceManager.getInstance().getDefaultMapping();
+        this.mappings = DataProvider.getDefaultMapping();
         this.settings = Setting.defaultSetting();
     }
 
@@ -105,8 +114,12 @@ public class User implements Parcelable {
         loginStatus = tmpLoginStatus == 0 ? null : tmpLoginStatus == 1;
         byte tmpShowMappingConfirm = in.readByte();
         showMappingConfirm = tmpShowMappingConfirm == 1;
-        friendList = in.createTypedArrayList(User.CREATOR);
+        //friendList = in.createTypedArrayList(User.CREATOR);
         typeFriend = Constant.TYPE_FRIEND.valueOf(in.readString());
+        Gson gson = new Gson();
+        //friends = gson.fromJson(in.readString(), Map.class);
+        blocks = gson.fromJson(in.readString(), Map.class);
+        blockBys = gson.fromJson(in.readString(), Map.class);
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -134,20 +147,25 @@ public class User implements Parcelable {
         result.put("phone", phone);
         result.put("loginStatus", loginStatus);
         result.put("show_mapping_confirm", showMappingConfirm);
-        result.put("friends", friends);
+        //result.put("friends", friends);
         result.put("mappings", mappings);
         result.put("settings", settings.toMap());
         result.put("profile", profile);
+        result.put("devices", devices);
 
         return result;
     }
 
     public String getDisplayName() {
-        if (StringUtils.isEmpty(firstName) && StringUtils.isEmpty(lastName)) {
+        if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)) {
             return pingID;
         } else {
             return String.format("%s %s", firstName, lastName).trim();
         }
+    }
+
+    public String getFirstName() {
+        return !TextUtils.isEmpty(firstName) ? firstName : pingID;
     }
 
     @Override
@@ -169,7 +187,13 @@ public class User implements Parcelable {
         parcel.writeString(profile);
         parcel.writeByte((byte) (loginStatus == null ? 0 : loginStatus ? 1 : 2));
         parcel.writeByte((byte) (showMappingConfirm ? 1 : 2));
-        parcel.writeTypedList(friendList);
+        //parcel.writeTypedList(friendList);
         parcel.writeString(typeFriend.toString());
+         //jsonObject = new JSONObject(friends);
+        //parcel.writeString(jsonObject.toString());
+        JSONObject jsonObject = new JSONObject(blocks);
+        parcel.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(blockBys);
+        parcel.writeString(jsonObject.toString());
     }
 }

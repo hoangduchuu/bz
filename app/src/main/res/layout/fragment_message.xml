@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background_white"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <RelativeLayout style="@style/TopMenu">
@@ -19,34 +21,35 @@
             android:text="MESSAGES" />
 
         <ImageView
-            style="@style/ActionButton.TopMenu"
             android:id="@+id/message_add"
+            style="@style/ActionButton.TopMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_menu_edit" />
-        
+
         <Button
             android:id="@+id/message_delete"
             style="@style/ActionButton.TopMenu"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:visibility="gone"
-            android:text="DELETE" />
+            android:text="DELETE"
+            android:visibility="gone" />
     </RelativeLayout>
 
     <LinearLayout style="@style/SearchLayout">
 
-        <SearchView
-            android:id="@+id/message_search_view"
-            style="@style/SearchView" />
+        <com.ping.android.presentation.view.custom.BzzzSearchView
+            android:id="@+id/search_edt"
+            style="@style/SearchView"
+            android:hint="@string/hint_search" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/message_recycle_view"
         style="@style/RecyclerView"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
     <View style="@style/ViewSeparate" />
 

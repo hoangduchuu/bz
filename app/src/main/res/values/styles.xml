@@ -13,6 +13,7 @@
         <item name="android:textAppearanceMedium">@style/AppTextAppearance</item>
         <item name="android:textAppearanceSmall">@style/AppTextAppearance.Small</item>
         <item name="android:radioButtonStyle">@style/radionbutton</item>
+        <item name="searchViewStyle">@style/SearchView</item>
 
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowContentTransitions">true</item>
@@ -22,6 +23,8 @@
 
         <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+
+        <item name="backgroundTheme">@style/BackgroundTintDefault</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
@@ -256,8 +259,7 @@
     </style>
 
     <style name="ChatTypeIcon">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">1</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minHeight">36dp</item>
 
@@ -266,7 +268,6 @@
         <item name="android:paddingLeft">5dp</item>
         <item name="android:paddingRight">5dp</item>
         <item name="android:background">@drawable/button_ripple</item>
-
     </style>
 
     <style name="MappingLine">
@@ -302,23 +303,16 @@
         <item name="android:background">#E6E7E8</item>
     </style>
 
-    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+    <style name="SearchView">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">28dp</item>
-        <item name="android:layout_marginTop">0dp</item>
-        <item name="android:layout_marginBottom">0dp</item>
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:queryHint">Search</item>
-        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">3dp</item>
         <item name="android:background">@drawable/round_corner</item>
-        <item name="android:queryBackground">@null</item>
-        <item name="submitBackground">@null</item>
-        <item name="defaultQueryHint">Search</item>
-        <item name="closeIcon">@drawable/ic_search_close</item>
-        <item name="searchIcon">@drawable/ic_seach_hint_icon</item>
+        <item name="android:drawablePadding">10dp</item>
+        <item name="android:hint">@string/hint_search</item>
     </style>
 
     <style name="BackIcon" parent="WrapContent">
@@ -352,18 +346,6 @@
         <item name="android:background">@null</item>
         <item name="android:inputType">textNoSuggestions</item>
         <item name="android:hint">@string/message_hint</item>
-    </style>
-
-    <style name="MessageMask" parent="WrapContent">
-        <item name="android:layout_width">@dimen/setting_icon_width</item>
-        <item name="android:layout_height">@dimen/setting_icon_height</item>
-        <item name="android:layout_alignParentStart">true</item>
-        <item name="android:layout_centerVertical">true</item>
-        <item name="android:background">@drawable/mask_toggle</item>
-        <item name="android:checked">true</item>
-        <item name="android:text"></item>
-        <item name="android:textOff"></item>
-        <item name="android:textOn"></item>
     </style>
 
     <style name="ItemChat">
@@ -400,14 +382,6 @@
         <item name="android:textColor">@color/text_color_primary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:singleLine">true</item>
-    </style>
-
-    <style name="CallerAvatar">
-        <item name="android:layout_width">@dimen/call_avatar_diameter</item>
-        <item name="android:layout_height">@dimen/call_avatar_diameter</item>
-        <item name="android:padding">0dp</item>
-        <item name="android:src">@drawable/ic_person_big</item>
-        <item name="android:scaleType">centerCrop</item>
     </style>
 
     <style name="RoundedImageButton">
@@ -497,5 +471,18 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="TicTacToe"></style>
+
+    <style name="TicTacToe.Tile">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:layout_marginEnd">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 </resources>

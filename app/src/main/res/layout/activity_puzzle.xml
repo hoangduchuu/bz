@@ -1,10 +1,8 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    android:fitsSystemWindows="true"
-    tools:context=".MappingActivity">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/contentRoot"
@@ -36,7 +34,7 @@
             android:layout_height="match_parent"
             android:gravity="center">
 
-            <com.ping.android.view.TouchImageView
+            <com.ping.android.presentation.view.custom.TouchImageView
                 android:id="@+id/puzzle_image"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

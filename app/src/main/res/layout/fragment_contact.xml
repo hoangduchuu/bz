@@ -12,25 +12,26 @@
             style="@style/TextTitle"
             android:text="CONTACTS" />
 
-        <ImageButton
+        <Button
             android:id="@+id/contact_add"
             style="@style/ActionButton.TopMenu"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_add" />
+            android:text="+FRIENDS"
+            android:src="@null" />
     </RelativeLayout>
 
     <LinearLayout style="@style/SearchLayout">
 
-        <SearchView
+        <com.ping.android.presentation.view.custom.BzzzSearchView
             android:id="@+id/contact_search_view"
-            style="@style/SearchView"></SearchView>
+            style="@style/SearchView" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/contact_recycle_view"
         style="@style/RecyclerView"
-        android:layout_weight="1" />
+        android:layout_height="match_parent" />
 
     <View style="@style/ViewSeparate" />
 

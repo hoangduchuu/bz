@@ -42,8 +42,8 @@
     <string name="msg_current_user_empty_quickbloxID">Cannot setup. Please re-login and try again</string>
     <string name="msg_opponent_user_empty_quickbloxID">Your opponent cannot contact</string>
     <string name="msg_accept_term">You must agree to the Terms of Service.</string>
-    <string name="msg_account_msg_blocked" formatted="false">You cannot send message to %1s because %2s is currently in your block list.</string>
-    <string name="msg_account_call_blocked" formatted="false">You cannot call %1s because %2s is currently in your block list.</string>
+    <string name="msg_account_msg_blocked" formatted="false">You cannot send message to %s because %s is currently in your block list.</string>
+    <string name="msg_account_call_blocked" formatted="false">You cannot call %s because %s is currently in your block list.</string>
     <string name="msg_account_blocked_by">The user %s blocked you</string>
 
     <string name="special_char_d_1">đ</string>
@@ -174,7 +174,7 @@
 
     <string name="opponents">and %s other</string>
     <string name="opponent">and %s </string>
-    <string name="ringing">Connecting ...</string>
+    <string name="ringing">Connecting …</string>
     <string name="stop_share">Stop</string>
     <string name="camera_swicth_failed">\"Failed switch camera\"</string>
     <string name="connecting">Connecting . . .</string>
@@ -183,8 +183,12 @@
     <string name="suggest_add_phone">Your phone number helps you connect with friends, get SMS update and much more.\nOnly you can see this number.</string>
     <string name="registered_phone">REGISTERED PHONE</string>
     <string name="user_details">User Details</string>
+
     <string name="generate_random">Generate Random</string>
     <string name="setting_manual_set_up">Manual Set-up</string>
+    <string name="setting_selective_languages">Selective Languages</string>
+    <string name="setting_selective_emojis">Selective Emojis</string>
+
     <string name="register_agree_term_of_service"><u>I agree to the Terms of Service.</u></string>
     <string name="profile_privacy_terms"><![CDATA[Privacy & Terms]]></string>
     <string name="privacy_terms"><![CDATA[PRIVACY & TERMS]]></string>
@@ -196,7 +200,8 @@
     <string name="sender_id_debug">5791510531</string>
     <!-- General strings -->
     <string name="gen_ok">OK</string>
-    <string name="gen_cancel">CANCEL</string>
+    <string name="gen_cancel">Cancel</string>
+    <string name="gen_save">SAVE</string>
 
     <!-- Chat activity -->
     <string name="chat_mask">MASK</string>
@@ -207,4 +212,41 @@
     <!-- Group -->
     <string name="warning_leave_group">You will no longer receive any messages from this group.</string>
     <string name="Warning_leave_group_leave">LEAVE</string>
+
+    <string name="puzzle_game_title">PUZZLE GAME</string>
+    <!-- Memory game -->
+    <string name="memory_game_title">MEMORY GAME</string>
+    <string name="memory_game_start_instruction">Tap the colors in the exact played orders to complete the game.</string>
+    <string name="memory_game_game_over">Game Over</string>
+    <string name="chat_choose_game_title">SELECT GAME TYPE</string>
+    <string name="chat_choose_game_description">Player(s) must play and pass to view your photo</string>
+    <string name="chat_puzzle_game">Puzzle</string>
+    <string name="chat_memory_game">Memory</string>
+    <string name="chat_tic_tac_toe_game">Tic Tac Toe</string>
+
+    <!-- Tic tac toe -->
+    <string name="tic_tac_toe_title">TIC TAC TOE GAME</string>
+    <string name="tic_tac_toe_description">Tap on the blank square box to place your X</string>
+
+    <!-- Selective Languages -->
+    <string name="selective_languages_title">Select Languages</string>
+    <string name="selective_languages_pick_title">Choose a transphabet</string>
+    <string name="warning_title">WARNING</string>
+    <string name="language_transphabet_confirmation">Your Transphabet will be randomize using %s alphabet. Go to \"Manual Set-up\" to view details.</string>
+
+    <!-- Nickname -->
+    <string name="nick_name_edit_title">EDIT NICKNAME</string>
+    <string name="nick_name_edit_individual_description">%s will only see this in this conversation.</string>
+    <string name="nick_name_edit_group_description">Only members from this conversation will see this.</string>
+    <string name="hint_reply">Write reply</string>
+    <string name="notif_content_sent">Sent</string>
+    <string name="notif_action_reply">Reply</string>
+    <string name="conversation_detail_background">Background</string>
+    <string name="conversation_detail_media">Gallery</string>
+    <string name="color_picker_description">Pick a color for this conversation</string>
+
+    <string name="hint_search">Search</string>
+    <string name="hint_search_friends">Names, Username, or Phone</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_bzzz">bzzz...</string>
 </resources>

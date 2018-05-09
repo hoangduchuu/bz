@@ -1,0 +1,267 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/main_background_gray"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            style="?attr/backgroundTheme"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#F1F2F2"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/group_profile_back"
+                style="@style/BackButton" />
+
+            <TextView
+                style="@style/TextTitle"
+                android:text="DETAILS" />
+        </RelativeLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                style="@style/MatchParent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    style="@style/MatchWidth"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        style="@style/ItemSetting"
+                        android:layout_height="wrap_content"
+                        android:descendantFocusability="beforeDescendants"
+                        android:focusableInTouchMode="true"
+                        android:orientation="horizontal"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp">
+
+                        <ImageView
+                            android:id="@+id/group_profile_image"
+                            android:layout_width="@dimen/user_profile_icon_width"
+                            android:layout_height="@dimen/user_profile_icon_width"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginRight="10dp"
+                            android:src="@drawable/ic_avatar_gray" />
+
+                        <EditText
+                            android:id="@+id/group_profile_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:background="@null"
+                            android:ellipsize="end"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:nextFocusLeft="@id/group_profile_name"
+                            android:nextFocusUp="@id/group_profile_name"
+                            tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse egestas, risus a placerat fermentum, massa nisl luctus lorem, eget vehicula orci velit sed lectus. Maecenas in scelerisque sem. Curabitur tincidunt auctor lectus, eget congue ex faucibus at. Sed suscipit dictum ligula bibendum semper. Mauris ipsum mauris, mattis a tellus sed, cursus viverra mauris. In mollis facilisis feugiat. Mauris semper tempus lectus nec tempus. Curabitur interdum leo eu elementum convallis. Sed non est pharetra, tincidunt neque a, vulputate tellus. Mauris cursus nisl in efficitur fringilla. Donec et lobortis eros. Nullam nibh ante, lobortis et purus eu, facilisis ultrices augue. Nam eu vehicula arcu, eget egestas dolor. Aliquam risus ex, blandit eu ligula vel, mollis egestas felis." />
+                    </LinearLayout>
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <LinearLayout
+                        style="@style/MatchWidth"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_conversation_notification" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Notifications" />
+
+                            <Switch
+                                android:id="@+id/group_profile_notification"
+                                style="@style/ItemSettingIconRight.Toggle" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_nickname"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_conversation_nickname" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Nickname" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_conversation_mask_message" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Mask Incoming Messages" />
+
+                            <Switch
+                                android:id="@+id/group_profile_mask"
+                                style="@style/ItemSettingIconRight.Toggle" />
+
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_conversation_mask_image" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="Puzzle Incoming Pictures" />
+
+                            <Switch
+                                android:id="@+id/group_profile_puzzle"
+                                style="@style/ItemSettingIconRight.Toggle" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_color_lens" />
+
+                            <TextView
+                                android:id="@+id/group_profile_color"
+                                style="@style/ItemSettingText"
+                                android:text="Colors" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View style="@style/ItemSettingSeparate" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_background"
+                            style="@style/ItemSetting">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_chat_image_selected" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/conversation_detail_background" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+
+                        <View
+                            style="@style/ItemSettingSeparate"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:id="@+id/profile_gallery"
+                            style="@style/ItemSetting"
+                            android:visibility="gone">
+
+                            <ImageView
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_chat_image_selected" />
+
+                            <TextView
+                                style="@style/ItemSettingText"
+                                android:text="@string/conversation_detail_media" />
+
+                            <ImageView style="@style/ItemSettingIconRight" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <LinearLayout
+                        android:id="@+id/group_profile_add_member"
+                        style="@style/ItemSetting">
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="ADD NEW"
+                            android:textColor="@color/orange" />
+                    </LinearLayout>
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <com.ping.android.presentation.view.custom.MaxHeightRecyclerView
+                        android:id="@+id/group_profile_list_member"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/white"
+                        app:maxHeight="200dp" />
+
+                    <View style="@style/ItemViewSeparate" />
+
+                    <LinearLayout
+                        android:id="@+id/group_profile_leave_group"
+                        style="@style/ItemSetting">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="LEAVE GROUP"
+                            android:textColor="@color/orange" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <View style="@style/ViewSeparate" />
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,82 +1,14 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.AddContactActivity">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/contentRoot"
+    <FrameLayout
+        android:id="@+id/transphabet_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/main_background_gray"
-        android:orientation="vertical">
+        android:fitsSystemWindows="true"
+        tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.AddContactActivity" />
 
-        <RelativeLayout style="@style/TopMenu">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                style="@style/BackButton" />
-
-            <TextView
-                style="@style/TextTitle"
-                android:text="TRANSPHABET" />
-
-        </RelativeLayout>
-
-        <View style="@style/ViewSeparate" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/main_background_gray"
-            android:paddingBottom="10dp"
-            android:paddingLeft="@dimen/default_padding"
-            android:paddingTop="30dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CHOOSE A SETTING" />
-        </LinearLayout>
-
-
-        <LinearLayout
-            style="@style/MatchWidth"
-            android:background="@color/white"
-            android:paddingLeft="@dimen/default_padding"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/v_generate_random"
-                style="@style/ItemSetting"
-                android:paddingLeft="@dimen/default_padding">
-
-                <TextView
-                    style="@style/ItemSettingText"
-
-                    android:text="@string/generate_random" />
-
-                <ImageView style="@style/ItemSettingIconRight" />
-            </LinearLayout>
-
-            <View
-                style="@style/horizontal_divider"
-                android:layout_marginLeft="@dimen/default_padding" />
-
-            <LinearLayout
-                android:id="@+id/v_manual_setup"
-                style="@style/ItemSetting">
-
-                <TextView
-                    style="@style/ItemSettingText"
-                    android:text="@string/setting_manual_set_up" />
-
-                <ImageView style="@style/ItemSettingIconRight" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-
-    </LinearLayout>
-</android.support.design.widget.CoordinatorLayout>
+    <include layout="@layout/notify_network_other" />
+</RelativeLayout>

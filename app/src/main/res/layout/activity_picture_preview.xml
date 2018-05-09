@@ -12,7 +12,7 @@
         <!--android:layout_gravity="center_horizontal"-->
         <!--android:adjustViewBounds="true" />-->
 
-    <com.ping.android.view.TouchImageView
+    <com.ping.android.presentation.view.custom.TouchImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

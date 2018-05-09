@@ -53,13 +53,13 @@
         <ImageButton
             android:id="@+id/image_button_accept_call"
             style="@style/CallActionImageButton"
-            android:background="@drawable/ic_call"/>
+            android:background="@drawable/ic_call_accept"/>
 
         <ImageButton
             android:id="@+id/image_button_reject_call"
             style="@style/CallActionImageButton"
             android:layout_toEndOf="@id/image_button_accept_call"
-            android:background="@drawable/ic_call_hang_up"
+            android:background="@drawable/ic_call_reject"
             android:layout_marginLeft="100dp"/>
 
     </RelativeLayout>

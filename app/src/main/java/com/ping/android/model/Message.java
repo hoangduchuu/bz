@@ -29,39 +29,51 @@ public class Message {
     public Map<String, Boolean> deleteStatuses;
     public Map<String, Boolean> readAllowed;
     public int messageType;
+    public int gameType;
 
     // Local variable, don't store on Firebase
     public User sender;
     public String localImage;
+    public boolean isCached;
+    public String currentUserId;
+    public String messageStatus;
+    public int messageStatusCode;
+    public long days;
+    public boolean isMask;
+
+    /**
+     * Indicates whether show user profile and date time or not
+     */
+    public boolean showExtraInfo = true;
 
     public Message() {
     }
 
     public static Message from(DataSnapshot dataSnapshot) {
         Message message = new Message();
-        message.message = dataSnapshot.child("message").getValue(String.class);
-        message.photoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
-        message.thumbUrl = dataSnapshot.child("thumbUrl").getValue(String.class);
-        message.audioUrl = dataSnapshot.child("audioUrl").getValue(String.class);
-        message.gameUrl = dataSnapshot.child("gameUrl").getValue(String.class);
-        if(dataSnapshot.child("timestamp").exists()) {
-            message.timestamp = dataSnapshot.child("timestamp").getValue(Double.class);
-        }else{
-            message.timestamp = 0.0d;
-        }
-        message.senderId = dataSnapshot.child("senderId").getValue(String.class);
-        message.senderName = dataSnapshot.child("senderName").getValue(String.class);
-
+        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
+        message.message = wrapper.getStringValue("message");
+        message.photoUrl = wrapper.getStringValue("photoUrl");
+        message.thumbUrl = wrapper.getStringValue("thumbUrl");
+        message.audioUrl = wrapper.getStringValue("audioUrl");
+        message.gameUrl = wrapper.getStringValue("gameUrl");
+        message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
+        message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
+        message.senderId = wrapper.getStringValue("senderId");
+        message.senderName = wrapper.getStringValue("senderName");
+        message.gameType = wrapper.getIntValue("gameType", 0);
+        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
-        for (String k:status.keySet()
-             ) {
-            Object value = status.get(k);
-            int intValue = 0;
-            if (value instanceof Long){
-                intValue = ((Long)value).intValue();
+        if (status != null) {
+            for (String k : status.keySet()) {
+                Object value = status.get(k);
+                int intValue = 0;
+                if (value instanceof Long) {
+                    intValue = ((Long) value).intValue();
+                }
+                message.status.put(k, intValue);
             }
-            message.status.put(k, intValue);
         }
 
         message.markStatuses = (HashMap<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
@@ -137,7 +149,7 @@ public class Message {
 
     public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int gameType) {
         Message message = new Message();
         message.gameUrl = gameUrl;
         message.senderId = senderId;
@@ -148,7 +160,12 @@ public class Message {
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_GAME;
         message.readAllowed = readAllowed;
+        message.gameType = gameType;
         return message;
+    }
+
+    public boolean isFromMe() {
+        return this.senderId.equals(currentUserId);
     }
 
     @Exclude
@@ -168,6 +185,15 @@ public class Message {
         result.put("deleteStatuses", deleteStatuses);
         result.put("messageType", messageType);
         result.put("readAllowed", readAllowed);
+        result.put("gameType", gameType);
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Message) {
+            return timestamp == ((Message) obj).timestamp && key.equals(((Message) obj).key);
+        }
+        return false;
     }
 }

@@ -1,10 +1,7 @@
 package com.ping.android.model;
 
-import android.service.autofill.Dataset;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
-import com.ping.android.ultility.CommonMethod;
 
 import junit.framework.Assert;
 
@@ -19,18 +16,20 @@ public class Call {
     public String receiveId;
     public int status;
     public double timestamp;
-    public Map<String, Boolean> deleteStatuses;
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
 
-    public List<User> members = new ArrayList<>();
     public User opponentUser;
+    public String opponentName;
+    public String conversationId;
+    public CallType type;
 
     public Call() {}
 
-    public Call(String senderId, String receiveId, int status, Map<String, Boolean> deleteStatuses, double timestamp) {
+    public Call(String senderId, String receiveId, int status, double timestamp) {
         this.senderId = senderId;
         this.receiveId = receiveId;
         this.status = status;
-        this.deleteStatuses = deleteStatuses;
+        this.deleteStatuses = getCallDeleteStatuses();
         this.timestamp = timestamp;
     }
 
@@ -39,6 +38,13 @@ public class Call {
         Assert.assertNotNull(call);
         call.key = dataSnapshot.getKey();
         return call;
+    }
+
+    private Map<String, Boolean> getCallDeleteStatuses() {
+        Map<String, Boolean> deleteStatuses = new HashMap<>();
+        deleteStatuses.put(senderId, false);
+        deleteStatuses.put(receiveId, false);
+        return deleteStatuses;
     }
 
     @Exclude
@@ -51,5 +57,9 @@ public class Call {
         result.put("timestamp", timestamp);
         result.put("deleteStatuses", deleteStatuses);
         return result;
+    }
+
+    public enum CallType {
+        OUTGOING, INCOMING, MISSED
     }
 }

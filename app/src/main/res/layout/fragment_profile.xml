@@ -57,7 +57,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_username" />
+                            android:src="@drawable/ic_profile_username" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -68,8 +68,7 @@
                             style="@style/AppTextAppearance.Small.Grey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_marginRight="@dimen/default_padding"
+                            android:layout_marginEnd="@dimen/default_padding"
                             android:text="me.me" />
                     </LinearLayout>
 
@@ -80,7 +79,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_phone" />
+                            android:src="@drawable/ic_profile_phonenumber" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -97,7 +96,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_private" />
+                            android:src="@drawable/ic_profile_password" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -118,7 +117,7 @@
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/profile_transphabet" />
+                        android:src="@drawable/ic_profile_transphabet" />
 
                     <TextView
                         style="@style/ItemSettingText"
@@ -138,7 +137,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_notifications" />
+                            android:src="@drawable/ic_profile_notification" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -155,7 +154,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_private" />
+                            android:src="@drawable/ic_profile_hide_profile" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -174,7 +173,7 @@
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_lock" />
+                            android:src="@drawable/ic_profile_block_list" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -191,13 +190,31 @@
                     android:background="@color/white"
                     android:orientation="vertical">
 
+                    <LinearLayout style="@style/ItemSetting"
+                        android:id="@+id/profile_privacy_and_terms">
+
+                        <ImageView
+                            style="@style/ItemSettingIconLeft"
+                            android:src="@drawable/ic_profile_privacy" />
+
+                        <TextView
+                            style="@style/ItemSettingText"
+                            android:text="@string/profile_privacy_terms" />
+
+                        <ImageView
+                            style="@style/ItemSettingIconRight"
+                            android:src="@drawable/ic_arrow_right_gray" />
+                    </LinearLayout>
+
+                    <View style="@style/ItemSettingSeparate" />
+
                     <LinearLayout
                         android:id="@+id/profile_help"
                         style="@style/ItemSetting">
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_help" />
+                            android:src="@drawable/ic_profile_help" />
 
                         <TextView
                             style="@style/ItemSettingText"
@@ -211,29 +228,11 @@
 
                     <View style="@style/ItemSettingSeparate" />
 
-                    <LinearLayout style="@style/ItemSetting"
-                        android:id="@+id/profile_privacy_and_terms">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_terms" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="@string/profile_privacy_terms" />
-
-                        <ImageView
-                            style="@style/ItemSettingIconRight"
-                            android:src="@drawable/ic_arrow_right_gray" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
                     <LinearLayout style="@style/ItemSetting">
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/profile_sign_out" />
+                            android:src="@drawable/ic_profile_signout" />
 
                         <Button
                             android:paddingLeft="0dp"
@@ -246,14 +245,6 @@
 
                 </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/txt_build_version"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:padding="10dp"
-                android:text="Version: 1.0"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

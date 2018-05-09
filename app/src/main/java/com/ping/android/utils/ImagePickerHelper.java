@@ -3,7 +3,7 @@ package com.ping.android.utils;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -19,22 +18,32 @@ import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
-import com.ping.android.activity.BuildConfig;
-import com.ping.android.cameraview.CameraActivity;
+import com.bzzzchat.cleanarchitecture.BaseView;
+import com.bzzzchat.cleanarchitecture.JobExecutor;
+import com.ping.android.BuildConfig;
+import com.ping.android.presentation.view.cameraview.CameraActivity;
 import com.ping.android.ultility.Constant;
-import com.soundcloud.android.crop.Crop;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -51,6 +60,8 @@ public class ImagePickerHelper {
     private String thumbnailFilePath;
     private ImagePickerListener listener;
 
+    private PublishSubject<File> imageSubject = PublishSubject.create();
+
     private Activity activity;
     private Fragment fragment;
 
@@ -59,7 +70,7 @@ public class ImagePickerHelper {
     private boolean isCrop = false;
     private boolean isGenerateThumbnail = false;
 
-    private static ImagePickerHelper imagePickerHelper;
+    private BaseView view;
 
     private ImagePickerHelper(Activity activity) {
         this.activity = activity;
@@ -72,47 +83,52 @@ public class ImagePickerHelper {
     }
 
     public static ImagePickerHelper from(Activity activity) {
-        imagePickerHelper = new ImagePickerHelper(activity);
+        ImagePickerHelper imagePickerHelper = new ImagePickerHelper(activity);
         return imagePickerHelper;
     }
 
     public static ImagePickerHelper from(Fragment fragment) {
-        imagePickerHelper = new ImagePickerHelper(fragment);
+        ImagePickerHelper imagePickerHelper = new ImagePickerHelper(fragment);
         return imagePickerHelper;
     }
 
     public ImagePickerHelper setFilePath(String filePath) {
         this.filePath = filePath;
-        return imagePickerHelper;
+        return this;
     }
 
     public ImagePickerHelper setListener(ImagePickerListener listener) {
         this.listener = listener;
-        return imagePickerHelper;
+        return this;
     }
 
     public ImagePickerHelper setScale(boolean isScale) {
         this.isScale = isScale;
-        return imagePickerHelper;
+        return this;
     }
 
     public ImagePickerHelper setCrop(boolean isCrop) {
         this.isCrop = isCrop;
-        return imagePickerHelper;
+        return this;
+    }
+
+    public ImagePickerHelper setView(BaseView view) {
+        this.view = view;
+        return this;
     }
 
     public ImagePickerHelper setGenerateThumbnail(boolean isGenerateThumbnail) {
         this.isGenerateThumbnail = isGenerateThumbnail;
-        return imagePickerHelper;
+        return this;
     }
 
-    private Uri getUriFromFile(File file) {
+    private static Uri getUriFromFile(Context context, File file) {
         Uri photoUri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            photoUri = FileProvider.getUriForFile(getContext(),
+            photoUri = FileProvider.getUriForFile(context,
                     BuildConfig.APPLICATION_ID + ".provider",
                     file);
-            getContext().grantUriPermission("com.android.camera", photoUri,
+            context.grantUriPermission("com.android.camera", photoUri,
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else {
             photoUri = Uri.fromFile(file);
@@ -127,7 +143,7 @@ public class ImagePickerHelper {
                 File file = getMediaFileFromUri(getContext(), selectedImageUri);
                 if (file == null) return;
                 if (isCrop) {
-                    Uri photoUri = getUriFromFile(file);
+                    Uri photoUri = getUriFromFile(getContext(), file);
                     performCrop(photoUri);
                 } else {
                     if (listener != null) {
@@ -144,29 +160,63 @@ public class ImagePickerHelper {
                     if (listener != null) {
                         listener.onImageReceived(file);
                     }
-                    tuningFinalImage(file, file.getName());
+                    if (isCrop) {
+                        Uri photoUri = getUriFromFile(getContext(), file);
+                        performCrop(photoUri);
+                    } else {
+                        tuningFinalImage(file, file.getName());
+                    }
                 }
             }
-        } else if (requestCode == Crop.REQUEST_CROP) {
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
             if (resultCode == RESULT_OK) {
-                Uri croppedUri = Crop.getOutput(data);
-                Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
-                saveImage(getFilePath(), scaleBitmap);
+                Uri croppedUri = result.getUri();
                 if (listener != null) {
+                    Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
+                    saveImage(getFilePath(), scaleBitmap);
                     listener.onFinalImage(new File(getFilePath()));
+                } else {
+                    view.showLoading();
+                    Disposable disposable = saveFile(croppedUri)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(file -> {
+                                view.hideLoading();
+                                imageSubject.onNext(file);
+                            });
                 }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                imageSubject.onError(error);
             }
         }
     }
 
-    private class TuningImage extends AsyncTask<Void, Void, List<File>> {
+    private Observable<File> saveFile(Uri croppedUri) {
+        return Observable.create(e -> {
+            Bitmap scaleBitmap = decodeSampledBitmap(getContext(), croppedUri, MAX_DIMENSION, MAX_DIMENSION);
+            saveImage(getFilePath(), scaleBitmap);
+            e.onNext(new File(getFilePath()));
+        });
+    }
+
+    private static class TuningImage extends AsyncTask<Void, Void, List<File>> {
 
         private final File originalFile;
         private final String fileName;
+        private final WeakReference<Context> context;
+        private final boolean isGenerateThumbnail;
+        private ImagePickerListener listener;
 
-        public TuningImage(File originalFile, String fileName) {
+        public TuningImage(Context context, File originalFile, String fileName, boolean isGenerateThumbnail) {
+            this.context = new WeakReference<>(context);
             this.originalFile = originalFile;
             this.fileName = fileName;
+            this.isGenerateThumbnail = isGenerateThumbnail;
+        }
+
+        public void setListener(ImagePickerListener listener) {
+            this.listener = listener;
         }
 
         @Override
@@ -181,10 +231,13 @@ public class ImagePickerHelper {
 //                    ret.add(new File(filePath));
 //                }
 //            }
-            Uri photoUri = getUriFromFile(originalFile);
+            Context context = this.context.get();
+            if (context == null) return new ArrayList<>();
+
+            Uri photoUri = getUriFromFile(context, originalFile);
             if (isGenerateThumbnail) {
-                String filePath = getCacheFolder() + File.separator + "thumbnail_" + fileName;
-                Bitmap thumbnail = decodeSampledBitmap(getContext(), photoUri, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
+                String filePath = getCacheFolder(context) + File.separator + "thumbnail_" + fileName;
+                Bitmap thumbnail = decodeSampledBitmap(context, photoUri, MAX_THUMB_DIMENSION, MAX_THUMB_DIMENSION);
                 if (thumbnail != null) {
                     saveImage(filePath, thumbnail);
                     ret.add(new File(filePath));
@@ -205,17 +258,25 @@ public class ImagePickerHelper {
     }
 
     private void tuningFinalImage(File file, String fileName) {
-        TuningImage task = new TuningImage(file, fileName);
+        TuningImage task = new TuningImage(getContext(), file, fileName, isGenerateThumbnail);
+        task.setListener(listener);
         task.execute();
     }
 
     private void performCrop(Uri photoUri) {
-        File file = new File(getFilePath());
         if (activity != null) {
-            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(activity);
+            CropImage.activity(photoUri)
+                    //.setAspectRatio(1, 1)
+                    .start(activity);
         } else {
-            Crop.of(photoUri, Uri.fromFile(file)).asSquare().start(getContext(), fragment);
+            CropImage.activity(photoUri)
+                    //.setAspectRatio(1, 1)
+                    .start(getContext(), fragment);
         }
+    }
+
+    public Observable<File> getFileObservable() {
+        return imageSubject.share();
     }
 
     public void openPicker() {
@@ -256,22 +317,22 @@ public class ImagePickerHelper {
 
     private String getFilePath() {
         if (TextUtils.isEmpty(filePath)) {
-            filePath = getCacheFolder() +
+            filePath = getCacheFolder(getContext()) +
                     File.separator + System.currentTimeMillis() + ".png";
         }
         return filePath;
     }
 
     private String getThumbnailFilePath() {
-        return getCacheFolder() + File.separator +
+        return getCacheFolder(getContext()) + File.separator +
                 "cache" + File.separator +
                 "thumbnail_" + System.currentTimeMillis() + ".png";
     }
 
-    private String getCacheFolder() {
-        File cache = getContext().getExternalCacheDir();
+    private static String getCacheFolder(Context context) {
+        File cache = context.getExternalCacheDir();
         if (cache == null) {
-            cache = getContext().getCacheDir();
+            cache = context.getCacheDir();
         }
         return cache.getAbsolutePath();
     }
@@ -343,7 +404,6 @@ public class ImagePickerHelper {
                     // functionality that depends on this permission.
                     // TODO show error
                 }
-                return;
             }
 
             // other 'case' lines to check for other
@@ -368,17 +428,24 @@ public class ImagePickerHelper {
             final String docId = DocumentsContract.getDocumentId(uri);
             final String[] split = docId.split(":");
             final String type = split[0];
-            if ("image".equals(type)) {
-                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            if (isDownloadsDocument(uri)) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
                 column = MediaStore.Images.Media.DATA;
-            } else if ("video".equals(type)) {
-                contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                column = MediaStore.Video.Media.DATA;
+            } else if (isMediaDocument(uri)) {
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                    column = MediaStore.Images.Media.DATA;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                    column = MediaStore.Video.Media.DATA;
+                }
+                selection = MediaStore.Images.Media._ID + "=?";
+                selectionArgs = new String[]{
+                        split[1]
+                };
             }
-            selection = MediaStore.Images.Media._ID + "=?";
-            selectionArgs = new String[]{
-                    split[1]
-            };
 
         } else {
             column = MediaStore.Images.Media.DATA;
@@ -401,7 +468,7 @@ public class ImagePickerHelper {
         return null;
     }
 
-    private void saveImage(String filePath, Bitmap bitmap) {
+    private static void saveImage(String filePath, Bitmap bitmap) {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(filePath);
@@ -416,6 +483,22 @@ public class ImagePickerHelper {
             } catch (Exception e1) {
             }
         }
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
     public static Bitmap decodeSampledBitmap(Context context, Uri photoUri, int reqWidth, int reqHeight) {
@@ -462,10 +545,10 @@ public class ImagePickerHelper {
     public static Bitmap scaleDown(Bitmap realImage, float maxImageSize,
                                    boolean filter) {
         float ratio = Math.min(
-                (float) maxImageSize / realImage.getWidth(),
-                (float) maxImageSize / realImage.getHeight());
-        int width = Math.round((float) ratio * realImage.getWidth());
-        int height = Math.round((float) ratio * realImage.getHeight());
+                maxImageSize / realImage.getWidth(),
+                maxImageSize / realImage.getHeight());
+        int width = Math.round(ratio * realImage.getWidth());
+        int height = Math.round(ratio * realImage.getHeight());
 
         Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
                 height, filter);

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View
+        style="@style/horizontal_divider"
+        android:layout_marginLeft="@dimen/default_padding" />
+
+    <LinearLayout
+        android:id="@+id/v_manual_setup"
+        style="@style/ItemSetting">
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/ItemSettingText"
+            android:text="@string/setting_manual_set_up" />
+
+        <ImageView style="@style/ItemSettingIconRight" />
+    </LinearLayout>
+
+</LinearLayout>

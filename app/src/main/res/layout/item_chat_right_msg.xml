@@ -1,72 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/ItemChat"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/message_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RadioButton
-            android:id="@+id/item_chat_select"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@null" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/item_chat_info"
-                style="@style/AppTextAppearance.VerySmall.Grey"
+            <RadioButton
+                android:id="@+id/item_chat_select"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                tools:text="7:30 PM" />
+                android:layout_gravity="bottom"
+                android:background="@null" />
 
             <LinearLayout
-                android:id="@+id/item_chat_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/background_chat_right"
-                android:gravity="right"
-                android:orientation="vertical"
-                android:paddingBottom="5dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="5dp">
-
-                <com.vanniktech.emoji.EmojiTextView
-                    android:id="@+id/item_chat_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:maxWidth="240dp"
-                    android:padding="2dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textColor="@color/white"
-                    android:textIsSelectable="false"
-                    android:textSize="@dimen/text_size_large"
-                    tools:text="a" />
-
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/item_chat_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                style="@style/AppTextAppearance.VerySmall.Grey"
-                tools:text="Delivered" />
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/item_chat_message"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/background_chat_right"
+                    android:gravity="right"
+                    android:orientation="vertical"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="5dp">
+
+                    <com.vanniktech.emoji.EmojiTextView
+                        android:id="@+id/item_chat_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="240dp"
+                        android:padding="2dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textColor="@color/white"
+                        android:textIsSelectable="false"
+                        android:textSize="@dimen/text_size_large"
+                        tools:text="a" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/revealable_view"
+            style="@style/AppTextAppearance.VerySmall.Grey"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:gravity="end"
+            android:paddingEnd="10dp"
+            android:translationX="80dp" />
+    </RelativeLayout>
 
-    </LinearLayout>
-
-</LinearLayout>
+    <TextView
+        android:id="@+id/item_chat_status"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/message_container"
+        android:gravity="right"
+        tools:text="Delivered" />
+</RelativeLayout>

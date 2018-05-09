@@ -1,0 +1,196 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#58595B"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/top_bar_width">
+
+        <ImageView
+            android:id="@+id/mapping_back"
+            style="@style/BackButton" />
+
+        <TextView
+            style="@style/TextTitle"
+            android:text="TRANSPHABET"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/mapping_reset"
+            style="@style/ActionButton.TopMenu"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="RESET" />
+
+    </RelativeLayout>
+
+    <View
+        style="@style/ViewSeparate"
+        android:background="#929292" />
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_a"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_b"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_c"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_d"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_e"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_f"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_g"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_h"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_i"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_j"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_k"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_l"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_m"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_n"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_o"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_p"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_q"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_r"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_s"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_t"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <include
+            android:id="@+id/mapping_u"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_v"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_w"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_x"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/MappingLine">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1" />
+
+        <include
+            android:id="@+id/mapping_y"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <include
+            android:id="@+id/mapping_z"
+            style="@style/MappingItem"
+            layout="@layout/item_mapping" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -17,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -30,13 +29,14 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
-import com.ping.android.activity.R;
+import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.ultility.Callback;
 
 import org.jivesoftware.smack.util.StringUtils;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.Random;
 
 public class UiUtils {
@@ -87,7 +87,7 @@ public class UiUtils {
 
     public static int getCircleColor(@IntRange(from = RANDOM_COLOR_START_RANGE, to = RANDOM_COLOR_END_RANGE)
                                              int colorPosition) {
-        String colorIdName = String.format("random_color_%d", colorPosition + 1);
+        String colorIdName = String.format(Locale.getDefault(), "random_color_%d", colorPosition + 1);
         int colorId = CoreApp.getInstance().getResources()
                 .getIdentifier(colorIdName, "color", CoreApp.getInstance().getPackageName());
 
@@ -115,6 +115,7 @@ public class UiUtils {
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
                     .error(R.drawable.ic_avatar_gray)
+                    .override(200, 200)
                     .apply(RequestOptions.circleCropTransform())
                     .into(imageView);
         } else {
@@ -135,6 +136,7 @@ public class UiUtils {
                     .load(gsReference)
                     .error(R.drawable.ic_avatar_gray)
                     .apply(RequestOptions.circleCropTransform())
+                    .override(200, 200)
                     .dontAnimate()
                     .listener(new RequestListener<Drawable>() {
                         @Override
@@ -166,19 +168,23 @@ public class UiUtils {
         }
         GlideApp.with(imageView.getContext())
                 .load(filePath)
+                .override(200, 200)
                 .apply(RequestOptions.circleCropTransform())
                 .into(imageView);
     }
 
     public static void displayProfileAvatar(ImageView imageView, String firebaseUrl) {
-        if (TextUtils.isEmpty(firebaseUrl)) {
+        if (TextUtils.isEmpty(firebaseUrl) || !firebaseUrl.startsWith("gs://")) {
             imageView.setImageResource(IMG_DEFAULT);
             return;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
+                .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(imageView);
     }
 
@@ -194,6 +200,9 @@ public class UiUtils {
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
+                .override(100, 100)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {
                     @Override
@@ -213,9 +222,11 @@ public class UiUtils {
 
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
         ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         GlideApp.with(imageView.getContext())
                 .load(filePath)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
                 .signature(key)
@@ -253,7 +264,7 @@ public class UiUtils {
             return;
         }
         if (placeholder == null) {
-            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_bottom);
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         }
 
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
@@ -309,6 +320,7 @@ public class UiUtils {
     }
 
     public static void setUpHideSoftKeyboard(final Activity activity, final View view) {
+        if (view == null) return;
         //Set up touch listener for non-text box views to hide keyboard.
         if (!(view instanceof EditText)) {
             view.setOnTouchListener(new View.OnTouchListener() {

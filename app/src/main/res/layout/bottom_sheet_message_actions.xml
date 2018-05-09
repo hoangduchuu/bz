@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@color/main_background_gray"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="@string/bottom_sheet_behavior">
+
+    <LinearLayout
+        android:id="@+id/btn_copy"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/img_copy"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_content_copy" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btn_delete"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/img_delete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_delete" />
+    </LinearLayout>
+</LinearLayout>

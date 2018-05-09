@@ -1,12 +1,9 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ChatActivity">
-
-    <include layout="@layout/notify_network_other" />
+    tools:context="com.ping.android.presentation.view.activity.ChatActivity">
 
     <LinearLayout
         android:id="@+id/contentRoot"
@@ -16,7 +13,11 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            style="@style/TopMenu">
+            style="?attr/backgroundTheme"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#F1F2F2"
+            android:gravity="center_vertical">
 
             <Button
                 android:id="@+id/chat_cancel_edit"
@@ -107,27 +108,31 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/chat_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:animateLayoutChanges="true">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/chat_list_view"
+            <ImageView
+                android:id="@+id/backgroundImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="none" />
+                android:scaleType="centerCrop"
+                tools:background="@drawable/background1" />
 
-            <LinearLayout
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swiperefresh"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:background="@android:color/transparent">
+                android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/load_more"
-                    style="@style/LoadMoreButton"
-                    android:visibility="gone" />
-            </LinearLayout>
+                <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
+                    android:id="@+id/chat_list_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none" />
+
+            </android.support.v4.widget.SwipeRefreshLayout>
         </RelativeLayout>
 
         <LinearLayout
@@ -144,16 +149,19 @@
                 android:background="#fff"
                 android:orientation="horizontal">
 
-                <CheckBox
+                <android.support.v7.widget.AppCompatCheckBox
                     android:id="@+id/chat_tgl_outcoming"
                     style="@style/ActionButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:button="@null"
+                    android:layout_marginStart="10dp"
+                    android:button="@drawable/toggle_mask_msg"
                     android:checked="false"
-                    android:drawableStart="@drawable/toggle_mask_msg"
-                    android:padding="10dp"/>
+                    android:gravity="center"
+                    android:minWidth="0dp"
+                    android:padding="6dp"
+                    android:text="" />
 
                 <com.vanniktech.emoji.EmojiEditText
                     android:id="@+id/chat_message_tv"
@@ -162,12 +170,12 @@
                     android:layout_gravity="center"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="New Message"
+                    android:hint="@string/hint_bzzz"
                     android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
-                    android:scrollHorizontally="false"
                     android:maxLines="5"
+                    android:scrollHorizontally="false"
                     android:textSize="@dimen/text_size_medium"
-                    tools:text=""/>
+                    tools:text="" />
 
                 <Button
                     android:id="@+id/chat_send_message_btn"
@@ -183,46 +191,149 @@
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp">
 
                 <ImageButton
                     android:id="@+id/chat_text_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_text_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_emoji_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_emoji_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_camera_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_camera_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_image_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_picture_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_game_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_game_selector" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_voice_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_voice_selector" />
+
+                <View
+                    android:id="@+id/spacing_voice"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_voice_call_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_call_selector" />
+
+                <View
+                    android:id="@+id/spacing_audio"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/chat_video_call_btn"
-                    style="@style/ChatTypeIcon"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_ripple"
+                    android:minHeight="36dp"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:scaleType="center"
                     android:src="@drawable/chat_video_selector" />
 
             </LinearLayout>
@@ -241,11 +352,10 @@
                     android:background="@android:color/white"
                     android:padding="2dp">
 
-                    <com.ping.android.view.RecorderVisualizerView
+                    <com.ping.android.presentation.view.custom.RecorderVisualizerView
                         android:id="@+id/visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_centerHorizontal="true"
                         android:background="@android:color/background_light" />
                 </FrameLayout>
 
@@ -301,43 +411,5 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:orientation="horizontal"
-        android:background="@color/main_background_gray"
-        android:gravity="center"
-        app:behavior_peekHeight="0dp"
-        app:layout_behavior="@string/bottom_sheet_behavior">
-
-        <LinearLayout
-            android:id="@+id/btn_copy"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <com.mikepenz.iconics.view.IconicsImageView
-                android:id="@+id/img_copy"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:iiv_icon="cmd_content_copy" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/btn_delete"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <com.mikepenz.iconics.view.IconicsImageView
-                android:id="@+id/img_delete"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:iiv_icon="cmd_content_copy"
-                app:iiv_size="24dp"/>
-        </LinearLayout>
-    </LinearLayout>
+    <include layout="@layout/notify_network_main" />
 </android.support.design.widget.CoordinatorLayout>

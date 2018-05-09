@@ -12,8 +12,14 @@
         <attr name="stepSize" format="integer" />
     </declare-styleable>
 
-    <declare-styleable name="Switch">
+    <declare-styleable name="CustomSwitch">
         <attr name="leftSwitch" format="string" />
         <attr name="rightSwitch" format="string" />
+    </declare-styleable>
+
+    <attr name="backgroundTheme" format="reference" />
+
+    <declare-styleable name="MaxHeightRecyclerView">
+        <attr name="maxHeight" format="integer" />
     </declare-styleable>
 </resources>

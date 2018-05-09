@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.ping.android.activity">
+    package="com.ping.android">
+
+    <!--<permission-->
+        <!--android:name="com.ping.android.debug.permission.C2D_MESSAGE"-->
+        <!--android:protectionLevel="signature" />-->
 
     <application
         android:name="com.ping.android.App"
@@ -11,9 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <meta-data android:name="com.quickblox.messages.TYPE" android:value="FCM" />
+        <meta-data android:name="com.quickblox.messages.TYPE" android:value="FCM" tools:replace="android:value"/>
         <meta-data android:name="com.quickblox.messages.SENDER_ID" android:value="@string/sender_id_debug" tools:replace="android:value"/>
-        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="DEVELOPMENT" />
+        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="DEVELOPMENT" tools:replace="android:value"/>
 
 
     </application>
