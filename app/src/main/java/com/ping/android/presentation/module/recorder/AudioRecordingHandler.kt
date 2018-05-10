@@ -1,6 +1,7 @@
 package com.ping.android.presentation.module.recorder
 
 import com.cleveroad.audiovisualization.DbmHandler
+import com.ping.android.utils.Log
 
 class AudioRecordingHandler: DbmHandler<Float>(), AudioRecorder.RecordingCallback {
     override fun onDataReady(data: Float) {
@@ -10,6 +11,7 @@ class AudioRecordingHandler: DbmHandler<Float>(), AudioRecorder.RecordingCallbac
     override fun onDataReceivedImpl(data: Float?, layersCount: Int, dBmArray: FloatArray?, ampsArray: FloatArray?) {
         var amplitude = data!!
         amplitude /= 100
+        Log.e("Amplitude $amplitude")
         if (amplitude <= 0.5) {
             amplitude = 0.0f
         } else if (amplitude > 0.5 && amplitude <= 0.6) {

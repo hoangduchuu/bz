@@ -350,6 +350,7 @@
                     android:background="@color/white"
                     android:gravity="center"
                     android:visibility="gone"
+                    android:clickable="true"
                     tools:visibility="visible"
                     tools:text="Slide up to cancel, down to mask" />
             </FrameLayout>

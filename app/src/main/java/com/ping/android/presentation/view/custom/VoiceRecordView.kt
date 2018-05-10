@@ -1,6 +1,10 @@
 package com.ping.android.presentation.view.custom
 
 import android.content.Context
+import android.media.MediaPlayer
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -9,7 +13,10 @@ import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.AudioVisualization
+import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler
 import com.ping.android.R
+import com.ping.android.managers.FFmpegManager
+import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingHandler
 import com.ping.android.utils.Log
@@ -33,6 +40,10 @@ class VoiceRecordView : LinearLayout {
     private lateinit var audioRecorder: AudioRecorder
     private lateinit var handler: AudioRecordingHandler
     private lateinit var timer: Timer
+    private lateinit var vibrator: Vibrator
+
+    private var mediaPlayer: MediaPlayer? = null
+
     private var lengthInMillis: Long = 0
     private var state: RecordViewState = RecordViewState.DEFAULT
     private var outputFile: String = ""
@@ -60,7 +71,7 @@ class VoiceRecordView : LinearLayout {
 
     private fun initView() {
         inflate(R.layout.view_voice_record, true)
-        //CommonMethod.createFolder(outputFile)
+        vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         handler = AudioRecordingHandler()
         audioRecorder = AudioRecorder()
                 .recordingCallback(handler)
@@ -69,6 +80,57 @@ class VoiceRecordView : LinearLayout {
 
         recordView.addView(View(context))
         btnRecord.setOnTouchListener(TouchListener())
+
+        maskChipMunk.setOnClickListener { this.handleMaskSelected(VoiceType.CHIPMUNK) }
+        maskGirl.setOnClickListener { this.handleMaskSelected(VoiceType.GIRL) }
+    }
+
+    private fun handleMaskSelected(voiceType: VoiceType) {
+        val input = File(outputFile)
+        val output = File("${input.parent}/${voiceType}_${input.name}")
+//        if (output.exists()) {
+//            playAudio(output.absolutePath)
+//        } else {
+            val command = "-i ${input.absolutePath} -af atempo=${voiceType.atempo},asetrate=${voiceType.asetrate} -acodec aac ${output.absolutePath} -strict -2"
+            val handler = object : FFmpegExecuteResponseHandler {
+                override fun onFinish() {
+                    // TODO hide loading
+                    // Start playing output file
+                    playAudio(output.absolutePath)
+                }
+
+                override fun onSuccess(message: String?) {
+                    Log.d(message)
+                }
+
+                override fun onFailure(message: String?) {
+                    Log.d(message)
+                }
+
+                override fun onProgress(message: String?) {
+                    Log.d(message)
+                }
+
+                override fun onStart() {
+                    // TODO show loading
+                }
+
+            }
+            FFmpegManager.getInstance(context)
+                    .execute(command.split(" ").toTypedArray(), handler)
+//        }
+    }
+
+    private fun playAudio(filePath: String) {
+        mediaPlayer = MediaPlayer()
+        mediaPlayer!!.setDataSource(filePath)
+        mediaPlayer!!.prepare()
+        mediaPlayer!!.start()
+    }
+
+    private fun stopAudio() {
+        mediaPlayer?.stop()
+        mediaPlayer?.reset()
     }
 
     private fun updateTimer() {
@@ -97,7 +159,6 @@ class VoiceRecordView : LinearLayout {
         btnTransform.animate().alpha(if (diff > 50) 1.0f else 0.0f).setDuration(0).start()
         val distanceToCancel = btnCancel.y - (btnRecord.y - btnRecord.translationY)
         val distanceToMask = btnTransform.y - (btnRecord.y - btnRecord.translationY)
-        Log.d("slideRecordButton $diff, $distanceToMask, ${btnRecord.translationY}")
         when {
             diff < distanceToCancel -> {
                 diff = distanceToCancel
@@ -115,20 +176,31 @@ class VoiceRecordView : LinearLayout {
                 .start()
     }
 
-    private fun resetRecordTranslate() {
+    private fun resetRecordTranslate(delay: Long = 0) {
         btnRecord.animate()
                 .translationY(0.0f)
                 .setDuration(0)
+                .setStartDelay(delay)
                 .start()
     }
 
     private fun updateState(state: RecordViewState) {
-        this.state = state
         when (state) {
-            RecordViewState.CANCEL -> listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_cancel))
-            RecordViewState.MASK -> listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_mask))
+            RecordViewState.CANCEL -> {
+                if (this.state != RecordViewState.CANCEL) {
+                    startVibrate()
+                    listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_cancel))
+                }
+            }
+            RecordViewState.MASK -> {
+                if (this.state != RecordViewState.MASK) {
+                    startVibrate()
+                    listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_mask))
+                }
+            }
             else -> listener?.showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
         }
+        this.state = state
     }
 
     private fun startRecord() {
@@ -140,6 +212,8 @@ class VoiceRecordView : LinearLayout {
         audioRecorder.startRecord()
         listener?.showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
 
+        btnRecord.elevation = 10.0f
+        startVibrate()
         // Start timer
         lengthInMillis = 0
         updateTimer()
@@ -163,21 +237,26 @@ class VoiceRecordView : LinearLayout {
     }
 
     private fun onReleaseView() {
-        if (state == RecordViewState.CANCEL) {
-            // reset timer
-            tvTimer.visibility = View.GONE
-            listener?.hideInstruction()
-            val file = File(outputFile)
-            if (file.exists()) {
-                file.delete()
+        when (state) {
+            RecordViewState.CANCEL -> {
+                // reset timer
+                tvTimer.visibility = View.GONE
+                listener?.hideInstruction()
+                val file = File(outputFile)
+                if (file.exists()) {
+                    file.delete()
+                }
+                resetRecordTranslate()
             }
-        } else if (state == RecordViewState.MASK) {
-            listener?.showInstruction(context.getString(R.string.voice_record_instruction_mask_with))
-            showReviewVoice()
+            RecordViewState.MASK -> {
+                listener?.showInstruction(context.getString(R.string.voice_record_instruction_mask_with))
+                showReviewVoice()
+                resetRecordTranslate(500)
+            }
+            else -> resetRecordTranslate()
         }
         btnCancel.animate().alpha(0.0f).start()
         btnTransform.animate().alpha(0.0f).start()
-        resetRecordTranslate()
         // TODO stop & send record
         disableRecordMode()
         stopRecord()
@@ -190,6 +269,20 @@ class VoiceRecordView : LinearLayout {
         val animator = ViewAnimationUtils.createCircularReveal(reviewView, cx.toInt(), cy.toInt(), 0.0f, radius)
         reviewView.visibility = View.VISIBLE
         animator.start()
+    }
+
+    private fun startVibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vibrator.vibrate(100)
+        }
+    }
+
+    private fun stopVibrate() {
+        if (vibrator.hasVibrator()) {
+            vibrator.cancel()
+        }
     }
 
     inner class TouchListener : OnTouchListener {

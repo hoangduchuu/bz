@@ -2,8 +2,11 @@ package com.ping.android.presentation.module.recorder
 
 import android.media.AudioFormat
 import android.media.MediaRecorder
+import com.ping.android.utils.Log
 import java.io.FileNotFoundException
 import java.util.*
+import omrecorder.*
+import java.io.File
 
 
 internal interface IAudioRecorder {
@@ -61,7 +64,7 @@ internal class AudioRecorder : IAudioRecorder {
 
     private fun startRecordThread() {
         mediaRecorder = MediaRecorder()
-        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mediaRecorder?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB)
         mediaRecorder?.setOutputFile(outputFile)
@@ -75,7 +78,7 @@ internal class AudioRecorder : IAudioRecorder {
             val timerTask = object: TimerTask() {
                 override fun run() {
                     val amplitude: Int = mediaRecorder!!.maxAmplitude
-                    callback?.onDataReady(amplitude.toFloat())
+                    callback?.onDataReady(amplitude.toFloat() / 200)
                 }
             }
             timer?.scheduleAtFixedRate(timerTask, 0, 40)
