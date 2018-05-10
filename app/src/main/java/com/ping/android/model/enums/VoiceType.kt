@@ -1,22 +1,16 @@
 package com.ping.android.model.enums
 
 enum class VoiceType {
-    CHIPMUNK, GIRL, MALE;
+    DEFAULT, CHIPMUNK, FEMALE, MALE, ROBOT;
 
-    val atempo: Float
+    val filter: String
         get() {
             return when (this) {
-                CHIPMUNK -> 0.75f
-                GIRL -> 1.2f
-                MALE -> 1.5f
-            }
-        }
-    val asetrate: Long
-        get() {
-            return when (this) {
-                CHIPMUNK -> 20000
-                GIRL -> 15000
-                MALE -> 1000
+                ROBOT -> "atempo=1/2,asetrate=44100*4/3"
+                CHIPMUNK -> "asetrate=44100*3,atempo=1"
+                FEMALE -> "atempo=3/4,asetrate=44100*4/3"
+                MALE -> "asetrate=44100*3/4,atempo=4/3"
+                else -> ""
             }
         }
 }

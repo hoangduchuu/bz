@@ -1,26 +1,34 @@
 package com.ping.android.presentation.view.custom
 
+import android.animation.Animator
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewConfiguration
+import android.view.animation.Animation
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.AudioVisualization
-import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler
 import com.ping.android.R
 import com.ping.android.managers.FFmpegManager
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingHandler
+import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
+import com.ping.android.presentation.view.adapter.ViewType
+import com.ping.android.presentation.view.adapter.delegate.VoiceTypeDelegateAdapter
+import com.ping.android.presentation.view.adapter.delegate.VoiceTypeItem
 import com.ping.android.utils.Log
+import kotlinx.android.synthetic.main.item_chat_left_audio.view.*
 import kotlinx.android.synthetic.main.view_voice_record.view.*
+import nl.bravobit.ffmpeg.FFcommandExecuteResponseHandler
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,6 +55,12 @@ class VoiceRecordView : LinearLayout {
     private var lengthInMillis: Long = 0
     private var state: RecordViewState = RecordViewState.DEFAULT
     private var outputFile: String = ""
+    private var selectedVoice = VoiceType.DEFAULT
+    private var selectedVoicePath: String? = null
+    private var isTransforming = false
+
+    private lateinit var voiceTypeAdapter: FlexibleAdapterV2
+    private lateinit var voiceTypes: MutableList<VoiceTypeItem>
 
     constructor(context: Context) : super(context) {
         this.initView()
@@ -67,6 +81,7 @@ class VoiceRecordView : LinearLayout {
     fun release() {
         handler.release()
         audioVisualization.release()
+        stopAudio()
     }
 
     private fun initView() {
@@ -81,51 +96,98 @@ class VoiceRecordView : LinearLayout {
         recordView.addView(View(context))
         btnRecord.setOnTouchListener(TouchListener())
 
-        maskChipMunk.setOnClickListener { this.handleMaskSelected(VoiceType.CHIPMUNK) }
-        maskGirl.setOnClickListener { this.handleMaskSelected(VoiceType.GIRL) }
+        btnSend.setOnClickListener { sendVoice() }
+        btnCancelTransform.setOnClickListener {
+            listener?.hideInstruction()
+            hideReviewVoice()
+        }
+        initVoiceTypeView()
+    }
+
+    private fun initVoiceTypeView() {
+        voiceTypeAdapter = FlexibleAdapterV2()
+        voiceTypeAdapter.registerItemType(1, VoiceTypeDelegateAdapter({
+            voiceTypes.map { item ->
+                item.isSelected = it.voiceType == item.voiceType
+            }
+            voiceTypeAdapter.updateItems(voiceTypes)
+            handleMaskSelected(it.voiceType)
+        }))
+        voiceTypes = ArrayList()
+        voiceTypes.add(VoiceTypeItem(VoiceType.DEFAULT, true))
+        voiceTypes.add(VoiceTypeItem(VoiceType.CHIPMUNK, false))
+        voiceTypes.add(VoiceTypeItem(VoiceType.ROBOT, false))
+        voiceTypes.add(VoiceTypeItem(VoiceType.MALE, false))
+        voiceTypes.add(VoiceTypeItem(VoiceType.FEMALE, false))
+        voiceTypeAdapter.addItems(voiceTypes)
+        listVoiceType.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        listVoiceType.adapter = voiceTypeAdapter
+    }
+
+    private fun sendVoice() {
+
     }
 
     private fun handleMaskSelected(voiceType: VoiceType) {
-        val input = File(outputFile)
-        val output = File("${input.parent}/${voiceType}_${input.name}")
-//        if (output.exists()) {
-//            playAudio(output.absolutePath)
-//        } else {
-            val command = "-i ${input.absolutePath} -af atempo=${voiceType.atempo},asetrate=${voiceType.asetrate} -acodec aac ${output.absolutePath} -strict -2"
-            val handler = object : FFmpegExecuteResponseHandler {
-                override fun onFinish() {
-                    // TODO hide loading
-                    // Start playing output file
-                    playAudio(output.absolutePath)
-                }
+        selectedVoice = voiceType
+        if (voiceType == VoiceType.DEFAULT) {
+            playAudio(outputFile)
+        } else {
+            val input = File(outputFile)
+            val output = File("${input.parent}/${voiceType}_${input.name}")
+            if (output.exists()) {
+                loadingTransformation.visibility = View.GONE
+                playAudio(output.absolutePath)
+                //output.delete()
+            } else {
+                //val filter = sample.text
+                //val command = "-i ${input.absolutePath} -af $filter -acodec aac ${output.absolutePath} -strict -2"
+                val command = "-i ${input.absolutePath} -af ${voiceType.filter} -acodec aac ${output.absolutePath} -strict -2"
+                val handler = object : FFcommandExecuteResponseHandler {
+                    override fun onFinish() {
+                        isTransforming = false
+                        loadingTransformation.visibility = View.GONE
+                        // Start playing output file
+                        playAudio(output.absolutePath)
+                    }
 
-                override fun onSuccess(message: String?) {
-                    Log.d(message)
-                }
+                    override fun onSuccess(message: String?) {
+                        Log.d(message)
+                    }
 
-                override fun onFailure(message: String?) {
-                    Log.d(message)
-                }
+                    override fun onFailure(message: String?) {
+                        loadingTransformation.visibility = View.GONE
+                    }
 
-                override fun onProgress(message: String?) {
-                    Log.d(message)
-                }
+                    override fun onProgress(message: String?) {
+                        Log.d(message)
+                    }
 
-                override fun onStart() {
-                    // TODO show loading
-                }
+                    override fun onStart() {
+                        isTransforming = true
+                        loadingTransformation.visibility = View.VISIBLE
+                    }
 
+                }
+                FFmpegManager.getInstance(context)
+                        .execute(command.split(" ").toTypedArray(), handler)
             }
-            FFmpegManager.getInstance(context)
-                    .execute(command.split(" ").toTypedArray(), handler)
-//        }
+        }
     }
 
     private fun playAudio(filePath: String) {
-        mediaPlayer = MediaPlayer()
-        mediaPlayer!!.setDataSource(filePath)
-        mediaPlayer!!.prepare()
-        mediaPlayer!!.start()
+        if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+            stopAudio()
+        }
+        try {
+            selectedVoicePath = filePath
+            mediaPlayer = MediaPlayer()
+            mediaPlayer!!.setDataSource(filePath)
+            mediaPlayer!!.prepare()
+            mediaPlayer!!.start()
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+        }
     }
 
     private fun stopAudio() {
@@ -150,6 +212,7 @@ class VoiceRecordView : LinearLayout {
     }
 
     private fun disableRecordMode() {
+        tvTimer.visibility = View.GONE
         btnRecord.setBackgroundResource(R.drawable.background_circle_gray)
     }
 
@@ -237,11 +300,9 @@ class VoiceRecordView : LinearLayout {
     }
 
     private fun onReleaseView() {
+        listener?.hideInstruction()
         when (state) {
             RecordViewState.CANCEL -> {
-                // reset timer
-                tvTimer.visibility = View.GONE
-                listener?.hideInstruction()
                 val file = File(outputFile)
                 if (file.exists()) {
                     file.delete()
@@ -251,7 +312,7 @@ class VoiceRecordView : LinearLayout {
             RecordViewState.MASK -> {
                 listener?.showInstruction(context.getString(R.string.voice_record_instruction_mask_with))
                 showReviewVoice()
-                resetRecordTranslate(500)
+                resetRecordTranslate(0)
             }
             else -> resetRecordTranslate()
         }
@@ -271,17 +332,38 @@ class VoiceRecordView : LinearLayout {
         animator.start()
     }
 
+    private fun hideReviewVoice() {
+        val cx = btnTransform.x + btnTransform.width / 2
+        val cy = btnTransform.y + btnTransform.height / 2
+        val radius = Math.hypot(cx.toDouble(), cy.toDouble()).toFloat()
+        val animator = ViewAnimationUtils.createCircularReveal(reviewView, cx.toInt(), cy.toInt(), radius, 0.0f)
+        reviewView.visibility = View.VISIBLE
+        animator.start()
+        animator.addListener(object: Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                reviewView.visibility = View.GONE
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+
+            }
+
+        })
+    }
+
     private fun startVibrate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             vibrator.vibrate(100)
-        }
-    }
-
-    private fun stopVibrate() {
-        if (vibrator.hasVibrator()) {
-            vibrator.cancel()
         }
     }
 

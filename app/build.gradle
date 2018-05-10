@@ -164,10 +164,8 @@ dependencies {
 
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 
-    implementation 'com.writingminds:FFmpegAndroid:0.3.2'
-
     implementation 'com.cleveroad:audiovisualization:1.0.0'
-    implementation 'com.kailashdabhi:om-recorder:1.1.5'
+    implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

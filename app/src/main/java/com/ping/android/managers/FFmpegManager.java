@@ -2,11 +2,8 @@ package com.ping.android.managers;
 
 import android.content.Context;
 
-import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
-import com.github.hiteshsondhi88.libffmpeg.FFmpegExecuteResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.LoadBinaryResponseHandler;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
-import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegNotSupportedException;
+import nl.bravobit.ffmpeg.FFcommandExecuteResponseHandler;
+import nl.bravobit.ffmpeg.FFmpeg;
 
 public class FFmpegManager {
     private static FFmpegManager instance;
@@ -14,7 +11,6 @@ public class FFmpegManager {
 
     public FFmpegManager(Context context) {
         this.context = context.getApplicationContext();
-        loadBinary();
     }
 
     public static FFmpegManager getInstance(Context context) {
@@ -24,24 +20,7 @@ public class FFmpegManager {
         return instance;
     }
 
-    private void loadBinary() {
-        FFmpeg fFmpeg = FFmpeg.getInstance(context);
-        try {
-            fFmpeg.loadBinary(new LoadBinaryResponseHandler() {});
-        } catch (FFmpegNotSupportedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void execute(String[] cmd, FFmpegExecuteResponseHandler handler) {
-        FFmpeg fFmpeg = FFmpeg.getInstance(context);
-        try {
-            if (fFmpeg.isFFmpegCommandRunning()) {
-                fFmpeg.killRunningProcesses();
-            }
-            fFmpeg.execute(cmd, handler);
-        } catch (FFmpegCommandAlreadyRunningException e) {
-            e.printStackTrace();
-        }
+    public void execute(String[] cmd, FFcommandExecuteResponseHandler handler) {
+        FFmpeg.getInstance(context).execute(cmd, handler);
     }
 }

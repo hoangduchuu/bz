@@ -1,12 +1,8 @@
 package com.ping.android.presentation.module.recorder
 
-import android.media.AudioFormat
 import android.media.MediaRecorder
-import com.ping.android.utils.Log
 import java.io.FileNotFoundException
 import java.util.*
-import omrecorder.*
-import java.io.File
 
 
 internal interface IAudioRecorder {
@@ -51,14 +47,9 @@ internal class AudioRecorder : IAudioRecorder {
             return
         }
 
-        try {
-            recorderState = RECORDER_STATE_STARTING
+        recorderState = RECORDER_STATE_STARTING
 
-            startRecordThread()
-        } catch (e: FileNotFoundException) {
-            onRecordFailure()
-            e.printStackTrace()
-        }
+        startRecordThread()
 
     }
 
@@ -66,7 +57,9 @@ internal class AudioRecorder : IAudioRecorder {
         mediaRecorder = MediaRecorder()
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-        mediaRecorder?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB)
+        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+        mediaRecorder?.setAudioSamplingRate(44100)
+        mediaRecorder?.setAudioEncodingBitRate(96000)
         mediaRecorder?.setOutputFile(outputFile)
         try {
             mediaRecorder?.prepare()

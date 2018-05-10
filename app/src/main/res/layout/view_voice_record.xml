@@ -49,25 +49,25 @@
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
+                android:alpha="0"
                 android:background="@drawable/background_circle_border"
                 android:padding="10dp"
-                android:alpha="0"
-                android:tint="@color/main_background_gray"
                 android:src="@drawable/ic_clear"
+                android:tint="@color/main_background_gray"
                 tools:alpha="0.8" />
 
             <ImageView
                 android:id="@+id/btnTransform"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="10dp"
-                android:layout_alignParentBottom="true"
+                android:alpha="0"
                 android:background="@drawable/background_circle_border"
                 android:padding="10dp"
-                android:alpha="0"
-                android:tint="@color/main_background_gray"
                 android:src="@drawable/ic_transform"
+                android:tint="@color/main_background_gray"
                 tools:alpha="0.8" />
 
             <ImageButton
@@ -116,49 +116,56 @@
             android:id="@+id/reviewView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/main_background_gray"
+            android:background="@color/av_color_bg"
             android:visibility="gone"
             tools:visibility="visible">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/listVoiceType"
                 android:layout_marginTop="20dp"
-                android:gravity="center_horizontal">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-                <ImageView
-                    android:id="@+id/maskChipMunk"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:padding="10dp"
-                    android:background="@drawable/background_circle_gray_dark"
-                    android:elevation="5dp"
-                    android:src="@drawable/ic_chipmunk"/>
+            <EditText
+                android:id="@+id/sample"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/maskGirl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
-                    android:padding="10dp"
-                    android:background="@drawable/background_circle_gray_dark"
-                    android:elevation="5dp"
-                    android:src="@drawable/ic_female" />
+            <ProgressBar
+                android:id="@+id/loadingTransformation"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
 
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/btnPlay"
-                android:layout_width="50dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="10dp"
                 android:layout_alignParentBottom="true"
-                android:background="@drawable/background_circle_gray_dark"
-                android:padding="10dp"
-                android:tint="@color/orange"
-                android:src="@drawable/ic_play_arrow" />
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/btnCancelTransform"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/background_circle_gray"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_clear"
+                    android:tint="@color/orange" />
+
+                <ImageView
+                    android:id="@+id/btnSend"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="50dp"
+                    android:background="@drawable/background_circle_gray"
+                    android:padding="11dp"
+                    android:src="@drawable/ic_send"
+                    android:tint="@color/orange" />
+            </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
 </FrameLayout>
