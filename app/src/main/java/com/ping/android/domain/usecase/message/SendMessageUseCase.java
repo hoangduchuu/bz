@@ -272,15 +272,19 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 ret.put(currentUser.key, true);
                 if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                     // Check whether sender is in block list of receiver
-                    if (!currentUser.blockBys.containsKey(conversation.opponentUser.key)) {
-                        ret.put(conversation.opponentUser.key, true);
-                    }
+                    boolean isBlocked = currentUser.blockBys.containsKey(conversation.opponentUser.key);
+                    ret.put(conversation.opponentUser.key, !isBlocked);
                 } else {
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (toUser.equals(currentUser.key)
-                                || currentUser.blocks.containsKey(toUser)
-                                || currentUser.blockBys.containsKey(toUser)) continue;
-                        ret.put(toUser, true);
+                        if (toUser.equals(currentUser.key)) {
+                            continue;
+                        }
+                        if (currentUser.blocks.containsKey(toUser)
+                                || currentUser.blockBys.containsKey(toUser)) {
+                            ret.put(toUser, false);
+                        } else {
+                            ret.put(toUser, true);
+                        }
                     }
                 }
                 return ret;
