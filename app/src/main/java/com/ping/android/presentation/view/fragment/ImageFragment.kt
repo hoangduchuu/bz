@@ -44,6 +44,11 @@ class ImageFragment : Fragment() {
         bindData()
     }
 
+    fun updateData(message: Message) {
+        this.message = message
+        bindData()
+    }
+
     fun bindData() {
         val url: String = when (message.messageType) {
             Constant.MSG_TYPE_IMAGE -> message.photoUrl
@@ -68,7 +73,7 @@ class ImageFragment : Fragment() {
                 .load(gsReference)
                 .override(512)
                 .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .transform(BitmapEncode(message.isMask))
                 .signature(ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded")))
                 .listener(listener)

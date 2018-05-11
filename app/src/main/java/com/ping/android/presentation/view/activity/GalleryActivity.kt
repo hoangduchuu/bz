@@ -19,9 +19,9 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
 
     @Inject
     lateinit var navigator: Navigator
+
     @Inject
     lateinit var presenter: GalleryPresenter
-
     private lateinit var conversation: Conversation
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,4 +50,5 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
     override fun hideLoading() {
         super<CoreActivity>.hideLoading()
     }
+
 }

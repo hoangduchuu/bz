@@ -87,4 +87,11 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .map(reference1 -> true)
                 .toObservable();
     }
+
+    @Override
+    public Observable<ChildEvent> observeMediaUpdate(String conversationId) {
+        DatabaseReference reference = database.getReference("media").child(conversationId);
+        return RxFirebaseDatabase.getInstance(reference)
+                .onChildEvent();
+    }
 }

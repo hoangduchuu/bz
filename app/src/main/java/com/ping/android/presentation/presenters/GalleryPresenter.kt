@@ -4,9 +4,12 @@ import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase
+import com.ping.android.domain.usecase.conversation.ObserveMediaChangeUseCase
+import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase
 import com.ping.android.model.Conversation
 import com.ping.android.model.Message
 import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.MessageUpdateEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -16,6 +19,8 @@ interface GalleryPresenter : BasePresenter {
     fun loadMedia(isLoadMore: Boolean = false)
 
     fun getMessageList(): List<Message>
+
+    fun updateMask(messageId: String, isMask: Boolean)
 
     var currentPosition: Int
 
@@ -32,6 +37,10 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
     @Inject
     lateinit var loadConversationMediaUseCase: LoadConversationMediaUseCase
     @Inject
+    lateinit var updateMaskMessagesUseCase: UpdateMaskMessagesUseCase
+    @Inject
+    lateinit var observeMediaChangeUseCase: ObserveMediaChangeUseCase
+    @Inject
     lateinit var busProvider: BusProvider
 
     lateinit var conversation: Conversation
@@ -43,6 +52,16 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
 
     override fun initConversation(conversation: Conversation) {
         this.conversation = conversation
+        val observer = object : DefaultObserver<Message>() {
+            override fun onNext(t: Message) {
+                val index = messages.indexOf(t)
+                if (index >= 0) {
+                    messages[index] = t
+                    busProvider.post(MessageUpdateEvent(t, index))
+                }
+            }
+        }
+        observeMediaChangeUseCase.execute(observer, conversation)
     }
 
     override fun loadMedia(isLoadMore: Boolean) {
@@ -79,5 +98,18 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
 
     override fun getMessageList(): List<Message> {
         return messages
+    }
+
+    override fun updateMask(messageId: String, isMask: Boolean) {
+        val params = UpdateMaskMessagesUseCase.Params()
+        params.conversationId = conversation.key
+        params.isLastMessage = false
+        params.isMask = isMask
+        params.setMessageId(messageId)
+        updateMaskMessagesUseCase.execute(DefaultObserver<Boolean>(), params)
+    }
+
+    override fun destroy() {
+        observeMediaChangeUseCase.dispose()
     }
 }

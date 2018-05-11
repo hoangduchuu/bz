@@ -2,6 +2,7 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.model.Message;
 
 import io.reactivex.Observable;
 
@@ -21,4 +22,6 @@ public interface MessageRepository {
     Observable<ChildEvent> observeLastMessage(String conversationId);
 
     Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
+
+    Observable<ChildEvent> observeMediaUpdate(String conversationId);
 }

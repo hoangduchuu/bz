@@ -13,8 +13,11 @@ import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryModule
+import com.ping.android.model.Message
 import com.ping.android.presentation.presenters.GalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
+import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.MessageUpdateEvent
 import kotlinx.android.synthetic.main.fragment_view_pager_gallery.*
 import javax.inject.Inject
 
@@ -25,6 +28,11 @@ import javax.inject.Inject
 class ViewPagerGalleryFragment : BaseFragment() {
     @Inject
     lateinit var presenter: GalleryPresenter
+    @Inject
+    lateinit var busProvider: BusProvider
+    lateinit var messages: MutableList<Message>
+
+    lateinit var adapter: ImagePagerAdapter
 
     val component: GridGalleryComponent by lazy {
         getComponent(GalleryComponent::class.java).provideGridGalleryComponent(GridGalleryModule())
@@ -43,23 +51,36 @@ class ViewPagerGalleryFragment : BaseFragment() {
         postponeEnterTransition()
         //}
         prepareSharedElementTransition()
+        registerEvent(busProvider.events.subscribe({
+            if (it is MessageUpdateEvent) {
+                if (viewpager.currentItem == it.index) {
+                    adapter.updateMessage(it.message, it.index)
+                }
+            }
+        }))
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         btn_back.setOnClickListener { activity?.onBackPressed() }
+        togglePuzzle.setOnClickListener {
+            val message = messages[presenter.currentPosition]
+            presenter.updateMask(message.key, !message.isMask) }
         bindData()
     }
 
     private fun bindData() {
-        val messages = presenter.getMessageList()
-        val adapter = ImagePagerAdapter(childFragmentManager, messages)
+        messages = ArrayList(presenter.getMessageList())
+        adapter = ImagePagerAdapter(childFragmentManager, messages)
         viewpager.adapter = adapter
         viewpager.currentItem = presenter.currentPosition
+        onMessageSelected(messages[presenter.currentPosition])
         val listener = object : ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
                 presenter.currentPosition = position
+                val message = messages[position]
+                onMessageSelected(message)
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -71,6 +92,10 @@ class ViewPagerGalleryFragment : BaseFragment() {
             }
         }
         viewpager.addOnPageChangeListener(listener)
+    }
+
+    private fun onMessageSelected(message: Message) {
+        togglePuzzle.isChecked = message.isMask
     }
 
     private fun prepareSharedElementTransition() {
