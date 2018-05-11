@@ -41,6 +41,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            ndk {
+                abiFilters "arm64-v8a", "armeabi-v7a"
+            }
+            aaptOptions {
+                ignoreAssetsPattern "!ffmpeg:!x86:"
+            }
         }
         debug {
             applicationIdSuffix ".debug"
@@ -66,6 +72,21 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     buildToolsVersion '27.0.3'
+
+    aaptOptions {
+        ignoreAssetsPattern "!ffprobe:"
+    }
+
+    // Quickblox SDK
+    //There is code for excluding some native libs (it useful if you need reduce apk size and want
+    //build apk only for specific platform). This method allows you to achieve savings about 10MB
+    //of apk's size (but you need build 4 different apks).
+//    packagingOptions {
+//        exclude '**/armeabi-v7a/libjingle_peerconnection_so.so'
+//        exclude '**/arm64-v8a/libjingle_peerconnection_so.so'
+//        exclude '**/x86_64/libjingle_peerconnection_so.so'
+//        exclude '**/x86/libjingle_peerconnection_so.so'
+//    }
 }
 
 kapt {

@@ -30,6 +30,8 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
 
     void handleBackgroundClicked();
 
+    void handleGalleryClicked();
+
     interface View extends BaseView {
 
         void updateConversation(Conversation conversation);
@@ -49,5 +51,7 @@ public interface ConversationPVPDetailPresenter extends BasePresenter {
         void navigateBack();
 
         void moveToSelectBackground(Conversation conversation);
+
+        void moveToGallery(Conversation conversation);
     }
 }

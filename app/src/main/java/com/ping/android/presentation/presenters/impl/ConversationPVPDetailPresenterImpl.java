@@ -182,6 +182,11 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     }
 
     @Override
+    public void handleGalleryClicked() {
+        view.moveToGallery(conversation);
+    }
+
+    @Override
     public void destroy() {
         observeConversationUpdateUseCase.dispose();
         toggleConversationNotificationSettingUseCase.dispose();
