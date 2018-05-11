@@ -48,11 +48,12 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                         message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
                         return new ChildData<>(message, childEvent.type);
                     } else {
-                        throw new NullPointerException();
+                        return new ChildData<Message>(null, childEvent.type);
                     }
                 })
-                .onErrorResumeNext(Observable.empty())
+                //.onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
+                    if (childData.type != ChildEvent.Type.CHILD_ADDED) return Observable.empty();
                     Message message = childData.data;
                     boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);

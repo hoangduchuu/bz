@@ -12,6 +12,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +77,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
                             message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (!message1.readAllowed.containsKey(toUser)) continue;
+                        if (!CommonMethod.getBooleanFrom(message1.readAllowed, toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
                     }
                     return commonRepository.updateBatchData(updateData)
@@ -272,15 +273,19 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 ret.put(currentUser.key, true);
                 if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                     // Check whether sender is in block list of receiver
-                    if (!currentUser.blockBys.containsKey(conversation.opponentUser.key)) {
-                        ret.put(conversation.opponentUser.key, true);
-                    }
+                    boolean isBlocked = currentUser.blockBys.containsKey(conversation.opponentUser.key);
+                    ret.put(conversation.opponentUser.key, !isBlocked);
                 } else {
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (toUser.equals(currentUser.key)
-                                || currentUser.blocks.containsKey(toUser)
-                                || currentUser.blockBys.containsKey(toUser)) continue;
-                        ret.put(toUser, true);
+                        if (toUser.equals(currentUser.key)) {
+                            continue;
+                        }
+                        if (currentUser.blocks.containsKey(toUser)
+                                || currentUser.blockBys.containsKey(toUser)) {
+                            ret.put(toUser, false);
+                        } else {
+                            ret.put(toUser, true);
+                        }
                     }
                 }
                 return ret;
