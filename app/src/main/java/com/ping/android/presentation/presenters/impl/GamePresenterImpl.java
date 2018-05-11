@@ -1,18 +1,13 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendGameStatusNotificationUseCase;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Message;
 import com.ping.android.presentation.presenters.GamePresenter;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -38,14 +33,14 @@ public class GamePresenterImpl implements GamePresenter {
     }
 
     @Override
-    public void updateMessageStatus(String conversationId, String messageID, int status) {
+    public void updateMessageStatus(String conversationId, String messageID, int messageType, int status) {
         updateMessageStatusUseCase.execute(new DefaultObserver<Boolean>() {
                                                @Override
                                                public void onError(@NotNull Throwable exception) {
                                                    exception.printStackTrace();
                                                }
                                            },
-                new UpdateMessageStatusUseCase.Params(conversationId, status, messageID));
+                new UpdateMessageStatusUseCase.Params(conversationId, status, messageID, messageType));
     }
 
     @Override

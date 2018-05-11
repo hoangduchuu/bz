@@ -222,7 +222,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if (!message.senderId.equals(currentUser.key)) {
             if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
-                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key));
+                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.messageType));
             }
         }
     }
