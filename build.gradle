@@ -26,6 +26,7 @@ allprojects {
             url "https://github.com/QuickBlox/quickblox-android-sdk-releases/raw/master/"
         }
         maven { url 'https://maven.fabric.io/public' }
+        maven { url "https://jitpack.io" }
         google()
     }
 }

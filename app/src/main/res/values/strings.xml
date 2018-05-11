@@ -249,4 +249,11 @@
     <string name="hint_search_friends">Names, Username, or Phone</string>
     <string name="hint_username">Username</string>
     <string name="hint_bzzz">bzzz...</string>
+
+    <string name="voice_record_instruction_slide_up_down">Slide UP to CANCEL, DOWN to MASK your voice</string>
+    <string name="voice_record_instruction_release_to_cancel">Release to CANCEL</string>
+    <string name="voice_record_instruction_release_to_send">Release to SEND</string>
+    <string name="voice_record_instruction_tap_to_record">Tap and hold me to record. Release to send</string>
+    <string name="voice_record_instruction_release_to_mask">Release to MASK</string>
+    <string name="voice_record_instruction_mask_with">MASK your voice to</string>
 </resources>

@@ -13,6 +13,7 @@ import com.ping.android.utils.ActivityLifecycle;
 
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.plugins.RxJavaPlugins;
+import nl.bravobit.ffmpeg.FFmpeg;
 
 public class App extends CoreApp {
 
@@ -36,6 +37,12 @@ public class App extends CoreApp {
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
         setupRxErrorHandler();
+
+        if (FFmpeg.getInstance(this).isSupported()) {
+            // ffmpeg is supported
+        } else {
+            // ffmpeg is not supported
+        }
     }
 
     public ApplicationComponent getComponent() {
