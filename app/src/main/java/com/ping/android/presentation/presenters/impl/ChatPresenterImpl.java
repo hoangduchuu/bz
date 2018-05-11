@@ -27,6 +27,7 @@ import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
+import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
@@ -97,6 +98,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveTypingEventUseCase observeTypingEventUseCase;
     @Inject
     UpdateConversationReadStatusUseCase updateConversationReadStatusUseCase;
+    @Inject
+    UpdateMessageStatusUseCase updateMessageStatusUseCase;
     @Inject
     ToggleConversationTypingUseCase toggleConversationTypingUseCase;
     @Inject
@@ -189,6 +192,11 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(ChildData<Message> messageChildData) {
                 handleMessageData(messageChildData);
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
         }, new ObserveMessageChangeUseCase.Params(conversation, currentUser));
     }
 
@@ -210,12 +218,23 @@ public class ChatPresenterImpl implements ChatPresenter {
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
 
+    private void updateReadStatus(Message message, int status) {
+        if (!message.senderId.equals(currentUser.key)) {
+            if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
+                updateMessageStatusUseCase.execute(new DefaultObserver<>(),
+                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key));
+            }
+        }
+    }
+
     private void handleMessageData(ChildData<Message> messageChildData) {
-        updateMessageStatus(messageChildData.data);
         if (isInBackground.get()) {
             messagesInBackground.add(messageChildData);
             return;
         }
+        int status = CommonMethod.getIntFrom(messageChildData.data.status, currentUser.key);
+        updateReadStatus(messageChildData.data, status);
+        prepareMessageStatus(messageChildData.data);
         switch (messageChildData.type) {
             case CHILD_ADDED:
                 // Check error message
@@ -241,6 +260,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
+            prepareMessageStatus(message);
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
@@ -662,7 +682,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 //        resendMessageUseCase.dispose();
     }
 
-    private void updateMessageStatus(Message message) {
+    private void prepareMessageStatus(Message message) {
         int status = Constant.MESSAGE_STATUS_SENT;
         for (String userId : conversation.memberIDs.keySet()) {
             status = CommonMethod.getIntFrom(message.status, userId);
