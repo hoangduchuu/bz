@@ -11,7 +11,6 @@ import android.content.res.ColorStateList;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
@@ -31,7 +30,6 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -55,6 +53,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.VoiceRecordView;
@@ -63,7 +62,6 @@ import com.ping.android.presentation.view.custom.revealable.RevealableViewRecycl
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.GlideApp;
@@ -79,17 +77,13 @@ import com.vanniktech.emoji.EmojiPopup;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
-
-import io.reactivex.functions.Consumer;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
@@ -313,7 +307,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 onSendImage();
                 break;
             case R.id.chat_voice_btn:
-                onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
+                handleRecordVoice();
+                //onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
                 break;
             case R.id.chat_game_btn:
                 onGameClicked();
@@ -322,7 +317,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 onSentMessage(originalText);
                 break;
 //            case R.id.chat_start_record:
-//                onStartRecord();
+//                handleRecordVoice();
 //                break;
 //            case R.id.chat_cancel_record:
 //                onStopRecord();
@@ -456,7 +451,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (requestCode == 111) {
             if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onStartRecord();
+                handleRecordVoice();
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -554,6 +549,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         tvChatName.setText(conversationName);
         tvChatName.setTransitionName(conversationTransionName);
         layoutVoice.setListener(new VoiceRecordViewListener() {
+            @Override
+            public void sendVoice(@NotNull String outputFile, @NotNull VoiceType selectedVoice) {
+                presenter.sendAudioMessage(outputFile, selectedVoice);
+            }
+
             @Override
             public void showInstruction(@NotNull String instruction) {
                 tvInstruction.setVisibility(View.VISIBLE);
@@ -1070,7 +1070,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         imagePickerHelper.openPicker();
     }
 
-    private void onStartRecord() {
+    private void handleRecordVoice() {
         if (!isMicroPermissionGrant()) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 111);
             return;
@@ -1078,32 +1078,33 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (isRecording) {
             return;
         }
-        setRecordMode(true);
-        visualizerView.clear();
+        onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
+        //setRecordMode(true);
+        //visualizerView.clear();
         //btSendRecord.setEnabled(false);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
-        String currentTimeStamp = dateFormat.format(new Date());
-
-        currentOutFile = RECORDING_PATH + "/recording_" + currentTimeStamp + ".3gp";
-        CommonMethod.createFolder(RECORDING_PATH);
-
-        myAudioRecorder = new MediaRecorder();
-        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        myAudioRecorder.setOutputFile(currentOutFile);
-
-        try {
-            myAudioRecorder.prepare();
-            myAudioRecorder.start();
-            //btSendRecord.setEnabled(true);
-            isRecording = true;
-            handler.post(updateVisualizer);
-        } catch (Exception e) {
-            Log.e(e);
-            //btSendRecord.setEnabled(false);
-            isRecording = false;
-        }
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
+//        String currentTimeStamp = dateFormat.format(new Date());
+//
+//        currentOutFile = RECORDING_PATH + "/recording_" + currentTimeStamp + ".3gp";
+//        CommonMethod.createFolder(RECORDING_PATH);
+//
+//        myAudioRecorder = new MediaRecorder();
+//        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+//        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+//        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+//        myAudioRecorder.setOutputFile(currentOutFile);
+//
+//        try {
+//            myAudioRecorder.prepare();
+//            myAudioRecorder.start();
+//            //btSendRecord.setEnabled(true);
+//            isRecording = true;
+//            handler.post(updateVisualizer);
+//        } catch (Exception e) {
+//            Log.e(e);
+//            //btSendRecord.setEnabled(false);
+//            isRecording = false;
+//        }
     }
 
     private void onStopRecord() {
@@ -1129,7 +1130,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void onSendRecord() {
         onStopRecord();
         File audioFile = new File(currentOutFile);
-        presenter.sendAudioMessage(audioFile.getAbsolutePath());
+
         visualizerView.clear();
         setRecordMode(false);
         //setButtonsState(0);

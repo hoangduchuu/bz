@@ -12,6 +12,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
 
@@ -123,6 +124,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String text;
             private MessageType messageType;
             private GameType gameType;
+            private VoiceType voiceType;
             private String imageUrl;
             private String thumbUrl;
             private String messageKey;
@@ -188,6 +190,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             // endregion
 
+            public Builder setVoiceType(VoiceType voiceType) {
+                this.voiceType = voiceType;
+                return this;
+            }
+
             public SendMessageUseCase.Params build() {
                 Params params = new Params();
                 Message message = null;
@@ -202,7 +209,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         message = buildGameMessage(currentUser, imageUrl, gameType);
                         break;
                     case AUDIO:
-                        message = buildAudioMessage(currentUser, imageUrl);
+                        message = buildAudioMessage(currentUser, imageUrl, voiceType);
                         break;
                 }
                 message.key = messageKey;
@@ -214,12 +221,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return params;
             }
 
-            private Message buildAudioMessage(User currentUser, String audioUrl) {
-
+            private Message buildAudioMessage(User currentUser, String audioUrl, VoiceType voiceType) {
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createAudioMessage(audioUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), null,
-                        getMessageDeleteStatuses(), allowance);
+                        getMessageDeleteStatuses(), allowance, voiceType.ordinal());
             }
 
             private Message buildMessage(User currentUser, String text) {

@@ -13,6 +13,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.model.enums.VoiceType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +49,7 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
                     builder = new SendMessageUseCase.Params.Builder()
                             .setMessageType(params.messageType)
                             .setConversation(params.conversation)
+                            .setVoiceType(params.voiceType)
                             .setCurrentUser(params.currentUser)
                             .setMessageKey(s);
                     return sendMessageUseCase.buildUseCaseObservable(builder.build())
@@ -79,5 +81,6 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
         public Conversation conversation;
         public User currentUser;
         public MessageType messageType;
+        public VoiceType voiceType;
     }
 }
