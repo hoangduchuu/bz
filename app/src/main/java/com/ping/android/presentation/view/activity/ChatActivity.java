@@ -1224,8 +1224,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void switchOffEditMode() {
         hideLoading();
-        isEditMode = false;
-        onUpdateEditMode();
+        if (isEditMode) {
+            isEditMode = false;
+            onUpdateEditMode();
+        }
     }
 
     @Override
