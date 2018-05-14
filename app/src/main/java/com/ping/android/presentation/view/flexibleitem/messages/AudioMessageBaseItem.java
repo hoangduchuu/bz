@@ -26,6 +26,7 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.ultility.Callback;
 import com.ping.android.ultility.CommonMethod;
+import com.ping.android.ultility.Constant;
 import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -124,11 +125,13 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             btnPlay.setOnClickListener(this);
             btnPause.setOnClickListener(this);
             mProgressUpdateHandler = new Handler(Looper.getMainLooper());
+
+            initGestureListener();
         }
 
         @Override
         protected View getClickableView() {
-            return null;
+            return container;
         }
 
         @Override
@@ -158,6 +161,28 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     initPlayer(audioStatus);
                     break;
             }
+        }
+
+        @Override
+        public void onDoubleTap() {
+            if (item.isEditMode) {
+                return;
+            }
+            pause();
+            maskStatus = !maskStatus;
+            if (messageListener != null) {
+                messageListener.updateMessageMask(item.message, maskStatus, lastItem);
+            }
+        }
+
+        @Override
+        public void onLongPress() {
+
+        }
+
+        @Override
+        public void onSingleTap() {
+
         }
 
         @Override
@@ -261,7 +286,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             CommonMethod.createFolder(imageLocalFolder);
 
             if (audioLocal.exists()) {
-                if (message.voiceType != 0) {
+                if (message.voiceType != 0 && message.isMask) {
                     prepareAudioMask(audioLocal);
                 } else {
                     initPlayer(AudioStatus.UNKNOWN);
@@ -272,7 +297,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
                         // Prepare audio file
-                        if (message.voiceType != 0) {
+                        if (message.voiceType != 0 && message.isMask) {
                             prepareAudioMask(audioLocal);
                         } else {
                             initPlayer(AudioStatus.UNKNOWN);
@@ -294,7 +319,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
         private String getSuitableAudioFile(String audioUrl) {
             File localFile = new File(getLocalFilePath(audioUrl));
-            if (item.message.voiceType != 0) {
+            if (item.message.voiceType != 0 && item.message.isMask) {
                 VoiceType voiceType = VoiceType.from(item.message.voiceType);
                 String transformFileName = voiceType.toString() + localFile.getName();
                 File transformFile = new File(localFile.getParent(), transformFileName);

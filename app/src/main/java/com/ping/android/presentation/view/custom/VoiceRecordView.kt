@@ -96,13 +96,16 @@ class VoiceRecordView : LinearLayout {
         btnRecord.setOnTouchListener(TouchListener())
 
         btnSend.setOnClickListener {
+            listener?.hideInstruction()
             stopAudio()
             sendVoice()
             hideReviewVoice()
+            initVoiceTypeView()
         }
         btnCancelTransform.setOnClickListener {
             listener?.hideInstruction()
             hideReviewVoice()
+            initVoiceTypeView()
         }
         initVoiceTypeView()
     }
