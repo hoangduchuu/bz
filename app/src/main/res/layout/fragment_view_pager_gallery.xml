@@ -17,7 +17,8 @@
 
         <TextView
             style="@style/TextTitle"
-            android:text="GALLERY" />
+            android:text="@string/conversation_detail_media"
+            android:textAllCaps="true" />
 
         <ToggleButton
             android:id="@+id/togglePuzzle"
