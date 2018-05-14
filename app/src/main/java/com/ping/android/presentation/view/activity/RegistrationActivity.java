@@ -209,8 +209,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void createAccount() {
-        final String firstName = txtFirstName.getText().toString().trim();
-        final String lastName = txtLastName.getText().toString().trim();
+        final String firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
+        final String lastName = txtLastName.getText().toString().trim().replaceAll(" +", " ");
         final String pingId = txtPingId.getText().toString().trim().toLowerCase();
         final String email = txtEmail.getText().toString().trim().toLowerCase();
         final String password = txtPassword.getText().toString().trim();
