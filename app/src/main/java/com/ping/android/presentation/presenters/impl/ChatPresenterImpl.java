@@ -37,6 +37,7 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -367,13 +368,14 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void sendAudioMessage(String audioUrl) {
+    public void sendAudioMessage(String audioUrl, VoiceType voiceType) {
         if (!beAbleToSendMessage()) return;
         SendAudioMessageUseCase.Params params = new SendAudioMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
         params.filePath = audioUrl;
         params.messageType = MessageType.AUDIO;
+        params.voiceType = voiceType;
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {

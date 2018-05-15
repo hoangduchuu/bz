@@ -11,7 +11,7 @@
         style="?attr/backgroundTheme"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:background="#F1F2F2"
+        android:background="@drawable/bg_bottom_gray"
         android:gravity="center_vertical">
 
         <ImageView
@@ -32,223 +32,219 @@
             style="@style/MatchParent"
             android:orientation="vertical">
 
+            <View style="@style/ItemViewSeparate" />
+
             <LinearLayout
-                style="@style/MatchParent"
-                android:orientation="vertical">
+                style="@style/ItemSetting"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
 
-                <LinearLayout
-                    style="@style/ItemSetting"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                <ImageView
+                    android:id="@+id/user_profile_image"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/ic_avatar_gray" />
 
-                    <ImageView
-                        android:id="@+id/user_profile_image"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginRight="10dp"
-                        android:src="@drawable/ic_avatar_gray" />
+                <TextView
+                    android:id="@+id/user_profile_name"
+                    style="@style/ItemSettingText"
+                    android:text="User name" />
 
-                    <TextView
-                        android:id="@+id/user_profile_name"
-                        style="@style/ItemSettingText"
-                        android:text="User name" />
+                <ImageView
+                    android:id="@+id/user_profile_message"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@null"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_message_border" />
 
-                    <ImageView
-                        style="?attr/backgroundTheme"
-                        android:id="@+id/user_profile_message"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginLeft="10dp"
-                        android:background="@null"
-                        android:padding="5dp"
-                        android:src="@drawable/ic_message_border" />
+                <ImageView
+                    android:id="@+id/user_profile_voice"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="10dp"
+                    android:background="@null"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_chat_audio" />
 
-                    <ImageView
-                        style="?attr/backgroundTheme"
-                        android:id="@+id/user_profile_voice"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginLeft="10dp"
-                        android:background="@null"
-                        android:padding="5dp"
-                        android:src="@drawable/ic_chat_audio" />
-
-                    <ImageView
-                        style="?attr/backgroundTheme"
-                        android:id="@+id/user_profile_video"
-                        android:layout_width="40dp"
-                        android:layout_height="30dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:background="@null"
-                        android:padding="5dp"
-                        android:src="@drawable/ic_chat_video" />
-                </LinearLayout>
-
-                <View style="@style/ItemViewSeparate" />
-
-                <LinearLayout style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_conversation_notification" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Notifications" />
-
-                    <Switch
-                        android:id="@+id/user_profile_notification"
-                        style="@style/ItemSettingIconRight.Toggle" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout
-                    android:id="@+id/profile_nickname"
-                    style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_conversation_nickname" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Nickname" />
-
-                    <ImageView style="@style/ItemSettingIconRight" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_conversation_mask_message" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Mask Incoming Messages" />
-
-                    <Switch
-                        android:id="@+id/user_profile_mask"
-                        style="@style/ItemSettingIconRight.Toggle" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_conversation_mask_image" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Puzzle Incoming Pictures" />
-
-
-                    <Switch
-                        android:id="@+id/user_profile_puzzle"
-                        style="@style/ItemSettingIconRight.Toggle" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_color_lens" />
-
-                    <TextView
-                        android:id="@+id/group_profile_color"
-                        style="@style/ItemSettingText"
-                        android:text="Colors" />
-
-                    <ImageView style="@style/ItemSettingIconRight" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout
-                    android:id="@+id/profile_background"
-                    style="@style/ItemSetting">
-
-                    <ImageView
-                        style="?attr/backgroundTheme"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_chat_image_selected" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="@string/conversation_detail_background" />
-
-                    <ImageView style="@style/ItemSettingIconRight" />
-                </LinearLayout>
-
-                <View style="@style/ItemSettingSeparate" />
-
-                <LinearLayout
-                    android:id="@+id/profile_gallery"
-                    style="@style/ItemSetting">
-
-                    <ImageView
-                        style="?attr/backgroundTheme"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginEnd="8dp"
-                        android:src="@drawable/ic_chat_image_selected" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="@string/conversation_detail_media" />
-
-                    <ImageView style="@style/ItemSettingIconRight" />
-                </LinearLayout>
-
-                <View style="@style/ItemViewSeparate" />
-
-                <LinearLayout style="@style/ItemSetting">
-
-                    <ImageView
-                        android:layout_height="20dp"
-                        android:layout_width="20dp"
-                        android:layout_marginEnd="8dp"
-                        style="?attr/backgroundTheme"
-                        android:src="@drawable/ic_block" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Block" />
-
-                    <Switch
-                        android:id="@+id/user_profile_block"
-                        style="@style/ItemSettingIconRight.Toggle" />
-                </LinearLayout>
+                <ImageView
+                    android:id="@+id/user_profile_video"
+                    style="?attr/backgroundTheme"
+                    android:layout_width="40dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@null"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_chat_video" />
             </LinearLayout>
 
+            <View style="@style/ItemViewSeparate" />
+
+            <LinearLayout style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_conversation_notification" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="Notifications" />
+
+                <Switch
+                    android:id="@+id/user_profile_notification"
+                    style="@style/ItemSettingIconRight.Toggle" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout
+                android:id="@+id/profile_nickname"
+                style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_conversation_nickname" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="Nickname" />
+
+                <ImageView style="@style/ItemSettingIconRight" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_conversation_mask_message" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="Mask Incoming Messages" />
+
+                <Switch
+                    android:id="@+id/user_profile_mask"
+                    style="@style/ItemSettingIconRight.Toggle" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_conversation_mask_image" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="Puzzle Incoming Pictures" />
+
+
+                <Switch
+                    android:id="@+id/user_profile_puzzle"
+                    style="@style/ItemSettingIconRight.Toggle" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_color_lens" />
+
+                <TextView
+                    android:id="@+id/group_profile_color"
+                    style="@style/ItemSettingText"
+                    android:text="Colors" />
+
+                <ImageView style="@style/ItemSettingIconRight" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout
+                android:id="@+id/profile_background"
+                style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_chat_image_selected" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="@string/conversation_detail_background" />
+
+                <ImageView style="@style/ItemSettingIconRight" />
+            </LinearLayout>
+
+            <View style="@style/ItemSettingSeparate" />
+
+            <LinearLayout
+                android:id="@+id/profile_gallery"
+                style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_chat_image_selected" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="@string/conversation_detail_media" />
+
+                <ImageView style="@style/ItemSettingIconRight" />
+            </LinearLayout>
+
+            <View style="@style/ItemViewSeparate" />
+
+            <LinearLayout style="@style/ItemSetting">
+
+                <ImageView
+                    style="?attr/backgroundTheme"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_block" />
+
+                <TextView
+                    style="@style/ItemSettingText"
+                    android:text="Block" />
+
+                <Switch
+                    android:id="@+id/user_profile_block"
+                    style="@style/ItemSettingIconRight.Toggle" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

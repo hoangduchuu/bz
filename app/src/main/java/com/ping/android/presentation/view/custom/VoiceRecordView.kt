@@ -12,7 +12,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewConfiguration
-import android.view.animation.Animation
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.AudioVisualization
@@ -22,13 +21,10 @@ import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingHandler
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
-import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.delegate.VoiceTypeDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.VoiceTypeItem
-import com.ping.android.utils.Log
-import kotlinx.android.synthetic.main.item_chat_left_audio.view.*
+import com.ping.android.ultility.Callback
 import kotlinx.android.synthetic.main.view_voice_record.view.*
-import nl.bravobit.ffmpeg.FFcommandExecuteResponseHandler
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,7 +35,10 @@ enum class RecordViewState {
 
 interface VoiceRecordViewListener {
     fun showInstruction(instruction: String)
+
     fun hideInstruction()
+
+    fun sendVoice(outputFile: String, selectedVoice: VoiceType)
 }
 
 class VoiceRecordView : LinearLayout {
@@ -96,10 +95,17 @@ class VoiceRecordView : LinearLayout {
         recordView.addView(View(context))
         btnRecord.setOnTouchListener(TouchListener())
 
-        btnSend.setOnClickListener { sendVoice() }
+        btnSend.setOnClickListener {
+            listener?.hideInstruction()
+            stopAudio()
+            sendVoice()
+            hideReviewVoice()
+            initVoiceTypeView()
+        }
         btnCancelTransform.setOnClickListener {
             listener?.hideInstruction()
             hideReviewVoice()
+            initVoiceTypeView()
         }
         initVoiceTypeView()
     }
@@ -125,7 +131,10 @@ class VoiceRecordView : LinearLayout {
     }
 
     private fun sendVoice() {
-
+        val file = File(outputFile)
+        if (file.exists()) {
+            listener?.sendVoice(outputFile, selectedVoice)
+        }
     }
 
     private fun handleMaskSelected(voiceType: VoiceType) {
@@ -140,37 +149,15 @@ class VoiceRecordView : LinearLayout {
                 playAudio(output.absolutePath)
                 //output.delete()
             } else {
-                //val filter = sample.text
-                //val command = "-i ${input.absolutePath} -af $filter -acodec aac ${output.absolutePath} -strict -2"
-                val command = "-i ${input.absolutePath} -af ${voiceType.filter} -acodec aac ${output.absolutePath} -strict -2"
-                val handler = object : FFcommandExecuteResponseHandler {
-                    override fun onFinish() {
-                        isTransforming = false
-                        loadingTransformation.visibility = View.GONE
-                        // Start playing output file
+                isTransforming = true
+                loadingTransformation.visibility = View.VISIBLE
+                FFmpegManager.getInstance(context).transform(input, output, voiceType) { error, data ->
+                    isTransforming = false
+                    loadingTransformation.visibility = View.GONE
+                    if (error == null) {
                         playAudio(output.absolutePath)
                     }
-
-                    override fun onSuccess(message: String?) {
-                        Log.d(message)
-                    }
-
-                    override fun onFailure(message: String?) {
-                        loadingTransformation.visibility = View.GONE
-                    }
-
-                    override fun onProgress(message: String?) {
-                        Log.d(message)
-                    }
-
-                    override fun onStart() {
-                        isTransforming = true
-                        loadingTransformation.visibility = View.VISIBLE
-                    }
-
                 }
-                FFmpegManager.getInstance(context)
-                        .execute(command.split(" ").toTypedArray(), handler)
             }
         }
     }
@@ -301,6 +288,11 @@ class VoiceRecordView : LinearLayout {
 
     private fun onReleaseView() {
         listener?.hideInstruction()
+        btnCancel.animate().alpha(0.0f).start()
+        btnTransform.animate().alpha(0.0f).start()
+        // TODO stop & send record
+        disableRecordMode()
+        stopRecord()
         when (state) {
             RecordViewState.CANCEL -> {
                 val file = File(outputFile)
@@ -314,13 +306,11 @@ class VoiceRecordView : LinearLayout {
                 showReviewVoice()
                 resetRecordTranslate(0)
             }
-            else -> resetRecordTranslate()
+            else -> {
+                resetRecordTranslate()
+                sendVoice()
+            }
         }
-        btnCancel.animate().alpha(0.0f).start()
-        btnTransform.animate().alpha(0.0f).start()
-        // TODO stop & send record
-        disableRecordMode()
-        stopRecord()
     }
 
     private fun showReviewVoice() {

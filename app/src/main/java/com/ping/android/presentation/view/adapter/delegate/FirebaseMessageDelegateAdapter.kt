@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.adapter.delegate
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
@@ -9,7 +10,9 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.ObjectKey
 import com.bzzzchat.extensions.inflate
 import com.google.firebase.storage.FirebaseStorage
@@ -44,6 +47,8 @@ class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener): Vie
 
         fun bindData(item: ImageMessage) {
             this.item = item
+            itemView.sender.visibility = View.VISIBLE
+            itemView.sender.text = item.message.senderName
             val url: String = when (item.message.messageType) {
                 Constant.MSG_TYPE_IMAGE -> item.message.photoUrl
                 else -> item.message.gameUrl
@@ -53,26 +58,33 @@ class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener): Vie
                 return
             }
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
-            val listener = object : RequestListener<Drawable> {
-                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+            val listener = object : RequestListener<Bitmap> {
+                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
                     listener.onLoaded(adapterPosition)
                     return false
                 }
 
-                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                override fun onResourceReady(resource: Bitmap?, model: Any?, target: Target<Bitmap>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     listener.onLoaded(adapterPosition)
                     return false
                 }
             }
+            val target = object : SimpleTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    itemView.image.setImageBitmap(resource)
+                }
+
+            }
             GlideApp.with(itemView.context)
+                    .asBitmap()
                     .load(gsReference)
                     .override(100)
-                    .skipMemoryCache(true)
+                    .skipMemoryCache(false)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .transform(BitmapEncode(item.message.isMask))
                     .signature(ObjectKey(String.format("%s%s", item.message.key, if (item.message.isMask) "encoded" else "decoded")))
                     .listener(listener)
-                    .into(itemView.image)
+                    .into(target)
         }
     }
 

@@ -10,7 +10,7 @@
         style="?attr/backgroundTheme"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:background="#F1F2F2"
+        android:background="@drawable/bg_bottom_gray"
         android:gravity="center_vertical">
 
         <ImageView
@@ -21,15 +21,12 @@
             style="@style/TextTitle"
             android:text="NICKNAMES" />
     </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/main_background_gray"/>
+
+    <View style="@style/ItemViewSeparate" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/nickname_list"
         style="@style/RecyclerView"
-        android:layout_marginTop="20dp"
         android:background="@color/main_background_white" />
 
 </LinearLayout>

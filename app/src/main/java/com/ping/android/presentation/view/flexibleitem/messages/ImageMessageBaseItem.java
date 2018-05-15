@@ -1,36 +1,21 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.signature.ObjectKey;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.ultility.CommonMethod;
 import com.ping.android.ultility.Constant;
-import com.ping.android.utils.BitmapEncode;
-import com.ping.android.utils.GlideApp;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 /**
  * Created by tuanluong on 3/2/18.

@@ -35,6 +35,7 @@ public class Message implements Parcelable {
     public Map<String, Boolean> readAllowed;
     public int messageType;
     public int gameType;
+    public int voiceType = 0;
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -108,6 +109,7 @@ public class Message implements Parcelable {
         message.senderId = wrapper.getStringValue("senderId");
         message.senderName = wrapper.getStringValue("senderName");
         message.gameType = wrapper.getIntValue("gameType", 0);
+        message.voiceType = wrapper.getIntValue("voiceType", 0);
         message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
@@ -179,7 +181,7 @@ public class Message implements Parcelable {
 
     public static Message createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
                                              Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int voiceType) {
         Message message = new Message();
         message.audioUrl = audioUrl;
         message.senderId = senderId;
@@ -190,6 +192,7 @@ public class Message implements Parcelable {
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VOICE;
         message.readAllowed = readAllowed;
+        message.voiceType = voiceType;
         return message;
     }
 
@@ -232,6 +235,7 @@ public class Message implements Parcelable {
         result.put("messageType", messageType);
         result.put("readAllowed", readAllowed);
         result.put("gameType", gameType);
+        result.put("voiceType", voiceType);
         return result;
     }
 

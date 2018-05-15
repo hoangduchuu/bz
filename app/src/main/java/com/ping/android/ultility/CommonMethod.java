@@ -333,7 +333,7 @@ public class CommonMethod {
         //To store all the small image chunks in bitmap format in this list
         chunkedImages = new ArrayList<Bitmap>(chunkNumbers);
 
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
 
         rows = cols = (int) Math.sqrt(chunkNumbers);
         chunkHeight = bitmap.getHeight() / rows;
@@ -343,13 +343,13 @@ public class CommonMethod {
         for (int x = 0; x < rows; x++) {
             int xCoord = 0;
             for (int y = 0; y < cols; y++) {
-                chunkedImages.add(Bitmap.createBitmap(scaledBitmap, xCoord, yCoord, chunkWidth, chunkHeight));
+                chunkedImages.add(Bitmap.createBitmap(bitmap, xCoord, yCoord, chunkWidth, chunkHeight));
                 xCoord += chunkWidth;
             }
             yCoord += chunkHeight;
         }
 
-        Bitmap puzzledBitmap = Bitmap.createBitmap(scaledBitmap.getWidth(), scaledBitmap.getHeight(), Bitmap.Config.ARGB_4444);
+        Bitmap puzzledBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_4444);
         Collections.shuffle(chunkedImages);
         Canvas canvas = new Canvas(puzzledBitmap);
         int count = 0;
@@ -358,6 +358,9 @@ public class CommonMethod {
                 canvas.drawBitmap(chunkedImages.get(count), chunkWidth * y, chunkHeight * x, null);
                 count++;
             }
+        }
+        for (Bitmap bitmap1 : chunkedImages) {
+            bitmap1.recycle();
         }
         return puzzledBitmap;
     }
