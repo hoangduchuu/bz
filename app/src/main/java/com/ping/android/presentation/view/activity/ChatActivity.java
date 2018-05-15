@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -70,7 +69,6 @@ import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
-import com.ping.android.presentation.view.custom.RecorderVisualizerView;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 
@@ -91,7 +89,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
     public static final String EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME";
     public static final String EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR";
-    private final int REPEAT_INTERVAL = 40;
 
     public static final String CONVERSATION_ID = "CONVERSATION_ID";
 
@@ -121,10 +118,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private Conversation originalConversation;
     private ChatMessageAdapter messagesAdapter;
 
-    private String RECORDING_PATH, currentOutFile;
-    private MediaRecorder myAudioRecorder;
     private boolean isRecording = false, isTyping = false, isEditMode = false;
-    private RecorderVisualizerView visualizerView;
     private AtomicBoolean isSettingStackFromEnd = new AtomicBoolean(false);
     private String originalText = "";
     private int selectPosition = 0;
@@ -140,20 +134,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private EmojiPopup emojiPopup;
 
     private Handler handler = new Handler(); // Handler for updating the visualizer
-    Runnable updateVisualizer = new Runnable() {
-        @Override
-        public void run() {
-            if (isRecording) // if we are already recording
-            {
-                // get the current amplitude
-                int x = myAudioRecorder.getMaxAmplitude();
-                visualizerView.addAmplitude(x); // update the VisualizeView
-                visualizerView.invalidate(); // refresh the VisualizerView
-                // update in 40 milliseconds
-                handler.postDelayed(this, REPEAT_INTERVAL);
-            }
-        }
-    };
     private MessageBaseItem selectedMessage;
     private BadgeHelper badgeHelper;
 
@@ -308,7 +288,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 break;
             case R.id.chat_voice_btn:
                 handleRecordVoice();
-                //onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
                 break;
             case R.id.chat_game_btn:
                 onGameClicked();
@@ -316,15 +295,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_send_message_btn:
                 onSentMessage(originalText);
                 break;
-//            case R.id.chat_start_record:
-//                handleRecordVoice();
-//                break;
-//            case R.id.chat_cancel_record:
-//                onStopRecord();
-//                break;
-//            case R.id.chat_send_record:
-//                onSendRecord();
-//                break;
             case R.id.chat_tgl_outcoming:
                 onChangeTypingMark();
                 break;
@@ -337,10 +307,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_emoji_btn:
                 showEmojiEditor();
                 break;
-//            case R.id.load_more:
-//                loadMoreChats();
-//                //isScrollToTop = true;
-//                break;
             case R.id.btn_copy:
                 onCopySelectedMessageText();
                 break;
@@ -637,9 +603,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void init() {
-        RECORDING_PATH = this.getExternalFilesDir(null).getAbsolutePath();
-        //RECORDING_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
-
         listener = (prefs, key) -> {
             if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
                 int messageCount = prefs.getInt(key, 0);
@@ -931,8 +894,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             layoutText.setVisibility(View.GONE);
             TransitionManager.beginDelayedTransition((ViewGroup) view, new Slide());
             layoutVoice.setVisibility(View.VISIBLE);
-            //btSendRecord.setEnabled(false);
-            //setRecordMode(false);
         }
 
         if (type != Constant.MESSAGE_TYPE.TEXT) {
@@ -946,16 +907,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
-    }
-
-    private void setRecordMode(boolean isRecording) {
-//        if (isRecording) {
-//            btCancelRecord.setVisibility(View.VISIBLE);
-//            btSendRecord.setVisibility(View.VISIBLE);
-//        } else {
-//            btCancelRecord.setVisibility(View.GONE);
-//            btSendRecord.setVisibility(View.GONE);
-//        }
     }
 
     private void onChangeTypingMark() {
@@ -1079,61 +1030,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             return;
         }
         onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
-        //setRecordMode(true);
-        //visualizerView.clear();
-        //btSendRecord.setEnabled(false);
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
-//        String currentTimeStamp = dateFormat.format(new Date());
-//
-//        currentOutFile = RECORDING_PATH + "/recording_" + currentTimeStamp + ".3gp";
-//        CommonMethod.createFolder(RECORDING_PATH);
-//
-//        myAudioRecorder = new MediaRecorder();
-//        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-//        myAudioRecorder.setOutputFile(currentOutFile);
-//
-//        try {
-//            myAudioRecorder.prepare();
-//            myAudioRecorder.start();
-//            //btSendRecord.setEnabled(true);
-//            isRecording = true;
-//            handler.post(updateVisualizer);
-//        } catch (Exception e) {
-//            Log.e(e);
-//            //btSendRecord.setEnabled(false);
-//            isRecording = false;
-//        }
-    }
-
-    private void onStopRecord() {
-        try {
-            if (null != myAudioRecorder) {
-                myAudioRecorder.stop();
-                myAudioRecorder.release();
-                myAudioRecorder = null;
-            }
-            //btSendRecord.setEnabled(true);
-        } catch (Exception e) {
-            Log.e(e);
-        }
-        //btSendRecord.setEnabled(true);
-        isRecording = false;
-
-        handler.removeCallbacks(updateVisualizer);
-        visualizerView.clear();
-        visualizerView.invalidate();
-        setRecordMode(false);
-    }
-
-    private void onSendRecord() {
-        onStopRecord();
-        File audioFile = new File(currentOutFile);
-
-        visualizerView.clear();
-        setRecordMode(false);
-        //setButtonsState(0);
     }
 
     private void onVoiceCall() {
