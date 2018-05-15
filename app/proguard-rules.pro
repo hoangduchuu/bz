@@ -16,7 +16,9 @@
 #   public *;
 #}
 
+-dontpreverify
 
+-keep class com.ping.android.model.** { *; }
 
 # OkHttp
 -dontwarn okhttp3.**
@@ -57,9 +59,72 @@
 
 -dontwarn org.jivesoftware.smackx.**
 
+-keep class org.jivesoftware.smack.** { *; }
+
+-keep class com.quickblox.messages.model.** { *; }
+
 #quickblox videochat-webrtc module
 -keep class org.webrtc.** { *; }
 
 ##---------------End: proguard configuration for quickblox  ----------
+
+-keepattributes *Annotation*
+
+# JavaCV
+-keep @org.bytedeco.javacpp.annotation interface * {
+    *;
+}
+
+-keep @org.bytedeco.javacpp.annotation.Platform public class *
+
+-keepclasseswithmembernames class * {
+    @org.bytedeco.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+    @org.bytedeco.* <methods>;
+}
+
+-keepattributes EnclosingMethod
+-keep @interface org.bytedeco.javacpp.annotation.*,javax.inject.*
+
+-keepattributes *Annotation*, Exceptions, Signature, Deprecated, SourceFile, SourceDir, LineNumberTable, LocalVariableTable, LocalVariableTypeTable, Synthetic, EnclosingMethod, RuntimeVisibleAnnotations, RuntimeInvisibleAnnotations, RuntimeVisibleParameterAnnotations, RuntimeInvisibleParameterAnnotations, AnnotationDefault, InnerClasses
+-keep class org.bytedeco.javacpp.** {*;}
+-dontwarn java.awt.**
+-dontwarn org.bytedeco.javacv.**
+-dontwarn org.bytedeco.javacpp.**
+
+# end javacv
+
+# crashlytic
+#-keepattributes SourceFile,LineNumberTable
+# end crashlytic
+
+# Firebase Auth
+## Twitter and Facebook are optional
+#-dontwarn com.facebook.**
+#-dontwarn com.twitter.**
+#
+## Don't note a bunch of dynamically referenced classes
+#-dontnote com.google.**
+#-dontnote com.facebook.**
+#-dontnote com.twitter.**
+#-dontnote com.squareup.okhttp.**
+#-dontnote okhttp3.internal.**
+#
+## Recommended flags for Firebase Auth
+#-keepattributes Signature
+#-keepattributes *Annotation*
+#
+## Retrofit config
+#-dontnote retrofit2.Platform
+#-dontwarn retrofit2.** # Also keeps Twitter at bay as long as they keep using Retrofit
+#-dontwarn okio.**
+#-keepattributes Exceptions
+#
+## end Firebase Auth
+
+-dontwarn org.opencv.highgui.**
+
 
 ##---------------End: proguard configuration ----------

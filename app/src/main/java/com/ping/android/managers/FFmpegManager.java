@@ -45,7 +45,7 @@ public class FFmpegManager {
 
             @Override
             public void onFailure(String message) {
-                callback.complete(message, null);
+                callback.complete(message);
             }
 
             @Override

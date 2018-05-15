@@ -38,17 +38,17 @@ android {
     buildTypes {
         release {
             //debuggable true
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
             ndk {
                 abiFilters "arm64-v8a", "armeabi-v7a"
             }
-            aaptOptions {
-                ignoreAssetsPattern "!ffmpeg:!x86:"
-            }
         }
         debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationIdSuffix ".debug"
             // Disable fabric build ID generation for debug builds
             ext.enableCrashlytics = false
@@ -74,7 +74,8 @@ android {
     buildToolsVersion '27.0.3'
 
     aaptOptions {
-        ignoreAssetsPattern "!ffprobe:"
+        // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg
+        ignoreAssetsPattern "!ffprobe:!ffmpeg:"
     }
 
     // Quickblox SDK
@@ -100,6 +101,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
+    implementation(project(path: ':videorecorder')) {
+        exclude group: 'org.bytedeco'
+    }
     implementation(project(path: ':rxfirebase')) {
         exclude group: 'com.google.firebase'
     }
@@ -187,6 +191,12 @@ dependencies {
 
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
+
+    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
+    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
 }
 
 apply plugin: 'com.google.gms.google-services'

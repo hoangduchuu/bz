@@ -1,1 +1,1 @@
-include ':app', ':extensions', ':cleanarchitecture', ':flexibleadapter', ':rxfirebase', ':rxquickblox'
+include ':app', ':extensions', ':cleanarchitecture', ':flexibleadapter', ':rxfirebase', ':rxquickblox', ':videorecorder'
