@@ -208,12 +208,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         });
     }
 
+
+
     private void createAccount() {
-        final String firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
-        final String lastName = txtLastName.getText().toString().trim().replaceAll(" +", " ");
+        String _firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
+        final String firstName = CommonMethod.capitalFirstLetters(_firstName);
+        String _lastName = txtLastName.getText().toString().trim().replaceAll(" +", " ");
+        final String lastName = CommonMethod.capitalFirstLetters(_lastName);
         final String pingId = txtPingId.getText().toString().trim().toLowerCase();
         final String email = txtEmail.getText().toString().trim().toLowerCase();
         final String password = txtPassword.getText().toString().trim();
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
