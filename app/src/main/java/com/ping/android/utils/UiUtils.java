@@ -185,7 +185,6 @@ public class UiUtils {
                 .load(gsReference)
                 .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
-                .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(imageView);
     }
@@ -203,7 +202,6 @@ public class UiUtils {
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
                 .override(100, 100)
-                .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {

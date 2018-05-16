@@ -41,6 +41,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.bzzzchat.videorecorder.view.VideoRecorderActivity;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
@@ -950,7 +951,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendCamera() {
-        imagePickerHelper = ImagePickerHelper.from(this)
+        Intent intent = new Intent(this, VideoRecorderActivity.class);
+        startActivity(intent);
+
+        /*imagePickerHelper = ImagePickerHelper.from(this)
                 .setCrop(false)
                 .setScale(true)
                 .setGenerateThumbnail(true)
@@ -970,7 +974,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                         sendImageFirebase(file, thumbnail);
                     }
                 });
-        imagePickerHelper.openCamera();
+        imagePickerHelper.openCamera();*/
     }
 
     private void onSendImage() {

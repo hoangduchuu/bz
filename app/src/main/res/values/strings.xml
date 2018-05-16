@@ -255,5 +255,5 @@
     <string name="voice_record_instruction_release_to_send">Release to SEND</string>
     <string name="voice_record_instruction_tap_to_record">Tap and hold me to record. Release to send</string>
     <string name="voice_record_instruction_release_to_mask">Release to MASK</string>
-    <string name="voice_record_instruction_mask_with">MASK your voice to</string>
+    <string name="voice_record_instruction_mask_with">Mask Your Voice To</string>
 </resources>

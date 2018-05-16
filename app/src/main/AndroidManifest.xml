@@ -2,7 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ping.android">
 
-    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -66,7 +68,9 @@
         <meta-data
             android:name="com.quickblox.messages.SENDER_ID"
             android:value="@string/sender_id" />
-        <meta-data android:name="com.quickblox.messages.QB_ENVIRONMENT" android:value="PRODUCTION" />
+        <meta-data
+            android:name="com.quickblox.messages.QB_ENVIRONMENT"
+            android:value="PRODUCTION" />
 
         <receiver
             android:name="com.ping.android.service.PushNotificationBroadcastReceiver"
@@ -214,12 +218,14 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
-
         <activity
             android:name=".presentation.view.activity.GameMemoryActivity"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.GameTicTacToeActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
+        <activity
+            android:name="com.bzzzchat.videorecorder.view.VideoRecorderActivity"
             android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
@@ -239,8 +245,8 @@
         <activity
             android:name=".presentation.view.activity.ConversationDetailActivity"
             android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".presentation.view.activity.NicknameActivity"
             android:theme="@style/AppTheme.NoActionBar" />

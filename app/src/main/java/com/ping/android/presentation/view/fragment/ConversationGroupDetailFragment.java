@@ -179,7 +179,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void onColorClicked() {
-        colorPickerBottomSheetDialog.show();
+        if (getActivity() != null && !getActivity().isDestroyed()) {
+            colorPickerBottomSheetDialog.show();
+        }
     }
 
     private void onNickNameClicked() {
@@ -270,6 +272,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
         colorAdapter.setListener(color -> {
+            colorPickerBottomSheetDialog.dismiss();
             presenter.updateColor(color.getCode());
         });
         recyclerView.setAdapter(colorAdapter);
@@ -341,7 +344,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void navigateBack() {
         if (getActivity() != null) {
-            getActivity().finishAfterTransition();
+            getActivity().finish();
         }
     }
 

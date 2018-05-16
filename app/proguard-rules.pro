@@ -20,6 +20,9 @@
 
 -keep class com.ping.android.model.** { *; }
 
+-keep class com.wang.avi.** { *; }
+-keep class com.wang.avi.indicators.** { *; }
+
 # OkHttp
 -dontwarn okhttp3.**
 -dontwarn okio.**
@@ -56,6 +59,8 @@
 -keep class com.quickblox.core.rest.** { *; }
 -keep class com.quickblox.core.error.** { *; }
 -keep class com.quickblox.core.Query { *; }
+
+-keep class org.jivesoftware.** { *; }
 
 -dontwarn org.jivesoftware.smackx.**
 
