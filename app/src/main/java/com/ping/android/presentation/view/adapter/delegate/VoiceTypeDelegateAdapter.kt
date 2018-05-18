@@ -18,10 +18,8 @@ data class VoiceTypeItem(
     val resource: Int
         get() {
             return when (voiceType) {
-                VoiceType.CHIPMUNK -> R.drawable.ic_chipmunk
-                VoiceType.ROBOT -> R.drawable.ic_robot
-                VoiceType.FEMALE -> R.drawable.ic_female
-                VoiceType.MALE -> R.drawable.ic_male_face
+                VoiceType.SONIC -> R.drawable.ic_chipmunk
+                VoiceType.TELEPHONE -> R.drawable.ic_robot
                 else -> R.drawable.ic_person
             }
         }
