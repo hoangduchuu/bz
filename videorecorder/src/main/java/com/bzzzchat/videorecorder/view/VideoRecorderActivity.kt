@@ -18,6 +18,7 @@ package com.bzzzchat.videorecorder.view
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.Toast
 
 import com.bzzzchat.videorecorder.R
@@ -26,6 +27,7 @@ class VideoRecorderActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_video_recorder)
         if (savedInstanceState == null) {
             fragmentManager.beginTransaction()

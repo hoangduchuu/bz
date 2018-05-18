@@ -198,7 +198,6 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
 
     fun resetRecordState() {
         this.progressAnimator?.cancel()
-        this.listener?.onStopRecord()
         this.progress = 0.0f
         invalidate()
         state = RecordButtonState.DEFAULT
@@ -207,6 +206,7 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
         animation.duration = 300
         startAnimation(animation)
         animation.fillAfter = true
+        this.listener?.onStopRecord()
     }
 
     /**

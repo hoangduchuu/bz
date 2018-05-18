@@ -29,15 +29,15 @@ import android.view.*
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import com.bzzzchat.videorecorder.R
+import java.io.File
 import java.io.IOException
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
-class Camera2VideoFragment : Fragment(), View.OnClickListener,
+class Camera2VideoFragment : Fragment(),
         ActivityCompat.OnRequestPermissionsResultCallback {
-
     private val TAG = "Camera2VideoFragment"
     private val SENSOR_ORIENTATION_DEFAULT_DEGREES = 90
     private val SENSOR_ORIENTATION_INVERSE_DEGREES = 270
@@ -54,7 +54,7 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         append(Surface.ROTATION_270, 0)
     }
     private val VIDEO_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-
+    private val MAXIMUM_RECORD_TIME = 10 * 1000 // 10s
     // region picture
 
     /**
@@ -62,7 +62,31 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
      */
     private var imageReader: ImageReader? = null
 
+    /**
+     * This is the output file for our picture.
+     */
+    private lateinit var file: File
+
+    /**
+     * This a callback object for the [ImageReader]. "onImageAvailable" will be called when a
+     * still image is ready to be saved.
+     */
+    private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
+        backgroundHandler?.post(ImageSaver(it.acquireNextImage(), file))
+    }
+
+    /**
+     * Whether the current camera device supports Flash or not.
+     */
+    private var flashSupported = false
+
+    /**
+     * Whether the current camera device supports Auto focus or not.
+     */
+    private var autoFocusSupported = false
+
     // endregion
+
     /**
      * [TextureView.SurfaceTextureListener] handles several lifecycle events on a
      * [TextureView].
@@ -178,6 +202,10 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
 
     private var mediaRecorder: MediaRecorder? = null
 
+    private var currentRecordTime = 0
+
+    private var recordTimer: Timer? = null
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -188,18 +216,18 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         videoButton = view.findViewById(R.id.video)
         videoButton.setListener(object : RecordButtonListener {
             override fun onTakeImage() {
-
+                captureStillPicture()
             }
 
             override fun onStartRecord() {
-
+                startRecordingVideo()
             }
 
             override fun onStopRecord() {
-
+                stopRecordingVideo()
             }
-
         })
+        file = File(activity?.getExternalFilesDir(null), "pic.jpeg")
     }
 
     override fun onResume() {
@@ -221,12 +249,6 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         closeCamera()
         stopBackgroundThread()
         super.onPause()
-    }
-
-    override fun onClick(view: View) {
-        when (view.id) {
-            R.id.video -> if (isRecordingVideo) stopRecordingVideo() else startRecordingVideo()
-        }
     }
 
     /**
@@ -283,17 +305,17 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
 
             // Choose the sizes for camera preview and video recording
             val characteristics = manager.getCameraCharacteristics(cameraId)
-            val map = characteristics.get(SCALER_STREAM_CONFIGURATION_MAP) ?:
-            throw RuntimeException("Cannot get available preview/video sizes")
+            val map = characteristics.get(SCALER_STREAM_CONFIGURATION_MAP)
+                    ?: throw RuntimeException("Cannot get available preview/video sizes")
             sensorOrientation = characteristics.get(SENSOR_ORIENTATION)
             videoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder::class.java))
             previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture::class.java),
                     width, height, videoSize)
 
-//            imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
-//                    ImageFormat.JPEG, /*maxImages*/ 2).apply {
-//                setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
-//            }
+            imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
+                    ImageFormat.JPEG, /*maxImages*/ 2).apply {
+                setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
+            }
 
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 textureView.setAspectRatio(previewSize.width, previewSize.height)
@@ -302,6 +324,18 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
             }
             configureTransform(width, height)
             mediaRecorder = MediaRecorder()
+
+            // Check if the flash is supported.
+            flashSupported =
+                    characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+
+            val afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+
+            autoFocusSupported = !(afAvailableModes.isEmpty()
+                    || afAvailableModes.size == 1
+                    && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)
+
+
             manager.openCamera(cameraId, stateCallback, null)
         } catch (e: CameraAccessException) {
             showToast("Cannot access the camera.")
@@ -347,7 +381,7 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
             val previewSurface = Surface(texture)
             previewRequestBuilder.addTarget(previewSurface)
 
-            cameraDevice?.createCaptureSession(listOf(previewSurface),
+            cameraDevice?.createCaptureSession(listOf(previewSurface, imageReader!!.surface),
                     object : CameraCaptureSession.StateCallback() {
 
                         override fun onConfigured(session: CameraCaptureSession) {
@@ -458,6 +492,29 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         }
     }
 
+    private fun startRecordTimer() {
+        currentRecordTime = 0
+        recordTimer = Timer()
+        val task = object : TimerTask() {
+            override fun run() {
+                currentRecordTime += 1000
+                if (currentRecordTime >= MAXIMUM_RECORD_TIME + 1000) {
+                    videoButton.post({ videoButton.resetRecordState() })
+                    return
+                }
+                videoButton.post({
+                    videoButton.setProgressWithAnimation(
+                            currentRecordTime.toFloat() / MAXIMUM_RECORD_TIME * 100, 1000)
+                })
+            }
+        }
+        recordTimer?.scheduleAtFixedRate(task, 0, 1000)
+    }
+
+    private fun stopRecordTimer() {
+        recordTimer?.cancel()
+    }
+
     private fun startRecordingVideo() {
         if (cameraDevice == null || !textureView.isAvailable) return
 
@@ -491,6 +548,7 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
                             activity?.runOnUiThread {
                                 isRecordingVideo = true
                                 mediaRecorder?.start()
+                                startRecordTimer()
                             }
                         }
 
@@ -513,9 +571,14 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
 
     private fun stopRecordingVideo() {
         isRecordingVideo = false
-        mediaRecorder?.apply {
-            stop()
-            reset()
+        stopRecordTimer()
+        try {
+            mediaRecorder?.apply {
+                stop()
+                reset()
+            }
+        } catch (exception: Exception) {
+            exception.printStackTrace()
         }
 
         if (activity != null) showToast("Video saved: $nextVideoAbsolutePath")
@@ -523,7 +586,7 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         startPreview()
     }
 
-    private fun showToast(message : String) = Toast.makeText(activity, message, LENGTH_SHORT).show()
+    private fun showToast(message: String) = Toast.makeText(activity, message, LENGTH_SHORT).show()
 
     /**
      * In this sample, we choose a video size with 3x4 aspect ratio. Also, we don't use sizes
@@ -533,7 +596,8 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
      * @return The video size
      */
     private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
-        it.width == it.height * 4 / 3 && it.width <= 1080 } ?: choices[choices.size - 1]
+        it.width == it.height * 4 / 3 && it.width <= 1080
+    } ?: choices[choices.size - 1]
 
     /**
      * Given [choices] of [Size]s supported by a camera, chooses the smallest one whose
@@ -557,13 +621,93 @@ class Camera2VideoFragment : Fragment(), View.OnClickListener,
         val w = aspectRatio.width
         val h = aspectRatio.height
         val bigEnough = choices.filter {
-            it.height == it.width * h / w && it.width >= width && it.height >= height }
+            it.height == it.width * h / w && it.width >= width && it.height >= height
+        }
 
         // Pick the smallest of those, assuming we found any
         return if (bigEnough.isNotEmpty()) {
             Collections.min(bigEnough, CompareSizesByArea())
         } else {
             choices[0]
+        }
+    }
+
+    /**
+     * Capture a still picture. This method should be called when we get a response in
+     * [.captureCallback] from both [.lockFocus].
+     */
+    private fun captureStillPicture() {
+        try {
+            if (activity == null || cameraDevice == null) return
+            val rotation = activity!!.windowManager.defaultDisplay.rotation
+
+            // This is the CaptureRequest.Builder that we use to take a picture.
+            val captureBuilder = cameraDevice?.createCaptureRequest(
+                    CameraDevice.TEMPLATE_STILL_CAPTURE)?.apply {
+                addTarget(imageReader?.surface)
+
+                // Sensor orientation is 90 for most devices, or 270 for some devices (eg. Nexus 5X)
+                // We have to take that into account and rotate JPEG properly.
+                // For devices with orientation of 90, we return our mapping from ORIENTATIONS.
+                // For devices with orientation of 270, we need to rotate the JPEG 180 degrees.
+                set(CaptureRequest.JPEG_ORIENTATION,
+                        (DEFAULT_ORIENTATIONS.get(rotation) + sensorOrientation + 270) % 360)
+
+                // Use the same AE and AF modes as the preview.
+                set(CaptureRequest.CONTROL_AF_MODE,
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+            }?.also { setAutoFlash(it) }
+
+            val captureCallback = object : CameraCaptureSession.CaptureCallback() {
+
+                override fun onCaptureCompleted(session: CameraCaptureSession,
+                                                request: CaptureRequest,
+                                                result: TotalCaptureResult) {
+                    activity!!.showToast("Saved: $file")
+                    Log.d(TAG, file.toString())
+                    // FIXME
+                    unlockFocus()
+                }
+            }
+
+            captureSession?.apply {
+                stopRepeating()
+                abortCaptures()
+                capture(captureBuilder?.build(), captureCallback, null)
+            }
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, e.toString())
+        }
+
+    }
+
+    /**
+     * Unlock the focus. This method should be called when still image capture sequence is
+     * finished.
+     */
+    private fun unlockFocus() {
+        try {
+            updatePreview()
+            // Reset the auto-focus trigger
+            /*previewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
+            setAutoFlash(previewRequestBuilder)
+            captureSession?.capture(previewRequestBuilder.build(), captureCallback,
+                    backgroundHandler)
+            // After this, the camera will go back to the normal state of preview.
+            //state = Camera2BasicFragment.STATE_PREVIEW
+            captureSession?.setRepeatingRequest(previewRequest, captureCallback,
+                    backgroundHandler)*/
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, e.toString())
+        }
+
+    }
+
+    private fun setAutoFlash(requestBuilder: CaptureRequest.Builder) {
+        if (flashSupported) {
+            requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
+                    CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         }
     }
 
