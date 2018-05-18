@@ -75,7 +75,7 @@ android {
 
     aaptOptions {
         // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg
-        ignoreAssetsPattern "!ffprobe:!ffmpeg:"
+        ignoreAssetsPattern "!ffprobe:"
     }
 
     // Quickblox SDK
@@ -192,11 +192,11 @@ dependencies {
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 
-    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+    //implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
+    //implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
+    //implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
+    //implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
+    //implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
 }
 
 apply plugin: 'com.google.gms.google-services'

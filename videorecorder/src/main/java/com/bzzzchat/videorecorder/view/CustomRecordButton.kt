@@ -1,25 +1,37 @@
 package com.bzzzchat.videorecorder.view
 
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
+import android.view.animation.ScaleAnimation
 
 import com.bzzzchat.videorecorder.R
 
+interface RecordButtonListener {
+    fun onStartRecord()
+    fun onStopRecord()
+}
+
+enum class RecordButtonState {
+    DEFAULT, RECORDING
+}
 /**
  * A subclass of [android.view.View] class for creating a custom circular progressBar
  *
  * Created by Pedram on 2015-01-06.
  */
 class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, attrs) {
-
-
     /**
      * ProgressBar's line thickness
      */
@@ -38,6 +50,18 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
     private lateinit var backgroundPaint: Paint
     private lateinit var foregroundPaint: Paint
     private lateinit var fillPaint: Paint
+
+    private var listener: RecordButtonListener? = null
+    private var state = RecordButtonState.DEFAULT
+    private var progressAnimator: ValueAnimator? = null
+
+    init {
+        init(context, attrs)
+        setOnLongClickListener {
+            updateRecordState()
+            return@setOnLongClickListener true
+        }
+    }
 
     fun getStrokeWidth(): Float {
         return strokeWidth
@@ -88,10 +112,6 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
         foregroundPaint.color = color
         invalidate()
         requestLayout()
-    }
-
-    init {
-        init(context, attrs)
     }
 
     private fun init(context: Context, attrs: AttributeSet) {
@@ -148,6 +168,46 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
         rectF.set(0 + strokeWidth / 2, 0 + strokeWidth / 2, min - strokeWidth / 2, min - strokeWidth / 2)
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.action == MotionEvent.ACTION_UP) {
+            if (state == RecordButtonState.RECORDING) {
+                resetRecordState()
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+    private fun updateRecordState() {
+        state = RecordButtonState.RECORDING
+        val animation = ScaleAnimation(1f, 1.3f, 1f, 1.3f, ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f)
+        animation.duration = 300
+        animation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) { }
+
+            override fun onAnimationStart(animation: Animation?) { }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                listener?.onStartRecord()
+            }
+        })
+        startAnimation(animation)
+        animation.fillAfter = true
+    }
+
+    fun resetRecordState() {
+        this.progressAnimator?.cancel()
+        this.listener?.onStopRecord()
+        this.progress = 0.0f
+        invalidate()
+        state = RecordButtonState.DEFAULT
+        val animation = ScaleAnimation(1.3f, 1f, 1.3f, 1f, ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f)
+        animation.duration = 300
+        startAnimation(animation)
+        animation.fillAfter = true
+    }
+
     /**
      * Lighten the given color by the factor
      *
@@ -189,11 +249,21 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
      *
      * @param progress The progress it should animate to it.
      */
-    fun setProgressWithAnimation(progress: Float) {
+    fun setProgressWithAnimation(progress: Float, duration: Long = 1000) {
+        progressAnimator?.cancel()
+        val start = this.progress
+        Log.e("HEHEHE", "from: $start, to: $progress")
+        progressAnimator = ValueAnimator.ofFloat(start, progress)
+        progressAnimator!!.duration = duration
+        progressAnimator!!.interpolator = LinearInterpolator()
+        progressAnimator!!.addUpdateListener {
+            this.progress = it.animatedValue as Float
+            invalidate()
+        }
+        progressAnimator!!.start()
+    }
 
-        val objectAnimator = ObjectAnimator.ofFloat(this, "progress", progress)
-        objectAnimator.duration = 1500
-        objectAnimator.interpolator = DecelerateInterpolator()
-        objectAnimator.start()
+    fun setListener(listener: RecordButtonListener) {
+        this.listener = listener
     }
 }

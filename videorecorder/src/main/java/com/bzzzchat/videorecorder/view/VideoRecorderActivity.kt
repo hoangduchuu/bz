@@ -26,8 +26,10 @@ class VideoRecorderActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video_recorder)
-        fragmentManager.beginTransaction()
-                .replace(R.id.record_container, Camera2VideoFragment.newInstance())
-                .commit()
+        if (savedInstanceState == null) {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.record_container, Camera2VideoFragment.newInstance())
+                    .commit()
+        }
     }
 }

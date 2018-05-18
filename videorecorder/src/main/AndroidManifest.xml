@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bzzzchat.videorecorder">
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <application>
         <activity android:name=".view.VideoRecorderActivity"></activity>
     </application>

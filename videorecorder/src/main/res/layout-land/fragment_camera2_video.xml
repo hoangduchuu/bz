@@ -15,7 +15,8 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.bzzzchat.videorecorder.view.AutoFitTextureView
         android:id="@+id/texture"
@@ -25,23 +26,16 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+    <com.bzzzchat.videorecorder.view.CustomRecordButton
+        android:id="@+id/video"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_below="@id/texture"
-        android:layout_toRightOf="@id/texture"
-        android:background="#4285f4"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/video"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/record" />
-    </FrameLayout>
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="24dp"
+        android:elevation="10dp"
+        app:fillColor="#60ffffff"
+        app:progress="0"
+        app:progressBarThickness="4dp" />
 
 </RelativeLayout>

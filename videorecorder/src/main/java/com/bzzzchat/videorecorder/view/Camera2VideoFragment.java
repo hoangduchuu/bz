@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.util.Size;
@@ -53,8 +54,6 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.bzzzchat.videorecorder.R;
@@ -65,11 +64,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class Camera2VideoFragment extends Fragment
         implements View.OnClickListener {
+    private static final long MAXIMUM_RECORD_TIME = 10 * 1000; // 10s
 
     private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
     private static final int SENSOR_ORIENTATION_INVERSE_DEGREES = 270;
@@ -77,7 +79,6 @@ public class Camera2VideoFragment extends Fragment
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
 
     private static final String TAG = "Camera2VideoFragment";
-    private static final int REQUEST_VIDEO_PERMISSIONS = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
 
     private static final String[] VIDEO_PERMISSIONS = {
@@ -223,6 +224,9 @@ public class Camera2VideoFragment extends Fragment
     private String mNextVideoAbsolutePath;
     private CaptureRequest.Builder mPreviewBuilder;
 
+    private long currentRecordTime = 0;
+    private Timer recordTimer;
+
     public static Camera2VideoFragment newInstance() {
         return new Camera2VideoFragment();
     }
@@ -282,20 +286,20 @@ public class Camera2VideoFragment extends Fragment
 
     private Size getPreferredPreviewSize(Size[] mapSizes, int width, int height) {
         List<Size> collectorSizes = new ArrayList<>();
-        for(Size option : mapSizes) {
-            if(width > height) {
-                if(option.getWidth() > width &&
+        for (Size option : mapSizes) {
+            if (width > height) {
+                if (option.getWidth() > width &&
                         option.getHeight() > height) {
                     collectorSizes.add(option);
                 }
             } else {
-                if(option.getWidth() > height &&
+                if (option.getWidth() > height &&
                         option.getHeight() > width) {
                     collectorSizes.add(option);
                 }
             }
         }
-        if(collectorSizes.size() > 0) {
+        if (collectorSizes.size() > 0) {
             return Collections.min(collectorSizes, new Comparator<Size>() {
                 @Override
                 public int compare(Size lhs, Size rhs) {
@@ -307,33 +311,30 @@ public class Camera2VideoFragment extends Fragment
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_camera2_video, container, false);
-        return view;
+        return inflater.inflate(R.layout.fragment_camera2_video, container, false);
     }
 
     @Override
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         mTextureView = view.findViewById(R.id.texture);
         mButtonVideo = view.findViewById(R.id.video);
-        //mButtonVideo.setOnClickListener(this);
-        mButtonVideo.setOnLongClickListener(new View.OnLongClickListener() {
+        mButtonVideo.setListener(new RecordButtonListener() {
             @Override
-            public boolean onLongClick(View v) {
-                // TODO start record
+            public void onStartRecord() {
                 startRecordingVideo();
-                return true;
             }
-        });
-        mButtonVideo.setOnTouchListener(new View.OnTouchListener() {
+
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    stopRecordingVideo();
-                    return true;
-                }
-                return false;
+            public void onStopRecord() {
+                stopRecordingVideo();
             }
         });
     }
@@ -445,7 +446,7 @@ public class Camera2VideoFragment extends Fragment
             }
             mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
             mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class),
-                   width, height, mVideoSize);
+                    width, height, mVideoSize);
 //            mPreviewSize = map.getOutputSizes(SurfaceTexture.class)[0];
 
             int orientation = getResources().getConfiguration().orientation;
@@ -660,6 +661,7 @@ public class Camera2VideoFragment extends Fragment
 
                             // Start recording
                             mMediaRecorder.start();
+                            startRecordTimer();
                         }
                     });
                 }
@@ -688,10 +690,10 @@ public class Camera2VideoFragment extends Fragment
     private void stopRecordingVideo() {
         // UI
         mIsRecordingVideo = false;
-        //mButtonVideo.setText(R.string.record);
         // Stop recording
         mMediaRecorder.stop();
         mMediaRecorder.reset();
+        stopRecordTimer();
 
         Activity activity = getActivity();
         if (null != activity) {
@@ -701,6 +703,40 @@ public class Camera2VideoFragment extends Fragment
         }
         mNextVideoAbsolutePath = null;
         startPreview();
+    }
+
+    private void startRecordTimer() {
+        currentRecordTime = 0;
+        recordTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                currentRecordTime += 1000;
+                if (currentRecordTime >= MAXIMUM_RECORD_TIME + 1000) {
+                    mButtonVideo.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mButtonVideo.resetRecordState();
+                        }
+                    });
+                    return;
+                }
+                mButtonVideo.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mButtonVideo.setProgressWithAnimation(
+                                ((float) currentRecordTime / MAXIMUM_RECORD_TIME) * 100, 1000);
+                    }
+                });
+            }
+        };
+        recordTimer.scheduleAtFixedRate(task, 0, 1000);
+    }
+
+    private void stopRecordTimer() {
+        if (recordTimer != null) {
+            recordTimer.cancel();
+        }
     }
 
     /**

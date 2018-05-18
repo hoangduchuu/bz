@@ -16,7 +16,7 @@ class FFmpegInvoke(val path: String) {
 
     companion object {
         init {
-            System.loadLibrary("ffmpeginvoke")
+            //System.loadLibrary("ffmpeginvoke")
         }
     }
 }

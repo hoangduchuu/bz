@@ -226,6 +226,7 @@
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name="com.bzzzchat.videorecorder.view.VideoRecorderActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
 
         <meta-data
