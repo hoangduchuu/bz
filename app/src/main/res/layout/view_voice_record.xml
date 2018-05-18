@@ -157,13 +157,14 @@
                     android:tint="@color/orange" />
 
                 <ImageView
+                    style="?backgroundTheme"
                     android:id="@+id/btnSend"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_marginStart="50dp"
                     android:background="@drawable/background_circle_gray"
                     android:padding="11dp"
-                    android:src="@drawable/ic_send"
+                    android:src="@drawable/ic_arrow_up"
                     android:tint="@color/orange" />
             </LinearLayout>
         </RelativeLayout>
