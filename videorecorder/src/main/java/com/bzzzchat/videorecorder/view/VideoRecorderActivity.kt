@@ -18,6 +18,7 @@ package com.bzzzchat.videorecorder.view
 
 import android.app.Activity
 import android.os.Bundle
+import android.widget.Toast
 
 import com.bzzzchat.videorecorder.R
 
@@ -32,4 +33,13 @@ class VideoRecorderActivity : Activity() {
                     .commit()
         }
     }
+}
+
+/**
+ * Shows a [Toast] on the UI thread.
+ *
+ * @param text The message to show
+ */
+fun Activity.showToast(text: String) {
+    runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
 }

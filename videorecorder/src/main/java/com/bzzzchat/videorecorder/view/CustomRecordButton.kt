@@ -12,13 +12,13 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Animation
-import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.animation.ScaleAnimation
 
 import com.bzzzchat.videorecorder.R
 
 interface RecordButtonListener {
+    fun onTakeImage()
     fun onStartRecord()
     fun onStopRecord()
 }
@@ -57,6 +57,7 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
 
     init {
         init(context, attrs)
+        setOnClickListener { listener?.onTakeImage() }
         setOnLongClickListener {
             updateRecordState()
             return@setOnLongClickListener true

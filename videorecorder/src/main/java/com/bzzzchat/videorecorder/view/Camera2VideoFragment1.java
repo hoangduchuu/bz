@@ -49,7 +49,6 @@ import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -69,7 +68,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class Camera2VideoFragment extends Fragment
+public class Camera2VideoFragment1 extends Fragment
         implements View.OnClickListener {
     private static final long MAXIMUM_RECORD_TIME = 10 * 1000; // 10s
 
@@ -78,7 +77,7 @@ public class Camera2VideoFragment extends Fragment
     private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
     private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
 
-    private static final String TAG = "Camera2VideoFragment";
+    private static final String TAG = "Camera2VideoFragment1";
     private static final String FRAGMENT_DIALOG = "dialog";
 
     private static final String[] VIDEO_PERMISSIONS = {
@@ -227,8 +226,8 @@ public class Camera2VideoFragment extends Fragment
     private long currentRecordTime = 0;
     private Timer recordTimer;
 
-    public static Camera2VideoFragment newInstance() {
-        return new Camera2VideoFragment();
+    public static Camera2VideoFragment1 newInstance() {
+        return new Camera2VideoFragment1();
     }
 
     /**
@@ -327,6 +326,11 @@ public class Camera2VideoFragment extends Fragment
         mTextureView = view.findViewById(R.id.texture);
         mButtonVideo = view.findViewById(R.id.video);
         mButtonVideo.setListener(new RecordButtonListener() {
+            @Override
+            public void onTakeImage() {
+
+            }
+
             @Override
             public void onStartRecord() {
                 startRecordingVideo();
