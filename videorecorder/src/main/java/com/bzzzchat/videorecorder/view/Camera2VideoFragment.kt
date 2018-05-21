@@ -29,6 +29,7 @@ import android.view.*
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import com.bzzzchat.videorecorder.R
+import kotlinx.android.synthetic.main.fragment_camera2_video.*
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -94,7 +95,7 @@ class Camera2VideoFragment : Fragment(),
     private val surfaceTextureListener = object : TextureView.SurfaceTextureListener {
 
         override fun onSurfaceTextureAvailable(texture: SurfaceTexture, width: Int, height: Int) {
-            openCamera(width, height)
+            openCamera(cameraDirection, width, height)
         }
 
         override fun onSurfaceTextureSizeChanged(texture: SurfaceTexture, width: Int, height: Int) {
@@ -206,6 +207,8 @@ class Camera2VideoFragment : Fragment(),
 
     private var recordTimer: Timer? = null
 
+    private var cameraDirection: Int = CameraCharacteristics.LENS_FACING_FRONT
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -227,6 +230,9 @@ class Camera2VideoFragment : Fragment(),
                 stopRecordingVideo()
             }
         })
+        btnSwitchCamera.setOnClickListener {
+            handleCameraSwitch()
+        }
         file = File(activity?.getExternalFilesDir(null), "pic.jpeg")
     }
 
@@ -239,7 +245,7 @@ class Camera2VideoFragment : Fragment(),
         // a camera and start preview from here (otherwise, we wait until the surface is ready in
         // the SurfaceTextureListener).
         if (textureView.isAvailable) {
-            openCamera(textureView.width, textureView.height)
+            openCamera(cameraDirection, textureView.width, textureView.height)
         } else {
             textureView.surfaceTextureListener = surfaceTextureListener
         }
@@ -249,6 +255,18 @@ class Camera2VideoFragment : Fragment(),
         closeCamera()
         stopBackgroundThread()
         super.onPause()
+    }
+
+    private fun handleCameraSwitch() {
+        closeCamera()
+        cameraDirection = if (cameraDirection == CameraCharacteristics.LENS_FACING_BACK) {
+            CameraCharacteristics.LENS_FACING_FRONT
+        } else {
+            CameraCharacteristics.LENS_FACING_BACK
+        }
+        if (textureView.isAvailable) {
+            openCamera(cameraDirection, textureView.width, textureView.height)
+        }
     }
 
     /**
@@ -288,7 +306,7 @@ class Camera2VideoFragment : Fragment(),
      * Lint suppression - permission is checked in [hasPermissionsGranted]
      */
     @SuppressLint("MissingPermission")
-    private fun openCamera(width: Int, height: Int) {
+    private fun openCamera(direction: Int, width: Int, height: Int) {
         if (!hasPermissionsGranted(VIDEO_PERMISSIONS)) {
             return
         }
@@ -301,42 +319,50 @@ class Camera2VideoFragment : Fragment(),
             if (!cameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
                 throw RuntimeException("Time out waiting to lock camera opening.")
             }
-            val cameraId = manager.cameraIdList[1]
+            var cameraId = ""
+            for (_cameraId in manager.cameraIdList) {
+                val characteristics = manager.getCameraCharacteristics(_cameraId)
 
-            // Choose the sizes for camera preview and video recording
-            val characteristics = manager.getCameraCharacteristics(cameraId)
-            val map = characteristics.get(SCALER_STREAM_CONFIGURATION_MAP)
-                    ?: throw RuntimeException("Cannot get available preview/video sizes")
-            sensorOrientation = characteristics.get(SENSOR_ORIENTATION)
-            videoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder::class.java))
-            previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture::class.java),
-                    width, height, videoSize)
+                // We don't use a front facing camera in this sample.
+                val cameraDirection = characteristics.get(CameraCharacteristics.LENS_FACING)
+                if (cameraDirection != null && cameraDirection != direction) {
+                    continue
+                }
+                cameraId = _cameraId
+                val map = characteristics.get(SCALER_STREAM_CONFIGURATION_MAP)
+                        ?: throw RuntimeException("Cannot get available preview/video sizes")
+                sensorOrientation = characteristics.get(SENSOR_ORIENTATION)
+                videoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder::class.java))
+                previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture::class.java),
+                        width, height, videoSize)
 
-            imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
-                    ImageFormat.JPEG, /*maxImages*/ 2).apply {
-                setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
+                imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
+                        ImageFormat.JPEG, /*maxImages*/ 2).apply {
+                    setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
+                }
+
+                if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    textureView.setAspectRatio(previewSize.width, previewSize.height)
+                } else {
+                    textureView.setAspectRatio(previewSize.height, previewSize.width)
+                }
+                configureTransform(width, height)
+                mediaRecorder = MediaRecorder()
+
+                // Check if the flash is supported.
+                flashSupported =
+                        characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+
+                val afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
+
+                autoFocusSupported = !(afAvailableModes.isEmpty()
+                        || afAvailableModes.size == 1
+                        && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)
+
+
+                manager.openCamera(cameraId, stateCallback, null)
+                break
             }
-
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                textureView.setAspectRatio(previewSize.width, previewSize.height)
-            } else {
-                textureView.setAspectRatio(previewSize.height, previewSize.width)
-            }
-            configureTransform(width, height)
-            mediaRecorder = MediaRecorder()
-
-            // Check if the flash is supported.
-            flashSupported =
-                    characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
-
-            val afAvailableModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
-
-            autoFocusSupported = !(afAvailableModes.isEmpty()
-                    || afAvailableModes.size == 1
-                    && afAvailableModes[0] == CameraMetadata.CONTROL_AF_MODE_OFF)
-
-
-            manager.openCamera(cameraId, stateCallback, null)
         } catch (e: CameraAccessException) {
             showToast("Cannot access the camera.")
             cameraActivity.finish()

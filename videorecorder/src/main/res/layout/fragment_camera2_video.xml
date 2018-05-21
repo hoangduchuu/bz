@@ -37,4 +37,13 @@
         app:progress="0"
         app:progressBarThickness="4dp" />
 
+    <ImageView
+        android:id="@+id/btnSwitchCamera"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:src="@drawable/ic_switch_camera"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"/>
 </RelativeLayout>
