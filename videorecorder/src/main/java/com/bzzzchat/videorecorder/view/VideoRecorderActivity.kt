@@ -16,9 +16,15 @@
 
 package com.bzzzchat.videorecorder.view
 
+import android.Manifest
 import android.app.Activity
 import android.app.Fragment
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
+import android.support.v4.content.ContextCompat
 import android.view.WindowManager
 import android.widget.Toast
 
@@ -34,8 +40,31 @@ class VideoRecorderActivity : Activity() {
         setContentView(R.layout.activity_video_recorder)
         extras = intent.extras
         if (savedInstanceState == null) {
-            openFragment(Camera2VideoFragment.newInstance())
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                onPermissionGranted()
+            } else {
+                if (isPermissionsGranted()) {
+                    onPermissionGranted()
+                } else {
+                    requestPermissions()
+                }
+            }
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray?) {
+        if (requestCode == 1212) {
+            if (grantResults != null) {
+                for (result in grantResults) {
+                    if (result != PackageManager.PERMISSION_GRANTED) {
+                        onPermissionFailed()
+                        return
+                    }
+                }
+                onPermissionGranted()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     fun openFragment(fragment: Fragment) {
@@ -54,11 +83,41 @@ class VideoRecorderActivity : Activity() {
     }
 
     override fun onBackPressed() {
-        if (fragmentManager.backStackEntryCount > 0) {
+        if (fragmentManager.backStackEntryCount > 1) {
             fragmentManager.popBackStackImmediate()
             return
+        } else {
+            finish()
         }
-        super.onBackPressed()
+    }
+
+    fun onImageSelected(imageFile: String) {
+        val intent = Intent()
+        intent.putExtra(IMAGE_EXTRA_KEY, imageFile)
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    private fun onPermissionGranted() {
+        openFragment(Camera2VideoFragment.newInstance())
+    }
+
+    private fun onPermissionFailed() {
+        finish()
+    }
+
+    private fun isPermissionsGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun requestPermissions() {
+        requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1212)
+    }
+
+    companion object {
+        const val IMAGE_EXTRA_KEY = "IMAGE_EXTRA_KEY"
     }
 }
 

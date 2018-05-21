@@ -28,6 +28,10 @@ class PicturePreviewFragment: Fragment() {
                 .load(imageFile)
                 .signature(ObjectKey(System.currentTimeMillis()))
                 .into(imgPreview)
+
+        btnSend.setOnClickListener {
+            (activity as VideoRecorderActivity).onImageSelected(imageFile)
+        }
     }
 
     companion object {

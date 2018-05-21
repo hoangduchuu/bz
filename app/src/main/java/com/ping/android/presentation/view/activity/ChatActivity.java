@@ -86,6 +86,8 @@ import javax.inject.Inject;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
+    private static final int CAMERA_REQUEST_CODE = 12345;
+
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
     public static final String EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME";
@@ -407,6 +409,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);
+        }
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+            String imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY);
+            if (!TextUtils.isEmpty(imagePath)) {
+                presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isChecked());
+            }
         }
     }
 
@@ -951,8 +959,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendCamera() {
+        // Should check permission here
         Intent intent = new Intent(this, VideoRecorderActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, CAMERA_REQUEST_CODE);
 
         /*imagePickerHelper = ImagePickerHelper.from(this)
                 .setCrop(false)
