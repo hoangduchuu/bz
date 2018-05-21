@@ -64,7 +64,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderIte
 import com.ping.android.service.ServiceManager;
 import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
-import com.ping.android.utils.GlideApp;
+import com.bzzzchat.configuration.GlideApp;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;

@@ -99,6 +99,7 @@ def libraries = rootProject.ext.libraries
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
+    implementation project(':configuration')
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
     implementation(project(path: ':videorecorder')) {

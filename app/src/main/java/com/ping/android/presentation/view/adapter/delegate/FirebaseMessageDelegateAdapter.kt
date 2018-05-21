@@ -22,7 +22,7 @@ import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
 import com.ping.android.ultility.Constant
 import com.ping.android.utils.BitmapEncode
-import com.ping.android.utils.GlideApp
+import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener): ViewTypeDelegateAdapter {

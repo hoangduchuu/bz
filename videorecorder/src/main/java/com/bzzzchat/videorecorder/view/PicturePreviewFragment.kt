@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.signature.ObjectKey
+import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.videorecorder.R
-import com.bzzzchat.videorecorder.util.GlideApp
 
 import kotlinx.android.synthetic.main.fragment_img_preview.*
 

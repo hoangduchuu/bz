@@ -18,7 +18,7 @@ import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.ultility.Constant
 import com.ping.android.utils.BitmapEncode
-import com.ping.android.utils.GlideApp
+import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.fragment_image.*
 
 class ImageFragment : Fragment() {
