@@ -17,23 +17,48 @@
 package com.bzzzchat.videorecorder.view
 
 import android.app.Activity
+import android.app.Fragment
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
 
 import com.bzzzchat.videorecorder.R
+import java.io.File
 
 class VideoRecorderActivity : Activity() {
+    private var extras: Bundle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_video_recorder)
+        extras = intent.extras
         if (savedInstanceState == null) {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.record_container, Camera2VideoFragment.newInstance())
-                    .commit()
+            openFragment(Camera2VideoFragment.newInstance())
         }
+    }
+
+    fun openFragment(fragment: Fragment) {
+        fragmentManager.beginTransaction()
+                .add(R.id.record_container, fragment)
+                .addToBackStack(fragment.toString())
+                .commit()
+    }
+
+    fun openPreviewPicture(file: File) {
+        if (extras == null) {
+            extras = Bundle()
+        }
+        extras!!.putString("imgPath", file.absolutePath)
+        openFragment(PicturePreviewFragment.newInstance(extras!!))
+    }
+
+    override fun onBackPressed() {
+        if (fragmentManager.backStackEntryCount > 0) {
+            fragmentManager.popBackStackImmediate()
+            return
+        }
+        super.onBackPressed()
     }
 }
 

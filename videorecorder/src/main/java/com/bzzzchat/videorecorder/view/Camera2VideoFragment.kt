@@ -663,9 +663,7 @@ class Camera2VideoFragment : Fragment(),
                 override fun onCaptureCompleted(session: CameraCaptureSession,
                                                 request: CaptureRequest,
                                                 result: TotalCaptureResult) {
-                    activity!!.showToast("Saved: $file")
-                    Log.d(TAG, file.toString())
-                    // FIXME
+                    onCapturedImage()
                     unlockFocus()
                 }
             }
@@ -709,6 +707,10 @@ class Camera2VideoFragment : Fragment(),
             requestBuilder.set(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
         }
+    }
+
+    private fun onCapturedImage() {
+        (activity as VideoRecorderActivity).openPreviewPicture(file)
     }
 
     companion object {

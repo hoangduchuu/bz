@@ -83,6 +83,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (mCaptureTime == 0) mCaptureTime = callbackTime - 300;
         if (mCaptureNativeSize == null) mCaptureNativeSize = camera.getPictureSize();
 
+
         PicturePreviewActivity.setImage(jpeg);
         Intent intent = new Intent(CameraActivity.this, PicturePreviewActivity.class);
         intent.putExtras(extras);
