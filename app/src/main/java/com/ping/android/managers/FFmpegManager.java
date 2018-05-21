@@ -30,7 +30,7 @@ public class FFmpegManager {
     }
 
     public void transform(File input, File output, VoiceType voiceType, Callback callback) {
-        String command = String.format("-i %s -af %s -acodec aac %s -strict -2",
+        String command = String.format("-i %s -af %s -acodec aac %s",
                 input.getAbsolutePath(), voiceType.getFilter(), output.getAbsolutePath());
         execute(command.split(" "), new FFcommandExecuteResponseHandler() {
             @Override
