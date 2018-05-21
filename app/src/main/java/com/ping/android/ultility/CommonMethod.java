@@ -17,6 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -28,7 +30,7 @@ public class CommonMethod {
             "^[_A-Za-z0-9-+]+(\\.[_A-Za-z0-9-]+)*@"
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PING_ID_PATTERN = "^[a-zA-Z0-9]*$";
-    private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢¶•ªº«\\\\/<>?:;|=., 0-9]{1,20}$";
+    private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢¶•ªº«\\\\/<>?:;|=.,0-9]{1,20}$";
     private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
     private static final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
 
@@ -90,9 +92,48 @@ public class CommonMethod {
         }
     }
 
+    public static String capitalFirstLetters(String sentence) {
+        String[] words = sentence.split(" ");
+        List<String> result = new ArrayList<>();
+        for (String word : words) {
+            result.add(capitalFirstLetter(word));
+        }
+        return join(result.iterator(), " ");
+    }
+
     public static String capitalFirstLetter(String text) {
         text = text.toLowerCase();
         return text.substring(0, 1).toUpperCase() + text.substring(1);
+    }
+
+    /**
+     * Join an Iteration of Strings together.
+     * <p/>
+     * <h5>Example</h5>
+     * <p/>
+     * <p/>
+     *
+     * <pre>
+     * // get Iterator of Strings (&quot;abc&quot;,&quot;def&quot;,&quot;123&quot;);
+     * Iterator i = getIterator();
+     * out.print(TextUtils.join(&quot;, &quot;, i));
+     * // prints: &quot;abc, def, 123&quot;
+     * </pre>
+     *
+     * @param glue Token to place between Strings.
+     * @param pieces Iteration of Strings to join.
+     * @return String presentation of joined Strings.
+     */
+    private static String join(Iterator<String> pieces, String glue) {
+        StringBuilder s = new StringBuilder();
+        while (pieces.hasNext()) {
+            s.append(pieces.next());
+
+            if (pieces.hasNext()) {
+                s.append(glue);
+            }
+        }
+        return s.toString();
     }
 
     public static boolean isFilteredContact(User contact, String text) {
