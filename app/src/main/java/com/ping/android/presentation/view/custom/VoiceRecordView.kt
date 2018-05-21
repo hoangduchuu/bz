@@ -121,6 +121,8 @@ class VoiceRecordView : LinearLayout {
         }))
         voiceTypes = ArrayList()
         voiceTypes.add(VoiceTypeItem(VoiceType.DEFAULT, true))
+//        voiceTypes.add(VoiceTypeItem(VoiceType.TELEPHONE, false))
+//        voiceTypes.add(VoiceTypeItem(VoiceType.SONIC, false))
         voiceTypes.add(VoiceTypeItem(VoiceType.CHIPMUNK, false))
         voiceTypes.add(VoiceTypeItem(VoiceType.ROBOT, false))
         voiceTypes.add(VoiceTypeItem(VoiceType.MALE, false))
