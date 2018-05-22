@@ -634,7 +634,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void handleShakePhone() {
+    public void sendVideoMessage(String videoPath) {
 
     }
 

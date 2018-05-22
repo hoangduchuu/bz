@@ -20,7 +20,6 @@ class PicturePreviewFragment: Fragment() {
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btnBack.setOnClickListener { activity.onBackPressed() }
         arguments.let {
             imageFile = it.getString("imgPath")
         }
@@ -29,6 +28,7 @@ class PicturePreviewFragment: Fragment() {
                 .signature(ObjectKey(System.currentTimeMillis()))
                 .into(imgPreview)
 
+        btnBack.setOnClickListener { activity.onBackPressed() }
         btnSend.setOnClickListener {
             (activity as VideoRecorderActivity).onImageSelected(imageFile)
         }

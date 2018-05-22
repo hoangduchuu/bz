@@ -15,6 +15,8 @@ public class Constant {
     public static final int MSG_TYPE_IMAGE = 2;
     public static final int MSG_TYPE_VOICE = 3;
     public static final int MSG_TYPE_GAME = 4;
+    public static final int MSG_TYPE_VIDEO = 5;
+
     public static final int MSG_TYPE_TYPING = 10;
     public static final int MSG_TYPE_PADDING = 11;
 

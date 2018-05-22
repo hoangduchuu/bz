@@ -67,7 +67,7 @@ class VideoRecorderActivity : Activity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    fun openFragment(fragment: Fragment) {
+    private fun openFragment(fragment: Fragment) {
         fragmentManager.beginTransaction()
                 .add(R.id.record_container, fragment)
                 .addToBackStack(fragment.toString())
@@ -102,6 +102,13 @@ class VideoRecorderActivity : Activity() {
         finish()
     }
 
+    fun onVideoSelected(videoFile: String) {
+        val intent = Intent()
+        intent.putExtra(VIDEO_EXTRA_KEY, videoFile)
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
     private fun onPermissionGranted() {
         openFragment(Camera2VideoFragment.newInstance())
     }
@@ -122,6 +129,7 @@ class VideoRecorderActivity : Activity() {
 
     companion object {
         const val IMAGE_EXTRA_KEY = "IMAGE_EXTRA_KEY"
+        const val VIDEO_EXTRA_KEY = "VIDEO_EXTRA_KEY"
     }
 }
 

@@ -51,7 +51,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void initThemeColor(Color currentColor);
 
-    void handleShakePhone();
+    void sendVideoMessage(String videoPath);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);

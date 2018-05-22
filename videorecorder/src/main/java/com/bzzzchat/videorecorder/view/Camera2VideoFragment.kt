@@ -60,7 +60,7 @@ class Camera2VideoFragment : Fragment(),
         append(Surface.ROTATION_270, 0)
     }
     private val VIDEO_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-    private val MAXIMUM_RECORD_TIME = 10 * 1000 // 10s
+    private val MAXIMUM_RECORD_TIME = 5 * 1000 // 5s
     // region picture
 
     /**
@@ -612,7 +612,6 @@ class Camera2VideoFragment : Fragment(),
             exception.printStackTrace()
         }
 
-        if (activity != null) showToast("Video saved: $nextVideoAbsolutePath")
         (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
         nextVideoAbsolutePath = null
         startPreview()

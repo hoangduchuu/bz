@@ -25,6 +25,7 @@ public class Message implements Parcelable {
     public String photoUrl;
     public String thumbUrl;
     public String audioUrl;
+    public String videoUrl;
     public String gameUrl;
     public String senderId;
     public String senderName;

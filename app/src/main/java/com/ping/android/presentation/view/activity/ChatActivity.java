@@ -412,8 +412,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             String imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY);
+            String videoPath = data.getStringExtra(VideoRecorderActivity.VIDEO_EXTRA_KEY);
             if (!TextUtils.isEmpty(imagePath)) {
                 presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isChecked());
+            } else if (!TextUtils.isEmpty(videoPath)) {
+                presenter.sendVideoMessage(videoPath);
             }
         }
     }
