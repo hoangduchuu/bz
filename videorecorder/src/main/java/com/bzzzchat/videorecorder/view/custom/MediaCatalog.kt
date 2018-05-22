@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.example.android.videoplayersample
+package com.bzzzchat.videorecorder.view.custom
 
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
+import java.io.File
 
 /**
  * Manages a set of media metadata that is used to create a playlist for [VideoActivity].
@@ -58,6 +59,19 @@ open class MediaCatalog(private val list: MutableList<MediaDescriptionCompat>) :
                     setMediaUri(Uri.parse("http://ftp.nluug.nl/pub/graphics/blender/demo/movies/ToS/ToS-4k-1920.mov"))
                     setTitle("Short film Tears of Steel")
                     setSubtitle("Streaming audio")
+                    build()
+                })
+    }
+
+    fun addMedia(file: File) {
+        list.add(
+                with(MediaDescriptionCompat.Builder()) {
+                    setDescription("")
+                    setMediaId("0")
+                    // License - https://peach.blender.org/download/
+                    setMediaUri(Uri.fromFile(file))
+                    setTitle("")
+                    setSubtitle("")
                     build()
                 })
     }

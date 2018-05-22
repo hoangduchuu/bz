@@ -82,6 +82,10 @@ class VideoRecorderActivity : Activity() {
         openFragment(PicturePreviewFragment.newInstance(extras!!))
     }
 
+    fun openPreviewVideo(file: File) {
+        openFragment(VideoPreviewFragment.newInstance(file.absolutePath))
+    }
+
     override fun onBackPressed() {
         if (fragmentManager.backStackEntryCount > 1) {
             fragmentManager.popBackStackImmediate()

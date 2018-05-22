@@ -1,4 +1,4 @@
-package com.bzzzchat.videorecorder.view
+package com.bzzzchat.videorecorder.util
 
 import android.media.Image
 import android.util.Log

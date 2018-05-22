@@ -6,15 +6,14 @@ import android.app.Fragment
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Configuration
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.RectF
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.media.AudioFormat
+import android.media.AudioRecord
 import android.media.ImageReader
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -29,9 +28,22 @@ import android.view.*
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import com.bzzzchat.videorecorder.R
+import com.bzzzchat.videorecorder.util.CompareSizesByArea
+import com.bzzzchat.videorecorder.util.ImageSaver
+import com.bzzzchat.videorecorder.view.custom.AutoFitTextureView
+import com.bzzzchat.videorecorder.view.custom.CustomRecordButton
+import com.bzzzchat.videorecorder.view.custom.RecordButtonListener
 import kotlinx.android.synthetic.main.fragment_camera2_video.*
+import org.bytedeco.javacpp.avutil
+import org.bytedeco.javacv.FFmpegFrameFilter
+import org.bytedeco.javacv.FFmpegFrameRecorder
+import org.bytedeco.javacv.Frame
+import org.bytedeco.javacv.FrameRecorder
+import org.jetbrains.anko.warn
 import java.io.File
 import java.io.IOException
+import java.nio.Buffer
+import java.nio.ShortBuffer
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -224,10 +236,12 @@ class Camera2VideoFragment : Fragment(),
 
             override fun onStartRecord() {
                 startRecordingVideo()
+//                startRecording()
             }
 
             override fun onStopRecord() {
                 stopRecordingVideo()
+//                stopRecording()
             }
         })
         btnSwitchCamera.setOnClickListener {
@@ -507,6 +521,150 @@ class Camera2VideoFragment : Fragment(),
         }
     }
 
+    private var RECORD_LENGTH = 0
+    private var samplesIndex = 0
+    private var imagesIndex = 0
+    private var images: Array<Frame>? = null
+
+    private var samples: Array<ShortBuffer?>? = null
+    private var yuvImage: Frame? = null
+    private var recorder: FFmpegFrameRecorder? = null
+
+    private var filter: FFmpegFrameFilter? = null
+    private val addFilter = true
+
+    private val sampleAudioRateInHz = 44100
+    private val frameRate = 30
+
+    private var audioRecord: AudioRecord? = null
+    private var audioRecordRunnable: AudioRecordRunnable? = null
+    private var audioThread: Thread? = null
+    @Volatile
+    var runAudioThread = true
+    private var recording = false
+    private var startTime: Long = 0
+
+    private fun startRecording() {
+        initRecorder()
+
+        try {
+            recorder!!.start()
+            startTime = System.currentTimeMillis()
+            recording = true
+            audioThread!!.start()
+
+            if(addFilter) {
+                filter!!.start()
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun initRecorder() {
+        Log.w("Video", "init recorder");
+
+        if (yuvImage == null) {
+            yuvImage = Frame(videoSize.width, videoSize.height, Frame.DEPTH_UBYTE, 4)
+            Log.i("Video", "create yuvImage");
+        }
+
+        recorder = FFmpegFrameRecorder(getVideoFilePath(activity), videoSize.width, videoSize.height, 1)
+        recorder!!.format = "mp4"
+        recorder!!.sampleRate = sampleAudioRateInHz;
+        // Set in the surface changed method
+        recorder!!.frameRate = frameRate.toDouble()
+
+        // The filterString  is any ffmpeg filter.
+        // Here is the link for a list: https://ffmpeg.org/ffmpeg-filters.html
+        // The filterString  is any ffmpeg filter.
+        // Here is the link for a list: https://ffmpeg.org/ffmpeg-filters.html
+        val filterString = "transpose=0"
+        filter = FFmpegFrameFilter(filterString, videoSize.width, videoSize.height)
+
+        //default format on android
+        filter!!.pixelFormat = avutil.AV_PIX_FMT_NV21;
+
+        Log.i("Video", "recorder initialize success");
+
+        audioRecordRunnable = AudioRecordRunnable()
+        audioThread = Thread(audioRecordRunnable)
+        runAudioThread = true
+    }
+
+    private fun stopRecording() {
+
+        runAudioThread = false
+        try {
+            audioThread!!.join()
+        } catch (e: InterruptedException) {
+            // reset interrupt to be nice
+            Thread.currentThread().interrupt()
+            return
+        }
+        audioRecordRunnable = null
+        audioThread = null
+
+        if (recorder != null && recording) {
+//            if (RECORD_LENGTH > 0) {
+//                Log.v("Video","Writing frames");
+//                try {
+//                    var firstIndex = imagesIndex % samples!!.size
+//                    int lastIndex = (imagesIndex - 1) % images.size
+//                    if (imagesIndex <= images.length) {
+//                        firstIndex = 0;
+//                        lastIndex = imagesIndex - 1;
+//                    }
+//                    if ((startTime = timestamps[lastIndex] - RECORD_LENGTH * 1000000L) < 0) {
+//                        startTime = 0;
+//                    }
+//                    if (lastIndex < firstIndex) {
+//                        lastIndex += images.length;
+//                    }
+//                    for (int i = firstIndex; i <= lastIndex; i++) {
+//                        long t = timestamps[i % timestamps.length] - startTime;
+//                        if (t >= 0) {
+//                            if (t > recorder.getTimestamp()) {
+//                                recorder.setTimestamp(t);
+//                            }
+//                            recorder.record(images[i % images.length]);
+//                        }
+//                    }
+//
+//                    firstIndex = samplesIndex % samples.length;
+//                    lastIndex = (samplesIndex - 1) % samples.length;
+//                    if (samplesIndex <= samples.length) {
+//                        firstIndex = 0;
+//                        lastIndex = samplesIndex - 1;
+//                    }
+//                    if (lastIndex < firstIndex) {
+//                        lastIndex += samples.length;
+//                    }
+//                    for (int i = firstIndex; i <= lastIndex; i++) {
+//                        recorder.recordSamples(samples[i % samples.length]);
+//                    }
+//                } catch (FFmpegFrameRecorder.Exception e) {
+//                    Log.v(LOG_TAG,e.getMessage());
+//                    e.printStackTrace();
+//                }
+//            }
+
+            recording = false;
+            Log.v("Video","Finishing recording, calling stop and release on recorder");
+            try {
+                recorder?.stop()
+                recorder?.release()
+                filter?.stop()
+                filter?.release()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            recorder = null
+
+        }
+    }
+
     private fun getVideoFilePath(context: Context?): String {
         val filename = "${System.currentTimeMillis()}.mp4"
         val dir = context?.getExternalFilesDir(null)
@@ -546,21 +704,39 @@ class Camera2VideoFragment : Fragment(),
 
         try {
             closePreviewSession()
-            setUpMediaRecorder()
+            //setUpMediaRecorder()
+            initRecorder()
             val texture = textureView.surfaceTexture.apply {
                 setDefaultBufferSize(previewSize.width, previewSize.height)
             }
 
             // Set up Surface for camera preview and MediaRecorder
             val previewSurface = Surface(texture)
-            val recorderSurface = mediaRecorder!!.surface
-            val surfaces = ArrayList<Surface>().apply {
-                add(previewSurface)
-                add(recorderSurface)
+
+            val imageListener = ImageReader.OnImageAvailableListener {
+                backgroundHandler?.post {
+                    Log.d("", "Image available")
+                    val img = it.acquireNextImage()
+                    val buffer = img.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes, 0, bytes.size)
+                    img.close()
+                }
+//                (yuvImage.image[0].position(0) as ByteBuffer).put(bytes)
+//                ffmpegRecorder.record(yuvImage)
             }
+            val imageReader = ImageReader.newInstance(previewSize.width, previewSize.height, PixelFormat.RGBA_8888, 5)
+            imageReader.setOnImageAvailableListener(imageListener, backgroundHandler)
+
+            val surfaces = ArrayList<Surface>().apply {
+                //add(previewSurface)
+                add(imageReader.surface)
+            }
+
             previewRequestBuilder = cameraDevice!!.createCaptureRequest(TEMPLATE_RECORD).apply {
-                addTarget(previewSurface)
-                addTarget(recorderSurface)
+                //addTarget(previewSurface)
+                addTarget(imageReader!!.surface)
+                //addTarget(recorderSurface)
             }
 
             // Start a capture session
@@ -573,7 +749,20 @@ class Camera2VideoFragment : Fragment(),
                             updatePreview()
                             activity?.runOnUiThread {
                                 isRecordingVideo = true
-                                mediaRecorder?.start()
+                                //mediaRecorder?.start()
+                                try {
+                                    recorder!!.start()
+                                    startTime = System.currentTimeMillis()
+                                    recording = true
+                                    audioThread!!.start()
+
+                                    if(addFilter) {
+                                        filter!!.start()
+                                    }
+
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
                                 startRecordTimer()
                             }
                         }
@@ -596,6 +785,7 @@ class Camera2VideoFragment : Fragment(),
     }
 
     private fun stopRecordingVideo() {
+        stopRecording()
         isRecordingVideo = false
         stopRecordTimer()
         try {
@@ -608,6 +798,7 @@ class Camera2VideoFragment : Fragment(),
         }
 
         if (activity != null) showToast("Video saved: $nextVideoAbsolutePath")
+        (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
         nextVideoAbsolutePath = null
         startPreview()
     }
@@ -737,6 +928,73 @@ class Camera2VideoFragment : Fragment(),
 
     private fun onCapturedImage() {
         (activity as VideoRecorderActivity).openPreviewPicture(file)
+    }
+
+
+    //---------------------------------------------
+    // audio thread, gets and encodes audio data
+    //---------------------------------------------
+    internal inner class AudioRecordRunnable : Runnable {
+
+        override fun run() {
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_AUDIO)
+
+            // Audio
+            val bufferSize: Int = AudioRecord.getMinBufferSize(sampleAudioRateInHz,
+                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+            var audioData: ShortBuffer = ShortBuffer.allocate(bufferSize)
+            var bufferReadResult: Int
+
+            audioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, sampleAudioRateInHz,
+                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+
+            if (RECORD_LENGTH > 0) {
+                samplesIndex = 0
+                samples = arrayOfNulls(RECORD_LENGTH * sampleAudioRateInHz * 2 / bufferSize + 1)
+                for (i in 0 until samples!!.size) {
+                    samples!![i] = ShortBuffer.allocate(bufferSize)
+                }
+            } else {
+                audioData = ShortBuffer.allocate(bufferSize)
+            }
+
+            Log.d("Video", "audioRecord.startRecording()")
+            audioRecord!!.startRecording()
+
+            /* ffmpeg_audio encoding loop */
+            while (runAudioThread) {
+                if (RECORD_LENGTH > 0) {
+                    audioData = samples!![samplesIndex++ % samples!!.size]!!
+                    audioData.position(0).limit(0)
+                }
+                //Log.v(LOG_TAG,"recording? " + recording);
+                bufferReadResult = audioRecord!!.read(audioData.array(), 0, audioData.capacity())
+                audioData.limit(bufferReadResult)
+                if (bufferReadResult > 0) {
+                    Log.v("Video", "bufferReadResult: $bufferReadResult")
+                    // If "recording" isn't true when start this thread, it never get's set according to this if statement...!!!
+                    // Why?  Good question...
+                    if (recording) {
+                        if (RECORD_LENGTH <= 0)
+                            try {
+                                recorder!!.recordSamples(audioData)
+                                //Log.v(LOG_TAG,"recording " + 1024*i + " to " + 1024*i+1024);
+                            } catch (e: FrameRecorder.Exception) {
+                                Log.v("Video", e.message)
+                                e.printStackTrace()
+                            }
+
+                    }
+                }
+            }
+            Log.v("Video", "AudioThread Finished, release audioRecord")
+
+            /* encoding finish, release recorder */
+            audioRecord?.stop()
+            audioRecord?.release()
+            audioRecord = null
+            Log.v("Video", "audioRecord released")
+        }
     }
 
     companion object {

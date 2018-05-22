@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.VideoPreviewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/videoPlayer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent" />
+        <!--app:controller_layout_id="@layout/custom_playback_control_minimal"-->
+        <!--app:default_artwork="@drawable/loading"-->
+        <!--app:fastforward_increment="@integer/exoplayer_playback_fastforward_increment_ms"-->
+        <!--app:rewind_increment="@integer/exoplayer_playback_rewind_increment_ms"-->
+        <!--app:show_timeout="@integer/exoplayer_show_control_timeout_ms"-->
+        <!--app:use_artwork="true" />-->
 
-</FrameLayout>
+</android.support.design.widget.CoordinatorLayout>

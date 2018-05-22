@@ -7,6 +7,16 @@
 
     <application>
         <activity android:name=".view.VideoRecorderActivity" />
+
+        <provider
+            android:name=".util.VideoRecordFileProvider"
+            android:authorities="com.bzzzchat.videorecorder.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/video_provider_paths" />
+        </provider>
     </application>
 
 </manifest>

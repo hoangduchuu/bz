@@ -20,14 +20,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout">
 
-    <com.bzzzchat.videorecorder.view.AutoFitTextureView
+    <com.bzzzchat.videorecorder.view.custom.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.bzzzchat.videorecorder.view.CustomRecordButton
+    <com.bzzzchat.videorecorder.view.custom.CustomRecordButton
         android:id="@+id/video"
         android:layout_width="80dp"
         android:layout_height="80dp"

@@ -20,6 +20,7 @@ import android.content.Context
 import android.media.AudioManager
 import android.net.Uri
 import android.support.v4.media.AudioAttributesCompat
+import com.bzzzchat.videorecorder.view.custom.MediaCatalog
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import org.jetbrains.anko.AnkoLogger
 import org.jetbrains.anko.info
 import org.jetbrains.anko.toast
+import java.io.File
 
 /**
  * Creates and manages a [com.google.android.exoplayer2.ExoPlayer] instance.
@@ -44,7 +46,9 @@ data class PlayerState(var window: Int = 0,
 
 class PlayerHolder(private val context: Context,
                    private val playerState: PlayerState,
-                   private val playerView: PlayerView) : AnkoLogger {
+                   private val playerView: PlayerView,
+                   private val source: File
+) : AnkoLogger {
     val audioFocusPlayer: ExoPlayer
 
     // Create the player instance.
@@ -64,6 +68,9 @@ class PlayerHolder(private val context: Context,
     }
 
     private fun buildMediaSource(): MediaSource {
+//        val uriList = mutableListOf<MediaSource>()
+//        createExtractorMediaSource(Uri.fromFile(source))
+//        return ConcatenatingMediaSource(*uriList.toTypedArray())
         val uriList = mutableListOf<MediaSource>()
         MediaCatalog.forEach {
             uriList.add(createExtractorMediaSource(it.mediaUri!!))
@@ -124,14 +131,14 @@ class PlayerHolder(private val context: Context,
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_ENDED -> {
-                        context.toast(R.string.msg_playback_ended)
+                        //context.toast(R.string.msg_playback_ended)
                     }
                     Player.STATE_READY -> when (playWhenReady) {
                         true -> {
-                            context.toast(R.string.msg_playback_started)
+//                            context.toast(R.string.msg_playback_started)
                         }
                         false -> {
-                            context.toast(R.string.msg_playback_paused)
+//                            context.toast(R.string.msg_playback_paused)
                         }
                     }
                 }

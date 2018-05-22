@@ -18,14 +18,14 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.bzzzchat.videorecorder.view.AutoFitTextureView
+    <com.bzzzchat.videorecorder.view.custom.AutoFitTextureView
         android:id="@+id/texture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
-    <com.bzzzchat.videorecorder.view.CustomRecordButton
+    <com.bzzzchat.videorecorder.view.custom.CustomRecordButton
         android:id="@+id/video"
         android:layout_width="80dp"
         android:layout_height="80dp"

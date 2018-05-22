@@ -1,6 +1,5 @@
-package com.bzzzchat.videorecorder.view
+package com.bzzzchat.videorecorder.view.custom
 
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
