@@ -14,7 +14,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +57,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
-        builder.setImageUrl("PPhtotoMessageIdentifier");
+        builder.setFileUrl("PPhtotoMessageIdentifier");
         Message cachedMessage = builder.build().getMessage();
         cachedMessage.isCached = true;
         cachedMessage.localImage = params.filePath;
@@ -81,7 +81,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     private Observable<Message> sendMessage(Params params) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .map(s -> {
-                    builder.setImageUrl(s);
+                    builder.setFileUrl(s);
                     return builder.build();
                 })
                 .flatMap(params1 -> {

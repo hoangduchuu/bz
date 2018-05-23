@@ -16,7 +16,7 @@ import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
 import com.ping.android.presentation.presenters.BlockContactPresenter;
 import com.ping.android.presentation.view.adapter.BlockAdapter;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.List;

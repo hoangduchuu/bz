@@ -28,7 +28,7 @@ import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.service.NotificationBroadcastReceiver;
-import com.ping.android.ultility.Callback;
+import com.ping.android.model.Callback;
 import com.ping.android.utils.ActivityLifecycle;
 import com.bzzzchat.configuration.GlideApp;
 

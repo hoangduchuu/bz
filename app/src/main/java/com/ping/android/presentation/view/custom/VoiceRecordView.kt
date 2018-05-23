@@ -23,7 +23,6 @@ import com.ping.android.presentation.module.recorder.AudioRecordingHandler
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.delegate.VoiceTypeDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.VoiceTypeItem
-import com.ping.android.ultility.Callback
 import kotlinx.android.synthetic.main.view_voice_record.view.*
 import java.io.File
 import java.text.SimpleDateFormat

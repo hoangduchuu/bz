@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.ping.android.R;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;

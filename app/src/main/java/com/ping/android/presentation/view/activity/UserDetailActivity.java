@@ -15,7 +15,7 @@ import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;

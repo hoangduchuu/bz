@@ -6,7 +6,7 @@ import com.ping.android.BuildConfig;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.quickblox.core.server.Performer;
 import com.quickblox.messages.QBPushNotifications;
 import com.quickblox.messages.model.QBEnvironment;

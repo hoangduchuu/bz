@@ -32,7 +32,7 @@ import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUs
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
-import com.ping.android.ultility.Callback;
+import com.ping.android.model.Callback;
 import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.BadgeHelper;
 import com.bzzzchat.configuration.GlideApp;

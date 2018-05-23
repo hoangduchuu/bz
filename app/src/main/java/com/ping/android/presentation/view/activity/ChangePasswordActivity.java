@@ -19,7 +19,7 @@ import com.ping.android.dagger.loggedin.changepassword.ChangePasswordComponent;
 import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ChangePasswordPresenter;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import javax.inject.Inject;
 

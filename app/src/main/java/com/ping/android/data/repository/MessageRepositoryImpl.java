@@ -7,7 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
 

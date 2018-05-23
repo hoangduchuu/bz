@@ -1,5 +1,8 @@
 package com.ping.android.ultility;
 
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

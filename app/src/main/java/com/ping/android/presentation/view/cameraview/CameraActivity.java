@@ -56,7 +56,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onVideoTaken(File video) {
                 super.onVideoTaken(video);
-                onVideo(video);
+                //onVideo(video);
             }
         });
 

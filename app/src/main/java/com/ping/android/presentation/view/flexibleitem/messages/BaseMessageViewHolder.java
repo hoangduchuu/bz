@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.annotation.SuppressLint;
+import android.support.annotation.Nullable;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.MotionEvent;
@@ -37,5 +38,5 @@ public abstract class BaseMessageViewHolder extends RecyclerView.ViewHolder impl
         return mDetector.onTouchEvent(motionEvent);
     }
 
-    protected abstract View getClickableView();
+    protected abstract @Nullable View getClickableView();
 }

@@ -9,7 +9,8 @@
         android:id="@+id/videoPlayer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:use_controller="false" />
+        app:use_controller="false"
+        app:controller_layout_id="@layout/custom_playback_control_minimal"/>
         <!--app:controller_layout_id="@layout/custom_playback_control_minimal"-->
         <!--app:default_artwork="@drawable/loading"-->
         <!--app:fastforward_increment="@integer/exoplayer_playback_fastforward_increment_ms"-->

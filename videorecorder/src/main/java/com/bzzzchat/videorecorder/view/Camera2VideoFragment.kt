@@ -15,6 +15,7 @@ import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATIO
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.media.CameraProfile
 import android.media.ImageReader
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -45,6 +46,9 @@ import kotlin.collections.ArrayList
 class Camera2VideoFragment : Fragment(),
         ActivityCompat.OnRequestPermissionsResultCallback {
     private val TAG = "Camera2VideoFragment"
+    private val BIT_RATE_1080P = 16000000
+    private val BIT_RATE_MIN = 64000
+    private val BIT_RATE_MAX = 40000000
     private val SENSOR_ORIENTATION_DEFAULT_DEGREES = 90
     private val SENSOR_ORIENTATION_INVERSE_DEGREES = 270
     private val DEFAULT_ORIENTATIONS = SparseIntArray().apply {
@@ -60,7 +64,7 @@ class Camera2VideoFragment : Fragment(),
         append(Surface.ROTATION_270, 0)
     }
     private val VIDEO_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-    private val MAXIMUM_RECORD_TIME = 5 * 1000 // 5s
+    private val MAXIMUM_RECORD_TIME = 10 * 1000 // 10s
     // region picture
 
     /**
@@ -497,19 +501,32 @@ class Camera2VideoFragment : Fragment(),
             SENSOR_ORIENTATION_INVERSE_DEGREES ->
                 mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
         }
+        //val profile = CameraProfile
 
         mediaRecorder?.apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setOutputFile(nextVideoAbsolutePath)
-            setVideoEncodingBitRate(10000000)
+            setVideoEncodingBitRate(getVideoBitRate(videoSize))
             setVideoFrameRate(30)
             setVideoSize(videoSize.width, videoSize.height)
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             prepare()
         }
+    }
+
+    /**
+     * Calculate a video bit rate based on the size. The bit rate is scaled
+     * based on ratio of video size to 1080p size.
+     */
+    private fun getVideoBitRate(sz: Size): Int {
+        var rate = BIT_RATE_1080P
+        val scaleFactor = sz.height * sz.width / (1920 * 1080).toFloat()
+        rate = (rate * scaleFactor).toInt()
+        // Clamp to the MIN, MAX range.
+        return Math.max(BIT_RATE_MIN, Math.min(BIT_RATE_MAX, rate));
     }
 
     private fun getVideoFilePath(context: Context?): String {
@@ -627,7 +644,8 @@ class Camera2VideoFragment : Fragment(),
      * @return The video size
      */
     private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
-        it.width == it.height * 4 / 3 && it.width <= 1080
+//        it.width == it.height * 4 / 3 &&
+                it.width <= 480
     } ?: choices[choices.size - 1]
 
     /**

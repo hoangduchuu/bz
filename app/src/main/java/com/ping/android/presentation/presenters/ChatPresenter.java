@@ -33,6 +33,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendAudioMessage(String audioUrl, VoiceType voiceType);
 
+    void sendVideoMessage(String videoPath);
+
     void resendMessage(Message message);
 
     void updateConversationLastMessage(Message lastMessage);
@@ -50,8 +52,6 @@ public interface ChatPresenter extends BasePresenter {
     void handleVoiceCallPress();
 
     void initThemeColor(Color currentColor);
-
-    void sendVideoMessage(String videoPath);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);

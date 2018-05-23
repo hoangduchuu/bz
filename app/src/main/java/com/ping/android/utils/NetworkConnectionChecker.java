@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;

@@ -24,8 +24,10 @@ import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessa
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageRightItem;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
@@ -63,6 +65,13 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     baseItem = new AudioMessageRightItem(message);
                 } else {
                     baseItem = new AudioMessageLeftItem(message);
+                }
+                break;
+            case Constant.MSG_TYPE_VIDEO:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new VideoMessageRightItem(message);
+                } else {
+                    baseItem = new VideoMessageLeftItem(message);
                 }
                 break;
             default:
@@ -112,7 +121,8 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public boolean lastItem;
         private float mInitialTranslateX = ResourceUtils.dpToPx(80);
 
-        protected MessageListener messageListener;
+        protected @Nullable
+        MessageListener messageListener;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
@@ -334,5 +344,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void selectMessage(MessageBaseItem item);
 
         void unSelectMessage(MessageBaseItem item);
+
+        void openVideo(@NotNull String videoUrl);
     }
 }

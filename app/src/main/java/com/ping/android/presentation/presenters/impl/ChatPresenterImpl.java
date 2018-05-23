@@ -26,6 +26,7 @@ import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
+import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
@@ -41,8 +42,8 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +86,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendGameMessageUseCase sendGameMessageUseCase;
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
+    @Inject
+    SendVideoMessageUseCase sendVideoMessageUseCase;
     @Inject
     ResendMessageUseCase resendMessageUseCase;
     @Inject
@@ -392,6 +395,25 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
+    public void sendVideoMessage(String videoPath) {
+        if (!beAbleToSendMessage()) return;
+        SendVideoMessageUseCase.Params params = new SendVideoMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.filePath = videoPath;
+        params.messageType = MessageType.VIDEO;
+        sendVideoMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                super.onNext(message);
+                if (!message.isCached) {
+                    sendNotification(conversation, message);
+                }
+            }
+        }, params);
+    }
+
+    @Override
     public void resendMessage(Message message) {
         ResendMessageUseCase.Params params = new ResendMessageUseCase.Params();
         params.conversationId = conversation.key;
@@ -631,11 +653,6 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void initThemeColor(Color currentColor) {
         this.currentColor = currentColor;
-    }
-
-    @Override
-    public void sendVideoMessage(String videoPath) {
-
     }
 
     private void sendNotification(Conversation conversation, Message message) {

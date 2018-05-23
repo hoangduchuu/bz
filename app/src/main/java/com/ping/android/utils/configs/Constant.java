@@ -1,4 +1,4 @@
-package com.ping.android.ultility;
+package com.ping.android.utils.configs;
 
 public class Constant {
     public static final String START_ACTIVITY_GROUP_ID = "GROUP_ID";

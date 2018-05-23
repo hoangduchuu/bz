@@ -17,6 +17,7 @@ import com.bzzzchat.videorecorder.BuildConfig
 import com.bzzzchat.videorecorder.R
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
@@ -26,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_video_preview.*
 import java.io.File
 
 private const val ARG_VIDEO_PATH = "ARG_VIDEO_PATH"
+private const val ARG_IS_PREVIEW = "ARG_IS_PREVIEW"
 
 /**
  * A simple [Fragment] subclass.
@@ -35,11 +37,14 @@ private const val ARG_VIDEO_PATH = "ARG_VIDEO_PATH"
  */
 class VideoPreviewFragment : Fragment() {
     private var videoPath: String? = null
+    private var isPreview: Boolean = true
+    private lateinit var player: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             videoPath = it.getString(ARG_VIDEO_PATH)
+            isPreview  = it.getBoolean(ARG_IS_PREVIEW, true)
         }
     }
 
@@ -54,13 +59,20 @@ class VideoPreviewFragment : Fragment() {
         // While the user is in the app, the volume controls should adjust the music volume.
         initializePlayer(getUriFromFile(activity, File(videoPath)))
         btnBack.setOnClickListener { activity.onBackPressed() }
-        btnSend.setOnClickListener {
-            (activity as VideoRecorderActivity).onVideoSelected(videoPath!!)
+        if (isPreview) {
+            btnSend.visibility = View.VISIBLE
+            videoPlayer.useController = false
+            btnSend.setOnClickListener {
+                (activity as VideoRecorderActivity).onVideoSelected(videoPath!!)
+            }
+        } else {
+            btnSend.visibility = View.GONE
+            videoPlayer.useController = true
         }
     }
 
     private fun initializePlayer(uri: Uri) {
-        val player = ExoPlayerFactory.newSimpleInstance(
+        player = ExoPlayerFactory.newSimpleInstance(
                 DefaultRenderersFactory(activity),
                 DefaultTrackSelector(),
                 DefaultLoadControl())
@@ -92,6 +104,16 @@ class VideoPreviewFragment : Fragment() {
         return photoUri
     }
 
+    override fun onPause() {
+        super.onPause()
+        player.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player.release()
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -103,10 +125,11 @@ class VideoPreviewFragment : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(videoPath: String) =
+        fun newInstance(videoPath: String, isPreview: Boolean = true) =
                 VideoPreviewFragment().apply {
                     arguments = Bundle().apply {
                         putString(ARG_VIDEO_PATH, videoPath)
+                        putBoolean(ARG_IS_PREVIEW, isPreview)
                     }
                 }
     }

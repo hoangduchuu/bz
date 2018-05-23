@@ -9,7 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
 
@@ -105,6 +105,7 @@ public class Message implements Parcelable {
         message.thumbUrl = wrapper.getStringValue("thumbUrl");
         message.audioUrl = wrapper.getStringValue("audioUrl");
         message.gameUrl = wrapper.getStringValue("gameUrl");
+        message.videoUrl = wrapper.getStringValue("videoUrl");
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
         message.senderId = wrapper.getStringValue("senderId");
@@ -214,6 +215,22 @@ public class Message implements Parcelable {
         return message;
     }
 
+    public static Message createVideoMessage(String fileUrl, String senderId, String senderName, double timestamp,
+                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
+                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+        Message message = new Message();
+        message.videoUrl = fileUrl;
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_VIDEO;
+        message.readAllowed = readAllowed;
+        return message;
+    }
+
     public boolean isFromMe() {
         return this.senderId.equals(currentUserId);
     }
@@ -227,6 +244,7 @@ public class Message implements Parcelable {
         result.put("thumbUrl", thumbUrl);
         result.put("audioUrl", audioUrl);
         result.put("gameUrl", gameUrl);
+        result.put("videoUrl", videoUrl);
         result.put("timestamp", timestamp);
         result.put("senderId", senderId);
         result.put("senderName", senderName);

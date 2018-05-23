@@ -77,6 +77,21 @@ android {
         // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg
         ignoreAssetsPattern "!ffprobe:"
     }
+//    packagingOptions {
+//        pickFirst 'lib/armeabi-v7a/libavcodec.so'
+//        pickFirst 'lib/armeabi-v7a/libavformat.so'
+//        pickFirst 'lib/armeabi-v7a/libavutil.so'
+//        pickFirst 'lib/armeabi-v7a/libswscale.so'
+//        pickFirst 'lib/armeabi-v7a/libswresample.so'
+//
+//        pickFirst 'lib/x86/libavcodec.so'
+//        pickFirst 'lib/x86/libavformat.so'
+//        pickFirst 'lib/x86/libavutil.so'
+//        pickFirst 'lib/x86/libswscale.so'
+//        pickFirst 'lib/x86/libswresample.so'
+//
+//
+//    }
 
     // Quickblox SDK
     //There is code for excluding some native libs (it useful if you need reduce apk size and want
@@ -192,6 +207,9 @@ dependencies {
 
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
+
+//    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-armeabi-v7a:1.0.14'
+//    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-x86:1.0.14'
 
     implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
     implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'

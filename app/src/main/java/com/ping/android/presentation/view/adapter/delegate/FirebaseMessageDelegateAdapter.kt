@@ -1,7 +1,6 @@
 package com.ping.android.presentation.view.adapter.delegate
 
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
@@ -20,7 +19,7 @@ import com.ping.android.R
 import com.ping.android.model.ImageMessage
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
-import com.ping.android.ultility.Constant
+import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.BitmapEncode
 import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*

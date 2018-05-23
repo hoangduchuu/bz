@@ -1,4 +1,4 @@
-package com.ping.android.ultility;
+package com.ping.android.utils.configs;
 
 import android.Manifest;
 

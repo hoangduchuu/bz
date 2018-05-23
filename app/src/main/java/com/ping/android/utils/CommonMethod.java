@@ -1,4 +1,4 @@
-package com.ping.android.ultility;
+package com.ping.android.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -9,7 +9,7 @@ import android.text.format.DateUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.model.User;
-import com.ping.android.utils.Log;
+import com.ping.android.utils.configs.Constant;
 
 import java.io.File;
 import java.security.MessageDigest;

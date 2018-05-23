@@ -1,6 +1,6 @@
 package com.ping.android.utils;
 
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

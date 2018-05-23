@@ -41,6 +41,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.bzzzchat.videorecorder.view.VideoPlayerActivity;
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -62,7 +63,7 @@ import com.ping.android.presentation.view.custom.revealable.RevealableViewRecycl
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.bzzzchat.configuration.GlideApp;
 import com.ping.android.utils.ImagePickerHelper;
@@ -403,6 +404,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateLastConversationMessage(Message lastMessage) {
         presenter.updateConversationLastMessage(lastMessage);
+    }
+
+    @Override
+    public void openVideo(String videoUrl) {
+        Intent intent = new Intent(this, VideoPlayerActivity.class);
+        intent.putExtra(VideoPlayerActivity.VIDEO_PATH_EXTRA_KEY, videoUrl);
+        startActivity(intent);
     }
 
     @Override

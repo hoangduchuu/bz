@@ -10,8 +10,8 @@ import android.widget.ImageView;
 
 import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;

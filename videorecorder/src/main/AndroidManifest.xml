@@ -17,6 +17,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/video_provider_paths" />
         </provider>
+
+        <activity android:name=".view.VideoPlayerActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
     </application>
 
 </manifest>
