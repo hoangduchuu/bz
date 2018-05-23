@@ -57,9 +57,9 @@ class Camera2VideoFragment : Fragment(),
         append(Surface.ROTATION_270, 180)
     }
     private val INVERSE_ORIENTATIONS = SparseIntArray().apply {
-        append(Surface.ROTATION_0, 270)
+        append(Surface.ROTATION_0, 90)
         append(Surface.ROTATION_90, 180)
-        append(Surface.ROTATION_180, 90)
+        append(Surface.ROTATION_180, 270)
         append(Surface.ROTATION_270, 0)
     }
     private val VIDEO_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
@@ -215,9 +215,11 @@ class Camera2VideoFragment : Fragment(),
 
     private var recordTimer: Timer? = null
 
-    private var cameraDirection: Int = CameraCharacteristics.LENS_FACING_FRONT
+    private var cameraDirection: Int = CameraCharacteristics.LENS_FACING_BACK
 
     private var outputFolder: String = ""
+
+    private lateinit var orientationEventListener: OrientationListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -266,6 +268,21 @@ class Camera2VideoFragment : Fragment(),
         } else {
             textureView.surfaceTextureListener = surfaceTextureListener
         }
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        orientationEventListener = OrientationListener(context!!)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        orientationEventListener.enable()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        orientationEventListener.disable()
     }
 
     override fun onPause() {
@@ -353,7 +370,7 @@ class Camera2VideoFragment : Fragment(),
                 previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture::class.java),
                         width, height, videoSize)
 
-                imageReader = ImageReader.newInstance(videoSize.width, videoSize.height,
+                imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
                         ImageFormat.JPEG, /*maxImages*/ 2).apply {
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
@@ -400,8 +417,12 @@ class Camera2VideoFragment : Fragment(),
             closePreviewSession()
             cameraDevice?.close()
             cameraDevice = null
+
             mediaRecorder?.release()
             mediaRecorder = null
+
+            imageReader?.close()
+            imageReader = null
         } catch (e: InterruptedException) {
             throw RuntimeException("Interrupted while trying to lock camera closing.", e)
         } finally {
@@ -450,7 +471,7 @@ class Camera2VideoFragment : Fragment(),
 
         try {
             setUpCaptureRequestBuilder(previewRequestBuilder)
-            HandlerThread("CameraPreview").start()
+            //HandlerThread("CameraPreview").start()
             captureSession?.setRepeatingRequest(previewRequestBuilder.build(),
                     null, backgroundHandler)
         } catch (e: CameraAccessException) {
@@ -502,12 +523,21 @@ class Camera2VideoFragment : Fragment(),
             nextVideoAbsolutePath = getVideoFilePath()
         }
 
-        val rotation = cameraActivity.windowManager.defaultDisplay.rotation
-        when (sensorOrientation) {
-            SENSOR_ORIENTATION_DEFAULT_DEGREES ->
-                mediaRecorder?.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation))
-            SENSOR_ORIENTATION_INVERSE_DEGREES ->
-                mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
+        val rotation = orientationEventListener.rotation
+        if (cameraDirection == CameraCharacteristics.LENS_FACING_FRONT) {
+            when (sensorOrientation) {
+                SENSOR_ORIENTATION_DEFAULT_DEGREES ->
+                    mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
+                SENSOR_ORIENTATION_INVERSE_DEGREES ->
+                    mediaRecorder?.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation))
+            }
+        } else {
+            when (sensorOrientation) {
+                SENSOR_ORIENTATION_DEFAULT_DEGREES ->
+                    mediaRecorder?.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation))
+                SENSOR_ORIENTATION_INVERSE_DEGREES ->
+                    mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
+            }
         }
         //val profile = CameraProfile
 
@@ -650,8 +680,8 @@ class Camera2VideoFragment : Fragment(),
      * @return The video size
      */
     private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
-//        it.width == it.height * 4 / 3 &&
-                it.width <= 480
+        it.width == it.height * 4 / 3 && it.width <= 720
+        //it.width <= 640
     } ?: choices[choices.size - 1]
 
     /**
@@ -694,8 +724,13 @@ class Camera2VideoFragment : Fragment(),
     private fun captureStillPicture() {
         try {
             if (activity == null || cameraDevice == null) return
-            val rotation = activity!!.windowManager.defaultDisplay.rotation
+            val rotation = orientationEventListener.rotation
+            //sensorOrientation = orientationEventListener.rotation
 
+            val origin = when (cameraDirection) {
+                CameraCharacteristics.LENS_FACING_FRONT -> INVERSE_ORIENTATIONS.get(rotation)
+                else -> DEFAULT_ORIENTATIONS.get(rotation)
+            }
             // This is the CaptureRequest.Builder that we use to take a picture.
             val captureBuilder = cameraDevice?.createCaptureRequest(
                     CameraDevice.TEMPLATE_STILL_CAPTURE)?.apply {
@@ -706,11 +741,11 @@ class Camera2VideoFragment : Fragment(),
                 // For devices with orientation of 90, we return our mapping from ORIENTATIONS.
                 // For devices with orientation of 270, we need to rotate the JPEG 180 degrees.
                 set(CaptureRequest.JPEG_ORIENTATION,
-                        (DEFAULT_ORIENTATIONS.get(rotation) + sensorOrientation + 270) % 360)
+                        (origin + sensorOrientation + 270) % 360)
 
                 // Use the same AE and AF modes as the preview.
-                set(CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+//                set(CaptureRequest.CONTROL_AF_MODE,
+//                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
             }?.also { setAutoFlash(it) }
 
             val captureCallback = object : CameraCaptureSession.CaptureCallback() {
@@ -718,8 +753,12 @@ class Camera2VideoFragment : Fragment(),
                 override fun onCaptureCompleted(session: CameraCaptureSession,
                                                 request: CaptureRequest,
                                                 result: TotalCaptureResult) {
-                    onCapturedImage()
                     unlockFocus()
+                    onCapturedImage()
+                }
+
+                override fun onCaptureFailed(session: CameraCaptureSession?, request: CaptureRequest?, failure: CaptureFailure?) {
+                    Log.e("Camera", failure.toString())
                 }
             }
 
@@ -766,6 +805,41 @@ class Camera2VideoFragment : Fragment(),
 
     private fun onCapturedImage() {
         (activity as VideoRecorderActivity).openPreviewPicture(file)
+    }
+
+    fun changeToPortrait(isInverted: Boolean = false) {
+        Log.d("Camera", "Portrait")
+        btnSwitchCamera.animate().rotation(if (isInverted) 180f else 0f).setDuration(500).start()
+    }
+
+    fun changeToLandscape(isInverted: Boolean = false) {
+        Log.d("Camera", "Landscape")
+        btnSwitchCamera.animate().rotation(if (isInverted) -90f else 90f).setDuration(500).start()
+    }
+
+    inner class OrientationListener(context: Context) : OrientationEventListener(context) {
+        private val ROTATION_O = 0
+
+        private val ROTATION_90 = 1
+        private val ROTATION_180 = 2
+        private val ROTATION_270 = 3
+        var rotation = 0
+
+        override fun onOrientationChanged(orientation: Int) {
+            if ((orientation < 35 || orientation > 325) && rotation != ROTATION_O) { // PORTRAIT
+                rotation = ROTATION_O
+                changeToPortrait()
+            } else if (orientation in 146..214 && rotation != ROTATION_180) { // REVERSE PORTRAIT
+                rotation = ROTATION_180
+                changeToPortrait(true)
+            } else if (orientation in 56..124 && rotation != ROTATION_270) { // REVERSE LANDSCAPE
+                rotation = ROTATION_270
+                changeToLandscape(true)
+            } else if (orientation in 236..304 && rotation != ROTATION_90) { //LANDSCAPE
+                rotation = ROTATION_90
+                changeToLandscape()
+            }
+        }
     }
 
     companion object {

@@ -31,8 +31,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 80
-        versionName "2.2.3"
+        versionCode 90
+        versionName "2.3.5"
         multiDexEnabled true
     }
     buildTypes {
@@ -208,14 +208,11 @@ dependencies {
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 
-//    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-armeabi-v7a:1.0.14'
-//    implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-x86:1.0.14'
-
-    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
 }
 
 apply plugin: 'com.google.gms.google-services'
