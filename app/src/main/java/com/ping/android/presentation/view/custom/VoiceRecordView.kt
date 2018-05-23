@@ -132,9 +132,11 @@ class VoiceRecordView : LinearLayout {
     }
 
     private fun sendVoice() {
-        val file = File(outputFile)
-        if (file.exists()) {
-            listener?.sendVoice(outputFile, selectedVoice)
+        if (lengthInMillis >= 1000) {
+            val file = File(outputFile)
+            if (file.exists()) {
+                listener?.sendVoice(outputFile, selectedVoice)
+            }
         }
     }
 
@@ -261,20 +263,23 @@ class VoiceRecordView : LinearLayout {
         audioRecorder.setOutputFile(outputFile)
 
         audioRecorder.startRecord()
-        listener?.showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
 
         btnRecord.elevation = 10.0f
-        startVibrate()
         // Start timer
         lengthInMillis = 0
         updateTimer()
-        tvTimer.visibility = View.VISIBLE
         timer = Timer()
         val task = object : TimerTask() {
             override fun run() {
                 // update timer
+                if (lengthInMillis == 0L) {
+                    startVibrate()
+                }
                 lengthInMillis += 1000
-                tvTimer.post { updateTimer() }
+                tvTimer.post {
+                    tvTimer.visibility = View.VISIBLE
+                    updateTimer()
+                }
             }
         }
         timer.scheduleAtFixedRate(task, 1000, 1000)
@@ -291,7 +296,7 @@ class VoiceRecordView : LinearLayout {
         listener?.hideInstruction()
         btnCancel.animate().alpha(0.0f).start()
         btnTransform.animate().alpha(0.0f).start()
-        // TODO stop & send record
+
         disableRecordMode()
         stopRecord()
         when (state) {
@@ -330,7 +335,7 @@ class VoiceRecordView : LinearLayout {
         val animator = ViewAnimationUtils.createCircularReveal(reviewView, cx.toInt(), cy.toInt(), radius, 0.0f)
         reviewView.visibility = View.VISIBLE
         animator.start()
-        animator.addListener(object: Animator.AnimatorListener {
+        animator.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
 
             }
