@@ -24,9 +24,8 @@ import com.ping.android.managers.FFmpegManager;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
-import com.ping.android.ultility.Callback;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.FileHelperKt;
 import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -177,7 +176,9 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
         @Override
         public void onLongPress() {
-
+            if (messageListener != null) {
+                messageListener.onLongPress(item);
+            }
         }
 
         @Override
@@ -191,7 +192,6 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private Runnable mUpdateProgress = new Runnable() {
-
             public void run() {
                 try {
                     if (mProgressUpdateHandler != null && audioStatus == AudioStatus.PLAYING && mMediaPlayer != null) {
@@ -284,9 +284,9 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             File audioLocal = new File(audioLocalPath);
             String imageLocalFolder = audioLocal.getParent();
             CommonMethod.createFolder(imageLocalFolder);
-
+            VoiceType voiceType = VoiceType.from(message.voiceType);
             if (audioLocal.exists()) {
-                if (message.voiceType != 0 && message.isMask) {
+                if (voiceType != VoiceType.DEFAULT && message.isMask) {
                     prepareAudioMask(audioLocal);
                 } else {
                     initPlayer(AudioStatus.UNKNOWN);
@@ -297,7 +297,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
                         // Prepare audio file
-                        if (message.voiceType != 0 && message.isMask) {
+                        if (voiceType != VoiceType.DEFAULT && message.isMask) {
                             prepareAudioMask(audioLocal);
                         } else {
                             initPlayer(AudioStatus.UNKNOWN);
@@ -441,10 +441,15 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private int getTotalTime(String audioPath) {
-            Uri uri = Uri.parse(audioPath);
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(itemView.getContext(), uri);
-            String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            Uri uri = FileHelperKt.uri(new File(audioPath), itemView.getContext());
+            String durationStr = "0";
+            try {
+                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                mmr.setDataSource(itemView.getContext(), uri);
+                durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
             return Integer.parseInt(durationStr);
         }
 

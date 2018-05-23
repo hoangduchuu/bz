@@ -11,12 +11,9 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Call;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.inject.Inject;
 

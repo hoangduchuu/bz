@@ -23,7 +23,7 @@ import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;

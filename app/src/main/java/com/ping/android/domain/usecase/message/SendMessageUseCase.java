@@ -13,8 +13,8 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -66,6 +66,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         timer = new Timer();
         timer.schedule(task, 5000);
         message = params.getMessage();
+        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         conversation = params.getConversation();
         return conversationRepository.sendMessage(params.conversation.key, message)
                 .flatMap(message1 -> {
@@ -125,7 +126,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private MessageType messageType;
             private GameType gameType;
             private VoiceType voiceType;
-            private String imageUrl;
+            private String fileUrl;
             private String thumbUrl;
             private String messageKey;
             private String cacheImage;
@@ -177,9 +178,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             // region image message
 
-            public Builder setImageUrl(String imageUrl) {
-                this.imageUrl = imageUrl;
-                this.text = imageUrl;
+            public Builder setFileUrl(String fileUrl) {
+                this.fileUrl = fileUrl;
+                this.text = fileUrl;
                 return this;
             }
 
@@ -203,22 +204,34 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         message = buildMessage(currentUser, text);
                         break;
                     case IMAGE:
-                        message = buildImageMessage(currentUser, imageUrl, thumbUrl);
+                        message = buildImageMessage(currentUser, fileUrl, thumbUrl);
                         break;
                     case GAME:
-                        message = buildGameMessage(currentUser, imageUrl, gameType);
+                        message = buildGameMessage(currentUser, fileUrl, gameType);
                         break;
                     case AUDIO:
-                        message = buildAudioMessage(currentUser, imageUrl, voiceType);
+                        message = buildAudioMessage(currentUser, fileUrl, voiceType);
                         break;
+                    case VIDEO:
+                        message = buildVideoMessage(currentUser, fileUrl);
+                        break;
+
                 }
                 message.key = messageKey;
-                message.localImage = cacheImage;
+                message.localFilePath = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);
-                params.filePath = imageUrl;
+                params.filePath = fileUrl;
                 return params;
+            }
+
+            private Message buildVideoMessage(User currentUser, String fileUrl) {
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createVideoMessage(fileUrl,
+                        currentUser.key, currentUser.getDisplayName(), timestamp,
+                        getStatuses(), getAudioMaskStatuses(voiceType),
+                        getMessageDeleteStatuses(), allowance);
             }
 
             private Message buildAudioMessage(User currentUser, String audioUrl, VoiceType voiceType) {

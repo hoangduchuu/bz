@@ -4,9 +4,8 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
-import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

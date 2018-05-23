@@ -7,7 +7,7 @@ import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -22,7 +22,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;

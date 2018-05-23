@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.MediaMetadataRetriever;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
@@ -26,12 +27,14 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.bzzzchat.configuration.GlideApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
 import com.ping.android.R;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Callback;
+import com.ping.android.model.Callback;
+import com.quickblox.core.helper.FileHelper;
 
 import org.jivesoftware.smack.util.StringUtils;
 
@@ -185,7 +188,6 @@ public class UiUtils {
                 .load(gsReference)
                 .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
-                .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .into(imageView);
     }
@@ -203,7 +205,6 @@ public class UiUtils {
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
                 .override(100, 100)
-                .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .dontAnimate()
                 .listener(new RequestListener<Drawable>() {
@@ -310,6 +311,23 @@ public class UiUtils {
                 .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
                 .into(target);
         return target;
+    }
+
+    public static @Nullable Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) throws Throwable {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever mediaMetadataRetriever = null;
+        try {
+            mediaMetadataRetriever = new MediaMetadataRetriever();
+            mediaMetadataRetriever.setDataSource(context, FileHelperKt.uri(new File(videoPath), context));
+            bitmap = mediaMetadataRetriever.getFrameAtTime(1, MediaMetadataRetriever.OPTION_CLOSEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (mediaMetadataRetriever != null) {
+                mediaMetadataRetriever.release();
+            }
+        }
+        return bitmap;
     }
 
     public static void hideSoftKeyboard(Activity activity) {

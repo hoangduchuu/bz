@@ -17,7 +17,7 @@ import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.CallServiceHandler;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.WebRtcSessionManager;
 import com.quickblox.videochat.webrtc.BaseSession;

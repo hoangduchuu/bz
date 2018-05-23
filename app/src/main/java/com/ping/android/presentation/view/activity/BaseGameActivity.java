@@ -11,7 +11,7 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 public abstract class BaseGameActivity extends CoreActivity {
     protected ImageView imageView;

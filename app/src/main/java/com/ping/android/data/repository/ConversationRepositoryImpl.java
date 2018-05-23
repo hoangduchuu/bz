@@ -9,7 +9,6 @@ import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
-import com.ping.android.ultility.Constant;
 
 import java.util.HashMap;
 import java.util.Map;

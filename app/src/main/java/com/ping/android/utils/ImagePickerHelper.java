@@ -25,10 +25,9 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.BaseView;
-import com.bzzzchat.cleanarchitecture.JobExecutor;
 import com.ping.android.BuildConfig;
 import com.ping.android.presentation.view.cameraview.CameraActivity;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
@@ -40,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;

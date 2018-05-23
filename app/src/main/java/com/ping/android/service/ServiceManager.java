@@ -10,10 +10,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
-import com.ping.android.utils.SharedPrefsHelper;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -9,7 +9,7 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
 import com.ping.android.presentation.view.fragment.ConversationPVPDetailFragment;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
 

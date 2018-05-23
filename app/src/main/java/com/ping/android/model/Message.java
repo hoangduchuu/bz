@@ -9,7 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
 
@@ -25,6 +25,7 @@ public class Message implements Parcelable {
     public String photoUrl;
     public String thumbUrl;
     public String audioUrl;
+    public String videoUrl;
     public String gameUrl;
     public String senderId;
     public String senderName;
@@ -39,7 +40,7 @@ public class Message implements Parcelable {
 
     // Local variable, don't store on Firebase
     public User sender;
-    public String localImage;
+    public String localFilePath;
     public boolean isCached;
     public String currentUserId;
     public String messageStatus;
@@ -68,7 +69,7 @@ public class Message implements Parcelable {
         messageType = in.readInt();
         gameType = in.readInt();
         sender = in.readParcelable(User.class.getClassLoader());
-        localImage = in.readString();
+        localFilePath = in.readString();
         isCached = in.readByte() != 0;
         currentUserId = in.readString();
         messageStatus = in.readString();
@@ -104,6 +105,7 @@ public class Message implements Parcelable {
         message.thumbUrl = wrapper.getStringValue("thumbUrl");
         message.audioUrl = wrapper.getStringValue("audioUrl");
         message.gameUrl = wrapper.getStringValue("gameUrl");
+        message.videoUrl = wrapper.getStringValue("videoUrl");
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
         message.senderId = wrapper.getStringValue("senderId");
@@ -213,6 +215,22 @@ public class Message implements Parcelable {
         return message;
     }
 
+    public static Message createVideoMessage(String fileUrl, String senderId, String senderName, double timestamp,
+                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
+                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+        Message message = new Message();
+        message.videoUrl = fileUrl;
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_VIDEO;
+        message.readAllowed = readAllowed;
+        return message;
+    }
+
     public boolean isFromMe() {
         return this.senderId.equals(currentUserId);
     }
@@ -226,6 +244,7 @@ public class Message implements Parcelable {
         result.put("thumbUrl", thumbUrl);
         result.put("audioUrl", audioUrl);
         result.put("gameUrl", gameUrl);
+        result.put("videoUrl", videoUrl);
         result.put("timestamp", timestamp);
         result.put("senderId", senderId);
         result.put("senderName", senderName);
@@ -266,7 +285,7 @@ public class Message implements Parcelable {
         dest.writeInt(messageType);
         dest.writeInt(gameType);
         dest.writeParcelable(sender, flags);
-        dest.writeString(localImage);
+        dest.writeString(localFilePath);
         dest.writeByte((byte) (isCached ? 1 : 0));
         dest.writeString(currentUserId);
         dest.writeString(messageStatus);

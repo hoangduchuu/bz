@@ -16,7 +16,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -5,15 +5,14 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.google.android.gms.common.internal.service.Common;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

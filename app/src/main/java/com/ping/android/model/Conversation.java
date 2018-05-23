@@ -10,7 +10,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
 import com.google.gson.Gson;
 import com.ping.android.model.enums.Color;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
 

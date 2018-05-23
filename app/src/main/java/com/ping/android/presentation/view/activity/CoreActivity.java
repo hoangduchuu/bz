@@ -17,7 +17,7 @@ import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
 
 import java.util.HashMap;

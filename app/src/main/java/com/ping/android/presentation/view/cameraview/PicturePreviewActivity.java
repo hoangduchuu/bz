@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.cameraview;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -27,6 +28,13 @@ public class PicturePreviewActivity extends Activity implements View.OnClickList
     private int maxWidth;
     private int maxHeight;
     private Bitmap bitmap;
+    private String imagePath;
+
+    public static void start(Context context, String imgPath) {
+        Intent intent = new Intent(context, PicturePreviewActivity.class);
+        intent.putExtra("imgPath", imgPath);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +43,7 @@ public class PicturePreviewActivity extends Activity implements View.OnClickList
         findViewById(R.id.btn_ok).setOnClickListener(this);
         findViewById(R.id.btn_retry).setOnClickListener(this);
 
+        imagePath = getIntent().getStringExtra("imgPath");
         outputFile = getIntent().getStringExtra(CameraActivity.EXTRA_OUTPUT);
         maxWidth = getIntent().getIntExtra(CameraActivity.EXTRA_MAX_WIDTH, 1000);
         maxHeight = getIntent().getIntExtra(CameraActivity.EXTRA_MAX_HEIGHT, 1000);

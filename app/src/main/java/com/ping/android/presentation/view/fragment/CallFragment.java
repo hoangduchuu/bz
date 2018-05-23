@@ -6,7 +6,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,7 @@ import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.presentation.view.custom.CustomSwitch;
@@ -34,8 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import io.reactivex.functions.Consumer;
 
 public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallListPresenter.View {
 

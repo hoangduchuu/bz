@@ -18,6 +18,8 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderIte
 import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,6 +146,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         selectedMessages.remove(item);
         if (messageListener != null) {
             messageListener.updateMessageSelection(selectedMessages.size());
+        }
+    }
+
+    @Override
+    public void openVideo(@NotNull String videoUrl) {
+        if (messageListener != null) {
+            messageListener.openVideo(videoUrl);
         }
     }
 
@@ -367,5 +376,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void updateMessageSelection(int size);
 
         void updateLastConversationMessage(Message lastMessage);
+
+        void openVideo(String videoUrl);
     }
 }

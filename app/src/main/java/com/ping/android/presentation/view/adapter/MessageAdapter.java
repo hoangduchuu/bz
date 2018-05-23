@@ -17,7 +17,7 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 
@@ -384,6 +384,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 message = "[Voice]";
             } else if (model.messageType == Constant.MSG_TYPE_GAME) {
                 message = "[Game]";
+            } else if (model.messageType == Constant.MSG_TYPE_VIDEO) {
+                message = "[Video]";
             }
             this.tvMessage.setText(message);
             this.setReadStatus(model.isRead);

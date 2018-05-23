@@ -3,15 +3,12 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 

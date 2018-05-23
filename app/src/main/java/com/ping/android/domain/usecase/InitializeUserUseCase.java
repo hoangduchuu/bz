@@ -8,11 +8,8 @@ import com.ping.android.domain.repository.QuickbloxRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 

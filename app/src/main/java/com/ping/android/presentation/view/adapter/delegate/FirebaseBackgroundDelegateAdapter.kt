@@ -10,7 +10,7 @@ import com.ping.android.R
 import com.ping.android.model.FirebaseImageItem
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
-import com.ping.android.utils.GlideApp
+import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*;
 
 class FirebaseBackgroundDelegateAdapter(var clickListener: (FirebaseImageItem) -> Unit): ViewTypeDelegateAdapter {

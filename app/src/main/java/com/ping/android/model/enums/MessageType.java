@@ -5,5 +5,5 @@ package com.ping.android.model.enums;
  */
 
 public enum MessageType {
-    TEXT, IMAGE, GAME, AUDIO
+    TEXT, IMAGE, GAME, AUDIO, VIDEO
 }

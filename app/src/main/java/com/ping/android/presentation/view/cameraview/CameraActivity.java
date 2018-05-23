@@ -56,7 +56,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onVideoTaken(File video) {
                 super.onVideoTaken(video);
-                onVideo(video);
+                //onVideo(video);
             }
         });
 
@@ -82,6 +82,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         // This can happen if picture was taken with a gesture.
         if (mCaptureTime == 0) mCaptureTime = callbackTime - 300;
         if (mCaptureNativeSize == null) mCaptureNativeSize = camera.getPictureSize();
+
 
         PicturePreviewActivity.setImage(jpeg);
         Intent intent = new Intent(CameraActivity.this, PicturePreviewActivity.class);

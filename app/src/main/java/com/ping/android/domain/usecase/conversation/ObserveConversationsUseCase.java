@@ -13,8 +13,8 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

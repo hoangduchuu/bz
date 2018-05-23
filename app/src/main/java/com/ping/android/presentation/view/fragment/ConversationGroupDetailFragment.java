@@ -36,7 +36,7 @@ import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Navigator;
@@ -179,7 +179,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void onColorClicked() {
-        colorPickerBottomSheetDialog.show();
+        if (getActivity() != null && !getActivity().isDestroyed()) {
+            colorPickerBottomSheetDialog.show();
+        }
     }
 
     private void onNickNameClicked() {
@@ -270,6 +272,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
         colorAdapter.setListener(color -> {
+            colorPickerBottomSheetDialog.dismiss();
             presenter.updateColor(color.getCode());
         });
         recyclerView.setAdapter(colorAdapter);
@@ -341,7 +344,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void navigateBack() {
         if (getActivity() != null) {
-            getActivity().finishAfterTransition();
+            getActivity().finish();
         }
     }
 

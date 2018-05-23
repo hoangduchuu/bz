@@ -11,7 +11,6 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
 
@@ -65,7 +64,7 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
     private Observable<Message> sendMessage(Params params) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .map(s -> {
-                    builder.setImageUrl(s);
+                    builder.setFileUrl(s);
                     return builder.build();
                 })
                 .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1));
