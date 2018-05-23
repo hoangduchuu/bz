@@ -15,7 +15,6 @@ import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATIO
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
-import android.media.CameraProfile
 import android.media.ImageReader
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -218,6 +217,15 @@ class Camera2VideoFragment : Fragment(),
 
     private var cameraDirection: Int = CameraCharacteristics.LENS_FACING_FRONT
 
+    private var outputFolder: String = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments.apply {
+            outputFolder = getString(VideoRecorderActivity.OUTPUT_FOLDER_EXTRA_KEY)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?
@@ -345,7 +353,7 @@ class Camera2VideoFragment : Fragment(),
                 previewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture::class.java),
                         width, height, videoSize)
 
-                imageReader = ImageReader.newInstance(previewSize.width, previewSize.height,
+                imageReader = ImageReader.newInstance(videoSize.width, videoSize.height,
                         ImageFormat.JPEG, /*maxImages*/ 2).apply {
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
@@ -491,7 +499,7 @@ class Camera2VideoFragment : Fragment(),
         val cameraActivity = activity ?: return
 
         if (nextVideoAbsolutePath.isNullOrEmpty()) {
-            nextVideoAbsolutePath = getVideoFilePath(cameraActivity)
+            nextVideoAbsolutePath = getVideoFilePath()
         }
 
         val rotation = cameraActivity.windowManager.defaultDisplay.rotation
@@ -529,15 +537,13 @@ class Camera2VideoFragment : Fragment(),
         return Math.max(BIT_RATE_MIN, Math.min(BIT_RATE_MAX, rate));
     }
 
-    private fun getVideoFilePath(context: Context?): String {
-        val filename = "${System.currentTimeMillis()}.mp4"
-        val dir = context?.getExternalFilesDir(null)
-
-        return if (dir == null) {
-            filename
-        } else {
-            "${dir.absolutePath}/$filename"
+    private fun getVideoFilePath(): String {
+        val folder = File(outputFolder)
+        if (!folder.exists()) {
+            folder.mkdirs()
         }
+        val filename = "${System.currentTimeMillis()}.mp4"
+        return "${folder.absolutePath}/$filename"
     }
 
     private fun startRecordTimer() {
@@ -763,7 +769,9 @@ class Camera2VideoFragment : Fragment(),
     }
 
     companion object {
-        fun newInstance(): Camera2VideoFragment = Camera2VideoFragment()
+        fun newInstance(extras: Bundle): Camera2VideoFragment = Camera2VideoFragment().apply {
+            arguments = extras
+        }
     }
 
 }

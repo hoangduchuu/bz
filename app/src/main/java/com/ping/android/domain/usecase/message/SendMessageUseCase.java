@@ -66,6 +66,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         timer = new Timer();
         timer.schedule(task, 5000);
         message = params.getMessage();
+        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         conversation = params.getConversation();
         return conversationRepository.sendMessage(params.conversation.key, message)
                 .flatMap(message1 -> {
@@ -217,7 +218,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
                 }
                 message.key = messageKey;
-                message.localImage = cacheImage;
+                message.localFilePath = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);

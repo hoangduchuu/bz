@@ -110,7 +110,7 @@ class VideoRecorderActivity : Activity() {
     }
 
     private fun onPermissionGranted() {
-        openFragment(Camera2VideoFragment.newInstance())
+        openFragment(Camera2VideoFragment.newInstance(extras!!))
     }
 
     private fun onPermissionFailed() {
@@ -131,6 +131,7 @@ class VideoRecorderActivity : Activity() {
     }
 
     companion object {
+        const val OUTPUT_FOLDER_EXTRA_KEY = "OUTPUT_FOLDER_EXTRA_KEY"
         const val IMAGE_EXTRA_KEY = "IMAGE_EXTRA_KEY"
         const val VIDEO_EXTRA_KEY = "VIDEO_EXTRA_KEY"
     }

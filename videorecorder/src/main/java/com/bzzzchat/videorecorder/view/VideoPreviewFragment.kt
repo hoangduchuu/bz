@@ -3,18 +3,18 @@ package com.bzzzchat.videorecorder.view
 import android.app.Fragment
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.FileProvider
-import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.videorecorder.BuildConfig
 import com.bzzzchat.videorecorder.R
+import com.coremedia.iso.IsoFile
+import com.coremedia.iso.boxes.TrackBox
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.ExoPlayer
@@ -23,8 +23,17 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.googlecode.mp4parser.DataSource
+import com.googlecode.mp4parser.FileDataSourceImpl
+import com.googlecode.mp4parser.authoring.Movie
+import com.googlecode.mp4parser.authoring.Mp4TrackImpl
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder
 import kotlinx.android.synthetic.main.fragment_video_preview.*
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.RandomAccessFile
+import java.nio.channels.FileChannel
 
 private const val ARG_VIDEO_PATH = "ARG_VIDEO_PATH"
 private const val ARG_IS_PREVIEW = "ARG_IS_PREVIEW"
@@ -44,7 +53,11 @@ class VideoPreviewFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             videoPath = it.getString(ARG_VIDEO_PATH)
-            isPreview  = it.getBoolean(ARG_IS_PREVIEW, true)
+            isPreview = it.getBoolean(ARG_IS_PREVIEW, true)
+        }
+        val manufacturer = android.os.Build.MANUFACTURER
+        if (manufacturer == "samsung") {
+            fixSamsungBug()
         }
     }
 
@@ -112,6 +125,70 @@ class VideoPreviewFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         player.release()
+    }
+
+    private fun fixSamsungBug() {
+        var channel: DataSource? = null
+        try {
+            channel = FileDataSourceImpl(videoPath)
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+
+        var isoFile: IsoFile? = null
+
+        try {
+            isoFile = IsoFile(channel)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        val trackBoxes = isoFile!!.movieBox.getBoxes(TrackBox::class.java)
+        var sampleError = false
+        for (trackBox in trackBoxes) {
+            val firstEntry = trackBox.mediaBox.mediaInformationBox
+                    .sampleTableBox.timeToSampleBox.entries[0]
+
+            // Detect if first sample is a problem and fix it in isoFile
+            // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
+            // 10000 seems sufficient since for 30 fps the normal delta is about 3000
+            if (firstEntry.delta > 10000) {
+                sampleError = true
+                firstEntry.delta = 3000
+            }
+        }
+
+        if (sampleError) {
+            Log.d("gpinterviewandroid", "Sample error! correcting...");
+            val movie = Movie()
+            for (trackBox in trackBoxes) {
+                movie.addTrack(Mp4TrackImpl(channel.toString() + "[" + trackBox.trackHeaderBox.trackId + "]", trackBox))
+            }
+            movie.matrix = isoFile.movieBox.movieHeaderBox.matrix
+            val out = DefaultMp4Builder().build(movie)
+
+            //delete file first!
+            val file = File(videoPath)
+            val deleted = file.delete()
+
+
+            var fc: FileChannel? = null
+            try {
+                //fc = new FileOutputStream(new File(app.dataMgr.videoFileURL)).getChannel();
+                fc = RandomAccessFile(videoPath, "rw").channel
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            }
+
+            try {
+                out.writeContainer(fc)
+                fc?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+            Log.d("gpinterviewandroid", "Finished correcting raw video");
+        }
     }
 
     companion object {

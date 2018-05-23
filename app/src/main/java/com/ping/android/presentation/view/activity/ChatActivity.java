@@ -972,29 +972,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void onSendCamera() {
         // Should check permission here
         Intent intent = new Intent(this, VideoRecorderActivity.class);
+        Bundle extras = new Bundle();
+        String outputFolder = getExternalCacheDir() + File.separator + "conversations" + File.separator + conversationID;
+        extras.putString(VideoRecorderActivity.OUTPUT_FOLDER_EXTRA_KEY, outputFolder);
+        intent.putExtras(extras);
         startActivityForResult(intent, CAMERA_REQUEST_CODE);
-
-        /*imagePickerHelper = ImagePickerHelper.from(this)
-                .setCrop(false)
-                .setScale(true)
-                .setGenerateThumbnail(true)
-                .setListener(new ImagePickerHelper.ImagePickerListener() {
-                    @Override
-                    public void onImageReceived(File file) {
-                        // FIXME: should improve this way
-//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-//                        cacheMessage.localImage = file.getAbsolutePath();
-//                        adapter.addOrUpdate(cacheMessage);
-                    }
-
-                    @Override
-                    public void onFinalImage(File... files) {
-                        File file = files[0];
-                        File thumbnail = files[1];
-                        sendImageFirebase(file, thumbnail);
-                    }
-                });
-        imagePickerHelper.openCamera();*/
     }
 
     private void onSendImage() {
@@ -1006,7 +988,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     @Override
                     public void onImageReceived(File file) {
 //                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-//                        cacheMessage.localImage = file.getAbsolutePath();
+//                        cacheMessage.localFilePath = file.getAbsolutePath();
 //                        adapter.addOrUpdate(cacheMessage);
                     }
 

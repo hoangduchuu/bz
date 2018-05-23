@@ -60,7 +60,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
         builder.setFileUrl("PPhtotoMessageIdentifier");
         Message cachedMessage = builder.build().getMessage();
         cachedMessage.isCached = true;
-        cachedMessage.localImage = params.filePath;
+        cachedMessage.localFilePath = params.filePath;
         cachedMessage.days = (long) (cachedMessage.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
@@ -71,7 +71,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
                         .map(message1 -> {
                             message1.isCached = true;
-                            message1.localImage = params.filePath;
+                            message1.localFilePath = params.filePath;
                             message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))

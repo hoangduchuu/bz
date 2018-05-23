@@ -52,6 +52,7 @@ public class SendVideoMessageUseCase extends UseCase<Message, SendVideoMessageUs
                     return sendMessageUseCase.buildUseCaseObservable(builder.build())
                             .map(message -> {
                                 message.isCached = true;
+                                message.localFilePath = params.filePath;
                                 return message;
                             })
                             .concatWith(sendMessage(params));

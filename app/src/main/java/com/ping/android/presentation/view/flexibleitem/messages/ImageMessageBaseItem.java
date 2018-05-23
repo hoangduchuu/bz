@@ -99,14 +99,14 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         }
 
         private void handleImagePress(boolean isPuzzled) {
-            if (TextUtils.isEmpty(item.message.localImage)) {
+            if (TextUtils.isEmpty(item.message.localFilePath)) {
                 String photoUrl = !TextUtils.isEmpty(item.message.photoUrl)
                         ? item.message.photoUrl : item.message.thumbUrl;
                 if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith("PPhtotoMessageIdentifier"))
                     return;
                 viewImage(photoUrl, "", isPuzzled);
             } else {
-                viewImage("", item.message.localImage, isPuzzled);
+                viewImage("", item.message.localFilePath, isPuzzled);
             }
         }
 
@@ -145,8 +145,8 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private void setImageMessage(Message message) {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
-            if (!TextUtils.isEmpty(item.message.localImage)) {
-                UiUtils.loadImageFromFile(imageView, item.message.localImage, message.key, maskStatus);
+            if (!TextUtils.isEmpty(item.message.localFilePath)) {
+                UiUtils.loadImageFromFile(imageView, item.message.localFilePath, message.key, maskStatus);
                 return;
             }
 

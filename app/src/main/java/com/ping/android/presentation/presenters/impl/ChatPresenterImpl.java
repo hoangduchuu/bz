@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -408,6 +409,11 @@ public class ChatPresenterImpl implements ChatPresenter {
                 super.onNext(message);
                 if (!message.isCached) {
                     sendNotification(conversation, message);
+                } else {
+                    ChildData<Message> childData = new ChildData<>();
+                    childData.data = message;
+                    childData.type = ChildEvent.Type.CHILD_CHANGED;
+                    handleMessageData(childData);
                 }
             }
         }, params);

@@ -53,6 +53,7 @@ dependencies {
 
     // ExoPlayer v2 MediaSession extension
     implementation "com.google.android.exoplayer:extension-mediasession:$exoplayer_version"
+    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
     // Anko
     implementation "org.jetbrains.anko:anko:$anko_version"

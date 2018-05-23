@@ -40,7 +40,7 @@ public class Message implements Parcelable {
 
     // Local variable, don't store on Firebase
     public User sender;
-    public String localImage;
+    public String localFilePath;
     public boolean isCached;
     public String currentUserId;
     public String messageStatus;
@@ -69,7 +69,7 @@ public class Message implements Parcelable {
         messageType = in.readInt();
         gameType = in.readInt();
         sender = in.readParcelable(User.class.getClassLoader());
-        localImage = in.readString();
+        localFilePath = in.readString();
         isCached = in.readByte() != 0;
         currentUserId = in.readString();
         messageStatus = in.readString();
@@ -285,7 +285,7 @@ public class Message implements Parcelable {
         dest.writeInt(messageType);
         dest.writeInt(gameType);
         dest.writeParcelable(sender, flags);
-        dest.writeString(localImage);
+        dest.writeString(localFilePath);
         dest.writeByte((byte) (isCached ? 1 : 0));
         dest.writeString(currentUserId);
         dest.writeString(messageStatus);
