@@ -213,6 +213,7 @@ dependencies {
 //    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
 //    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
 //    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

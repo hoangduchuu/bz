@@ -10,6 +10,7 @@ import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
@@ -99,7 +100,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     @Override
     public void onLongPress(MessageBaseItem messageItem) {
         if (messageListener != null) {
-            messageListener.onLongPress(messageItem);
+            messageListener.onLongPress(messageItem, messageItem.message.type == MessageType.TEXT);
         }
     }
 
@@ -367,7 +368,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
 
-        void onLongPress(MessageBaseItem message);
+        void onLongPress(MessageBaseItem message, boolean allowCopy);
 
         void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
 

@@ -20,6 +20,8 @@ import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
@@ -51,27 +53,35 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public static MessageBaseItem from(Message message, String currentUserID, int conversationType) {
         MessageBaseItem baseItem;
-        switch (message.messageType) {
-            case Constant.MSG_TYPE_IMAGE:
-            case Constant.MSG_TYPE_GAME:
+        switch (message.type) {
+            case IMAGE:
+            case GAME:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new ImageMessageRightItem(message);
                 } else {
                     baseItem = new ImageMessageLeftItem(message);
                 }
                 break;
-            case Constant.MSG_TYPE_VOICE:
+            case VOICE:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new AudioMessageRightItem(message);
                 } else {
                     baseItem = new AudioMessageLeftItem(message);
                 }
                 break;
-            case Constant.MSG_TYPE_VIDEO:
+            case VIDEO:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new VideoMessageRightItem(message);
                 } else {
                     baseItem = new VideoMessageLeftItem(message);
+                }
+                break;
+            case CALL:
+            case MISSED_CALL:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new CallMessageRightItem(message);
+                } else {
+                    baseItem = new CallMessageLeftItem(message);
                 }
                 break;
             default:

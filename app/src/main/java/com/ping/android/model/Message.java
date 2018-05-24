@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
@@ -37,6 +38,9 @@ public class Message implements Parcelable {
     public int messageType;
     public int gameType;
     public int voiceType = 0;
+    public MessageType type;
+    // Used for CALL messages
+    public long duration;
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -52,6 +56,10 @@ public class Message implements Parcelable {
      * Indicates whether show user profile and date time or not
      */
     public boolean showExtraInfo = true;
+    /**
+     * Other user in PVP conversation
+     */
+    public User opponentUser;
 
     public Message() {
     }
@@ -107,6 +115,7 @@ public class Message implements Parcelable {
         message.gameUrl = wrapper.getStringValue("gameUrl");
         message.videoUrl = wrapper.getStringValue("videoUrl");
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
+        message.type = MessageType.Companion.from(message.messageType);
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
         message.senderId = wrapper.getStringValue("senderId");
         message.senderName = wrapper.getStringValue("senderName");
@@ -227,6 +236,22 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VIDEO;
+        message.readAllowed = readAllowed;
+        return message;
+    }
+
+    public static Message createCallMessage(String senderId, String senderName, MessageType type,
+                                            double timestamp, Map<String, Integer> status,
+                                            Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
+                                            Map<String, Boolean> readAllowed) {
+        Message message = new Message();
+        message.messageType = type.ordinal();
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
         message.readAllowed = readAllowed;
         return message;
     }

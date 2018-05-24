@@ -71,4 +71,6 @@ public interface UserRepository {
     Observable<Boolean> turnOffMappingConfirmation(String key);
 
     Observable<Boolean> updatePhoneNumber(String userKey, String s);
+
+    Observable<DataSnapshot> observeMappings(String key);
 }

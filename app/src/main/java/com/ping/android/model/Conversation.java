@@ -56,6 +56,7 @@ public class Conversation implements Parcelable {
     public Group group;
     public User opponentUser;
     public boolean isRead = false;
+    public boolean isMask = false;
     public String filterText;
     public String displayMessage;
     public Color currentColor = Color.DEFAULT;

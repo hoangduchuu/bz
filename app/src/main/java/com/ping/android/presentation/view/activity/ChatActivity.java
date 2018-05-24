@@ -350,10 +350,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void onLongPress(MessageBaseItem message) {
+    public void onLongPress(MessageBaseItem message, boolean allowCopy) {
         KeyboardHelpers.hideSoftInputKeyboard(this);
         selectedMessage = message;
-        copyContainer.setVisibility(message.message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
+        copyContainer.setVisibility(allowCopy ? View.VISIBLE : View.GONE);
         messageActions.show();
     }
 

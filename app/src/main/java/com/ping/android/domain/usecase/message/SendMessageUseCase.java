@@ -209,13 +209,16 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     case GAME:
                         message = buildGameMessage(currentUser, fileUrl, gameType);
                         break;
-                    case AUDIO:
+                    case VOICE:
                         message = buildAudioMessage(currentUser, fileUrl, voiceType);
                         break;
                     case VIDEO:
                         message = buildVideoMessage(currentUser, fileUrl);
                         break;
-
+                    case CALL:
+                    case MISSED_CALL:
+                        message = buildCallMessage(currentUser, messageType);
+                        break;
                 }
                 message.key = messageKey;
                 message.localFilePath = cacheImage;
@@ -224,6 +227,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 params.newConversation = conversationFrom(message);
                 params.filePath = fileUrl;
                 return params;
+            }
+
+            private Message buildCallMessage(User currentUser, MessageType messageType) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
             private Message buildVideoMessage(User currentUser, String fileUrl) {
@@ -263,6 +273,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         getMessageDeleteStatuses(), allowance, gameType.ordinal());
             }
 
+
+
             private Conversation conversationFrom(Message message) {
                 Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
                         text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMaskStatuses(),
@@ -290,11 +302,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private Map<String, Boolean> getAllowance() {
                 Map<String, Boolean> ret = new HashMap<>();
                 ret.put(currentUser.key, true);
-                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                    // Check whether sender is in block list of receiver
-                    boolean isBlocked = currentUser.blockBys.containsKey(conversation.opponentUser.key);
-                    ret.put(conversation.opponentUser.key, !isBlocked);
-                } else {
+//                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+//                    // Check whether sender is in block list of receiver
+//                    boolean isBlocked = currentUser.blockBys.containsKey(conversation.opponentUser.key);
+//                    ret.put(conversation.opponentUser.key, !isBlocked);
+//                } else {
                     for (String toUser : conversation.memberIDs.keySet()) {
                         if (toUser.equals(currentUser.key)) {
                             continue;
@@ -306,7 +318,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                             ret.put(toUser, true);
                         }
                     }
-                }
+//                }
                 return ret;
             }
 

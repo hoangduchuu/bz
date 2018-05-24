@@ -266,6 +266,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
             prepareMessageStatus(message);
+            message.opponentUser = conversation.opponentUser;
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
@@ -287,6 +288,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = new MessageHeaderItem();
             headerItemMap.put(message.days, headerItem);
         }
+        message.opponentUser = conversation.opponentUser;
         MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
         boolean added = headerItem.addChildItem(item);
         view.updateMessage(item, headerItem, added);
@@ -378,7 +380,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.conversation = conversation;
         params.currentUser = currentUser;
         params.filePath = audioUrl;
-        params.messageType = MessageType.AUDIO;
+        params.messageType = MessageType.VOICE;
         params.voiceType = voiceType;
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
@@ -559,20 +561,20 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void observeConversationUpdate() {
-
         observeConversationValueFromExistsConversationUseCase
                 .execute(new DefaultObserver<Conversation>() {
                              @Override
                              public void onNext(Conversation conv) {
-                                 conversation = conv;
                                  if (conv.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                      String opponentUserId = conv.opponentUser.key;
                                      String nickName = conv.nickNames.get(opponentUserId);
+                                     conv.opponentUser.nickName = nickName;
                                      String title = TextUtils.isEmpty(nickName) ? conv.opponentUser.getDisplayName() : nickName;
                                      view.updateConversationTitle(title);
                                  } else {
                                      view.updateNickNames(conv.nickNames);
                                  }
+                                 conversation = conv;
                              }
                          },
                         new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));
@@ -669,7 +671,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private void checkMessageError(Message message) {
         int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
+            if (status == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
                 resendMessage(message);
             }
         }

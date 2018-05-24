@@ -58,6 +58,9 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                     }
                                     conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
                                     conversation.currentColor = conversation.getColor(user.key);
+                                    boolean maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, user.key);
+                                    boolean maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, user.key);
+                                    conversation.isMask = maskStatus || maskMessage;
                                     conversations.add(conversation);
                                 }
                             }

@@ -19,7 +19,6 @@ import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
-import com.ping.android.utils.WebRtcSessionManager;
 import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
@@ -144,7 +143,6 @@ public class CallPresenterImpl implements CallPresenter,
             }
             currentSession = session;
             callTimestamp = System.currentTimeMillis() / 1000;
-            WebRtcSessionManager.getInstance().setCurrentSession(session);
             view.configCallSettings(session.getOpponents());
             view.initUserData(currentSession.getCallerID(), currentSession.getOpponents());
             callService.registerSessionCallbacks(this);
@@ -252,6 +250,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     private void addCallHistory(int status) {
         Call call = new Call(currentUser.key, opponentUser.key, status, callTimestamp);
+        call.opponentUser = opponentUser;
         addCallHistoryUseCase.execute(new DefaultObserver<>(), call);
     }
 

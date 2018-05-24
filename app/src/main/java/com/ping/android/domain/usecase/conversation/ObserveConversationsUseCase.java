@@ -13,6 +13,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -63,6 +64,9 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                             }
                             conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, currentUser.key);
                             conversation.currentColor = conversation.getColor(currentUser.key);
+                            boolean maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, currentUser.key);
+                            boolean maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, currentUser.key);
+                            conversation.isMask = maskStatus || maskMessage;
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;

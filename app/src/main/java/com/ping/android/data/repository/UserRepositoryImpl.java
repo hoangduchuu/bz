@@ -340,6 +340,13 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    @Override
+    public Observable<DataSnapshot> observeMappings(String key) {
+        DatabaseReference reference = database.getReference().child("users").child(key).child("mappings");
+        return RxFirebaseDatabase.getInstance(reference)
+                .onValueEvent();
+    }
+
     private Observable<String> getCurrentUserId() {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

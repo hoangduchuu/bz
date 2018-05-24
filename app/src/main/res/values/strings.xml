@@ -256,4 +256,10 @@
     <string name="voice_record_instruction_tap_to_record">Tap and hold me to record. Release to send</string>
     <string name="voice_record_instruction_release_to_mask">Release to MASK</string>
     <string name="voice_record_instruction_mask_with">Mask Your Voice To</string>
+    <string name="chat_missed_call_from_me">%s missed a call from you.</string>
+    <string name="chat_called_from_me">You called %s.</string>
+    <string name="chat_missed_call_to_me">You missed a call from %s.</string>
+    <string name="chat_called_to_me">%s called you.</string>
+    <string name="chat_call_back">Call back</string>
+    <string name="chat_call_again">Call again</string>
 </resources>

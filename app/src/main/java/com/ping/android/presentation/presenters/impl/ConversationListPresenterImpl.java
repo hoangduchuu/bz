@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
+import com.ping.android.domain.usecase.user.ObserveMappingsUseCase;
 import com.ping.android.model.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
@@ -13,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -29,6 +31,8 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
     @Inject
     LoadMoreConversationUseCase loadMoreConversationUseCase;
     @Inject
+    ObserveMappingsUseCase observeMappingsUseCase;
+    @Inject
     ConversationListPresenter.View view;
 
     private boolean canLoadMore = true;
@@ -42,6 +46,12 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
 
     @Override
     public void getConversations() {
+        observeMappingsUseCase.execute(new DefaultObserver<Map<String, String>>() {
+            @Override
+            public void onNext(Map<String, String> mappings) {
+                view.updateMappings(mappings);
+            }
+        }, null);
         loadMoreConversationUseCase.execute(new DefaultObserver<LoadMoreConversationUseCase.Output>() {
             @Override
             public void onNext(LoadMoreConversationUseCase.Output output) {
