@@ -273,7 +273,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 "profile" + File.separator + currentUser.key;
         CommonMethod.createFolder(profileFileFolder);
         double timestamp = System.currentTimeMillis() / 1000d;
-        profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
+        profileFileName = "" + timestamp + "-" + currentUser.key + ".jpeg";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
 
         imagePickerHelper = ImagePickerHelper.from(this)

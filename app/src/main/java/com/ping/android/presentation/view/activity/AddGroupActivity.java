@@ -306,7 +306,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + key;
         double timestamp = System.currentTimeMillis() / 1000d;
-        String profileFileName = "" + timestamp + "-" + key + ".png";
+        String profileFileName = "" + timestamp + "-" + key + ".jpeg";
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)

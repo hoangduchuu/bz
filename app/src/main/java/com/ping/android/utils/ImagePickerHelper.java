@@ -316,7 +316,7 @@ public class ImagePickerHelper {
     private String getFilePath() {
         if (TextUtils.isEmpty(filePath)) {
             filePath = getCacheFolder(getContext()) +
-                    File.separator + System.currentTimeMillis() + ".png";
+                    File.separator + System.currentTimeMillis() + ".jpeg";
         }
         return filePath;
     }
@@ -324,7 +324,7 @@ public class ImagePickerHelper {
     private String getThumbnailFilePath() {
         return getCacheFolder(getContext()) + File.separator +
                 "cache" + File.separator +
-                "thumbnail_" + System.currentTimeMillis() + ".png";
+                "thumbnail_" + System.currentTimeMillis() + ".jpeg";
     }
 
     private static String getCacheFolder(Context context) {
@@ -470,7 +470,7 @@ public class ImagePickerHelper {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(filePath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
