@@ -242,7 +242,7 @@ public class PushNotificationBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void prepareProfileImage(Context context, String profileImage, Callback callback) {
-        if (!profileImage.isEmpty() && profileImage.startsWith("gs://")) {
+        if (!TextUtils.isEmpty(profileImage) && profileImage.startsWith("gs://")) {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(profileImage);
             SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
                 @Override
