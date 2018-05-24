@@ -318,7 +318,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         private String getLocalFilePath(String audioUrl) {
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             return itemView.getContext()
-                    .getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
+                    .getExternalCacheDir().getAbsolutePath() + File.separator + audioLocalName;
         }
 
         private String getSuitableAudioFile(String audioUrl) {

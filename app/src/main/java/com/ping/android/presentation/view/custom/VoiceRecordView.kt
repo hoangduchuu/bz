@@ -56,6 +56,7 @@ class VoiceRecordView : LinearLayout {
     private var selectedVoice = VoiceType.DEFAULT
     private var selectedVoicePath: String? = null
     private var isTransforming = false
+    private var conversationId = "temp"
 
     private lateinit var voiceTypeAdapter: FlexibleAdapterV2
     private lateinit var voiceTypes: MutableList<VoiceTypeItem>
@@ -259,7 +260,7 @@ class VoiceRecordView : LinearLayout {
     private fun startRecord() {
         val dateFormat = SimpleDateFormat("yyyyMMdd_HH_mm_ss")
         val currentTimeStamp = dateFormat.format(Date())
-        outputFile = context.getExternalFilesDir(null).absolutePath + "/recording_" + currentTimeStamp + ".3gp"
+        outputFile = "${context.externalCacheDir.absolutePath}/conversations/$conversationId/recording_$currentTimeStamp.aac"
         audioRecorder.setOutputFile(outputFile)
 
         audioRecorder.startRecord()
@@ -361,6 +362,10 @@ class VoiceRecordView : LinearLayout {
         } else {
             vibrator.vibrate(100)
         }
+    }
+
+    fun setConversationId(conversationId: String) {
+        this.conversationId = conversationId
     }
 
     inner class TouchListener : OnTouchListener {

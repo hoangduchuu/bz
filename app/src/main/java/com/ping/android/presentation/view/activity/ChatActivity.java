@@ -112,6 +112,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private TextView tvChatName, tvNewMsgCount;
     private TextView tvInstruction;
     private Button btnSend;
+    private View bottomContainer;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -476,6 +477,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         tvNewMsgCount = findViewById(R.id.chat_new_message_count);
         layoutMsgType = findViewById(R.id.chat_layout_msg_type);
         btEmoji = findViewById(R.id.chat_emoji_btn);
+        bottomContainer = findViewById(R.id.bottom_container);
 
         btBack.setOnClickListener(this);
         tvChatName.setOnClickListener(this);
@@ -500,6 +502,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
+            if (layoutVoice.getVisibility() == View.VISIBLE) {
+                TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
+                layoutVoice.setVisibility(View.GONE);
+            }
             return false;
         });
         mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
@@ -910,9 +916,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             edMessage.requestFocus();
             KeyboardHelpers.showKeyboard(this, edMessage);
         } else if (type == Constant.MESSAGE_TYPE.VOICE) {
-            View view = findViewById(R.id.bottom_container);
             layoutText.setVisibility(View.GONE);
-            TransitionManager.beginDelayedTransition((ViewGroup) view, new Slide());
+            TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
             layoutVoice.setVisibility(View.VISIBLE);
         }
 
@@ -1075,6 +1080,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             this.shakeEventManager.register();
         }
         this.originalConversation = conv;
+        layoutVoice.setConversationId(conv.key);
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
