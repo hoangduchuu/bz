@@ -29,7 +29,7 @@ public class UploadConversationBackgroundUseCase extends UseCase<Boolean, Upload
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         if (TextUtils.isEmpty(params.filePath)) return Observable.just(false);
-        return storageRepository.uploadImageMessage(params.conversation.key, params.filePath)
+        return storageRepository.uploadFile(params.conversation.key, params.filePath)
                 .flatMap(s -> updateConversationBackgroundUseCase.buildUseCaseObservable(
                         new UpdateConversationBackgroundUseCase.Params(params.conversation, s))
                 );

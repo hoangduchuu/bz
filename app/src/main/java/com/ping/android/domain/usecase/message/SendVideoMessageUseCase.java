@@ -71,7 +71,7 @@ public class SendVideoMessageUseCase extends UseCase<Message, SendVideoMessageUs
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        return storageRepository.uploadImageMessage(conversationKey, filePath);
+        return storageRepository.uploadFile(conversationKey, filePath);
     }
 
     public static class Params {

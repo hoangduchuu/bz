@@ -59,7 +59,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 ChatMessageAdapter.audioPlayerInstance.pause();
             }
             if (audioStatus == AudioStatus.PLAYING) {
-                audioStatus = AudioStatus.PAUSED;
+                audioStatus = AudioStatus.INITIALIZED;
+                currentPosition = 0;
             }
         }
     }
@@ -149,6 +150,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         @Override
         public void bindData(MessageBaseItem item, boolean lastItem) {
             super.bindData(item, lastItem);
+            totalTime = 0;
+            setTotalTime();
             AudioMessageBaseItem audioItem = (AudioMessageBaseItem) item;
             audioStatus = audioItem.getAudioStatus();
             mMediaPlayer = null;
@@ -304,6 +307,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                         }
                     }).addOnFailureListener(exception -> {
                         // Handle any errors
+                        showError();
                     });
                 } catch (Exception ex) {
                     Log.e(ex);
@@ -314,13 +318,13 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         private String getLocalFilePath(String audioUrl) {
             String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
             return itemView.getContext()
-                    .getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
+                    .getExternalCacheDir().getAbsolutePath() + File.separator + audioLocalName;
         }
 
         private String getSuitableAudioFile(String audioUrl) {
             File localFile = new File(getLocalFilePath(audioUrl));
-            if (item.message.voiceType != 0 && item.message.isMask) {
-                VoiceType voiceType = VoiceType.from(item.message.voiceType);
+            VoiceType voiceType = VoiceType.from(item.message.voiceType);
+            if (voiceType != VoiceType.DEFAULT && item.message.isMask) {
                 String transformFileName = voiceType.toString() + localFile.getName();
                 File transformFile = new File(localFile.getParent(), transformFileName);
                 return transformFile.getAbsolutePath();
@@ -370,7 +374,11 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 } else {
                     totalTime = ((AudioMessageBaseItem) item).getAudioDuration();
                 }
-                setTotalTime();
+                if (totalTime > 0) {
+                    setTotalTime();
+                } else {
+                    showError();
+                }
             }
         }
 
@@ -435,6 +443,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 playbackStr.append(String.format(Locale.getDefault(), "%02d:%02d",
                         TimeUnit.MILLISECONDS.toMinutes((long) totalTime),
                         TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
+            } else {
+                playbackStr.append("00:00");
             }
 
             duration.setText(playbackStr);
@@ -442,7 +452,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
         private int getTotalTime(String audioPath) {
             Uri uri = FileHelperKt.uri(new File(audioPath), itemView.getContext());
-            String durationStr = "0";
+            String durationStr = "";
             try {
                 MediaMetadataRetriever mmr = new MediaMetadataRetriever();
                 mmr.setDataSource(itemView.getContext(), uri);
@@ -450,7 +460,11 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            return Integer.parseInt(durationStr);
+            if (!TextUtils.isEmpty(durationStr)) {
+                return Integer.parseInt(durationStr);
+            } else {
+                return 0;
+            }
         }
 
         private void showPlay(boolean isAnimate) {

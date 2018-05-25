@@ -9,7 +9,7 @@ import io.reactivex.Observable;
 public interface StorageRepository {
     Observable<String> uploadGroupProfileImage(String groupId, String path);
 
-    Observable<String> uploadImageMessage(String key, String filePath);
+    Observable<String> uploadFile(String key, String filePath);
 
     Observable<String> uploadUserProfileImage(String userId, String filePath);
 }
