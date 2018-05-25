@@ -38,7 +38,7 @@ public class Message implements Parcelable {
     public int messageType;
     public int gameType;
     public int voiceType = 0;
-    public MessageType type;
+    public MessageType type = MessageType.TEXT;
     // Used for CALL messages
     public long duration;
 
@@ -115,7 +115,7 @@ public class Message implements Parcelable {
         message.gameUrl = wrapper.getStringValue("gameUrl");
         message.videoUrl = wrapper.getStringValue("videoUrl");
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
-        message.type = MessageType.Companion.from(message.messageType);
+        message.type = MessageType.from(message.messageType);
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
         message.senderId = wrapper.getStringValue("senderId");
         message.senderName = wrapper.getStringValue("senderName");

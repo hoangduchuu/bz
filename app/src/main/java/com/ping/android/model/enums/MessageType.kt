@@ -9,7 +9,8 @@ enum class MessageType {
 
 
     companion object {
-        fun from(messageType: Int): MessageType? {
+        @JvmStatic
+        fun from(messageType: Int): MessageType {
             return when (messageType) {
                 2 -> IMAGE
                 3 -> VOICE
