@@ -130,6 +130,10 @@ class VideoRecorderActivity : Activity() {
                 Manifest.permission.RECORD_AUDIO), 1212)
     }
 
+    override fun finish() {
+        super.finish()
+    }
+
     companion object {
         const val OUTPUT_FOLDER_EXTRA_KEY = "OUTPUT_FOLDER_EXTRA_KEY"
         const val IMAGE_EXTRA_KEY = "IMAGE_EXTRA_KEY"
