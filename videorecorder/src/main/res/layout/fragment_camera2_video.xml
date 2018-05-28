@@ -14,9 +14,10 @@
  limitations under the License.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <com.bzzzchat.videorecorder.view.custom.AutoFitTextureView
         android:id="@+id/texture"
@@ -34,17 +35,50 @@
         android:layout_marginBottom="24dp"
         android:elevation="10dp"
         app:fillColor="#60ffffff"
-        app:progressbarColor="@color/colorAccent"
         app:progress="0"
-        app:progressBarThickness="4dp" />
+        app:progressBarThickness="4dp"
+        app:progressbarColor="@color/colorAccent" />
+
+    <RelativeLayout
+        android:id="@+id/tutorial_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/video"
+        android:layout_centerHorizontal="true"
+        android:translationY="20dp"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/txt_tutorial_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/rectangle"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hold To Record" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_below="@+id/txt_tutorial_message"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="13dp"
+            android:rotation="180"
+            android:src="@drawable/triangle" />
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/btnSwitchCamera"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:padding="10dp"
-        android:layout_margin="10dp"
-        android:src="@drawable/ic_switch_camera"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:src="@drawable/ic_switch_camera" />
 </RelativeLayout>

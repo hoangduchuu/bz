@@ -6,10 +6,7 @@ import android.app.Fragment
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.content.res.Configuration
-import android.graphics.ImageFormat
-import android.graphics.Matrix
-import android.graphics.RectF
-import android.graphics.SurfaceTexture
+import android.graphics.*
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
@@ -42,6 +39,10 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
+fun withDelay(delay : Long, block : () -> Unit) {
+    Handler().postDelayed(Runnable(block), delay)
+}
+
 class Camera2VideoFragment : Fragment(),
         ActivityCompat.OnRequestPermissionsResultCallback {
     private val TAG = "Camera2VideoFragment"
@@ -50,6 +51,12 @@ class Camera2VideoFragment : Fragment(),
     private val BIT_RATE_MAX = 40000000
     private val SENSOR_ORIENTATION_DEFAULT_DEGREES = 90
     private val SENSOR_ORIENTATION_INVERSE_DEGREES = 270
+    private val ORIENTATIONS = SparseIntArray().apply {
+        append(Surface.ROTATION_0, 0)
+        append(Surface.ROTATION_90, 90)
+        append(Surface.ROTATION_180, 180)
+        append(Surface.ROTATION_270, 270)
+    }
     private val DEFAULT_ORIENTATIONS = SparseIntArray().apply {
         append(Surface.ROTATION_0, 90)
         append(Surface.ROTATION_90, 0)
@@ -125,6 +132,8 @@ class Camera2VideoFragment : Fragment(),
      * Button to record video
      */
     private lateinit var videoButton: CustomRecordButton
+
+    private lateinit var instructionView: View
 
     /**
      * A reference to the opened [android.hardware.camera2.CameraDevice].
@@ -236,6 +245,11 @@ class Camera2VideoFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         textureView = view.findViewById(R.id.texture)
         videoButton = view.findViewById(R.id.video)
+        instructionView = view.findViewById(R.id.tutorial_message)
+        videoButton.setOnTouchListener { v, event ->
+            instructionView.visibility = View.GONE
+            false
+        }
         videoButton.setListener(object : RecordButtonListener {
             override fun onTakeImage() {
                 captureStillPicture()
@@ -522,30 +536,18 @@ class Camera2VideoFragment : Fragment(),
         if (nextVideoAbsolutePath.isNullOrEmpty()) {
             nextVideoAbsolutePath = getVideoFilePath()
         }
-
-        val rotation = orientationEventListener.rotation
-        if (cameraDirection == CameraCharacteristics.LENS_FACING_FRONT) {
-            when (sensorOrientation) {
-                SENSOR_ORIENTATION_DEFAULT_DEGREES ->
-                    mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
-                SENSOR_ORIENTATION_INVERSE_DEGREES ->
-                    mediaRecorder?.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation))
-            }
-        } else {
-            when (sensorOrientation) {
-                SENSOR_ORIENTATION_DEFAULT_DEGREES ->
-                    mediaRecorder?.setOrientationHint(DEFAULT_ORIENTATIONS.get(rotation))
-                SENSOR_ORIENTATION_INVERSE_DEGREES ->
-                    mediaRecorder?.setOrientationHint(INVERSE_ORIENTATIONS.get(rotation))
-            }
+        val deviceRotation = orientationEventListener.rotation
+        val surfaceRotation = when (cameraDirection) {
+            CameraCharacteristics.LENS_FACING_FRONT -> INVERSE_ORIENTATIONS.get(deviceRotation)
+            else -> DEFAULT_ORIENTATIONS.get(deviceRotation)
         }
-        //val profile = CameraProfile
-
+        val realRotation = (surfaceRotation + sensorOrientation + 270) % 360
         mediaRecorder?.apply {
             setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setOutputFile(nextVideoAbsolutePath)
+            setOrientationHint(realRotation)
             setVideoEncodingBitRate(getVideoBitRate(videoSize))
             setVideoFrameRate(30)
             setVideoSize(videoSize.width, videoSize.height)
@@ -657,17 +659,26 @@ class Camera2VideoFragment : Fragment(),
         isRecordingVideo = false
         stopRecordTimer()
         try {
-            mediaRecorder?.apply {
-                stop()
-                reset()
+            // Should stopRepeating before stop mediaRecorder
+            // This fixed crash on some devices
+            captureSession?.apply {
+                stopRepeating()
+                abortCaptures()
             }
         } catch (exception: Exception) {
             exception.printStackTrace()
         }
 
-        (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
-        nextVideoAbsolutePath = null
-        startPreview()
+        // Need execute this block after delay time, cause stopRepeating take time to be affected
+        withDelay(500) {
+            mediaRecorder?.apply {
+                stop()
+                reset()
+            }
+            (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
+            nextVideoAbsolutePath = null
+            startPreview()
+        }
     }
 
     private fun showToast(message: String) = Toast.makeText(activity, message, LENGTH_SHORT).show()
@@ -724,12 +735,10 @@ class Camera2VideoFragment : Fragment(),
     private fun captureStillPicture() {
         try {
             if (activity == null || cameraDevice == null) return
-            val rotation = orientationEventListener.rotation
-            //sensorOrientation = orientationEventListener.rotation
-
-            val origin = when (cameraDirection) {
-                CameraCharacteristics.LENS_FACING_FRONT -> INVERSE_ORIENTATIONS.get(rotation)
-                else -> DEFAULT_ORIENTATIONS.get(rotation)
+            val deviceRotation = orientationEventListener.rotation
+            val surfaceRotation = when (cameraDirection) {
+                CameraCharacteristics.LENS_FACING_FRONT -> INVERSE_ORIENTATIONS.get(deviceRotation)
+                else -> DEFAULT_ORIENTATIONS.get(deviceRotation)
             }
             // This is the CaptureRequest.Builder that we use to take a picture.
             val captureBuilder = cameraDevice?.createCaptureRequest(
@@ -741,7 +750,7 @@ class Camera2VideoFragment : Fragment(),
                 // For devices with orientation of 90, we return our mapping from ORIENTATIONS.
                 // For devices with orientation of 270, we need to rotate the JPEG 180 degrees.
                 set(CaptureRequest.JPEG_ORIENTATION,
-                        (origin + sensorOrientation + 270) % 360)
+                        (surfaceRotation + sensorOrientation + 270) % 360)
 
                 // Use the same AE and AF modes as the preview.
 //                set(CaptureRequest.CONTROL_AF_MODE,
