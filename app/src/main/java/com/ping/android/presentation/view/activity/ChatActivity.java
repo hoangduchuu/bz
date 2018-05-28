@@ -919,6 +919,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             layoutText.setVisibility(View.GONE);
             TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
             layoutVoice.setVisibility(View.VISIBLE);
+            layoutVoice.prepare();
         }
 
         if (type != Constant.MESSAGE_TYPE.TEXT) {
