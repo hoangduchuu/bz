@@ -82,6 +82,9 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case Constant.MSG_TYPE_GAME:
                                                     body = userName + ": sent a game.";
                                                     break;
+                                                case Constant.MSG_TYPE_VIDEO:
+                                                    body = userName + ": sent a video message.";
+                                                    break;
                                                 default:
                                                     break;
                                             }
