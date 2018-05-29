@@ -112,7 +112,7 @@ public class UiUtils {
         }
         if (user != null && StringUtils.isNotEmpty(user.profile) && (showProfile || currentProfile)) {
 
-            Log.d(user.profile);
+            //Log.d(user.profile);
 
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
             GlideApp.with(imageView.getContext())
