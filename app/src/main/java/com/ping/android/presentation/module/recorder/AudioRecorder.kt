@@ -1,6 +1,8 @@
 package com.ping.android.presentation.module.recorder
 
 import android.media.MediaRecorder
+import com.ping.android.utils.Log
+import java.io.File
 import java.io.FileNotFoundException
 import java.util.*
 
@@ -34,6 +36,10 @@ internal class AudioRecorder : IAudioRecorder {
     }
 
     fun setOutputFile(outputFile: String): AudioRecorder {
+        val file = File(outputFile)
+        if (!file.parentFile.exists()) {
+            file.parentFile.mkdirs()
+        }
         this.outputFile = outputFile
         return this
     }
@@ -56,13 +62,14 @@ internal class AudioRecorder : IAudioRecorder {
 
     private fun startRecordThread() {
         synchronized(lock) {
-            mediaRecorder = MediaRecorder()
-            mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
-            mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-            mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            mediaRecorder?.setAudioSamplingRate(44100)
-            mediaRecorder?.setAudioEncodingBitRate(96000)
-            mediaRecorder?.setOutputFile(outputFile)
+            mediaRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                setAudioSamplingRate(44100)
+                setAudioEncodingBitRate(96000)
+                setOutputFile(outputFile)
+            }
             try {
                 mediaRecorder?.prepare()
                 mediaRecorder?.start()
@@ -78,6 +85,7 @@ internal class AudioRecorder : IAudioRecorder {
                 }
                 timer?.scheduleAtFixedRate(timerTask, 0, 40)
             } catch (exception: Exception) {
+                Log.e(exception)
                 recorderState = RECORDER_STATE_FAILURE
             }
         }
@@ -88,11 +96,19 @@ internal class AudioRecorder : IAudioRecorder {
             recorderState = RECORDER_STATE_IDLE
             try {
                 timer?.cancel()
-                mediaRecorder?.stop()
-                mediaRecorder?.release()
+                mediaRecorder?.apply {
+                    stop()
+                    release()
+                }
+//                        //?.stop()
+//                mediaRecorder?.release()
                 mediaRecorder = null
                 //btSendRecord.setEnabled(true);
             } catch (e: Exception) {
+                val file = File(outputFile)
+                if (file.exists()) {
+                    file.delete()
+                }
                 com.ping.android.utils.Log.e(e)
             }
         }
