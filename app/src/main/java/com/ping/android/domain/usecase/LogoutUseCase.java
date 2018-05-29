@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.device.Device;
 import com.ping.android.device.Notification;
+import com.ping.android.domain.repository.QuickbloxRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 
@@ -21,6 +22,8 @@ import io.reactivex.Observable;
 public class LogoutUseCase extends UseCase<Boolean, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    QuickbloxRepository quickbloxRepository;
     @Inject
     Device device;
     @Inject
@@ -39,6 +42,7 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
         userManager.logout();
         String deviceId = device.getDeviceId();
         notification.clearAll();
-        return userRepository.logout(deviceId);
+        return userRepository.logout(deviceId)
+                .flatMap(aBoolean -> quickbloxRepository.signOut());
     }
 }

@@ -33,7 +33,6 @@ public class CoreApp extends Application {
         instance = this;
         initQbConfigs();
         initCredentials();
-        initPushManager();
         EmojiManager.install(new GoogleEmojiProvider());
 
         Intent intent = new Intent(this, NotificationBroadcastReceiver.class);
@@ -49,6 +48,7 @@ public class CoreApp extends Application {
     public void initCredentials() {
         if (qbConfigs != null) {
             QBSettings.getInstance().init(getApplicationContext(), qbConfigs.getAppId(), qbConfigs.getAuthKey(), qbConfigs.getAuthSecret());
+            initPushManager();
             QBSettings.getInstance().setAccountKey(qbConfigs.getAccountKey());
             QBSettings.getInstance().setEnablePushNotification(true);
             QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.ALWAYS);
@@ -60,26 +60,6 @@ public class CoreApp extends Application {
                 QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), serviceZone);
                 QBSettings.getInstance().setZone(serviceZone);
             }
-            QBPushManager.getInstance().addListener(new QBPushManager.QBSubscribeListener() {
-                @Override
-                public void onSubscriptionCreated() {
-                    Log.d(TAG, "onSubscriptionCreated");
-                }
-
-                @Override
-                public void onSubscriptionError(Exception e, int i) {
-                    Log.e(TAG, "onSubscriptionError" + e);
-                    if (i >= 0) {
-                        Log.e(TAG, "Google play service exception " + i);
-                    }
-                    Log.e(TAG, "onSubscriptionError " + e.getMessage());
-                }
-
-                @Override
-                public void onSubscriptionDeleted(boolean b) {
-                    Log.e(TAG, "onSubscriptionDeleted " + b);
-                }
-            });
         }
     }
 
@@ -103,7 +83,7 @@ public class CoreApp extends Application {
 
             @Override
             public void onSubscriptionDeleted(boolean b) {
-
+                Log.d(TAG, "onSubscriptionDeleted");
             }
         });
 

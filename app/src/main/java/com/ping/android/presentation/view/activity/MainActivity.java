@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,6 +10,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -33,10 +35,12 @@ import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
+import com.ping.android.service.PushNotificationBroadcastReceiver;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.UsersUtils;
+import com.quickblox.auth.session.QBSettings;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.util.ArrayList;
@@ -73,7 +77,9 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
         init();
         observeBadgeNumber();
-        //UserManager.getInstance().addValueEventListener();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(new PushNotificationBroadcastReceiver(),
+                new IntentFilter("new-push-event"));
     }
 
     @Override
@@ -355,7 +361,10 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     public void startCallService() {
         UserManager.getInstance().startCallService(this);
-        SubscribeService.subscribeToPushes(this, false);
+//        if (!QBSettings.getInstance().isEnablePushNotification()) {
+//            QBSettings.getInstance().setEnablePushNotification(true);
+//        }
+        //SubscribeService.subscribeToPushes(this, false);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

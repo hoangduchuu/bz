@@ -3,8 +3,11 @@ package com.ping.android.dagger;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.service.CallService;
+import com.ping.android.service.FbMessagingService;
 import com.ping.android.service.NotificationBroadcastReceiver;
 import com.ping.android.service.PushNotificationBroadcastReceiver;
+
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Singleton;
 
@@ -25,4 +28,6 @@ public interface ApplicationComponent {
     void inject(NotificationBroadcastReceiver receiver);
 
     void inject(PushNotificationBroadcastReceiver receiver);
+
+    void inject(@NotNull FbMessagingService fbMessagingService);
 }

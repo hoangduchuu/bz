@@ -15,6 +15,8 @@ public interface QuickbloxRepository {
 
     Observable<QBUser> signUp(String pingId);
 
+    Observable<Boolean> signOut();
+
     Observable<Boolean> loginChat(int qbId, String pingId);
 
     Observable<Boolean> logout();

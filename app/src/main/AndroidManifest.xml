@@ -22,8 +22,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
-    <uses-permission android:name="com.quickblox.sample.messages.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!--<uses-permission android:name="${applicationId}.messages.permission.C2D_MESSAGE" />-->
+    <!--<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
@@ -41,26 +41,23 @@
             android:exported="false"
             android:stopWithTask="false" />
 
-        <!-- <service -->
-        <!-- android:name="com.quickblox.messages.services.fcm.QBFcmPushListenerService"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.google.firebase.MESSAGING_EVENT" /> -->
-        <!-- </intent-filter> -->
-        <!-- </service> -->
-        <!-- <service -->
-        <!-- android:name="com.quickblox.messages.services.fcm.QBFcmPushInstanceIDService"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/> -->
-        <!-- </intent-filter> -->
-        <!-- </service> -->
-
-        <service
-            android:name="com.ping.android.service.PFirebaseInstanceIdService"
-            android:exported="false">
+        <service android:name=".service.FbMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service android:name="com.quickblox.messages.services.fcm.QBFcmPushInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+        <!--<service-->
+            <!--android:name="com.ping.android.service.PFirebaseInstanceIdService"-->
+            <!--android:exported="false">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.firebase.INSTANCE_ID_EVENT" />-->
+            <!--</intent-filter>-->
+        <!--</service>-->
 
         <meta-data
             android:name="com.quickblox.messages.TYPE"
@@ -72,15 +69,15 @@
             android:name="com.quickblox.messages.QB_ENVIRONMENT"
             android:value="PRODUCTION" />
 
-        <receiver
-            android:name="com.ping.android.service.PushNotificationBroadcastReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <!-- <action android:name="new-push-event"/> -->
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </receiver>
+        <!--<receiver-->
+            <!--android:name="com.ping.android.service.PushNotificationBroadcastReceiver"-->
+            <!--android:exported="true"-->
+            <!--android:permission="com.google.android.c2dm.permission.SEND">-->
+            <!--<intent-filter>-->
+                <!--&lt;!&ndash; <action android:name="new-push-event"/> &ndash;&gt;-->
+                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
         <receiver
             android:name="com.ping.android.service.NotificationBroadcastReceiver"
             android:enabled="true"

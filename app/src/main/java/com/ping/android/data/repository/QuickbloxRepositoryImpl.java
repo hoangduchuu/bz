@@ -85,6 +85,13 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
     }
 
     @Override
+    public Observable<Boolean> signOut() {
+        Performer<Void> performer = QBUsers.signOut();
+        return ((Observable<Void>) performer.convertTo(RxJava2PerformProcessor.INSTANCE))
+                .map(aVoid -> true);
+    }
+
+    @Override
     public Observable<Boolean> loginChat(int qbId, String pingId) {
         return Observable.create(emitter -> {
             QBUser user = getQBUser(qbId, pingId);
