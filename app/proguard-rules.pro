@@ -17,6 +17,13 @@
 #}
 
 -dontpreverify
+-ignorewarnings
+
+-dontwarn
+-dontwarn kotlin.**
+-dontwarn org.jetbrains.annotations.**
+
+-keep class android.support.v7.widget.** { *; }
 
 -keep class com.ping.android.model.** { *; }
 

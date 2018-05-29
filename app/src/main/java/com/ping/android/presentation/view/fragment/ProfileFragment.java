@@ -31,7 +31,6 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
-import com.quickblox.auth.session.QBSettings;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
@@ -232,8 +231,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onLogout() {
         presenter.logout();
-        //SubscribeService.unSubscribeFromPushes(getContext());
-        //QBSettings.getInstance().setEnablePushNotification(false);
+        SubscribeService.unSubscribeFromPushes(getContext());
         CallService.logout(getContext());
 
         UsersUtils.removeUserData(getContext());

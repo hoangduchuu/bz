@@ -13,6 +13,7 @@ import com.quickblox.auth.session.QBSettings;
 import com.quickblox.core.ServiceZone;
 import com.quickblox.core.SubscribePushStrategy;
 import com.quickblox.messages.services.QBPushManager;
+import com.quickblox.messages.services.SubscribeService;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
@@ -50,9 +51,13 @@ public class CoreApp extends Application {
             QBSettings.getInstance().init(getApplicationContext(), qbConfigs.getAppId(), qbConfigs.getAuthKey(), qbConfigs.getAuthSecret());
             initPushManager();
             QBSettings.getInstance().setAccountKey(qbConfigs.getAccountKey());
-            QBSettings.getInstance().setEnablePushNotification(true);
-            QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.ALWAYS);
-
+//            QBSettings.getInstance().setEnablePushNotification(true);
+            if (QBSettings.getInstance().getSubscribePushStrategy() != SubscribePushStrategy.MANUAL) {
+                // FIXME: do not use auto subscription
+                QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.MANUAL);
+                // FIXME: Need unsubscribe to register a new one
+                SubscribeService.unSubscribeFromPushes(this);
+            }
             if (!TextUtils.isEmpty(qbConfigs.getApiDomain()) && !TextUtils.isEmpty(qbConfigs.getChatDomain())) {
                 //QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
                 //QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);

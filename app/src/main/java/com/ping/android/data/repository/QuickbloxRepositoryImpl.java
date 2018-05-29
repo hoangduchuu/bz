@@ -1,30 +1,22 @@
 package com.ping.android.data.repository;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.bzzz.rxquickblox.RxQuickblox;
 import com.ping.android.domain.repository.QuickbloxRepository;
 import com.quickblox.chat.QBChatService;
-import com.quickblox.chat.QBSignaling;
-import com.quickblox.chat.QBWebRTCSignaling;
-import com.quickblox.chat.listeners.QBVideoChatSignalingManagerListener;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
 import com.quickblox.core.server.Performer;
 import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
-import com.quickblox.videochat.webrtc.QBRTCClient;
 
 import org.jivesoftware.smack.SmackException;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 
 /**
@@ -111,12 +103,14 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
 
     @Override
     public Observable<Boolean> logout() {
-        try {
-            QBChatService.getInstance().logout();
-        } catch (SmackException.NotConnectedException e) {
-            e.printStackTrace();
-        }
-        return Observable.just(true);
+        return Observable.create(emitter -> {
+            try {
+                QBChatService.getInstance().logout();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+            emitter.onNext(true);
+        });
     }
 
     private QBUser getQBUser(int qbId, String pingId) {

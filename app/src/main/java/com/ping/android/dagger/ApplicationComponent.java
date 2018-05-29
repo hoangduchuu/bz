@@ -5,7 +5,6 @@ import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
 import com.ping.android.service.NotificationBroadcastReceiver;
-import com.ping.android.service.PushNotificationBroadcastReceiver;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,8 +25,6 @@ public interface ApplicationComponent {
     void inject(CallService service);
 
     void inject(NotificationBroadcastReceiver receiver);
-
-    void inject(PushNotificationBroadcastReceiver receiver);
 
     void inject(@NotNull FbMessagingService fbMessagingService);
 }
