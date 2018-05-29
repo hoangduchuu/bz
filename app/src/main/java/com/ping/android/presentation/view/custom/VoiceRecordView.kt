@@ -45,7 +45,7 @@ class VoiceRecordView : LinearLayout {
     private lateinit var audioVisualization: AudioVisualization
     private lateinit var audioRecorder: AudioRecorder
     private lateinit var handler: AudioRecordingHandler
-    private lateinit var timer: Timer
+    private var timer: Timer? = null
     private lateinit var vibrator: Vibrator
 
     private var mediaPlayer: MediaPlayer? = null
@@ -83,6 +83,10 @@ class VoiceRecordView : LinearLayout {
         stopAudio()
     }
 
+    fun prepare() {
+        tutorial_message.visibility = View.VISIBLE
+    }
+
     private fun initView() {
         inflate(R.layout.view_voice_record, true)
         vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -108,6 +112,8 @@ class VoiceRecordView : LinearLayout {
             initVoiceTypeView()
         }
         initVoiceTypeView()
+
+        prepare()
     }
 
     private fun initVoiceTypeView() {
@@ -283,14 +289,15 @@ class VoiceRecordView : LinearLayout {
                 }
             }
         }
-        timer.scheduleAtFixedRate(task, 1000, 1000)
+        timer?.scheduleAtFixedRate(task, 1000, 1000)
     }
 
     private fun stopRecord() {
         audioRecorder.finishRecord()
         handler.stop()
         // Stop timer
-        timer.cancel()
+        timer?.cancel()
+        timer = null
     }
 
     private fun onReleaseView() {
@@ -298,8 +305,9 @@ class VoiceRecordView : LinearLayout {
         btnCancel.animate().alpha(0.0f).start()
         btnTransform.animate().alpha(0.0f).start()
 
-        disableRecordMode()
         stopRecord()
+        disableRecordMode()
+        //instruction.visibility = View.VISIBLE
         when (state) {
             RecordViewState.CANCEL -> {
                 val file = File(outputFile)
