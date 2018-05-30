@@ -356,5 +356,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void unSelectMessage(MessageBaseItem item);
 
         void openVideo(@NotNull String videoUrl);
+
+        void onCall();
     }
 }

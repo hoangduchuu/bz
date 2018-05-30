@@ -415,6 +415,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void onCall() {
+        presenter.handleVoiceCallPress();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);

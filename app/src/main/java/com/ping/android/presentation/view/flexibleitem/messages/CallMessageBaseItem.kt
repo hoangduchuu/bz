@@ -25,7 +25,9 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
         private val description: TextView = itemView.findViewById(R.id.txtCallDescription)
 
         init {
-            tvCall.setOnClickListener {  }
+            tvCall.setOnClickListener {
+                messageListener?.onCall()
+            }
         }
 
         override fun bindData(item: MessageBaseItem<*>, lastItem: Boolean) {

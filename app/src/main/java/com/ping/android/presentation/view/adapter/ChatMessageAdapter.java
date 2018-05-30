@@ -157,6 +157,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
+    @Override
+    public void onCall() {
+        if (messageListener != null) {
+            messageListener.onCall();
+        }
+    }
+
     public void pause() {
         if (currentPlayingMessage != null) {
             currentPlayingMessage.stopSelf();
@@ -379,5 +386,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void updateLastConversationMessage(Message lastMessage);
 
         void openVideo(String videoUrl);
+
+        void onCall();
     }
 }
