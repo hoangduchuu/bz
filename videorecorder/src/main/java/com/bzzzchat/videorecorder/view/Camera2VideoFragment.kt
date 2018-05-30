@@ -691,7 +691,8 @@ class Camera2VideoFragment : Fragment(),
      * @return The video size
      */
     private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
-        it.width == it.height * 4 / 3 && it.width <= 720
+        //it.width == it.height * 4 / 3 &&
+                it.width <= 720
         //it.width <= 640
     } ?: choices[choices.size - 1]
 
@@ -717,7 +718,8 @@ class Camera2VideoFragment : Fragment(),
         val w = aspectRatio.width
         val h = aspectRatio.height
         val bigEnough = choices.filter {
-            it.height == it.width * h / w && it.width >= width && it.height >= height
+            //it.height == it.width * h / w &&
+                    it.width >= width && it.height >= height
         }
 
         // Pick the smallest of those, assuming we found any

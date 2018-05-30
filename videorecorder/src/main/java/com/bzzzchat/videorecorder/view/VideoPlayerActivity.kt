@@ -27,6 +27,8 @@ open class VideoPlayerActivity : AppCompatActivity() {
         transaction.commit()
     }
 
+
+
     companion object {
         const val VIDEO_PATH_EXTRA_KEY = "VIDEO_PATH_EXTRA_KEY"
     }
