@@ -4,15 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
 import com.google.gson.Gson;
 import com.ping.android.model.enums.Color;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
-
-import junit.framework.Assert;
 
 import org.json.JSONObject;
 
@@ -47,20 +45,17 @@ public class Conversation implements Parcelable {
     public Map<String, String> nickNames = new HashMap<>();
     public Map<String, Theme> themes = new HashMap<>();
 
-//    public boolean notificationSetting;
-//    public boolean maskMessagesSetting;
-//    public bool
-
     // Local variable, don't store on Firebase
+    public boolean isRead = false;
+    public boolean isMask = false;
+    public double deleteTimestamp = 0.0;
+    public String currentUserId;
+    public String filterText;
+    public Color currentColor = Color.DEFAULT;
+    public MessageType type;
     public List<User> members = new ArrayList<>();
     public Group group;
     public User opponentUser;
-    public boolean isRead = false;
-    public boolean isMask = false;
-    public String filterText;
-    public String displayMessage;
-    public Color currentColor = Color.DEFAULT;
-    public double deleteTimestamp = 0.0;
 
     protected Conversation(Parcel in) {
         key = in.readString();
@@ -147,13 +142,6 @@ public class Conversation implements Parcelable {
             return new Conversation[size];
         }
     };
-
-    public static Conversation from(DataSnapshot dataSnapshot) {
-        Conversation conversation = dataSnapshot.getValue(Conversation.class);
-        Assert.assertNotNull(conversation);
-        conversation.key = dataSnapshot.getKey();
-        return conversation;
-    }
 
     public Conversation() {
 
@@ -244,6 +232,16 @@ public class Conversation implements Parcelable {
         return conversation;
     }
 
+    public Color getColor(String key) {
+        if (themes != null && themes.containsKey(key)) {
+            Theme theme = themes.get(key);
+            return Color.from(theme.mainColor);
+        }
+        return Color.DEFAULT;
+    }
+
+
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -271,14 +269,6 @@ public class Conversation implements Parcelable {
         return result;
     }
 
-    public Color getColor(String key) {
-        if (themes != null && themes.containsKey(key)) {
-            Theme theme = themes.get(key);
-            return Color.from(theme.mainColor);
-        }
-        return Color.DEFAULT;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Conversation) {
@@ -289,5 +279,9 @@ public class Conversation implements Parcelable {
 
     public boolean isValid() {
         return timesstamps > deleteTimestamp;
+    }
+
+    public boolean isFromMe() {
+        return senderId.equals(currentUserId);
     }
 }

@@ -41,7 +41,7 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> conversationRepository.getConversation(user.key, params.conversationId)
+                .flatMap(user -> conversationRepository.getConversation(user, params.conversationId)
                         .flatMap(conversation -> userRepository.getUserList(conversation.memberIDs)
                                 .map(users -> {
                                     conversation.members = users;

@@ -5,7 +5,6 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
@@ -40,7 +39,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
         return userRepository.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
-                    return conversationRepository.getConversation(user.key, conversationID)
+                    return conversationRepository.getConversation(user, conversationID)
                             .zipWith(conversationRepository.getMessageKey(conversationID), (conversation, messageKey) -> {
                                 conversation.opponentUser = params.toUser;
                                 builder = new SendMessageUseCase.Params.Builder()

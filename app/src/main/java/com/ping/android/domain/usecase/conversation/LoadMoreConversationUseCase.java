@@ -6,10 +6,10 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
-import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +30,8 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
     ConversationRepository conversationRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    ConversationMapper mapper;
 
     @Inject
     public LoadMoreConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -47,20 +49,12 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                             if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
-                                    Conversation conversation = Conversation.from(child);
+                                    Conversation conversation = mapper.transform(child, user);
                                     if (lastTimestamp > conversation.timesstamps) {
                                         lastTimestamp = conversation.timesstamps;
                                     }
-                                    if (!conversation.memberIDs.containsKey(user.key)) continue;
-                                    conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);
-                                    if (!conversation.isValid()) {
-                                        continue;
-                                    }
-                                    conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key);
-                                    conversation.currentColor = conversation.getColor(user.key);
-                                    boolean maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, user.key);
-                                    boolean maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, user.key);
-                                    conversation.isMask = maskStatus || maskMessage;
+                                    if (!conversation.memberIDs.containsKey(user.key)
+                                            || !conversation.isValid()) continue;
                                     conversations.add(conversation);
                                 }
                             }

@@ -6,9 +6,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.model.User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,9 @@ import io.reactivex.Observable;
 
 public class ConversationRepositoryImpl implements ConversationRepository {
     FirebaseDatabase database;
+
+    @Inject
+    ConversationMapper mapper;
 
     @Inject
     public ConversationRepositoryImpl() {
@@ -81,15 +86,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<Conversation> getConversation(String userId, String conversationID) {
+    public Observable<Conversation> getConversation(User user, String conversationID) {
         Query query = database.getReference("conversations")
-                .child(userId).child(conversationID);
+                .child(user.key).child(conversationID);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .map(dataSnapshot -> {
-                    Conversation conversation = Conversation.from(dataSnapshot);
-                    return conversation;
-                })
+                .map(dataSnapshot -> mapper.transform(dataSnapshot, user))
                 .toObservable();
     }
 

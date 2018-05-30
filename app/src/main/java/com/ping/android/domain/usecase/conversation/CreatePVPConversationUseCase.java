@@ -53,7 +53,7 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                     members.add(user);
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
                     return conversationRepository
-                            .getConversation(user.key, conversationID)
+                            .getConversation(user, conversationID)
                             .onErrorResumeNext(observer -> {
                                 Conversation newConversation = Conversation.createNewConversation(user.key, params.toUser.key);
                                 newConversation.key = conversationID;

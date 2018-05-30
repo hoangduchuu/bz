@@ -3,11 +3,11 @@ package com.ping.android.domain.usecase.conversation;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,6 +26,8 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
     ConversationRepository conversationRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    ConversationMapper mapper;
 
     @Inject
     public ObserveConversationValueFromExistsConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -37,12 +39,9 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
     public Observable<Conversation> buildUseCaseObservable(Params params) {
         return conversationRepository.observeConversationValue(params.user.key, params.conversation.key)
                 .flatMap(dataSnapshot -> {
-                    Conversation conversation = Conversation.from(dataSnapshot);
+                    Conversation conversation = mapper.transform(dataSnapshot, params.user);
                     conversation.opponentUser = params.conversation.opponentUser;
                     conversation.group = params.conversation.group;
-                    conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, params.user.key);
-                    conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, params.user.key);
-                    conversation.currentColor = conversation.getColor(params.user.key);
                     if (conversation.memberIDs.keySet().size() != params.conversation.memberIDs.keySet().size()) {
                         return initMemberList(conversation)
                                 .map(users -> {
