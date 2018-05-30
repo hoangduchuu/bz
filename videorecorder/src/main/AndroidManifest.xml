@@ -10,7 +10,7 @@
 
         <provider
             android:name=".util.VideoRecordFileProvider"
-            android:authorities="com.bzzzchat.videorecorder.provider"
+            android:authorities="{applicationId}.videorecorder.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.ping.android">
 
     <uses-feature
@@ -217,6 +218,17 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
+        </provider>
+
+        <provider
+            android:name="com.bzzzchat.videorecorder.util.VideoRecordFileProvider"
+            android:authorities="${applicationId}.videorecorder.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/video_provider_paths" />
         </provider>
 
         <activity

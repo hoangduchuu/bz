@@ -88,6 +88,10 @@ class VideoRecorderActivity : Activity() {
 
     override fun onBackPressed() {
         if (fragmentManager.backStackEntryCount > 1) {
+            val currentFragment = fragmentManager.findFragmentById(R.id.record_container)
+            if (currentFragment != null && currentFragment is VideoPreviewFragment) {
+                currentFragment.onBackPress()
+            }
             fragmentManager.popBackStackImmediate()
             return
         } else {

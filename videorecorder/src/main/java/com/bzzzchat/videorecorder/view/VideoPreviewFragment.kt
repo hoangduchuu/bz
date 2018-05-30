@@ -2,7 +2,6 @@ package com.bzzzchat.videorecorder.view
 
 import android.app.Fragment
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,7 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.bzzzchat.videorecorder.BuildConfig
 import com.bzzzchat.videorecorder.R
 import com.coremedia.iso.IsoFile
 import com.coremedia.iso.boxes.TrackBox
@@ -56,7 +54,7 @@ class VideoPreviewFragment : Fragment() {
             isPreview = it.getBoolean(ARG_IS_PREVIEW, true)
         }
         val manufacturer = android.os.Build.MANUFACTURER
-        if (manufacturer == "samsung") {
+        if (manufacturer == "samsung" && isPreview) {
             fixSamsungBug()
         }
     }
@@ -103,18 +101,18 @@ class VideoPreviewFragment : Fragment() {
                 .createMediaSource(uri)
     }
 
+    private fun getAuthority(): String {
+        return activity.application.packageName + getString(R.string.provider_package);
+    }
+
     private fun getUriFromFile(context: Context, file: File): Uri {
-        val photoUri: Uri
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            photoUri = FileProvider.getUriForFile(context,
-                    BuildConfig.APPLICATION_ID + ".provider",
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(context,
+                    getAuthority(),
                     file)
-            context.grantUriPermission("com.android.camera", photoUri,
-                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         } else {
-            photoUri = Uri.fromFile(file)
+            Uri.fromFile(file)
         }
-        return photoUri
     }
 
     override fun onPause() {
@@ -125,6 +123,15 @@ class VideoPreviewFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         player.release()
+    }
+
+    fun onBackPress() {
+        if (videoPath != null && isPreview) {
+            val file = File(videoPath)
+            if (file.exists()) {
+                file.delete()
+            }
+        }
     }
 
     private fun fixSamsungBug() {
