@@ -12,7 +12,7 @@
         android:id="@+id/visualizer_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:av_backgroundColor="@color/av_color_bg"
+        app:av_backgroundColor="#ff2d55"
         app:av_bubblesPerLayer="16"
         app:av_bubblesRandomizeSizes="true"
         app:av_bubblesSize="50dp"
@@ -157,7 +157,6 @@
                     android:tint="@color/orange" />
 
                 <ImageView
-                    style="?backgroundTheme"
                     android:id="@+id/btnSend"
                     android:layout_width="50dp"
                     android:layout_height="50dp"

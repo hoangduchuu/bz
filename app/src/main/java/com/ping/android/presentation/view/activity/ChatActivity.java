@@ -560,25 +560,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
         edMessage = findViewById(R.id.chat_message_tv);
-        //edMessage.setInputType(InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE);
-
-
-//        visualizerView = findViewById(R.id.visualizer);
-//        btCancelRecord = findViewById(R.id.chat_cancel_record);
-//        btCancelRecord.setOnClickListener(this);
-//        tbRecord = findViewById(R.id.chat_start_record);
-//        tbRecord.setOnClickListener(this);
-//        btSendRecord = findViewById(R.id.chat_send_record);
-//        btSendRecord.setOnClickListener(this);
-
         //emoji
         emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(edMessage);
         btEmoji.setOnClickListener(this);
-
-//        LinearLayout llBottomSheet = findViewById(R.id.bottom_sheet);
-//        bottomSheetBehavior = BottomSheetBehavior.from(llBottomSheet);
-//        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
 
         // Bottom message action
         View messageActionsView = getLayoutInflater().inflate(R.layout.bottom_sheet_message_actions, null);
