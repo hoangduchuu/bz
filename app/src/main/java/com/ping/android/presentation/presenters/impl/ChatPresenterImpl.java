@@ -175,6 +175,12 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Conversation conv) {
                 handleConversationUpdate(conv);
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+                view.hideLoading();
+            }
         }, conversationId);
     }
 

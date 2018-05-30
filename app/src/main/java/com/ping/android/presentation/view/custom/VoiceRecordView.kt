@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -15,8 +16,10 @@ import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.AudioVisualization
+import com.cleveroad.audiovisualization.GLAudioVisualizationView
 import com.ping.android.R
 import com.ping.android.managers.FFmpegManager
+import com.ping.android.model.enums.Color
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingHandler
@@ -42,7 +45,7 @@ interface VoiceRecordViewListener {
 
 class VoiceRecordView : LinearLayout {
     private var listener: VoiceRecordViewListener? = null
-    private lateinit var audioVisualization: AudioVisualization
+    private lateinit var audioVisualization: GLAudioVisualizationView
     private lateinit var audioRecorder: AudioRecorder
     private lateinit var handler: AudioRecordingHandler
     private var timer: Timer? = null
