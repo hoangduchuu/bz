@@ -7,6 +7,7 @@ import android.widget.TextView
 import com.ping.android.R
 
 import com.ping.android.model.Message
+import com.ping.android.model.enums.MessageCallType
 import com.ping.android.model.enums.MessageType
 
 abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessageBaseItem.ViewHolder>(message) {
@@ -26,7 +27,9 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
 
         init {
             tvCall.setOnClickListener {
-                messageListener?.onCall()
+                val isVideo = item.message.messageCallType == MessageCallType.VIDEO_CALL
+                        || item.message.messageCallType == MessageCallType.MISSED_VIDEO_CALL
+                messageListener?.onCall(isVideo)
             }
         }
 
@@ -35,18 +38,10 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
             val message = item.message
             val description = if (message.isFromMe) {
                 tvCall.setText(R.string.chat_call_again)
-                if (message.type == MessageType.MISSED_CALL) {
-                    String.format(itemView.context.getString(R.string.chat_missed_call_from_me), message.opponentUser.nickName)
-                } else {
-                    String.format(itemView.context.getString(R.string.chat_called_from_me), message.opponentUser.nickName)
-                }
+                String.format(itemView.context.getString(message.messageCallType.descriptionFromMe()), message.opponentUser.nickName)
             } else {
                 tvCall.setText(R.string.chat_call_back)
-                if (message.type == MessageType.MISSED_CALL) {
-                    String.format(itemView.context.getString(R.string.chat_missed_call_to_me), message.opponentUser.nickName)
-                } else {
-                    String.format(itemView.context.getString(R.string.chat_called_to_me), message.opponentUser.nickName)
-                }
+                String.format(itemView.context.getString(message.messageCallType.descriptionToMe()), message.opponentUser.nickName)
             }
             this.description.text = description
         }

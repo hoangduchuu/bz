@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendCallMessageUseCase;
 import com.ping.android.model.Call;
+import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -35,8 +36,16 @@ public class AddCallHistoryUseCase extends UseCase<Boolean, Call> {
         return userRepository.addCallHistory(call)
                 .flatMap(aBoolean -> {
                     if (call.status == Constant.CALL_STATUS_SUCCESS || call.status == Constant.CALL_STATUS_MISS) {
+                        MessageCallType callType;
+                        if (call.isVideo) {
+                            callType = call.status == Constant.CALL_STATUS_MISS
+                                    ? MessageCallType.MISSED_VIDEO_CALL : MessageCallType.VIDEO_CALL;
+                        } else {
+                            callType = call.status == Constant.CALL_STATUS_MISS
+                                    ? MessageCallType.MISSED_VOICE_CALL : MessageCallType.VOICE_CALL;
+                        }
                         SendCallMessageUseCase.Params params = new SendCallMessageUseCase.Params(call.opponentUser,
-                                call.status == Constant.CALL_STATUS_MISS);
+                                callType);
                         return sendCallMessageUseCase.buildUseCaseObservable(params)
                                 .map(message -> true);
                     } else {

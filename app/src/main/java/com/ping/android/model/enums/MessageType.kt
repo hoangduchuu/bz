@@ -5,7 +5,7 @@ package com.ping.android.model.enums
  */
 
 enum class MessageType {
-    UNKNOWN, TEXT, IMAGE, VOICE, GAME, VIDEO, CALL, MISSED_CALL;
+    UNKNOWN, TEXT, IMAGE, VOICE, GAME, VIDEO, CALL;
 
 
     companion object {
@@ -17,7 +17,6 @@ enum class MessageType {
                 4 -> GAME
                 5 -> VIDEO
                 6 -> CALL
-                7 -> MISSED_CALL
                 else -> TEXT
             }
         }

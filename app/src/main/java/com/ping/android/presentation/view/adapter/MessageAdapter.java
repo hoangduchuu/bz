@@ -397,19 +397,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     break;
                 case CALL:
                     if (model.isFromMe()) {
-                        message = String.format(itemView.getContext().getString(R.string.chat_called_from_me),
+                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),
                                 model.conversationName);
                     } else {
-                        message = String.format(itemView.getContext().getString(R.string.chat_called_to_me),
-                                model.conversationName);
-                    }
-                    break;
-                case MISSED_CALL:
-                    if (model.isFromMe()) {
-                        message = String.format(itemView.getContext().getString(R.string.chat_missed_call_from_me),
-                                model.conversationName);
-                    } else {
-                        message = String.format(itemView.getContext().getString(R.string.chat_missed_call_to_me),
+                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionToMe()),
                                 model.conversationName);
                     }
                     break;

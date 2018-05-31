@@ -7,6 +7,7 @@ import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,8 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
                             .zipWith(conversationRepository.getMessageKey(conversationID), (conversation, messageKey) -> {
                                 conversation.opponentUser = params.toUser;
                                 builder = new SendMessageUseCase.Params.Builder()
-                                        .setMessageType(params.getMessageType())
+                                        .setMessageType(MessageType.CALL)
+                                        .setCallType(params.getCallType())
                                         .setConversation(conversation)
                                         .setCurrentUser(user)
                                         .setMessageKey(messageKey);
@@ -54,16 +56,16 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     }
 
     public static class Params {
-        private boolean isMissedCall;
         private User toUser;
+        private MessageCallType callType;
 
-        public Params(User toUser, boolean isMissedCall) {
+        public Params(User toUser, MessageCallType callType) {
             this.toUser = toUser;
-            this.isMissedCall = isMissedCall;
+            this.callType = callType;
         }
 
-        public MessageType getMessageType() {
-            return isMissedCall ? MessageType.MISSED_CALL : MessageType.CALL;
+        public MessageCallType getCallType() {
+            return callType;
         }
     }
 }

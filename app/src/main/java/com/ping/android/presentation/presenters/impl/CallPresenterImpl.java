@@ -251,6 +251,7 @@ public class CallPresenterImpl implements CallPresenter,
     private void addCallHistory(int status) {
         Call call = new Call(currentUser.key, opponentUser.key, status, callTimestamp);
         call.opponentUser = opponentUser;
+        call.isVideo = isVideoCall();
         addCallHistoryUseCase.execute(new DefaultObserver<>(), call);
     }
 

@@ -444,6 +444,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void updateConversationLastMessage(@Nullable Message lastMessage) {
         Conversation conversation = new Conversation(this.conversation.conversationType,
                 lastMessage != null ? lastMessage.messageType : Constant.MSG_TYPE_TEXT,
+                lastMessage != null ? lastMessage.callType : 0,
                 lastMessage != null ? lastMessage.message : "",
                 this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs,
                 lastMessage != null ? lastMessage.markStatuses : new HashMap<>(),

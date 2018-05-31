@@ -1,4 +1,4 @@
-package com.ping.android.model;
+package com.ping.android.utils;
 
 import com.google.firebase.database.DataSnapshot;
 

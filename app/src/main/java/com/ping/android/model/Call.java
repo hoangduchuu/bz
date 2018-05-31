@@ -22,6 +22,7 @@ public class Call {
     public String opponentName;
     public String conversationId;
     public CallType type;
+    public boolean isVideo = false;
 
     public Call() {}
 

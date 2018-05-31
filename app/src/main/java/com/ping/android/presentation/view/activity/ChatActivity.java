@@ -415,8 +415,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void onCall() {
-        presenter.handleVoiceCallPress();
+    public void onCall(boolean isVideo) {
+        if (isVideo) {
+            presenter.handleVideoCallPress();
+        } else {
+            presenter.handleVoiceCallPress();
+        }
     }
 
     @Override

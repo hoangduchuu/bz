@@ -9,6 +9,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.PropertyName;
 import com.google.gson.Gson;
 import com.ping.android.model.enums.Color;
+import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 
@@ -22,10 +23,11 @@ import java.util.Map;
 @IgnoreExtraProperties
 public class Conversation implements Parcelable {
     public String key;
-    public int messageType;
     public int conversationType;
     public String conversationName;
     public String conversationAvatarUrl;
+    public int messageType;
+    public int callType;
     @PropertyName("lastMessage")
     public String message;
     public String groupID;
@@ -53,6 +55,7 @@ public class Conversation implements Parcelable {
     public String filterText;
     public Color currentColor = Color.DEFAULT;
     public MessageType type;
+    public MessageCallType messageCallType;
     public List<User> members = new ArrayList<>();
     public Group group;
     public User opponentUser;
@@ -60,6 +63,7 @@ public class Conversation implements Parcelable {
     protected Conversation(Parcel in) {
         key = in.readString();
         messageType = in.readInt();
+        callType = in.readInt();
         conversationType = in.readInt();
         conversationName = in.readString();
         conversationAvatarUrl = in.readString();
@@ -90,6 +94,7 @@ public class Conversation implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(key);
         dest.writeInt(messageType);
+        dest.writeInt(callType);
         dest.writeInt(conversationType);
         dest.writeString(conversationName);
         dest.writeString(conversationAvatarUrl);
@@ -147,12 +152,14 @@ public class Conversation implements Parcelable {
 
     }
 
-    public Conversation(int conversationType, int messageType, String message, String groupID, String senderId, Map<String, Boolean> memberIDs,
+    public Conversation(int conversationType, int messageType, int callType, String message,
+                        String groupID, String senderId, Map<String, Boolean> memberIDs,
                         Map<String, Boolean> markStatuses, Map<String, Boolean> readStatuses, double timestamp,
                         Conversation originalConversation
     ) {
         this.conversationType = conversationType;
         this.messageType = messageType;
+        this.callType = callType;
         this.message = message;
         this.senderId = senderId;
         this.groupID = groupID;
@@ -240,14 +247,13 @@ public class Conversation implements Parcelable {
         return Color.DEFAULT;
     }
 
-
-
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         //result.put("key", key);
         result.put("conversationType", conversationType);
         result.put("messageType", messageType);
+        result.put("callType", callType);
         result.put("lastMessage", message);
         result.put("conversationName", conversationName);
         result.put("conversationAvatarUrl", conversationAvatarUrl);

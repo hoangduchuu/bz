@@ -158,9 +158,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void onCall() {
+    public void onCall(boolean isVideo) {
         if (messageListener != null) {
-            messageListener.onCall();
+            messageListener.onCall(isVideo);
         }
     }
 
@@ -387,6 +387,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
         void openVideo(String videoUrl);
 
-        void onCall();
+        void onCall(boolean isVideo);
     }
 }

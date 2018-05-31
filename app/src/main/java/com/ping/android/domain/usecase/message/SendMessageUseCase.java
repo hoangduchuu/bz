@@ -11,6 +11,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
 import com.ping.android.utils.CommonMethod;
@@ -57,7 +58,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             @Override
             public void run() {
                 updateMessageStatus(Constant.MESSAGE_STATUS_ERROR)
-                    .subscribe();
+                        .subscribe();
             }
         };
         if (timer != null) {
@@ -126,6 +127,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private MessageType messageType;
             private GameType gameType;
             private VoiceType voiceType;
+            private MessageCallType callType;
             private String fileUrl;
             private String thumbUrl;
             private String messageKey;
@@ -196,6 +198,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return this;
             }
 
+            public Builder setCallType(MessageCallType callType) {
+                this.callType = callType;
+                return this;
+            }
+
             public SendMessageUseCase.Params build() {
                 Params params = new Params();
                 Message message = null;
@@ -216,8 +223,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         message = buildVideoMessage(currentUser, fileUrl);
                         break;
                     case CALL:
-                    case MISSED_CALL:
-                        message = buildCallMessage(currentUser, messageType);
+                        message = buildCallMessage(currentUser, messageType, callType);
                         break;
                 }
                 message.key = messageKey;
@@ -229,11 +235,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return params;
             }
 
-            private Message buildCallMessage(User currentUser, MessageType messageType) {
+            private Message buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
-                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, callType.ordinal());
             }
 
             private Message buildVideoMessage(User currentUser, String fileUrl) {
@@ -273,13 +279,10 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         getMessageDeleteStatuses(), allowance, gameType.ordinal());
             }
 
-
-
             private Conversation conversationFrom(Message message) {
-                Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
+                return new Conversation(conversation.conversationType, message.messageType, message.callType,
                         text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMaskStatuses(),
                         getMessageReadStatuses(), message.timestamp, conversation);
-                return newConversation;
             }
 
             private Map<String, Boolean> getMemberIDs() {
@@ -302,23 +305,17 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private Map<String, Boolean> getAllowance() {
                 Map<String, Boolean> ret = new HashMap<>();
                 ret.put(currentUser.key, true);
-//                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-//                    // Check whether sender is in block list of receiver
-//                    boolean isBlocked = currentUser.blockBys.containsKey(conversation.opponentUser.key);
-//                    ret.put(conversation.opponentUser.key, !isBlocked);
-//                } else {
-                    for (String toUser : conversation.memberIDs.keySet()) {
-                        if (toUser.equals(currentUser.key)) {
-                            continue;
-                        }
-                        if (currentUser.blocks.containsKey(toUser)
-                                || currentUser.blockBys.containsKey(toUser)) {
-                            ret.put(toUser, false);
-                        } else {
-                            ret.put(toUser, true);
-                        }
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    if (toUser.equals(currentUser.key)) {
+                        continue;
                     }
-//                }
+                    if (currentUser.blocks.containsKey(toUser)
+                            || currentUser.blockBys.containsKey(toUser)) {
+                        ret.put(toUser, false);
+                    } else {
+                        ret.put(toUser, true);
+                    }
+                }
                 return ret;
             }
 

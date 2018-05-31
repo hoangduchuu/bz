@@ -77,7 +77,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             case CALL:
-            case MISSED_CALL:
+//            case MISSED_CALL:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new CallMessageRightItem(message);
                 } else {
@@ -357,6 +357,6 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         void openVideo(@NotNull String videoUrl);
 
-        void onCall();
+        void onCall(boolean isVideo);
     }
 }
