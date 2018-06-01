@@ -24,10 +24,9 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.utils.configs.Constant;
-import com.ping.android.utils.Toaster;
 import com.ping.android.presentation.view.custom.ChipsEditText;
+import com.ping.android.utils.Toaster;
+import com.ping.android.utils.configs.Constant;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;

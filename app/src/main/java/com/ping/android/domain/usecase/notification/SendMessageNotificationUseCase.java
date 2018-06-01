@@ -8,7 +8,6 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 

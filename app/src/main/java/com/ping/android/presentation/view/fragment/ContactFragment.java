@@ -24,7 +24,6 @@ import com.ping.android.presentation.presenters.ContactPresenter;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.ContactAdapter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;

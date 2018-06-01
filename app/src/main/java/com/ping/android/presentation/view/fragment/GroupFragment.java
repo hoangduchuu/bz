@@ -6,7 +6,6 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,24 +16,21 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
+import com.ping.android.R;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupComponent;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
+import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.presentation.view.activity.MainActivity;
-import com.ping.android.R;
-import com.ping.android.presentation.view.adapter.GroupAdapter;
-import com.ping.android.model.Group;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
-import com.ping.android.service.ServiceManager;
+import com.ping.android.presentation.view.activity.MainActivity;
+import com.ping.android.presentation.view.adapter.GroupAdapter;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
-
-import io.reactivex.functions.Consumer;
 
 public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener, GroupPresenter.View {
     private RelativeLayout bottomMenu;
