@@ -9,12 +9,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.entity.CallEntity;
+import com.ping.android.data.mappers.CallEntityMapper;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.Call;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
-import com.quickblox.users.model.QBUser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,10 +28,14 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/28/18.
  */
 public class UserRepositoryImpl implements UserRepository {
-    FirebaseDatabase database;
-    FirebaseAuth auth;
+    private static final String CHILD_CALLS = "calls";
+
+    @Inject
+    CallEntityMapper callEntityMapper;
+
+    private FirebaseDatabase database;
+    private FirebaseAuth auth;
     private User user;
-    private QBUser qbUser;
     private Map<String, Boolean> friends;
     // Currently, users will be cached for later use.
     // Should improve by invalidate user after a certain of time
@@ -127,24 +132,76 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<ChildEvent> observeLatestCalls(String userId) {
+    public Observable<ChildData<CallEntity>> observeCalls(String userId) {
         Query query =
-                database.getReference("calls").child(userId)
-                .orderByChild("timestamp");
-                //.limitToLast(15);
+                database.getReference(CHILD_CALLS).child(userId)
+                        .orderByChild("timestamp");
+        query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
-                .onChildEvent();
+                .onChildEvent()
+                .map(childEvent -> {
+                    if (childEvent.dataSnapshot.exists()) {
+                        CallEntity callEntity = callEntityMapper.transform(childEvent.dataSnapshot);
+                        ChildData<CallEntity> childData = new ChildData<>(callEntity, ChildData.Type.from(childEvent.type));
+                        return childData;
+                    }
+                    throw new NullPointerException();
+                });
     }
 
     @Override
-    public Observable<DataSnapshot> loadMoreCalls(String key, Double timestamp) {
-        Query query = database.getReference("calls")
-                .child(key)
+    public Observable<List<CallEntity>> getCalls(String userId) {
+        Query query =
+                database.getReference(CHILD_CALLS).child(userId)
+                .orderByChild("timestamp");
+                //.limitToLast(15);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    List<CallEntity> callEntities = new ArrayList<>();
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                            CallEntity callEntity = callEntityMapper.transform(childDataSnapshot);
+                            callEntities.add(callEntity);
+                        }
+                    }
+                    return callEntities;
+                })
+                .toObservable();
+    }
+
+    @Override
+    public Observable<List<CallEntity>> loadMoreCalls(String key, Double timestamp) {
+        DatabaseReference callReference = database.getReference(CHILD_CALLS)
+                .child(key);
+        callReference.keepSynced(true);
+        Query query = callReference
                 .orderByChild("timesstamps")
                 .endAt(timestamp)
                 .limitToLast(15);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    List<CallEntity> callEntities = new ArrayList<>();
+                    if (dataSnapshot.hasChildren()) {
+                        for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                            CallEntity callEntity = callEntityMapper.transform(childDataSnapshot);
+                            callEntities.add(callEntity);
+                        }
+                    }
+                    return callEntities;
+                })
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> addCallHistory(CallEntity entity) {
+        String callId = database.getReference(CHILD_CALLS).child(entity.getSenderId()).push().getKey();
+        entity.setKey(callId);
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("calls/%s/%s", entity.getSenderId(), callId), entity);
+        updateValue.put(String.format("calls/%s/%s", entity.getReceiveId(), callId), entity);
+        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
     }
 
@@ -233,17 +290,6 @@ public class UserRepositoryImpl implements UserRepository {
                     }
                     throw new NullPointerException("");
                 })
-                .toObservable();
-    }
-
-    @Override
-    public Observable<Boolean> addCallHistory(Call call) {
-        String callId = database.getReference("calls").child(call.senderId).push().getKey();
-        call.key = callId;
-        Map<String, Object> updateValue = new HashMap<>();
-        updateValue.put(String.format("calls/%s/%s", call.senderId, callId), call.toMap());
-        updateValue.put(String.format("calls/%s/%s", call.receiveId, callId), call.toMap());
-        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
     }
 

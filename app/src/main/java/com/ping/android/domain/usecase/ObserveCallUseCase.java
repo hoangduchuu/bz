@@ -5,11 +5,12 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.CallEntity;
+import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Call;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
@@ -28,6 +29,8 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
     UserRepository userRepository;
     @Inject
     ConversationRepository conversationRepository;
+    @Inject
+    CallMapper mapper;
 
     @Inject
     public ObserveCallUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -40,41 +43,23 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
         return userRepository.getCurrentUser()
                 .flatMap(currentUser -> {
                     String userId = currentUser.key;
-                    return userRepository.observeLatestCalls(userId)
-                            .flatMap(childEvent -> {
-                                Call call = Call.from(childEvent.dataSnapshot);
-                                ChildEvent.Type type = call.deleteStatuses.containsKey(userId) && call.deleteStatuses.get(userId)
-                                        ? ChildEvent.Type.CHILD_REMOVED : ChildEvent.Type.CHILD_ADDED;
-                                if (childEvent.type == ChildEvent.Type.CHILD_ADDED && type == ChildEvent.Type.CHILD_ADDED) {
+                    return userRepository.observeCalls(userId)
+                            .flatMap(childData -> {
+                                CallEntity entity = childData.getData();
+                                Call call = mapper.transform(entity, currentUser);
+                                ChildData.Type type = entity.getDeleteStatuses().containsKey(userId) && entity.getDeleteStatuses().get(userId)
+                                        ? ChildData.Type.CHILD_REMOVED : ChildData.Type.CHILD_ADDED;
+                                if (childData.getType() == ChildData.Type.CHILD_ADDED && type == ChildData.Type.CHILD_ADDED) {
                                     String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
-                                    String conversationID = userId.compareTo(opponentUserId) > 0 ? userId + opponentUserId : opponentUserId + userId;
-                                    call.conversationId = conversationID;
-                                    if (call.status == Constant.CALL_STATUS_SUCCESS) {
-                                        if (call.senderId.equals(currentUser.key)) {
-                                            call.type = Call.CallType.OUTGOING;
-                                        } else {
-                                            call.type = Call.CallType.INCOMING;
-                                        }
-                                    } else {
-                                        if (call.senderId.equals(currentUser.key)) {
-                                            call.type = Call.CallType.OUTGOING;
-                                        } else {
-                                            call.type = Call.CallType.MISSED;
-                                        }
-                                    }
                                     return getUser(opponentUserId)
-                                            .map(opponentUser -> {
-                                                call.opponentUser = opponentUser;
-                                                return call;
-                                            })
-                                            .flatMap(call1 -> conversationRepository.getConversationNickName(userId, conversationID, opponentUserId)
-                                                    .map(nickName -> {
-                                                        call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
-                                                        return new ChildData<>(call, type);
-                                                    }));
+                                            .zipWith(conversationRepository.getConversationNickName(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
+                                                call.opponentUser = user;
+                                                call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
+                                                return new ChildData<>(call, childData.getType());
+                                            }));
 
                                 } else {
-                                    return Observable.just(new ChildData<>(call, childEvent.type));
+                                    return Observable.just(new ChildData<>(call, childData.getType()));
                                 }
                             });
                 });

@@ -31,7 +31,7 @@ import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -243,27 +243,27 @@ public class ChatPresenterImpl implements ChatPresenter {
             messagesInBackground.add(messageChildData);
             return;
         }
-        int status = CommonMethod.getIntFrom(messageChildData.data.status, currentUser.key);
-        updateReadStatus(messageChildData.data, status);
-        prepareMessageStatus(messageChildData.data);
-        switch (messageChildData.type) {
+        int status = CommonMethod.getIntFrom(messageChildData.getData().status, currentUser.key);
+        updateReadStatus(messageChildData.getData(), status);
+        prepareMessageStatus(messageChildData.getData());
+        switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
-                checkMessageError(messageChildData.data);
+                checkMessageError(messageChildData.getData());
                 updateConversationReadStatus();
-                addMessage(messageChildData.data);
+                addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:
-                MessageHeaderItem headerItem = headerItemMap.get(messageChildData.data.days);
+                MessageHeaderItem headerItem = headerItemMap.get(messageChildData.getData().days);
                 if (headerItem != null) {
-                    MessageBaseItem item = headerItem.getChildItem(messageChildData.data);
+                    MessageBaseItem item = headerItem.getChildItem(messageChildData.getData());
                     if (item != null) {
                         view.removeMessage(headerItem, item);
                     }
                 }
                 break;
             case CHILD_CHANGED:
-                addMessage(messageChildData.data);
+                addMessage(messageChildData.getData());
                 break;
         }
     }
@@ -418,9 +418,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 if (!message.isCached) {
                     sendNotification(conversation, message);
                 } else {
-                    ChildData<Message> childData = new ChildData<>();
-                    childData.data = message;
-                    childData.type = ChildEvent.Type.CHILD_CHANGED;
+                    ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
                 }
             }

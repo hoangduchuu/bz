@@ -5,7 +5,7 @@ import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
 import com.ping.android.domain.usecase.user.ObserveMappingsUseCase;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.utils.configs.Constant;
@@ -74,18 +74,18 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
         observeConversationsUseCase.execute(new DefaultObserver<ChildData<Conversation>>() {
             @Override
             public void onNext(ChildData<Conversation> childData) {
-                switch (childData.type) {
+                switch (childData.getType()) {
                     case CHILD_ADDED:
-                        view.addConversation(childData.data);
+                        view.addConversation(childData.getData());
                         break;
                     case CHILD_CHANGED:
-                        if (childData.data.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                            view.notifyConversationChange(childData.data);
+                        if (childData.getData().conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                            view.notifyConversationChange(childData.getData());
                         }
-                        view.updateConversation(childData.data);
+                        view.updateConversation(childData.getData());
                         break;
                     case CHILD_REMOVED:
-                        view.deleteConversation(childData.data);
+                        view.deleteConversation(childData.getData());
                         break;
                 }
             }

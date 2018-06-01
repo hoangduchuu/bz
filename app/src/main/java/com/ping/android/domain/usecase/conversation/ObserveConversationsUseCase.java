@@ -9,7 +9,7 @@ import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
@@ -72,9 +72,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                         } else {
                                             conversation.filterText = conversation.conversationName;
                                         }
-                                        ChildData<Conversation> childData = new ChildData<>();
-                                        childData.data = conversation;
-                                        childData.type = childEvent.type;
+                                        ChildData<Conversation> childData = new ChildData<>(conversation, childEvent.type);
                                         return childData;
                                     });
                         }));

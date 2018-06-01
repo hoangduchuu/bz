@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.support.annotation.CallSuper;
 import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
@@ -156,6 +157,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             this.nickNames = nickNames;
         }
 
+        @CallSuper
         public void bindData(MessageBaseItem item, boolean lastItem) {
             this.item = item;
             this.lastItem = lastItem;

@@ -3,6 +3,7 @@ package com.ping.android.domain.usecase;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendCallMessageUseCase;
 import com.ping.android.model.Call;
@@ -24,6 +25,8 @@ public class AddCallHistoryUseCase extends UseCase<Boolean, Call> {
     UserRepository userRepository;
     @Inject
     SendCallMessageUseCase sendCallMessageUseCase;
+    @Inject
+    CallMapper callMapper;
 
     @Inject
     public AddCallHistoryUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -33,7 +36,7 @@ public class AddCallHistoryUseCase extends UseCase<Boolean, Call> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Call call) {
-        return userRepository.addCallHistory(call)
+        return userRepository.addCallHistory(callMapper.reverseTransform(call))
                 .flatMap(aBoolean -> {
                     if (call.status == Constant.CALL_STATUS_SUCCESS || call.status == Constant.CALL_STATUS_MISS) {
                         MessageCallType callType;

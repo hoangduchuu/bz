@@ -6,7 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -53,8 +53,8 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                 })
                 //.onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
-                    if (childData.type != ChildEvent.Type.CHILD_ADDED) return Observable.empty();
-                    Message message = childData.data;
+                    if (childData.getType() != ChildData.Type.CHILD_ADDED) return Observable.empty();
+                    Message message = childData.getData();
                     boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
@@ -63,9 +63,9 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                     }
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
-                    return userRepository.getUser(childData.data.senderId)
+                    return userRepository.getUser(childData.getData().senderId)
                             .map(user -> {
-                                childData.data.sender = user;
+                                childData.getData().sender = user;
                                 return childData;
                             });
                 });
