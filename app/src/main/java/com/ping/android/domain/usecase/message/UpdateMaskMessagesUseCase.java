@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 import com.ping.android.utils.configs.Constant;
 
@@ -28,6 +29,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
     UserRepository userRepository;
     @Inject
     CommonRepository commonRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public UpdateMaskMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -37,7 +40,7 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
                     for (String message : params.messageKeys) {

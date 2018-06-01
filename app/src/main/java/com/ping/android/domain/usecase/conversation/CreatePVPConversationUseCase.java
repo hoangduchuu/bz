@@ -9,6 +9,7 @@ import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
@@ -36,6 +37,8 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
     @Inject
     CommonRepository commonRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     SendMessageUseCase sendMessageUseCase;
 
     @Inject
@@ -46,7 +49,7 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
     @NotNull
     @Override
     public Observable<String> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     List<User> members = new ArrayList<>();
                     members.add(params.toUser);

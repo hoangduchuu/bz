@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
@@ -26,6 +27,8 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
     SearchRepository searchRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public SearchUsersUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -49,7 +52,7 @@ public class SearchUsersUseCase extends UseCase<List<User>, Observable<String>> 
                 .switchMap(query -> searchRepository.searchUsers(query)
                         .flatMap(users -> {
                             if (users.size() > 0) {
-                                return userRepository.getCurrentUser()
+                                return userManager.getCurrentUser()
                                         .map(user -> {
                                             List<User> result = new ArrayList<>();
                                             for (User u : users) {

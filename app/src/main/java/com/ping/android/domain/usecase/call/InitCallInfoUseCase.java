@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,8 @@ public class InitCallInfoUseCase extends UseCase<InitCallInfoUseCase.Output, Str
     UserRepository userRepository;
     @Inject
     ConversationRepository conversationRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public InitCallInfoUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -33,7 +36,7 @@ public class InitCallInfoUseCase extends UseCase<InitCallInfoUseCase.Output, Str
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(String s) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(s) > 0 ? user.key + s : s + user.key;
                     return conversationRepository.getConversationNickName(user.key, conversationID, s)

@@ -32,6 +32,6 @@ public class ObserveCurrentUserUseCase extends UseCase<User, Void> {
     @Override
     public Observable<User> buildUseCaseObservable(Void aVoid) {
         return userRepository.observeCurrentUser()
-                .doOnNext(user -> userManager.setUser(user));
+                .doOnNext(userManager::setUser);
     }
 }

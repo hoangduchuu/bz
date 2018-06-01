@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -24,6 +25,8 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
     UserRepository userRepository;
     @Inject
     ConversationRepository conversationRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public SendMissedCallNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -33,7 +36,7 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String conversationId = user.key.compareTo(params.opponentUserId) > 0
                             ? user.key + params.opponentUserId

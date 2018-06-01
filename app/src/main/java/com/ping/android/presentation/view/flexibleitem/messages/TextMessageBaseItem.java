@@ -38,7 +38,7 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
 
         public ViewHolder(View itemView) {
             super(itemView);
-            userManager = ((App)itemView.getContext()).getComponent().provideUserManager();
+            userManager = ((App)itemView.getContext().getApplicationContext()).getComponent().provideUserManager();
             messageContainer = itemView.findViewById(R.id.item_chat_message);
             txtMessage = itemView.findViewById(R.id.item_chat_text);
 

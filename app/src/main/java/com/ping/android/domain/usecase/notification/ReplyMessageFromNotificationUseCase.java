@@ -7,6 +7,7 @@ import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
@@ -28,6 +29,8 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     @Inject
     UserRepository userRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
@@ -40,7 +43,7 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> conversationRepository.getConversation(user, params.conversationId)
                         .flatMap(conversation -> userRepository.getUserList(conversation.memberIDs)
                                 .map(users -> {

@@ -7,6 +7,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.device.Notification;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,8 @@ public class ShowMissedCallNotificationUseCase extends UseCase<Boolean, ShowMiss
     UserRepository userRepository;
     @Inject
     Notification notification;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ShowMissedCallNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -29,7 +32,7 @@ public class ShowMissedCallNotificationUseCase extends UseCase<Boolean, ShowMiss
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .zipWith(userRepository.getUser(params.opponentUserId), Pair::create)
                 .map(userUserPair -> {
                     User currentUser = userUserPair.first;

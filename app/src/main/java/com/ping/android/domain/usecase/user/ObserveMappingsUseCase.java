@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -17,6 +18,8 @@ import io.reactivex.Observable;
 public class ObserveMappingsUseCase extends UseCase<Map<String, String>, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ObserveMappingsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -26,7 +29,7 @@ public class ObserveMappingsUseCase extends UseCase<Map<String, String>, Void> {
     @NotNull
     @Override
     public Observable<Map<String, String>> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.observeMappings(user.key)
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {

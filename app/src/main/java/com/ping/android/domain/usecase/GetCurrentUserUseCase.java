@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,8 @@ import io.reactivex.Observable;
 public class GetCurrentUserUseCase extends UseCase<User, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public GetCurrentUserUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -28,6 +31,6 @@ public class GetCurrentUserUseCase extends UseCase<User, Void> {
     @NotNull
     @Override
     public Observable<User> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser();
+        return userManager.getCurrentUser();
     }
 }

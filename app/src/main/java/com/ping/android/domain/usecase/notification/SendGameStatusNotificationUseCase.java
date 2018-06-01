@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
@@ -26,6 +27,8 @@ public class SendGameStatusNotificationUseCase extends UseCase<Boolean, SendGame
     NotificationRepository notificationRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public SendGameStatusNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -35,7 +38,7 @@ public class SendGameStatusNotificationUseCase extends UseCase<Boolean, SendGame
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(sender -> {
                     if (!needSendNotification(params.conversation, params.opponentUser, sender)) {
                         return Observable.just(false);

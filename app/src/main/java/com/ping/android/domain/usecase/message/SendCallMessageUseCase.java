@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageCallType;
@@ -26,6 +27,8 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     @Inject
     UserRepository userRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     SendMessageUseCase sendMessageUseCase;
     SendMessageUseCase.Params.Builder builder;
 
@@ -37,7 +40,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(SendCallMessageUseCase.Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
                     return conversationRepository.getConversation(user, conversationID)

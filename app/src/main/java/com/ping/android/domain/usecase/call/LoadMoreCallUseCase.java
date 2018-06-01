@@ -10,6 +10,7 @@ import com.ping.android.data.entity.CallEntity;
 import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
@@ -34,6 +35,8 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
     ConversationRepository conversationRepository;
     @Inject
     CallMapper callMapper;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public LoadMoreCallUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -43,7 +46,7 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Double params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.loadMoreCalls(user.key, params)
                         .flatMap(callEntities -> {
                             List<Call> callList = new ArrayList<>();
@@ -95,6 +98,10 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
     }
 
     private Observable<User> getUser(String userId) {
+        User user = userManager.getCacheUser(userId);
+        if (user != null) {
+            return Observable.just(user);
+        }
         return userRepository.getUser(userId);
     }
 

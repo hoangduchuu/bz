@@ -7,6 +7,7 @@ import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 
@@ -30,6 +31,8 @@ public class CreateGroupConversationUseCase extends UseCase<String, Group> {
     ConversationRepository conversationRepository;
     @Inject
     CommonRepository commonRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public CreateGroupConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -39,7 +42,7 @@ public class CreateGroupConversationUseCase extends UseCase<String, Group> {
     @NotNull
     @Override
     public Observable<String> buildUseCaseObservable(Group group) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .zipWith(conversationRepository.getKey(), (user, s) -> {
                     Conversation conversation = Conversation.createNewGroupConversation(user.key, group);
                     conversation.key = s;

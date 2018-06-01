@@ -7,6 +7,7 @@ import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
@@ -29,6 +30,8 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
     @Inject
     GroupRepository groupRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     ConversationMapper mapper;
 
     @Inject
@@ -39,7 +42,7 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
     @NotNull
     @Override
     public Observable<Conversation> buildUseCaseObservable(String s) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
                         .flatMap(dataSnapshot -> {
                             Conversation conversation = mapper.transform(dataSnapshot, user);

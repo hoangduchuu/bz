@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
@@ -27,6 +28,8 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
     @Inject
     UserRepository userRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     GroupRepository groupRepository;
 
     @Inject
@@ -37,7 +40,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
     @NotNull
     @Override
     public Observable<Conversation> buildUseCaseObservable(String s) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> conversationRepository.getConversation(user, s)
                         .flatMap(conversation -> {
                             conversation.currentColor = conversation.getColor(user.key);

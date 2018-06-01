@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +28,8 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public DeleteConversationsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -36,7 +39,7 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(List<Conversation> conversations) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     double timestamp = System.currentTimeMillis() / 1000d;
                     Map<String, Object> updateValue = new HashMap<>();
