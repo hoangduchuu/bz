@@ -208,7 +208,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void onNewChat() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

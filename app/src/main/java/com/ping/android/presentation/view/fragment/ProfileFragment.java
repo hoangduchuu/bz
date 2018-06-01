@@ -257,7 +257,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onChangePwd() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toaster.shortToast("Please check network connection.");
             return;
         }
@@ -265,7 +265,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onChangeProfile(View view) {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toaster.shortToast("Please check network connection.");
             return;
         }

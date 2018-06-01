@@ -133,7 +133,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onMessage() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -141,7 +141,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onVoiceCall() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -149,7 +149,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onVideoCall() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

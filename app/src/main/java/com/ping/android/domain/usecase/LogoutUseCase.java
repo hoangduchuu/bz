@@ -28,12 +28,12 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
     Device device;
     @Inject
     Notification notification;
+    @Inject
     UserManager userManager;
 
     @Inject
     public LogoutUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull

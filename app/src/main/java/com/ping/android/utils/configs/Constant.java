@@ -79,12 +79,6 @@ public class Constant {
         GAME
     }
 
-    public enum NETWORK_STATUS {
-        CONNECTED,
-        CONNECTING,
-        NOCONNECT
-    }
-
     public static String URL_TERMS_OF_SERVICE = "http://www.bzzz.chat/terms-of-service/";
     public static String URL_PRIVACY = "http://www.bzzz.chat/privacy/";
     public static String URL_HELP = "http://www.bzzz.chat/help/";

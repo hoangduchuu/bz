@@ -893,7 +893,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             }
         }
         showLoading();
-        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+        if (!isNetworkAvailable()) {
             handler.postDelayed(() -> switchOffEditMode(), 2000);
         }
         presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
@@ -929,7 +929,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onChangeTypingMark() {
-        ServiceManager.getInstance().changeMaskOutputConversation(originalConversation, tgMarkOut.isChecked());
+        presenter.updateMaskOutput(tgMarkOut.isChecked());
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {

@@ -26,12 +26,12 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
     QuickbloxRepository quickbloxRepository;
     @Inject
     Device device;
+    @Inject
     UserManager userManager;
 
     @Inject
     public InitializeUserUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull

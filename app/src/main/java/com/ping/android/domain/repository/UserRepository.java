@@ -21,23 +21,9 @@ public interface UserRepository {
 
     Observable<User> getCurrentUser();
 
-    Observable<ChildEvent> observeFriendsChildEvent(String userId);
-
-    Observable<Map<String, Boolean>> observeFriendsValue(String userId);
-
     Observable<User> observeCurrentUser();
 
     Observable<User> getUser(String userId);
-
-    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
-
-    Observable<ChildData<CallEntity>> observeCalls(String userId);
-
-    Observable<List<CallEntity>> getCalls(String userId);
-
-    Observable<List<CallEntity>> loadMoreCalls(String key, Double params);
-
-    Observable<Boolean> addCallHistory(CallEntity entity);
 
     Observable<Boolean> updateQuickbloxId(int qbId);
 
@@ -76,4 +62,18 @@ public interface UserRepository {
     Observable<Boolean> updatePhoneNumber(String userKey, String s);
 
     Observable<DataSnapshot> observeMappings(String key);
+
+    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
+
+    Observable<ChildEvent> observeFriendsChildEvent(String userId);
+
+    Observable<Map<String, Boolean>> observeFriendsValue(String userId);
+
+    Observable<ChildData<CallEntity>> observeCalls(String userId);
+
+    Observable<List<CallEntity>> getCalls(String userId);
+
+    Observable<List<CallEntity>> loadMoreCalls(String key, Double params);
+
+    Observable<Boolean> addCallHistory(CallEntity entity);
 }

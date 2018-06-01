@@ -15,6 +15,7 @@ import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateMaskOutputConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
@@ -97,6 +98,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     DeleteMessagesUseCase deleteMessagesUseCase;
     @Inject
     UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
+    @Inject
+    UpdateMaskOutputConversationUseCase updateMaskOutputConversationUseCase;
     @Inject
     ObserveConversationValueFromExistsConversationUseCase observeConversationValueFromExistsConversationUseCase;
     @Inject
@@ -668,6 +671,14 @@ public class ChatPresenterImpl implements ChatPresenter {
         this.currentColor = currentColor;
     }
 
+    @Override
+    public void updateMaskOutput(boolean checked) {
+        UpdateMaskOutputConversationUseCase.Params params = new UpdateMaskOutputConversationUseCase.Params(
+                conversation.key, conversation.memberIDs, checked
+        );
+        updateMaskOutputConversationUseCase.execute(new DefaultObserver<>(), params);
+    }
+
     private void sendNotification(Conversation conversation, Message message) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message));
@@ -705,6 +716,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         getLastMessagesUseCase.dispose();
         deleteMessagesUseCase.dispose();
         updateMaskMessagesUseCase.dispose();
+        updateMaskOutputConversationUseCase.dispose();
         toggleConversationTypingUseCase.dispose();
         observeConversationColorUseCase.dispose();
 //        sendTextMessageUseCase.dispose();

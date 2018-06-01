@@ -83,7 +83,7 @@ public class ContactFragment extends BaseFragment
 
     @Override
     public void onSendMessage(User contact) {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -135,7 +135,7 @@ public class ContactFragment extends BaseFragment
     }
 
     private void onAddContact(View view) {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

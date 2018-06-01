@@ -12,6 +12,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,7 @@ import io.reactivex.Observable;
  */
 
 public class ConversationRepositoryImpl implements ConversationRepository {
+    public static final String CHILD_CONVERSATION = "conversations";
     FirebaseDatabase database;
 
     @Inject
@@ -61,7 +64,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timesstamps");
-                //.limitToLast(15);
+        //.limitToLast(15);
         return RxFirebaseDatabase.getInstance(query).onChildEvent();
     }
 
@@ -166,6 +169,16 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         Query query = database.getReference().child("backgrounds");
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask) {
+        Map<String, Object> updateValue = new HashMap<>();
+        for (String id : memberIds.keySet()) {
+            updateValue.put(String.format("conversations/%s/%s/maskOutputs/%s", userId, conversationId, id), mask);
+        }
+        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
     }
 

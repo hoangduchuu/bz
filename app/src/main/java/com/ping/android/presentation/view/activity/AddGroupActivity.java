@@ -18,7 +18,9 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
+import com.ping.android.device.Device;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
@@ -235,7 +237,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             Toaster.shortToast("Name this group.");
             return;
         }
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (networkStatus != NetworkStatus.CONNECTED) {
             Toaster.shortToast("Please check network connection.");
             return;
         }

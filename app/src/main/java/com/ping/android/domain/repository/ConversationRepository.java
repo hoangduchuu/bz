@@ -7,6 +7,9 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,4 +48,6 @@ public interface ConversationRepository {
     Observable<String> observeConversationBackground(String userId, String conversationId);
 
     Observable<DataSnapshot> getDefaultBackgrounds();
+
+    Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask);
 }

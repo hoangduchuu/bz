@@ -15,12 +15,14 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
+import com.google.android.gms.common.internal.service.Common;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.data.db.QbUsersDbManager;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.view.fragment.AudioConversationFragment;
 import com.ping.android.presentation.view.fragment.BaseConversationFragment;
@@ -28,6 +30,7 @@ import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.IncomeCallFragment;
 import com.ping.android.presentation.view.fragment.VideoConversationFragment;
 import com.ping.android.service.ServiceManager;
+import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.configs.Consts;
 import com.ping.android.utils.FragmentExecuotr;
@@ -105,29 +108,29 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
     public static void start(Context context, User currentUser, User otherUser, Boolean isVideoCall) {
         int userQBID = otherUser.quickBloxID;
 
-        if (!ServiceManager.getInstance().getNetworkStatus(context)) {
+        if (((CoreActivity) context).networkStatus != NetworkStatus.CONNECTED) {
             Toast.makeText(context, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (ServiceManager.getInstance().isBlockBy(otherUser)) {
+        if (CommonMethod.getBooleanFrom(otherUser.blocks, currentUser.key)) {
             String username = otherUser.getFirstName();
             Toaster.shortToast(String.format(context.getString(R.string.msg_account_blocked_by), username));
             return;
         }
 
-        if (ServiceManager.getInstance().isBlock(otherUser.key)) {
+        if (CommonMethod.getBooleanFrom(currentUser.blocks, otherUser.key)) {
             String username = otherUser.getFirstName();
             Toaster.shortToast(String.format(context.getString(R.string.msg_account_call_blocked), username, username));
             return;
         }
 
-        if (currentUser.quickBloxID <= 0 || currentUser.quickBloxID <= 0) {
+        if (currentUser.quickBloxID <= 0) {
             Toaster.shortToast(context.getString(R.string.msg_current_user_empty_quickbloxID));
             return;
         }
 
-        if (userQBID <= 0 || userQBID <= 0) {
+        if (userQBID <= 0) {
             Toaster.shortToast(context.getString(R.string.msg_opponent_user_empty_quickbloxID));
             return;
         }
@@ -137,24 +140,12 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         if (opponentsList.size() == 0) {
             return;
         }
-
-        //TODO CollectionsUtils.getIdsSelectedOpponents(opponentsAdapter.getSelectedItems());
-//        QBRTCTypes.QBConferenceType conferenceType = isVideoCall
-//                ? QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_VIDEO
-//                : QBRTCTypes.QBConferenceType.QB_CONFERENCE_TYPE_AUDIO;
-
-//        QBRTCClient qbrtcClient = QBRTCClient.getInstance(context.getApplicationContext());
-
-//        QBRTCSession newQbRtcSession = qbrtcClient.createNewSessionWithOpponents(opponentsList, conferenceType);
-        //newQbRtcSession.startCall(null);
-//        WebRtcSessionManager.getInstance().setCurrentSession(newQbRtcSession);
-
         CallActivity.start(context, otherUser, isVideoCall, false);
     }
 
     private static void start(Context context, User otherUser, boolean isVideoCall,
                               boolean isIncomingCall) {
-        UserManager.getInstance().startCallService(context);
+        ((CoreActivity) context).startCallService(context);
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(EXTRA_IS_VIDEO_CALL, isVideoCall);
@@ -351,17 +342,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View, Vi
         if (expirationReconnectionTime < System.currentTimeMillis()) {
             hangUpCurrentSession();
         }
-    }
-
-    @Override
-    public void connectivityChanged(boolean availableNow) {
-        if (callStarted) {
-        }
-    }
-
-    @Override
-    public void connectivityChanged(Constant.NETWORK_STATUS networkStatus) {
-
     }
 
     private void showNotificationPopUp(final int text, final boolean show) {

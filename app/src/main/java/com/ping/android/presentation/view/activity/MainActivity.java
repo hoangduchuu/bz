@@ -78,7 +78,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     protected void onResume() {
         super.onResume();
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
     }
 
     @Override
@@ -353,7 +353,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     @Override
     public void startCallService() {
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
         SubscribeService.subscribeToPushes(this, false);
     }
 
