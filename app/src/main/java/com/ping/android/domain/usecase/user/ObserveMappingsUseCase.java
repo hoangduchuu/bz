@@ -8,7 +8,6 @@ import com.ping.android.managers.UserManager;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -30,12 +29,6 @@ public class ObserveMappingsUseCase extends UseCase<Map<String, String>, Void> {
     @Override
     public Observable<Map<String, String>> buildUseCaseObservable(Void aVoid) {
         return userManager.getCurrentUser()
-                .flatMap(user -> userRepository.observeMappings(user.key)
-                .map(dataSnapshot -> {
-                    if (dataSnapshot.exists()) {
-                        return (Map<String, String>) dataSnapshot.getValue();
-                    }
-                    return new HashMap<String, String>();
-                }));
+                .flatMap(user -> userRepository.observeMappings(user.key));
     }
 }

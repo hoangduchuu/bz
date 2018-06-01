@@ -367,10 +367,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<DataSnapshot> observeMappings(String key) {
+    public Observable<Map<String, String>> observeMappings(String key) {
         DatabaseReference reference = database.getReference().child("users").child(key).child("mappings");
         return RxFirebaseDatabase.getInstance(reference)
-                .onValueEvent();
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return (Map<String, String>) dataSnapshot.getValue();
+                    }
+                    return new HashMap<String, String>();
+                });
     }
 
     private Observable<String> getCurrentUserId() {
