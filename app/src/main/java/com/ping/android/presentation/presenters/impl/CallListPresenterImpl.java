@@ -2,17 +2,20 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.DeleteCallsUseCase;
+import com.ping.android.domain.usecase.GetCallsUseCase;
 import com.ping.android.domain.usecase.ObserveCallUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.call.LoadMoreCallUseCase;
 import com.ping.android.model.Call;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -27,6 +30,8 @@ public class CallListPresenterImpl implements CallListPresenter {
     @Inject
     ObserveCallUseCase observeCallUseCase;
     @Inject
+    GetCallsUseCase getCallsUseCase;
+    @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
     @Inject
     DeleteCallsUseCase deleteCallsUseCase;
@@ -36,6 +41,7 @@ public class CallListPresenterImpl implements CallListPresenter {
     private boolean canLoadMore = true;
     private double lastTimestamp = Double.MAX_VALUE;
     private AtomicBoolean isLoading;
+    private TreeMap<Double, Call> callTreeMap = new TreeMap<>();
 
     @Inject
     public CallListPresenterImpl() {
@@ -55,7 +61,7 @@ public class CallListPresenterImpl implements CallListPresenter {
 
     @Override
     public void resume() {
-        //observeLatestCalls();
+        //getCalls();
     }
 
     @Override
@@ -70,7 +76,10 @@ public class CallListPresenterImpl implements CallListPresenter {
             public void onNext(LoadMoreCallUseCase.Output output) {
                 lastTimestamp = output.lastTimestamp;
                 canLoadMore = output.canLoadMore;
-                view.updateCalls(output.callList);
+                for (Call call : output.callList) {
+                    callTreeMap.put(call.timestamp, call);
+                }
+                view.updateCalls(new ArrayList<>(callTreeMap.descendingMap().values()));
                 observeCalls();
             }
 
@@ -85,12 +94,16 @@ public class CallListPresenterImpl implements CallListPresenter {
         observeCallUseCase.execute(new DefaultObserver<ChildData<Call>>() {
             @Override
             public void onNext(ChildData<Call> callChildData) {
-                switch (callChildData.type) {
+                switch (callChildData.getType()) {
                     case CHILD_ADDED:
-                        view.addCall(callChildData.data);
+                        Call call = callChildData.getData();
+                        if (callTreeMap.get(call.timestamp) == null) {
+                            callTreeMap.put(call.timestamp, call);
+                            view.addCall(call);
+                        }
                         break;
                     case CHILD_REMOVED:
-                        view.deleteCall(callChildData.data);
+                        view.deleteCall(callChildData.getData());
                         break;
                 }
             }

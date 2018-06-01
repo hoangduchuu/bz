@@ -139,7 +139,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     private void onAdd() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

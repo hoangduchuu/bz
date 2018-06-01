@@ -50,8 +50,8 @@ ext {
             arrow       : "1.0.0",
             retrofit    : "2.2.0",
             firebase    : "15.0.2",
-            firebase_database: "15.0.1",
-            firebase_auth: "15.1.0",
+            firebase_database: "16.0.1",
+            firebase_auth: "16.0.1",
     ]
 }
 

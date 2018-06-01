@@ -1,5 +1,10 @@
 package com.ping.android.utils.configs;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 public class Constant {
     public static final String START_ACTIVITY_GROUP_ID = "GROUP_ID";
     public static final String START_ACTIVITY_USER_ID = "USER_ID";
@@ -16,6 +21,7 @@ public class Constant {
     public static final int MSG_TYPE_VOICE = 3;
     public static final int MSG_TYPE_GAME = 4;
     public static final int MSG_TYPE_VIDEO = 5;
+    public static final int MSG_TYPE_CALL = 6;
 
     public static final int MSG_TYPE_TYPING = 10;
     public static final int MSG_TYPE_PADDING = 11;
@@ -31,6 +37,10 @@ public class Constant {
     public static final int MESSAGE_STATUS_GAME_FAIL = 4;
     public static final int MESSAGE_STATUS_READ = 5;
     public static final int MESSAGE_STATUS_GAME_DELIVERED = 6;
+
+    @IntDef({CALL_STATUS_MISS, CALL_STATUS_SUCCESS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CallStatus {}
 
     public static final int CALL_STATUS_SUCCESS = 0;
     public static final int CALL_STATUS_MISS = 1;
@@ -67,12 +77,6 @@ public class Constant {
         IMAGE,
         VOICE,
         GAME
-    }
-
-    public enum NETWORK_STATUS {
-        CONNECTED,
-        CONNECTING,
-        NOCONNECT
     }
 
     public static String URL_TERMS_OF_SERVICE = "http://www.bzzz.chat/terms-of-service/";

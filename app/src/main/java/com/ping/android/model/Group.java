@@ -3,6 +3,7 @@ package com.ping.android.model;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.ping.android.utils.DataSnapshotWrapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -10,6 +10,7 @@ import com.ping.android.device.Device;
 import com.ping.android.device.Notification;
 import com.ping.android.device.impl.DeviceImpl;
 import com.ping.android.device.impl.NotificationImpl;
+import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.service.CallServiceHandlerImpl;
 
@@ -64,5 +65,11 @@ public class ApplicationModule {
     @Singleton
     public CallServiceHandler provideCallServiceHandler(CallServiceHandlerImpl handler) {
         return handler;
+    }
+
+    @Provides
+    @Singleton
+    public UserManager provideUserManager() {
+        return new UserManager();
     }
 }

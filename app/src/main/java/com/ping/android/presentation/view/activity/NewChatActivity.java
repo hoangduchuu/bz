@@ -238,7 +238,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
             return;
         }
 
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toaster.shortToast("Please check network connection.");
             return;
         }

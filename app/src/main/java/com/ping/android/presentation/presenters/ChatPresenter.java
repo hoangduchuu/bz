@@ -53,6 +53,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void initThemeColor(Color currentColor);
 
+    void updateMaskOutput(boolean checked);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

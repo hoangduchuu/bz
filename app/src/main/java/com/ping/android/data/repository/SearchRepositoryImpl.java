@@ -4,7 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.SearchRepository;
-import com.ping.android.model.DataSnapshotWrapper;
+import com.ping.android.utils.DataSnapshotWrapper;
 import com.ping.android.model.User;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 

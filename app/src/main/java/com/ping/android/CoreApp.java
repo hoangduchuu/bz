@@ -18,7 +18,7 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 
-public class CoreApp extends Application {
+public abstract class CoreApp extends Application {
     public static final String TAG = CoreApp.class.getSimpleName();
     private static final String QB_CONFIG_DEFAULT_FILE_NAME = "qb_config.json";
     private static CoreApp instance;
@@ -51,7 +51,6 @@ public class CoreApp extends Application {
             QBSettings.getInstance().init(getApplicationContext(), qbConfigs.getAppId(), qbConfigs.getAuthKey(), qbConfigs.getAuthSecret());
             initPushManager();
             QBSettings.getInstance().setAccountKey(qbConfigs.getAccountKey());
-//            QBSettings.getInstance().setEnablePushNotification(true);
             if (QBSettings.getInstance().getSubscribePushStrategy() != SubscribePushStrategy.MANUAL) {
                 // FIXME: do not use auto subscription
                 QBSettings.getInstance().setSubscribePushStrategy(SubscribePushStrategy.MANUAL);
@@ -59,8 +58,6 @@ public class CoreApp extends Application {
                 SubscribeService.unSubscribeFromPushes(this);
             }
             if (!TextUtils.isEmpty(qbConfigs.getApiDomain()) && !TextUtils.isEmpty(qbConfigs.getChatDomain())) {
-                //QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), ServiceZone.DEVELOPMENT);
-                //QBSettings.getInstance().setZone(ServiceZone.DEVELOPMENT);
                 ServiceZone serviceZone = BuildConfig.DEBUG ? ServiceZone.DEVELOPMENT: ServiceZone.PRODUCTION;
                 QBSettings.getInstance().setEndpoints(qbConfigs.getApiDomain(), qbConfigs.getChatDomain(), serviceZone);
                 QBSettings.getInstance().setZone(serviceZone);
@@ -83,7 +80,6 @@ public class CoreApp extends Application {
                     String error = GoogleApiAvailability.getInstance().getErrorString(resultCode);
                     Log.d(TAG, "SubscriptionError playServicesAbility: " + error);
                 }
-                //Toaster.shortToast(e.getLocalizedMessage());
             }
 
             @Override

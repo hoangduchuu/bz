@@ -1,12 +1,12 @@
 package com.ping.android.presentation.presenters;
 
-import com.bzzzchat.cleanarchitecture.AdapterView;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -33,5 +33,7 @@ public interface ConversationListPresenter extends BasePresenter {
         void notifyConversationChange(Conversation data);
 
         void appendConversations(List<Conversation> conversations);
+
+        void updateMappings(Map<String, String> mappings);
     }
 }

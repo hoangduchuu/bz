@@ -39,6 +39,7 @@ import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -53,7 +54,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private Button btnDeleteMessage, btnEditMessage;
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
-    private ArrayList<Conversation> conversations;
     private boolean isEditMode;
 
     private SharedPreferences prefs;
@@ -110,7 +110,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void init() {
-        conversations = new ArrayList<>();
         adapter = new MessageAdapter();
         adapter.setListener(this);
 
@@ -209,7 +208,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void onNewChat() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -346,14 +345,19 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         adapter.appendConversations(conversations);
     }
 
+    @Override
+    public void updateMappings(Map<String, String> mappings) {
+        adapter.updateMappings(mappings);
+    }
+
     private void listenTransphabetChanged() {
-        registerEvent(busProvider.getEvents()
-                .subscribe(object -> {
-                    if (object instanceof TransphabetEvent) {
-                        if (adapter != null) {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                }));
+//        registerEvent(busProvider.getEvents()
+//                .subscribe(object -> {
+//                    if (object instanceof TransphabetEvent) {
+//                        if (adapter != null) {
+//                            adapter.notifyDataSetChanged();
+//                        }
+//                    }
+//                }));
     }
 }

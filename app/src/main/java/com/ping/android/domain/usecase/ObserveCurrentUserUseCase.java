@@ -20,6 +20,8 @@ import io.reactivex.Observable;
 public class ObserveCurrentUserUseCase extends UseCase<User, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ObserveCurrentUserUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -30,6 +32,6 @@ public class ObserveCurrentUserUseCase extends UseCase<User, Void> {
     @Override
     public Observable<User> buildUseCaseObservable(Void aVoid) {
         return userRepository.observeCurrentUser()
-                .doOnNext(user -> UserManager.getInstance().setUser(user));
+                .doOnNext(user -> userManager.setUser(user));
     }
 }

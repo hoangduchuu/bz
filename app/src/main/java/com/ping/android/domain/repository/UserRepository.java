@@ -2,14 +2,15 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.entity.CallEntity;
 import com.ping.android.model.Call;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 
 import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -20,19 +21,9 @@ public interface UserRepository {
 
     Observable<User> getCurrentUser();
 
-    Observable<ChildEvent> observeFriendsChildEvent(String userId);
-
-    Observable<Map<String, Boolean>> observeFriendsValue(String userId);
-
     Observable<User> observeCurrentUser();
 
     Observable<User> getUser(String userId);
-
-    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
-
-    Observable<ChildEvent> observeLatestCalls(String userId);
-
-    Observable<DataSnapshot> loadMoreCalls(String key, Double params);
 
     Observable<Boolean> updateQuickbloxId(int qbId);
 
@@ -49,8 +40,6 @@ public interface UserRepository {
     Observable<Boolean> addContact(String currentUserId, String friendId);
 
     Observable<User> getUserByQuickBloxId(Integer qbId);
-
-    Observable<Boolean> addCallHistory(Call call);
 
     Observable<Boolean> removeUserBadge(String userId, String key);
 
@@ -71,4 +60,20 @@ public interface UserRepository {
     Observable<Boolean> turnOffMappingConfirmation(String key);
 
     Observable<Boolean> updatePhoneNumber(String userKey, String s);
+
+    Observable<DataSnapshot> observeMappings(String key);
+
+    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
+
+    Observable<ChildEvent> observeFriendsChildEvent(String userId);
+
+    Observable<Map<String, Boolean>> observeFriendsValue(String userId);
+
+    Observable<ChildData<CallEntity>> observeCalls(String userId);
+
+    Observable<List<CallEntity>> getCalls(String userId);
+
+    Observable<List<CallEntity>> loadMoreCalls(String key, Double params);
+
+    Observable<Boolean> addCallHistory(CallEntity entity);
 }

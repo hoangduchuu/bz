@@ -26,6 +26,7 @@ import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDet
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
@@ -222,7 +223,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         }
 
         if (getActivity() != null && getActivity() instanceof CoreActivity) {
-            if (((CoreActivity) getActivity()).networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+            if (!isNetworkAvailable()) {
                 navigateBack();
                 return;
             }

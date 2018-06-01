@@ -26,6 +26,7 @@
 -keep class android.support.v7.widget.** { *; }
 
 -keep class com.ping.android.model.** { *; }
+-keep class com.ping.android.data.entity.** { *; }
 
 -keep class com.wang.avi.** { *; }
 -keep class com.wang.avi.indicators.** { *; }

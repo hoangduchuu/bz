@@ -1,5 +1,6 @@
 package com.ping.android.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.text.TextUtils;

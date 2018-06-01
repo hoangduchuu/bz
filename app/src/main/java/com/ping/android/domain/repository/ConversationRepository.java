@@ -5,7 +5,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +35,7 @@ public interface ConversationRepository {
 
     Observable<Message> sendMessage(String conversationId, Message message);
 
-    Observable<Conversation> getConversation(String key, String conversationID);
+    Observable<Conversation> getConversation(User user, String conversationID);
 
     Observable<Map<String,Boolean>> observeTypingEvent(String conversationId, String userId);
 
@@ -44,4 +48,6 @@ public interface ConversationRepository {
     Observable<String> observeConversationBackground(String userId, String conversationId);
 
     Observable<DataSnapshot> getDefaultBackgrounds();
+
+    Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask);
 }

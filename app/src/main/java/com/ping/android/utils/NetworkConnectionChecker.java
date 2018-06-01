@@ -8,7 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.model.enums.NetworkStatus;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -39,20 +39,19 @@ public class NetworkConnectionChecker {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public Constant.NETWORK_STATUS getNetworkStatus() {
+    public NetworkStatus getNetworkStatus() {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         if (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting()){
             if(activeNetworkInfo.isConnected())
-                return Constant.NETWORK_STATUS.CONNECTED;
-            return Constant.NETWORK_STATUS.CONNECTING;
+                return NetworkStatus.CONNECTED;
+            return NetworkStatus.CONNECTING;
         }
-        return Constant.NETWORK_STATUS.NOCONNECT;
+        return NetworkStatus.NOT_CONNECT;
     }
 
     public interface OnConnectivityChangedListener {
-
         void connectivityChanged(boolean availableNow);
-        void connectivityChanged(Constant.NETWORK_STATUS networkStatus);
+        void connectivityChanged(NetworkStatus networkStatus);
     }
 
     private class NetworkStateReceiver extends BroadcastReceiver {

@@ -1,6 +1,5 @@
 package com.ping.android.model;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -9,6 +8,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
+import com.ping.android.model.enums.MessageCallType;
+import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.DataSnapshotWrapper;
 import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
@@ -35,6 +37,7 @@ public class Message implements Parcelable {
     public Map<String, Boolean> deleteStatuses;
     public Map<String, Boolean> readAllowed;
     public int messageType;
+    public int callType;
     public int gameType;
     public int voiceType = 0;
 
@@ -47,11 +50,17 @@ public class Message implements Parcelable {
     public int messageStatusCode;
     public long days;
     public boolean isMask;
+    public MessageType type = MessageType.TEXT;
+    public MessageCallType messageCallType = MessageCallType.VOICE_CALL;
 
     /**
      * Indicates whether show user profile and date time or not
      */
     public boolean showExtraInfo = true;
+    /**
+     * Other user in PVP conversation
+     */
+    public User opponentUser;
 
     public Message() {
     }
@@ -68,6 +77,7 @@ public class Message implements Parcelable {
         timestamp = in.readDouble();
         messageType = in.readInt();
         gameType = in.readInt();
+        callType = in.readInt();
         sender = in.readParcelable(User.class.getClassLoader());
         localFilePath = in.readString();
         isCached = in.readByte() != 0;
@@ -107,11 +117,14 @@ public class Message implements Parcelable {
         message.gameUrl = wrapper.getStringValue("gameUrl");
         message.videoUrl = wrapper.getStringValue("videoUrl");
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
+        message.type = MessageType.from(message.messageType);
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
         message.senderId = wrapper.getStringValue("senderId");
         message.senderName = wrapper.getStringValue("senderName");
         message.gameType = wrapper.getIntValue("gameType", 0);
         message.voiceType = wrapper.getIntValue("voiceType", 0);
+        message.callType = wrapper.getIntValue("callType", 0);
+        message.messageCallType = MessageCallType.from(message.callType);
         message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();
         Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
@@ -231,6 +244,23 @@ public class Message implements Parcelable {
         return message;
     }
 
+    public static Message createCallMessage(String senderId, String senderName, MessageType type,
+                                            double timestamp, Map<String, Integer> status,
+                                            Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
+                                            Map<String, Boolean> readAllowed, int callType) {
+        Message message = new Message();
+        message.messageType = type.ordinal();
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.readAllowed = readAllowed;
+        message.callType = callType;
+        return message;
+    }
+
     public boolean isFromMe() {
         return this.senderId.equals(currentUserId);
     }
@@ -255,6 +285,7 @@ public class Message implements Parcelable {
         result.put("readAllowed", readAllowed);
         result.put("gameType", gameType);
         result.put("voiceType", voiceType);
+        result.put("callType", callType);
         return result;
     }
 
@@ -284,6 +315,7 @@ public class Message implements Parcelable {
         dest.writeDouble(timestamp);
         dest.writeInt(messageType);
         dest.writeInt(gameType);
+        dest.writeInt(callType);
         dest.writeParcelable(sender, flags);
         dest.writeString(localFilePath);
         dest.writeByte((byte) (isCached ? 1 : 0));

@@ -350,10 +350,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void onLongPress(MessageBaseItem message) {
+    public void onLongPress(MessageBaseItem message, boolean allowCopy) {
         KeyboardHelpers.hideSoftInputKeyboard(this);
         selectedMessage = message;
-        copyContainer.setVisibility(message.message.messageType == Constant.MSG_TYPE_TEXT ? View.VISIBLE : View.GONE);
+        copyContainer.setVisibility(allowCopy ? View.VISIBLE : View.GONE);
         messageActions.show();
     }
 
@@ -412,6 +412,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         Intent intent = new Intent(this, VideoPlayerActivity.class);
         intent.putExtra(VideoPlayerActivity.VIDEO_PATH_EXTRA_KEY, videoUrl);
         startActivity(intent);
+    }
+
+    @Override
+    public void onCall(boolean isVideo) {
+        if (isVideo) {
+            presenter.handleVideoCallPress();
+        } else {
+            presenter.handleVoiceCallPress();
+        }
     }
 
     @Override
@@ -884,7 +893,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             }
         }
         showLoading();
-        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+        if (!isNetworkAvailable()) {
             handler.postDelayed(() -> switchOffEditMode(), 2000);
         }
         presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
@@ -920,7 +929,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onChangeTypingMark() {
-        ServiceManager.getInstance().changeMaskOutputConversation(originalConversation, tgMarkOut.isChecked());
+        presenter.updateMaskOutput(tgMarkOut.isChecked());
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {

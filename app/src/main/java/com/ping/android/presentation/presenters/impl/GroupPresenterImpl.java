@@ -3,7 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.domain.usecase.conversation.CreateGroupConversationUseCase;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 
@@ -31,15 +31,15 @@ public class GroupPresenterImpl implements GroupPresenter {
         observeGroupsUseCase.execute(new DefaultObserver<ChildData<Group>>() {
             @Override
             public void onNext(ChildData<Group> groupChildData) {
-                switch (groupChildData.type) {
+                switch (groupChildData.getType()) {
                     case CHILD_ADDED:
-                        view.addGroup(groupChildData.data);
+                        view.addGroup(groupChildData.getData());
                         break;
                     case CHILD_CHANGED:
-                        view.updateGroup(groupChildData.data);
+                        view.updateGroup(groupChildData.getData());
                         break;
                     case CHILD_REMOVED:
-                        view.deleteGroup(groupChildData.data);
+                        view.deleteGroup(groupChildData.getData());
                 }
             }
 

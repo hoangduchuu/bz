@@ -16,10 +16,10 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +40,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private Set<MessageViewHolder> boundsViewHolder = new HashSet<>();
 
     private ConversationItemListener listener;
+    private Map<String, String> mappings = new HashMap<>();
 
     public MessageAdapter() {
         isEditMode = false;
@@ -76,7 +77,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(MessageAdapter.MessageViewHolder holder, int position) {
         boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
-        holder.bindData(model, selectConversations.contains(model));
+        holder.bindData(model, mappings, selectConversations.contains(model));
         holder.setClickListener(conversation -> {
             boolean status = selectConversations.contains(conversation);
             if (status) {
@@ -173,8 +174,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
             if (index >= 0) {
                 notifyItemRemoved(index);
-//                MessageViewHolder viewHolder = (MessageViewHolder) recyclerView.findViewHolderForAdapterPosition(index);
-//                boundsViewHolder.remove(viewHolder);
             }
         }
     }
@@ -249,7 +248,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     }
 
     public void updateData(List<Conversation> conversations) {
-//        Collections.sort(callList, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
         for (Conversation conversation : conversations) {
             this.originalConversations.put(conversation.key, conversation);
         }
@@ -265,6 +263,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
         this.displayConversations.addAll(conversations);
         notifyItemRangeInserted(size, conversations.size());
+    }
+
+    public void updateMappings(Map<String, String> mappings) {
+        this.mappings = mappings;
+        notifyDataSetChanged();
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -353,7 +356,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
 
         private String getDisplayTime(double timestamps) {
-            Date date = new Date((long)timestamps * 1000);
+            Date date = new Date((long) timestamps * 1000);
             if (DateUtils.isSameDay(date.getTime(), new Date().getTime())) {
                 return DateUtils.toString("h:mm a", date);
             } else if (DateUtils.isYesterday(date)) {
@@ -367,26 +370,42 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
 
-        public void bindData(Conversation model, boolean isSelected) {
+        public void bindData(Conversation model, Map<String, String> mappings, boolean isSelected) {
             this.conversation = model;
             this.tvSender.setText(model.conversationName);
             this.tvTime.setText(getDisplayTime(model.timesstamps));
             String message = "";
-            if (model.messageType == Constant.MSG_TYPE_TEXT) {
-                if (ServiceManager.getInstance().getCurrentMarkStatus(model.markStatuses, model.maskMessages)) {
-                    message = ServiceManager.getInstance().encodeMessage(itemView.getContext(), model.message);
-                } else {
-                    message = model.message;
-                }
-            } else if (model.messageType == Constant.MSG_TYPE_IMAGE) {
-                message = "[Picture]";
-            } else if (model.messageType == Constant.MSG_TYPE_VOICE) {
-                message = "[Voice]";
-            } else if (model.messageType == Constant.MSG_TYPE_GAME) {
-                message = "[Game]";
-            } else if (model.messageType == Constant.MSG_TYPE_VIDEO) {
-                message = "[Video]";
+            switch (model.type) {
+                case TEXT:
+                    if (model.isMask) {
+                        message = CommonMethod.encodeMessage(model.message, mappings);
+                    } else {
+                        message = model.message;
+                    }
+                    break;
+                case IMAGE:
+                    message = "[Picture]";
+                    break;
+                case VOICE:
+                    message = "[Voice]";
+                    break;
+                case GAME:
+                    message = "[Game]";
+                    break;
+                case VIDEO:
+                    message = "[Video]";
+                    break;
+                case CALL:
+                    if (model.isFromMe()) {
+                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),
+                                model.conversationName);
+                    } else {
+                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionToMe()),
+                                model.conversationName);
+                    }
+                    break;
             }
+
             this.tvMessage.setText(message);
             this.setReadStatus(model.isRead);
             this.setEditMode(isEditMode);
@@ -423,8 +442,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public interface ConversationItemListener {
         void onOpenUserProfile(Conversation conversation, Pair<View, String>... sharedElements);
+
         void onOpenGroupProfile(Conversation conversation, Pair<View, String>... sharedElements);
+
         void onOpenChatScreen(Conversation conversation, Pair<View, String>... sharedElements);
+
         void onSelect(Conversation conversation);
     }
 }

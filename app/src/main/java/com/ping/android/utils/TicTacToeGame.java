@@ -1,4 +1,4 @@
-package com.ping.android.model;
+package com.ping.android.utils;
 
 import android.support.annotation.IntDef;
 import android.support.v4.util.ArrayMap;

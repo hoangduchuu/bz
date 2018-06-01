@@ -69,7 +69,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case Constant.MSG_TYPE_TEXT:
                                                     String messageText = params.message.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                                                        messageText = ServiceManager.getInstance().encodeMessage(user.mappings, params.message.message);
+                                                        messageText = CommonMethod.encodeMessage(params.message.message, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
