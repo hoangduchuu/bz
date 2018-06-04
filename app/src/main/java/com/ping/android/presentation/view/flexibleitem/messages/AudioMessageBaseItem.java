@@ -20,9 +20,12 @@ import android.widget.TextView;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
+import com.ping.android.managers.FFmpegManager;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.FileHelperKt;
 import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,10 +51,6 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
     public void completePlaying() {
         currentPosition = 0;
         audioStatus = AudioStatus.INITIALIZED;
-//        if (messageListener != null) {
-//            messageListener.onCompletePlayAudio(this);
-//        }
-
     }
 
     public void stopSelf() {
@@ -60,7 +59,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 ChatMessageAdapter.audioPlayerInstance.pause();
             }
             if (audioStatus == AudioStatus.PLAYING) {
-                audioStatus = AudioStatus.PAUSED;
+                audioStatus = AudioStatus.INITIALIZED;
+                currentPosition = 0;
             }
         }
     }
@@ -125,11 +125,13 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             btnPlay.setOnClickListener(this);
             btnPause.setOnClickListener(this);
             mProgressUpdateHandler = new Handler(Looper.getMainLooper());
+
+            initGestureListener();
         }
 
         @Override
         protected View getClickableView() {
-            return null;
+            return container;
         }
 
         @Override
@@ -148,6 +150,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         @Override
         public void bindData(MessageBaseItem item, boolean lastItem) {
             super.bindData(item, lastItem);
+            totalTime = 0;
+            setTotalTime();
             AudioMessageBaseItem audioItem = (AudioMessageBaseItem) item;
             audioStatus = audioItem.getAudioStatus();
             mMediaPlayer = null;
@@ -162,12 +166,35 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         @Override
+        public void onDoubleTap() {
+            if (item.isEditMode) {
+                return;
+            }
+            pause();
+            maskStatus = !maskStatus;
+            if (messageListener != null) {
+                messageListener.updateMessageMask(item.message, maskStatus, lastItem);
+            }
+        }
+
+        @Override
+        public void onLongPress() {
+            if (messageListener != null) {
+                messageListener.onLongPress(item);
+            }
+        }
+
+        @Override
+        public void onSingleTap() {
+
+        }
+
+        @Override
         public View getSlideView() {
             return container;
         }
 
         private Runnable mUpdateProgress = new Runnable() {
-
             public void run() {
                 try {
                     if (mProgressUpdateHandler != null && audioStatus == AudioStatus.PLAYING && mMediaPlayer != null) {
@@ -194,7 +221,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
             if (mMediaPlayer == null) {
                 showLoading();
-                initMediaPlayer(mediaPlayer -> {
+                String audioFile = getSuitableAudioFile(item.message.audioUrl);
+                initMediaPlayer(audioFile, mediaPlayer -> {
                     if (mediaPlayer == null) {
                         showError();
                         return;
@@ -251,10 +279,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 showError();
                 return;
             }
-            //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.VISIBLE);
-            String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
-            final String audioLocalPath = itemView.getContext()
-                    .getExternalFilesDir(null).getAbsolutePath() + File.separator + audioLocalName;
+            final String audioLocalPath = getLocalFilePath(audioUrl);
             if (audioLocalPath.endsWith("m4a")) {
                 showError();
                 return;
@@ -262,22 +287,67 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             File audioLocal = new File(audioLocalPath);
             String imageLocalFolder = audioLocal.getParent();
             CommonMethod.createFolder(imageLocalFolder);
-
+            VoiceType voiceType = VoiceType.from(message.voiceType);
             if (audioLocal.exists()) {
-                initPlayer(AudioStatus.UNKNOWN);
+                if (voiceType != VoiceType.DEFAULT && message.isMask) {
+                    prepareAudioMask(audioLocal);
+                } else {
+                    initPlayer(AudioStatus.UNKNOWN);
+                }
             } else {
                 Log.d("audioUrl = " + audioUrl);
                 try {
                     StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
-                        initPlayer(AudioStatus.UNKNOWN);
+                        // Prepare audio file
+                        if (voiceType != VoiceType.DEFAULT && message.isMask) {
+                            prepareAudioMask(audioLocal);
+                        } else {
+                            initPlayer(AudioStatus.UNKNOWN);
+                        }
                     }).addOnFailureListener(exception -> {
                         // Handle any errors
+                        showError();
                     });
                 } catch (Exception ex) {
                     Log.e(ex);
                 }
             }
+        }
+
+        private String getLocalFilePath(String audioUrl) {
+            String audioLocalName = CommonMethod.getFileNameFromFirebase(audioUrl);
+            return itemView.getContext()
+                    .getExternalCacheDir().getAbsolutePath() + File.separator + audioLocalName;
+        }
+
+        private String getSuitableAudioFile(String audioUrl) {
+            File localFile = new File(getLocalFilePath(audioUrl));
+            VoiceType voiceType = VoiceType.from(item.message.voiceType);
+            if (voiceType != VoiceType.DEFAULT && item.message.isMask) {
+                String transformFileName = voiceType.toString() + localFile.getName();
+                File transformFile = new File(localFile.getParent(), transformFileName);
+                return transformFile.getAbsolutePath();
+            }
+            return localFile.getAbsolutePath();
+        }
+
+        private void prepareAudioMask(File audioLocal) {
+            VoiceType voiceType = VoiceType.from(item.message.voiceType);
+            if (voiceType != VoiceType.DEFAULT) {
+                String transformFileName = voiceType.toString() + audioLocal.getName();
+                File transformFile = new File(audioLocal.getParent(), transformFileName);
+                if (transformFile.exists()) {
+                    initPlayer(AudioStatus.UNKNOWN);
+                } else {
+                    FFmpegManager.getInstance(itemView.getContext()).transform(audioLocal, transformFile, voiceType, (error, data) -> {
+                        if (error == null) {
+                            initPlayer(AudioStatus.UNKNOWN);
+                        }
+                    });
+                }
+            }
+
         }
 
         private void initPlayer(AudioStatus status) {
@@ -297,14 +367,18 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 showPlay(false);
                 seekBar.setVisibility(View.GONE);
                 if (status == AudioStatus.UNKNOWN) {
-                    totalTime = getTotalTime();
+                    totalTime = getTotalTime(getSuitableAudioFile(item.message.audioUrl));
                     ((AudioMessageBaseItem) item).setAudioDuration(totalTime);
                     audioStatus = AudioStatus.INITIALIZED;
                     ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);
                 } else {
                     totalTime = ((AudioMessageBaseItem) item).getAudioDuration();
                 }
-                setTotalTime();
+                if (totalTime > 0) {
+                    setTotalTime();
+                } else {
+                    showError();
+                }
             }
         }
 
@@ -327,19 +401,17 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
         }
 
-        private void initMediaPlayer(MediaPlayer.OnPreparedListener listener) {
+        private void initMediaPlayer(String audioFile, MediaPlayer.OnPreparedListener listener) {
             mMediaPlayer = ChatMessageAdapter.audioPlayerInstance;
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(listener);
-            String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
-                    + CommonMethod.getFileNameFromFirebase(item.message.audioUrl);
-            if (audioLocalPath.endsWith("m4a")) {
+            if (audioFile.endsWith("m4a")) {
                 showError();
                 return;
             }
             try {
                 mMediaPlayer.reset();
-                mMediaPlayer.setDataSource(audioLocalPath);
+                mMediaPlayer.setDataSource(audioFile);
                 mMediaPlayer.prepareAsync();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -371,19 +443,28 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 playbackStr.append(String.format(Locale.getDefault(), "%02d:%02d",
                         TimeUnit.MILLISECONDS.toMinutes((long) totalTime),
                         TimeUnit.MILLISECONDS.toSeconds((long) totalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) totalTime))));
+            } else {
+                playbackStr.append("00:00");
             }
 
             duration.setText(playbackStr);
         }
 
-        private int getTotalTime() {
-            String audioLocalPath = itemView.getContext().getExternalFilesDir(null).getAbsolutePath() + File.separator
-                    + CommonMethod.getFileNameFromFirebase(item.message.audioUrl);
-            Uri uri = Uri.parse(audioLocalPath);
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            mmr.setDataSource(itemView.getContext(), uri);
-            String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            return Integer.parseInt(durationStr);
+        private int getTotalTime(String audioPath) {
+            Uri uri = FileHelperKt.uri(new File(audioPath), itemView.getContext());
+            String durationStr = "";
+            try {
+                MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                mmr.setDataSource(itemView.getContext(), uri);
+                durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            if (!TextUtils.isEmpty(durationStr)) {
+                return Integer.parseInt(durationStr);
+            } else {
+                return 0;
+            }
         }
 
         private void showPlay(boolean isAnimate) {

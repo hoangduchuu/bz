@@ -25,10 +25,9 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.BaseView;
-import com.bzzzchat.cleanarchitecture.JobExecutor;
 import com.ping.android.BuildConfig;
 import com.ping.android.presentation.view.cameraview.CameraActivity;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
@@ -40,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
@@ -318,7 +316,7 @@ public class ImagePickerHelper {
     private String getFilePath() {
         if (TextUtils.isEmpty(filePath)) {
             filePath = getCacheFolder(getContext()) +
-                    File.separator + System.currentTimeMillis() + ".png";
+                    File.separator + System.currentTimeMillis() + ".jpeg";
         }
         return filePath;
     }
@@ -326,7 +324,7 @@ public class ImagePickerHelper {
     private String getThumbnailFilePath() {
         return getCacheFolder(getContext()) + File.separator +
                 "cache" + File.separator +
-                "thumbnail_" + System.currentTimeMillis() + ".png";
+                "thumbnail_" + System.currentTimeMillis() + ".jpeg";
     }
 
     private static String getCacheFolder(Context context) {
@@ -472,7 +470,7 @@ public class ImagePickerHelper {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(filePath);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

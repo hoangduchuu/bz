@@ -8,8 +8,8 @@ import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
     @Override
     public Observable<Conversation> buildUseCaseObservable(String s) {
         return userRepository.getCurrentUser()
-                .flatMap(user -> conversationRepository.getConversation(user.key, s)
+                .flatMap(user -> conversationRepository.getConversation(user, s)
                         .flatMap(conversation -> {
                             conversation.currentColor = conversation.getColor(user.key);
                             conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);

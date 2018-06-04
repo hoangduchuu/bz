@@ -8,11 +8,8 @@ import com.ping.android.domain.repository.QuickbloxRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -29,12 +26,12 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
     QuickbloxRepository quickbloxRepository;
     @Inject
     Device device;
+    @Inject
     UserManager userManager;
 
     @Inject
     public InitializeUserUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        userManager = UserManager.getInstance();
     }
 
     @NotNull

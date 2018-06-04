@@ -9,7 +9,7 @@ import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
 import com.ping.android.presentation.view.fragment.ConversationPVPDetailFragment;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
 
@@ -19,10 +19,6 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
-    /**
-     * Params used for gallery grid and viewpager
-     */
-    public static int currentPosition = 0;
 
     @Inject
     Navigator navigator;

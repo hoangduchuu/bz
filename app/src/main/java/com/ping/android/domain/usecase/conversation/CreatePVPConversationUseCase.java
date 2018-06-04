@@ -12,7 +12,6 @@ import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.ultility.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +53,7 @@ public class CreatePVPConversationUseCase extends UseCase<String, CreatePVPConve
                     members.add(user);
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
                     return conversationRepository
-                            .getConversation(user.key, conversationID)
+                            .getConversation(user, conversationID)
                             .onErrorResumeNext(observer -> {
                                 Conversation newConversation = Conversation.createNewConversation(user.key, params.toUser.key);
                                 newConversation.key = conversationID;

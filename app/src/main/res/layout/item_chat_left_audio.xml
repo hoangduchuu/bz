@@ -49,13 +49,16 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:background="@drawable/background_chat_left"
-                    android:baselineAligned="false"
                     android:gravity="center"
-                    android:padding="10dp">
+                    android:paddingBottom="5dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="5dp">
 
                     <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:padding="2dp">
 
                         <ImageView
                             android:id="@+id/play"
@@ -93,15 +96,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.8"
                         android:orientation="horizontal"
-                        android:paddingBottom="5dp"
                         android:paddingEnd="10dp"
-                        android:paddingTop="5dp">
+                        android:gravity="center">
 
                         <SeekBar
                             android:id="@+id/media_seekbar"
                             android:layout_width="90dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
+                            android:layout_height="20dp"
                             android:progressTint="@color/color_primary"
                             android:thumbTint="@color/color_primary"
                             android:visibility="gone" />
@@ -110,7 +111,6 @@
                             android:id="@+id/playback_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
                             android:text="00:00"
                             android:textColor="@color/color_primary"
                             android:textSize="11sp" />

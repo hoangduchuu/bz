@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 

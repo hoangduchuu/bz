@@ -1,10 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/header"
         style="?attr/backgroundTheme"
         android:layout_width="match_parent"
         android:layout_height="45dp"
@@ -17,15 +17,24 @@
 
         <TextView
             style="@style/TextTitle"
-            android:text="GALLERY" />
+            android:text="@string/conversation_detail_media"
+            android:textAllCaps="true" />
+
+        <ToggleButton
+            android:id="@+id/togglePuzzle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@null"
+            android:textColor="@color/orange"
+            android:textOff="Puzzle"
+            android:textOn="UnPuzzle" />
     </RelativeLayout>
 
-    <android.support.v4.view.ViewPager
+    <com.ping.android.presentation.view.custom.ExtendedViewPager
         android:id="@+id/viewpager"
+        android:layout_below="@id/header"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
-
-    </android.support.v4.view.ViewPager>
-
-</LinearLayout>
+        android:background="@color/white" />
+</RelativeLayout>

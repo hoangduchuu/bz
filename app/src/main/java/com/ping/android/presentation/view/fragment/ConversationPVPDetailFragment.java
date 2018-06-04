@@ -23,6 +23,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.utils.DataProvider;
@@ -108,6 +109,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
         view.findViewById(R.id.profile_nickname).setOnClickListener(this);
         view.findViewById(R.id.group_profile_color).setOnClickListener(this);
         view.findViewById(R.id.profile_background).setOnClickListener(this);
+        view.findViewById(R.id.profile_gallery).setOnClickListener(this);
 
         View colorPickerView = LayoutInflater.from(view.getContext()).inflate(R.layout.bottom_sheet_color_picker, null);
         colorPickerBottomSheetDialog = new BottomSheetDialog(view.getContext());
@@ -162,6 +164,9 @@ public class ConversationPVPDetailFragment extends BaseFragment
                 break;
             case R.id.profile_background:
                 onBackgroundClicked();
+                break;
+            case R.id.profile_gallery:
+                presenter.handleGalleryClicked();
                 break;
         }
     }
@@ -265,6 +270,13 @@ public class ConversationPVPDetailFragment extends BaseFragment
     @Override
     public void moveToSelectBackground(Conversation conversation) {
         navigator.moveToFragment(BackgroundFragment.newInstance(conversation));
+    }
+
+    @Override
+    public void moveToGallery(Conversation conversation) {
+        Intent intent = new Intent(getContext(), GalleryActivity.class);
+        intent.putExtra("conversation", conversation);
+        startActivity(intent);
     }
 
     public ConversationDetailPVPComponent getComponent() {

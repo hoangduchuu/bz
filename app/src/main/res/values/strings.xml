@@ -242,11 +242,28 @@
     <string name="notif_content_sent">Sent</string>
     <string name="notif_action_reply">Reply</string>
     <string name="conversation_detail_background">Background</string>
-    <string name="conversation_detail_media">Gallery</string>
+    <string name="conversation_detail_media">Shared Photos</string>
     <string name="color_picker_description">Pick a color for this conversation</string>
 
     <string name="hint_search">Search</string>
     <string name="hint_search_friends">Names, Username, or Phone</string>
     <string name="hint_username">Username</string>
     <string name="hint_bzzz">bzzz...</string>
+
+    <string name="voice_record_instruction_slide_up_down">Slide UP to CANCEL, DOWN to MASK your voice</string>
+    <string name="voice_record_instruction_release_to_cancel">Release to CANCEL</string>
+    <string name="voice_record_instruction_release_to_send">Release to SEND</string>
+    <string name="voice_record_instruction_tap_to_record">Tap and hold me to record. Release to send</string>
+    <string name="voice_record_instruction_release_to_mask">Release to MASK</string>
+    <string name="voice_record_instruction_mask_with">Mask Your Voice To</string>
+    <string name="chat_missed_voice_call_from_me">%s missed a voice call from you.</string>
+    <string name="chat_missed_video_call_from_me">%s missed a video call from you.</string>
+    <string name="chat_voice_call_from_me">You called %s.</string>
+    <string name="chat_video_call_from_me">You called %s.</string>
+    <string name="chat_missed_voice_call_to_me">You missed a voice call from %s.</string>
+    <string name="chat_missed_video_call_to_me">You missed a video call from %s.</string>
+    <string name="chat_video_call_to_me">%s called you.</string>
+    <string name="chat_voice_call_to_me">%s called you.</string>
+    <string name="chat_call_back">Call back</string>
+    <string name="chat_call_again">Call again</string>
 </resources>

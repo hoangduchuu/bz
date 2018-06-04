@@ -22,7 +22,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
@@ -93,17 +93,13 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     @Override
     public void onAddFriend(User contact) {
-        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
-            Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
         presenter.addContact(contact.key);
         contact.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
     }
 
     @Override
     public void onSendMessage(User contact) {
-        if (networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(AddContactActivity.this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

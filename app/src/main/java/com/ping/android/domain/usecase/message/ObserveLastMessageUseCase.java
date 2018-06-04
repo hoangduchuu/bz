@@ -6,12 +6,12 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,22 +48,24 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                         message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
                         return new ChildData<>(message, childEvent.type);
                     } else {
-                        throw new NullPointerException();
+                        return new ChildData<Message>(null, childEvent.type);
                     }
                 })
-                .onErrorResumeNext(Observable.empty())
+                //.onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
-                    Message message = childData.data;
+                    if (childData.getType() != ChildData.Type.CHILD_ADDED) return Observable.empty();
+                    Message message = childData.getData();
                     boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
-                    if (isOldMessage || !isReadable) {
+                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
+                    if (isDeleted || isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
-                    return userRepository.getUser(childData.data.senderId)
+                    return userRepository.getUser(childData.getData().senderId)
                             .map(user -> {
-                                childData.data.sender = user;
+                                childData.getData().sender = user;
                                 return childData;
                             });
                 });

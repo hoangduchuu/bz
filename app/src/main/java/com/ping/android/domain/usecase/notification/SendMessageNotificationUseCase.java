@@ -9,8 +9,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -69,7 +69,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case Constant.MSG_TYPE_TEXT:
                                                     String messageText = params.message.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                                                        messageText = ServiceManager.getInstance().encodeMessage(user.mappings, params.message.message);
+                                                        messageText = CommonMethod.encodeMessage(params.message.message, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
@@ -81,6 +81,9 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                     break;
                                                 case Constant.MSG_TYPE_GAME:
                                                     body = userName + ": sent a game.";
+                                                    break;
+                                                case Constant.MSG_TYPE_VIDEO:
+                                                    body = userName + ": sent a video message.";
                                                     break;
                                                 default:
                                                     break;

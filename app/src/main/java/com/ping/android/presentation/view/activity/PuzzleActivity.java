@@ -56,7 +56,7 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     protected void onStop() {
         super.onStop();
         if (!TextUtils.isEmpty(conversationID) && !TextUtils.isEmpty(messageID)) {
-            ServiceManager.getInstance().updateMarkStatus(conversationID, messageID, !btPuzzle.isChecked());
+            presenter.updateMessageMask(conversationID, messageID, !btPuzzle.isChecked());
         }
     }
 

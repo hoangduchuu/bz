@@ -62,7 +62,7 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
 
     @Override
     public void startCallService() {
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
     }
 
     @Override

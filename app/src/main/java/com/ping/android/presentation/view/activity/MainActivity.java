@@ -33,10 +33,10 @@ import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.ultility.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.util.ArrayList;
@@ -73,13 +73,12 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
         init();
         observeBadgeNumber();
-        //UserManager.getInstance().addValueEventListener();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
     }
 
     @Override
@@ -354,7 +353,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     @Override
     public void startCallService() {
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
         SubscribeService.subscribeToPushes(this, false);
     }
 

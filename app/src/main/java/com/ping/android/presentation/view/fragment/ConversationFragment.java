@@ -2,7 +2,6 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -10,9 +9,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -35,17 +32,16 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.utils.bus.events.TransphabetEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
-
-import io.reactivex.functions.Consumer;
 
 public class ConversationFragment extends BaseFragment implements View.OnClickListener,
         MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
@@ -58,7 +54,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private Button btnDeleteMessage, btnEditMessage;
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
-    private ArrayList<Conversation> conversations;
     private boolean isEditMode;
 
     private SharedPreferences prefs;
@@ -115,7 +110,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void init() {
-        conversations = new ArrayList<>();
         adapter = new MessageAdapter();
         adapter.setListener(this);
 
@@ -214,7 +208,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void onNewChat() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -351,14 +345,19 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         adapter.appendConversations(conversations);
     }
 
+    @Override
+    public void updateMappings(Map<String, String> mappings) {
+        adapter.updateMappings(mappings);
+    }
+
     private void listenTransphabetChanged() {
-        registerEvent(busProvider.getEvents()
-                .subscribe(object -> {
-                    if (object instanceof TransphabetEvent) {
-                        if (adapter != null) {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                }));
+//        registerEvent(busProvider.getEvents()
+//                .subscribe(object -> {
+//                    if (object instanceof TransphabetEvent) {
+//                        if (adapter != null) {
+//                            adapter.notifyDataSetChanged();
+//                        }
+//                    }
+//                }));
     }
 }

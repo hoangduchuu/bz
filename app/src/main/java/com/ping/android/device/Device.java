@@ -6,4 +6,6 @@ package com.ping.android.device;
 
 public interface Device {
     String getDeviceId();
+
+    boolean getNetworkStatus();
 }

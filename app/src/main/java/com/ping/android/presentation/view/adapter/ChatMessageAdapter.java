@@ -10,6 +10,7 @@ import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
@@ -17,6 +18,8 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,52 +83,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         selectedMessages = new ArrayList<>();
     }
 
-    public void deleteMessage(MessageHeaderItem headerItem, MessageBaseItem item) {
-        boolean shouldUpdateLastConversationMessage = false;
-        Message message = getLastMessage();
-        if (message != null && message.key.equals(item.message.key)) {
-            shouldUpdateLastConversationMessage = true;
-        }
-
-        int headerIndex = items.indexOf(headerItem);
-        if (headerIndex >= 0) {
-            int childIndex = headerItem.removeMessage(item);
-            if (headerIndex + childIndex < items.size()) {
-                // Must plus 1 because childIndex is start from 0
-                int finalIndex = headerIndex + childIndex + 1;
-                //item.setMessageListener(null);
-                items.remove(finalIndex);
-                notifyItemRemoved(finalIndex);
-            }
-            if (headerItem.getChildItems().size() == 0) {
-                items.remove(headerIndex);
-                notifyItemRemoved(headerIndex);
-            }
-        }
-        if (shouldUpdateLastConversationMessage) {
-            Message lastMessage = getLastMessage();
-            if (messageListener != null) {
-                messageListener.updateLastConversationMessage(lastMessage);
-            }
-        }
-    }
-
-    public void updateEditMode(boolean isEditMode) {
-        if (!isEditMode) {
-            selectedMessages.clear();
-        }
-        this.isEditMode = isEditMode;
-        for (FlexibleItem item : this.items) {
-            if (item instanceof MessageBaseItem) {
-                ((MessageBaseItem) item).setEditMode(isEditMode);
-                if (!isEditMode) {
-                    ((MessageBaseItem) item).setSelected(false);
-                }
-            }
-        }
-        notifyDataSetChanged();
-    }
-
     @Override
     public void handleProfileImagePress(User user, Pair<View, String>[] sharedElements) {
         if (messageListener != null) {
@@ -143,7 +100,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     @Override
     public void onLongPress(MessageBaseItem messageItem) {
         if (messageListener != null) {
-            messageListener.onLongPress(messageItem);
+            messageListener.onLongPress(messageItem, messageItem.message.type == MessageType.TEXT);
         }
     }
 
@@ -190,6 +147,20 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         selectedMessages.remove(item);
         if (messageListener != null) {
             messageListener.updateMessageSelection(selectedMessages.size());
+        }
+    }
+
+    @Override
+    public void openVideo(@NotNull String videoUrl) {
+        if (messageListener != null) {
+            messageListener.openVideo(videoUrl);
+        }
+    }
+
+    @Override
+    public void onCall(boolean isVideo) {
+        if (messageListener != null) {
+            messageListener.onCall(isVideo);
         }
     }
 
@@ -262,14 +233,61 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
+    public FlexibleItem getItem(int i) {
+        return this.items.get(i);
+    }
+
     public void updateNickNames(Map<String, String> nickNames) {
         this.nickNames = nickNames;
         notifyDataSetChanged();
     }
 
-    public FlexibleItem getItem(int i) {
-        return this.items.get(i);
+    public void deleteMessage(MessageHeaderItem headerItem, MessageBaseItem item) {
+        boolean shouldUpdateLastConversationMessage = false;
+        Message message = getLastMessage();
+        if (message != null && message.key.equals(item.message.key)) {
+            shouldUpdateLastConversationMessage = true;
+        }
+
+        int headerIndex = items.indexOf(headerItem);
+        if (headerIndex >= 0) {
+            int childIndex = headerItem.removeMessage(item);
+            if (headerIndex + childIndex < items.size()) {
+                // Must plus 1 because childIndex is start from 0
+                int finalIndex = headerIndex + childIndex + 1;
+                //item.setMessageListener(null);
+                items.remove(finalIndex);
+                notifyItemRemoved(finalIndex);
+            }
+            if (headerItem.getChildItems().size() == 0) {
+                items.remove(headerIndex);
+                notifyItemRemoved(headerIndex);
+            }
+        }
+        if (shouldUpdateLastConversationMessage) {
+            Message lastMessage = getLastMessage();
+            if (messageListener != null) {
+                messageListener.updateLastConversationMessage(lastMessage);
+            }
+        }
     }
+
+    public void updateEditMode(boolean isEditMode) {
+        if (!isEditMode) {
+            selectedMessages.clear();
+        }
+        this.isEditMode = isEditMode;
+        for (FlexibleItem item : this.items) {
+            if (item instanceof MessageBaseItem) {
+                ((MessageBaseItem) item).setEditMode(isEditMode);
+                if (!isEditMode) {
+                    ((MessageBaseItem) item).setSelected(false);
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 
     public void updateData(List<MessageHeaderItem> headerItems) {
         //this.items.clear();
@@ -290,11 +308,8 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
                 this.items.addAll(index + 1, headerItem.getNewItems());
                 headerItem.processNewItems();
                 notifyItemRangeInserted(index + 1, newItemsSize);
-//                this.items.add(headerItem);
-//                this.items.addAll(headerItem.getChildItems());
             }
         }
-        //notifyDataSetChanged();
     }
 
     public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
@@ -305,8 +320,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             headerIndex = size;
             notifyItemInserted(size);
         }
-//        item.setMessageListener(this);
-        //item.setNickNames(nickNames);
         if (added) {
             int childIndex = headerItem.findChildIndex(item);
             int finalIndex = headerIndex + childIndex + 1;
@@ -362,7 +375,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
 
-        void onLongPress(MessageBaseItem message);
+        void onLongPress(MessageBaseItem message, boolean allowCopy);
 
         void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
 
@@ -371,5 +384,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void updateMessageSelection(int size);
 
         void updateLastConversationMessage(Message lastMessage);
+
+        void openVideo(String videoUrl);
+
+        void onCall(boolean isVideo);
     }
 }

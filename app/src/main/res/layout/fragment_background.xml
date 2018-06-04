@@ -15,7 +15,7 @@
             style="?attr/backgroundTheme"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:background="#F1F2F2"
+            android:background="@drawable/bg_bottom_gray"
             android:gravity="center_vertical">
 
             <ImageView
@@ -26,6 +26,8 @@
                 style="@style/TextTitle"
                 android:text="SELECT BACKGROUND" />
         </RelativeLayout>
+
+        <View style="@style/ItemViewSeparate" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gallery_list"

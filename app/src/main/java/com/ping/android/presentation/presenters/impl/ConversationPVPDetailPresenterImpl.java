@@ -11,7 +11,7 @@ import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -179,6 +179,11 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
     @Override
     public void handleBackgroundClicked() {
         view.moveToSelectBackground(conversation);
+    }
+
+    @Override
+    public void handleGalleryClicked() {
+        view.moveToGallery(conversation);
     }
 
     @Override

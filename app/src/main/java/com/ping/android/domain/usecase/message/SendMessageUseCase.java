@@ -11,8 +11,11 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.ultility.Constant;
+import com.ping.android.model.enums.VoiceType;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +58,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             @Override
             public void run() {
                 updateMessageStatus(Constant.MESSAGE_STATUS_ERROR)
-                    .subscribe();
+                        .subscribe();
             }
         };
         if (timer != null) {
@@ -64,6 +67,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         timer = new Timer();
         timer.schedule(task, 5000);
         message = params.getMessage();
+        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         conversation = params.getConversation();
         return conversationRepository.sendMessage(params.conversation.key, message)
                 .flatMap(message1 -> {
@@ -76,7 +80,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
                             message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (!message1.readAllowed.containsKey(toUser)) continue;
+                        if (!CommonMethod.getBooleanFrom(message1.readAllowed, toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
                     }
                     return commonRepository.updateBatchData(updateData)
@@ -122,7 +126,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String text;
             private MessageType messageType;
             private GameType gameType;
-            private String imageUrl;
+            private VoiceType voiceType;
+            private MessageCallType callType;
+            private String fileUrl;
             private String thumbUrl;
             private String messageKey;
             private String cacheImage;
@@ -174,9 +180,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             // region image message
 
-            public Builder setImageUrl(String imageUrl) {
-                this.imageUrl = imageUrl;
-                this.text = imageUrl;
+            public Builder setFileUrl(String fileUrl) {
+                this.fileUrl = fileUrl;
+                this.text = fileUrl;
                 return this;
             }
 
@@ -187,6 +193,16 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             // endregion
 
+            public Builder setVoiceType(VoiceType voiceType) {
+                this.voiceType = voiceType;
+                return this;
+            }
+
+            public Builder setCallType(MessageCallType callType) {
+                this.callType = callType;
+                return this;
+            }
+
             public SendMessageUseCase.Params build() {
                 Params params = new Params();
                 Message message = null;
@@ -195,59 +211,78 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         message = buildMessage(currentUser, text);
                         break;
                     case IMAGE:
-                        message = buildImageMessage(currentUser, imageUrl, thumbUrl);
+                        message = buildImageMessage(currentUser, fileUrl, thumbUrl);
                         break;
                     case GAME:
-                        message = buildGameMessage(currentUser, imageUrl, gameType);
+                        message = buildGameMessage(currentUser, fileUrl, gameType);
                         break;
-                    case AUDIO:
-                        message = buildAudioMessage(currentUser, imageUrl);
+                    case VOICE:
+                        message = buildAudioMessage(currentUser, fileUrl, voiceType);
+                        break;
+                    case VIDEO:
+                        message = buildVideoMessage(currentUser, fileUrl);
+                        break;
+                    case CALL:
+                        message = buildCallMessage(currentUser, messageType, callType);
                         break;
                 }
                 message.key = messageKey;
-                message.localImage = cacheImage;
+                message.localFilePath = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);
-                params.filePath = imageUrl;
+                params.filePath = fileUrl;
                 return params;
             }
 
-            private Message buildAudioMessage(User currentUser, String audioUrl) {
+            private Message buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, callType.ordinal());
+            }
 
+            private Message buildVideoMessage(User currentUser, String fileUrl) {
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createVideoMessage(fileUrl,
+                        currentUser.key, currentUser.getDisplayName(), timestamp,
+                        getStatuses(), getAudioMaskStatuses(voiceType),
+                        getMessageDeleteStatuses(), allowance);
+            }
+
+            private Message buildAudioMessage(User currentUser, String audioUrl, VoiceType voiceType) {
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createAudioMessage(audioUrl,
-                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), null,
-                        getMessageDeleteStatuses(), allowance);
+                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getAudioMaskStatuses(voiceType),
+                        getMessageDeleteStatuses(), allowance, voiceType.ordinal());
             }
 
             private Message buildMessage(User currentUser, String text) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
-                        timestamp, getStatuses(), getMessageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
             private Message buildImageMessage(User currentUser, String photoUrl, String thumbUrl) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createImageMessage(photoUrl, thumbUrl, currentUser.key, currentUser.getDisplayName(),
-                        timestamp, getStatuses(), getImageMarkStatuses(), getMessageDeleteStatuses(), allowance);
+                        timestamp, getStatuses(), getImageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
             private Message buildGameMessage(User currentUser, String imageUrl, GameType gameType) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createGameMessage(imageUrl,
-                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getImageMarkStatuses(),
+                        currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getImageMaskStatuses(),
                         getMessageDeleteStatuses(), allowance, gameType.ordinal());
             }
 
             private Conversation conversationFrom(Message message) {
-                Conversation newConversation = new Conversation(conversation.conversationType, message.messageType,
-                        text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMarkStatuses(),
+                return new Conversation(conversation.conversationType, message.messageType, message.callType,
+                        text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMaskStatuses(),
                         getMessageReadStatuses(), message.timestamp, conversation);
-                return newConversation;
             }
 
             private Map<String, Boolean> getMemberIDs() {
@@ -270,16 +305,14 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private Map<String, Boolean> getAllowance() {
                 Map<String, Boolean> ret = new HashMap<>();
                 ret.put(currentUser.key, true);
-                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                    // Check whether sender is in block list of receiver
-                    if (!currentUser.blockBys.containsKey(conversation.opponentUser.key)) {
-                        ret.put(conversation.opponentUser.key, true);
+                for (String toUser : conversation.memberIDs.keySet()) {
+                    if (toUser.equals(currentUser.key)) {
+                        continue;
                     }
-                } else {
-                    for (String toUser : conversation.memberIDs.keySet()) {
-                        if (toUser.equals(currentUser.key)
-                                || currentUser.blocks.containsKey(toUser)
-                                || currentUser.blockBys.containsKey(toUser)) continue;
+                    if (currentUser.blocks.containsKey(toUser)
+                            || currentUser.blockBys.containsKey(toUser)) {
+                        ret.put(toUser, false);
+                    } else {
                         ret.put(toUser, true);
                     }
                 }
@@ -295,7 +328,18 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return deleteStatuses;
             }
 
-            private Map<String, Boolean> getMessageMarkStatuses() {
+            private Map<String, Boolean> getAudioMaskStatuses(VoiceType voiceType) {
+                Map<String, Boolean> maskStatuses = new HashMap<>();
+                if (voiceType == VoiceType.DEFAULT) {
+                    return maskStatuses;
+                }
+                for (String userId : conversation.memberIDs.keySet()) {
+                    maskStatuses.put(userId, true);
+                }
+                return maskStatuses;
+            }
+
+            private Map<String, Boolean> getMessageMaskStatuses() {
                 Map<String, Boolean> markStatuses = new HashMap<>();
                 if (conversation.maskMessages != null) {
                     markStatuses.putAll(conversation.maskMessages);
@@ -304,13 +348,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return markStatuses;
             }
 
-            private Map<String, Boolean> getImageMarkStatuses() {
-                Map<String, Boolean> markStatuses = new HashMap<>();
+            private Map<String, Boolean> getImageMaskStatuses() {
+                Map<String, Boolean> maskStatuses = new HashMap<>();
                 if (conversation.puzzleMessages != null) {
-                    markStatuses.putAll(conversation.puzzleMessages);
+                    maskStatuses.putAll(conversation.puzzleMessages);
                 }
-                markStatuses.put(currentUser.key, markStatus);
-                return markStatuses;
+                maskStatuses.put(currentUser.key, markStatus);
+                return maskStatuses;
             }
 
             private Map<String, Boolean> getMessageDeleteStatuses() {

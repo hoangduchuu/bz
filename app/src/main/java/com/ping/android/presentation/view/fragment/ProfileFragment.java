@@ -25,8 +25,8 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
@@ -257,7 +257,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onChangePwd() {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toaster.shortToast("Please check network connection.");
             return;
         }
@@ -265,7 +265,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onChangeProfile(View view) {
-        if (!ServiceManager.getInstance().getNetworkStatus(getContext())) {
+        if (!isNetworkAvailable()) {
             Toaster.shortToast("Please check network connection.");
             return;
         }
@@ -273,7 +273,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 "profile" + File.separator + currentUser.key;
         CommonMethod.createFolder(profileFileFolder);
         double timestamp = System.currentTimeMillis() / 1000d;
-        profileFileName = "" + timestamp + "-" + currentUser.key + ".png";
+        profileFileName = "" + timestamp + "-" + currentUser.key + ".jpeg";
         profileFilePath = profileFileFolder + File.separator + profileFileName;
 
         imagePickerHelper = ImagePickerHelper.from(this)

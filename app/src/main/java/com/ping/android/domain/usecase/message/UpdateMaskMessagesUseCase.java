@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Message;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,6 +43,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
                     for (String message : params.messageKeys) {
                         updateValue.put(String.format("messages/%s/%s/markStatuses/%s", params.conversationId,
                                 message, user.key), params.isMask);
+                    }
+                    for (String message : params.mediaMessages) {
                         updateValue.put(String.format("media/%s/%s/markStatuses/%s", params.conversationId, message, user.key),
                                 params.isMask);
                     }
@@ -54,26 +57,35 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
     }
 
     public static class Params {
-        public List<String> messageKeys;
+        public List<String> messageKeys = new ArrayList<>();
+        public List<String> mediaMessages = new ArrayList<>();
         public String conversationId;
         public boolean isLastMessage;
         public boolean isMask;
 
         public void setMessages(List<Message> messages) {
-            this.messageKeys = new ArrayList<>();
             for (Message message : messages) {
-                messageKeys.add(message.key);
+                setMessage(message);
             }
         }
 
         public void setMessage(Message message) {
-            this.messageKeys = new ArrayList<>();
             this.messageKeys.add(message.key);
+            if (message.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME) {
+                this.mediaMessages = new ArrayList<>();
+                this.mediaMessages.add(message.key);
+            }
         }
 
+        /**
+         * Set message id. Currently call when update game message
+         *
+         * @param messageId
+         */
         public void setMessageId(String messageId) {
-            this.messageKeys = new ArrayList<>();
             this.messageKeys.add(messageId);
+            this.mediaMessages.add(messageId);
         }
     }
 }

@@ -20,8 +20,8 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;

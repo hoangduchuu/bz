@@ -10,10 +10,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
-import com.ping.android.utils.SharedPrefsHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,13 +90,6 @@ public class ServiceManager {
 //        return bitmaps;
 //    }
 
-    public void addContact(User contact) {
-        mDatabase.child("friends").child(currentUser.key).child(contact.key).setValue(true);
-        //currentUser.friends.put(contact.key, true);
-        contact.typeFriend = Constant.TYPE_FRIEND.IS_FRIEND;
-        currentUser.friendList.add(contact);
-    }
-
 //    public void deleteContact(User contact) {
 //        mDatabase.child("friends").child(currentUser.key).child(contact.key).setValue(null);
 //        ///currentUser.friends.remove(contact.key);
@@ -105,21 +97,21 @@ public class ServiceManager {
 //        currentUser.friendList.remove(contact);
 //    }
 
-    public boolean isBlockBy(User contact) {
-        boolean isBlocked = false;
-        String currentUserId = currentUser.key;
-        if (contact != null && contact.blocks != null && contact.blocks.containsKey(currentUserId)) {
-            isBlocked = contact.blocks.get(currentUserId);
-        }
-        return isBlocked;
-    }
-
-    public boolean isBlock(String userID) {
-        if (currentUser.blocks == null || currentUser.blocks.containsKey(userID)) {
-            return currentUser.blocks.get(userID);
-        }
-        return false;
-    }
+//    public boolean isBlockBy(User contact) {
+//        boolean isBlocked = false;
+//        String currentUserId = currentUser.key;
+//        if (contact != null && contact.blocks != null && contact.blocks.containsKey(currentUserId)) {
+//            isBlocked = contact.blocks.get(currentUserId);
+//        }
+//        return isBlocked;
+//    }
+//
+//    public boolean isBlock(String userID) {
+//        if (currentUser.blocks == null || currentUser.blocks.containsKey(userID)) {
+//            return currentUser.blocks.get(userID);
+//        }
+//        return false;
+//    }
 
     //-------------------------------------------------------
     // End User region
@@ -133,13 +125,13 @@ public class ServiceManager {
 //        return markStatuses.get(currentUser.key);
 //    }
 
-    public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses, Map<String, Boolean> maskMessages) {
-        if (markStatuses == null || !markStatuses.containsKey(currentUser.key)) {
-            return getMaskSetting(maskMessages);
-        }
-
-        return markStatuses.get(currentUser.key);
-    }
+//    public Boolean getCurrentMarkStatus(Map<String, Boolean> markStatuses, Map<String, Boolean> maskMessages) {
+//        if (markStatuses == null || !markStatuses.containsKey(currentUser.key)) {
+//            return getMaskSetting(maskMessages);
+//        }
+//
+//        return markStatuses.get(currentUser.key);
+//    }
 
 //    public Boolean getCurrentDeleteStatus(Map<String, Boolean> deleteStatuses) {
 //        if (MapUtils.isEmpty(deleteStatuses) || !deleteStatuses.containsKey(currentUser.key)) {
@@ -169,12 +161,12 @@ public class ServiceManager {
 //        return notifications.get(currentUser.key);
 //    }
 
-    public Boolean getMaskSetting(Map<String, Boolean> maskMessages) {
-        if (maskMessages == null || !maskMessages.containsKey(currentUser.key)) {
-            return false;
-        }
-        return maskMessages.get(currentUser.key);
-    }
+//    public Boolean getMaskSetting(Map<String, Boolean> maskMessages) {
+//        if (maskMessages == null || !maskMessages.containsKey(currentUser.key)) {
+//            return false;
+//        }
+//        return maskMessages.get(currentUser.key);
+//    }
 
 //    public Boolean getPuzzleSetting(Map<String, Boolean> puzzleMessages) {
 //        if (MapUtils.isEmpty(puzzleMessages) || !puzzleMessages.containsKey(currentUser.key)) {
@@ -386,18 +378,18 @@ public class ServiceManager {
 //        });
 //    }
 
-    public void changeMaskOutputConversation(Conversation conversation, Boolean data) {
-        if (conversation.maskOutputs == null) {
-            conversation.maskOutputs = new HashMap<>();
-        }
-        conversation.maskOutputs.put(currentUser.key, data);
-        mDatabase.child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
-        if (conversation.members != null) {
-            for (User user : conversation.members) {
-                mDatabase.child("conversations").child(user.key).child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
-            }
-        }
-    }
+//    public void changeMaskOutputConversation(Conversation conversation, Boolean data) {
+//        if (conversation.maskOutputs == null) {
+//            conversation.maskOutputs = new HashMap<>();
+//        }
+//        conversation.maskOutputs.put(currentUser.key, data);
+//        mDatabase.child("conversations").child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
+//        if (conversation.members != null) {
+//            for (User user : conversation.members) {
+//                mDatabase.child("conversations").child(user.key).child(conversation.key).child("maskOutputs").child(currentUser.key).setValue(data);
+//            }
+//        }
+//    }
 
 //    public Boolean getDeleteStatusConversation(Conversation conversation) {
 //        if (MapUtils.isEmpty(conversation.deleteTimestamps) || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
@@ -488,31 +480,31 @@ public class ServiceManager {
         return returnMessage;
     }
 
-    public String encodeMessage(Map<String, String> mappings, String message) {
-        if (TextUtils.isEmpty(message))
-            return message;
-
-        String modifyMessage = message;
-        //modifyMessage = CommonMethod.foldToASCII(modifyMessage.toUpperCase().split(""));
-
-        String returnMessage = "";
-        String[] chars = message.split("");
-        for (int i = 0; i < chars.length; i++) {
-            Pattern p = Pattern.compile(emojiRegex);
-            if (p.matcher(chars[i]).matches()) {
-                returnMessage += chars[i];
-                continue;
-            }
-            String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
-            Object value = mappings.get(key);
-            if (value != null && !TextUtils.isEmpty(value.toString())) {
-                returnMessage += mappings.get(key);
-            } else {
-                returnMessage += chars[i];
-            }
-        }
-        return returnMessage;
-    }
+//    public String encodeMessage(Map<String, String> mappings, String message) {
+//        if (TextUtils.isEmpty(message))
+//            return message;
+//
+//        String modifyMessage = message;
+//        //modifyMessage = CommonMethod.foldToASCII(modifyMessage.toUpperCase().split(""));
+//
+//        String returnMessage = "";
+//        String[] chars = message.split("");
+//        for (int i = 0; i < chars.length; i++) {
+//            Pattern p = Pattern.compile(emojiRegex);
+//            if (p.matcher(chars[i]).matches()) {
+//                returnMessage += chars[i];
+//                continue;
+//            }
+//            String key = CommonMethod.foldToASCII(chars[i].toUpperCase());
+//            Object value = mappings.get(key);
+//            if (value != null && !TextUtils.isEmpty(value.toString())) {
+//                returnMessage += mappings.get(key);
+//            } else {
+//                returnMessage += chars[i];
+//            }
+//        }
+//        return returnMessage;
+//    }
 
 //    public String replaceSpecialChar(Context context, String msg) {
 //        if (StringUtils.isEmpty(msg)) {
@@ -532,24 +524,24 @@ public class ServiceManager {
 //        return msg;
 //    }
 
-    public void updateMarkStatus(String conversationID, String messageID, boolean markStatus) {
-        mDatabase.child("messages").child(conversationID).child(messageID).child("markStatuses").child(currentUser.key).setValue(markStatus);
-        mDatabase.child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
-        mDatabase.child("conversations").child(currentUser.key).child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
-    }
+//    public void updateMarkStatus(String conversationID, String messageID, boolean markStatus) {
+//        mDatabase.child("messages").child(conversationID).child(messageID).child("markStatuses").child(currentUser.key).setValue(markStatus);
+//        mDatabase.child("conversations").child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
+//        mDatabase.child("conversations").child(currentUser.key).child(conversationID).child("markStatuses").child(currentUser.key).setValue(markStatus);
+//    }
 
 //    public void updateMessageStatus(String conversationID, String messageID, int messageStatus) {
 //        mDatabase.child("messages").child(conversationID).child(messageID).child("status").
 //                child(currentUser.key).setValue(messageStatus);
 //    }
 
-    // Network
-    public boolean getNetworkStatus(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null
-                && activeNetwork.isConnectedOrConnecting();
-        return isConnected;
-    }
+//    // Network
+//    public boolean getNetworkStatus(Context context) {
+//        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+//        boolean isConnected = activeNetwork != null
+//                && activeNetwork.isConnectedOrConnecting();
+//        return isConnected;
+//    }
 }
 

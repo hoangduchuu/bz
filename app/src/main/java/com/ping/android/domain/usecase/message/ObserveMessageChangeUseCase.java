@@ -8,12 +8,12 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,26 +54,26 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                     }
                 })
                 .flatMap(childData -> {
-                    if (childData.type != ChildEvent.Type.CHILD_CHANGED) {
+                    if (childData.getType() != ChildData.Type.CHILD_CHANGED) {
                         return Observable.empty();
                     }
-                    Message message = childData.data;
+                    Message message = childData.getData();
                     boolean isReadable = message.isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     if (isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
-                    boolean isDeleted = CommonMethod.getBooleanFrom(childData.data.deleteStatuses, currentUser.key);
+                    boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, currentUser.key);
                     if (isDeleted) {
-                        if (childData.type == ChildEvent.Type.CHILD_CHANGED) {
-                            childData.type = ChildEvent.Type.CHILD_REMOVED;
+                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
+                            childData.setType(ChildData.Type.CHILD_REMOVED);
                             return Observable.just(childData);
                         } else {
                             return Observable.empty();
                         }
                     } else {
                         int status = CommonMethod.getIntFrom(message.status, currentUser.key);
-                        if (childData.type == ChildEvent.Type.CHILD_CHANGED) {
+                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
                             if (message.messageType == Constant.MSG_TYPE_GAME) {
                                 // Update status of game if not update
                                 if (!TextUtils.isEmpty(message.gameUrl)
@@ -85,12 +85,12 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                                 }
                             }
                             //updateReadStatus(message, params.conversation, status);
-                        } else if (childData.type == ChildEvent.Type.CHILD_ADDED) {
+                        } else if (childData.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
-                        return userRepository.getUser(childData.data.senderId)
+                        return userRepository.getUser(childData.getData().senderId)
                                 .map(user -> {
-                                    childData.data.sender = user;
+                                    childData.getData().sender = user;
                                     return childData;
                                 });
                     }

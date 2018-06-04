@@ -19,7 +19,7 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.addphone.AddPhoneComponent;
 import com.ping.android.dagger.loggedin.addphone.AddPhoneModule;
 import com.ping.android.presentation.presenters.AddPhonePresenter;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import javax.inject.Inject;
 

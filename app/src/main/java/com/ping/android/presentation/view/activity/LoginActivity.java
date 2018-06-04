@@ -104,7 +104,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(getApplicationContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -251,7 +251,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
 
     @Override
     public void navigateToMainScreen() {
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

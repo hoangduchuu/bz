@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
 
 public class PrivacyAndTermActivity extends CoreActivity implements View.OnClickListener {

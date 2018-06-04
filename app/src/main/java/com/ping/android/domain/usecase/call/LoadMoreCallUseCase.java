@@ -6,18 +6,18 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.entity.CallEntity;
+import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -32,6 +32,8 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
     UserRepository userRepository;
     @Inject
     ConversationRepository conversationRepository;
+    @Inject
+    CallMapper callMapper;
 
     @Inject
     public LoadMoreCallUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -43,31 +45,14 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
     public Observable<Output> buildUseCaseObservable(Double params) {
         return userRepository.getCurrentUser()
                 .flatMap(user -> userRepository.loadMoreCalls(user.key, params)
-                        .flatMap(dataSnapshot -> {
+                        .flatMap(callEntities -> {
                             List<Call> callList = new ArrayList<>();
                             double lastTimestamp = Double.MAX_VALUE;
-                            if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    if (!child.exists()) continue;
-                                    Call call = Call.from(child);
-                                    if (lastTimestamp > call.timestamp) {
-                                        lastTimestamp = call.timestamp;
-                                    }
-                                    if (call.status == Constant.CALL_STATUS_SUCCESS) {
-                                        if (call.senderId.equals(user.key)) {
-                                            call.type = Call.CallType.OUTGOING;
-                                        } else {
-                                            call.type = Call.CallType.INCOMING;
-                                        }
-                                    } else {
-                                        if (call.senderId.equals(user.key)) {
-                                            call.type = Call.CallType.OUTGOING;
-                                        } else {
-                                            call.type = Call.CallType.MISSED;
-                                        }
-                                    }
-                                    callList.add(call);
+                            for (CallEntity entity : callEntities) {
+                                if (lastTimestamp > entity.getTimestamp()) {
+                                    lastTimestamp = entity.getTimestamp();
                                 }
+                                callList.add(callMapper.transform(entity, user));
                             }
                             if (callList.size() > 0) {
                                 double finalLastTimestamp = lastTimestamp;
@@ -94,7 +79,7 @@ public class LoadMoreCallUseCase extends UseCase<LoadMoreCallUseCase.Output, Dou
                                         .map(calls -> {
                                             Output output = new Output();
                                             output.callList = calls;
-                                            output.canLoadMore = dataSnapshot.getChildrenCount() == 15;
+                                            output.canLoadMore = callEntities.size() == 15;
                                             output.lastTimestamp = finalLastTimestamp;
                                             return output;
                                         })

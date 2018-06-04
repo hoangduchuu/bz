@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.support.annotation.CallSuper;
 import android.support.transition.TransitionManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
@@ -20,12 +21,16 @@ import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageRightItem;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
@@ -49,20 +54,35 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public static MessageBaseItem from(Message message, String currentUserID, int conversationType) {
         MessageBaseItem baseItem;
-        switch (message.messageType) {
-            case Constant.MSG_TYPE_IMAGE:
-            case Constant.MSG_TYPE_GAME:
+        switch (message.type) {
+            case IMAGE:
+            case GAME:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new ImageMessageRightItem(message);
                 } else {
                     baseItem = new ImageMessageLeftItem(message);
                 }
                 break;
-            case Constant.MSG_TYPE_VOICE:
+            case VOICE:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new AudioMessageRightItem(message);
                 } else {
                     baseItem = new AudioMessageLeftItem(message);
+                }
+                break;
+            case VIDEO:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new VideoMessageRightItem(message);
+                } else {
+                    baseItem = new VideoMessageLeftItem(message);
+                }
+                break;
+            case CALL:
+//            case MISSED_CALL:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new CallMessageRightItem(message);
+                } else {
+                    baseItem = new CallMessageLeftItem(message);
                 }
                 break;
             default:
@@ -112,7 +132,8 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public boolean lastItem;
         private float mInitialTranslateX = ResourceUtils.dpToPx(80);
 
-        protected MessageListener messageListener;
+        protected @Nullable
+        MessageListener messageListener;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
@@ -136,6 +157,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
             this.nickNames = nickNames;
         }
 
+        @CallSuper
         public void bindData(MessageBaseItem item, boolean lastItem) {
             this.item = item;
             this.lastItem = lastItem;
@@ -334,5 +356,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void selectMessage(MessageBaseItem item);
 
         void unSelectMessage(MessageBaseItem item);
+
+        void openVideo(@NotNull String videoUrl);
+
+        void onCall(boolean isVideo);
     }
 }

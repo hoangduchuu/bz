@@ -5,6 +5,8 @@ apply plugin: 'kotlin-kapt'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
+
     mavenCentral()
     jcenter()
     maven { url "https://dl.bintray.com/drummer-aidan/maven" }
@@ -29,18 +31,24 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 80
-        versionName "2.2.3"
+        versionCode 90
+        versionName "2.3.5"
         multiDexEnabled true
     }
     buildTypes {
         release {
             //debuggable true
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+            ndk {
+                abiFilters "arm64-v8a", "armeabi-v7a"
+            }
         }
         debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationIdSuffix ".debug"
             // Disable fabric build ID generation for debug builds
             ext.enableCrashlytics = false
@@ -64,6 +72,37 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     buildToolsVersion '27.0.3'
+
+    aaptOptions {
+        // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg
+        ignoreAssetsPattern "!ffprobe:"
+    }
+//    packagingOptions {
+//        pickFirst 'lib/armeabi-v7a/libavcodec.so'
+//        pickFirst 'lib/armeabi-v7a/libavformat.so'
+//        pickFirst 'lib/armeabi-v7a/libavutil.so'
+//        pickFirst 'lib/armeabi-v7a/libswscale.so'
+//        pickFirst 'lib/armeabi-v7a/libswresample.so'
+//
+//        pickFirst 'lib/x86/libavcodec.so'
+//        pickFirst 'lib/x86/libavformat.so'
+//        pickFirst 'lib/x86/libavutil.so'
+//        pickFirst 'lib/x86/libswscale.so'
+//        pickFirst 'lib/x86/libswresample.so'
+//
+//
+//    }
+
+    // Quickblox SDK
+    //There is code for excluding some native libs (it useful if you need reduce apk size and want
+    //build apk only for specific platform). This method allows you to achieve savings about 10MB
+    //of apk's size (but you need build 4 different apks).
+//    packagingOptions {
+//        exclude '**/armeabi-v7a/libjingle_peerconnection_so.so'
+//        exclude '**/arm64-v8a/libjingle_peerconnection_so.so'
+//        exclude '**/x86_64/libjingle_peerconnection_so.so'
+//        exclude '**/x86/libjingle_peerconnection_so.so'
+//    }
 }
 
 kapt {
@@ -75,8 +114,12 @@ def libraries = rootProject.ext.libraries
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
+    implementation project(':configuration')
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
+    implementation(project(path: ':videorecorder')) {
+        exclude group: 'org.bytedeco'
+    }
     implementation(project(path: ':rxfirebase')) {
         exclude group: 'com.google.firebase'
     }
@@ -159,6 +202,18 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
+
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+
+    implementation 'com.cleveroad:audiovisualization:1.0.0'
+    implementation 'nl.bravobit:android-ffmpeg:1.1.2'
+
+//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

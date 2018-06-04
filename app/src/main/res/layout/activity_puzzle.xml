@@ -11,7 +11,13 @@
         android:background="@color/main_background_white"
         android:orientation="vertical">
 
-        <RelativeLayout style="@style/TopMenu">
+        <RelativeLayout
+            android:id="@+id/header"
+            style="?attr/backgroundTheme"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#F1F2F2"
+            android:gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/puzzle_back"
@@ -36,7 +42,7 @@
 
             <com.ping.android.presentation.view.custom.TouchImageView
                 android:id="@+id/puzzle_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:src="@drawable/img_loading_bottom"

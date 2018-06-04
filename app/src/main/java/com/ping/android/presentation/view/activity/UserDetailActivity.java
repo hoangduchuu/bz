@@ -15,7 +15,7 @@ import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -133,7 +133,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onMessage() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -141,7 +141,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onVoiceCall() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -149,7 +149,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onVideoCall() {
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (!isNetworkAvailable()) {
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }

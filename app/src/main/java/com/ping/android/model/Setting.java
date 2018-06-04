@@ -1,7 +1,7 @@
 package com.ping.android.model;
 
 import com.google.firebase.database.DataSnapshot;
-import com.ping.android.ultility.CommonMethod;
+import com.ping.android.utils.CommonMethod;
 
 import java.util.HashMap;
 import java.util.Map;

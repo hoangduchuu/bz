@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
-import com.ping.android.ultility.CommonMethod;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

@@ -10,6 +10,7 @@ import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.utils.Navigator;
 
@@ -79,6 +80,11 @@ public class BaseFragment extends Fragment {
         if (activity instanceof CoreActivity) {
             ((CoreActivity) activity).hideLoading();
         }
+    }
+
+    public boolean isNetworkAvailable() {
+        Activity activity = getActivity();
+        return activity instanceof CoreActivity && ((CoreActivity) activity).networkStatus == NetworkStatus.CONNECTED;
     }
 
     protected BasePresenter getPresenter() {

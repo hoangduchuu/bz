@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -14,6 +15,7 @@ import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationUseCase;
+import com.ping.android.domain.usecase.conversation.UpdateMaskOutputConversationUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
@@ -26,10 +28,11 @@ import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
+import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.model.ChildData;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -37,11 +40,12 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +89,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
     @Inject
+    SendVideoMessageUseCase sendVideoMessageUseCase;
+    @Inject
     ResendMessageUseCase resendMessageUseCase;
     @Inject
     UpdateConversationUseCase updateConversationUseCase;
@@ -92,6 +98,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     DeleteMessagesUseCase deleteMessagesUseCase;
     @Inject
     UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
+    @Inject
+    UpdateMaskOutputConversationUseCase updateMaskOutputConversationUseCase;
     @Inject
     ObserveConversationValueFromExistsConversationUseCase observeConversationValueFromExistsConversationUseCase;
     @Inject
@@ -170,6 +178,12 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Conversation conv) {
                 handleConversationUpdate(conv);
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+                view.hideLoading();
+            }
         }, conversationId);
     }
 
@@ -222,7 +236,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if (!message.senderId.equals(currentUser.key)) {
             if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
-                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key));
+                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.messageType));
             }
         }
     }
@@ -232,27 +246,27 @@ public class ChatPresenterImpl implements ChatPresenter {
             messagesInBackground.add(messageChildData);
             return;
         }
-        int status = CommonMethod.getIntFrom(messageChildData.data.status, currentUser.key);
-        updateReadStatus(messageChildData.data, status);
-        prepareMessageStatus(messageChildData.data);
-        switch (messageChildData.type) {
+        int status = CommonMethod.getIntFrom(messageChildData.getData().status, currentUser.key);
+        updateReadStatus(messageChildData.getData(), status);
+        prepareMessageStatus(messageChildData.getData());
+        switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
-                checkMessageError(messageChildData.data);
+                checkMessageError(messageChildData.getData());
                 updateConversationReadStatus();
-                addMessage(messageChildData.data);
+                addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:
-                MessageHeaderItem headerItem = headerItemMap.get(messageChildData.data.days);
+                MessageHeaderItem headerItem = headerItemMap.get(messageChildData.getData().days);
                 if (headerItem != null) {
-                    MessageBaseItem item = headerItem.getChildItem(messageChildData.data);
+                    MessageBaseItem item = headerItem.getChildItem(messageChildData.getData());
                     if (item != null) {
                         view.removeMessage(headerItem, item);
                     }
                 }
                 break;
             case CHILD_CHANGED:
-                addMessage(messageChildData.data);
+                addMessage(messageChildData.getData());
                 break;
         }
     }
@@ -261,6 +275,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
             prepareMessageStatus(message);
+            message.opponentUser = conversation.opponentUser;
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
@@ -282,6 +297,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = new MessageHeaderItem();
             headerItemMap.put(message.days, headerItem);
         }
+        message.opponentUser = conversation.opponentUser;
         MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
         boolean added = headerItem.addChildItem(item);
         view.updateMessage(item, headerItem, added);
@@ -367,13 +383,14 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void sendAudioMessage(String audioUrl) {
+    public void sendAudioMessage(String audioUrl, VoiceType voiceType) {
         if (!beAbleToSendMessage()) return;
         SendAudioMessageUseCase.Params params = new SendAudioMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
         params.filePath = audioUrl;
-        params.messageType = MessageType.AUDIO;
+        params.messageType = MessageType.VOICE;
+        params.voiceType = voiceType;
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
@@ -385,6 +402,28 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendVideoMessage(String videoPath) {
+        if (!beAbleToSendMessage()) return;
+        SendVideoMessageUseCase.Params params = new SendVideoMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.filePath = videoPath;
+        params.messageType = MessageType.VIDEO;
+        sendVideoMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                super.onNext(message);
+                if (!message.isCached) {
+                    sendNotification(conversation, message);
+                } else {
+                    ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
+                    handleMessageData(childData);
+                }
             }
         }, params);
     }
@@ -406,6 +445,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     public void updateConversationLastMessage(@Nullable Message lastMessage) {
         Conversation conversation = new Conversation(this.conversation.conversationType,
                 lastMessage != null ? lastMessage.messageType : Constant.MSG_TYPE_TEXT,
+                lastMessage != null ? lastMessage.callType : 0,
                 lastMessage != null ? lastMessage.message : "",
                 this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs,
                 lastMessage != null ? lastMessage.markStatuses : new HashMap<>(),
@@ -529,20 +569,20 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void observeConversationUpdate() {
-
         observeConversationValueFromExistsConversationUseCase
                 .execute(new DefaultObserver<Conversation>() {
                              @Override
                              public void onNext(Conversation conv) {
-                                 conversation = conv;
                                  if (conv.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                      String opponentUserId = conv.opponentUser.key;
                                      String nickName = conv.nickNames.get(opponentUserId);
+                                     conv.opponentUser.nickName = nickName;
                                      String title = TextUtils.isEmpty(nickName) ? conv.opponentUser.getDisplayName() : nickName;
                                      view.updateConversationTitle(title);
                                  } else {
                                      view.updateNickNames(conv.nickNames);
                                  }
+                                 conversation = conv;
                              }
                          },
                         new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));
@@ -632,8 +672,11 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void handleShakePhone() {
-
+    public void updateMaskOutput(boolean checked) {
+        UpdateMaskOutputConversationUseCase.Params params = new UpdateMaskOutputConversationUseCase.Params(
+                conversation.key, conversation.memberIDs, checked
+        );
+        updateMaskOutputConversationUseCase.execute(new DefaultObserver<>(), params);
     }
 
     private void sendNotification(Conversation conversation, Message message) {
@@ -644,7 +687,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private void checkMessageError(Message message) {
         int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.messageType == Constant.MSG_TYPE_TEXT) {
+            if (status == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
                 resendMessage(message);
             }
         }
@@ -673,6 +716,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         getLastMessagesUseCase.dispose();
         deleteMessagesUseCase.dispose();
         updateMaskMessagesUseCase.dispose();
+        updateMaskOutputConversationUseCase.dispose();
         toggleConversationTypingUseCase.dispose();
         observeConversationColorUseCase.dispose();
 //        sendTextMessageUseCase.dispose();

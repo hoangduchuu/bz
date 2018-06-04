@@ -7,7 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
 
@@ -28,10 +28,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public Observable<DataSnapshot> getLastMessages(String conversationId) {
         DatabaseReference reference = database.getReference("messages").child(conversationId);
-        reference.keepSynced(true);
+        //reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
+        query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
                 .toObservable();
@@ -70,10 +71,11 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Observable<ChildEvent> observeLastMessage(String conversationId) {
-        Query query = database.getReference("messages").child(conversationId)
+        DatabaseReference reference = database.getReference("messages").child(conversationId);
+        reference.keepSynced(true);
+        Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(1);
-        query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
                 .onChildEvent();
     }
@@ -84,5 +86,12 @@ public class MessageRepositoryImpl implements MessageRepository {
         return RxFirebaseDatabase.setValue(reference, status)
                 .map(reference1 -> true)
                 .toObservable();
+    }
+
+    @Override
+    public Observable<ChildEvent> observeMediaUpdate(String conversationId) {
+        DatabaseReference reference = database.getReference("media").child(conversationId);
+        return RxFirebaseDatabase.getInstance(reference)
+                .onChildEvent();
     }
 }

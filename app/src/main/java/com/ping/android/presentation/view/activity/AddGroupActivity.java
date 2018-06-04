@@ -18,12 +18,14 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
 import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
+import com.ping.android.device.Device;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
@@ -235,7 +237,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
             Toaster.shortToast("Name this group.");
             return;
         }
-        if (!ServiceManager.getInstance().getNetworkStatus(this)) {
+        if (networkStatus != NetworkStatus.CONNECTED) {
             Toaster.shortToast("Please check network connection.");
             return;
         }
@@ -306,7 +308,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
                 "profile" + File.separator + key;
         double timestamp = System.currentTimeMillis() / 1000d;
-        String profileFileName = "" + timestamp + "-" + key + ".png";
+        String profileFileName = "" + timestamp + "-" + key + ".jpeg";
         String profileFilePath = profileFileFolder + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)

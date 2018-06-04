@@ -155,8 +155,9 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     companion object {
         @JvmStatic
         fun newInstance(conversation: Conversation) = BackgroundFragment().apply {
-            arguments = Bundle()
-            arguments?.putParcelable("conversation", conversation)
+            arguments = Bundle().apply {
+                putParcelable("conversation", conversation)
+            }
         }
     }
 }

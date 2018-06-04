@@ -14,18 +14,17 @@ object AdapterConstants {
 }
 
 class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private val items: ArrayList<ViewType>
+    private var items: ArrayList<ViewType>
 
-    private val delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
+    private val delegateAdapters: SparseArrayCompat<ViewTypeDelegateAdapter> = SparseArrayCompat()
 
     init {
-        delegateAdapters.put(AdapterConstants.LOADING, LoadingDelegateAdapter())
         items = ArrayList()
     }
 
     fun registerItemType(type: Int, viewTypeDelegate: ViewTypeDelegateAdapter) {
         if (delegateAdapters[type] != null) {
-            throw RuntimeException("Register same view type for multiple delegate")
+            throw RuntimeException("Register same view type $type for multiple delegate ${delegateAdapters[type]}")
         }
         delegateAdapters.put(type, viewTypeDelegate)
     }
@@ -45,7 +44,13 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     fun addItems(newItems: List<ViewType>) {
+        val size = items.size
         items.addAll(newItems)
+        notifyItemRangeInserted(size, newItems.size)
+    }
+
+    fun updateItems(items: List<ViewType>) {
+        this.items = ArrayList(items)
         notifyDataSetChanged()
     }
 }

@@ -11,8 +11,7 @@ import android.widget.ToggleButton;
 
 import com.ping.android.R;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import java.util.ArrayList;
@@ -103,10 +102,6 @@ public class AddContactAdapter extends RecyclerView.Adapter<AddContactAdapter.Vi
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.contact_add_friend:
-                    if (!ServiceManager.getInstance().getNetworkStatus(itemView.getContext())) {
-                        tgAddFriend.setChecked(true);
-                        return;
-                    }
                     tgAddFriend.setChecked(false);
                     tgAddFriend.setEnabled(false);
                     clickListener.onAddFriend(contact);

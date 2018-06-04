@@ -16,7 +16,7 @@ import android.widget.ToggleButton;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
 import com.ping.android.data.db.QbUsersDbManager;
-import com.ping.android.ultility.Consts;
+import com.ping.android.utils.configs.Consts;
 import com.ping.android.utils.RingtonePlayer;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.users.model.QBUser;

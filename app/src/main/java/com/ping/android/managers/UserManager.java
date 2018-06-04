@@ -1,13 +1,12 @@
 package com.ping.android.managers;
 
-import android.app.Activity;
-import android.content.Context;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.model.User;
-import com.ping.android.service.CallService;
 import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.SharedPrefsHelper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -15,24 +14,12 @@ import com.ping.android.utils.SharedPrefsHelper;
 
 public class UserManager {
     private User user;
+    private Map<String, Boolean> friends;
+    // Currently, users will be cached for later use.
+    // Should improve by invalidate user after a certain of time
+    private Map<String, User> cachedUsers = new HashMap<>();
 
-    private static UserManager instance;
-
-    public static UserManager getInstance() {
-        if (instance == null) {
-            instance = new UserManager();
-        }
-        return instance;
-    }
-
-    private UserManager() {
-    }
-
-    public void startCallService(Context context) {
-        Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
-        String pingId = SharedPrefsHelper.getInstance().get("pingId");
-        CallService.start(context, qbId, pingId);
-    }
+    public UserManager() { }
 
     public void setUser(User user) {
         this.user = user;

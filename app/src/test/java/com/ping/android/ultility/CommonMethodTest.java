@@ -1,5 +1,8 @@
 package com.ping.android.ultility;
 
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -7,7 +10,6 @@ import junit.framework.TestCase;
  * Created by tuanluong on 12/12/17.
  */
 public class CommonMethodTest extends TestCase {
-
     public void testCapitalFirstLetter() throws Exception {
         String before = "tuan";
         String result = CommonMethod.capitalFirstLetter(before);
@@ -20,6 +22,12 @@ public class CommonMethodTest extends TestCase {
         String before2 = "tUAN";
         String result2 = CommonMethod.capitalFirstLetter(before2);
         Assert.assertEquals(result2, "Tuan");
+    }
+
+    public void testCapitalFirstLetters() {
+        String sample = "luong ANH TUan";
+        String result = CommonMethod.capitalFirstLetters(sample);
+        Assert.assertEquals(result, "Luong Anh Tuan");
     }
 
     public void testValidPassword() {

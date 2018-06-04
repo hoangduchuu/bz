@@ -11,8 +11,8 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.model.enums.VoiceType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +48,7 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
                     builder = new SendMessageUseCase.Params.Builder()
                             .setMessageType(params.messageType)
                             .setConversation(params.conversation)
+                            .setVoiceType(params.voiceType)
                             .setCurrentUser(params.currentUser)
                             .setMessageKey(s);
                     return sendMessageUseCase.buildUseCaseObservable(builder.build())
@@ -61,17 +62,17 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
     }
 
     private Observable<Message> sendMessage(Params params) {
-        return this.uploadImage(params.conversation.key, params.filePath)
+        return this.uploadFile(params.conversation.key, params.filePath)
                 .map(s -> {
-                    builder.setImageUrl(s);
+                    builder.setFileUrl(s);
                     return builder.build();
                 })
                 .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1));
     }
 
-    private Observable<String> uploadImage(String conversationKey, String filePath) {
+    private Observable<String> uploadFile(String conversationKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        return storageRepository.uploadImageMessage(conversationKey, filePath);
+        return storageRepository.uploadFile(conversationKey, filePath);
     }
 
     public static class Params {
@@ -79,5 +80,6 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
         public Conversation conversation;
         public User currentUser;
         public MessageType messageType;
+        public VoiceType voiceType;
     }
 }

@@ -17,7 +17,7 @@
             style="?attr/backgroundTheme"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:background="#F1F2F2"
+            android:background="@drawable/bg_bottom_gray"
             android:gravity="center_vertical">
 
             <ImageView
@@ -26,12 +26,14 @@
 
             <TextView
                 style="@style/TextTitle"
-                android:text="GALLERY" />
+                android:text="@string/conversation_detail_media"
+                android:textAllCaps="true" />
         </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gallery_list"
             android:layout_width="match_parent"
+            android:layout_marginTop="30dp"
             android:layout_height="match_parent" />
     </LinearLayout>
 </FrameLayout>

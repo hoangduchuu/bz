@@ -26,7 +26,8 @@ public class Navigator {
     private NavigationListener mNavigationListener;
     private String rootTag;
 
-    public Navigator() {}
+    public Navigator() {
+    }
 
     /**
      * Initialize the NavigatorImpl with a FragmentManager, which will be used at the
@@ -119,13 +120,14 @@ public class Navigator {
     }
 
     public void moveToFragment(BaseFragment fragment, Map<String, View> map) {
-            FragmentTransaction transaction = mFragmentManager.beginTransaction();
-            transaction.replace(containerId, fragment);
-            for (String key : map.keySet()) {
-                transaction.addSharedElement(map.get(key), key);
-            }
-            transaction.addToBackStack(fragment.getClass().getName())
-                    .commit();
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        transaction.replace(containerId, fragment);
+        transaction.setReorderingAllowed(true);
+        for (String key : map.keySet()) {
+            transaction.addSharedElement(map.get(key), key);
+        }
+        transaction.addToBackStack(fragment.getClass().getName())
+                .commit();
     }
 
     /**

@@ -29,8 +29,8 @@ import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
-import com.ping.android.ultility.CommonMethod;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -208,12 +208,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         });
     }
 
+
+
     private void createAccount() {
-        final String firstName = txtFirstName.getText().toString().trim();
-        final String lastName = txtLastName.getText().toString().trim();
+        String _firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
+        final String firstName = CommonMethod.capitalFirstLetters(_firstName);
+        String _lastName = txtLastName.getText().toString().trim().replaceAll(" +", " ");
+        final String lastName = CommonMethod.capitalFirstLetters(_lastName);
         final String pingId = txtPingId.getText().toString().trim().toLowerCase();
         final String email = txtEmail.getText().toString().trim().toLowerCase();
         final String password = txtPassword.getText().toString().trim();
+
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -311,7 +316,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     @Override
     public void navigateToMainScreen() {
-        UserManager.getInstance().startCallService(this);
+        startCallService(this);
         Intent intent = new Intent(RegistrationActivity.this, PhoneActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

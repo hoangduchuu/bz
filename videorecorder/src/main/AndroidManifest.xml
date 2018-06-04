@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bzzzchat.videorecorder">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application>
+        <activity android:name=".view.VideoRecorderActivity" />
+
+        <provider
+            android:name=".util.VideoRecordFileProvider"
+            android:authorities="{applicationId}.videorecorder.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/video_provider_paths" />
+        </provider>
+
+        <activity android:name=".view.VideoPlayerActivity"
+            android:theme="@style/AppTheme.Fullscreen" />
+    </application>
+
+</manifest>

@@ -14,7 +14,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,10 +57,10 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
-        builder.setImageUrl("PPhtotoMessageIdentifier");
+        builder.setFileUrl("PPhtotoMessageIdentifier");
         Message cachedMessage = builder.build().getMessage();
         cachedMessage.isCached = true;
-        cachedMessage.localImage = params.filePath;
+        cachedMessage.localFilePath = params.filePath;
         cachedMessage.days = (long) (cachedMessage.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
@@ -71,7 +71,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
                         .map(message1 -> {
                             message1.isCached = true;
-                            message1.localImage = params.filePath;
+                            message1.localFilePath = params.filePath;
                             message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))
@@ -81,20 +81,21 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     private Observable<Message> sendMessage(Params params) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .map(s -> {
-                    builder.setImageUrl(s);
+                    builder.setFileUrl(s);
                     return builder.build();
                 })
                 .flatMap(params1 -> {
                     Message message = params1.getMessage();
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
+                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
                     return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
                 });
     }
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        return storageRepository.uploadImageMessage(conversationKey, filePath);
+        return storageRepository.uploadFile(conversationKey, filePath);
     }
 
     public static class Params {

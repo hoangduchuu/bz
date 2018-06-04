@@ -3,13 +3,13 @@ package com.ping.android.domain.usecase.conversation;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +28,8 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
     UserRepository userRepository;
     @Inject
     GroupRepository groupRepository;
+    @Inject
+    ConversationMapper mapper;
 
     @Inject
     public ObserveConversationUpdateUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -40,8 +42,7 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
         return userRepository.getCurrentUser()
                 .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
                         .flatMap(dataSnapshot -> {
-                            Conversation conversation = Conversation.from(dataSnapshot);
-                            conversation.currentColor = conversation.getColor(user.key);
+                            Conversation conversation = mapper.transform(dataSnapshot, user);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         conversation.members = users;

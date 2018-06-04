@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -16,8 +17,11 @@ import com.ping.android.R;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
-import com.ping.android.ultility.Constant;
+import com.ping.android.service.CallService;
+import com.ping.android.utils.SharedPrefsHelper;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
 
 import java.util.HashMap;
@@ -32,21 +36,21 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
     // Disposable for UI events
     private CompositeDisposable disposables;
-    public Constant.NETWORK_STATUS networkStatus;
+    public NetworkStatus networkStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         disposables = new CompositeDisposable();
         initWiFiManagerListener();
-        Constant.NETWORK_STATUS networkStatus = networkConnectionChecker.getNetworkStatus();
+        NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
         updateNetworkStatus(networkStatus);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Constant.NETWORK_STATUS networkStatus = networkConnectionChecker.getNetworkStatus();
+        NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
         updateNetworkStatus(networkStatus);
     }
 
@@ -90,6 +94,10 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     }
 
+    public boolean isNetworkAvailable() {
+        return networkStatus == NetworkStatus.CONNECTED;
+    }
+
     protected BasePresenter getPresenter() {
         return null;
     }
@@ -111,11 +119,11 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     }
 
     @Override
-    public void connectivityChanged(Constant.NETWORK_STATUS networkStatus) {
+    public void connectivityChanged(NetworkStatus networkStatus) {
         updateNetworkStatus(networkStatus);
     }
 
-    private void updateNetworkStatus(Constant.NETWORK_STATUS networkStatus) {
+    private void updateNetworkStatus(NetworkStatus networkStatus) {
         this.networkStatus = networkStatus;
         LinearLayout notifyNetworkLayout = findViewById(R.id.notify_network_layout);
         TextView notifyNetworkText = findViewById(R.id.notify_network_text);
@@ -131,7 +139,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_connecting);
                 notifyNetworkText.setText(getString(R.string.msg_network_connecting));
                 break;
-            case NOCONNECT:
+            case NOT_CONNECT:
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
                 notifyNetworkText.setText(getString(R.string.no_internet_connection));
@@ -161,5 +169,11 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         if (loadingDialog != null) {
             loadingDialog.dismissAllowingStateLoss();
         }
+    }
+
+    public void startCallService(Context context) {
+        Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
+        String pingId = SharedPrefsHelper.getInstance().get("pingId");
+        CallService.start(context, qbId, pingId);
     }
 }

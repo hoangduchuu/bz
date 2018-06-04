@@ -86,7 +86,7 @@ public class CallService extends Service {
 
     private void logUserOut() {
         handler.logout();
-        stopSelf();
+        //stopSelf();
     }
 
     private void logUserIn(Intent intent) {

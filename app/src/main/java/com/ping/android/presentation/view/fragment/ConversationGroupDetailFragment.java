@@ -26,16 +26,18 @@ import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDet
 import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
+import com.ping.android.presentation.view.activity.GalleryActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
-import com.ping.android.ultility.Constant;
+import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Navigator;
@@ -178,7 +180,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
     }
 
     private void onColorClicked() {
-        colorPickerBottomSheetDialog.show();
+        if (getActivity() != null && !getActivity().isDestroyed()) {
+            colorPickerBottomSheetDialog.show();
+        }
     }
 
     private void onNickNameClicked() {
@@ -219,7 +223,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         }
 
         if (getActivity() != null && getActivity() instanceof CoreActivity) {
-            if (((CoreActivity) getActivity()).networkStatus != Constant.NETWORK_STATUS.CONNECTED) {
+            if (!isNetworkAvailable()) {
                 navigateBack();
                 return;
             }
@@ -269,6 +273,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         recyclerView.setLayoutManager(new GridLayoutManager(view.getContext(), 5));
         colorAdapter = new ColorAdapter(DataProvider.getDefaultColors());
         colorAdapter.setListener(color -> {
+            colorPickerBottomSheetDialog.dismiss();
             presenter.updateColor(color.getCode());
         });
         recyclerView.setAdapter(colorAdapter);
@@ -340,7 +345,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void navigateBack() {
         if (getActivity() != null) {
-            getActivity().finishAfterTransition();
+            getActivity().finish();
         }
     }
 
@@ -382,6 +387,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     @Override
     public void moveToGallery(Conversation conversation) {
-        navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
+        //navigator.moveToFragment(GridGalleryFragment.newInstance(conversation));
+        Intent intent = new Intent(getContext(), GalleryActivity.class);
+        intent.putExtra("conversation", conversation);
+        startActivity(intent);
     }
 }

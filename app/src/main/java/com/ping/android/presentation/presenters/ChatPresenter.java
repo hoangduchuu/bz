@@ -7,6 +7,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 
@@ -30,7 +31,9 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus);
 
-    void sendAudioMessage(String audioUrl);
+    void sendAudioMessage(String audioUrl, VoiceType voiceType);
+
+    void sendVideoMessage(String videoPath);
 
     void resendMessage(Message message);
 
@@ -50,7 +53,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void initThemeColor(Color currentColor);
 
-    void handleShakePhone();
+    void updateMaskOutput(boolean checked);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
