@@ -27,6 +27,8 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Group> {
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public LeaveGroupUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -36,7 +38,7 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Group> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Group group) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String userId = user.key;
                     Map<String, Object> updateValue = new HashMap<>();

@@ -45,6 +45,7 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
                     userManager.setUser(user);
                     return user;
                 })
+                .doOnNext(userManager::setUser)
                 .map(qbUser -> true);
     }
 

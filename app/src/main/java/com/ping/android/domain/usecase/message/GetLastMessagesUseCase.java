@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -30,6 +31,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     MessageRepository messageRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public GetLastMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -39,7 +42,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Conversation conversation) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.getLastMessages(conversation.key)
                         .map(dataSnapshot -> {
                             Output output = new Output();

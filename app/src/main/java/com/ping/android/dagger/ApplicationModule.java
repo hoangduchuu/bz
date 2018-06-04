@@ -66,10 +66,4 @@ public class ApplicationModule {
     public CallServiceHandler provideCallServiceHandler(CallServiceHandlerImpl handler) {
         return handler;
     }
-
-    @Provides
-    @Singleton
-    public UserManager provideUserManager() {
-        return new UserManager();
-    }
 }

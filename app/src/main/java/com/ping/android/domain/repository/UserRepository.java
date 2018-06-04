@@ -61,7 +61,7 @@ public interface UserRepository {
 
     Observable<Boolean> updatePhoneNumber(String userKey, String s);
 
-    Observable<DataSnapshot> observeMappings(String key);
+    Observable<Map<String, String>> observeMappings(String key);
 
     Observable<List<User>> getUserList(Map<String, Boolean> userIds);
 

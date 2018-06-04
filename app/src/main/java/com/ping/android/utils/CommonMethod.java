@@ -9,6 +9,7 @@ import android.text.format.DateUtils;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
@@ -283,6 +284,34 @@ public class CommonMethod {
             }
         }
         return returnMessage;
+    }
+
+    public static String getCallDuration(Context context, double duration) {
+        int minutes = (int) duration / 60;
+        int seconds = (int) duration % 60;
+        StringBuilder builder = new StringBuilder();
+        if (minutes > 0) {
+            builder.append(String.format(context.getResources().getQuantityString(R.plurals.plural__minute, minutes), minutes));
+        }
+        if (seconds > 0 || minutes == 0) {
+            builder.append(String.format(context.getResources().getQuantityString(R.plurals.plural__second, seconds), seconds));
+        }
+        return builder.toString();
+    }
+
+    public static String getDisplayTime(double timestamps) {
+        Date date = new Date((long) timestamps * 1000);
+        if (com.ping.android.utils.DateUtils.isSameDay(date.getTime(), new Date().getTime())) {
+            return com.ping.android.utils.DateUtils.toString("h:mm a", date);
+        } else if (com.ping.android.utils.DateUtils.isYesterday(date)) {
+            return "Yesterday";
+        } else {
+            if (com.ping.android.utils.DateUtils.withinOneWeek(date)) {
+                return com.ping.android.utils.DateUtils.toString("EEEE", date);
+            } else {
+                return com.ping.android.utils.DateUtils.toString("MMMM d, yyyy", date);
+            }
+        }
     }
 
     public static String convertTimestampToTime(double seconds) {

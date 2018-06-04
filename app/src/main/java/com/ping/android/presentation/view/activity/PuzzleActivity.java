@@ -11,7 +11,6 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;

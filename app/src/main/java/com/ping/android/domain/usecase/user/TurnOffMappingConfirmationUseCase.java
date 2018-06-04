@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -14,6 +15,8 @@ import io.reactivex.Observable;
 public class TurnOffMappingConfirmationUseCase extends UseCase<Boolean, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public TurnOffMappingConfirmationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -23,7 +26,7 @@ public class TurnOffMappingConfirmationUseCase extends UseCase<Boolean, Void> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.turnOffMappingConfirmation(user.key));
     }
 }

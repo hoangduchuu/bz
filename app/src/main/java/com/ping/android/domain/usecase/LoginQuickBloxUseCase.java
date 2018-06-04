@@ -32,7 +32,7 @@ public class LoginQuickBloxUseCase extends UseCase<Boolean, Void> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> loginWithQuickBlox(user)
                         .map(qbUser -> {
                             user.quickBloxID = qbUser.getId();

@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,8 @@ public class DeleteMessagesUseCase extends UseCase<Boolean, DeleteMessagesUseCas
     UserRepository userRepository;
     @Inject
     CommonRepository commonRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public DeleteMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -35,7 +38,7 @@ public class DeleteMessagesUseCase extends UseCase<Boolean, DeleteMessagesUseCas
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
                     for (Message message : params.messages) {

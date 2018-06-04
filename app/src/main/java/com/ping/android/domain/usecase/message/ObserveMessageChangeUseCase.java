@@ -9,6 +9,7 @@ import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -30,6 +31,8 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     MessageRepository messageRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     User currentUser;
 
@@ -88,7 +91,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         } else if (childData.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
-                        return userRepository.getUser(childData.getData().senderId)
+                        return getUser(childData.getData().senderId)
                                 .map(user -> {
                                     childData.getData().sender = user;
                                     return childData;
@@ -114,6 +117,14 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                 //}
             }
         }
+    }
+
+    private Observable<User> getUser(String userId) {
+        User user = userManager.getCacheUser(userId);
+        if (user != null) {
+            return Observable.just(user);
+        }
+        return userRepository.getUser(userId);
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

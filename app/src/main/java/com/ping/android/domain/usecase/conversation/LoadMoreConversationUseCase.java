@@ -9,7 +9,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,8 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
     @Inject
     UserRepository userRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     ConversationMapper mapper;
 
     @Inject
@@ -41,7 +45,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
     @NotNull
     @Override
     public Observable<Output> buildUseCaseObservable(Double params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> conversationRepository.loadMoreConversation(user.key, params)
                         .flatMap(dataSnapshot -> {
                             List<Conversation> conversations = new ArrayList<>();
@@ -66,7 +70,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                             if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                                 for (String userId : conversation.memberIDs.keySet()) {
                                                     if (!user.key.equals(userId)) {
-                                                        return userRepository.getUser(userId)
+                                                        return getUser(userId)
                                                                 .map(user1 -> {
                                                                     conversation.opponentUser = user1;
                                                                     conversation.conversationAvatarUrl = user1.profile;
@@ -103,6 +107,14 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                             }
                         })
                 );
+    }
+
+    private Observable<User> getUser(String userId) {
+        User user = userManager.getCacheUser(userId);
+        if (user != null) {
+            return Observable.just(user);
+        }
+        return userRepository.getUser(userId);
     }
 
     public static class Output {

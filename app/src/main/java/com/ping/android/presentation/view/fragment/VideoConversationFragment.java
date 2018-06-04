@@ -153,8 +153,8 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     }
 
     @Override
-    protected void hangup() {
-        presenter.hangup();
+    protected void hangup(double duration) {
+        presenter.hangup(duration);
     }
 
     @Override

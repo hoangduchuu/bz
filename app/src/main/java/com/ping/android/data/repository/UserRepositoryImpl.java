@@ -35,11 +35,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     private FirebaseDatabase database;
     private FirebaseAuth auth;
-    private User user;
-    private Map<String, Boolean> friends;
+//    private User user;
     // Currently, users will be cached for later use.
     // Should improve by invalidate user after a certain of time
-    private Map<String, User> cachedUsers = new HashMap<>();
+    //private Map<String, User> cachedUsers = new HashMap<>();
 
     @Inject
     public UserRepositoryImpl() {
@@ -52,15 +51,7 @@ public class UserRepositoryImpl implements UserRepository {
         if (TextUtils.isEmpty(auth.getUid())) {
             return Observable.error(new NullPointerException());
         }
-        return getUser(auth.getUid())
-                .doOnNext(this::setUser);
-    }
-
-    private void setFriendsData(Map<String, Boolean> map) {
-        this.friends = map;
-        if (this.user != null) {
-            this.user.friends = map;
-        }
+        return getUser(auth.getUid());
     }
 
     @Override
@@ -73,8 +64,7 @@ public class UserRepositoryImpl implements UserRepository {
                         return (Map<String, Boolean>) dataSnapshot.getValue();
                     }
                     return new HashMap<String, Boolean>();
-                })
-                .doOnNext(this::setFriendsData);
+                });
     }
 
     @Override
@@ -86,11 +76,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<User> getCurrentUser() {
-        if (user != null) {
-            return Observable.just(user);
-        } else {
+//        if (user != null) {
+//            return Observable.just(user);
+//        } else {
             return initializeUser();
-        }
+//        }
     }
 
     @Override
@@ -100,25 +90,16 @@ public class UserRepositoryImpl implements UserRepository {
                     DatabaseReference userReference = database.getReference("users").child(userId);
                     return RxFirebaseDatabase.getInstance(userReference)
                             .onValueEvent()
-                            .map(User::new)
-                            .doOnNext(user1 -> this.setUser(user1));
+                            .map(User::new);
                 });
     }
 
     @Override
     public Observable<User> getUser(String userId) {
-        User cachedUser = cachedUsers.get(userId);
-        if (cachedUser != null) {
-            return Observable.just(cachedUser);
-        }
         DatabaseReference userReference = database.getReference("users").child(userId);
         return RxFirebaseDatabase.getInstance(userReference)
                 .onSingleValueEvent()
-                .map(dataSnapshot -> {
-                    User user = new User(dataSnapshot);
-                    cachedUsers.put(userId, user);
-                    return user;
-                })
+                .map(User::new)
                 .toObservable();
     }
 
@@ -231,13 +212,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Boolean> logout(String deviceId) {
+        String userId = this.auth.getUid();
         this.auth.signOut();
-        user.devices.remove(deviceId);
-        DatabaseReference reference = database.getReference("users").child(user.key).child("devices").child(deviceId);
+        DatabaseReference reference = database.getReference("users").child(userId).child("devices").child(deviceId);
         return RxFirebaseDatabase.setValue(reference, null)
                 .map(databaseReference -> true)
-                .toObservable()
-                .doOnNext(aBoolean -> setUser(null));
+                .toObservable();
     }
 
     @Override
@@ -387,10 +367,16 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<DataSnapshot> observeMappings(String key) {
+    public Observable<Map<String, String>> observeMappings(String key) {
         DatabaseReference reference = database.getReference().child("users").child(key).child("mappings");
         return RxFirebaseDatabase.getInstance(reference)
-                .onValueEvent();
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return (Map<String, String>) dataSnapshot.getValue();
+                    }
+                    return new HashMap<String, String>();
+                });
     }
 
     private Observable<String> getCurrentUserId() {
@@ -399,12 +385,5 @@ public class UserRepositoryImpl implements UserRepository {
         if (userId == null)
             return Observable.error(new NullPointerException("Current uuid is null"));
         return Observable.just(userId);
-    }
-
-    private void setUser(User user) {
-        if (user != null) {
-            user.friends = this.friends;
-        }
-        this.user = user;
     }
 }

@@ -26,6 +26,8 @@ public class TogglePuzzlePictureUseCase extends UseCase<Boolean, TogglePuzzlePic
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public TogglePuzzlePictureUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -35,7 +37,7 @@ public class TogglePuzzlePictureUseCase extends UseCase<Boolean, TogglePuzzlePic
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
                     //updateValue.put(String.format("conversations/%s/puzzleMessages/%s", params.conversation, userId), params.value);

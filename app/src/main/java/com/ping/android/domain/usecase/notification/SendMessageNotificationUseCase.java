@@ -5,10 +5,10 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -30,6 +30,8 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
     NotificationRepository notificationRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public SendMessageNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -39,7 +41,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(sender -> {
                     String senderName = sender.getDisplayName();
                     Map<String, String> nickNames = params.conversation.nickNames;

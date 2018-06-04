@@ -24,7 +24,6 @@ import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;

@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +21,8 @@ import io.reactivex.Observable;
 public class ObserveBlockedContactsUseCase extends UseCase<ChildData<User>, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ObserveBlockedContactsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -29,7 +32,7 @@ public class ObserveBlockedContactsUseCase extends UseCase<ChildData<User>, Void
     @NotNull
     @Override
     public Observable<ChildData<User>> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.observeBlockedContacts(user.key)
                         .flatMap(childEvent -> {
                             String userId = childEvent.dataSnapshot.getKey();

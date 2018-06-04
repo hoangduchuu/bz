@@ -26,7 +26,7 @@ public interface CallPresenter extends BasePresenter {
 
     void accept();
 
-    void hangup();
+    void hangup(double duration);
 
     void toggleAudio(boolean isAudioEnabled);
 

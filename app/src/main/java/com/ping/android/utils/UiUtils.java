@@ -139,6 +139,7 @@ public class UiUtils {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
+                    .placeholder(R.drawable.ic_avatar_gray)
                     .error(R.drawable.ic_avatar_gray)
                     .apply(RequestOptions.circleCropTransform())
                     .override(200, 200)
@@ -186,6 +187,8 @@ public class UiUtils {
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
+                .placeholder(R.drawable.ic_avatar_gray)
+                .error(R.drawable.ic_avatar_gray)
                 .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)

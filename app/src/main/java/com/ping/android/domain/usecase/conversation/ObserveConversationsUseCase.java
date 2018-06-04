@@ -5,11 +5,13 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
@@ -35,6 +37,8 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
     @Inject
     GroupRepository groupRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     ConversationMapper mapper;
 
     @Inject
@@ -45,12 +49,16 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
     @NotNull
     @Override
     public Observable<ChildData<Conversation>> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(currentUser -> conversationRepository.registerConversationsUpdate(currentUser.key)
                         .flatMap(childEvent -> {
                             Conversation conversation = mapper.transform(childEvent.dataSnapshot, currentUser);
                             if (!conversation.memberIDs.containsKey(currentUser.key)) {
                                 return Observable.empty();
+                            }
+                            if (!conversation.isValid()) {
+                                ChildData<Conversation> childData = new ChildData<>(conversation, ChildData.Type.CHILD_REMOVED);
+                                return Observable.just(childData);
                             }
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {

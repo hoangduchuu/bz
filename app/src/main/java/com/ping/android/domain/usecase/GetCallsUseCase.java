@@ -9,6 +9,7 @@ import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 
@@ -31,6 +32,8 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
     ConversationRepository conversationRepository;
     @Inject
     CallMapper mapper;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public GetCallsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -40,7 +43,7 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
     @NotNull
     @Override
     public Observable<List<Call>> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(currentUser -> {
                     String userId = currentUser.key;
                     return userRepository.getCalls(userId)
@@ -66,6 +69,10 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
     }
 
     private Observable<User> getUser(String userId) {
+        User user = userManager.getCacheUser(userId);
+        if (user != null) {
+            return Observable.just(user);
+        }
         return userRepository.getUser(userId);
     }
 }

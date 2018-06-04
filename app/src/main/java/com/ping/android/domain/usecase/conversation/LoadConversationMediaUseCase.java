@@ -8,6 +8,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -28,6 +29,8 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
     MessageRepository messageRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public LoadConversationMediaUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -43,7 +46,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
             output.canLoadMore = false;
             return Observable.just(output);
         }
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.loadConversationMedia(params.conversation.key, params.lastTimestamp)
                         .map(dataSnapshot -> {
                             if (dataSnapshot.getChildrenCount() > 0) {

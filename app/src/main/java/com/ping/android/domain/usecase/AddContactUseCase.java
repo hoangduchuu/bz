@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,8 @@ import io.reactivex.Observable;
 public class AddContactUseCase extends UseCase<Boolean, String> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public AddContactUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -28,7 +31,7 @@ public class AddContactUseCase extends UseCase<Boolean, String> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(String userId) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(currentUser -> userRepository.addContact(currentUser.key, userId));
     }
 }

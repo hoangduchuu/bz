@@ -255,6 +255,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     @Override
     public void navigateBack() {
+        colorPickerBottomSheetDialog.dismiss();
         if (getActivity() != null) {
             getActivity().finish();
         }

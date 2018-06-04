@@ -579,6 +579,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                                      conv.opponentUser.nickName = nickName;
                                      String title = TextUtils.isEmpty(nickName) ? conv.opponentUser.getDisplayName() : nickName;
                                      view.updateConversationTitle(title);
+                                     view.refreshMessages();
                                  } else {
                                      view.updateNickNames(conv.nickNames);
                                  }

@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,8 @@ import io.reactivex.Observable;
 public class ObserveFriendsChildEventUseCase extends UseCase<ChildData<User>, Void> {
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ObserveFriendsChildEventUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -30,7 +33,7 @@ public class ObserveFriendsChildEventUseCase extends UseCase<ChildData<User>, Vo
     @NotNull
     @Override
     public Observable<ChildData<User>> buildUseCaseObservable(Void aVoid) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.observeFriendsChildEvent(user.key)
                         .flatMap(childEvent -> {
                             String friendId = childEvent.dataSnapshot.getKey();

@@ -11,6 +11,7 @@ import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -44,6 +45,8 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
     StorageRepository storageRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
+    @Inject
+    UserManager userManager;
     private User currentUser;
 
     @Inject
@@ -54,7 +57,7 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
     @NotNull
     @Override
     public Observable<String> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .zipWith(groupRepository.getKey(), (user, s) -> {
                     currentUser = user;
                     params.users.add(user);

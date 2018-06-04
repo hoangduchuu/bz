@@ -49,6 +49,7 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.device.impl.ShakeEventManager;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -62,7 +63,6 @@ import com.ping.android.presentation.view.custom.VoiceRecordViewListener;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.service.ServiceManager;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.BadgeHelper;
 import com.bzzzchat.configuration.GlideApp;
@@ -144,6 +144,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Inject
     ChatPresenter presenter;
+    @Inject
+    UserManager userManager;
     ChatComponent component;
     private boolean isVisible = false;
     private List<Integer> actionButtons;
@@ -685,7 +687,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
                 String newOriginalText = "";
                 String displayText = charSequence.toString();
-                if (TextUtils.equals(displayText, ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText))) {
+                if (TextUtils.equals(displayText, userManager.encodeMessage(originalText))) {
                     return;
                 }
 
@@ -695,8 +697,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 boolean startFound = false, endFound = false;
 
                 for (int index = 0; index < originalText.length(); index++) {
-                    encodedStart = encodedStart + ServiceManager.getInstance().encodeMessage(getApplicationContext(),
-                            originalText.substring(index, index + 1));
+                    encodedStart = encodedStart + userManager.encodeMessage(originalText.substring(index, index + 1));
 
                     if (displayTextLength >= encodedStart.length()) {
                         displayStart = displayText.substring(0, encodedStart.length());
@@ -709,12 +710,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                         break;
                     }
                 }
-                encodedStart = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalStart);
+                encodedStart = userManager.encodeMessage(originalStart);
 
                 if (displayTextLength > encodedStart.length()) {
                     for (int index = originalText.length() - 1; index >= originalStartIdx; index--) {
-                        encodedEnd = ServiceManager.getInstance().encodeMessage(getApplicationContext(),
-                                originalText.substring(index, index + 1)) + encodedEnd;
+                        encodedEnd = userManager.encodeMessage(originalText.substring(index, index + 1)) + encodedEnd;
                         if (TextUtils.equals(displayText.substring(displayTextLength - encodedEnd.length()), encodedEnd)) {
                             endFound = true;
                             originalEnd = originalText.substring(index, index + 1) + originalEnd;
@@ -726,9 +726,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 newOriginalText = originalStart;
                 int middleStartIdx = startFound ? encodedStart.length() : 0;
                 int middleEndIdx = endFound ? displayText.lastIndexOf(
-                        ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalEnd)) : displayTextLength;
+                        userManager.encodeMessage(originalEnd)) : displayTextLength;
                 String originalMiddle = middleEndIdx > middleStartIdx ? displayText.substring(middleStartIdx, middleEndIdx) : "";
-                String encodedMiddle = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalMiddle);
+                String encodedMiddle = userManager.encodeMessage(originalMiddle);
                 newOriginalText = newOriginalText + originalMiddle + originalEnd;
 
 
@@ -754,7 +754,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     return;
                 }
 
-                String encodeText = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText);
+                String encodeText = userManager.encodeMessage(originalText);
                 if (TextUtils.equals(edMessage.getText(), encodeText)) {
                     return;
                 }
@@ -934,8 +934,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         int select = edMessage.getSelectionStart();
         if (tgMarkOut.isChecked()) {
             updateMaskTintColor(true);
-            edMessage.setText(ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText));
-            select = ServiceManager.getInstance().encodeMessage(getApplicationContext(), originalText.substring(0, select)).length();
+            edMessage.setText(userManager.encodeMessage(originalText));
+            select = userManager.encodeMessage(originalText.substring(0, select)).length();
         } else {
             updateMaskTintColor(false);
             //int color = ContextCompat.getColor(this, R.color.gray_color);
@@ -1192,6 +1192,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void hideRefreshView() {
         swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void refreshMessages() {
+        messagesAdapter.notifyDataSetChanged();
     }
 
     @Override

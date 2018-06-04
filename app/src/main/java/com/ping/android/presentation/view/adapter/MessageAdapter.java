@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.ping.android.utils.CommonMethod.getDisplayTime;
+
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
     private static boolean isEditMode = false;
@@ -161,7 +163,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
         originalConversations.put(conversation.key, conversation);
-        //Collections.sort(originalConversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
     }
 
     public void deleteConversation(String conversationID) {
@@ -353,21 +354,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         public void setClickListener(ClickListener clickListener) {
             this.clickListener = clickListener;
-        }
-
-        private String getDisplayTime(double timestamps) {
-            Date date = new Date((long) timestamps * 1000);
-            if (DateUtils.isSameDay(date.getTime(), new Date().getTime())) {
-                return DateUtils.toString("h:mm a", date);
-            } else if (DateUtils.isYesterday(date)) {
-                return "Yesterday";
-            } else {
-                if (DateUtils.withinOneWeek(date)) {
-                    return DateUtils.toString("EEEE", date);
-                } else {
-                    return DateUtils.toString("MMMM d, yyyy", date);
-                }
-            }
         }
 
         public void bindData(Conversation model, Map<String, String> mappings, boolean isSelected) {

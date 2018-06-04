@@ -133,6 +133,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String messageKey;
             private String cacheImage;
             private double timestamp;
+            private double callDuration;
 
             public Builder() {
                 timestamp = System.currentTimeMillis() / 1000d;
@@ -239,7 +240,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
-                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, callType.ordinal());
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, callType.ordinal(), callDuration);
             }
 
             private Message buildVideoMessage(User currentUser, String fileUrl) {
@@ -368,6 +369,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             public Builder setCacheImage(String filePath) {
                 this.cacheImage = filePath;
+                return this;
+            }
+
+            public Builder setCallDuration(double callDuration) {
+                this.callDuration = callDuration;
                 return this;
             }
         }

@@ -10,8 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.ping.android.R;
+
+import org.w3c.dom.Text;
 
 public class CustomSwitch extends LinearLayout {
 
@@ -95,7 +98,7 @@ public class CustomSwitch extends LinearLayout {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void buildLeftButton() {
-        Button leftButton = new Button(getContext());
+        TextView leftButton = new TextView(getContext());
         leftButton.setOnClickListener(buttonClickListener);
         leftButton.setLayoutParams(getButtonLayoutParams());
         leftButton.setId(R.id.leftButton);
@@ -103,31 +106,21 @@ public class CustomSwitch extends LinearLayout {
         leftButton.setText(mSwitchLeftText);
         leftButton.setTextColor(getResources().getColor(R.color.white));
         leftButton.setTransformationMethod(null);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_enabled));
-        else
-            leftButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_left_enabled));
-
+        leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_enabled));
         addView(leftButton);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void buildRightButton() {
-        Button rightButton = new Button(getContext());
+        TextView rightButton = new TextView(getContext());
         rightButton.setOnClickListener(buttonClickListener);
         rightButton.setLayoutParams(getButtonLayoutParams());
         rightButton.setId(R.id.rightButton);
         rightButton.setGravity(Gravity.CENTER);
         rightButton.setText(mSwitchRightText);
-        rightButton.setTextColor(getResources().getColor(R.color.orange));
+        rightButton.setTextColor(getResources().getColor(R.color.orange_dark));
         rightButton.setTransformationMethod(null);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_disabled));
-        else
-            rightButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_right_disabled));
-
+        rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_disabled));
         addView(rightButton);
     }
 
@@ -139,35 +132,19 @@ public class CustomSwitch extends LinearLayout {
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void toggleSwitch() {
-        Button leftButton = findViewById(R.id.leftButton);
-        Button rightButton = findViewById(R.id.rightButton);
+        TextView leftButton = findViewById(R.id.leftButton);
+        TextView rightButton = findViewById(R.id.rightButton);
 
         if (mSwitchToggleState == SwitchToggleState.LEFT) {
             leftButton.setTextColor(getResources().getColor(R.color.white));
-            rightButton.setTextColor(getResources().getColor(R.color.orange));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_enabled));
-            else
-                leftButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_left_enabled));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_disabled));
-            else
-                rightButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_right_disabled));
+            rightButton.setTextColor(getResources().getColor(R.color.orange_dark));
+            leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_enabled));
+            rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_disabled));
         } else {
-            leftButton.setTextColor(getResources().getColor(R.color.orange));
+            leftButton.setTextColor(getResources().getColor(R.color.orange_dark));
             rightButton.setTextColor(getResources().getColor(R.color.white));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_disabled));
-            else
-                leftButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_left_disabled));
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_enabled));
-            else
-                rightButton.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.switch_right_enabled));
+            leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_disabled));
+            rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_enabled));
         }
 
         if (mSwitchToggleListener != null)

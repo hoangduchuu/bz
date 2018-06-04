@@ -80,7 +80,7 @@
     <dimen name="pager_image_width">400dp</dimen>
     <dimen name="pager_image_height">500dp</dimen>
 
-    <dimen name="toggle_radius">4dp</dimen>
+    <dimen name="toggle_radius">6dp</dimen>
     <dimen name="radio_size">20dp</dimen>
 
     <dimen name="setting_item_height">44dp</dimen>

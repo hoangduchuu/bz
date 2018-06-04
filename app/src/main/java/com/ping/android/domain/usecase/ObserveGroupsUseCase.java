@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Group;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,8 @@ public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroup
     GroupRepository groupRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public ObserveGroupsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -32,7 +35,7 @@ public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroup
     @NotNull
     @Override
     public Observable<ChildData<Group>> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> groupRepository.groupsChange(user.key)
                         .flatMap(childEvent -> {
                             Group group = Group.from(childEvent.dataSnapshot);

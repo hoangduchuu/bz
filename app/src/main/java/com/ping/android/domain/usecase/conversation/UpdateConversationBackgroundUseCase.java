@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +23,8 @@ public class UpdateConversationBackgroundUseCase extends UseCase<Boolean, Update
     CommonRepository commonRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public UpdateConversationBackgroundUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -31,7 +34,7 @@ public class UpdateConversationBackgroundUseCase extends UseCase<Boolean, Update
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
                     for (String userId : params.conversation.memberIDs.keySet()) {

@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageCallType;
@@ -26,6 +27,8 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     @Inject
     UserRepository userRepository;
     @Inject
+    UserManager userManager;
+    @Inject
     SendMessageUseCase sendMessageUseCase;
     SendMessageUseCase.Params.Builder builder;
 
@@ -37,7 +40,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(SendCallMessageUseCase.Params params) {
-        return userRepository.getCurrentUser()
+        return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
                     return conversationRepository.getConversation(user, conversationID)
@@ -46,6 +49,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
                                 builder = new SendMessageUseCase.Params.Builder()
                                         .setMessageType(MessageType.CALL)
                                         .setCallType(params.getCallType())
+                                        .setCallDuration(params.callDuration)
                                         .setConversation(conversation)
                                         .setCurrentUser(user)
                                         .setMessageKey(messageKey);
@@ -58,10 +62,12 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     public static class Params {
         private User toUser;
         private MessageCallType callType;
+        private double callDuration;
 
-        public Params(User toUser, MessageCallType callType) {
+        public Params(User toUser, MessageCallType callType, double callDuration) {
             this.toUser = toUser;
             this.callType = callType;
+            this.callDuration = callDuration;
         }
 
         public MessageCallType getCallType() {

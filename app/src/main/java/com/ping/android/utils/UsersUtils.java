@@ -5,7 +5,6 @@ import android.text.TextUtils;
 
 import com.ping.android.data.db.QbUsersDbManager;
 import com.ping.android.model.Transphabet;
-import com.ping.android.service.ServiceManager;
 import com.quickblox.users.model.QBUser;
 import com.vanniktech.emoji.EmojiRange;
 import com.vanniktech.emoji.EmojiUtils;

@@ -23,10 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
-import com.ping.android.service.ServiceManager;
 
 import java.util.ArrayList;
 

@@ -55,8 +55,8 @@ public class AudioConversationFragment extends BaseConversationFragment
     }
 
     @Override
-    protected void hangup() {
-        presenter.hangup();
+    protected void hangup(double duration) {
+        presenter.hangup(duration);
     }
 
     @Nullable
@@ -87,7 +87,6 @@ public class AudioConversationFragment extends BaseConversationFragment
     @Override
     public void onStop() {
         super.onStop();
-        //conversationFragmentCallbackListener.removeOnChangeDynamicToggle(this);
     }
 
     @Override
