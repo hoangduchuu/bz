@@ -87,5 +87,7 @@ public interface ChatPresenter extends BasePresenter {
         void updateBackground(String s);
 
         void hideRefreshView();
+
+        void refreshMessages();
     }
 }

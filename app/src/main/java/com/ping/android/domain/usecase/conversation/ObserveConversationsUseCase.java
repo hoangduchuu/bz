@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
@@ -54,6 +55,10 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                             Conversation conversation = mapper.transform(childEvent.dataSnapshot, currentUser);
                             if (!conversation.memberIDs.containsKey(currentUser.key)) {
                                 return Observable.empty();
+                            }
+                            if (!conversation.isValid()) {
+                                ChildData<Conversation> childData = new ChildData<>(conversation, ChildData.Type.CHILD_REMOVED);
+                                return Observable.just(childData);
                             }
                             return userRepository.getUserList(conversation.memberIDs)
                                     .map(users -> {

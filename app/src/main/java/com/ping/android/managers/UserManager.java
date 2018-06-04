@@ -2,7 +2,6 @@ package com.ping.android.managers;
 
 import android.text.TextUtils;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
@@ -75,8 +74,6 @@ public class UserManager {
         SharedPrefsHelper.getInstance().save("isLoggedIn", false);
         SharedPrefsHelper.getInstance().save("quickbloxId", 0);
         SharedPrefsHelper.getInstance().save("pingId", "");
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signOut();
         user = null;
     }
 

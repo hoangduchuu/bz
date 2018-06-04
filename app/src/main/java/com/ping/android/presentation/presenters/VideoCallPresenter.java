@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 
 public interface VideoCallPresenter extends BasePresenter {
-    void hangup();
+    void hangup(double duration);
 
     void toggleAudio(boolean isEnable);
 

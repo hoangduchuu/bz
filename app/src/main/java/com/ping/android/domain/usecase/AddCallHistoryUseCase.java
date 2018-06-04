@@ -48,7 +48,7 @@ public class AddCallHistoryUseCase extends UseCase<Boolean, Call> {
                                     ? MessageCallType.MISSED_VOICE_CALL : MessageCallType.VOICE_CALL;
                         }
                         SendCallMessageUseCase.Params params = new SendCallMessageUseCase.Params(call.opponentUser,
-                                callType);
+                                callType, call.callDuration);
                         return sendCallMessageUseCase.buildUseCaseObservable(params)
                                 .map(message -> true);
                     } else {

@@ -40,6 +40,7 @@ public class Message implements Parcelable {
     public int callType;
     public int gameType;
     public int voiceType = 0;
+    public double callDuration; // in seconds
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -124,6 +125,7 @@ public class Message implements Parcelable {
         message.gameType = wrapper.getIntValue("gameType", 0);
         message.voiceType = wrapper.getIntValue("voiceType", 0);
         message.callType = wrapper.getIntValue("callType", 0);
+        message.callDuration = wrapper.getIntValue("callDuration", 0);
         message.messageCallType = MessageCallType.from(message.callType);
         message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();
@@ -247,7 +249,7 @@ public class Message implements Parcelable {
     public static Message createCallMessage(String senderId, String senderName, MessageType type,
                                             double timestamp, Map<String, Integer> status,
                                             Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                            Map<String, Boolean> readAllowed, int callType) {
+                                            Map<String, Boolean> readAllowed, int callType, double callDuration) {
         Message message = new Message();
         message.messageType = type.ordinal();
         message.senderId = senderId;
@@ -258,6 +260,7 @@ public class Message implements Parcelable {
         message.deleteStatuses = deleteStatuses;
         message.readAllowed = readAllowed;
         message.callType = callType;
+        message.callDuration = callDuration;
         return message;
     }
 
@@ -286,6 +289,7 @@ public class Message implements Parcelable {
         result.put("gameType", gameType);
         result.put("voiceType", voiceType);
         result.put("callType", callType);
+        result.put("callDuration", callDuration);
         return result;
     }
 

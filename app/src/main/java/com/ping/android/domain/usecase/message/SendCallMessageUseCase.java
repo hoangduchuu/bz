@@ -49,6 +49,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
                                 builder = new SendMessageUseCase.Params.Builder()
                                         .setMessageType(MessageType.CALL)
                                         .setCallType(params.getCallType())
+                                        .setCallDuration(params.callDuration)
                                         .setConversation(conversation)
                                         .setCurrentUser(user)
                                         .setMessageKey(messageKey);
@@ -61,10 +62,12 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
     public static class Params {
         private User toUser;
         private MessageCallType callType;
+        private double callDuration;
 
-        public Params(User toUser, MessageCallType callType) {
+        public Params(User toUser, MessageCallType callType, double callDuration) {
             this.toUser = toUser;
             this.callType = callType;
+            this.callDuration = callDuration;
         }
 
         public MessageCallType getCallType() {

@@ -1195,6 +1195,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void refreshMessages() {
+        messagesAdapter.notifyDataSetChanged();
+    }
+
+    @Override
     public ChatComponent getComponent() {
         if (component == null) {
             component = getLoggedInComponent().provideChatComponent(new ChatModule(this));

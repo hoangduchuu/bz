@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 
 public interface AudioCallPresenter extends BasePresenter {
-    void hangup();
+    void hangup(double duration);
 
     void toggleAudio(boolean isEnable);
 

@@ -45,8 +45,8 @@ public class AudioCallPresenterImpl implements AudioCallPresenter, CallActivity.
     }
 
     @Override
-    public void hangup() {
-        presenter.hangup();
+    public void hangup(double duration) {
+        presenter.hangup(duration);
     }
 
     @Override

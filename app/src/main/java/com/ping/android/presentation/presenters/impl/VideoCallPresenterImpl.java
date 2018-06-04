@@ -57,8 +57,8 @@ public class VideoCallPresenterImpl implements VideoCallPresenter, CallActivity.
     }
 
     @Override
-    public void hangup() {
-        presenter.hangup();
+    public void hangup(double duration) {
+        presenter.hangup(duration);
     }
 
     @Override
