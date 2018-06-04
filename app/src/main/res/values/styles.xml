@@ -212,7 +212,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">45dp</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:background">#F1F2F2</item>
+        <item name="android:background">#fbb040</item>
     </style>
 
     <style name="MenuIconLeft">
@@ -251,6 +251,7 @@
 
     <style name="ActionButton.TopMenu">
         <item name="android:minHeight">@dimen/top_bar_height</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="RecyclerView">
@@ -297,22 +298,25 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
-        <item name="android:background">#E6E7E8</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="android:paddingLeft">25dp</item>
+        <item name="android:paddingRight">25dp</item>
+        <item name="android:background">#fbb040</item>
     </style>
 
     <style name="SearchView">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
-        <item name="android:paddingTop">3dp</item>
-        <item name="android:paddingBottom">3dp</item>
+        <item name="android:paddingStart">5dp</item>
+        <item name="android:paddingEnd">5dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
         <item name="android:background">@drawable/round_corner</item>
         <item name="android:drawablePadding">10dp</item>
         <item name="android:hint">@string/hint_search</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="android:textCursorDrawable">@null</item>
     </style>
 
     <style name="BackIcon" parent="WrapContent">
@@ -446,7 +450,7 @@
 
     <style name="ListItemContainer">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">65dp</item>
+        <item name="android:layout_height">75dp</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 

@@ -28,6 +28,7 @@
             android:layout_width="120dp"
             android:layout_height="26dp"
             android:layout_centerInParent="true"
+            android:background="@color/orange"
             custom:leftSwitch="All"
             custom:rightSwitch="Missed" />
 
