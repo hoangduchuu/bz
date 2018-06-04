@@ -248,7 +248,7 @@
     <string name="hint_search">Search</string>
     <string name="hint_search_friends">Names, Username, or Phone</string>
     <string name="hint_username">Username</string>
-    <string name="hint_bzzz">bzzz...</string>
+    <string name="hint_bzzz">bzzz…</string>
 
     <string name="voice_record_instruction_slide_up_down">Slide UP to CANCEL, DOWN to MASK your voice</string>
     <string name="voice_record_instruction_release_to_cancel">Release to CANCEL</string>
