@@ -281,7 +281,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         private ConversationItemListener listener;
         private ClickListener clickListener;
 
-        public MessageViewHolder(View itemView, ConversationItemListener listener) {
+        MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
             messageItem = (LinearLayout) itemView;
             ivProfileImage = itemView.findViewById(R.id.message_item_profile);
@@ -294,7 +294,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.listener = listener;
         }
 
-        public void setReadStatus(Boolean readStatus) {
+        void setReadStatus(Boolean readStatus) {
             if (readStatus) {
                 tvSender.setTypeface(Typeface.DEFAULT);
                 tvMessage.setTypeface(Typeface.DEFAULT);
@@ -308,7 +308,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
 
-        public void setEditMode(Boolean isEditMode) {
+        void setEditMode(Boolean isEditMode) {
             if (isEditMode) {
                 rbSelect.setVisibility(View.VISIBLE);
             } else {
@@ -317,7 +317,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
 
-        public void setSelect(Boolean isSelect) {
+        void setSelect(Boolean isSelect) {
             rbSelect.setChecked(isSelect);
             rbSelect.setSelected(isSelect);
         }

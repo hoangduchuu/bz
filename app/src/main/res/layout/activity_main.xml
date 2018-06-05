@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="47dp"
                 android:layout_gravity="bottom"
-                android:background="@color/bg_tab_bar"
+                android:background="@drawable/background_tab_bar"
                 app:tabIndicatorHeight="0dp"
                 app:tabSelectedTextColor="@color/orange"
                 app:tabMode="fixed"

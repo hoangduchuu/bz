@@ -7,7 +7,7 @@
     <dimen name="text_size_xsmall">12sp</dimen>
     <dimen name="text_size_xxsmall">11sp</dimen>
 
-    <dimen name="default_padding">15dp</dimen>
+    <dimen name="default_padding">21dp</dimen>
 
     <dimen name="logo_w_h">100dp</dimen>
 
