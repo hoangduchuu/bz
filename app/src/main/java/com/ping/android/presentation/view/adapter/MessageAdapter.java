@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.adapter;
 
 import android.graphics.Typeface;
 import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -297,10 +298,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             if (readStatus) {
                 tvSender.setTypeface(Typeface.DEFAULT);
                 tvMessage.setTypeface(Typeface.DEFAULT);
+                tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
                 tvTime.setTypeface(Typeface.DEFAULT);
             } else {
                 tvSender.setTypeface(Typeface.DEFAULT_BOLD);
                 tvMessage.setTypeface(Typeface.DEFAULT_BOLD);
+                tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
                 tvTime.setTypeface(Typeface.DEFAULT_BOLD);
             }
         }
