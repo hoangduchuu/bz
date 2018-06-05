@@ -59,7 +59,7 @@ class BzzzSearchView : AppCompatEditText {
 
     private fun setClearIconVisibility(visible: Boolean) {
         val clearDrawable = when (visible) {
-            true -> ContextCompat.getDrawable(context, R.drawable.ic_search_close)
+            true -> ContextCompat.getDrawable(context, R.drawable.ic_clear)
             else -> null
         }
         setCompoundDrawablesWithIntrinsicBounds(leftDrawable, null, clearDrawable, null)

@@ -12,52 +12,46 @@
         android:layout_height="@dimen/user_profile_icon_height"
         android:src="@drawable/ic_avatar_gray" />
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/default_padding"
-        android:layout_weight="1">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/default_padding"
+        android:layout_marginStart="@dimen/default_padding"
+        android:gravity="center_vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/friend_name"
+            style="@style/AppTextAppearance"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="8dp"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="User name" />
 
-            <TextView
-                android:id="@+id/friend_name"
-                style="@style/AppTextAppearance"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                tools:text="User name" />
+        <ImageView
+            android:id="@+id/friend_message"
+            style="@style/list_item_btn"
+            android:background="@null"
+            android:src="@drawable/ic_message_border" />
 
-            <ImageView
-                android:id="@+id/friend_message"
-                style="@style/list_item_btn"
-                android:background="@null"
-                android:src="@drawable/ic_message_border" />
+        <ImageView
+            android:id="@+id/friend_call_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingEnd="0dp"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:src="@drawable/ic_chat_audio"
+            android:tint="@color/colorPrimaryDark" />
 
-            <ImageView
-                android:id="@+id/friend_call_voice"
-                style="@style/list_item_btn"
-                android:src="@drawable/ic_chat_audio"
-                android:tint="@color/colorPrimaryDark" />
-
-            <ImageView
-                android:id="@+id/friend_call_video"
-                style="@style/list_item_btn"
-                android:src="@drawable/ic_chat_video"
-                android:tint="@color/colorPrimaryDark"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <View
-            style="@style/horizontal_divider"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-
+        <ImageView
+            android:id="@+id/friend_call_video"
+            style="@style/list_item_btn"
+            android:src="@drawable/ic_chat_video"
+            android:tint="@color/colorPrimaryDark"
+            android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

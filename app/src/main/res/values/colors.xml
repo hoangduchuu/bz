@@ -42,7 +42,7 @@
     <color name="colorPrimaryDark">@color/orange</color>
 
     <color name="bg_top_bar">#F9F9F9</color>
-    <color name="bg_tab_bar">#f7f8f9</color>
+    <color name="bg_tab_bar">#FFFFFF</color>
     <color name="color_grey">#d3d3d3</color>
     <color name="color_primary">@color/white</color>
     <color name="color_accent">@color/color_green_qb</color>
@@ -65,8 +65,8 @@
 
     <color name="text_color">#303030</color>
     <color name="text_color_grey">#929292</color>
-    <color name="bg_network_connecting">@color/orange</color>
-    <color name="bg_network_noconnect">@color/color_grey</color>
+    <color name="bg_network_connecting">#4cd964</color>
+    <color name="bg_network_noconnect">#666666</color>
     <color name="yellow">#f7dc2d</color>
 
     <color name="gray_color">#A9A9AA</color>

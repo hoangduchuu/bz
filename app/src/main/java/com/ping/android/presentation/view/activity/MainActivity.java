@@ -245,7 +245,11 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         TextView numberView, titleView;
         v = LayoutInflater.from(this).inflate(R.layout.tab_layout_message, null);
         numberView = v.findViewById(R.id.tab_item_number);
-
+//        if (selected) {
+//            v.setBackgroundResource(R.color.bg_network_connecting);
+//        } else {
+//            v.setBackgroundResource(R.color.bg_network_noconnect);
+//        }
 
         iconView = v.findViewById(R.id.tab_item_icon);
         iconView.setImageResource(iconID);

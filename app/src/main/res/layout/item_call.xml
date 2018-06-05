@@ -20,58 +20,52 @@
         android:layout_marginStart="@dimen/default_padding"
         android:src="@drawable/ic_avatar_gray" />
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/default_padding"
         android:layout_marginStart="@dimen/default_padding"
-        android:layout_weight="1">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
         <LinearLayout
-            android:gravity="center_vertical"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="8dp"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/call_item_name"
+                style="@style/AppTextAppearance"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    style="@style/AppTextAppearance"
-                    android:id="@+id/call_item_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:text="John Doe" />
+                tools:text="John Doe" />
 
-                <TextView
-                    android:id="@+id/call_item_info"
-                    style="@style/AppTextAppearance.Small.Grey"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    tools:text="03-18-2017-11:54" />
+            <TextView
+                android:id="@+id/call_item_info"
+                style="@style/AppTextAppearance.Small.Grey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                tools:text="03-18-2017-11:54" />
 
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/item_call_voice"
-                style="@style/list_item_btn"
-                android:src="@drawable/ic_chat_audio"
-                android:tint="@color/colorPrimaryDark"/>
-
-            <ImageView
-                android:id="@+id/item_call_video"
-                style="@style/list_item_btn"
-                android:layout_width="44dp"
-                android:src="@drawable/ic_chat_video"
-                android:tint="@color/colorPrimaryDark"/>
         </LinearLayout>
-        <View
-            style="@style/horizontal_divider"
-            android:layout_alignParentBottom="true" />
 
-    </RelativeLayout>
+        <ImageView
+            android:id="@+id/item_call_voice"
+            style="@style/list_item_btn"
+            android:src="@drawable/ic_chat_audio"
+            android:tint="@color/colorPrimaryDark" />
 
-
+        <ImageView
+            android:id="@+id/item_call_video"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:src="@drawable/ic_chat_video"
+            android:tint="@color/colorPrimaryDark" />
+    </LinearLayout>
 </LinearLayout>

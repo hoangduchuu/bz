@@ -2,35 +2,41 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="29dp"
     android:height="29dp"
-    android:viewportWidth="29"
-    android:viewportHeight="29">
+    android:viewportWidth="85"
+    android:viewportHeight="85">
 
     <group
-        android:translateX="-306.000000"
-        android:translateY="-581.000000">
+        android:translateX="-848.000000"
+        android:translateY="-146.000000">
         <group
-            android:translateX="157.000000"
-            android:translateY="578.273000">
-            <path
-                android:fillColor="#FBB040"
-                android:fillType="evenOdd"
-                android:strokeWidth="1"
-                android:pathData="M157.4095,16.0751 L169.3635,16.0751 C172.3455,16.0751 174.7855,13.6351 174.7855,10.6531 C174.7855,7.6711 172.3455,5.2311 169.3635,5.2311 L157.4095,5.2311 C154.4275,5.2311 151.9875,7.6711 151.9875,10.6531 C151.9875,13.6351 154.4275,16.0751 157.4095,16.0751" />
-            <path
-                android:fillType="evenOdd"
-                android:strokeColor="#FFFFFF"
-                android:strokeWidth="0.5"
-                android:pathData="M173.0662,10.6533 C173.0662,12.7753 171.3452,14.4953 169.2232,14.4953 C167.1012,14.4953 165.3802,12.7753 165.3802,10.6533 C165.3802,8.5303 167.1012,6.8103 169.2232,6.8103 C171.3452,6.8103 173.0662,8.5303 173.0662,10.6533 Z" />
-            <path
-                android:fillColor="#FBB040"
-                android:fillType="evenOdd"
-                android:strokeWidth="1"
-                android:pathData="M157.4095,29.373 L169.3635,29.373 C172.3455,29.373 174.7855,26.933 174.7855,23.951 C174.7855,20.969 172.3455,18.529 169.3635,18.529 L157.4095,18.529 C154.4275,18.529 151.9875,20.969 151.9875,23.951 C151.9875,26.933 154.4275,29.373 157.4095,29.373" />
-            <path
-                android:fillType="evenOdd"
-                android:strokeColor="#FFFFFF"
-                android:strokeWidth="0.5"
-                android:pathData="M153.7068,23.9511 C153.7068,26.0731 155.4268,27.7941 157.5488,27.7941 C159.6718,27.7941 161.3918,26.0731 161.3918,23.9511 C161.3918,21.8291 159.6718,20.1081 157.5488,20.1081 C155.4268,20.1081 153.7068,21.8291 153.7068,23.9511 Z" />
+            android:translateX="9.000000"
+            android:translateY="136.000000">
+            <group
+                android:translateX="848.000000"
+                android:translateY="16.000000">
+                <path
+                    android:fillColor="#FBB040"
+                    android:strokeWidth="1"
+                    android:pathData="M16.9,72.1 L52.5,72.1 C61.4,72.1 68.6,64.8 68.6,56 L68.6,56 C68.6,47.1 61.3,39.9 52.5,39.9 L16.9,39.9 C8,39.9 0.8,47.2 0.8,56 L0.8,56 C0.8,64.8 8,72.1 16.9,72.1 Z" />
+                <path
+                    android:fillColor="#FBB040"
+                    android:strokeWidth="1"
+                    android:pathData="M16.9,32.5 L52.5,32.5 C61.4,32.5 68.6,25.2 68.6,16.4 L68.6,16.4 C68.6,7.5 61.3,0.3 52.5,0.3 L16.9,0.3 C8,0.3 0.8,7.6 0.8,16.4 L0.8,16.4 C0.8,25.3 8,32.5 16.9,32.5 Z" />
+            </group>
+            <group
+                android:translateX="853.000000"
+                android:translateY="20.000000">
+                <path
+                    android:fillType="evenOdd"
+                    android:strokeColor="#FFFFFF"
+                    android:strokeWidth="1"
+                    android:pathData="M 12.3 39.9 C 18.5960461481 39.9 23.7 45.0039538519 23.7 51.3 C 23.7 57.5960461481 18.5960461481 62.7 12.3 62.7 C 6.00395385193 62.7 0.9 57.5960461481 0.9 51.3 C 0.9 45.0039538519 6.00395385193 39.9 12.3 39.9 Z" />
+                <path
+                    android:fillType="evenOdd"
+                    android:strokeColor="#FFFFFF"
+                    android:strokeWidth="1"
+                    android:pathData="M 47 0.4 C 53.2960461481 0.4 58.4 5.50395385193 58.4 11.8 C 58.4 18.0960461481 53.2960461481 23.2 47 23.2 C 40.7039538519 23.2 35.6 18.0960461481 35.6 11.8 C 35.6 5.50395385193 40.7039538519 0.4 47 0.4 Z" />
+            </group>
         </group>
     </group>
 </vector>

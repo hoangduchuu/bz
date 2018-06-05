@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.adapter;
 
 import android.graphics.Typeface;
 import android.support.transition.TransitionManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
@@ -280,7 +281,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         private ConversationItemListener listener;
         private ClickListener clickListener;
 
-        public MessageViewHolder(View itemView, ConversationItemListener listener) {
+        MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
             messageItem = (LinearLayout) itemView;
             ivProfileImage = itemView.findViewById(R.id.message_item_profile);
@@ -293,19 +294,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.listener = listener;
         }
 
-        public void setReadStatus(Boolean readStatus) {
+        void setReadStatus(Boolean readStatus) {
             if (readStatus) {
                 tvSender.setTypeface(Typeface.DEFAULT);
                 tvMessage.setTypeface(Typeface.DEFAULT);
+                tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
                 tvTime.setTypeface(Typeface.DEFAULT);
             } else {
                 tvSender.setTypeface(Typeface.DEFAULT_BOLD);
                 tvMessage.setTypeface(Typeface.DEFAULT_BOLD);
+                tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
                 tvTime.setTypeface(Typeface.DEFAULT_BOLD);
             }
         }
 
-        public void setEditMode(Boolean isEditMode) {
+        void setEditMode(Boolean isEditMode) {
             if (isEditMode) {
                 rbSelect.setVisibility(View.VISIBLE);
             } else {
@@ -314,7 +317,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }
         }
 
-        public void setSelect(Boolean isSelect) {
+        void setSelect(Boolean isSelect) {
             rbSelect.setChecked(isSelect);
             rbSelect.setSelected(isSelect);
         }

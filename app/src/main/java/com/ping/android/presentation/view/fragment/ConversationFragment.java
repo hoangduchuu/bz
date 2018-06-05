@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -49,7 +50,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private LinearLayoutManager linearLayoutManager;
     private EditText searchEdt;
     private RecyclerView listChat;
-    private Button btnDeleteMessage, btnEditMessage;
+    private Button btnDeleteMessage;
+    private TextView btnEditMessage;
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
     private boolean isEditMode;
