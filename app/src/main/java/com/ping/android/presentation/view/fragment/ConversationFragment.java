@@ -308,12 +308,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void addConversation(Conversation conversation) {
         adapter.updateConversation(conversation, true);
+        updateUnreadNumber();
         //scrollToTop();
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
         adapter.updateConversation(conversation, false);
+        updateUnreadNumber();
         //scrollToTop();
     }
 
@@ -330,6 +332,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void updateConversationList(List<Conversation> conversations) {
         adapter.updateData(new ArrayList<>(conversations));
+        updateUnreadNumber();
     }
 
     @Override
@@ -343,6 +346,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void appendConversations(List<Conversation> conversations) {
         adapter.appendConversations(conversations);
+        updateUnreadNumber();
     }
 
     @Override

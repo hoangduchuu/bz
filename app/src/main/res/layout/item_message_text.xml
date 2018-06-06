@@ -15,8 +15,8 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/default_padding"
         android:layout_marginEnd="@dimen/default_padding"
+        android:layout_marginStart="@dimen/default_padding"
         android:layout_weight="1"
         android:gravity="center"
         android:orientation="horizontal">
@@ -47,17 +47,19 @@
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/message_item_time"
                     android:singleLine="true"
+                    android:textColor="@color/black"
                     android:textStyle="bold"
                     tools:text="John Doe" />
 
                 <TextView
-                    android:id="@+id/message_item_time"
+                    android:id="@id/message_item_time"
                     style="@style/AppTextAppearance.Small.Grey"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginStart="@dimen/default_padding"
                     android:layout_marginEnd="2dp"
+                    android:layout_marginStart="@dimen/default_padding"
+                    android:textColor="@color/black"
                     tools:text="01-06-2017-06:54" />
             </RelativeLayout>
 

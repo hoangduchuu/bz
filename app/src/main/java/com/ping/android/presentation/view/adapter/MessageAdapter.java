@@ -297,14 +297,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void setReadStatus(Boolean readStatus) {
             if (readStatus) {
                 tvSender.setTypeface(Typeface.DEFAULT);
-                tvMessage.setTypeface(Typeface.DEFAULT);
                 tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
-                tvTime.setTypeface(Typeface.DEFAULT);
+                tvTime.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
             } else {
                 tvSender.setTypeface(Typeface.DEFAULT_BOLD);
-                tvMessage.setTypeface(Typeface.DEFAULT_BOLD);
                 tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
-                tvTime.setTypeface(Typeface.DEFAULT_BOLD);
+                tvTime.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
             }
         }
 
