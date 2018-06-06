@@ -7,6 +7,7 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,10 +43,10 @@ public class ConversationPVPDetailFragment extends BaseFragment
 
     private ImageView userProfile;
     private TextView userName;
-    private Switch swNotification;
-    private Switch swMask;
-    private Switch swPuzzle;
-    private Switch swBlock;
+    private SwitchCompat swNotification;
+    private SwitchCompat swMask;
+    private SwitchCompat swPuzzle;
+    private SwitchCompat swBlock;
 
     private String conversationId;
 

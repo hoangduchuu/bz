@@ -46,6 +46,7 @@
     </style>
 
     <style name="BackgroundTintDefault">
+        <item name="android:backgroundTint">@color/orange</item>
         <item name="android:tint">@color/orange</item>
     </style>
     <style name="BackgroundTintStyle1">
@@ -87,5 +88,11 @@
 
     <style name="iconActionStyle1" parent="@style/ChatTypeIcon">
         <item name="android:backgroundTint">@color/color_1</item>
+    </style>
+
+    <style name="SwitchStyleDefault">
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:thumb">@drawable/ic_switch_thumb</item>
+        <item name="track">@drawable/ic_switch_track</item>
     </style>
 </resources>

@@ -88,7 +88,7 @@
                             style="@style/ItemSettingText"
                             android:text="Notifications" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/group_profile_notification"
                             style="@style/ItemSettingIconRight.Toggle" />
                     </LinearLayout>
@@ -128,7 +128,7 @@
                             style="@style/ItemSettingText"
                             android:text="Mask Incoming Messages" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/group_profile_mask"
                             style="@style/ItemSettingIconRight.Toggle" />
 
@@ -149,7 +149,7 @@
                             style="@style/ItemSettingText"
                             android:text="Puzzle Incoming Pictures" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/group_profile_puzzle"
                             style="@style/ItemSettingIconRight.Toggle" />
                     </LinearLayout>

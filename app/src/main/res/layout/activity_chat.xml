@@ -75,11 +75,12 @@
 
                     <ImageView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="16dp"
                         android:layout_centerVertical="true"
-                        android:layout_toRightOf="@id/chat_person_name"
-                        android:paddingLeft="5dp"
-                        android:src="@drawable/ic_yellow_arrow_right" />
+                        android:layout_toEndOf="@id/chat_person_name"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:src="@drawable/ic_arrow_right" />
                 </RelativeLayout>
 
 

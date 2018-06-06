@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,9 +61,9 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private EditText groupName;
     private RecyclerView rvListMember;
     private LinearLayoutManager mLinearLayoutManager;
-    private Switch swNotification;
-    private Switch swMask;
-    private Switch cbPuzzle;
+    private SwitchCompat swNotification;
+    private SwitchCompat swMask;
+    private SwitchCompat cbPuzzle;
     private BottomSheetDialog colorPickerBottomSheetDialog;
 
     private String conversationId;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background_gray"
@@ -68,14 +68,15 @@
                             style="@style/AppTextAppearance.Small.Grey"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/default_padding"
-                            android:text="me.me" />
+                            android:layout_marginEnd="3dp"
+                            tools:text="me.me" />
                     </LinearLayout>
 
                     <View style="@style/ItemSettingSeparate" />
 
-                    <LinearLayout style="@style/ItemSetting"
-                        android:id="@+id/profile_phone_detail">
+                    <LinearLayout
+                        android:id="@+id/profile_phone_detail"
+                        style="@style/ItemSetting">
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
@@ -102,8 +103,7 @@
                             style="@style/ItemSettingText"
                             android:text="Change Password" />
 
-                        <ImageView
-                            style="@style/ItemSettingIconRight"/>
+                        <ImageView style="@style/ItemSettingIconRight" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -112,8 +112,8 @@
                     android:id="@+id/profile_mapping"
                     style="@style/ItemSetting"
                     android:layout_marginTop="@dimen/setting_item_separate"
-                    android:orientation="horizontal"
-                    android:background="@color/white">
+                    android:background="@color/white"
+                    android:orientation="horizontal">
 
                     <ImageView
                         style="@style/ItemSettingIconLeft"
@@ -123,8 +123,7 @@
                         style="@style/ItemSettingText"
                         android:text="Transphabet" />
 
-                    <ImageView
-                        style="@style/ItemSettingIconRight"/>
+                    <ImageView style="@style/ItemSettingIconRight" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -143,7 +142,7 @@
                             style="@style/ItemSettingText"
                             android:text="Sound Notifications" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/profile_notification"
                             style="@style/ItemSettingIconRight.Toggle" />
                     </LinearLayout>
@@ -160,9 +159,10 @@
                             style="@style/ItemSettingText"
                             android:text="Hide Profile Picture" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/profile_show_profile"
-                            style="@style/ItemSettingIconRight.Toggle" />
+                            style="@style/ItemSettingIconRight.Toggle"
+                            tools:checked="true" />
                     </LinearLayout>
 
                     <View style="@style/ItemSettingSeparate" />
@@ -179,8 +179,7 @@
                             style="@style/ItemSettingText"
                             android:text="Block List" />
 
-                        <ImageView
-                            style="@style/ItemSettingIconRight" />
+                        <ImageView style="@style/ItemSettingIconRight" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -190,8 +189,9 @@
                     android:background="@color/white"
                     android:orientation="vertical">
 
-                    <LinearLayout style="@style/ItemSetting"
-                        android:id="@+id/profile_privacy_and_terms">
+                    <LinearLayout
+                        android:id="@+id/profile_privacy_and_terms"
+                        style="@style/ItemSetting">
 
                         <ImageView
                             style="@style/ItemSettingIconLeft"
@@ -235,10 +235,10 @@
                             android:src="@drawable/ic_profile_signout" />
 
                         <Button
-                            android:paddingLeft="0dp"
-                            android:background="@null"
                             android:id="@+id/profile_sign_out"
                             style="@style/ActionButton"
+                            android:background="@null"
+                            android:paddingLeft="0dp"
                             android:text="Sign Out"
                             android:textAllCaps="false" />
                     </LinearLayout>
