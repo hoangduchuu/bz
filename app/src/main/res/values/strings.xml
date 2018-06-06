@@ -266,4 +266,6 @@
     <string name="chat_voice_call_to_me">%s called you.</string>
     <string name="chat_call_back">Call back</string>
     <string name="chat_call_again">Call again</string>
+
+    <string name="empty" />
 </resources>

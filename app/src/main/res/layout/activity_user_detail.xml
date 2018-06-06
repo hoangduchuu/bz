@@ -164,7 +164,7 @@
                             style="@style/ItemSettingText"
                             android:text="Block" />
 
-                        <Switch
+                        <android.support.v7.widget.SwitchCompat
                             android:id="@+id/user_detail_block"
                             style="@style/ItemSettingIconRight.Toggle" />
                     </LinearLayout>

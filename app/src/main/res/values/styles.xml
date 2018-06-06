@@ -156,8 +156,8 @@
     <style name="ItemSetting" parent="MatchWidth">
         <item name="android:gravity">center_vertical</item>
         <item name="android:layout_height">@dimen/setting_item_height</item>
-        <item name="android:paddingLeft">@dimen/default_padding</item>
-        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingStart">@dimen/default_padding</item>
+        <item name="android:paddingEnd">@dimen/default_padding</item>
         <item name="android:background">@color/white</item>
     </style>
 
@@ -171,14 +171,18 @@
     <style name="ItemSettingIconRight" parent="WrapContent">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_marginRight">15dp</item>
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginEnd">3dp</item>
         <item name="android:src">@drawable/ic_arrow_right_gray</item>
     </style>
 
     <style name="ItemSettingIconRight.Toggle">
         <item name="android:layout_marginRight">5dp</item>
+        <item name="android:thumb">@drawable/ic_switch_thumb</item>
+        <item name="android:textOn">@string/empty</item>
+        <item name="android:textOff">@string/empty</item>
+        <item name="track">@drawable/ic_switch_track</item>
     </style>
 
     <style name="ItemSettingText" parent="AppTextAppearance">
@@ -187,7 +191,6 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:duplicateParentState">true</item>
         <item name="android:clickable">false</item>
-
     </style>
 
     <style name="ItemSettingSeparate" parent="MatchWidth">

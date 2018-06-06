@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,7 +28,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private ImageView ivAvatar;
     private TextView userName;
     private TextView tvDisplayName;
-    private Switch swUserBlock;
+    private SwitchCompat swUserBlock;
     private LinearLayout layoutSaveContact, layoutDeleteContact;
 
     private String userID;
