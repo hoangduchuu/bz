@@ -185,6 +185,7 @@
                     android:id="@+id/chat_send_message_btn"
                     style="@style/ActionButton"
                     android:layout_gravity="bottom"
+                    android:layout_marginEnd="14dp"
                     android:text="Send"
                     android:textAllCaps="true" />
 
