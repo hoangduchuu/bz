@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.NoActionBar">
 
         <meta-data android:name="com.quickblox.messages.TYPE" android:value="FCM" tools:replace="android:value"/>
         <meta-data android:name="com.quickblox.messages.SENDER_ID" android:value="@string/sender_id_debug" tools:replace="android:value"/>

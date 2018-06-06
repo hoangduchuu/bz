@@ -1,69 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="41dp"
-    android:height="32dp"
-    android:viewportWidth="138"
-    android:viewportHeight="105">
+    android:width="140dp"
+    android:height="108dp"
+    android:viewportWidth="140"
+    android:viewportHeight="108">
 
     <group
-        android:translateX="-403.000000">
+        android:translateX="-417.000000"
+        android:translateY="1.000000">
         <group
-            android:translateX="9.000000">
+            android:translateX="11.000000">
             <group
-                android:translateX="395.000000">
+                android:translateX="408.000000">
                 <group
                     android:translateX="23.000000"
-                    android:translateY="20.000000">
+                    android:translateY="21.000000">
                     <path
                         android:fillType="evenOdd"
                         android:strokeColor="#666666"
-                        android:strokeWidth="1"
-                        android:pathData="M0.5,50.5 L5.2,49" />
+                        android:strokeWidth="3"
+                        android:pathData="M0.5,49.8 L5.3,48.3" />
                     <path
                         android:fillType="evenOdd"
                         android:strokeColor="#666666"
-                        android:strokeWidth="1"
-                        android:pathData="M80.5,61.3 L74.5,58.8" />
+                        android:strokeWidth="3"
+                        android:pathData="M80.6,60.6 L74.5,58.1" />
                     <path
                         android:fillType="evenOdd"
                         android:strokeColor="#666666"
-                        android:strokeWidth="1"
-                        android:pathData="M62.3,0.9 L60,6.4" />
+                        android:strokeWidth="3"
+                        android:pathData="M62.3,0.3 L60.1,5.7" />
                 </group>
                 <path
                     android:fillType="evenOdd"
                     android:strokeColor="#666666"
-                    android:strokeWidth="1"
-                    android:pathData="M 64.9 21.8 C 85.7763635436 21.8 102.7 38.7236364564 102.7 59.6 C 102.7 80.4763635436 85.7763635436 97.4 64.9 97.4 C 44.0236364564 97.4 27.1 80.4763635436 27.1 59.6 C 27.1 38.7236364564 44.0236364564 21.8 64.9 21.8 Z" />
+                    android:strokeWidth="3"
+                    android:pathData="M 65 22.1 C 85.8763635436 22.1 102.8 39.0236364564 102.8 59.9 C 102.8 80.7763635436 85.8763635436 97.7 65 97.7 C 44.1236364564 97.7 27.2 80.7763635436 27.2 59.9 C 27.2 39.0236364564 44.1236364564 22.1 65 22.1 Z" />
                 <group
                     android:translateX="45.000000"
-                    android:translateY="38.000000">
+                    android:translateY="39.000000">
                     <path
                         android:fillType="evenOdd"
                         android:strokeColor="#666666"
-                        android:strokeWidth="1"
-                        android:pathData="M 19.9 0.7 C 25.6437613982 0.7 30.3 5.35623860176 30.3 11.1 C 30.3 16.8437613982 25.6437613982 21.5 19.9 21.5 C 14.1562386018 21.5 9.5 16.8437613982 9.5 11.1 C 9.5 5.35623860176 14.1562386018 0.7 19.9 0.7 Z" />
+                        android:strokeWidth="3"
+                        android:pathData="M 20 0 C 25.7437613982 0 30.4 4.65623860176 30.4 10.4 C 30.4 16.1437613982 25.7437613982 20.8 20 20.8 C 14.2562386018 20.8 9.6 16.1437613982 9.6 10.4 C 9.6 4.65623860176 14.2562386018 0 20 0 Z" />
                     <path
                         android:fillType="evenOdd"
                         android:strokeColor="#666666"
-                        android:strokeWidth="1"
-                        android:pathData="M0,39 C0,32.4 8.9,27 19.9,27 C30.9,27 39.8,32.4 39.8,39" />
+                        android:strokeWidth="3"
+                        android:pathData="M0,38.3 C0,31.7 8.9,26.3 19.9,26.3 C30.9,26.3 39.8,31.7 39.8,38.3" />
                 </group>
                 <path
                     android:fillType="evenOdd"
                     android:strokeColor="#666666"
-                    android:strokeWidth="1"
-                    android:pathData="M 12 62 C 18.627416998 62 24 67.372583002 24 74 C 24 80.627416998 18.627416998 86 12 86 C 5.37258300203 86 0 80.627416998 0 74 C 0 67.372583002 5.37258300203 62 12 62 Z" />
+                    android:strokeWidth="3"
+                    android:pathData="M 12 62.3 C 18.627416998 62.3 24 67.672583002 24 74.3 C 24 80.927416998 18.627416998 86.3 12 86.3 C 5.37258300203 86.3 0 80.927416998 0 74.3 C 0 67.672583002 5.37258300203 62.3 12 62.3 Z" />
                 <path
                     android:fillType="evenOdd"
                     android:strokeColor="#666666"
-                    android:strokeWidth="1"
-                    android:pathData="M 88.9 0.6 C 94.6989898732 0.6 99.4 5.30101012678 99.4 11.1 C 99.4 16.8989898732 94.6989898732 21.6 88.9 21.6 C 83.1010101268 21.6 78.4 16.8989898732 78.4 11.1 C 78.4 5.30101012678 83.1010101268 0.6 88.9 0.6 Z" />
+                    android:strokeWidth="3"
+                    android:pathData="M 89 0.9 C 94.7989898732 0.9 99.5 5.60101012678 99.5 11.4 C 99.5 17.1989898732 94.7989898732 21.9 89 21.9 C 83.2010101268 21.9 78.5 17.1989898732 78.5 11.4 C 78.5 5.60101012678 83.2010101268 0.9 89 0.9 Z" />
                 <path
                     android:fillType="evenOdd"
                     android:strokeColor="#666666"
-                    android:strokeWidth="1"
-                    android:pathData="M 119.2 70.6 C 128.533612272 70.6 136.1 78.1663877279 136.1 87.5 C 136.1 96.8336122721 128.533612272 104.4 119.2 104.4 C 109.866387728 104.4 102.3 96.8336122721 102.3 87.5 C 102.3 78.1663877279 109.866387728 70.6 119.2 70.6 Z" />
+                    android:strokeWidth="3"
+                    android:pathData="M 119.2 70.9 C 128.533612272 70.9 136.1 78.4663877279 136.1 87.8 C 136.1 97.1336122721 128.533612272 104.7 119.2 104.7 C 109.866387728 104.7 102.3 97.1336122721 102.3 87.8 C 102.3 78.4663877279 109.866387728 70.9 119.2 70.9 Z" />
             </group>
         </group>
     </group>

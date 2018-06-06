@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="29dp"
-    android:height="29dp"
-    android:viewportWidth="85"
-    android:viewportHeight="85">
+    android:width="88dp"
+    android:height="88dp"
+    android:viewportWidth="88"
+    android:viewportHeight="88">
 
     <group
-        android:translateX="-218.000000"
-        android:translateY="-10.000000">
+        android:translateX="-225.000000"
+        android:translateY="-9.000000">
         <group
-            android:translateX="9.000000">
+            android:translateX="11.000000">
             <path
                 android:fillType="evenOdd"
                 android:strokeColor="#666666"
-                android:strokeWidth="1"
-                android:pathData="M213.5,28.1 C214.2,38.6 222.9,55.4 232.4,66.6 C244.6,81.2 266.5,92.5 276.1,90.4 C280.4,89.5 291.5,80.2 290.4,75.7 C289.5,71.8 273.4,64.1 270.7,65 C267,66.2 262.1,71.4 263.1,70.7 C263.1,70.7 261.9,72.8 247.7,62.5 C237.4,55 234.5,48 236.2,42.7 L241.8,35.7 C244,33.1 235.3,14.5 231.7,14.5 C223.9,14.3 213.1,22.5 213.5,28.1 Z" />
+                android:strokeWidth="3"
+                android:pathData="M219.7,28.4 C220.4,38.9 229.1,55.7 238.6,66.9 C250.8,81.5 272.7,92.8 282.3,90.7 C286.6,89.8 297.7,80.5 296.6,76 C295.7,72.1 279.6,64.4 276.9,65.3 C273.2,66.5 268.3,71.7 269.3,71 C269.3,71 268.1,73.1 253.9,62.8 C243.6,55.3 240.7,48.3 242.4,43 L248,36 C250.2,33.4 241.5,14.8 237.9,14.8 C230,14.6 219.3,22.8 219.7,28.4 Z" />
         </group>
     </group>
 </vector>

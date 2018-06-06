@@ -29,7 +29,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.NoActionBar">
 
         <!-- </service> -->
         <service
@@ -82,22 +82,22 @@
             android:name=".presentation.view.activity.BeforeLoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Fullscreen" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.LoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.RegistrationActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.PhoneActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.MainActivity"
             android:label="Message"
@@ -143,12 +143,12 @@
             android:name=".presentation.view.activity.ChangePasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.ForgotPasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.CallActivity"
             android:configChanges="orientation|screenSize"
@@ -178,8 +178,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".presentation.view.activity.TransphabetActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:screenOrientation="sensorPortrait" />
         <activity
             android:name=".presentation.view.activity.PrivacyAndTermActivity"
             android:screenOrientation="sensorPortrait"

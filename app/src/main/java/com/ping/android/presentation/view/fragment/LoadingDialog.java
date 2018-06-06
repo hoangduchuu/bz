@@ -12,12 +12,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 
 import com.ping.android.R;
 import com.wang.avi.AVLoadingIndicatorView;
 
 public class LoadingDialog extends DialogFragment {
     AVLoadingIndicatorView loadingView;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.DialogTheme);
+    }
 
     @Nullable
     @Override
