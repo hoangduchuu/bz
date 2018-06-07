@@ -11,7 +11,12 @@
         android:background="@color/main_background_gray"
         android:orientation="vertical">
 
-        <RelativeLayout style="@style/TopMenu">
+        <RelativeLayout
+            style="?attr/backgroundTheme"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="#F1F2F2"
+            android:gravity="center_vertical">
 
             <ImageView
                 android:id="@+id/user_detail_back"
@@ -40,8 +45,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
-                    android:transitionName="profile"
-                    android:src="@drawable/ic_avatar_gray" />
+                    android:src="@drawable/ic_avatar_gray"
+                    android:transitionName="profile" />
 
                 <TextView
                     android:id="@+id/tv_display_name"
@@ -50,17 +55,18 @@
                     android:layout_marginBottom="5dp"
                     android:text="User's Profile"
                     android:textColor="@color/black"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp" />
 
                 <LinearLayout
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="10dp"
                     android:gravity="center_horizontal">
 
                     <ImageView
                         android:id="@+id/user_detail_message"
+                        style="?attr/backgroundTheme"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:background="@null"
@@ -68,21 +74,21 @@
 
                     <ImageView
                         android:id="@+id/user_detail_voice"
+                        style="?attr/backgroundTheme"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
                         android:background="@null"
-                        android:src="@drawable/ic_chat_audio"
-                        android:tint="@color/colorPrimaryDark"/>
+                        android:src="@drawable/ic_chat_audio" />
 
                     <ImageView
                         android:id="@+id/user_detail_video"
+                        style="?attr/backgroundTheme"
                         android:layout_width="30dp"
                         android:layout_height="20dp"
-                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
                         android:background="@null"
-                        android:src="@drawable/ic_chat_video"
-                        android:tint="@color/colorPrimaryDark"/>
+                        android:src="@drawable/ic_chat_video" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -95,7 +101,10 @@
                         android:orientation="horizontal">
 
                         <ImageView
-                            style="@style/ItemSettingIconLeft"
+                            style="?attr/backgroundTheme"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="8dp"
                             android:src="@drawable/ic_username" />
 
                         <TextView
@@ -118,31 +127,42 @@
                         android:background="@color/white"
                         android:orientation="vertical">
 
-                        <LinearLayout style="@style/ItemSetting"
-                            android:id="@+id/layout_save_contact">
+                        <LinearLayout
+                            android:id="@+id/layout_save_contact"
+                            style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_add_circle" />
 
                             <TextView
-                                style="@style/ItemSettingText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:text="Save Contact"
-                                android:textColor="@color/orange" />
+                                android:textColor="?colorAccent" />
                         </LinearLayout>
 
 
-                        <LinearLayout style="@style/ItemSetting"
-                            android:id="@+id/layout_delete_contact">
+                        <LinearLayout
+                            android:id="@+id/layout_delete_contact"
+                            style="@style/ItemSetting">
 
                             <ImageView
-                                style="@style/ItemSettingIconLeft"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="8dp"
                                 android:src="@drawable/ic_delete" />
 
                             <TextView
-                                style="@style/ItemSettingText"
+                                style="?attr/backgroundTheme"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:text="Delete Contact"
-                                android:textColor="@color/orange" />
+                                android:textColor="?colorAccent" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -157,7 +177,10 @@
                     <LinearLayout style="@style/ItemSetting">
 
                         <ImageView
-                            style="@style/ItemSettingIconLeft"
+                            style="?attr/backgroundTheme"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="8dp"
                             android:src="@drawable/ic_block" />
 
                         <TextView

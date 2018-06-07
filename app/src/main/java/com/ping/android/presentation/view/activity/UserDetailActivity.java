@@ -14,7 +14,9 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
 import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
@@ -41,6 +43,14 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
+                int color = bundle.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR);
+                Color currentColor = Color.from(color);
+                ThemeUtils.onActivityCreateSetTheme(this, currentColor);
+            }
+        }
         getComponent().inject(this);
         presenter.create();
         setContentView(R.layout.activity_user_detail);

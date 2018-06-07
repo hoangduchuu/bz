@@ -226,7 +226,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="ADD NEW"
-                        android:textColor="@color/orange" />
+                        android:textColor="?colorAccent" />
                 </LinearLayout>
 
                 <View style="@style/ItemViewSeparate" />
@@ -249,7 +249,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="LEAVE GROUP"
-                        android:textColor="@color/orange" />
+                        android:textColor="?colorAccent" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
