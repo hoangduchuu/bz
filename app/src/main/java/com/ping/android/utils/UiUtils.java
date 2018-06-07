@@ -127,7 +127,7 @@ public class UiUtils {
                     .diskCacheStrategy(DiskCacheStrategy.DATA)
                     .into(imageView);
         } else {
-            imageView.setImageResource(IMG_DEFAULT);
+            imageView.setImageResource(placeholder);
         }
     }
 
