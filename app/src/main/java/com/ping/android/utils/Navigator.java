@@ -184,7 +184,7 @@ public class Navigator {
     /**
      * Listener interface for navigation events.
      */
-    interface NavigationListener {
+    public interface NavigationListener {
 
         /**
          * Callback on backstack changed.

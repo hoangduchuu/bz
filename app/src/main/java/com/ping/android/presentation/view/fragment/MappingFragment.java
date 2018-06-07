@@ -63,7 +63,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // create ContextThemeWrapper from the original Activity Context with the custom theme
-        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.AppTheme_Dark);
+        final Context contextThemeWrapper = new ContextThemeWrapper(getContext(), R.style.AppTheme_Dark);
 
         // clone the inflater using the ContextThemeWrapper
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);

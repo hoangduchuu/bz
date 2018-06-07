@@ -2,23 +2,33 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="58"
-    android:viewportHeight="58">
+    android:viewportWidth="24"
+    android:viewportHeight="24">
 
-    <path
-        android:fillColor="#FBB040"
-        android:strokeWidth="1"
-        android:pathData="M44.4,0.5 L28.8,0.5 L13.2,0.5 C5.2,0.5 0.4,7 0.4,15 L0.4,28.8 L0.4,42.6 C0.4,50.6 5.1,57.1 13.2,57.1 L28.8,57.1 L44.4,57.1 C52.4,57.1 57.2,50.6 57.2,42.6 L57.2,28.8 L57.2,15 C57.1,7 52.4,0.5 44.4,0.5 Z M28.8,52.8 C15.6,52.8 4.9,42.1 4.9,28.9 C4.9,15.7 15.6,5 28.8,5 C42,5 52.7,15.7 52.7,28.9 C52.7,42.1 42,52.8 28.8,52.8 Z" />
     <group
-        android:translateX="11.000000"
-        android:translateY="11.000000">
-        <path
-            android:fillColor="#FBB040"
-            android:strokeWidth="1"
-            android:pathData="M28.2,3.8 C25.3,1.6 21.7,0.3 17.7,0.3 C8,0.3 0.1,8.2 0.1,17.9 C0.1,22.1 1.6,26 4.1,29 L28.2,3.8 Z" />
-        <path
-            android:fillColor="#FBB040"
-            android:strokeWidth="1"
-            android:pathData="M31.5,6.9 L7.5,32.1 C10.4,34.2 13.9,35.5 17.8,35.5 C27.5,35.5 35.4,27.6 35.4,17.9 C35.3,13.7 33.9,9.9 31.5,6.9 Z" />
+        android:translateX="-540.000000"
+        android:translateY="-133.000000">
+        <group
+            android:translateX="540.000000"
+            android:translateY="133.000000">
+            <path
+                android:fillColor="#FF3B30"
+                android:strokeWidth="1"
+                android:pathData="M19.1314286,23.4666667 L5.00571429,23.4666667 C2.4,23.4666667 0.274285714,21.4 0.274285714,18.8666667 L0.274285714,5.13333333 C0.274285714,2.6 2.4,0.533333333 5.00571429,0.533333333 L19.1314286,0.533333333 C21.7371429,0.533333333 23.8628571,2.6 23.8628571,5.13333333 L23.8628571,18.8666667 C23.7942857,21.4 21.7371429,23.4666667 19.1314286,23.4666667 Z" />
+            <group
+                android:translateX="5.000000"
+                android:translateY="5.000000">
+                <path
+                    android:fillType="evenOdd"
+                    android:strokeColor="#FFFFFF"
+                    android:strokeWidth="1"
+                    android:pathData="M 7.06666667 0.4 C 10.7853839837 0.4 13.8 3.41461601631 13.8 7.13333333 C 13.8 10.8520506437 10.7853839837 13.86666666 7.06666667 13.86666666 C 3.34794935631 13.86666666 0.33333334 10.8520506437 0.33333334 7.13333333 C 0.33333334 3.41461601631 3.34794935631 0.4 7.06666667 0.4 Z" />
+                <path
+                    android:fillType="evenOdd"
+                    android:strokeColor="#FFFFFF"
+                    android:strokeWidth="1"
+                    android:pathData="M1.73333333,11.3333333 L12.4666667,3.13333333" />
+            </group>
+        </group>
     </group>
 </vector>
