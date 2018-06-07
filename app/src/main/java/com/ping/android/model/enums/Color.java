@@ -47,23 +47,23 @@ public enum Color {
     public int statusBarColor() {
         switch (this) {
             case COLOR_1:
-                return R.color.color_accent_1;
+                return R.color.color_1;
             case COLOR_2:
-                return R.color.color_accent_2;
+                return R.color.color_2;
             case COLOR_3:
-                return R.color.color_accent_3;
+                return R.color.color_3;
             case COLOR_4:
-                return R.color.color_accent_4;
+                return R.color.color_4;
             case COLOR_5:
-                return R.color.color_accent_5;
+                return R.color.color_5;
             case COLOR_6:
-                return R.color.color_accent_6;
+                return R.color.color_6;
             case COLOR_7:
-                return R.color.color_accent_7;
+                return R.color.color_7;
             case COLOR_8:
-                return R.color.color_accent_8;
+                return R.color.color_8;
             case COLOR_9:
-                return R.color.color_accent_9;
+                return R.color.color_9;
             default:
                 return R.color.orange;
         }
