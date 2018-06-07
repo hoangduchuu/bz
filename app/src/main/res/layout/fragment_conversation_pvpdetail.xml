@@ -176,7 +176,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_color_lens" />
+                    android:src="@drawable/ic_conversation_color_lens" />
 
                 <TextView
                     android:id="@+id/group_profile_color"
@@ -197,7 +197,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_chat_image_selected" />
+                    android:src="@drawable/ic_conversation_background" />
 
                 <TextView
                     style="@style/ItemSettingText"
@@ -217,7 +217,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
-                    android:src="@drawable/ic_chat_image_selected" />
+                    android:src="@drawable/ic_conversation_media" />
 
                 <TextView
                     style="@style/ItemSettingText"
