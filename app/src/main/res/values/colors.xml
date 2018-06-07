@@ -40,6 +40,7 @@
     <color name="colorPrimary">@color/orange_dark</color>
     <color name="colorAccent">@color/orange</color>
     <color name="colorPrimaryDark">@color/orange</color>
+    <color name="colorPrimaryBlack">#58595B</color>
 
     <color name="bg_top_bar">#F9F9F9</color>
     <color name="bg_tab_bar">#FFFFFF</color>

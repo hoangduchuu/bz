@@ -57,6 +57,11 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public TransphabetPresenter getPresenter() {
         return presenter;
     }

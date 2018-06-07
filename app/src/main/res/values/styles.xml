@@ -36,6 +36,10 @@
         <item name="colorPrimaryDark">#58595B</item>
     </style>
 
+    <style name="AppTheme.Darkness" parent="AppTheme.NoActionBar">
+        <item name="colorPrimaryDark">#231F20</item>
+    </style>
+
     <style name="AppTheme.NoActionBar.Transparent" parent="AppTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -319,7 +323,7 @@
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingBottom">5dp</item>
         <item name="android:background">@drawable/round_corner</item>
-        <item name="android:drawablePadding">10dp</item>
+        <item name="android:drawablePadding">5dp</item>
         <item name="android:hint">@string/hint_search</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/white</item>

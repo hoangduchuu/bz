@@ -78,7 +78,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         tvName = view.findViewById(R.id.profile_name);
         tvDisplayName = view.findViewById(R.id.tv_display_name);
         profileImage = view.findViewById(R.id.profile_image);
-        profileImage.setImageResource(R.drawable.ic_avatar_gray);
         rbNotification = view.findViewById(R.id.profile_notification);
         rbShowProfile = view.findViewById(R.id.profile_show_profile);
 
@@ -99,7 +98,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         tvName.setText(currentUser.pingID);
         tvDisplayName.setText(currentUser.getDisplayName());
 
-        UiUtils.displayProfileImage(getContext(), profileImage, currentUser, true);
+        UiUtils.displayProfileImage(getContext(), profileImage, currentUser, R.drawable.ic_avatar_light, true);
         rbNotification.setChecked(currentUser.settings.notification);
         rbShowProfile.setChecked(currentUser.settings.private_profile);
     }

@@ -7,6 +7,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.support.annotation.ColorInt;
+import android.support.annotation.DimenRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -98,10 +100,10 @@ public class UiUtils {
     }
 
     public static void displayProfileImage(final Context context, final ImageView imageView, User user) {
-        displayProfileImage(context, imageView, user, false);
+        displayProfileImage(context, imageView, user, R.drawable.ic_avatar_gray, false);
     }
 
-    public static void displayProfileImage(final Context context, final ImageView imageView, User user, boolean currentProfile) {
+    public static void displayProfileImage(final Context context, final ImageView imageView, User user, @DrawableRes int placeholder, boolean currentProfile) {
 
         if (context == null || imageView == null) {
             return;
@@ -117,7 +119,8 @@ public class UiUtils {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
-                    .error(R.drawable.ic_avatar_gray)
+                    .placeholder(placeholder)
+                    .error(placeholder)
                     .override(200, 200)
                     .apply(RequestOptions.circleCropTransform())
                     .signature(new ObjectKey(user.profile))

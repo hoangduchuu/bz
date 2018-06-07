@@ -82,7 +82,7 @@
             android:name=".presentation.view.activity.BeforeLoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.Darkness" />
         <activity
             android:name=".presentation.view.activity.LoginActivity"
             android:label="Log"
