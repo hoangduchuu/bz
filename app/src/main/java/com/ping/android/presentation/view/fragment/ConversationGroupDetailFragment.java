@@ -346,7 +346,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void navigateBack() {
         if (getActivity() != null) {
-            getActivity().finish();
+            getActivity().finishAfterTransition();
         }
     }
 

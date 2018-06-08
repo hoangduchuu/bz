@@ -89,6 +89,7 @@
     <color name="color_accent_8">#c49d01</color>
     <color name="color_9">#8e8e93</color>
     <color name="color_accent_9">#5c5c60</color>
+    <color name="blue">#007AFF</color>
 
     <array name="av_colors" tools:override="true">
         <item>#ff9500</item>

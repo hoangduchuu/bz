@@ -163,7 +163,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_color_lens" />
+                            android:src="@drawable/ic_conversation_color_lens" />
 
                         <TextView
                             android:id="@+id/group_profile_color"
@@ -226,7 +226,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="ADD NEW"
-                        android:textColor="@color/orange" />
+                        android:textColor="?colorAccent" />
                 </LinearLayout>
 
                 <View style="@style/ItemViewSeparate" />
@@ -249,7 +249,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="LEAVE GROUP"
-                        android:textColor="@color/orange" />
+                        android:textColor="?colorAccent" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

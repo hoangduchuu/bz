@@ -51,38 +51,47 @@
     </style>
     <style name="BackgroundTintStyle1">
         <item name="android:backgroundTint">@color/color_1</item>
+        <item name="android:foregroundTint">@color/color_1</item>
         <item name="android:tint">@color/color_1</item>
     </style>
     <style name="BackgroundTintStyle2">
         <item name="android:backgroundTint">@color/color_2</item>
+        <item name="android:foregroundTint">@color/color_2</item>
         <item name="android:tint">@color/color_2</item>
     </style>
     <style name="BackgroundTintStyle3">
         <item name="android:backgroundTint">@color/color_3</item>
+        <item name="android:foregroundTint">@color/color_3</item>
         <item name="android:tint">@color/color_3</item>
     </style>
     <style name="BackgroundTintStyle4">
         <item name="android:backgroundTint">@color/color_4</item>
+        <item name="android:foregroundTint">@color/color_4</item>
         <item name="android:tint">@color/color_4</item>
     </style>
     <style name="BackgroundTintStyle5">
         <item name="android:backgroundTint">@color/color_5</item>
+        <item name="android:foregroundTint">@color/color_5</item>
         <item name="android:tint">@color/color_5</item>
     </style>
     <style name="BackgroundTintStyle6">
         <item name="android:backgroundTint">@color/color_6</item>
+        <item name="android:foregroundTint">@color/color_6</item>
         <item name="android:tint">@color/color_6</item>
     </style>
     <style name="BackgroundTintStyle7">
         <item name="android:backgroundTint">@color/color_7</item>
+        <item name="android:foregroundTint">@color/color_7</item>
         <item name="android:tint">@color/color_7</item>
     </style>
     <style name="BackgroundTintStyle8">
         <item name="android:backgroundTint">@color/color_8</item>
+        <item name="android:foregroundTint">@color/color_8</item>
         <item name="android:tint">@color/color_8</item>
     </style>
     <style name="BackgroundTintStyle9">
         <item name="android:backgroundTint">@color/color_9</item>
+        <item name="android:foregroundTint">@color/color_9</item>
         <item name="android:tint">@color/color_9</item>
     </style>
 
