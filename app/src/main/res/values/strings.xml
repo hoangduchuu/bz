@@ -251,7 +251,7 @@
     <string name="notif_content_sent">Sent</string>
     <string name="notif_action_reply">Reply</string>
     <string name="conversation_detail_background">Background</string>
-    <string name="conversation_detail_media">Shared Photos</string>
+    <string name="conversation_detail_media">Shared Media</string>
     <string name="color_picker_description">Pick a color for this conversation</string>
 
     <string name="hint_search">Search</string>
@@ -279,4 +279,10 @@
     <string name="empty" />
     <string name="profile_privacy_help">Help</string>
     <string name="profile_signout">Sign Out</string>
+    <string name="conversation_detail_notifications">Notifications</string>
+    <string name="conversation_detail_nickname">Nickname</string>
+    <string name="conversation_detail_mask_message">Mask Incoming Messages</string>
+    <string name="conversation_detail_puzzule_image">Puzzle Incoming Pictures</string>
+    <string name="conversation_detail_colors">Colors</string>
+    <string name="conversation_detail_block">Block</string>
 </resources>

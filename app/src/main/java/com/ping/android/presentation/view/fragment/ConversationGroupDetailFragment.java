@@ -149,13 +149,13 @@ public class ConversationGroupDetailFragment extends BaseFragment
             case R.id.group_profile_leave_group:
                 onLeaveGroup();
                 break;
-            case R.id.group_profile_notification:
+            case R.id.user_profile_notification:
                 onNotificationSetting();
                 break;
-            case R.id.group_profile_mask:
+            case R.id.user_profile_mask:
                 onMaskSetting();
                 break;
-            case R.id.group_profile_puzzle:
+            case R.id.user_profile_puzzle:
                 onPuzzleSetting();
                 break;
             case R.id.group_profile_image:
@@ -248,11 +248,11 @@ public class ConversationGroupDetailFragment extends BaseFragment
         rvListMember = view.findViewById(R.id.group_profile_list_member);
         mLinearLayoutManager = new LinearLayoutManager(getContext());
 
-        swNotification = view.findViewById(R.id.group_profile_notification);
+        swNotification = view.findViewById(R.id.user_profile_notification);
         swNotification.setOnClickListener(this);
-        swMask = view.findViewById(R.id.group_profile_mask);
+        swMask = view.findViewById(R.id.user_profile_mask);
         swMask.setOnClickListener(this);
-        cbPuzzle = view.findViewById(R.id.group_profile_puzzle);
+        cbPuzzle = view.findViewById(R.id.user_profile_puzzle);
         cbPuzzle.setOnClickListener(this);
 
         view.findViewById(R.id.group_profile_back).setOnClickListener(this);

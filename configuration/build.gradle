@@ -39,9 +39,10 @@ dependencies {
     }
     kapt 'com.github.bumptech.glide:compiler:4.6.1'
 
-    implementation('com.firebaseui:firebase-ui-storage:3.3.1') {
+    implementation('com.firebaseui:firebase-ui-storage:4.0.1') {
         exclude group: 'com.android.support'
         exclude group: 'com.github.bumptech.glide'
+        exclude group: 'com.google.firebase:'
     }
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
