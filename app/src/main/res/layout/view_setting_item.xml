@@ -1,0 +1,48 @@
+<merge
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.support.constraint.ConstraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/leftIcon"
+        style="@style/ItemSettingIconLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/ic_profile_phonenumber" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/ItemSettingText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        app:layout_constraintEnd_toStartOf="@+id/viewContainer"
+        app:layout_constraintStart_toEndOf="@+id/leftIcon"
+        app:layout_constraintTop_toTopOf="@+id/leftIcon"
+        tools:text="Phone Number" />
+
+    <FrameLayout
+        android:id="@+id/viewContainer"
+        style="@style/ItemSettingIconRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_title"
+        app:layout_constraintStart_toEndOf="@+id/tv_title" />
+
+    <View
+        android:id="@+id/divider"
+        style="@style/ItemSettingSeparate"
+        android:layout_marginStart="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/tv_title" />
+</merge>

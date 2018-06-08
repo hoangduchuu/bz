@@ -22,4 +22,11 @@
     <declare-styleable name="MaxHeightRecyclerView">
         <attr name="maxHeight" format="integer" />
     </declare-styleable>
+
+    <declare-styleable name="SettingItem">
+        <attr name="showDivider" format="boolean" />
+        <attr name="leftIcon" format="reference" />
+        <attr name="title" format="reference" />
+        <attr name="titleColor" format="reference" />
+    </declare-styleable>
 </resources>

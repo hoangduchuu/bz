@@ -51,214 +51,121 @@
                 android:text="Me"
                 android:textSize="18sp" />
 
-            <LinearLayout
-                style="@style/MatchParent"
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_username_detail"
+                style="@style/ItemSetting"
                 android:layout_marginTop="10dp"
-                android:orientation="vertical">
+                app:leftIcon="@drawable/ic_profile_username"
+                app:title="@string/profile_username">
 
-                <LinearLayout
-                    style="@style/MatchWidth"
-                    android:background="@color/white"
-                    android:orientation="vertical">
+                <TextView
+                    android:id="@+id/profile_name"
+                    style="@style/AppTextAppearance.Small.Grey"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="3dp"
+                    tools:text="me.me" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                    <LinearLayout
-                        android:id="@+id/profile_username_detail"
-                        style="@style/ItemSetting"
-                        android:orientation="horizontal">
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_phone_detail"
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_phonenumber"
+                app:title="@string/profile_phonenumber">
 
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_username" />
+                <ImageView
+                    style="@style/ItemSettingIconRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Username" />
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_change_password"
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_password"
+                app:showDivider="false"
+                app:title="@string/profile_change_password">
 
-                        <TextView
-                            android:id="@+id/profile_name"
-                            style="@style/AppTextAppearance.Small.Grey"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="3dp"
-                            tools:text="me.me" />
-                    </LinearLayout>
+                <ImageView
+                    style="@style/ItemSettingIconRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                    <View style="@style/ItemSettingSeparate" />
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_mapping"
+                style="@style/ItemSetting"
+                android:layout_marginTop="@dimen/setting_item_separate"
+                app:leftIcon="@drawable/ic_profile_transphabet"
+                app:showDivider="false"
+                app:title="@string/profile_transphabet">
 
-                    <LinearLayout
-                        android:id="@+id/profile_phone_detail"
-                        style="@style/ItemSetting">
+                <ImageView
+                    style="@style/ItemSettingIconRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_phonenumber" />
+            <com.ping.android.presentation.view.custom.SettingItem
+                style="@style/ItemSetting"
+                android:layout_marginTop="@dimen/setting_item_separate"
+                app:leftIcon="@drawable/ic_profile_notification"
+                app:title="@string/profile_notifications">
 
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Phone Number" />
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/profile_notification"
+                    style="@style/ItemSettingIconRight.Toggle"
+                    app:track="@drawable/ic_switch_track_red" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                        <ImageView style="@style/ItemSettingIconRight" />
-                    </LinearLayout>
+            <com.ping.android.presentation.view.custom.SettingItem
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_hide_profile"
+                app:title="@string/profile_hide_profile">
 
-                    <View style="@style/ItemSettingSeparate" />
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/profile_show_profile"
+                    style="@style/ItemSettingIconRight.Toggle"
+                    app:track="@drawable/ic_switch_track_red"
+                    tools:checked="true" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                    <LinearLayout
-                        android:id="@+id/profile_change_password"
-                        style="@style/ItemSetting">
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_block"
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_block_list"
+                app:showDivider="false"
+                app:title="@string/profile_block_list">
 
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_password" />
+                <ImageView style="@style/ItemSettingIconRight" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Change Password" />
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_privacy_and_terms"
+                style="@style/ItemSetting"
+                android:layout_marginTop="@dimen/setting_item_separate"
+                app:leftIcon="@drawable/ic_profile_privacy"
+                app:title="@string/profile_privacy_terms">
 
-                        <ImageView style="@style/ItemSettingIconRight" />
-                    </LinearLayout>
-                </LinearLayout>
+                <ImageView style="@style/ItemSettingIconRight" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_help"
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_help"
+                app:title="@string/profile_privacy_help">
 
-                <LinearLayout
-                    android:id="@+id/profile_mapping"
-                    style="@style/ItemSetting"
-                    android:layout_marginTop="@dimen/setting_item_separate"
-                    android:background="@color/white"
-                    android:orientation="horizontal">
+                <ImageView style="@style/ItemSettingIconRight" />
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-                    <ImageView
-                        style="@style/ItemSettingIconLeft"
-                        android:src="@drawable/ic_profile_transphabet" />
-
-                    <TextView
-                        style="@style/ItemSettingText"
-                        android:text="Transphabet" />
-
-                    <ImageView style="@style/ItemSettingIconRight" />
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/MatchWidth"
-                    android:layout_marginTop="@dimen/setting_item_separate"
-                    android:background="@color/white"
-                    android:orientation="vertical">
-
-                    <LinearLayout style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_notification" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Sound Notifications" />
-
-                        <android.support.v7.widget.SwitchCompat
-                            android:id="@+id/profile_notification"
-                            style="@style/ItemSettingIconRight.Toggle"
-                            app:track="@drawable/ic_switch_track_red" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
-                    <LinearLayout style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_hide_profile" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Hide Profile Picture" />
-
-                        <android.support.v7.widget.SwitchCompat
-                            android:id="@+id/profile_show_profile"
-                            style="@style/ItemSettingIconRight.Toggle"
-                            app:track="@drawable/ic_switch_track_red"
-                            tools:checked="true" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
-                    <LinearLayout
-                        android:id="@+id/profile_block"
-                        style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_block_list" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Block List" />
-
-                        <ImageView style="@style/ItemSettingIconRight" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    style="@style/MatchWidth"
-                    android:layout_marginTop="@dimen/setting_item_separate"
-                    android:background="@color/white"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/profile_privacy_and_terms"
-                        style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_privacy" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="@string/profile_privacy_terms" />
-
-                        <ImageView
-                            style="@style/ItemSettingIconRight"
-                            android:src="@drawable/ic_arrow_right_gray" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
-                    <LinearLayout
-                        android:id="@+id/profile_help"
-                        style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_help" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Help" />
-
-                        <ImageView
-                            android:id="@+id/imageView"
-                            style="@style/ItemSettingIconRight"
-                            android:src="@drawable/ic_arrow_right_gray" />
-                    </LinearLayout>
-
-                    <View style="@style/ItemSettingSeparate" />
-
-                    <LinearLayout style="@style/ItemSetting">
-
-                        <ImageView
-                            style="@style/ItemSettingIconLeft"
-                            android:src="@drawable/ic_profile_signout" />
-
-                        <Button
-                            android:id="@+id/profile_sign_out"
-                            style="@style/ActionButton"
-                            android:background="@null"
-                            android:paddingLeft="0dp"
-                            android:text="Sign Out"
-                            android:textAllCaps="false"
-                            android:textColor="#007AFF" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </LinearLayout>
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_sign_out"
+                style="@style/ItemSetting"
+                app:leftIcon="@drawable/ic_profile_help"
+                app:showDivider="false"
+                app:title="@string/profile_signout"
+                app:titleColor="@color/blue" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

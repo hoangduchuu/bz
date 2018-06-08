@@ -163,6 +163,7 @@
 
     <style name="ItemSetting" parent="MatchWidth">
         <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/setting_item_height</item>
         <item name="android:paddingStart">@dimen/default_padding</item>
         <item name="android:paddingEnd">@dimen/default_padding</item>
@@ -170,8 +171,8 @@
     </style>
 
     <style name="ItemSettingIconLeft">
-        <item name="android:layout_width">20dp</item>
-        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginRight">8dp</item>
         <item name="android:layout_alignParentLeft">true</item>
     </style>
@@ -181,12 +182,10 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:layout_marginEnd">3dp</item>
         <item name="android:src">@drawable/ic_arrow_right_gray</item>
     </style>
 
     <style name="ItemSettingIconRight.Toggle">
-        <item name="android:layout_marginRight">5dp</item>
         <item name="android:thumb">@drawable/ic_switch_thumb</item>
         <item name="android:textOn">@string/empty</item>
         <item name="android:textOff">@string/empty</item>
@@ -204,7 +203,7 @@
     <style name="ItemSettingSeparate" parent="MatchWidth">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">0.5dp</item>
-        <item name="android:layout_marginLeft">43dp</item>
+        <item name="android:layout_marginStart">43dp</item>
         <item name="android:background">@color/divider</item>
     </style>
 
@@ -303,6 +302,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="SearchLayout">
