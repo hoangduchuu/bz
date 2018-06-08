@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -31,7 +32,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private TextView userName;
     private TextView tvDisplayName;
     private SwitchCompat swUserBlock;
-    private LinearLayout layoutSaveContact, layoutDeleteContact;
+    private ViewGroup layoutSaveContact, layoutDeleteContact;
 
     private String userID;
     private User user;

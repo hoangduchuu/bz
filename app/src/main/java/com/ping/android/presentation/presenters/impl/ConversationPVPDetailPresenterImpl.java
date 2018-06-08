@@ -50,12 +50,20 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
 
     @Override
     public void initConversation(String conversationId) {
+        view.showLoading();
         observeConversationUpdateUseCase.execute(new DefaultObserver<Conversation>() {
             @Override
             public void onNext(Conversation data) {
                 conversation = data;
                 observeUserUpdate();
                 view.updateConversation(data);
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                super.onError(exception);
+                view.hideLoading();
             }
         }, conversationId);
     }

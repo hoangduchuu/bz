@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
@@ -96,29 +97,20 @@
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
-                    <LinearLayout
+                    <com.ping.android.presentation.view.custom.SettingItem
                         style="@style/ItemSetting"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            style="?attr/backgroundTheme"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_username" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Username" />
+                        app:leftIcon="@drawable/ic_username"
+                        app:leftIconTint="?colorAccent"
+                        app:showDivider="false"
+                        app:title="Username">
 
                         <TextView
                             android:id="@+id/user_detail_name"
                             style="@style/WrapContent"
-                            android:paddingEnd="@dimen/default_padding"
                             android:text="me.me"
                             android:textColor="@color/text_color_grey"
                             android:textSize="@dimen/text_size_small" />
-                    </LinearLayout>
+                    </com.ping.android.presentation.view.custom.SettingItem>
 
                     <View style="@style/ItemViewSeparate" />
 
@@ -127,45 +119,24 @@
                         android:background="@color/white"
                         android:orientation="vertical">
 
-                        <LinearLayout
+                        <com.ping.android.presentation.view.custom.SettingItem
                             android:id="@+id/layout_save_contact"
-                            style="@style/ItemSetting">
+                            style="@style/ItemSetting"
+                            app:leftIcon="@drawable/ic_add_circle"
+                            app:leftIconTint="?colorAccent"
+                            app:showDivider="false"
+                            app:title="Save Contact"
+                            app:titleColor="?colorAccent" />
 
-                            <ImageView
-                                style="?attr/backgroundTheme"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_marginEnd="8dp"
-                                android:src="@drawable/ic_add_circle" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Save Contact"
-                                android:textColor="?colorAccent" />
-                        </LinearLayout>
-
-
-                        <LinearLayout
+                        <com.ping.android.presentation.view.custom.SettingItem
                             android:id="@+id/layout_delete_contact"
-                            style="@style/ItemSetting">
-
-                            <ImageView
-                                style="?attr/backgroundTheme"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_marginEnd="8dp"
-                                android:src="@drawable/ic_delete" />
-
-                            <TextView
-                                style="?attr/backgroundTheme"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Delete Contact"
-                                android:textColor="?colorAccent" />
-                        </LinearLayout>
+                            style="@style/ItemSetting"
+                            app:leftIcon="@drawable/ic_delete"
+                            app:leftIconTint="?colorAccent"
+                            app:showDivider="false"
+                            app:title="Delete Contact"
+                            app:titleColor="?colorAccent" />
                     </LinearLayout>
-
 
                     <View style="@style/ItemViewSeparate" />
 
@@ -174,31 +145,19 @@
                         android:layout_height="0dp"
                         android:layout_weight="1" />
 
-                    <LinearLayout style="@style/ItemSetting">
-
-                        <ImageView
-                            style="?attr/backgroundTheme"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_block" />
-
-                        <TextView
-                            style="@style/ItemSettingText"
-                            android:text="Block" />
+                    <com.ping.android.presentation.view.custom.SettingItem
+                        style="@style/ItemSetting"
+                        app:leftIcon="@drawable/ic_block"
+                        app:leftIconTint="?colorAccent"
+                        app:title="Block">
 
                         <android.support.v7.widget.SwitchCompat
                             android:id="@+id/user_detail_block"
                             style="@style/ItemSettingIconRight.Toggle" />
-                    </LinearLayout>
-
+                    </com.ping.android.presentation.view.custom.SettingItem>
                 </LinearLayout>
-
             </LinearLayout>
         </ScrollView>
-
-        <View style="@style/ViewSeparate" />
-
     </LinearLayout>
 
     <include layout="@layout/notify_network_other" />

@@ -119,6 +119,7 @@
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_conversation_mask_image"
                 app:leftIconTint="?colorAccent"
+                app:showDivider="false"
                 app:title="@string/conversation_detail_puzzule_image">
 
                 <android.support.v7.widget.SwitchCompat
@@ -165,6 +166,7 @@
                 style="@style/ItemSetting"
                 app:leftIconTint="?colorAccent"
                 app:leftIcon="@drawable/ic_conversation_media"
+                app:showDivider="false"
                 app:title="@string/conversation_detail_media">
 
                 <ImageView
