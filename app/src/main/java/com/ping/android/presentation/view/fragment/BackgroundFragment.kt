@@ -22,6 +22,7 @@ import com.ping.android.presentation.view.adapter.delegate.BlankItemDelegateAdap
 import com.ping.android.presentation.view.adapter.delegate.CameraItemDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.FirebaseBackgroundDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.GalleryItemDelegateAdapter
+import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.DataProvider
 import com.ping.android.utils.ImagePickerHelper
 import kotlinx.android.synthetic.main.fragment_background.*
@@ -85,6 +86,7 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
             this.handleBlankItemClicked()
         }))
         galleryList.adapter = adapter
+        galleryList.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
 
         imagePickerHelper = ImagePickerHelper
                 .from(this)

@@ -2,8 +2,7 @@
 <com.ping.android.presentation.view.custom.SquareLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="5dp">
+    android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -11,14 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
-        android:background="@color/cardview_light_background"
+        android:background="@color/white"
         android:clickable="true"
         android:clipChildren="false"
         android:foreground="?android:selectableItemBackground"
         card_view:cardCornerRadius="2dp"
         card_view:cardElevation="2dp"
-        card_view:cardPreventCornerOverlap="true"
-        card_view:cardUseCompatPadding="true">
+        card_view:cardPreventCornerOverlap="true">
 
         <TextView
             android:layout_width="wrap_content"

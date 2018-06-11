@@ -27,12 +27,13 @@
                 android:text="SELECT BACKGROUND" />
         </RelativeLayout>
 
-        <View style="@style/ItemViewSeparate" />
-
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gallery_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingStart="@dimen/grid_item_padding"
+            android:paddingEnd="@dimen/grid_item_padding"
+            android:paddingBottom="@dimen/grid_item_padding" />
 
     </LinearLayout>
 </FrameLayout>

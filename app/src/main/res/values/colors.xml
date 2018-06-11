@@ -34,7 +34,7 @@
     <color name="grey_transparent_50">#50606060</color>
     <color name="grey_transparent_20">#20606060</color>
 
-    <color name="main_background_gray">#F1F2F2</color>
+    <color name="main_background_gray">#f7f8f9</color>
     <color name="main_background_white">#FFF</color>
 
     <color name="colorPrimary">@color/orange_dark</color>

@@ -91,5 +91,6 @@
 
     <dimen name="badge_font_size">8sp</dimen>
     <dimen name="badge_font_size_small">6sp</dimen>
+    <dimen name="grid_item_padding">5dp</dimen>
 
 </resources>

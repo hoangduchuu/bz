@@ -137,11 +137,11 @@ public class CustomSwitch extends LinearLayout {
 
         if (mSwitchToggleState == SwitchToggleState.LEFT) {
             leftButton.setTextColor(getResources().getColor(R.color.white));
-            rightButton.setTextColor(getResources().getColor(R.color.orange_dark));
+            rightButton.setTextColor(getResources().getColor(R.color.white));
             leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_enabled));
             rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_disabled));
         } else {
-            leftButton.setTextColor(getResources().getColor(R.color.orange_dark));
+            leftButton.setTextColor(getResources().getColor(R.color.white));
             rightButton.setTextColor(getResources().getColor(R.color.white));
             leftButton.setBackground(getContext().getDrawable(R.drawable.switch_left_disabled));
             rightButton.setBackground(getContext().getDrawable(R.drawable.switch_right_enabled));
