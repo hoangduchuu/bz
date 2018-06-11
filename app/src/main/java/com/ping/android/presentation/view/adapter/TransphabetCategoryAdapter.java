@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.ping.android.R;
 import com.ping.android.model.Transphabet;
+import com.ping.android.presentation.view.custom.SettingItem;
 
 import java.util.List;
 
@@ -46,20 +47,17 @@ public class TransphabetCategoryAdapter extends RecyclerView.Adapter<Transphabet
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View divider;
-        TextView title;
-
+        SettingItem settingItem;
         Transphabet transphabet;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            divider = itemView.findViewById(R.id.divider);
-            title = itemView.findViewById(R.id.tv_title);
+            settingItem = itemView.findViewById(R.id.item);
         }
 
         void bindData(Transphabet transphabet) {
             this.transphabet = transphabet;
-            title.setText(transphabet.name);
+            settingItem.setTitle(transphabet.name);
         }
     }
 
