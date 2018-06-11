@@ -265,7 +265,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
 
         public void setInfoColor(int status) {
             if (status == Constant.CALL_STATUS_SUCCESS) {
-                tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color));
+                tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.text_color_grey));
             } else {
                 tvInfo.setTextColor(itemView.getContext().getResources().getColor(R.color.red));
             }

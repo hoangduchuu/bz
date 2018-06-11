@@ -439,7 +439,7 @@
     </style>
 
     <style name="AppTextAppearance" parent="android:TextAppearance">
-        <item name="android:textColor">@color/text_color</item>
+        <item name="android:textColor">@color/text_color_black</item>
         <item name="android:textSize">@dimen/text_size_medium</item>
     </style>
 

@@ -65,7 +65,8 @@
     <color name="button_end_call_pressed_color">#FC5876</color>
 
     <color name="text_color">#303030</color>
-    <color name="text_color_grey">#929292</color>
+    <color name="text_color_grey">#666666</color>
+    <color name="text_color_black">#000000</color>
     <color name="bg_network_connecting">#4cd964</color>
     <color name="bg_network_noconnect">#666666</color>
     <color name="yellow">#f7dc2d</color>
