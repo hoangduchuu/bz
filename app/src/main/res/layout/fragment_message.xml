@@ -52,7 +52,4 @@
         style="@style/RecyclerView"
         android:layout_height="wrap_content"
         tools:listitem="@layout/item_message_text" />
-
-    <View style="@style/ViewSeparate" />
-
 </LinearLayout>

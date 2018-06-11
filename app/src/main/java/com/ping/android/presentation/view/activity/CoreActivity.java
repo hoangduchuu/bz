@@ -36,7 +36,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
     // Disposable for UI events
     private CompositeDisposable disposables;
-    public NetworkStatus networkStatus;
+    public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

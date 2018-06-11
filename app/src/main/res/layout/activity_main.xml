@@ -40,7 +40,6 @@
 
         </LinearLayout>
 
-        <include layout="@layout/notify_network_main" />
-
     </RelativeLayout>
+    <include layout="@layout/notify_network_main" />
 </android.support.design.widget.CoordinatorLayout>

@@ -46,6 +46,7 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
 
     @Override
     public void getConversations() {
+        view.showConnecting();
         observeMappingsUseCase.execute(new DefaultObserver<Map<String, String>>() {
             @Override
             public void onNext(Map<String, String> mappings) {
@@ -60,12 +61,14 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
                 canLoadMore = output.canLoadMore;
                 lastTimestamp = output.lastTimestamp;
                 observeConversations();
+                view.hideConnecting();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
                 observeConversations();
+                view.hideConnecting();
             }
         }, lastTimestamp);
     }
