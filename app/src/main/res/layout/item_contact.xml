@@ -3,56 +3,66 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_contact_item"
     style="@style/ListItemContainer"
-    android:layout_marginLeft="@dimen/default_padding"
+    android:layout_marginEnd="@dimen/default_padding"
+    android:layout_marginStart="@dimen/default_padding"
     android:gravity="center_vertical">
 
     <ImageView
         android:id="@+id/friend_profile"
         android:layout_width="@dimen/user_profile_icon_width"
         android:layout_height="@dimen/user_profile_icon_height"
+        android:layout_marginEnd="@dimen/default_padding"
         android:src="@drawable/ic_avatar_gray" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/default_padding"
-        android:layout_marginStart="@dimen/default_padding"
+        android:orientation="vertical"
         android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/friend_name"
             style="@style/AppTextAppearance"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="1"
             tools:text="User name" />
 
-        <ImageView
-            android:id="@+id/friend_message"
-            style="@style/list_item_btn"
-            android:layout_height="35dp"
-            android:background="@null"
-            android:src="@drawable/ic_message_no_padding" />
-
-        <ImageView
-            android:id="@+id/friend_call_voice"
+        <TextView
+            android:id="@+id/contact_item_detail"
+            style="@style/AppTextAppearance.Small.Grey"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:paddingEnd="0dp"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:src="@drawable/ic_call_filled"
-            android:tint="@color/colorPrimaryDark" />
-
-        <ImageView
-            android:id="@+id/friend_call_video"
-            style="@style/list_item_btn"
-            android:src="@drawable/ic_chat_video"
-            android:tint="@color/colorPrimaryDark"
-            android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            tools:text="This is the comment text.." />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/friend_message"
+        style="@style/list_item_btn"
+        android:layout_height="35dp"
+        android:background="@null"
+        android:src="@drawable/ic_message_no_padding" />
+
+    <ImageView
+        android:id="@+id/friend_call_voice"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:paddingEnd="0dp"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:src="@drawable/ic_call_filled"
+        android:tint="@color/colorPrimaryDark" />
+
+    <ImageView
+        android:id="@+id/friend_call_video"
+        style="@style/list_item_btn"
+        android:src="@drawable/ic_chat_video"
+        android:tint="@color/colorPrimaryDark"
+        android:visibility="gone" />
 </LinearLayout>

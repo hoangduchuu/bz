@@ -94,6 +94,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     public void onBindViewHolder(ViewHolder holder, int position) {
         User contact = displayContacts.get(position);
         holder.tvName.setText(contact.getDisplayName());
+        holder.tvPingId.setText(contact.pingID);
         holder.contact = contact;
         //holder.tgStatus.setChecked(contact.loginStatus);
         holder.tvName.setTransitionName("contactName" + position);
@@ -114,15 +115,16 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ImageView ivProfileImage;
-        public TextView tvName;
+        ImageView ivProfileImage;
+        TextView tvName;
+        TextView tvPingId;
         //public ToggleButton tgStatus;
         public User contact;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.friend_name);
-            //tgStatus = (ToggleButton) itemView.findViewById(R.id.friend_status);
+            tvPingId = itemView.findViewById(R.id.contact_item_detail);
             ivProfileImage = itemView.findViewById(R.id.friend_profile);
             itemView.setOnClickListener(this);
             itemView.findViewById(R.id.friend_call_video).setOnClickListener(this);
