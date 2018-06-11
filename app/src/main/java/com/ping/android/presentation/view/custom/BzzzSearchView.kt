@@ -26,6 +26,7 @@ class BzzzSearchView : AppCompatEditText {
     }
 
     private fun initView() {
+        maxLines = 1
         background = ContextCompat.getDrawable(context, R.drawable.bg_search)
         leftDrawable = ContextCompat.getDrawable(context, R.drawable.ic_search)
         this.setClearIconVisibility(false)
