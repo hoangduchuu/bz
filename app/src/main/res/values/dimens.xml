@@ -8,6 +8,7 @@
     <dimen name="text_size_xxsmall">11sp</dimen>
 
     <dimen name="default_padding">12dp</dimen>
+    <dimen name="default_header_space">30dp</dimen>
 
     <dimen name="logo_w_h">100dp</dimen>
 

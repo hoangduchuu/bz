@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_contact_item"
+    android:layout_marginStart="@dimen/default_padding"
+    android:layout_marginEnd="@dimen/default_padding"
     style="@style/ListItemContainer">
 
     <RadioButton
         android:id="@+id/rb_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding"
         android:background="@null"
         android:visibility="visible"
         android:padding="5dp" />
@@ -17,35 +18,32 @@
         android:id="@+id/item_block_profile"
         android:layout_width="@dimen/user_profile_icon_width"
         android:layout_height="@dimen/user_profile_icon_height"
-        android:layout_marginStart="@dimen/default_padding"
+        android:layout_marginEnd="@dimen/default_padding"
         android:src="@drawable/ic_avatar_gray" />
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/default_padding"
-        android:layout_weight="1">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            style="@style/AppTextAppearance"
+            android:id="@+id/item_block_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="John Doe" />
 
-            <TextView
-                style="@style/AppTextAppearance"
-                android:id="@+id/item_block_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                tools:text="John Doe" />
-        </LinearLayout>
-        <View
-            style="@style/horizontal_divider"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-
-
+        <TextView
+            android:id="@+id/contact_item_detail"
+            style="@style/AppTextAppearance.Small.Grey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            tools:text="This is the comment text.." />
+    </LinearLayout>
 </LinearLayout>
