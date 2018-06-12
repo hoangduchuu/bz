@@ -2,8 +2,11 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.transition.Slide;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -132,14 +135,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
         switch (networkStatus) {
             case CONNECTED:
+                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.GONE);
                 break;
             case CONNECTING:
+                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_connecting);
                 notifyNetworkText.setText(getString(R.string.msg_network_connecting));
                 break;
             case NOT_CONNECT:
+                TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
                 notifyNetworkText.setText(getString(R.string.no_internet_connection));

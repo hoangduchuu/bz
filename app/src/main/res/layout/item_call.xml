@@ -58,7 +58,7 @@
     <ImageView
         android:id="@+id/item_call_video"
         android:layout_width="wrap_content"
-        android:layout_height="18dp"
+        android:layout_height="16dp"
         android:layout_marginStart="@dimen/default_padding"
         android:src="@drawable/ic_video_filled"
         android:tint="@color/colorPrimaryDark" />
