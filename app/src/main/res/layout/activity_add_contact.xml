@@ -39,7 +39,8 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/add_contact_list_view"
                 style="@style/RecyclerView"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                tools:listitem="@layout/item_add_contact"/>
 
             <com.wang.avi.AVLoadingIndicatorView
                 android:id="@+id/avi"

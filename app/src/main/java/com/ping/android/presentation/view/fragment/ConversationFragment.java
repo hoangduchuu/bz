@@ -25,9 +25,11 @@ import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
+import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
@@ -353,6 +355,20 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     @Override
     public void updateMappings(Map<String, String> mappings) {
         adapter.updateMappings(mappings);
+    }
+
+    @Override
+    public void showConnecting() {
+        if (getActivity() instanceof CoreActivity) {
+            ((CoreActivity) getActivity()).connectivityChanged(NetworkStatus.CONNECTING);
+        }
+    }
+
+    @Override
+    public void hideConnecting() {
+        if (getActivity() instanceof CoreActivity) {
+            ((CoreActivity) getActivity()).connectivityChanged(NetworkStatus.CONNECTED);
+        }
     }
 
     private void listenTransphabetChanged() {

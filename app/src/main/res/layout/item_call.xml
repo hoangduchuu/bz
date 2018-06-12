@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_contact_item"
     style="@style/ListItemContainer"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingEnd="@dimen/default_padding"
+    android:paddingStart="@dimen/default_padding">
 
     <RadioButton
         android:id="@+id/call_item_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/default_padding"
         android:background="@null"
         android:visibility="gone" />
 
@@ -17,55 +18,48 @@
         android:id="@+id/call_item_profile"
         android:layout_width="@dimen/user_profile_icon_width"
         android:layout_height="@dimen/user_profile_icon_height"
-        android:layout_marginStart="@dimen/default_padding"
         android:src="@drawable/ic_avatar_gray" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/default_padding"
         android:layout_marginStart="@dimen/default_padding"
+        android:layout_weight="1"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/call_item_name"
-                style="@style/AppTextAppearance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="John Doe" />
-
-            <TextView
-                android:id="@+id/call_item_info"
-                style="@style/AppTextAppearance.Small.Grey"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                tools:text="03-18-2017-11:54" />
-
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/item_call_voice"
-            style="@style/list_item_btn"
-            android:src="@drawable/ic_chat_audio"
-            android:tint="@color/colorPrimaryDark" />
-
-        <ImageView
-            android:id="@+id/item_call_video"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/call_item_name"
+            style="@style/AppTextAppearance"
             android:layout_width="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="0dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:src="@drawable/ic_chat_video"
-            android:tint="@color/colorPrimaryDark" />
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_black"
+            tools:text="John Doe" />
+
+        <TextView
+            android:id="@+id/call_item_info"
+            style="@style/AppTextAppearance.Small.Grey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/text_color_grey"
+            tools:text="03-18-2017-11:54" />
+
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/item_call_voice"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_call_filled"
+        android:tint="@color/colorPrimaryDark" />
+
+    <ImageView
+        android:id="@+id/item_call_video"
+        android:layout_width="wrap_content"
+        android:layout_height="16dp"
+        android:layout_marginStart="@dimen/default_padding"
+        android:src="@drawable/ic_video_filled"
+        android:tint="@color/colorPrimaryDark" />
 </LinearLayout>

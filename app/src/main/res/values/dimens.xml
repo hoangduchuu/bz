@@ -8,6 +8,7 @@
     <dimen name="text_size_xxsmall">11sp</dimen>
 
     <dimen name="default_padding">12dp</dimen>
+    <dimen name="default_header_space">30dp</dimen>
 
     <dimen name="logo_w_h">100dp</dimen>
 
@@ -91,5 +92,6 @@
 
     <dimen name="badge_font_size">8sp</dimen>
     <dimen name="badge_font_size_small">6sp</dimen>
+    <dimen name="grid_item_padding">5dp</dimen>
 
 </resources>

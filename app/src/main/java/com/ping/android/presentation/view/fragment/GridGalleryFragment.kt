@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
 import com.bzzzchat.extensions.inflate
+import com.bzzzchat.extensions.px
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryComponent
@@ -23,6 +24,7 @@ import com.ping.android.presentation.presenters.MediaItemsEvent
 import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.delegate.FirebaseMessageDelegateAdapter
+import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.Log
 import com.ping.android.utils.Navigator
 import com.ping.android.utils.bus.BusProvider
@@ -77,6 +79,7 @@ class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.Fireb
             ImageMessage(it)
         }
         gallery_list.layoutManager = GridLayoutManager(context, 3)
+        gallery_list.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
         val listener = object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)

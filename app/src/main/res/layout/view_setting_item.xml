@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/default_padding"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_title"
         tools:src="@drawable/ic_profile_phonenumber" />
 
     <TextView
@@ -22,10 +22,10 @@
         style="@style/ItemSettingText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        app:layout_constraintEnd_toStartOf="@+id/viewContainer"
         app:layout_constraintStart_toEndOf="@+id/leftIcon"
-        app:layout_constraintTop_toTopOf="@+id/leftIcon"
+        app:layout_constraintEnd_toStartOf="@+id/viewContainer"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="Phone Number" />
 
     <FrameLayout

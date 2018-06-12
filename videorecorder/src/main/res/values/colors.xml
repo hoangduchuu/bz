@@ -4,6 +4,6 @@
     <color name="playTint">#cc63c866</color>
     <color name="pauseTint">#ccc76185</color>
     <color name="playerControlText">#cca2a2a2</color>
-    <color name="main_background_gray">#F1F2F2</color>
+    <color name="main_background_gray">#f7f8f9</color>
     <color name="colorAccent">#FF1212</color>
 </resources>

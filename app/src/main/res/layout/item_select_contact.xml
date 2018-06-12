@@ -3,64 +3,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_contact_item"
     style="@style/ListItemContainer"
-    android:layout_marginLeft="@dimen/default_padding">
+    android:layout_marginStart="@dimen/default_padding"
+    android:layout_marginEnd="@dimen/default_padding">
 
     <ImageView
         android:id="@+id/contact_item_profile"
         android:layout_width="@dimen/user_profile_icon_width"
         android:layout_height="@dimen/user_profile_icon_height"
+        android:layout_marginEnd="@dimen/default_padding"
         android:src="@drawable/ic_avatar_gray" />
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/default_padding"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/contact_item_name"
+            style="@style/AppTextAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical"
-            android:baselineAligned="false"
-            android:orientation="horizontal">
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textStyle="bold"
+            tools:text="John Doe" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+        <TextView
+            android:id="@+id/contact_item_detail"
+            style="@style/AppTextAppearance.Small.Grey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            tools:text="This is the comment text.." />
+    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/contact_item_name"
-                    style="@style/AppTextAppearance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textStyle="bold"
-                    tools:text="John Doe" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/contact_action"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/contact_item_select"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null" />
-            </LinearLayout>
-        </LinearLayout>
-        <View
-            style="@style/horizontal_divider"
-            android:layout_alignParentBottom="true" />
-    </RelativeLayout>
-
+    <RadioButton
+        android:id="@+id/contact_item_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null" />
 </LinearLayout>

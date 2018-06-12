@@ -85,6 +85,7 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         holder.itemView.setOnClickListener(view -> toggleSelect(holder));
         holder.rbSelect.setOnClickListener(view -> toggleSelect(holder));
         holder.tvName.setText(contact.getDisplayName());
+        holder.tvPingId.setText(contact.pingID);
         holder.contact = contact;
 
         if (selectPingIDs.contains(contact.pingID)) {
@@ -118,14 +119,16 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvName;
-        public RadioButton rbSelect;
+        TextView tvName;
+        TextView tvPingId;
+        RadioButton rbSelect;
+        ImageView ivProfileImage;
         public User contact;
-        public ImageView ivProfileImage;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.contact_item_name);
+            tvPingId = itemView.findViewById(R.id.contact_item_detail);
             rbSelect = itemView.findViewById(R.id.contact_item_select);
             ivProfileImage = itemView.findViewById(R.id.contact_item_profile);
         }

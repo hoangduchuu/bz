@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/contentRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,88 +22,68 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/main_background_gray"
-        android:paddingBottom="10dp"
-        android:paddingLeft="@dimen/default_padding"
-        android:paddingTop="30dp">
+        android:layout_height="@dimen/default_header_space"
+        android:paddingEnd="@dimen/default_padding"
+        android:paddingStart="@dimen/default_padding">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="CHOOSE A SETTING" />
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="1dp"
+            android:text="CHOOSE A SETTING"
+            android:textSize="10sp" />
     </LinearLayout>
 
     <LinearLayout
-        style="@style/MatchWidth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/default_padding"
-        >
+        android:paddingStart="@dimen/default_padding">
 
-        <LinearLayout
+        <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_generate_random"
             style="@style/ItemSetting"
-            android:paddingLeft="@dimen/default_padding">
-
-            <TextView
-                style="@style/ItemSettingText"
-
-                android:text="@string/generate_random" />
+            app:title="@string/generate_random">
 
             <ImageView style="@style/ItemSettingIconRight" />
-        </LinearLayout>
+        </com.ping.android.presentation.view.custom.SettingItem>
 
-        <View
-            style="@style/horizontal_divider"
-            android:layout_marginLeft="@dimen/default_padding" />
-
-        <LinearLayout
+        <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_selective_languages"
-            style="@style/ItemSetting">
-
-            <TextView
-                style="@style/ItemSettingText"
-                android:text="@string/setting_selective_languages" />
+            style="@style/ItemSetting"
+            app:title="@string/setting_selective_languages">
 
             <ImageView style="@style/ItemSettingIconRight" />
-        </LinearLayout>
+        </com.ping.android.presentation.view.custom.SettingItem>
 
-        <View
-            style="@style/horizontal_divider"
-            android:layout_marginLeft="@dimen/default_padding" />
-
-        <LinearLayout
+        <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_selective_emojis"
-            style="@style/ItemSetting">
-
-            <TextView
-                style="@style/ItemSettingText"
-                android:text="@string/setting_selective_emojis" />
+            style="@style/ItemSetting"
+            app:showDivider="false"
+            app:title="@string/setting_selective_emojis">
 
             <ImageView style="@style/ItemSettingIconRight" />
-        </LinearLayout>
-
+        </com.ping.android.presentation.view.custom.SettingItem>
     </LinearLayout>
 
     <LinearLayout
-        style="@style/MatchWidth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/default_header_space"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/default_padding"
-        android:layout_marginTop="20dp">
+        android:paddingStart="@dimen/default_padding">
 
-        <LinearLayout
+        <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_manual_setup"
-            style="@style/ItemSetting">
-
-            <TextView
-                style="@style/ItemSettingText"
-                android:text="@string/setting_manual_set_up" />
+            style="@style/ItemSetting"
+            app:showDivider="false"
+            app:title="@string/setting_manual_set_up">
 
             <ImageView style="@style/ItemSettingIconRight" />
-        </LinearLayout>
+        </com.ping.android.presentation.view.custom.SettingItem>
     </LinearLayout>
-
 
 </LinearLayout>

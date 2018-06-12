@@ -35,5 +35,9 @@ public interface ConversationListPresenter extends BasePresenter {
         void appendConversations(List<Conversation> conversations);
 
         void updateMappings(Map<String, String> mappings);
+
+        void showConnecting();
+
+        void hideConnecting();
     }
 }

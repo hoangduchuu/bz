@@ -30,9 +30,13 @@ class SettingItem : ConstraintLayout {
         attrs.let {
             val typeArray = context.obtainStyledAttributes(it, R.styleable.SettingItem, 0, 0)
             showDivider = typeArray.getBoolean(R.styleable.SettingItem_showDivider, showDivider)
-            val leftIconRes = typeArray.getDrawable(R.styleable.SettingItem_leftIcon)
-            if (leftIconRes != null) {
-                leftIcon.setImageDrawable(leftIconRes)
+            if (typeArray.hasValue(R.styleable.SettingItem_leftIcon)) {
+                val leftIconRes = typeArray.getDrawable(R.styleable.SettingItem_leftIcon)
+                if (leftIconRes != null) {
+                    leftIcon.setImageDrawable(leftIconRes)
+                }
+            } else {
+               leftIcon.visibility = View.GONE
             }
             if (typeArray.hasValue(R.styleable.SettingItem_leftIconTint)) {
                 val leftIconTintColor = typeArray.getColor(R.styleable.SettingItem_leftIconTint, ContextCompat.getColor(context, R.color.orange))
@@ -45,6 +49,14 @@ class SettingItem : ConstraintLayout {
             divider.visibility = if (showDivider) View.VISIBLE else View.GONE
             typeArray.recycle()
         }
+    }
+
+    fun setTitle(title: String) {
+        tv_title.text = title
+    }
+
+    fun setDividerVisibility(visible: Boolean) {
+        divider.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {

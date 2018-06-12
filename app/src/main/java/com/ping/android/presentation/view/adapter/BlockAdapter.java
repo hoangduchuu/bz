@@ -63,6 +63,7 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.ViewHolder> 
 
         User contact = blockContacts.get(position);
         holder.tvName.setText(contact.getDisplayName());
+        holder.tvPingId.setText(contact.pingID);
         holder.contact = contact;
         holder.rbSelect.setChecked(selectedContacts.contains(contact));
         holder.rbSelect.setOnClickListener(view -> {
@@ -135,15 +136,17 @@ public class BlockAdapter extends RecyclerView.Adapter<BlockAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView ivProfileImage;
-        public TextView tvName;
+        ImageView ivProfileImage;
+        TextView tvName;
+        TextView tvPingId;
         public User contact;
-        public RadioButton rbSelect;
+        RadioButton rbSelect;
         private boolean isEditMode = false;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.item_block_name);
+            tvPingId = itemView.findViewById(R.id.contact_item_detail);
             ivProfileImage = itemView.findViewById(R.id.item_block_profile);
             rbSelect = itemView.findViewById(R.id.rb_select);
         }

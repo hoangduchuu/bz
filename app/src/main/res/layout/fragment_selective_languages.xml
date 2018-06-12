@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contentRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,25 +26,29 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/main_background_gray"
-        android:paddingBottom="10dp"
-        android:paddingLeft="@dimen/default_padding"
-        android:paddingTop="30dp">
+        android:layout_height="@dimen/default_header_space"
+        android:paddingStart="@dimen/default_padding"
+        android:paddingEnd="@dimen/default_padding">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAllCaps="true"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="1dp"
+            android:textSize="10sp"
             android:text="@string/selective_languages_pick_title" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/language_list"
-        style="@style/MatchWidth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/default_padding" />
+        android:paddingStart="@dimen/default_padding"
+        android:paddingEnd="0dp"
+        tools:listitem="@layout/item_language_transphabet"/>
 
 
 </LinearLayout>
