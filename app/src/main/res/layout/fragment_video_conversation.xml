@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentOpponents"
     style="@style/MatchParent"
-    android:background="@color/background_fragment_conversation">
+    android:background="@android:color/transparent">
 
 
     <com.quickblox.videochat.webrtc.view.QBRTCSurfaceView
@@ -47,6 +47,7 @@
             android:gravity="center_horizontal"
             android:paddingLeft="@dimen/padding_outgoing_screen"
             android:paddingRight="@dimen/padding_outgoing_screen"
+            android:textColor="@color/white"
             android:textSize="@dimen/text_size_call"
             android:textStyle="normal"
             tools:text="John, Bob, Merlin" />
@@ -58,6 +59,7 @@
             android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:text="@string/ringing"
+            android:textColor="@color/white"
             android:textSize="@dimen/text_size_ringing" />
     </LinearLayout>
 
@@ -77,7 +79,7 @@
             style="@style/WrapContent"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"
-            android:textColor="@color/text_color_also_on_call"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:visibility="visible"
             tools:text="12:00" />

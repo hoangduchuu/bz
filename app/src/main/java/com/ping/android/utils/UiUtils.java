@@ -198,6 +198,22 @@ public class UiUtils {
                 .into(imageView);
     }
 
+    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, @DrawableRes int placeholder) {
+        if (TextUtils.isEmpty(firebaseUrl) || !firebaseUrl.startsWith("gs://")) {
+            imageView.setImageResource(IMG_DEFAULT);
+            return;
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
+        GlideApp.with(imageView.getContext())
+                .load(gsReference)
+                .placeholder(placeholder)
+                .error(placeholder)
+                .override(100, 100)
+                .apply(RequestOptions.circleCropTransform())
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .into(imageView);
+    }
+
     public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, Callback callback) {
         if (TextUtils.isEmpty(firebaseUrl)) {
             imageView.setImageResource(IMG_DEFAULT);

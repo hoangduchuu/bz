@@ -6,11 +6,14 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import jp.wasabeef.blurry.Blurry;
+
 /**
  * QuickBlox team
  */
@@ -43,7 +48,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     private Vibrator vibrator;
     private long lastClickTime = 0l;
-//    private Ringtone ringtonePlayer;
 
     @Inject
     IncomingCallPresenter presenter;
@@ -61,8 +65,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         View view = inflater.inflate(R.layout.fragment_income_call, container, false);
         initUI(view);
         initButtonsListener();
-//        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-//        ringtonePlayer = RingtoneManager.getRingtone(getContext(), ringtoneUri);
         presenter.create();
         return view;
     }
@@ -91,7 +93,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     public void startCallNotification() {
-//        ringtonePlayer.play();
         if (getActivity() != null) {
             AudioManager audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
             if (audioManager == null
@@ -115,9 +116,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        if (ringtonePlayer != null) {
-//            ringtonePlayer.stop();
-//        }
         if (vibrator != null) {
             vibrator.cancel();
         }
@@ -148,16 +146,12 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         enableButtons(false);
         stopCallNotification();
         presenter.accept();
-        //incomeCallFragmentCallbackListener.onAcceptCurrentSession();
-        Log.d(TAG, "Call is started");
     }
 
     private void reject() {
         enableButtons(false);
         stopCallNotification();
         presenter.reject();
-        //incomeCallFragmentCallbackListener.onRejectCurrentSession();
-        Log.d(TAG, "Call is rejected");
     }
 
     private void enableButtons(boolean enable) {
@@ -182,7 +176,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     @Override
     public void showOpponentInfo(String displayName, String avatar) {
         callerNameTextView.setText(displayName);
-        UiUtils.displayProfileAvatar(callerAvatarImageView, avatar);
+        UiUtils.displayProfileAvatar(callerAvatarImageView, avatar, R.drawable.ic_avatar_orange);
         if (!TextUtils.isEmpty(displayName)) {
             callerAvatarImageView.setBackgroundDrawable(getBackgroundForCallerAvatar(displayName.length()));
         }
@@ -190,9 +184,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     @Override
     public void stopCallNotification() {
-//        if (ringtonePlayer != null) {
-//            ringtonePlayer.stop();
-//        }
         if (vibrator != null) {
             vibrator.cancel();
         }

@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentIncomeCall"
+    android:background="@android:color/transparent"
+    tools:background="@color/black"
     style="@style/MatchParent">
 
     <LinearLayout
@@ -21,7 +23,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:src="@drawable/ic_avatar_gray" />
+            android:src="@drawable/ic_avatar_orange" />
 
         <TextView
             android:id="@+id/text_outgoing_opponents_names"
@@ -31,6 +33,7 @@
             android:paddingRight="@dimen/padding_outgoing_screen"
             android:textSize="@dimen/text_size_call"
             android:textStyle="normal"
+            android:textColor="@color/white"
             tools:text="John, Bob, Merlin" />
 
         <TextView
@@ -40,6 +43,7 @@
             android:layout_marginTop="16dp"
             android:gravity="center_horizontal"
             android:text="@string/ringing"
+            android:textColor="@color/white"
             android:textSize="@dimen/text_size_ringing"/>
 
         <Chronometer
@@ -47,7 +51,7 @@
             style="@style/WrapContent"
             android:layout_gravity="center"
             android:layout_margin="@dimen/margin_common"
-            android:textColor="@color/text_color_also_on_call"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:visibility="gone" />
 

@@ -105,8 +105,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Override
     protected void configureOutgoingScreen() {
-        allOpponentsTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
-        ringingTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
     }
 
     @Override
