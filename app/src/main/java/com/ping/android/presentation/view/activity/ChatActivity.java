@@ -106,7 +106,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView btBack;
     private AppCompatCheckBox tgMarkOut;
     private TextView tvChatStatus;
-    private Button btMask, btUnMask, btDelete, btEdit, btCancelEdit;
+    private Button btMask, btUnMask; //btCancelEdit; // btDelete, btEdit,
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
@@ -264,18 +264,18 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_person_name:
                 onOpenProfile();
                 break;
-            case R.id.chat_edit:
+            case R.id.chat_video_call:
                 isEditMode = true;
                 onUpdateEditMode();
                 break;
-            case R.id.chat_cancel_edit:
-                isEditMode = false;
-                onUpdateEditMode();
-                break;
+//            case R.id.chat_cancel_edit:
+//                isEditMode = false;
+//                onUpdateEditMode();
+//                break;
             case R.id.chat_back:
                 onExitChat();
                 break;
-            case R.id.chat_delete:
+            case R.id.chat_voice_call:
                 onDeleteMessages();
                 break;
             case R.id.chat_mask:
@@ -394,11 +394,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     public void updateMessageSelection(int size) {
         if (size == 0) {
-            btDelete.setEnabled(false);
+            //btDelete.setEnabled(false);
             btMask.setEnabled(false);
             btUnMask.setEnabled(false);
         } else {
-            btDelete.setEnabled(true);
+            //btDelete.setEnabled(true);
             btMask.setEnabled(true);
             btUnMask.setEnabled(true);
         }
@@ -479,9 +479,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btVideoCall = findViewById(R.id.chat_video_call_btn);
         btMask = findViewById(R.id.chat_mask);
         btUnMask = findViewById(R.id.chat_unmask);
-        btDelete = findViewById(R.id.chat_delete);
-        btEdit = findViewById(R.id.chat_edit);
-        btCancelEdit = findViewById(R.id.chat_cancel_edit);
+//        btDelete = findViewById(R.id.chat_voice_call);
+//        btEdit = findViewById(R.id.chat_video_call);
+//        btCancelEdit = findViewById(R.id.chat_cancel_edit);
         layoutText = findViewById(R.id.chat_layout_text);
         layoutVoice = findViewById(R.id.chat_layout_voice);
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
@@ -498,9 +498,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btVideoCall.setOnClickListener(this);
         btMask.setOnClickListener(this);
         btUnMask.setOnClickListener(this);
-        btDelete.setOnClickListener(this);
-        btEdit.setOnClickListener(this);
-        btCancelEdit.setOnClickListener(this);
+//        btDelete.setOnClickListener(this);
+//        btEdit.setOnClickListener(this);
+//        btCancelEdit.setOnClickListener(this);
         tgMarkOut.setOnClickListener(this);
         findViewById(R.id.chat_person_name).setOnClickListener(this);
         findViewById(R.id.chat_text_btn).setOnClickListener(this);
@@ -796,9 +796,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         KeyboardHelpers.hideSoftInputKeyboard(this);
         if (isEditMode) {
             layoutBottomMenu.setVisibility(View.VISIBLE);
-            btDelete.setVisibility(View.VISIBLE);
-            btEdit.setVisibility(View.GONE);
-            btCancelEdit.setVisibility(View.VISIBLE);
+//            btDelete.setVisibility(View.VISIBLE);
+//            btEdit.setVisibility(View.GONE);
+//            btCancelEdit.setVisibility(View.VISIBLE);
             btBack.setVisibility(View.GONE);
             tvNewMsgCount.setVisibility(View.GONE);
             layoutText.setVisibility(View.GONE);
@@ -807,9 +807,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             updateEditAllMode();
         } else {
             layoutBottomMenu.setVisibility(View.GONE);
-            btDelete.setVisibility(View.GONE);
-            btEdit.setVisibility(View.VISIBLE);
-            btCancelEdit.setVisibility(View.GONE);
+//            btDelete.setVisibility(View.GONE);
+//            btEdit.setVisibility(View.VISIBLE);
+//            btCancelEdit.setVisibility(View.GONE);
             btBack.setVisibility(View.VISIBLE);
             tvNewMsgCount.setVisibility(View.VISIBLE);
             layoutMsgType.setVisibility(View.VISIBLE);
@@ -827,7 +827,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void updateEditAllMode() {
-        btDelete.setEnabled(false);
+//        btDelete.setEnabled(false);
         btMask.setText(R.string.chat_mask);
         btUnMask.setText(R.string.chat_unmask);
         btMask.setEnabled(false);

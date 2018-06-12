@@ -18,6 +18,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
+                android:visibility="visible"
                 android:background="@null" />
 
             <LinearLayout
@@ -32,7 +33,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/background_chat_right"
-                    android:gravity="right"
+                    android:gravity="end"
                     android:orientation="vertical"
                     android:paddingBottom="5dp"
                     android:paddingLeft="8dp"
@@ -49,7 +50,7 @@
                         android:textColor="@color/white"
                         android:textIsSelectable="false"
                         android:textSize="@dimen/text_size_large"
-                        tools:text="a" />
+                        tools:text="Hello there" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
