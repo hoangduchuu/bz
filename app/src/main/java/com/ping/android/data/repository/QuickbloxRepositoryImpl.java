@@ -17,6 +17,8 @@ import org.jivesoftware.smack.SmackException;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 
 /**
@@ -78,9 +80,17 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
 
     @Override
     public Observable<Boolean> signOut() {
-        Performer<Void> performer = QBUsers.signOut();
-        return ((Observable<Void>) performer.convertTo(RxJava2PerformProcessor.INSTANCE))
-                .map(aVoid -> true);
+        return Observable.create(emitter -> QBUsers.signOut().performAsync(new QBEntityCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid, Bundle bundle) {
+                emitter.onNext(true);
+            }
+
+            @Override
+            public void onError(QBResponseException e) {
+                emitter.onError(e);
+            }
+        }));
     }
 
     @Override

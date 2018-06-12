@@ -229,13 +229,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onLogout() {
         presenter.logout();
-        SubscribeService.unSubscribeFromPushes(getContext());
-        CallService.logout(getContext());
-
-        UsersUtils.removeUserData(getContext());
-        ShortcutBadger.applyCount(getActivity(), 0);
-        getActivity().finish();
-        startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
     }
 
     @Override
@@ -308,5 +301,16 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void updateUser(User user) {
         this.currentUser = user;
         bindData();
+    }
+
+    @Override
+    public void navigateToLogin() {
+        SubscribeService.unSubscribeFromPushes(getContext());
+        CallService.logout(getContext());
+
+        UsersUtils.removeUserData(getContext());
+        ShortcutBadger.applyCount(getActivity(), 0);
+        startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
+        getActivity().finish();
     }
 }

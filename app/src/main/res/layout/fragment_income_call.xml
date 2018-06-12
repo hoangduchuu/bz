@@ -28,7 +28,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:paddingTop="20dp"
-            android:textColor="@color/text_color_caller_name"
+            android:textColor="@color/white"
             android:textSize="@dimen/caller_name_text_size"
             tools:text="Very long opponent's User Name" />
 
@@ -37,7 +37,7 @@
             style="@style/WrapContent"
             android:layout_marginTop="8dp"
             android:text="@string/text_incoming_audio_call"
-            android:textColor="@color/text_color_call_type"
+            android:textColor="@color/white"
             android:textSize="@dimen/incoming_call_type_text_size" />
     </LinearLayout>
 

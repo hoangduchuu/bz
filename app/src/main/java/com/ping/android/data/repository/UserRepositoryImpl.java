@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -211,12 +212,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<Boolean> logout(String deviceId) {
-        String userId = this.auth.getUid();
-        this.auth.signOut();
+    public Observable<Boolean> logout(String userId, String deviceId) {
         DatabaseReference reference = database.getReference("users").child(userId).child("devices").child(deviceId);
         return RxFirebaseDatabase.setValue(reference, null)
                 .map(databaseReference -> true)
+                .doOnSuccess(aBoolean -> auth.signOut())
                 .toObservable();
     }
 

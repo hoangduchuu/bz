@@ -63,14 +63,14 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
             }
         }
         if (!isAdd) {
-            for (int i = 0, size = displayCalls.size(); i < size; i++) {
-                Call item = displayCalls.get(i);
-                if (item.key.equals(call.key)) {
-                    displayCalls.set(i, call);
-                    notifyItemChanged(i);
-                    break;
-                }
-            }
+//            for (int i = 0, size = displayCalls.size(); i < size; i++) {
+//                Call item = displayCalls.get(i);
+//                if (item.key.equals(call.key)) {
+//                    displayCalls.set(i, call);
+//                    notifyItemChanged(i);
+//                    break;
+//                }
+//            }
             return;
         }
         int index = 0;

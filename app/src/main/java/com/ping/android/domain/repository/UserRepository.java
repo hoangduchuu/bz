@@ -29,7 +29,7 @@ public interface UserRepository {
 
     Observable<Boolean> updateDeviceId(Map<String, Double> devices);
 
-    Observable<Boolean> logout(String deviceId);
+    Observable<Boolean> logout(String userId, String deviceId);
 
     Observable<DataSnapshot> observeUserStatus(String userId);
 

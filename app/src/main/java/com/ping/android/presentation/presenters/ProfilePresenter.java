@@ -20,5 +20,7 @@ public interface ProfilePresenter extends BasePresenter {
     interface View extends BaseView {
 
         void updateUser(User user);
+
+        void navigateToLogin();
     }
 }

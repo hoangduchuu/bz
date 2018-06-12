@@ -183,16 +183,26 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
         if (checkPermission()) {
             initialized();
         }
+        blurBackground();
+    }
+
+    private void blurBackground() {
         new Handler().postDelayed(() -> {
-            blurBackground = findViewById(R.id.blur_background);
-            Blurry.with(this)
-                    .radius(10)
-                    .sampling(8)
-                    .animate(300)
-                    .color(ContextCompat.getColor(this, R.color.black_transparent_50))
-                    .onto(blurBackground);
-            blurBackground.setVisibility(View.VISIBLE);
-        }, 100);
+            try {
+                blurBackground = findViewById(R.id.blur_background);
+                Blurry.with(this)
+                        .radius(10)
+                        .sampling(8)
+                        .animate(300)
+                        .color(ContextCompat.getColor(this, R.color.black_transparent_50))
+                        .onto(blurBackground);
+                blurBackground.setVisibility(View.VISIBLE);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                // Try again
+                blurBackground();
+            }
+        }, 200);
     }
 
     @Override
