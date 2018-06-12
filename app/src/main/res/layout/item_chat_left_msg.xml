@@ -1,83 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout3"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginEnd="5dp">
 
+    <RadioButton
+        android:id="@+id/item_chat_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@null"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_user_profile"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/item_chat_user_profile"
+        android:layout_width="@dimen/user_profile_icon_chat_width"
+        android:layout_height="@dimen/user_profile_icon_chat_width"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_avatar_gray"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintStart_toEndOf="@+id/item_chat_select" />
+
+
+    <TextView
+        android:id="@+id/item_chat_info"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="10:20 AM" />
+
     <LinearLayout
-        style="@style/ItemChat"
-        android:orientation="horizontal">
+        android:id="@+id/item_chat_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/background_chat_left"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingBottom="7dp"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="7dp"
+        app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
 
-        <RadioButton
-            android:id="@+id/item_chat_select"
+        <com.vanniktech.emoji.EmojiTextView
+            android:id="@+id/item_chat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginRight="10dp"
-            android:background="@null" />
-
-        <ImageView
-            android:id="@+id/item_chat_user_profile"
-            android:layout_width="@dimen/user_profile_icon_chat_width"
-            android:layout_height="@dimen/user_profile_icon_chat_height"
-            android:layout_gravity="bottom"
-            android:src="@drawable/ic_avatar_gray" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/item_chat_margin"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/item_chat_info"
-                style="@style/AppTextAppearance.VerySmall.Grey"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10:20 AM" />
-
-            <LinearLayout
-                android:id="@+id/item_chat_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/background_chat_left"
-                android:orientation="vertical"
-                android:paddingBottom="5dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="5dp">
-
-                <com.vanniktech.emoji.EmojiTextView
-                    android:id="@+id/item_chat_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxWidth="240dp"
-                    android:padding="2dp"
-                    android:textIsSelectable="false"
-                    android:textSelectHandle="@null"
-                    android:textSize="@dimen/text_size_large"
-                    tools:text="a" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/item_chat_status"
-                style="@style/AppTextAppearance.VerySmall.Grey"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Delivered" />
-        </LinearLayout>
+            android:maxWidth="200dp"
+            android:padding="2dp"
+            android:textIsSelectable="false"
+            android:textSelectHandle="@null"
+            android:textSize="@dimen/text_size_large"
+            tools:text="Hi there. How old are you?. Do you like it?" />
     </LinearLayout>
 
     <TextView
+        android:id="@+id/item_chat_status"
         style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
+        tools:text="Delivered" />
+
+    <TextView
         android:id="@+id/revealable_view"
+        style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:gravity="end"
-        android:paddingEnd="10dp"
-        android:translationX="80dp" />
-</RelativeLayout>
+        android:translationX="80dp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_chat_message"
+        tools:text="12:00 AM" />
+</android.support.constraint.ConstraintLayout>
