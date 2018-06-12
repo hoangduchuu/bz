@@ -46,7 +46,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="10dp"
                     android:layout_marginTop="10dp"
-                    android:src="@drawable/ic_avatar_gray"
+                    android:src="@drawable/ic_avatar_light"
                     android:transitionName="profile" />
 
                 <TextView
@@ -68,28 +68,28 @@
                     <ImageView
                         android:id="@+id/user_detail_message"
                         style="?attr/backgroundTheme"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:background="@null"
-                        android:src="@drawable/ic_message_border" />
+                        android:src="@drawable/ic_message" />
 
                     <ImageView
                         android:id="@+id/user_detail_voice"
                         style="?attr/backgroundTheme"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="26dp"
+                        android:layout_marginStart="30dp"
                         android:background="@null"
-                        android:src="@drawable/ic_chat_audio" />
+                        android:src="@drawable/ic_call_filled" />
 
                     <ImageView
                         android:id="@+id/user_detail_video"
                         style="?attr/backgroundTheme"
-                        android:layout_width="30dp"
-                        android:layout_height="20dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="30dp"
                         android:background="@null"
-                        android:src="@drawable/ic_chat_video" />
+                        android:src="@drawable/ic_video_filled" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -131,7 +131,7 @@
                         <com.ping.android.presentation.view.custom.SettingItem
                             android:id="@+id/layout_delete_contact"
                             style="@style/ItemSetting"
-                            app:leftIcon="@drawable/ic_delete"
+                            app:leftIcon="@drawable/ic_subtract_circle"
                             app:leftIconTint="?colorAccent"
                             app:showDivider="false"
                             app:title="Delete Contact"
@@ -147,7 +147,7 @@
 
                     <com.ping.android.presentation.view.custom.SettingItem
                         style="@style/ItemSetting"
-                        app:leftIcon="@drawable/ic_block"
+                        app:leftIcon="@drawable/ic_block_outline"
                         app:leftIconTint="?colorAccent"
                         app:title="Block">
 
