@@ -2,29 +2,28 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout2"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="5dp">
+    android:id="@+id/relativeLayout3"
+    style="@style/ItemChat"
+    android:layout_marginEnd="5dp">
 
     <RadioButton
         android:id="@+id/item_chat_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:background="@null"
-        android:paddingEnd="10dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/item_chat_user_profile"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/item_chat_user_profile"
         android:layout_width="@dimen/user_profile_icon_chat_width"
-        android:layout_height="@dimen/user_profile_icon_chat_height"
+        android:layout_height="@dimen/user_profile_icon_chat_width"
+        android:layout_marginStart="8dp"
         android:src="@drawable/ic_avatar_gray"
         app:layout_constraintBottom_toBottomOf="@+id/container"
-        app:layout_constraintStart_toEndOf="@+id/item_chat_select"
-        tools:visibility="visible" />
+        app:layout_constraintStart_toEndOf="@+id/item_chat_select" />
 
     <TextView
         android:id="@+id/item_chat_info"
@@ -33,24 +32,29 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="@+id/container"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="user" />
+        tools:text="10:20 AM"
+        tools:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/background_chat_left"
+        android:gravity="center_vertical|end"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="5dp"
+        android:paddingBottom="7dp"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="7dp"
         app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
         app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginTop="4dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -75,7 +79,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="5dp"
-            android:maxWidth="240dp"
+            android:maxWidth="200dp"
             android:textSize="@dimen/text_size_large"
             tools:text="Sam called you. Sam called you. Sam called you. Sam called you." />
 
@@ -100,7 +104,7 @@
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/container"
         app:layout_constraintTop_toBottomOf="@+id/container"
@@ -112,11 +116,12 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:gravity="end"
-        android:paddingEnd="10dp"
         android:translationX="80dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/container"
+        tools:text="12:00 AM" />
 </android.support.constraint.ConstraintLayout>

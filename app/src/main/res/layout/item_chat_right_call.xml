@@ -2,31 +2,33 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/relativeLayout2"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="5dp">
+    android:id="@+id/relativeLayout"
+    style="@style/ItemChat"
+    android:orientation="vertical">
 
     <RadioButton
         android:id="@+id/item_chat_select"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:background="@null"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/container"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintEnd_toStartOf="@+id/container"
+        app:layout_constraintStart_toStartOf="@+id/revealable_view" />
 
     <LinearLayout
         android:id="@+id/container"
         style="?attr/backgroundTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:background="@drawable/background_chat_left"
+        android:background="@drawable/background_chat_right"
+        android:gravity="center_vertical|start"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="5dp"
+        android:paddingBottom="7dp"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="7dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -58,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="5dp"
-            android:maxWidth="240dp"
+            android:maxWidth="200dp"
             android:textColor="@color/white"
             android:textSize="@dimen/text_size_large"
             tools:text="Sam called you. Sam called you.  Sam called you.  Sam called you. " />
@@ -80,27 +82,27 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/item_chat_status"
-        style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/container"
-        app:layout_constraintTop_toBottomOf="@+id/container"
-        tools:text="Delivered" />
-
-    <TextView
         android:id="@+id/revealable_view"
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:gravity="end"
-        android:paddingEnd="10dp"
         android:translationX="80dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/container"
+        tools:text="12:00 AM" />
+
+    <TextView
+        android:id="@+id/item_chat_status"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/container"
+        app:layout_constraintTop_toBottomOf="@+id/container"
+        tools:text="Delivered" />
 </android.support.constraint.ConstraintLayout>

@@ -34,13 +34,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
-        private View container;
         private ImageView imageView;
         private boolean isUpdated;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
-            container = itemView.findViewById(R.id.container);
             imageView = itemView.findViewById(R.id.item_chat_image);
 
             initGestureListener();
@@ -95,7 +93,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         @Override
         public View getSlideView() {
-            return container;
+            return imageView;
         }
 
         private void handleImagePress(boolean isPuzzled) {

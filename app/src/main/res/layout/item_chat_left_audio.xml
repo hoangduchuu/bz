@@ -1,142 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:id="@+id/relativeLayout3"
+    style="@style/ItemChat"
     android:layout_marginEnd="5dp">
 
-    <LinearLayout
-        style="@style/ItemChat"
-        android:orientation="horizontal">
+    <RadioButton
+        android:id="@+id/item_chat_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@null"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_user_profile"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <RadioButton
-            android:id="@+id/item_chat_select"
+    <ImageView
+        android:id="@+id/item_chat_user_profile"
+        android:layout_width="@dimen/user_profile_icon_chat_width"
+        android:layout_height="@dimen/user_profile_icon_chat_width"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_avatar_gray"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintStart_toEndOf="@+id/item_chat_select" />
+
+    <TextView
+        android:id="@+id/item_chat_info"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="10:20 AM" />
+
+    <LinearLayout
+        android:id="@+id/item_chat_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/background_chat_left"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingBottom="5dp"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingTop="5dp"
+        app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
+
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginRight="10dp"
-            android:background="@null" />
+            android:padding="2dp">
 
-        <ImageView
-            android:id="@+id/item_chat_user_profile"
-            android:layout_width="@dimen/user_profile_icon_chat_width"
-            android:layout_height="@dimen/user_profile_icon_chat_height"
-            android:layout_gravity="bottom"
-            android:src="@drawable/ic_avatar_gray" />
+            <ImageView
+                android:id="@+id/play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_play_arrow" />
+
+            <ImageView
+                android:id="@+id/pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_pause"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/img_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_error_outline"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/loading_audio_preparing"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/item_chat_margin"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
+            android:layout_weight="0.8"
+            android:orientation="horizontal"
+            android:paddingEnd="10dp"
+            android:gravity="center">
 
-            <TextView
-                android:id="@+id/item_chat_info"
-                style="@style/AppTextAppearance.VerySmall.Grey"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="user" />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/background_chat_left">
-
-                <LinearLayout
-                    android:id="@+id/item_chat_audio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:background="@drawable/background_chat_left"
-                    android:gravity="center"
-                    android:paddingBottom="5dp"
-                    android:paddingStart="5dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="5dp">
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp">
-
-                        <ImageView
-                            android:id="@+id/play"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:src="@drawable/ic_play_arrow" />
-
-                        <ImageView
-                            android:id="@+id/pause"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:src="@drawable/ic_pause"
-                            android:visibility="gone" />
-
-                        <ImageView
-                            android:id="@+id/img_error"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:src="@drawable/ic_error_outline"
-                            android:visibility="gone" />
-
-                        <ProgressBar
-                            android:id="@+id/loading_audio_preparing"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_centerInParent="true"
-                            android:visibility="gone" />
-                    </RelativeLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.8"
-                        android:orientation="horizontal"
-                        android:paddingEnd="10dp"
-                        android:gravity="center">
-
-                        <SeekBar
-                            android:id="@+id/media_seekbar"
-                            android:layout_width="90dp"
-                            android:layout_height="20dp"
-                            android:progressTint="@color/color_primary"
-                            android:thumbTint="@color/color_primary"
-                            android:visibility="gone" />
-
-                        <TextView
-                            android:id="@+id/playback_time"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="00:00"
-                            android:textColor="@color/color_primary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/item_chat_status"
-                style="@style/AppTextAppearance.VerySmall.Grey"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:text="Sent"
+            <SeekBar
+                android:id="@+id/media_seekbar"
+                android:layout_width="90dp"
+                android:layout_height="20dp"
+                android:progressTint="@color/color_primary"
+                android:thumbTint="@color/color_primary"
                 android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/playback_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="@color/color_primary"
+                android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
 
     <TextView
+        android:id="@+id/item_chat_status"
         style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
+        tools:text="Delivered" />
+
+    <TextView
         android:id="@+id/revealable_view"
+        style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:gravity="end"
-        android:paddingEnd="10dp"
-        android:translationX="80dp" />
-</RelativeLayout>
+        android:translationX="80dp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_chat_message"
+        tools:text="12:00 AM" />
+</android.support.constraint.ConstraintLayout>
