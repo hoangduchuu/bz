@@ -3,7 +3,7 @@
     <item android:drawable="@drawable/ic_chat_game_selected" android:state_selected="true"
 
         />
-    <item android:drawable="@drawable/ic_chat_game" android:state_selected="false"
+    <item android:drawable="@drawable/ic_chat_game_selected" android:state_selected="false"
 
         />
 </selector>

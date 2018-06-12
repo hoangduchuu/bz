@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/main_background_gray"
+    tools:background="@color/color_1">
+
+    <ImageButton
+        android:id="@+id/chat_tgl_outcoming"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:padding="5dp"
+        android:background="@drawable/toggle_mask_msg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.vanniktech.emoji.EmojiEditText
+        android:id="@+id/chat_message_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        android:background="@null"
+        android:hint="@string/hint_bzzz"
+        android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
+        android:maxLines="5"
+        android:scrollHorizontally="false"
+        android:textSize="@dimen/text_size_medium"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_tgl_outcoming"
+        app:layout_constraintEnd_toStartOf="@+id/btn_send"
+        app:layout_constraintStart_toEndOf="@+id/chat_tgl_outcoming"
+        app:layout_constraintTop_toTopOf="@+id/chat_tgl_outcoming"
+        tools:text="" />
+
+    <ImageButton
+        android:id="@+id/chat_emoji_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button_ripple"
+        android:minHeight="36dp"
+        android:paddingEnd="5dp"
+        android:paddingStart="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_emoji_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_tgl_outcoming" />
+
+    <ImageButton
+        android:id="@+id/chat_camera_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/button_ripple"
+        android:minHeight="36dp"
+        android:paddingEnd="5dp"
+        android:paddingStart="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_camera_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/chat_game_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_image_btn" />
+
+    <ImageButton
+        android:id="@+id/chat_image_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/button_ripple"
+        android:minHeight="36dp"
+        android:paddingEnd="5dp"
+        android:paddingStart="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_picture_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/chat_camera_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_emoji_btn" />
+
+    <ImageButton
+        android:id="@+id/chat_game_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="22dp"
+        android:background="@drawable/button_ripple"
+        android:minHeight="36dp"
+        android:paddingEnd="5dp"
+        android:paddingStart="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_game_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/btn_send"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_camera_btn" />
+
+    <ImageView
+        android:id="@+id/btn_send"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="@dimen/default_padding"
+        android:src="@drawable/ic_chat_record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>

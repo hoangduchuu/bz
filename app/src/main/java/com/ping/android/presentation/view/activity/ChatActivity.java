@@ -100,19 +100,18 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
-    private RelativeLayout layoutBottomMenu;
+    //private RelativeLayout layoutBottomMenu;
     private VoiceRecordView layoutVoice;
-    private LinearLayout layoutText, layoutMsgType;
+    //private LinearLayout layoutText, layoutMsgType;
     private ImageView btBack;
-    private AppCompatCheckBox tgMarkOut;
+    private ImageButton tgMarkOut;
     private TextView tvChatStatus;
-    private Button btMask, btUnMask; //btCancelEdit; // btDelete, btEdit,
+    //private Button btMask, btUnMask; //btCancelEdit; // btDelete, btEdit,
     private ImageButton btVoiceCall, btVideoCall, btEmoji;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private TextView tvInstruction;
-    private Button btnSend;
-    private View bottomContainer;
+    private ImageView btnSend;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
 
@@ -148,7 +147,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     UserManager userManager;
     ChatComponent component;
     private boolean isVisible = false;
-    private List<Integer> actionButtons;
+    //private List<Integer> actionButtons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,12 +179,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void initView() {
-        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
-                , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
-        actionButtons = new ArrayList<>(buttonIDs.length);
-        for (int buttonId : buttonIDs) {
-            actionButtons.add(buttonId);
-        }
+//        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn
+//                , R.id.chat_text_btn, R.id.chat_voice_btn, R.id.chat_video_call_btn, R.id.chat_voice_call_btn};
+//        actionButtons = new ArrayList<>(buttonIDs.length);
+//        for (int buttonId : buttonIDs) {
+//            actionButtons.add(buttonId);
+//        }
         notifyTyping();
         recycleChatView.setLayoutManager(mLinearLayoutManager);
         messagesAdapter = new ChatMessageAdapter();
@@ -278,12 +277,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_voice_call:
                 onDeleteMessages();
                 break;
-            case R.id.chat_mask:
-                onUpdateMaskMessage(true);
-                break;
-            case R.id.chat_unmask:
-                onUpdateMaskMessage(false);
-                break;
+//            case R.id.chat_mask:
+//                onUpdateMaskMessage(true);
+//                break;
+//            case R.id.chat_unmask:
+//                onUpdateMaskMessage(false);
+//                break;
             case R.id.chat_text_btn:
                 onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
                 break;
@@ -293,9 +292,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_image_btn:
                 onSendImage();
                 break;
-            case R.id.chat_voice_btn:
-                handleRecordVoice();
-                break;
+//            case R.id.chat_voice_btn:
+//                handleRecordVoice();
+//                break;
             case R.id.chat_game_btn:
                 onGameClicked();
                 break;
@@ -305,12 +304,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.chat_tgl_outcoming:
                 onChangeTypingMark();
                 break;
-            case R.id.chat_voice_call_btn:
-                onVoiceCall();
-                break;
-            case R.id.chat_video_call_btn:
-                onVideoCall();
-                break;
+//            case R.id.chat_voice_call_btn:
+//                onVoiceCall();
+//                break;
+//            case R.id.chat_video_call_btn:
+//                onVideoCall();
+//                break;
             case R.id.chat_emoji_btn:
                 showEmojiEditor();
                 break;
@@ -341,13 +340,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setButtonsState(int selectedViewId) {
-        if (!actionButtons.contains(selectedViewId) && selectedViewId != 0) {
-            return;
-        }
-        for (int viewId : actionButtons) {
-            ImageButton imageButton = findViewById(viewId);
-            imageButton.setSelected(viewId == selectedViewId);
-        }
+//        if (!actionButtons.contains(selectedViewId) && selectedViewId != 0) {
+//            return;
+//        }
+//        for (int viewId : actionButtons) {
+//            ImageButton imageButton = findViewById(viewId);
+//            imageButton.setSelected(viewId == selectedViewId);
+//        }
 
     }
 
@@ -395,12 +394,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void updateMessageSelection(int size) {
         if (size == 0) {
             //btDelete.setEnabled(false);
-            btMask.setEnabled(false);
-            btUnMask.setEnabled(false);
+//            btMask.setEnabled(false);
+//            btUnMask.setEnabled(false);
         } else {
             //btDelete.setEnabled(true);
-            btMask.setEnabled(true);
-            btUnMask.setEnabled(true);
+//            btMask.setEnabled(true);
+//            btUnMask.setEnabled(true);
         }
     }
 
@@ -434,7 +433,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             String imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY);
             String videoPath = data.getStringExtra(VideoRecorderActivity.VIDEO_EXTRA_KEY);
             if (!TextUtils.isEmpty(imagePath)) {
-                presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isChecked());
+                presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isSelected());
             } else if (!TextUtils.isEmpty(videoPath)) {
                 presenter.sendVideoMessage(videoPath);
             }
@@ -470,25 +469,25 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btBack = findViewById(R.id.chat_back);
         tvChatName = findViewById(R.id.chat_person_name);
         tvChatStatus = findViewById(R.id.chat_person_status);
-        tvInstruction = findViewById(R.id.instruction);
+        //tvInstruction = findViewById(R.id.instruction);
         recycleChatView = findViewById(R.id.chat_list_view);
         backgroundImage = findViewById(R.id.backgroundImage);
         swipeRefreshLayout = findViewById(R.id.swiperefresh);
-        btnSend = findViewById(R.id.chat_send_message_btn);
-        btVoiceCall = findViewById(R.id.chat_voice_call_btn);
-        btVideoCall = findViewById(R.id.chat_video_call_btn);
-        btMask = findViewById(R.id.chat_mask);
-        btUnMask = findViewById(R.id.chat_unmask);
+        btnSend = findViewById(R.id.btn_send);
+        btVoiceCall = findViewById(R.id.chat_voice_call);
+        btVideoCall = findViewById(R.id.chat_video_call);
+//        btMask = findViewById(R.id.chat_mask);
+//        btUnMask = findViewById(R.id.chat_unmask);
 //        btDelete = findViewById(R.id.chat_voice_call);
 //        btEdit = findViewById(R.id.chat_video_call);
 //        btCancelEdit = findViewById(R.id.chat_cancel_edit);
-        layoutText = findViewById(R.id.chat_layout_text);
+        //layoutText = findViewById(R.id.chat_layout_text);
         layoutVoice = findViewById(R.id.chat_layout_voice);
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tvNewMsgCount = findViewById(R.id.chat_new_message_count);
-        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
+//        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
         btEmoji = findViewById(R.id.chat_emoji_btn);
-        bottomContainer = findViewById(R.id.bottom_container);
+//        bottomContainer = findViewById(R.id.bottom_container);
 
         btBack.setOnClickListener(this);
         tvChatName.setOnClickListener(this);
@@ -496,17 +495,17 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btnSend.setEnabled(false);
         btVoiceCall.setOnClickListener(this);
         btVideoCall.setOnClickListener(this);
-        btMask.setOnClickListener(this);
-        btUnMask.setOnClickListener(this);
+//        btMask.setOnClickListener(this);
+//        btUnMask.setOnClickListener(this);
 //        btDelete.setOnClickListener(this);
 //        btEdit.setOnClickListener(this);
 //        btCancelEdit.setOnClickListener(this);
         tgMarkOut.setOnClickListener(this);
         findViewById(R.id.chat_person_name).setOnClickListener(this);
-        findViewById(R.id.chat_text_btn).setOnClickListener(this);
+        //findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
-        findViewById(R.id.chat_voice_btn).setOnClickListener(this);
+//        findViewById(R.id.chat_voice_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
         findViewById(R.id.chat_header_center).setOnClickListener(this);
 
@@ -514,8 +513,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
             if (layoutVoice.getVisibility() == View.VISIBLE) {
-                TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
-                layoutVoice.setVisibility(View.GONE);
+//                TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
+//                layoutVoice.setVisibility(View.GONE);
             }
             return false;
         });
@@ -568,7 +567,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 tvInstruction.setVisibility(View.GONE);
             }
         });
-        layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
+        //layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
         edMessage = findViewById(R.id.chat_message_tv);
         //emoji
@@ -681,7 +680,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 updateSendButtonStatus(!TextUtils.isEmpty(charSequence.toString()));
-                if (!tgMarkOut.isChecked()) {
+                if (!tgMarkOut.isSelected()) {
                     return;
                 }
 
@@ -749,7 +748,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     updateConversationTyping(isTyping);
                 }
 
-                if (!tgMarkOut.isChecked()) {
+                if (!tgMarkOut.isSelected()) {
                     originalText = editable.toString();
                     return;
                 }
@@ -795,27 +794,27 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         // Hide keyboard
         KeyboardHelpers.hideSoftInputKeyboard(this);
         if (isEditMode) {
-            layoutBottomMenu.setVisibility(View.VISIBLE);
+//            layoutBottomMenu.setVisibility(View.VISIBLE);
 //            btDelete.setVisibility(View.VISIBLE);
 //            btEdit.setVisibility(View.GONE);
 //            btCancelEdit.setVisibility(View.VISIBLE);
             btBack.setVisibility(View.GONE);
             tvNewMsgCount.setVisibility(View.GONE);
-            layoutText.setVisibility(View.GONE);
+            //layoutText.setVisibility(View.GONE);
             layoutVoice.setVisibility(View.GONE);
-            layoutMsgType.setVisibility(View.GONE);
+            //layoutMsgType.setVisibility(View.GONE);
             updateEditAllMode();
         } else {
-            layoutBottomMenu.setVisibility(View.GONE);
+            //layoutBottomMenu.setVisibility(View.GONE);
 //            btDelete.setVisibility(View.GONE);
 //            btEdit.setVisibility(View.VISIBLE);
 //            btCancelEdit.setVisibility(View.GONE);
             btBack.setVisibility(View.VISIBLE);
             tvNewMsgCount.setVisibility(View.VISIBLE);
-            layoutMsgType.setVisibility(View.VISIBLE);
+            //layoutMsgType.setVisibility(View.VISIBLE);
             // FIXME: call onSetMessageMode make keyboard show up
             //onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
-            layoutText.setVisibility(View.VISIBLE);
+            //layoutText.setVisibility(View.VISIBLE);
             layoutVoice.setVisibility(View.GONE);
 
             int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
@@ -828,10 +827,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void updateEditAllMode() {
 //        btDelete.setEnabled(false);
-        btMask.setText(R.string.chat_mask);
-        btUnMask.setText(R.string.chat_unmask);
-        btMask.setEnabled(false);
-        btUnMask.setEnabled(false);
+//        btMask.setText(R.string.chat_mask);
+//        btUnMask.setText(R.string.chat_unmask);
+//        btMask.setEnabled(false);
+//        btUnMask.setEnabled(false);
     }
 
     private void onOpenProfile() {
@@ -879,38 +878,38 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         selectedMessage = null;
     }
-
-    private void onUpdateMaskMessage(boolean mask) {
-        List<Message> selectedMessages = messagesAdapter.getSelectedMessages();
-        Message lastMessage = messagesAdapter.getLastMessage();
-        boolean isLastMessage = false;
-        if (lastMessage != null) {
-            for (Message msg : selectedMessages) {
-                if (msg.key.equals(lastMessage.key)) {
-                    isLastMessage = true;
-                    break;
-                }
-            }
-        }
-        showLoading();
-        if (!isNetworkAvailable()) {
-            handler.postDelayed(() -> switchOffEditMode(), 2000);
-        }
-        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
-    }
+//
+//    private void onUpdateMaskMessage(boolean mask) {
+//        List<Message> selectedMessages = messagesAdapter.getSelectedMessages();
+//        Message lastMessage = messagesAdapter.getLastMessage();
+//        boolean isLastMessage = false;
+//        if (lastMessage != null) {
+//            for (Message msg : selectedMessages) {
+//                if (msg.key.equals(lastMessage.key)) {
+//                    isLastMessage = true;
+//                    break;
+//                }
+//            }
+//        }
+//        showLoading();
+//        if (!isNetworkAvailable()) {
+//            handler.postDelayed(() -> switchOffEditMode(), 2000);
+//        }
+//        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
+//    }
 
     private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
         if (emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
         if (type == Constant.MESSAGE_TYPE.TEXT) {
-            layoutText.setVisibility(View.VISIBLE);
+            //layoutText.setVisibility(View.VISIBLE);
             layoutVoice.setVisibility(View.GONE);
             edMessage.requestFocus();
             KeyboardHelpers.showKeyboard(this, edMessage);
         } else if (type == Constant.MESSAGE_TYPE.VOICE) {
-            layoutText.setVisibility(View.GONE);
-            TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
+            //layoutText.setVisibility(View.GONE);
+            //TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
             layoutVoice.setVisibility(View.VISIBLE);
             layoutVoice.prepare();
         }
@@ -921,7 +920,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void showEmojiEditor() {
-        layoutText.setVisibility(View.VISIBLE);
+        //layoutText.setVisibility(View.VISIBLE);
         layoutVoice.setVisibility(View.GONE);
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
@@ -929,10 +928,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onChangeTypingMark() {
-        presenter.updateMaskOutput(tgMarkOut.isChecked());
+        presenter.updateMaskOutput(tgMarkOut.isSelected());
         edMessage.removeTextChangedListener(textWatcher);
         int select = edMessage.getSelectionStart();
-        if (tgMarkOut.isChecked()) {
+        if (tgMarkOut.isSelected()) {
             updateMaskTintColor(true);
             edMessage.setText(userManager.encodeMessage(originalText));
             select = userManager.encodeMessage(originalText.substring(0, select)).length();
@@ -965,7 +964,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             return;
         }
         edMessage.setText(null);
-        presenter.sendTextMessage(text, tgMarkOut.isChecked());
+        presenter.sendTextMessage(text, tgMarkOut.isSelected());
     }
 
     private void onSendCamera() {
@@ -1046,11 +1045,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void sendImageFirebase(File file, File thumbnail) {
-        presenter.sendImageMessage(file.getAbsolutePath(), thumbnail.getAbsolutePath(), tgMarkOut.isChecked());
+        presenter.sendImageMessage(file.getAbsolutePath(), thumbnail.getAbsolutePath(), tgMarkOut.isSelected());
     }
 
     private void sendGameFirebase(File file, GameType gameType) {
-        presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isChecked());
+        presenter.sendGameMessage(file.getAbsolutePath(), gameType, tgMarkOut.isSelected());
     }
 
     private void showTyping(boolean typing) {
@@ -1078,13 +1077,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
-            findViewById(R.id.spacing_voice).setVisibility(View.GONE);
-            findViewById(R.id.spacing_audio).setVisibility(View.GONE);
+//            findViewById(R.id.spacing_voice).setVisibility(View.GONE);
+//            findViewById(R.id.spacing_audio).setVisibility(View.GONE);
         } else {
             btVideoCall.setVisibility(View.VISIBLE);
             btVoiceCall.setVisibility(View.VISIBLE);
-            findViewById(R.id.spacing_voice).setVisibility(View.VISIBLE);
-            findViewById(R.id.spacing_audio).setVisibility(View.VISIBLE);
+//            findViewById(R.id.spacing_voice).setVisibility(View.VISIBLE);
+//            findViewById(R.id.spacing_audio).setVisibility(View.VISIBLE);
         }
     }
 
@@ -1095,7 +1094,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void updateMaskSetting(boolean isEnable) {
-        tgMarkOut.setChecked(isEnable);
+        tgMarkOut.setSelected(isEnable);
         updateMaskTintColor(isEnable);
     }
 
@@ -1230,9 +1229,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void updateMaskTintColor(boolean isEnable) {
         if (isEnable) {
             int color = ContextCompat.getColor(this, originalConversation.currentColor.getColor());
-            tgMarkOut.setButtonTintList(ColorStateList.valueOf(color));
+            //tgMarkOut.setButtonTintList(ColorStateList.valueOf(color));
         } else {
-            tgMarkOut.setButtonTintList(null);
+            //tgMarkOut.setButtonTintList(null);
         }
     }
 }
