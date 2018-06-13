@@ -70,8 +70,6 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
 
-        void switchOffEditMode();
-
         void updateNickNames(Map<String, String> nickNames);
 
         void toggleTyping(boolean b);

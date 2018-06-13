@@ -50,7 +50,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public ChatMessageAdapter() {
         super();
-        //addPadding();
         if (audioPlayerInstance == null) {
             audioPlayerInstance = new MediaPlayer();
             audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {

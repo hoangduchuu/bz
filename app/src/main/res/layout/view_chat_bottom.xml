@@ -14,18 +14,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:padding="5dp"
         android:background="@drawable/toggle_mask_msg"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_message_tv"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.vanniktech.emoji.EmojiEditText
         android:id="@+id/chat_message_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
@@ -36,10 +34,9 @@
         android:maxLines="5"
         android:scrollHorizontally="false"
         android:textSize="@dimen/text_size_medium"
-        app:layout_constraintBottom_toBottomOf="@+id/chat_tgl_outcoming"
         app:layout_constraintEnd_toStartOf="@+id/btn_send"
         app:layout_constraintStart_toEndOf="@+id/chat_tgl_outcoming"
-        app:layout_constraintTop_toTopOf="@+id/chat_tgl_outcoming"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="" />
 
     <ImageButton
@@ -58,7 +55,7 @@
         android:src="@drawable/chat_emoji_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_tgl_outcoming" />
+        app:layout_constraintTop_toBottomOf="@+id/chat_message_tv" />
 
     <ImageButton
         android:id="@+id/chat_camera_btn"
@@ -113,11 +110,12 @@
         app:layout_constraintStart_toEndOf="@+id/chat_camera_btn" />
 
     <ImageView
+        style="?attr/backgroundTheme"
         android:id="@+id/btn_send"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="@dimen/default_padding"
-        android:src="@drawable/ic_chat_record"
+        android:src="@drawable/chat_send_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

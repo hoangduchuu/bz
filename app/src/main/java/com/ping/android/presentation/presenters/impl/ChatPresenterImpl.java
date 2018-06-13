@@ -471,7 +471,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Boolean aBoolean) {
                 super.onNext(aBoolean);
                 view.hideLoading();
-                view.switchOffEditMode();
             }
 
             @Override
@@ -489,17 +488,13 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.isLastMessage = isLastMessage;
         params.isMask = isMask;
         params.setMessages(messages);
-        //view.showLoading();
         updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
-                //view.hideLoading();
-                view.switchOffEditMode();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
-                //view.hideLoading();
             }
         }, params);
     }
