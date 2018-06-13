@@ -1,94 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragmentIncomeCall"
-    android:background="@android:color/transparent"
-    tools:background="@color/black"
-    style="@style/MatchParent">
+    android:id="@+id/layout_info_about_call"
+    style="@style/MatchParent"
+    android:layout_alignParentStart="true"
+    android:layout_alignParentTop="true"
+    android:gravity="center_horizontal"
+    tools:background="@color/black">
 
-    <LinearLayout
-        android:id="@+id/layout_info_about_call"
-        style="@style/MatchParent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="40dp"
+    <ImageView
+        android:id="@+id/image_caller_avatar"
+        android:layout_width="@dimen/logo_w_h"
+        android:layout_height="@dimen/logo_w_h"
+        android:layout_marginTop="@dimen/action_bar_height"
+        android:src="@drawable/ic_avatar_orange"
+        app:layout_constraintBottom_toTopOf="@+id/text_outgoing_opponents_names"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/text_outgoing_opponents_names"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_call"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_caller_avatar"
+        tools:text="John, Bob, Merlin" />
 
-        <ImageView
-            android:id="@+id/image_caller_avatar"
-            android:layout_width="@dimen/logo_w_h"
-            android:layout_height="@dimen/logo_w_h"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/ic_avatar_orange" />
+    <TextView
+        android:id="@+id/text_ringing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:text="@string/ringing"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_ringing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_outgoing_opponents_names" />
 
-        <TextView
-            android:id="@+id/text_outgoing_opponents_names"
-            style="@style/MatchWidth"
-            android:gravity="center_horizontal"
-            android:paddingLeft="@dimen/padding_outgoing_screen"
-            android:paddingRight="@dimen/padding_outgoing_screen"
-            android:textSize="@dimen/text_size_call"
-            android:textStyle="normal"
-            android:textColor="@color/white"
-            tools:text="John, Bob, Merlin" />
+    <Chronometer
+        android:id="@+id/chronometer_timer_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/ringing"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_outgoing_opponents_names"
+        tools:text="12:00" />
 
-        <TextView
-            android:id="@+id/text_ringing"
-            style="@style/MatchWidth"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center_horizontal"
-            android:text="@string/ringing"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_ringing"/>
+    <ToggleButton
+        android:id="@+id/toggle_mic"
+        android:layout_width="@dimen/toggle_button_params"
+        android:layout_height="@dimen/toggle_button_params"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/selector_toggle_mic"
+        android:checked="true"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_hangup_call"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <Chronometer
-            android:id="@+id/chronometer_timer_call"
-            style="@style/WrapContent"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/margin_common"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:visibility="gone" />
+    <ImageButton
+        android:id="@+id/button_hangup_call"
+        style="@style/CallActionImageButton"
+        android:layout_width="@dimen/toggle_button_params"
+        android:layout_height="@dimen/toggle_button_params"
+        android:background="@drawable/ic_call_hangup"
+        app:layout_constraintBottom_toBottomOf="@+id/toggle_mic"
+        app:layout_constraintEnd_toStartOf="@+id/toggle_speaker"
+        app:layout_constraintStart_toEndOf="@+id/toggle_mic" />
 
-        <LinearLayout
-            style="@style/MatchWidth"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:gravity="center_horizontal|bottom"
-            android:orientation="horizontal">
-
-            <ToggleButton
-                android:id="@+id/toggle_mic"
-                android:layout_width="@dimen/toggle_button_params"
-                android:layout_height="@dimen/toggle_button_params"
-                android:background="@drawable/selector_toggle_mic"
-                android:checked="true"
-                android:textOff=""
-                android:textOn="" />
-
-            <ImageButton
-                android:id="@+id/button_hangup_call"
-                style="@style/CallActionImageButton"
-                android:layout_width="@dimen/toggle_button_params"
-                android:layout_marginStart="@dimen/element_fragment_margin"
-                android:layout_marginEnd="@dimen/element_fragment_margin"
-                android:layout_height="@dimen/toggle_button_params"
-                android:background="@drawable/ic_call_hangup" />
-
-            <ToggleButton
-                android:id="@+id/toggle_speaker"
-                android:layout_width="@dimen/toggle_button_params"
-                android:layout_height="@dimen/toggle_button_params"
-                android:background="@drawable/selector_toggle_speaker"
-                android:checked="false"
-                android:textOff=""
-                android:textOn="" />
-        </LinearLayout>
-    </LinearLayout>
-
-</RelativeLayout>
+    <ToggleButton
+        android:id="@+id/toggle_speaker"
+        android:layout_width="@dimen/toggle_button_params"
+        android:layout_height="@dimen/toggle_button_params"
+        android:background="@drawable/selector_toggle_speaker"
+        android:checked="false"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintBottom_toBottomOf="@+id/toggle_mic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button_hangup_call" />
+</android.support.constraint.ConstraintLayout>
