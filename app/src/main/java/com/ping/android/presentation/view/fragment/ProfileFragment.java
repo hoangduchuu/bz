@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -229,13 +230,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onLogout() {
         presenter.logout();
-        SubscribeService.unSubscribeFromPushes(getContext());
-        CallService.logout(getContext());
-
-        UsersUtils.removeUserData(getContext());
-        ShortcutBadger.applyCount(getActivity(), 0);
-        getActivity().finish();
-        startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
     }
 
     @Override
@@ -308,5 +302,26 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void updateUser(User user) {
         this.currentUser = user;
         bindData();
+    }
+
+    @Override
+    public void navigateToLogin() {
+        SubscribeService.unSubscribeFromPushes(getContext());
+        CallService.logout(getContext());
+
+        UsersUtils.removeUserData(getContext());
+        ShortcutBadger.applyCount(getActivity(), 0);
+        startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
+        getActivity().finish();
+    }
+
+    @Override
+    public void showErrorLogoutFailed() {
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle("Logout Failed")
+                .setMessage("Please try again later!")
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
     }
 }

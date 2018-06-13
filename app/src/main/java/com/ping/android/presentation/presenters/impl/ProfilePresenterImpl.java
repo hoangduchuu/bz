@@ -46,15 +46,20 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
     @Override
     public void logout() {
+        view.showLoading();
         logoutUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
                 super.onNext(aBoolean);
+                view.hideLoading();
+                view.navigateToLogin();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
-                super.onError(exception);
+                view.hideLoading();
+                view.showErrorLogoutFailed();
+                exception.printStackTrace();
             }
         }, null);
     }

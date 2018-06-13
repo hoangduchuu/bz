@@ -4,13 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
@@ -54,6 +57,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import jp.wasabeef.blurry.Blurry;
+
 /**
  * QuickBlox team
  */
@@ -66,6 +71,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     private static final String EXTRA_IS_INCOMING_CALL = "EXTRA_IS_INCOMING_CALL";
     private static final String EXTRA_IS_VIDEO_CALL = "EXTRA_IS_VIDEO_CALL";
     public static final String EXTRA_OPPONENT_USER = "EXTRA_OPPONENT_USER";
+
+    private FrameLayout blurBackground;
 
     private boolean isInComingCall;
     private QBRTCSession currentSession;
@@ -141,7 +148,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
 
     public static void start(Context context, String sessionId,
                              boolean isIncomingCall, boolean isVideoCall) {
-
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
@@ -163,7 +169,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
         getComponent().inject(this);
         navigator = new Navigator();
         navigator.init(getSupportFragmentManager(), R.id.fragment_container);
-
         initFields();
         isInComingCall = getIntent().getBooleanExtra(EXTRA_IS_INCOMING_CALL, false);
         isVideoCall = getIntent().getBooleanExtra(EXTRA_IS_VIDEO_CALL, false);
@@ -178,6 +183,26 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
         if (checkPermission()) {
             initialized();
         }
+        blurBackground();
+    }
+
+    private void blurBackground() {
+        new Handler().postDelayed(() -> {
+            try {
+                blurBackground = findViewById(R.id.blur_background);
+                Blurry.with(this)
+                        .radius(10)
+                        .sampling(8)
+                        .animate(300)
+                        .color(ContextCompat.getColor(this, R.color.black_transparent_50))
+                        .onto(blurBackground);
+                blurBackground.setVisibility(View.VISIBLE);
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                // Try again
+                blurBackground();
+            }
+        }, 200);
     }
 
     @Override

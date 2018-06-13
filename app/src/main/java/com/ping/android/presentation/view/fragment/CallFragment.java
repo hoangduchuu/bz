@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
@@ -231,11 +232,13 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     private void onDelete() {
         ArrayList<Call> selectedCalls = new ArrayList<>(adapter.getSelectCall());
         presenter.deleteCalls(selectedCalls);
-//        for (Call call : selectedCalls) {
-//            adapter.deleteCall(call.key);
-//        }
         adapter.cleanSelectCall();
-        onExitEdit();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onExitEdit();
+            }
+        }, 500);
     }
 
     private void scrollToTop() {

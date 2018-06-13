@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.bzzz.rxquickblox.RxQuickblox;
 import com.ping.android.domain.repository.QuickbloxRepository;
+import com.ping.android.utils.Log;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
@@ -17,6 +18,8 @@ import org.jivesoftware.smack.SmackException;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 
 /**
@@ -78,9 +81,18 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
 
     @Override
     public Observable<Boolean> signOut() {
-        Performer<Void> performer = QBUsers.signOut();
-        return ((Observable<Void>) performer.convertTo(RxJava2PerformProcessor.INSTANCE))
-                .map(aVoid -> true);
+        QBUsers.signOut().performAsync(new QBEntityCallback<Void>() {
+            @Override
+            public void onSuccess(Void aVoid, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onError(QBResponseException e) {
+                Log.e(e);
+            }
+        });
+        return Observable.just(true);
     }
 
     @Override

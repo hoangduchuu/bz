@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragmentIncomeCall"
+    android:background="@android:color/transparent"
     style="@style/MatchParent">
 
     <LinearLayout
@@ -27,7 +28,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:paddingTop="20dp"
-            android:textColor="@color/text_color_caller_name"
+            android:textColor="@color/white"
             android:textSize="@dimen/caller_name_text_size"
             tools:text="Very long opponent's User Name" />
 
@@ -36,11 +37,8 @@
             style="@style/WrapContent"
             android:layout_marginTop="8dp"
             android:text="@string/text_incoming_audio_call"
-            android:textColor="@color/text_color_call_type"
+            android:textColor="@color/white"
             android:textSize="@dimen/incoming_call_type_text_size" />
-
-
-
     </LinearLayout>
 
     <RelativeLayout
@@ -60,7 +58,7 @@
             style="@style/CallActionImageButton"
             android:layout_toEndOf="@id/image_button_accept_call"
             android:background="@drawable/ic_call_reject"
-            android:layout_marginLeft="100dp"/>
+            android:layout_marginStart="100dp"/>
 
     </RelativeLayout>
 </RelativeLayout>

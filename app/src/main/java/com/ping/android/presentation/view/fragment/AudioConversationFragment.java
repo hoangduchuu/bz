@@ -69,8 +69,6 @@ public class AudioConversationFragment extends BaseConversationFragment
 
     @Override
     protected void configureOutgoingScreen() {
-        allOpponentsTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.text_color_outgoing_opponents_names_audio_call));
-        ringingTextView.setTextColor(ContextCompat.getColor(getActivity(), R.color.text_color_call_type));
     }
 
     @Override
@@ -131,7 +129,7 @@ public class AudioConversationFragment extends BaseConversationFragment
 
     @Override
     public void initAudio(boolean isVideo) {
-//        audioSwitchToggleButton.setChecked(false);
+
     }
 
     @Override
