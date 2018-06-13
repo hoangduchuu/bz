@@ -43,19 +43,27 @@ ext {
     okhttpLibraryVersion = '3.9.1'
 
     libraries = [
-            kotlin      : '1.1.51',
-            dagger      : "2.12",
-            rx_android  : "2.0.1",
-            rx_java     : "2.1.12",
-            arrow       : "1.0.0",
-            retrofit    : "2.2.0",
-            firebase    : "16.0.0",
-            firebase_database: "16.0.1",
-            firebase_auth: "16.0.1",
-            firebase_storage: "16.0.1",
-            firebase_messaging: "17.0.0",
-            firebase_config: "16.0.0",
+            kotlin              : '1.1.51',
+            dagger              : "2.12",
+            rx_android          : "2.0.1",
+            rx_java             : "2.1.12",
+            arrow               : "1.0.0",
+            retrofit            : "2.2.0",
+            firebase            : "16.0.0",
+            firebase_database   : "16.0.1",
+            firebase_auth       : "16.0.1",
+            firebase_storage    : "16.0.1",
+            firebase_messaging  : "17.0.0",
+            firebase_config     : "16.0.0",
     ]
+
+    versionMajor = 2
+    versionMinor = 3
+    versionPatch = 16
+    versionBuild = 101
+
+    versionCode = versionBuild //versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
+    versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 }
 
 task clean(type: Delete) {
