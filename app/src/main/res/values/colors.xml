@@ -93,6 +93,6 @@
     <color name="blue">#007AFF</color>
 
     <array name="av_colors" tools:override="true">
-        <item>#ff9500</item>
+        <item>#FBB040</item>
     </array>
 </resources>

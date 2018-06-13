@@ -13,6 +13,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.transition.Slide;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -25,6 +27,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,12 +37,12 @@ import android.widget.Toast;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
+import com.bzzzchat.configuration.GlideApp;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity;
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.chat.ChatComponent;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
@@ -50,26 +53,21 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
-import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.VoiceRecordView;
-import com.ping.android.presentation.view.custom.VoiceRecordViewListener;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.BadgeHelper;
-import com.bzzzchat.configuration.GlideApp;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
+import com.ping.android.utils.configs.Constant;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -95,18 +93,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
-    //private RelativeLayout layoutBottomMenu;
     private VoiceRecordView layoutVoice;
-    //private LinearLayout layoutText, layoutMsgType;
     private ImageView btBack;
     private ImageButton tgMarkOut;
     private TextView tvChatStatus;
-    //private Button btMask, btUnMask; //btCancelEdit; // btDelete, btEdit,
     private ImageButton btVoiceCall, btVideoCall;
     private ImageButton btEmoji;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
-    private TextView tvInstruction;
     private ImageView btnSend;
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
@@ -118,7 +112,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private Conversation originalConversation;
     private ChatMessageAdapter messagesAdapter;
 
-    private boolean isRecording = false, isTyping = false;
+    private boolean isTyping = false;
     private AtomicBoolean isSettingStackFromEnd = new AtomicBoolean(false);
     private String originalText = "";
     private int selectPosition = 0;
@@ -133,7 +127,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private boolean isScrollToTop = false;
     private EmojiPopup emojiPopup;
 
-    private Handler handler = new Handler(); // Handler for updating the visualizer
     private MessageBaseItem selectedMessage;
     private BadgeHelper badgeHelper;
 
@@ -346,8 +339,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setButtonsState(int selectedViewId) {
-        if (!actionButtons.contains(selectedViewId) && selectedViewId != 0) {
-            return;
+        if (emojiPopup.isShowing()) {
+            emojiPopup.dismiss();
         }
         for (int viewId : actionButtons) {
             ImageButton imageButton = findViewById(viewId);
@@ -474,7 +467,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btBack = findViewById(R.id.chat_back);
         tvChatName = findViewById(R.id.chat_person_name);
         tvChatStatus = findViewById(R.id.chat_person_status);
-        //tvInstruction = findViewById(R.id.instruction);
         recycleChatView = findViewById(R.id.chat_list_view);
         backgroundImage = findViewById(R.id.backgroundImage);
         swipeRefreshLayout = findViewById(R.id.swiperefresh);
@@ -490,36 +482,27 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         layoutVoice = findViewById(R.id.chat_layout_voice);
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tvNewMsgCount = findViewById(R.id.chat_new_message_count);
-//        layoutMsgType = findViewById(R.id.chat_layout_msg_type);
         btEmoji = findViewById(R.id.chat_emoji_btn);
-//        bottomContainer = findViewById(R.id.bottom_container);
 
         btBack.setOnClickListener(this);
         tvChatName.setOnClickListener(this);
         btnSend.setOnClickListener(this);
         btVoiceCall.setOnClickListener(this);
         btVideoCall.setOnClickListener(this);
-//        btMask.setOnClickListener(this);
-//        btUnMask.setOnClickListener(this);
-//        btDelete.setOnClickListener(this);
-//        btEdit.setOnClickListener(this);
-//        btCancelEdit.setOnClickListener(this);
         tgMarkOut.setOnClickListener(this);
         findViewById(R.id.chat_person_name).setOnClickListener(this);
-        //findViewById(R.id.chat_text_btn).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
-//        findViewById(R.id.chat_voice_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
         findViewById(R.id.chat_header_center).setOnClickListener(this);
 
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
-            KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
+            setButtonsState(0);
             if (layoutVoice.getVisibility() == View.VISIBLE) {
-//                TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
-//                layoutVoice.setVisibility(View.GONE);
+                layoutVoice.setVisibility(View.GONE);
             }
+            KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
             return false;
         });
 
@@ -527,28 +510,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
         tvChatName.setText(conversationName);
         tvChatName.setTransitionName(conversationTransionName);
-        layoutVoice.setListener(new VoiceRecordViewListener() {
-            @Override
-            public void sendVoice(@NotNull String outputFile, @NotNull VoiceType selectedVoice) {
-                presenter.sendAudioMessage(outputFile, selectedVoice);
-            }
-
-            @Override
-            public void showInstruction(@NotNull String instruction) {
-                tvInstruction.setVisibility(View.VISIBLE);
-                tvInstruction.setText(instruction);
-            }
-
-            @Override
-            public void hideInstruction() {
-                tvInstruction.setVisibility(View.GONE);
-            }
-        });
+        layoutVoice.setListener((outputFile, selectedVoice) -> presenter.sendAudioMessage(outputFile, selectedVoice));
         //layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
         edMessage = findViewById(R.id.chat_message_tv);
         //emoji
-        emojiPopup = EmojiPopup.Builder.fromRootView(findViewById(R.id.contentRoot)).build(edMessage);
+        emojiPopup = EmojiPopup.Builder
+                .fromRootView(findViewById(R.id.contentRoot))
+                .build(edMessage);
         btEmoji.setOnClickListener(this);
 
         // Bottom message action
@@ -743,8 +712,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         };
         edMessage.addTextChangedListener(textWatcher);
         edMessage.setOnTouchListener((view, motionEvent) -> {
-            setButtonsState(R.id.chat_text_btn);
+            setButtonsState(0);
+            emojiPopup.dismiss();
             return false;
+        });
+        edMessage.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                emojiPopup.dismiss();
+                layoutVoice.setVisibility(View.GONE);
+                KeyboardHelpers.showKeyboard(this, edMessage);
+            }
         });
     }
 
@@ -828,6 +805,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
         if (emojiPopup.isShowing()) {
             emojiPopup.toggle();
+            setButtonsState(0);
         }
         if (type == Constant.MESSAGE_TYPE.TEXT) {
             //layoutText.setVisibility(View.VISIBLE);
@@ -847,7 +825,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void showEmojiEditor() {
-        //layoutText.setVisibility(View.VISIBLE);
         layoutVoice.setVisibility(View.GONE);
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
@@ -954,10 +931,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 111);
             return;
         }
-        if (isRecording) {
-            return;
+        if (emojiPopup.isShowing()) {
+            emojiPopup.toggle();
+            setButtonsState(0);
         }
-        onSetMessageMode(Constant.MESSAGE_TYPE.VOICE);
+        //TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
+        layoutVoice.setVisibility(View.VISIBLE);
+        layoutVoice.prepare();
+        KeyboardHelpers.hideSoftInputKeyboard(this);
+
     }
 
     private void onVoiceCall() {

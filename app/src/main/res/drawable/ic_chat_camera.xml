@@ -2,22 +2,22 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="23dp"
     android:height="24dp"
-    android:viewportWidth="52"
-    android:viewportHeight="54">
+    android:viewportWidth="54"
+    android:viewportHeight="56">
 
     <path
         android:fillType="evenOdd"
         android:strokeColor="#FBB040"
-        android:strokeWidth="1"
-        android:pathData="M 25.7 18 C 31.1676190233 18 35.6 22.4323809767 35.6 27.9 C 35.6 33.3676190233 31.1676190233 37.8 25.7 37.8 C 20.2323809767 37.8 15.8 33.3676190233 15.8 27.9 C 15.8 22.4323809767 20.2323809767 18 25.7 18 Z" />
+        android:strokeWidth="2"
+        android:pathData="M 26.7 19 C 32.1676190233 19 36.6 23.4323809767 36.6 28.9 C 36.6 34.3676190233 32.1676190233 38.8 26.7 38.8 C 21.2323809767 38.8 16.8 34.3676190233 16.8 28.9 C 16.8 23.4323809767 21.2323809767 19 26.7 19 Z" />
     <path
         android:fillType="evenOdd"
         android:strokeColor="#FBB040"
-        android:strokeWidth="1"
-        android:pathData="M 33.6 6.6 C 34.7045694997 6.6 35.6 7.49543050034 35.6 8.6 C 35.6 9.70456949966 34.7045694997 10.6 33.6 10.6 C 32.4954305003 10.6 31.6 9.70456949966 31.6 8.6 C 31.6 7.49543050034 32.4954305003 6.6 33.6 6.6 Z" />
+        android:strokeWidth="2"
+        android:pathData="M 34.6 7.6 C 35.7045694997 7.6 36.6 8.49543050034 36.6 9.6 C 36.6 10.7045694997 35.7045694997 11.6 34.6 11.6 C 33.4954305003 11.6 32.6 10.7045694997 32.6 9.6 C 32.6 8.49543050034 33.4954305003 7.6 34.6 7.6 Z" />
     <path
         android:fillType="evenOdd"
         android:strokeColor="#FBB040"
-        android:strokeWidth="1"
-        android:pathData="M39,4.9 C38.2,2.7 36.1,1.1 33.7,1.1 L17.8,1.1 C15.3,1.1 13.2,2.7 12.5,4.9 C5.7,8.1 1,14.9 1,22.9 L1,32.8 C1,43.7 9.9,52.7 20.9,52.7 L30.8,52.7 C41.7,52.7 50.7,43.8 50.7,32.8 L50.7,22.9 C50.5,15 45.8,8.1 39,4.9 Z" />
+        android:strokeWidth="3"
+        android:pathData="M40,5.9 C39.2,3.7 37.1,2.1 34.7,2.1 L18.8,2.1 C16.3,2.1 14.2,3.7 13.5,5.9 C6.7,9.1 2,15.9 2,23.9 L2,33.8 C2,44.7 10.9,53.7 21.9,53.7 L31.8,53.7 C42.7,53.7 51.7,44.8 51.7,33.8 L51.7,23.9 C51.5,16 46.8,9.1 40,5.9 Z" />
 </vector>

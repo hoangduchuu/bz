@@ -46,6 +46,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerInParent="true"
                 android:layout_centerVertical="true"
+                android:layout_marginEnd="10dp"
                 android:gravity="center_vertical|center_horizontal"
                 android:orientation="vertical">
 
@@ -58,17 +59,19 @@
                     android:drawablePadding="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:maxWidth="200dp"
+                    android:maxWidth="180dp"
                     android:paddingStart="10dp"
-                    android:text="User "
+                    android:paddingEnd="0dp"
+                    android:textColor="@color/white"
                     tools:text="ipsum dolor sit amet, consectetur adipiscing elit." />
 
                 <TextView
                     android:id="@+id/chat_person_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Online"
-                    android:textSize="@dimen/text_size_xxsmall" />
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_size_xxsmall"
+                    tools:text="Online" />
             </LinearLayout>
 
             <ImageButton
@@ -116,7 +119,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="none"
-                    tools:listitem="@layout/item_chat_right_msg"/>
+                    tools:listitem="@layout/item_chat_right_msg" />
 
             </android.support.v4.widget.SwipeRefreshLayout>
         </RelativeLayout>
