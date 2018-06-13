@@ -22,5 +22,7 @@ public interface ProfilePresenter extends BasePresenter {
         void updateUser(User user);
 
         void navigateToLogin();
+
+        void showErrorLogoutFailed();
     }
 }

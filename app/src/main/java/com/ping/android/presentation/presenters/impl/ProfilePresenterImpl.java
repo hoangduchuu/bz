@@ -58,6 +58,7 @@ public class ProfilePresenterImpl implements ProfilePresenter {
             @Override
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
+                view.showErrorLogoutFailed();
                 exception.printStackTrace();
             }
         }, null);
