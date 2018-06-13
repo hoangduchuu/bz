@@ -1,64 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragmentIncomeCall"
-    android:background="@android:color/transparent"
-    style="@style/MatchParent">
+    android:id="@+id/layout_info_about_call"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    tools:background="@color/black">
 
-    <LinearLayout
-        android:id="@+id/layout_info_about_call"
-        style="@style/MatchWidth"
+    <ImageView
+        android:id="@+id/image_caller_avatar"
+        android:layout_width="@dimen/logo_w_h"
+        android:layout_height="@dimen/logo_w_h"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/action_bar_height"
-        android:gravity="center_horizontal"
-        android:orientation="vertical">
+        android:src="@drawable/ic_avatar_orange"
+        app:layout_constraintBottom_toTopOf="@+id/text_caller_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/image_caller_avatar"
-            android:layout_width="@dimen/logo_w_h"
-            android:layout_height="@dimen/logo_w_h"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/ic_avatar_gray" />
+    <TextView
+        android:id="@+id/text_caller_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="@dimen/caller_name_text_size"
+        app:layout_constraintBottom_toTopOf="@+id/call_type"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_caller_avatar"
+        tools:text="Very long opponent's User Name" />
 
-        <TextView
-            android:id="@+id/text_caller_name"
-            style="@style/MatchWidth"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="1"
-            android:paddingTop="20dp"
-            android:textColor="@color/white"
-            android:textSize="@dimen/caller_name_text_size"
-            tools:text="Very long opponent's User Name" />
-
-        <TextView
-            android:id="@+id/call_type"
-            style="@style/WrapContent"
-            android:layout_marginTop="8dp"
-            android:text="@string/text_incoming_audio_call"
-            android:textColor="@color/white"
-            android:textSize="@dimen/incoming_call_type_text_size" />
-    </LinearLayout>
-
-    <RelativeLayout
+    <TextView
+        android:id="@+id/call_type"
         style="@style/WrapContent"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/padding_bottom"
-        android:gravity="center">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/text_incoming_audio_call"
+        android:textColor="@color/white"
+        android:textSize="@dimen/incoming_call_type_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_caller_name" />
 
-        <ImageButton
-            android:id="@+id/image_button_accept_call"
-            style="@style/CallActionImageButton"
-            android:background="@drawable/ic_call_accept"/>
 
-        <ImageButton
-            android:id="@+id/image_button_reject_call"
-            style="@style/CallActionImageButton"
-            android:layout_toEndOf="@id/image_button_accept_call"
-            android:background="@drawable/ic_call_reject"
-            android:layout_marginStart="100dp"/>
+    <ImageButton
+        android:id="@+id/image_button_accept_call"
+        style="@style/CallActionImageButton"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ic_call_accept"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/image_button_reject_call"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    </RelativeLayout>
-</RelativeLayout>
+    <ImageButton
+        android:id="@+id/image_button_reject_call"
+        style="@style/CallActionImageButton"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/ic_call_reject"
+        app:layout_constraintBottom_toBottomOf="@+id/image_button_accept_call"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/image_button_accept_call" />
+
+
+</android.support.constraint.ConstraintLayout>

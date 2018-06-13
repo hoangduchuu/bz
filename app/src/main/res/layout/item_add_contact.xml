@@ -43,9 +43,9 @@
 
     <ImageView
         android:id="@+id/contact_send_message"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
-        android:src="@drawable/ic_message_outline" />
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_message" />
 
     <ToggleButton
         android:id="@+id/contact_add_friend"

@@ -1,77 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
     style="@style/ItemChat"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/message_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <RadioButton
+        android:id="@+id/item_chat_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@null"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/item_chat_message"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_chat_right"
+        android:gravity="center_vertical|end"
+        android:orientation="horizontal"
+        android:paddingBottom="7dp"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="7dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-            <RadioButton
-                android:id="@+id/item_chat_select"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:background="@null" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/item_chat_message"
-                    style="?attr/backgroundTheme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/background_chat_right"
-                    android:gravity="right"
-                    android:orientation="vertical"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:paddingTop="5dp">
-
-                    <com.vanniktech.emoji.EmojiTextView
-                        android:id="@+id/item_chat_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:maxWidth="240dp"
-                        android:padding="2dp"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="@color/white"
-                        android:textIsSelectable="false"
-                        android:textSize="@dimen/text_size_large"
-                        tools:text="a" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/revealable_view"
-            style="@style/AppTextAppearance.VerySmall.Grey"
-            android:layout_width="80dp"
+        <com.vanniktech.emoji.EmojiTextView
+            android:id="@+id/item_chat_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:gravity="end"
-            android:paddingEnd="10dp"
-            android:translationX="80dp" />
-    </RelativeLayout>
+            android:maxWidth="240dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/white"
+            android:textIsSelectable="false"
+            android:textSize="@dimen/text_size_large"
+            tools:text="Hello there" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/revealable_view"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="end"
+        android:translationX="80dp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_chat_message"
+        tools:text="12:00 AM" />
 
     <TextView
         android:id="@+id/item_chat_status"
         style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/message_container"
-        android:gravity="right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/item_chat_message"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
         tools:text="Delivered" />
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

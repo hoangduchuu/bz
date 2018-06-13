@@ -115,7 +115,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         public ViewHolder(View itemView) {
             super(itemView);
             storage = FirebaseStorage.getInstance();
-            container = itemView.findViewById(R.id.item_chat_audio);
+            container = itemView.findViewById(R.id.item_chat_message);
             duration = itemView.findViewById(R.id.playback_time);
             seekBar = itemView.findViewById(R.id.media_seekbar);
             loadingAudioPreparing = itemView.findViewById(R.id.loading_audio_preparing);

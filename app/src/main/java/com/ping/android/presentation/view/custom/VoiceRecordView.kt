@@ -6,20 +6,16 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.transition.Fade
+import android.transition.TransitionManager
 import android.util.AttributeSet
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewAnimationUtils
-import android.view.ViewConfiguration
+import android.view.*
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
-import com.cleveroad.audiovisualization.AudioVisualization
 import com.cleveroad.audiovisualization.GLAudioVisualizationView
 import com.ping.android.R
 import com.ping.android.managers.FFmpegManager
-import com.ping.android.model.enums.Color
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.module.recorder.AudioRecorder
 import com.ping.android.presentation.module.recorder.AudioRecordingHandler
@@ -36,10 +32,6 @@ enum class RecordViewState {
 }
 
 interface VoiceRecordViewListener {
-    fun showInstruction(instruction: String)
-
-    fun hideInstruction()
-
     fun sendVoice(outputFile: String, selectedVoice: VoiceType)
 }
 
@@ -103,14 +95,14 @@ class VoiceRecordView : LinearLayout {
         btnRecord.setOnTouchListener(TouchListener())
 
         btnSend.setOnClickListener {
-            listener?.hideInstruction()
+            hideInstruction()
             stopAudio()
             sendVoice()
             hideReviewVoice()
             initVoiceTypeView()
         }
         btnCancelTransform.setOnClickListener {
-            listener?.hideInstruction()
+            hideInstruction()
             hideReviewVoice()
             initVoiceTypeView()
         }
@@ -207,6 +199,15 @@ class VoiceRecordView : LinearLayout {
         tutorial_message.visibility = View.GONE
     }
 
+    private fun showInstruction(instructionText: String) {
+        instruction.visibility = View.VISIBLE
+        instruction.text = instructionText
+    }
+
+    private fun hideInstruction() {
+        instruction.visibility = View.GONE
+    }
+
     private fun enableRecordMode() {
         btnRecord.setBackgroundResource(R.drawable.background_circle_gray_dark)
     }
@@ -220,6 +221,9 @@ class VoiceRecordView : LinearLayout {
         var diff = _diff
         btnCancel.animate().alpha(if (diff < -50) 1.0f else 0.0f).setDuration(0).start()
         btnTransform.animate().alpha(if (diff > 50) 1.0f else 0.0f).setDuration(0).start()
+        if (diff < -50 || diff > 50) {
+            hideInstruction()
+        }
         val distanceToCancel = btnCancel.y - (btnRecord.y - btnRecord.translationY)
         val distanceToMask = btnTransform.y - (btnRecord.y - btnRecord.translationY)
         when {
@@ -252,16 +256,13 @@ class VoiceRecordView : LinearLayout {
             RecordViewState.CANCEL -> {
                 if (this.state != RecordViewState.CANCEL) {
                     startVibrate()
-                    listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_cancel))
                 }
             }
             RecordViewState.MASK -> {
                 if (this.state != RecordViewState.MASK) {
                     startVibrate()
-                    listener?.showInstruction(context.getString(R.string.voice_record_instruction_release_to_mask))
                 }
             }
-            else -> listener?.showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
         }
         this.state = state
     }
@@ -273,7 +274,7 @@ class VoiceRecordView : LinearLayout {
         audioRecorder.setOutputFile(outputFile)
 
         audioRecorder.startRecord()
-
+        showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
         btnRecord.elevation = 10.0f
         // Start timer
         lengthInMillis = 0
@@ -292,19 +293,19 @@ class VoiceRecordView : LinearLayout {
                 }
             }
         }
-        timer?.scheduleAtFixedRate(task, 1000, 1000)
+        timer?.scheduleAtFixedRate(task, 200, 1000)
     }
 
     private fun stopRecord() {
+        timer?.cancel()
+        timer = null
         audioRecorder.finishRecord()
         handler.stop()
         // Stop timer
-        timer?.cancel()
-        timer = null
     }
 
     private fun onReleaseView() {
-        listener?.hideInstruction()
+        hideInstruction()
         btnCancel.animate().alpha(0.0f).start()
         btnTransform.animate().alpha(0.0f).start()
 
@@ -320,7 +321,7 @@ class VoiceRecordView : LinearLayout {
                 resetRecordTranslate()
             }
             RecordViewState.MASK -> {
-                listener?.showInstruction(context.getString(R.string.voice_record_instruction_mask_with))
+                showInstruction(context.getString(R.string.voice_record_instruction_mask_with))
                 showReviewVoice()
                 resetRecordTranslate(0)
             }

@@ -54,7 +54,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         }
 
         private fun setupUI(videoFile: File) {
-            if (!videoFile.exists()) return
+            if (!videoFile.exists() || itemView == null || itemView.context == null) return
             imgPlay.visibility = View.VISIBLE
             imgPlay.setImageResource(R.drawable.ic_play_arrow)
             imgPlay.background = ContextCompat.getDrawable(itemView.context, R.drawable.background_circle_gray_dark)
@@ -76,7 +76,8 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 file.parentFile.mkdirs()
             }
             val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(videoUrl)
-            storageReference.getFile(file).addOnSuccessListener {
+            storageReference.getFile(file)
+                    .addOnSuccessListener {
                 // Download success
                 setupUI(file)
             }

@@ -200,7 +200,7 @@ public class UiUtils {
 
     public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, @DrawableRes int placeholder) {
         if (TextUtils.isEmpty(firebaseUrl) || !firebaseUrl.startsWith("gs://")) {
-            imageView.setImageResource(IMG_DEFAULT);
+            imageView.setImageResource(placeholder);
             return;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);

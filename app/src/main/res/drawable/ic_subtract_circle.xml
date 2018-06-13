@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:width="26dp"
+    android:height="26dp"
+    android:viewportWidth="26"
+    android:viewportHeight="26">
 
     <path
         android:fillType="evenOdd"
         android:strokeColor="#FBB040"
-        android:strokeWidth="1"
-        android:pathData="M 12 0.5 C 18.3512746231 0.5 23.5 5.64872537695 23.5 12 C 23.5 18.3512746231 18.3512746231 23.5 12 23.5 C 5.64872537695 23.5 0.5 18.3512746231 0.5 12 C 0.5 5.64872537695 5.64872537695 0.5 12 0.5 Z" />
+        android:strokeWidth="2"
+        android:pathData="M 12.9699256 1.5428148 C 19.2651942968 1.5428148 24.3685179 6.64613840317 24.3685179 12.9414071 C 24.3685179 19.2366757968 19.2651942968 24.3399994 12.9699256 24.3399994 C 6.67465690317 24.3399994 1.5713333 19.2366757968 1.5713333 12.9414071 C 1.5713333 6.64613840317 6.67465690317 1.5428148 12.9699256 1.5428148 Z" />
     <path
         android:fillColor="#FBB040"
         android:strokeWidth="1"
-        android:pathData="M 7.0999999 12.8086124 L 7.0999999 11.2009569 L 11.2802492 11.2009569 L 12.9197506 11.2009569 L 17.0999999 11.2009569 L 17.0999999 12.8086124 L 12.9197506 12.8086124 L 11.2802492 12.8086124 Z" />
+        android:pathData="M 7 14.3043904 L 7 12 L 12.1458871 12 L 14.1641134 12 L 19.3100004 12 L 19.3100004 14.3043904 L 14.1641134 14.3043904 L 12.1458871 14.3043904 Z" />
 </vector>
