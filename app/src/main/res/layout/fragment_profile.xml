@@ -74,9 +74,7 @@
                 app:title="@string/profile_phonenumber">
 
                 <ImageView
-                    style="@style/ItemSettingIconRight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
 
             <com.ping.android.presentation.view.custom.SettingItem
@@ -101,9 +99,7 @@
                 app:title="@string/profile_transphabet">
 
                 <ImageView
-                    style="@style/ItemSettingIconRight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
 
             <com.ping.android.presentation.view.custom.SettingItem
@@ -162,7 +158,7 @@
             <com.ping.android.presentation.view.custom.SettingItem
                 android:id="@+id/profile_sign_out"
                 style="@style/ItemSetting"
-                app:leftIcon="@drawable/ic_profile_help"
+                app:leftIcon="@drawable/ic_profile_signout"
                 app:showDivider="false"
                 app:title="@string/profile_signout"
                 app:titleColor="@color/blue" />

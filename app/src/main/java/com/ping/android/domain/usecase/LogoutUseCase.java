@@ -39,13 +39,13 @@ public class LogoutUseCase extends UseCase<Boolean, Void> {
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Void aVoid) {
-        return userManager.getCurrentUser()
-                .flatMap(user -> {
-                    userManager.logout();
-                    String deviceId = device.getDeviceId();
-                    notification.clearAll();
-                    return userRepository.logout(user.key, deviceId)
-                            .flatMap(aBoolean -> quickbloxRepository.signOut());
-                });
+        return quickbloxRepository.signOut()
+                .flatMap(aBoolean -> userManager.getCurrentUser()
+                        .flatMap(user -> {
+                            userManager.logout();
+                            String deviceId = device.getDeviceId();
+                            notification.clearAll();
+                            return userRepository.logout(user.key, deviceId);
+                        }));
     }
 }

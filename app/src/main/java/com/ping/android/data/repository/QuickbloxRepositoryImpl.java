@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.bzzz.rxquickblox.RxQuickblox;
 import com.ping.android.domain.repository.QuickbloxRepository;
+import com.ping.android.utils.Log;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
@@ -80,17 +81,18 @@ public class QuickbloxRepositoryImpl implements QuickbloxRepository {
 
     @Override
     public Observable<Boolean> signOut() {
-        return Observable.create(emitter -> QBUsers.signOut().performAsync(new QBEntityCallback<Void>() {
+        QBUsers.signOut().performAsync(new QBEntityCallback<Void>() {
             @Override
             public void onSuccess(Void aVoid, Bundle bundle) {
-                emitter.onNext(true);
+
             }
 
             @Override
             public void onError(QBResponseException e) {
-                emitter.onError(e);
+                Log.e(e);
             }
-        }));
+        });
+        return Observable.just(true);
     }
 
     @Override
