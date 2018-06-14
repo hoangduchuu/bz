@@ -1,95 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/gray_bg"
-    android:fitsSystemWindows="true">
+    android:background="@color/black_bg"
+    android:layout_height="wrap_content">
 
-    <LinearLayout
+    <com.ping.android.presentation.view.custom.TopCropImageView
+        android:id="@+id/topCropImageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:src="@drawable/login_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
-            style="@style/ProfileSmallStyle"
-            android:layout_marginTop="68dp"
-            android:src="@drawable/ic_avatar_color" />
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/ic_avatar_orange"
+        android:transitionName="bzzz"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/country_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/login_button_padding"
+        android:layout_marginEnd="@dimen/login_button_padding"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_bottom_gray"
+        app:layout_constraintBottom_toTopOf="@+id/phone_number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topCropImageView">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:gravity="center"
-            android:text="@string/why_register_your_phone_number"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_medium" />
+            android:layout_gravity="center_vertical"
+            android:text="Select Country"
+            android:textColor="@color/text_input_login_hint" />
 
-        <TextView
-            android:layout_width="match_parent"
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/ccp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="7dp"
-            android:gravity="center"
-            android:text="@string/suggest_add_phone"
-            android:textColor="@color/white"
-            android:textSize="@dimen/text_size_xxsmall" />
-
-        <LinearLayout
-            style="@style/InputLayoutStyle"
-            android:layout_marginTop="80dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="Select Country"
-                    android:textColor="@color/text_input_login_hint" />
-
-                <com.hbb20.CountryCodePicker
-                    android:id="@+id/ccp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:background="@android:color/transparent" />
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/phone_number"
-                style="@style/InputTextStyle"
-                android:hint="Phone Number"
-                android:inputType="phone" />
-
-            <View style="@style/InputUnderLineStyle" />
-
-
-            <RelativeLayout
-                android:id="@+id/phone_register"
-                style="@style/NextButtonLayout"
-                android:layout_marginTop="20dp">
-
-                <TextView
-                    style="@style/NextButtonText"
-                    android:text="OK" />
-
-                <ImageView
-                    style="@style/NextButtonImage"
-                    android:src="@drawable/ic_arrow_right" />
-            </RelativeLayout>
-
-        </LinearLayout>
-
+            android:layout_marginStart="20dp"
+            app:contentColor="@color/text_input_login_hint"
+            android:background="@android:color/transparent" />
     </LinearLayout>
 
-    <include layout="@layout/notify_network_other" />
+    <EditText
+        android:id="@+id/phone_number"
+        style="@style/InputTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:hint="@string/phone_hint"
+        android:inputType="phone"
+        app:layout_constraintBottom_toTopOf="@+id/phone_register"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/country_container" />
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="@style/ProgressStyle" />
-</android.support.design.widget.CoordinatorLayout>
+    <Button
+        android:id="@+id/phone_register"
+        style="@style/LoginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/phone_registration"
+        app:layout_constraintBottom_toTopOf="@+id/topCropImageView"
+        app:layout_constraintTop_toBottomOf="@+id/phone_number"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteX="38dp" />
+
+    <include
+        layout="@layout/notify_network_other"
+        android:visibility="gone" />
+</android.support.constraint.ConstraintLayout>

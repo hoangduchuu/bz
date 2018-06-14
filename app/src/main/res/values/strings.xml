@@ -299,4 +299,6 @@
     <string name="change_password_update">Update</string>
     <string name="forgot_password_dialog_title">NOTICE</string>
     <string name="forgot_password_dialog_message">Bzzz will send a temporary link to reset your password to the email address you\'ve registered</string>
+    <string name="phone_hint">Phone Number</string>
+    <string name="phone_registration">Done</string>
 </resources>
