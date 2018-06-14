@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +32,8 @@ import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
+import com.ping.android.presentation.view.custom.KeyboardAwaredView;
+import com.ping.android.presentation.view.custom.KeyboardListener;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
@@ -36,10 +41,11 @@ import com.ping.android.utils.UiUtils;
 import javax.inject.Inject;
 
 public class RegistrationActivity extends CoreActivity implements View.OnClickListener, RegistrationPresenter.View {
-
     private EditText txtFirstName, txtLastName, txtPingId, txtEmail, txtPassword, txtRetypePassword;
     private TextView tvAgreeTermOfService;
     private CheckBox termCheckBox;
+    private KeyboardAwaredView container;
+    private LinearLayout bottomLayout;
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
@@ -75,7 +81,12 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constant.URL_TERMS_OF_SERVICE));
                 startActivity(browserIntent);
                 break;
-
+            case R.id.tv_login:
+                navigateToLoginPage();
+                break;
+            case R.id.tv_forgot_password:
+                navigateToForgotPassword();
+                break;
         }
     }
 
@@ -85,6 +96,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindViews() {
+        container = findViewById(R.id.container);
+        bottomLayout = findViewById(R.id.bottom_layout);
         txtFirstName = findViewById(R.id.registration_first_name);
         txtLastName = findViewById(R.id.registration_last_name);
         txtPingId = findViewById(R.id.registration_ping_id);
@@ -96,8 +109,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         termCheckBox = findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.registration_back).setOnClickListener(this);
-
-        UiUtils.setUpHideSoftKeyboard(this, findViewById(R.id.viewRoot));
+        findViewById(R.id.tv_login).setOnClickListener(this);
+        findViewById(R.id.tv_forgot_password).setOnClickListener(this);
+        container.setListener(visible -> {
+            if (!visible) {
+                // Should hide bottom layout
+                bottomLayout.setVisibility(View.VISIBLE);
+                //scrollAtBottom = false;
+            } else {
+                bottomLayout.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void init() {
@@ -320,5 +342,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         Intent intent = new Intent(RegistrationActivity.this, PhoneActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    private void navigateToForgotPassword() {
+        Intent intent = new Intent(this, ForgotPasswordActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToLoginPage() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

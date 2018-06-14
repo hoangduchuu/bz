@@ -5,7 +5,7 @@
     android:layout_height="36dp"
     android:layout_marginTop="@dimen/top_bar_height"
     android:background="@color/bg_network_connecting"
-    tools:visibility="gone"
+    tools:visibility="visible"
     android:gravity="center">
 
     <TextView

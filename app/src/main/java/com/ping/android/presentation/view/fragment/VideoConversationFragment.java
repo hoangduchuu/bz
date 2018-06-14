@@ -317,6 +317,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
                 toggleCameraInternal();
                 localVideoView.setAnimation(animation1);
                 localVideoView.startAnimation(animation1);
+                cameraToggle.setEnabled(true);
             }
 
             @Override
