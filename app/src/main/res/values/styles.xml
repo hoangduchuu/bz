@@ -33,7 +33,7 @@
     </style>
 
     <style name="AppTheme.Dark" parent="AppTheme.NoActionBar">
-        <item name="colorPrimaryDark">#58595B</item>
+        <item name="colorPrimaryDark">@color/black_bg</item>
     </style>
 
     <style name="AppTheme.Darkness" parent="AppTheme.NoActionBar">
@@ -75,6 +75,17 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
+    <style name="LoginButton">
+        <item name="android:layout_marginStart">@dimen/login_button_padding</item>
+        <item name="android:layout_marginEnd">@dimen/login_button_padding</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:background">@drawable/background_rectangle</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text_color_black</item>
+    </style>
+
     <style name="InputLayoutStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -86,18 +97,24 @@
     <style name="InputTextStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">10dp</item>
         <item name="android:layout_marginTop">10dp</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:background">@null</item>
-        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/login_padding</item>
+        <item name="android:layout_marginEnd">@dimen/login_padding</item>
         <item name="android:textColor">@color/text_input_login</item>
         <item name="android:textColorHint">@color/text_input_login_hint</item>
         <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:drawablePadding">22dp</item>
+        <item name="android:drawablePadding">10dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
+        <item name="theme">@style/EditTextStyle</item>
+    </style>
 
+    <style name="EditTextStyle">
+        <item name="colorControlNormal">#666666</item>
+        <item name="colorControlActivated">#666666</item>
+        <item name="colorControlHighlight">#666666</item>
     </style>
 
     <style name="InputUnderLineStyle">

@@ -1,71 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/gray_bg"
-    android:fitsSystemWindows="true">
+    android:background="@color/black_bg"
+    android:layout_height="wrap_content">
 
-    <LinearLayout
+    <com.ping.android.presentation.view.custom.TopCropImageView
+        android:id="@+id/topCropImageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:src="@drawable/login_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageView
-            android:id="@+id/login_back"
-            style="@style/BackButton" />
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/ic_avatar_orange"
+        android:transitionName="bzzz"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/img_logo" />
 
-        <LinearLayout
-            style="@style/InputLayoutStyle"
-            android:layout_marginTop="100dp">
+    <EditText
+        android:id="@+id/login_name"
+        style="@style/InputTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/login_hint_username"
+        android:inputType="textEmailAddress"
+        android:drawableStart="@drawable/ic_login_email"
+        app:layout_constraintBottom_toTopOf="@+id/login_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topCropImageView" />
 
-            <EditText
-                android:id="@+id/login_name"
-                style="@style/InputTextStyle"
-                android:drawableLeft="@drawable/ic_login_email"
-                android:hint="Email or Username" />
+    <EditText
+        android:id="@+id/login_password"
+        style="@style/InputTextStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="@string/login_hint_password"
+        android:drawableStart="@drawable/ic_login_password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/login_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_name" />
 
-            <View style="@style/InputUnderLineStyle" />
+    <Button
+        android:id="@+id/login_next"
+        style="@style/LoginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/registration_login"
+        app:layout_constraintBottom_toTopOf="@+id/topCropImageView"
+        app:layout_constraintTop_toBottomOf="@+id/login_password"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteX="38dp" />
 
-            <EditText
-                android:id="@+id/login_password"
-                style="@style/InputTextStyle"
-                android:drawableLeft="@drawable/ic_login_password"
-                android:hint="Password"
-                android:inputType="textPassword" />
+    <TextView
+        android:id="@+id/tv_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/background_rectangle_border"
+        android:paddingBottom="3dp"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:paddingTop="0dp"
+        android:text="@string/login_registration"
+        android:textColor="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_forgot_password"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/topCropImageView" />
 
-            <View style="@style/InputUnderLineStyle" />
+    <TextView
+        android:id="@+id/tv_forgot_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/background_rectangle_border"
+        android:paddingBottom="3dp"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="0dp"
+        android:text="@string/registration_forgot_password"
+        android:textColor="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/topCropImageView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tv_register" />
 
-            <RelativeLayout
-                android:id="@+id/login_next"
-                style="@style/NextButtonLayout"
-                android:layout_marginTop="25dp">
-
-                <TextView
-                    style="@style/NextButtonText"
-                    android:text="NEXT" />
-
-                <ImageView
-                    style="@style/NextButtonImage"
-                    android:src="@drawable/ic_arrow_right" />
-            </RelativeLayout>
-
-            <Button
-                android:id="@+id/login_forget_password"
-                style="@style/TransparentButton"
-                android:text="@string/forgot_password" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <include layout="@layout/notify_network_other" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="@style/ProgressStyle" />
-</android.support.design.widget.CoordinatorLayout>
+    <include
+        layout="@layout/notify_network_other"
+        android:visibility="gone" />
+</android.support.constraint.ConstraintLayout>

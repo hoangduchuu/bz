@@ -1,19 +1,30 @@
 package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,17 +40,23 @@ import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
+import com.ping.android.presentation.view.custom.KeyboardAwaredView;
+import com.ping.android.presentation.view.custom.KeyboardListener;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.KeyboardHelpers;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
 
 public class RegistrationActivity extends CoreActivity implements View.OnClickListener, RegistrationPresenter.View {
-
     private EditText txtFirstName, txtLastName, txtPingId, txtEmail, txtPassword, txtRetypePassword;
     private TextView tvAgreeTermOfService;
     private CheckBox termCheckBox;
+    private KeyboardAwaredView container;
+    private LinearLayout bottomLayout;
+
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
@@ -65,9 +82,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.registration_back:
-                exitRegistration();
-                break;
             case R.id.registration_next:
                 register();
                 break;
@@ -75,7 +89,12 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constant.URL_TERMS_OF_SERVICE));
                 startActivity(browserIntent);
                 break;
-
+            case R.id.tv_login:
+                navigateToLoginPage();
+                break;
+            case R.id.tv_forgot_password:
+                navigateToForgotPassword();
+                break;
         }
     }
 
@@ -85,6 +104,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindViews() {
+        container = findViewById(R.id.container);
+        bottomLayout = findViewById(R.id.bottom_layout);
         txtFirstName = findViewById(R.id.registration_first_name);
         txtLastName = findViewById(R.id.registration_last_name);
         txtPingId = findViewById(R.id.registration_ping_id);
@@ -95,9 +116,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         tvAgreeTermOfService.setOnClickListener(this);
         termCheckBox = findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
-        findViewById(R.id.registration_back).setOnClickListener(this);
-
-        UiUtils.setUpHideSoftKeyboard(this, findViewById(R.id.viewRoot));
+        findViewById(R.id.tv_login).setOnClickListener(this);
+        findViewById(R.id.tv_forgot_password).setOnClickListener(this);
+        container.setListener(visible -> {
+            if (!visible) {
+                // Should hide bottom layout
+                bottomLayout.setVisibility(View.VISIBLE);
+                //scrollAtBottom = false;
+            } else {
+                bottomLayout.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void init() {
@@ -207,8 +236,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
             }
         });
     }
-
-
 
     private void createAccount() {
         String _firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
@@ -320,5 +347,44 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         Intent intent = new Intent(RegistrationActivity.this, PhoneActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+    }
+
+    private void navigateToForgotPassword() {
+        View promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null);
+        EditText email = promptsView.findViewById(R.id.email);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.forgot_password_dialog_title)
+                .setView(promptsView)
+                .setPositiveButton("SEND", (dialog12, which) -> {
+                    String emailString = email.getText().toString();
+                    if (CommonMethod.isValidEmail(emailString)) {
+                        auth.sendPasswordResetEmail(email.getText().toString())
+                                .addOnSuccessListener(aVoid -> Log.d("Success"))
+                                .addOnFailureListener(e -> Log.e(e));
+                    } else {
+                        showEmailInvalidDialog();
+                    }
+                })
+                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void showEmailInvalidDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("WARNING")
+                .setMessage("Verify your email address")
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
+    }
+
+    private void navigateToLoginPage() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
+        finish();
     }
 }

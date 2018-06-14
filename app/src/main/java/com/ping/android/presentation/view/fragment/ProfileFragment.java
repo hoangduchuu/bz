@@ -18,6 +18,7 @@ import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.R;
+import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
@@ -311,7 +312,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
         UsersUtils.removeUserData(getContext());
         ShortcutBadger.applyCount(getActivity(), 0);
-        startActivity(new Intent(getActivity(), BeforeLoginActivity.class));
+        startActivity(new Intent(getActivity(), RegistrationActivity.class));
         getActivity().finish();
     }
 

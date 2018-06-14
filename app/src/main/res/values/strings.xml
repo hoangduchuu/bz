@@ -285,4 +285,20 @@
     <string name="conversation_detail_puzzule_image">Puzzle Incoming Pictures</string>
     <string name="conversation_detail_colors">Colors</string>
     <string name="conversation_detail_block">Block</string>
+    <string name="registration_confirm_password">Confirm Password</string>
+    <string name="registration_password">Password</string>
+    <string name="registration_email">Email Address</string>
+    <string name="registration_login">Login</string>
+    <string name="registration_forgot_password">Forgot Password?</string>
+    <string name="registration_register">REGISTER</string>
+    <string name="login_hint_username">Username or Email</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_registration">Register</string>
+    <string name="change_password_hint_new_password">New Password</string>
+    <string name="change_password_hint_password">Current Password</string>
+    <string name="change_password_update">Update</string>
+    <string name="forgot_password_dialog_title">NOTICE</string>
+    <string name="forgot_password_dialog_message">Bzzz will send a temporary link to reset your password to the email address you\'ve registered</string>
+    <string name="phone_hint">Phone Number</string>
+    <string name="phone_registration">Done</string>
 </resources>

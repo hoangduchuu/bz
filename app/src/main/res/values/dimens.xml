@@ -93,5 +93,8 @@
     <dimen name="badge_font_size">8sp</dimen>
     <dimen name="badge_font_size_small">6sp</dimen>
     <dimen name="grid_item_padding">5dp</dimen>
+    <dimen name="login_padding">35dp</dimen>
+    <dimen name="login_checkbox_padding">32dp</dimen>
+    <dimen name="login_button_padding">38dp</dimen>
 
 </resources>

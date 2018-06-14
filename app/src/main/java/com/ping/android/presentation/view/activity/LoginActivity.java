@@ -1,13 +1,16 @@
 package com.ping.android.presentation.view.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,6 +28,9 @@ import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
+import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.KeyboardHelpers;
+import com.ping.android.utils.Log;
 
 import java.util.ArrayList;
 
@@ -34,6 +40,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private FirebaseAuth auth;
     private EditText inputName, inputPassword;
+    private ImageView bzzzAvatar;
+
     private DatabaseReference mDatabase;
     private int timesRead = 0;
     ValueEventListener eventListener = null;
@@ -54,23 +62,24 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.login_back:
-                onBack();
-                break;
             case R.id.login_next:
                 onNext();
                 break;
-            case R.id.login_forget_password:
+            case R.id.tv_register:
+                onRegisterPressed();
+                break;
+            case R.id.tv_forgot_password:
                 onForgetPassword();
                 break;
         }
     }
 
     private void bindViews() {
-        findViewById(R.id.login_back).setOnClickListener(this);
+        findViewById(R.id.tv_register).setOnClickListener(this);
         findViewById(R.id.login_next).setOnClickListener(this);
-        findViewById(R.id.login_forget_password).setOnClickListener(this);
+        findViewById(R.id.tv_forgot_password).setOnClickListener(this);
 
+        bzzzAvatar = findViewById(R.id.imageView);
         inputName = findViewById(R.id.login_name);
         inputPassword = findViewById(R.id.login_password);
     }
@@ -80,7 +89,13 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         mDatabase = database.getReference();
     }
 
-    private void onBack() {
+    private void onRegisterPressed() {
+        Intent intent = new Intent(this, RegistrationActivity.class);
+        Bundle options = ActivityOptionsCompat
+                .makeCustomAnimation(this, android.R.anim.fade_in, android.R.anim.fade_out)
+                //.makeSceneTransitionAnimation(this, bzzzAvatar, "bzzz")
+                .toBundle();
+        startActivity(intent, options);
         finish();
     }
 
@@ -97,11 +112,8 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
             return;
         }
 
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
+        KeyboardHelpers.hideSoftInputKeyboard(this);
+
         if (!isNetworkAvailable()) {
             Toast.makeText(getApplicationContext(), "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
@@ -218,34 +230,39 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
 
     private void checkEmailVerified() {
         presenter.initializeUser();
-//        UserManager.getInstance().initialize(new Callback() {
-//            @Override
-//            public void complete(Object error, Object... data) {
-//                hideLoading();
-//                if (error == null) {
-//                    ServiceManager.getInstance().updateLoginStatus(true);
-//                    userRepository.updateRefreshToken();
-//
-//                    QBUser qbUser = (QBUser) data[0];
-//                    startCallService(qbUser);
-//
-//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                    finish();
-//                }
-//            }
-//        });
     }
 
     private void onForgetPassword() {
-        startActivity(new Intent(this, ForgotPasswordActivity.class));
+        View promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null);
+        EditText email = promptsView.findViewById(R.id.email);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.forgot_password_dialog_title)
+                .setView(promptsView)
+                .setPositiveButton("SEND", (dialog12, which) -> {
+                    String emailString = email.getText().toString();
+                    if (CommonMethod.isValidEmail(emailString)) {
+                        auth.sendPasswordResetEmail(email.getText().toString())
+                                .addOnSuccessListener(aVoid -> Log.d("Success"))
+                                .addOnFailureListener(e -> Log.e(e));
+                    } else {
+                        showEmailInvalidDialog();
+                    }
+                })
+                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
 
-    public LoginComponent getComponent() {
-        if (component == null) {
-            component = getLoggedOutComponent().provideLoginComponent(new LoginModule(this));
-        }
-        return component;
+    private void showEmailInvalidDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("WARNING")
+                .setMessage("Verify your email address")
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
     }
+
 
     @Override
     public void navigateToMainScreen() {
@@ -254,6 +271,13 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    public LoginComponent getComponent() {
+        if (component == null) {
+            component = getLoggedOutComponent().provideLoginComponent(new LoginModule(this));
+        }
+        return component;
     }
 }
 

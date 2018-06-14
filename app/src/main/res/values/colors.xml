@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     
-    <color name="black_bg">#231F20</color>
+    <color name="black_bg">#110f0f</color>
     <color name="gray_bg">#58595B</color>
 
     <color name="divider">#f7f8f9</color>
 
-    <color name="border_input_login">#6D6D6D</color>
-    <color name="text_input_login">#CCCCCC</color>
-    <color name="text_input_login_hint">#88A7A9AC</color>
+    <color name="border_input_login">#666666</color>
+    <color name="text_input_login">#666666</color>
+    <color name="text_input_login_hint">#666666</color>
 
     <color name="random_color_1">#ff9500</color>
     <color name="random_color_2">#007aff</color>
@@ -71,7 +71,7 @@
     <color name="bg_network_noconnect">#666666</color>
     <color name="yellow">#f7dc2d</color>
 
-    <color name="gray_color">#A9A9AA</color>
+    <color name="gray_color">#666666</color>
     <color name="color_1">#5856d6</color>
     <color name="color_accent_1">#4846ae</color>
     <color name="color_2">#007aff</color>
