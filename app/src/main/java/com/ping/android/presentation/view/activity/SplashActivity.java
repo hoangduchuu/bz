@@ -3,6 +3,7 @@ package com.ping.android.presentation.view.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
@@ -52,11 +53,13 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     @Override
     public void navigateToLoginScreen() {
         Intent intent;
-        intent = new Intent(SplashActivity.this, BeforeLoginActivity.class);
+        intent = new Intent(SplashActivity.this, LoginActivity.class);
         if (!TextUtils.isEmpty(conversationId)) {
             intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         }
-        startActivity(intent);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
         finish();
     }
 

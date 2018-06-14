@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -46,6 +47,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     private CheckBox termCheckBox;
     private KeyboardAwaredView container;
     private LinearLayout bottomLayout;
+
     private FirebaseAuth auth;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
@@ -71,9 +73,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.registration_back:
-                exitRegistration();
-                break;
             case R.id.registration_next:
                 register();
                 break;
@@ -108,7 +107,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         tvAgreeTermOfService.setOnClickListener(this);
         termCheckBox = findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
-        findViewById(R.id.registration_back).setOnClickListener(this);
         findViewById(R.id.tv_login).setOnClickListener(this);
         findViewById(R.id.tv_forgot_password).setOnClickListener(this);
         container.setListener(visible -> {
@@ -346,13 +344,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     private void navigateToForgotPassword() {
         Intent intent = new Intent(this, ForgotPasswordActivity.class);
-        startActivity(intent);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
         finish();
     }
 
     private void navigateToLoginPage() {
         Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
         finish();
     }
 }

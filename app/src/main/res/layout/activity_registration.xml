@@ -13,15 +13,6 @@
         android:layout_alignParentBottom="true"
         android:src="@drawable/login_background" />
 
-    <ImageView
-        android:id="@+id/registration_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="10dp"
-        android:visibility="gone"
-        android:src="@drawable/ic_back" />
-
     <LinearLayout
         android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
@@ -62,8 +53,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_layout"
-        android:layout_below="@id/registration_back">
+        android:layout_above="@id/bottom_layout">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/linearLayout2"
@@ -76,6 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
+                android:transitionName="bzzz"
                 android:src="@drawable/ic_avatar_orange"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -178,18 +169,14 @@
 
             <Button
                 android:id="@+id/registration_next"
+                style="@style/LoginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/login_button_padding"
-                android:layout_marginStart="@dimen/login_button_padding"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/background_rectangle"
-                android:minHeight="0dp"
-                android:padding="5dp"
                 android:text="@string/registration_register"
-                android:textColor="@color/text_color_black"
-                android:textSize="20sp"
                 app:layout_constraintTop_toBottomOf="@+id/registration_terms" />
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
+
+    <include layout="@layout/notify_network_other"
+        android:visibility="gone" />
 </com.ping.android.presentation.view.custom.KeyboardAwaredView>

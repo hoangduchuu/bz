@@ -75,6 +75,17 @@
         <item name="android:gravity">center_horizontal</item>
     </style>
 
+    <style name="LoginButton">
+        <item name="android:layout_marginStart">@dimen/login_button_padding</item>
+        <item name="android:layout_marginEnd">@dimen/login_button_padding</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:background">@drawable/background_rectangle</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/text_color_black</item>
+    </style>
+
     <style name="InputLayoutStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -94,7 +105,7 @@
         <item name="android:textColor">@color/text_input_login</item>
         <item name="android:textColorHint">@color/text_input_login_hint</item>
         <item name="android:textSize">@dimen/text_size_small</item>
-        <item name="android:drawablePadding">22dp</item>
+        <item name="android:drawablePadding">10dp</item>
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="theme">@style/EditTextStyle</item>
