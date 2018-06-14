@@ -7,7 +7,7 @@
     <color name="divider">#f7f8f9</color>
 
     <color name="border_input_login">#666666</color>
-    <color name="text_input_login">#CCCCCC</color>
+    <color name="text_input_login">#666666</color>
     <color name="text_input_login_hint">#666666</color>
 
     <color name="random_color_1">#ff9500</color>

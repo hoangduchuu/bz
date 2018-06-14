@@ -87,7 +87,8 @@
             android:name=".presentation.view.activity.LoginActivity"
             android:label="Log"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.Dark"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".presentation.view.activity.RegistrationActivity"
             android:label="Registration"
@@ -144,7 +145,8 @@
             android:name=".presentation.view.activity.ChangePasswordActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.Dark"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".presentation.view.activity.ForgotPasswordActivity"
             android:label="GameActivity"

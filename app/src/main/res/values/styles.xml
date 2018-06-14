@@ -113,7 +113,7 @@
 
     <style name="EditTextStyle">
         <item name="colorControlNormal">#666666</item>
-        <item name="colorControlActivated">#cccccc</item>
+        <item name="colorControlActivated">#666666</item>
         <item name="colorControlHighlight">#666666</item>
     </style>
 

@@ -1,12 +1,14 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -26,7 +28,9 @@ import com.ping.android.dagger.loggedout.login.LoginComponent;
 import com.ping.android.dagger.loggedout.login.LoginModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
+import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.KeyboardHelpers;
+import com.ping.android.utils.Log;
 
 import java.util.ArrayList;
 
@@ -229,12 +233,36 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
     }
 
     private void onForgetPassword() {
-        Intent intent = new Intent(this, ForgotPasswordActivity.class);
-        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
-                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
-        startActivity(intent, bundle);
-        finish();
+        View promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null);
+        EditText email = promptsView.findViewById(R.id.email);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.forgot_password_dialog_title)
+                .setView(promptsView)
+                .setPositiveButton("SEND", (dialog12, which) -> {
+                    String emailString = email.getText().toString();
+                    if (CommonMethod.isValidEmail(emailString)) {
+                        auth.sendPasswordResetEmail(email.getText().toString())
+                                .addOnSuccessListener(aVoid -> Log.d("Success"))
+                                .addOnFailureListener(e -> Log.e(e));
+                    } else {
+                        showEmailInvalidDialog();
+                    }
+                })
+                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
     }
+
+    private void showEmailInvalidDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("WARNING")
+                .setMessage("Verify your email address")
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
+    }
+
 
     @Override
     public void navigateToMainScreen() {

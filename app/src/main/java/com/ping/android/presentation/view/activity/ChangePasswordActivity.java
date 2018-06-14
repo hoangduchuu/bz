@@ -47,9 +47,9 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.ib_back:
-                exit();
-                break;
+//            case R.id.ib_back:
+//                exit();
+//                break;
             case R.id.password_change:
                 changePassword();
                 break;
@@ -63,7 +63,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
 
     private void bindViews() {
         findViewById(R.id.password_change).setOnClickListener(this);
-        findViewById(R.id.ib_back).setOnClickListener(this);
+//        findViewById(R.id.ib_back).setOnClickListener(this);
         etPassword = findViewById(R.id.txt_password);
         etNewPassword = findViewById(R.id.txt_new_password);
         etConfirmPassword = findViewById(R.id.txt_confirm_password);

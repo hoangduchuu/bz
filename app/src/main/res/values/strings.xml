@@ -294,4 +294,9 @@
     <string name="login_hint_username">Username or Email</string>
     <string name="login_hint_password">Password</string>
     <string name="login_registration">Register</string>
+    <string name="change_password_hint_new_password">New Password</string>
+    <string name="change_password_hint_password">Current Password</string>
+    <string name="change_password_update">Update</string>
+    <string name="forgot_password_dialog_title">NOTICE</string>
+    <string name="forgot_password_dialog_message">Bzzz will send a temporary link to reset your password to the email address you\'ve registered</string>
 </resources>

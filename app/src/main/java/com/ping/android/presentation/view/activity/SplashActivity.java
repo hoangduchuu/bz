@@ -53,7 +53,7 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     @Override
     public void navigateToLoginScreen() {
         Intent intent;
-        intent = new Intent(SplashActivity.this, LoginActivity.class);
+        intent = new Intent(SplashActivity.this, RegistrationActivity.class);
         if (!TextUtils.isEmpty(conversationId)) {
             intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         }

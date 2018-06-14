@@ -1,14 +1,19 @@
 package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -18,6 +23,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,6 +43,8 @@ import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
 import com.ping.android.presentation.view.custom.KeyboardListener;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.KeyboardHelpers;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
@@ -228,8 +237,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         });
     }
 
-
-
     private void createAccount() {
         String _firstName = txtFirstName.getText().toString().trim().replaceAll(" +", " ");
         final String firstName = CommonMethod.capitalFirstLetters(_firstName);
@@ -343,11 +350,34 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void navigateToForgotPassword() {
-        Intent intent = new Intent(this, ForgotPasswordActivity.class);
-        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(this,
-                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
-        startActivity(intent, bundle);
-        finish();
+        View promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null);
+        EditText email = promptsView.findViewById(R.id.email);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.forgot_password_dialog_title)
+                .setView(promptsView)
+                .setPositiveButton("SEND", (dialog12, which) -> {
+                    String emailString = email.getText().toString();
+                    if (CommonMethod.isValidEmail(emailString)) {
+                        auth.sendPasswordResetEmail(email.getText().toString())
+                                .addOnSuccessListener(aVoid -> Log.d("Success"))
+                                .addOnFailureListener(e -> Log.e(e));
+                    } else {
+                        showEmailInvalidDialog();
+                    }
+                })
+                .setNegativeButton("CANCEL", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void showEmailInvalidDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("WARNING")
+                .setMessage("Verify your email address")
+                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+                .create();
+        dialog.show();
     }
 
     private void navigateToLoginPage() {
