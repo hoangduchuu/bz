@@ -1,16 +1,14 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black_bg"
     android:fitsSystemWindows="true">
 
-    <FrameLayout
-        android:id="@+id/blur_background"
+    <com.ping.android.presentation.view.custom.TopCropImageView
+        android:id="@+id/topCropImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible">
-
-        <include layout="@layout/activity_loading" />
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        android:src="@drawable/login_background" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
