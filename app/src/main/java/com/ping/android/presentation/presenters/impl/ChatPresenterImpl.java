@@ -491,10 +491,12 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
+                view.hideLoading();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
+                view.hideLoading();
             }
         }, params);
     }

@@ -59,11 +59,6 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
         @Override
         public void onDoubleTap() {
             this.maskStatus = !this.maskStatus;
-//            String text = item.message.message;
-//            if (maskStatus) {
-//                text = ServiceManager.getInstance().encodeMessage(itemView.getContext(), text);
-//            }
-//            txtMessage.setText(text);
             if (messageListener != null) {
                 messageListener.updateMessageMask(item.message, maskStatus, lastItem);
             }

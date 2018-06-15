@@ -26,8 +26,10 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -93,20 +95,25 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageView backgroundImage;
     private RecyclerView recycleChatView;
     private LinearLayoutManager mLinearLayoutManager;
+    private ViewGroup topLayoutContainer;
+    private ViewGroup topLayoutChat;
+    private ViewGroup topLayoutEditMode;
+    private ViewGroup bottomLayoutContainer;
+    private ViewGroup bottomLayoutChat;
+    private ViewGroup bottomMenuEditMode;
     private VoiceRecordView layoutVoice;
-    private ImageView btBack;
+    private LinearLayout copyContainer;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ImageButton tgMarkOut;
     private TextView tvChatStatus;
     private ImageButton btVoiceCall, btVideoCall;
-    private ImageButton btEmoji;
+    private Button btnMask, btnUnmask;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private ImageView btnSend;
+
     private BottomSheetDialog chatGameMenu;
     private BottomSheetDialog messageActions;
-
-    private LinearLayout copyContainer;
-    private SwipeRefreshLayout swipeRefreshLayout;
 
     private String conversationID;
     private Conversation originalConversation;
@@ -137,6 +144,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     ChatComponent component;
     private boolean isVisible = false;
     private List<Integer> actionButtons;
+    private boolean isEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,6 +326,21 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.btn_delete:
                 onDeleteSelectedMessage();
                 break;
+            case R.id.btn_delete_messages:
+                onDeleteSelectedMessages();
+                break;
+            case R.id.btn_edit:
+                handleEditMessages();
+                break;
+            case R.id.btn_cancel_edit:
+                toggleEditMode(false);
+                break;
+            case R.id.chat_mask:
+                onUpdateMaskMessage(true);
+                break;
+            case R.id.chat_unmask:
+                onUpdateMaskMessage(false);
+                break;
             case R.id.puzzle_game:
                 onSendGame(GameType.PUZZLE);
                 break;
@@ -331,6 +354,28 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 hideGameSelection();
                 break;
         }
+    }
+
+    private void handleEditMessages() {
+        toggleEditMode(true);
+        messageActions.dismiss();
+    }
+
+    private void toggleEditMode(boolean b) {
+        isEditMode = b;
+
+        Slide slide = new Slide(Gravity.BOTTOM);
+        slide.setDuration(300);
+        TransitionManager.beginDelayedTransition(bottomLayoutContainer, slide);
+        bottomMenuEditMode.setVisibility(b ? View.VISIBLE : View.GONE);
+        bottomLayoutChat.setVisibility(b ? View.GONE : View.VISIBLE);
+        slide.setSlideEdge(Gravity.TOP);
+        TransitionManager.beginDelayedTransition(topLayoutContainer, slide);
+        topLayoutEditMode.setVisibility(b ? View.VISIBLE : View.GONE);
+        topLayoutChat.setVisibility(b ? View.GONE : View.VISIBLE);
+
+        //TransitionManager.beginDelayedTransition(cha/t);
+        messagesAdapter.updateEditMode(b);
     }
 
     private void hideGameSelection() {
@@ -464,7 +509,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         String conversationName = getIntent().getStringExtra(EXTRA_CONVERSATION_NAME);
         String conversationTransionName = getIntent().getStringExtra(EXTRA_CONVERSATION_TRANSITION_NAME);
 
-        btBack = findViewById(R.id.chat_back);
+        ImageView btBack = findViewById(R.id.chat_back);
         tvChatName = findViewById(R.id.chat_person_name);
         tvChatStatus = findViewById(R.id.chat_person_status);
         recycleChatView = findViewById(R.id.chat_list_view);
@@ -473,16 +518,22 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btnSend = findViewById(R.id.btn_send);
         btVoiceCall = findViewById(R.id.chat_voice_call);
         btVideoCall = findViewById(R.id.chat_video_call);
-//        btMask = findViewById(R.id.chat_mask);
-//        btUnMask = findViewById(R.id.chat_unmask);
+        btnMask = findViewById(R.id.chat_mask);
+        btnUnmask = findViewById(R.id.chat_unmask);
 //        btDelete = findViewById(R.id.chat_voice_call);
 //        btEdit = findViewById(R.id.chat_video_call);
 //        btCancelEdit = findViewById(R.id.chat_cancel_edit);
         //layoutText = findViewById(R.id.chat_layout_text);
+        topLayoutContainer = findViewById(R.id.top_layout_container);
+        topLayoutChat = findViewById(R.id.top_chat_layout);
+        topLayoutEditMode = findViewById(R.id.top_menu_edit_mode);
+        bottomLayoutContainer = findViewById(R.id.bottom_layout_container);
+        bottomLayoutChat = findViewById(R.id.bottom_layout_chat);
+        bottomMenuEditMode = findViewById(R.id.bottom_menu_edit_mode);
         layoutVoice = findViewById(R.id.chat_layout_voice);
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tvNewMsgCount = findViewById(R.id.chat_new_message_count);
-        btEmoji = findViewById(R.id.chat_emoji_btn);
+        ImageButton btEmoji = findViewById(R.id.chat_emoji_btn);
 
         btBack.setOnClickListener(this);
         tvChatName.setOnClickListener(this);
@@ -490,11 +541,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btVoiceCall.setOnClickListener(this);
         btVideoCall.setOnClickListener(this);
         tgMarkOut.setOnClickListener(this);
+        btnMask.setOnClickListener(this);
+        btnUnmask.setOnClickListener(this);
         findViewById(R.id.chat_person_name).setOnClickListener(this);
         findViewById(R.id.chat_image_btn).setOnClickListener(this);
         findViewById(R.id.chat_camera_btn).setOnClickListener(this);
         findViewById(R.id.chat_game_btn).setOnClickListener(this);
         findViewById(R.id.chat_header_center).setOnClickListener(this);
+        findViewById(R.id.btn_cancel_edit).setOnClickListener(this);
+        findViewById(R.id.btn_delete_messages).setOnClickListener(this);
 
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
@@ -525,6 +580,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         copyContainer = messageActionsView.findViewById(R.id.btn_copy);
         copyContainer.setOnClickListener(this);
         messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
+        messageActionsView.findViewById(R.id.btn_edit).setOnClickListener(this);
         messageActions = new BottomSheetDialog(this);
         messageActions.setContentView(messageActionsView);
         messageActions.setOnDismissListener(dialog -> hideSelectedMessage());
@@ -773,34 +829,41 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         hideSelectedMessage();
     }
 
+    private void onDeleteSelectedMessages() {
+        List<Message> selectedMessages = messagesAdapter.getSelectedMessages();
+        presenter.deleteMessages(selectedMessages);
+        toggleEditMode(false);
+    }
+
     private void hideSelectedMessage() {
-        messageActions.hide();
-        if (selectedMessage != null) {
+        //messageActions.hide();
+        if (!isEditMode && selectedMessage != null) {
             selectedMessage.setEditMode(false);
             selectedMessage.setSelected(true);
             messagesAdapter.update(selectedMessage);
         }
         selectedMessage = null;
     }
-//
-//    private void onUpdateMaskMessage(boolean mask) {
-//        List<Message> selectedMessages = messagesAdapter.getSelectedMessages();
-//        Message lastMessage = messagesAdapter.getLastMessage();
-//        boolean isLastMessage = false;
-//        if (lastMessage != null) {
-//            for (Message msg : selectedMessages) {
-//                if (msg.key.equals(lastMessage.key)) {
-//                    isLastMessage = true;
-//                    break;
-//                }
-//            }
-//        }
-//        showLoading();
-//        if (!isNetworkAvailable()) {
-//            handler.postDelayed(() -> switchOffEditMode(), 2000);
-//        }
-//        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
-//    }
+
+    private void onUpdateMaskMessage(boolean mask) {
+        List<Message> selectedMessages = messagesAdapter.getSelectedMessages();
+        Message lastMessage = messagesAdapter.getLastMessage();
+        boolean isLastMessage = false;
+        if (lastMessage != null) {
+            for (Message msg : selectedMessages) {
+                if (msg.key.equals(lastMessage.key)) {
+                    isLastMessage = true;
+                    break;
+                }
+            }
+        }
+        showLoading();
+        if (!isNetworkAvailable()) {
+            new Handler().postDelayed(this::hideLoading, 2000);
+        }
+        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
+        toggleEditMode(false);
+    }
 
     private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
         if (emojiPopup.isShowing()) {
@@ -983,13 +1046,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
-//            findViewById(R.id.spacing_voice).setVisibility(View.GONE);
-//            findViewById(R.id.spacing_audio).setVisibility(View.GONE);
         } else {
             btVideoCall.setVisibility(View.VISIBLE);
             btVoiceCall.setVisibility(View.VISIBLE);
-//            findViewById(R.id.spacing_voice).setVisibility(View.VISIBLE);
-//            findViewById(R.id.spacing_audio).setVisibility(View.VISIBLE);
         }
     }
 

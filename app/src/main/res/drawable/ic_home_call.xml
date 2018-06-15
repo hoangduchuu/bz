@@ -5,16 +5,9 @@
     android:viewportWidth="88"
     android:viewportHeight="88">
 
-    <group
-        android:translateX="-225.000000"
-        android:translateY="-9.000000">
-        <group
-            android:translateX="11.000000">
-            <path
-                android:fillType="evenOdd"
-                android:strokeColor="#666666"
-                android:strokeWidth="3"
-                android:pathData="M219.7,28.4 C220.4,38.9 229.1,55.7 238.6,66.9 C250.8,81.5 272.7,92.8 282.3,90.7 C286.6,89.8 297.7,80.5 296.6,76 C295.7,72.1 279.6,64.4 276.9,65.3 C273.2,66.5 268.3,71.7 269.3,71 C269.3,71 268.1,73.1 253.9,62.8 C243.6,55.3 240.7,48.3 242.4,43 L248,36 C250.2,33.4 241.5,14.8 237.9,14.8 C230,14.6 219.3,22.8 219.7,28.4 Z" />
-        </group>
-    </group>
+    <path
+        android:fillType="evenOdd"
+        android:strokeColor="#666666"
+        android:strokeWidth="3"
+        android:pathData="M5.7,19.4 C6.4,29.9 15.1,46.7 24.6,57.9 C36.8,72.5 58.7,83.8 68.3,81.7 C72.6,80.8 83.7,71.5 82.6,67 C81.7,63.1 65.6,55.4 62.9,56.3 C59.2,57.5 54.3,62.7 55.3,62 C55.3,62 54.1,64.1 39.9,53.8 C29.6,46.3 26.7,39.3 28.4,34 L34,27 C36.2,24.4 27.5,5.8 23.9,5.8 C16,5.6 5.3,13.8 5.7,19.4 Z" />
 </vector>

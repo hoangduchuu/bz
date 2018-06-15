@@ -194,6 +194,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         @Override
         public void onLongPress() {
             rbSelection.setChecked(true);
+            item.isSelected = true;
             itemView.postDelayed(() -> {
                 TransitionManager.endTransitions((ViewGroup) itemView);
                 TransitionManager.beginDelayedTransition((ViewGroup) itemView);
