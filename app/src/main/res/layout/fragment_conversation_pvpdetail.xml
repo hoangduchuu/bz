@@ -64,7 +64,7 @@
                     android:layout_marginLeft="10dp"
                     android:background="@null"
                     android:padding="5dp"
-                    android:src="@drawable/ic_message_border"
+                    android:src="@drawable/ic_message_transparent"
                     android:visibility="gone" />
 
                 <ImageView

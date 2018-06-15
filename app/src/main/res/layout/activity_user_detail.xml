@@ -71,7 +71,7 @@
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:background="@null"
-                        android:src="@drawable/ic_message" />
+                        android:src="@drawable/ic_message_transparent" />
 
                     <ImageView
                         android:id="@+id/user_detail_voice"

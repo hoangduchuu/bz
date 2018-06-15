@@ -37,6 +37,7 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
                         || item.message.messageCallType == MessageCallType.MISSED_VIDEO_CALL
                 messageListener?.onCall(isVideo)
             }
+            initGestureListener()
         }
 
         override fun bindData(item: MessageBaseItem<*>, lastItem: Boolean) {
@@ -91,7 +92,7 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
         }
 
         override fun getClickableView(): View? {
-            return null
+            return container
         }
 
         override fun getSlideView(): View {

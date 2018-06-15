@@ -101,6 +101,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (messageListener != null) {
             messageListener.onLongPress(messageItem, messageItem.message.type == MessageType.TEXT);
         }
+        selectedMessages.add(messageItem);
     }
 
     @Override

@@ -1,19 +1,15 @@
 package com.ping.android.presentation.view.fragment;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,8 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import jp.wasabeef.blurry.Blurry;
-
 /**
  * QuickBlox team
  */
@@ -47,7 +41,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     private ImageView callerAvatarImageView;
 
     private Vibrator vibrator;
-    private long lastClickTime = 0l;
+    private long lastClickTime = 0L;
 
     @Inject
     IncomingCallPresenter presenter;
@@ -61,7 +55,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_income_call, container, false);
         initUI(view);
         initButtonsListener();
@@ -88,10 +82,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
         takeButton = view.findViewById(R.id.image_button_accept_call);
     }
 
-    private Drawable getBackgroundForCallerAvatar(int callerId) {
-        return UiUtils.getColorCircleDrawable(callerId);
-    }
-
     public void startCallNotification() {
         if (getActivity() != null) {
             AudioManager audioManager = (AudioManager)getActivity().getSystemService(Context.AUDIO_SERVICE);
@@ -101,7 +91,7 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
             }
             vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
             long[] vibrationCycle = {0, 1000, 1000};
-            if (vibrator.hasVibrator()) {
+            if (vibrator != null && vibrator.hasVibrator()) {
                 vibrator.vibrate(vibrationCycle, 1);
             }
         }
@@ -143,20 +133,20 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     }
 
     private void accept() {
-        enableButtons(false);
+        disableButtons();
         stopCallNotification();
         presenter.accept();
     }
 
     private void reject() {
-        enableButtons(false);
+        disableButtons();
         stopCallNotification();
         presenter.reject();
     }
 
-    private void enableButtons(boolean enable) {
-        takeButton.setEnabled(enable);
-        rejectButton.setEnabled(enable);
+    private void disableButtons() {
+        takeButton.setEnabled(false);
+        rejectButton.setEnabled(false);
     }
 
     public IncomingCallComponent getComponent() {

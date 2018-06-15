@@ -118,6 +118,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.tv_login).setOnClickListener(this);
         findViewById(R.id.tv_forgot_password).setOnClickListener(this);
+        
         container.setListener(visible -> {
             if (!visible) {
                 // Should hide bottom layout
@@ -127,6 +128,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 bottomLayout.setVisibility(View.GONE);
             }
         });
+
     }
 
     private void init() {
