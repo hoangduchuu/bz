@@ -28,11 +28,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public Observable<DataSnapshot> getLastMessages(String conversationId) {
         DatabaseReference reference = database.getReference("messages").child(conversationId);
-        //reference.keepSynced(true);
+        reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
-        query.keepSynced(true);
+//        query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
                 .toObservable();

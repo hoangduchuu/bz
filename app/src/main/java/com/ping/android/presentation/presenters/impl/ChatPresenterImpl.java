@@ -160,7 +160,8 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void pause() {
-        observeLastMessageUseCase.unsubscribe();
+//        observeLastMessageUseCase.unsubscribe();
+//        observeMessageChangeUseCase.unsubscribe();
         isInBackground.set(true);
     }
 

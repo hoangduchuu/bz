@@ -27,6 +27,7 @@ import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.presentation.view.fragment.ContactFragment;
@@ -63,11 +64,9 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
         presenter.create();
-        String conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
-        if (!TextUtils.isEmpty(conversationId)){
-            Intent intent1 = new Intent(MainActivity.this, ChatActivity.class);
-            intent1.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-            startActivity(intent1);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.containsKey(ChatActivity.CONVERSATION_ID)) {
+            presenter.handleNewConversation(extras.getString(ChatActivity.CONVERSATION_ID));
         }
         setContentView(R.layout.activity_main);
 
@@ -84,7 +83,15 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //UserManager.getInstance().removeValueEventListener();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Bundle extras = intent.getExtras();
+        if (extras != null && extras.containsKey(ChatActivity.CONVERSATION_ID)) {
+            presenter.handleNewConversation(extras.getString(ChatActivity.CONVERSATION_ID));
+        }
     }
 
     @Override
@@ -352,6 +359,14 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     public void startCallService() {
         startCallService(this);
         SubscribeService.subscribeToPushes(this, false);
+    }
+
+    @Override
+    public void moveToChatScreen(String conversationId, Color color) {
+        Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, color.getCode());
+        startActivity(intent);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

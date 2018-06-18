@@ -27,11 +27,11 @@ public class TransphabetActivity extends CoreActivity implements HasComponent<Tr
         navigator = new Navigator();
         navigator.setNavigationListener(() -> {
             BaseFragment fragment = navigator.getCurrentFragment();
-            if (fragment instanceof MappingFragment) {
-                updateStatusBarColor(R.color.colorPrimaryBlack);
-            } else {
-                updateStatusBarColor(R.color.orange);
-            }
+//            if (fragment instanceof MappingFragment) {
+//                updateStatusBarColor(R.color.colorPrimaryBlack);
+//            } else {
+//                updateStatusBarColor(R.color.orange);
+//            }
         });
         navigator.init(getSupportFragmentManager(), R.id.transphabet_container);
         if (savedInstanceState == null) {

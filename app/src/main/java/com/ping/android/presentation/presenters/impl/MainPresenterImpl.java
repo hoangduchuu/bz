@@ -7,8 +7,10 @@ import com.ping.android.domain.usecase.LoginQuickBloxUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
+import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.user.TurnOffMappingConfirmationUseCase;
 import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
 
@@ -37,6 +39,8 @@ public class MainPresenterImpl implements MainPresenter {
     TurnOffMappingConfirmationUseCase turnOffMappingConfirmationUseCase;
     @Inject
     UpdateUserTransphabetUseCase updateUserTransphabetUseCase;
+    @Inject
+    GetConversationValueUseCase getConversationValueUseCase;
     private User currentUser;
     private boolean isInit = false;
 
@@ -96,6 +100,16 @@ public class MainPresenterImpl implements MainPresenter {
     @Override
     public void randomizeTransphabet(Map<String, String> maps) {
         updateUserTransphabetUseCase.execute(new DefaultObserver<>(), maps);
+    }
+
+    @Override
+    public void handleNewConversation(String conversationId) {
+        getConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
+            @Override
+            public void onNext(Conversation conversation) {
+                view.moveToChatScreen(conversation.key, conversation.currentColor);
+            }
+        }, conversationId);
     }
 
     private void loginQuickBlox() {

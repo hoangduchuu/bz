@@ -107,7 +107,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageButton tgMarkOut;
     private TextView tvChatStatus;
     private ImageButton btVoiceCall, btVideoCall;
-    private Button btnMask, btnUnmask;
+    private Button btnMask, btnUnmask, btnDelete;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private ImageView btnSend;
@@ -353,6 +353,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void handleEditMessages() {
         toggleEditMode(true);
+        // there is 1 message that is the current selected one
+        updateMessageSelection(1);
         messageActions.dismiss();
     }
 
@@ -404,6 +406,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra("IMAGE_URL", imageUrl);
         intent.putExtra("LOCAL_IMAGE", localImage);
         intent.putExtra("PUZZLE_STATUS", isPuzzled);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sharedElements
         );
@@ -425,20 +428,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra("SENDER", message.sender);
         intent.putExtra("MESSAGE_ID", message.key);
         intent.putExtra("IMAGE_URL", message.gameUrl);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         startActivity(intent);
     }
 
     @Override
     public void updateMessageSelection(int size) {
-        if (size == 0) {
-            //btDelete.setEnabled(false);
-//            btMask.setEnabled(false);
-//            btUnMask.setEnabled(false);
-        } else {
-            //btDelete.setEnabled(true);
-//            btMask.setEnabled(true);
-//            btUnMask.setEnabled(true);
-        }
+        btnDelete.setEnabled(size != 0);
+        btnMask.setEnabled(size != 0);
+        btnUnmask.setEnabled(size != 0);
     }
 
     @Override
@@ -450,6 +448,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void openVideo(String videoUrl) {
         Intent intent = new Intent(this, VideoPlayerActivity.class);
         intent.putExtra(VideoPlayerActivity.VIDEO_PATH_EXTRA_KEY, videoUrl);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         startActivity(intent);
     }
 
@@ -515,7 +514,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btVideoCall = findViewById(R.id.chat_video_call);
         btnMask = findViewById(R.id.chat_mask);
         btnUnmask = findViewById(R.id.chat_unmask);
-//        btDelete = findViewById(R.id.chat_voice_call);
+        btnDelete = findViewById(R.id.btn_delete_messages);
 //        btEdit = findViewById(R.id.chat_video_call);
 //        btCancelEdit = findViewById(R.id.chat_cancel_edit);
         //layoutText = findViewById(R.id.chat_layout_text);

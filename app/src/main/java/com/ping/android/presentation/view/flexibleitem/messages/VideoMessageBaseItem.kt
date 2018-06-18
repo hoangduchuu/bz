@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
+import com.bzzzchat.extensions.px
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.Message
@@ -59,11 +60,12 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
             imgPlay.setImageResource(R.drawable.ic_play_arrow)
             imgPlay.background = ContextCompat.getDrawable(itemView.context, R.drawable.background_circle_gray_dark)
             val thumbnail = UiUtils.retrieveVideoFrameFromVideo(itemView.context, videoFile.absolutePath)
+            val radius = 30.px
             if (thumbnail != null) {
                 GlideApp.with(itemView)
                         .load(thumbnail)
                         .placeholder(videoThumbnail.drawable)
-                        .transform(RoundedCornersTransformation(20, 0))
+                        .transform(RoundedCornersTransformation(radius, 0))
                         .into(videoThumbnail)
                 isVideoReady = true
                 this.videoFile = videoFile
