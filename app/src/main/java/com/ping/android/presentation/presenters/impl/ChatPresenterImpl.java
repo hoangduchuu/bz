@@ -11,6 +11,7 @@ import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationBackgroundUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationColorUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationValueFromExistsConversationUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveNicknameConversationUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveTypingEventUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationTypingUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationReadStatusUseCase;
@@ -115,6 +116,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
     @Inject
+    ObserveNicknameConversationUseCase observeNicknameConversationUseCase;
+    @Inject
     ObserveConversationColorUseCase observeConversationColorUseCase;
     @Inject
     ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
@@ -147,7 +150,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void resume() {
-        observeMessageUpdate();
+        //observeMessageUpdate();
         isInBackground.set(false);
         for (ChildData<Message> message : messagesInBackground) {
             handleMessageData(message);
@@ -570,20 +573,25 @@ public class ChatPresenterImpl implements ChatPresenter {
                 .execute(new DefaultObserver<Conversation>() {
                              @Override
                              public void onNext(Conversation conv) {
-                                 if (conv.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
-                                     String opponentUserId = conv.opponentUser.key;
-                                     String nickName = conv.nickNames.get(opponentUserId);
-                                     conv.opponentUser.nickName = nickName;
-                                     String title = TextUtils.isEmpty(nickName) ? conv.opponentUser.getDisplayName() : nickName;
-                                     view.updateConversationTitle(title);
-                                     view.refreshMessages();
-                                 } else {
-                                     view.updateNickNames(conv.nickNames);
-                                 }
                                  conversation = conv;
                              }
                          },
                         new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));
+        observeNicknameConversationUseCase.execute(new DefaultObserver<Map<String, String>>() {
+            @Override
+            public void onNext(Map<String, String> nickNames) {
+                if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
+                    String opponentUserId = conversation.opponentUser.key;
+                    String nickName = nickNames.get(opponentUserId);
+                    conversation.opponentUser.nickName = nickName;
+                    String title = TextUtils.isEmpty(nickName) ? conversation.opponentUser.getDisplayName() : nickName;
+                    view.updateConversationTitle(title);
+                    view.refreshMessages();
+                } else {
+                    view.updateNickNames(nickNames);
+                }
+            }
+        }, new ObserveNicknameConversationUseCase.Params(conversation.key, currentUser.key));
         observeConversationColorUseCase.execute(new DefaultObserver<Integer>() {
                                                     @Override
                                                     public void onNext(Integer integer) {
@@ -717,6 +725,8 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskOutputConversationUseCase.dispose();
         toggleConversationTypingUseCase.dispose();
         observeConversationColorUseCase.dispose();
+        observeConversationBackgroundUseCase.dispose();
+        observeNicknameConversationUseCase.dispose();
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();

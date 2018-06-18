@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
 
@@ -86,6 +87,9 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             isUpdated = false;
             if (this.item != null) {
                 isUpdated = item.message.key.equals(this.item.message.key);
+                if (isUpdated && !TextUtils.isEmpty(this.item.message.localFilePath)) {
+                    item.message.localFilePath = this.item.message.localFilePath;
+                }
             }
             super.bindData(item, lastItem);
             setImageMessage(item.message);

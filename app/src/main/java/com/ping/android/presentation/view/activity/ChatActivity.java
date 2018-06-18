@@ -241,8 +241,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onStop() {
         super.onStop();
-        isTyping = false;
-        updateConversationTyping(false);
+        if (isTyping) {
+            isTyping = false;
+            updateConversationTyping(false);
+        }
 
         prefs.unregisterOnSharedPreferenceChangeListener(listener);
     }
@@ -1151,6 +1153,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra(UserDetailActivity.EXTRA_USER, user);
         intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
         intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "");
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sharedElements
         );

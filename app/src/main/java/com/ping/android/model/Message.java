@@ -192,6 +192,7 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_IMAGE;
+        message.type = MessageType.IMAGE;
         message.readAllowed = readAllowed;
         return message;
     }
@@ -208,6 +209,7 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VOICE;
+        message.type = MessageType.VOICE;
         message.readAllowed = readAllowed;
         message.voiceType = voiceType;
         return message;
@@ -225,6 +227,7 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_GAME;
+        message.type = MessageType.GAME;
         message.readAllowed = readAllowed;
         message.gameType = gameType;
         return message;
@@ -242,6 +245,7 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VIDEO;
+        message.type = MessageType.VIDEO;
         message.readAllowed = readAllowed;
         return message;
     }
@@ -252,6 +256,7 @@ public class Message implements Parcelable {
                                             Map<String, Boolean> readAllowed, int callType, double callDuration) {
         Message message = new Message();
         message.messageType = type.ordinal();
+        message.type = type;
         message.senderId = senderId;
         message.senderName = senderName;
         message.timestamp = timestamp;

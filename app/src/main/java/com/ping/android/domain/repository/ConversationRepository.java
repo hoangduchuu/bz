@@ -50,4 +50,6 @@ public interface ConversationRepository {
     Observable<DataSnapshot> getDefaultBackgrounds();
 
     Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask);
+
+    Observable<Map<String,String>> observeNicknames(String userId, String conversationId);
 }
