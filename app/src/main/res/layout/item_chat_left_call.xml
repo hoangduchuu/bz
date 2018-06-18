@@ -35,7 +35,7 @@
         tools:text="10:20 AM"
         tools:visibility="gone" />
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,54 +50,73 @@
         app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
         app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
 
-        <LinearLayout
+
+        <ImageView
+            android:id="@+id/call_type"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:src="@drawable/ic_call_filled"
+            android:tint="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/call_type_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/call_type_text" />
+
+        <TextView
+            android:id="@+id/call_type_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintStart_toEndOf="@id/call_type"
+            app:layout_constraintEnd_toStartOf="@id/call_duration"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Missed Call" />
+
+        <TextView
+            android:id="@+id/call_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="4dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/call_type"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:src="@drawable/ic_chat_audio"
-                android:tint="@color/text_color_primary" />
-
-            <TextView
-                android:id="@+id/call_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                tools:text="6 mins" />
-        </LinearLayout>
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/call_type_text"
+            tools:layout_editor_absoluteY="7dp"
+            tools:text="12:00 PM" />
 
         <TextView
             android:id="@+id/txtCallDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="5dp"
             android:maxWidth="200dp"
+            android:minWidth="200dp"
+            android:layout_marginTop="5dp"
             android:textSize="@dimen/text_size_large"
-            tools:text="Sam called you. Sam called you. Sam called you. Sam called you." />
+            app:layout_constraintTop_toBottomOf="@id/call_type_text"
+            tools:text="Sam called you."
+            tools:minWidth="200dp"/>
 
         <View
-            android:layout_width="match_parent"
+            android:id="@+id/view"
+            android:layout_width="0dp"
             android:layout_height="1dp"
-            android:background="@color/white" />
+            android:layout_marginTop="10dp"
+            android:background="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtCallDescription" />
 
         <TextView
             android:id="@+id/txtCall"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
             android:text="CALL BACK"
             android:textAllCaps="true"
-            android:textColor="@color/orange" />
-    </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@id/view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </android.support.constraint.ConstraintLayout>
 
     <TextView
         android:id="@+id/item_chat_status"

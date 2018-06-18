@@ -114,7 +114,7 @@ public class NotificationImpl implements Notification {
         PendingIntent callbackPendingIntent = PendingIntent.getBroadcast(context, 124,
                 callbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action callbackAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_chat_audio_selected, "CALL BACK", callbackPendingIntent)
+                R.drawable.ic_call_filled, "CALL BACK", callbackPendingIntent)
                 .build();
         builder.addAction(callbackAction);
         //android.app.Notification notification = builder.build();

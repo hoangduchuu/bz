@@ -93,9 +93,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     public static void start(Context context, User currentUser, User otherUser, Boolean isVideoCall) {
         int userQBID = otherUser.quickBloxID;
 
-        if (((CoreActivity) context).networkStatus != NetworkStatus.CONNECTED) {
-            Toast.makeText(context, "Please check network connection", Toast.LENGTH_SHORT).show();
-            return;
+        if (context instanceof CoreActivity) {
+            if (((CoreActivity) context).networkStatus != NetworkStatus.CONNECTED) {
+                Toast.makeText(context, "Please check network connection", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         if (CommonMethod.getBooleanFrom(otherUser.blocks, currentUser.key)) {
@@ -130,7 +132,6 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
 
     private static void start(Context context, User otherUser, boolean isVideoCall,
                               boolean isIncomingCall) {
-        ((CoreActivity) context).startCallService(context);
         Intent intent = new Intent(context, CallActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(EXTRA_IS_VIDEO_CALL, isVideoCall);
@@ -158,6 +159,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
         super.onCreate(savedInstanceState);
+        startCallService(this);
         setContentView(R.layout.activity_call);
         getComponent().inject(this);
         navigator = new Navigator();

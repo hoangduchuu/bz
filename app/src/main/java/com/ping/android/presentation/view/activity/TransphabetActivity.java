@@ -1,7 +1,5 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.Fragment;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.v4.content.ContextCompat;

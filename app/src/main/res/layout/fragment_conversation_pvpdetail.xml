@@ -75,7 +75,7 @@
                     android:layout_marginLeft="10dp"
                     android:background="@null"
                     android:padding="5dp"
-                    android:src="@drawable/ic_chat_audio"
+                    android:src="@drawable/ic_call_filled"
                     android:visibility="gone" />
 
                 <ImageView

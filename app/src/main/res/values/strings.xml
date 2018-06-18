@@ -273,6 +273,8 @@
     <string name="chat_missed_video_call_to_me">You missed a video call from %s.</string>
     <string name="chat_video_call_to_me">%s called you.</string>
     <string name="chat_voice_call_to_me">%s called you.</string>
+    <string name="chat_missed_call">Missed Call</string>
+    <string name="chat_call_ended">Call Ended</string>
     <string name="chat_call_back">Call back</string>
     <string name="chat_call_again">Call again</string>
 
@@ -296,9 +298,10 @@
     <string name="login_registration">Register</string>
     <string name="change_password_hint_new_password">New Password</string>
     <string name="change_password_hint_password">Current Password</string>
+    <string name="change_password_hint_confirm_password">Confirm Password</string>
     <string name="change_password_update">Update</string>
     <string name="forgot_password_dialog_title">NOTICE</string>
-    <string name="forgot_password_dialog_message">Bzzz will send a temporary link to reset your password to the email address you\'ve registered</string>
+    <string name="forgot_password_dialog_message">Bzzz will send a temporary link to reset your password to the email address you\'ve registered.</string>
     <string name="phone_hint">Phone Number</string>
     <string name="phone_registration">Done</string>
 </resources>
