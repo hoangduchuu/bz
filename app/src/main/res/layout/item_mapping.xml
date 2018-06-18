@@ -1,5 +1,8 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="60dp"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout2"
+    android:layout_width="match_parent"
     android:layout_height="60dp"
     android:layout_centerInParent="true">
 
@@ -7,22 +10,25 @@
         android:id="@+id/mapping_item_key"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_centerInParent="true"
         android:background="@drawable/mapping_main_bg_active"
         android:gravity="center"
-        android:text="a"
         android:textColor="@color/white"
-        android:textSize="25sp" />
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="a" />
 
     <TextView
         android:id="@+id/mapping_item_value"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
         android:background="@drawable/mapping_small_bg"
         android:gravity="center"
-        android:text="6"
         android:textColor="#FFF"
-        android:textSize="11sp" />
-</RelativeLayout>
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/mapping_item_key"
+        tools:text="6" />
+</android.support.constraint.ConstraintLayout>

@@ -1,9 +1,13 @@
 package com.ping.android.presentation.presenters.impl;
 
+import android.support.v4.content.ContextCompat;
+
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.CheckAppUpdateUseCase;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
+import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
@@ -24,6 +28,8 @@ public class SplashPresenterImpl implements SplashPresenter {
     View view;
     @Inject
     GetCurrentUserUseCase getCurrentUserUseCase;
+    @Inject
+    GetConversationValueUseCase getConversationValueUseCase;
     @Inject
     InitializeUserUseCase initializeUserUseCase;
     @Inject
@@ -88,6 +94,18 @@ public class SplashPresenterImpl implements SplashPresenter {
                 view.navigateToMainScreenWithExtra(conversationId);
             }
         }, null);
+
+//        getConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
+//            @Override
+//            public void onNext(Conversation conversation) {
+//                view.navigateToMainScreenWithExtra(conversation.key, conversation.currentColor);
+//            }
+//
+//            @Override
+//            public void onError(@NotNull Throwable exception) {
+//                exception.printStackTrace();
+//            }
+//        }, conversationId);
     }
 
     private void onStepFinish() {

@@ -10,7 +10,9 @@ import android.widget.ToggleButton;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
+import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
@@ -40,6 +42,14 @@ public class PuzzleActivity extends CoreActivity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
+                int color = bundle.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR);
+                Color currentColor = Color.from(color);
+                ThemeUtils.onActivityCreateSetTheme(this, currentColor);
+            }
+        }
         setContentView(R.layout.activity_puzzle);
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");

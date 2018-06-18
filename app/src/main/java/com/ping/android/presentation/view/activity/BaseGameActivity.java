@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.configs.Constant;
 
@@ -20,6 +21,7 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected Conversation conversation;
     protected User sender;
     protected Handler handler = new Handler(Looper.getMainLooper());
+    protected Color currentColor = Color.DEFAULT;
 
     protected abstract String gameTitle();
 
@@ -29,6 +31,10 @@ public abstract class BaseGameActivity extends CoreActivity {
         imageURL = getIntent().getStringExtra("IMAGE_URL");
         conversation = getIntent().getParcelableExtra("CONVERSATION");
         sender = getIntent().getParcelableExtra("SENDER");
+        if (getIntent().hasExtra(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
+            int color = getIntent().getIntExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, 0);
+            currentColor = Color.from(color);
+        }
     }
 
     protected void onGamePassed() {
@@ -44,6 +50,7 @@ public abstract class BaseGameActivity extends CoreActivity {
                     intent.putExtra("MESSAGE_ID", messageID);
                     intent.putExtra("IMAGE_URL", imageURL);
                     intent.putExtra("PUZZLE_STATUS", false);
+                    intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, currentColor.getCode());
                     ActivityOptions options = ActivityOptions
                             .makeSceneTransitionAnimation(this, imageView, messageID);
                     startActivity(intent, options.toBundle());

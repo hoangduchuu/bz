@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
+import com.ping.android.model.enums.Color;
 
 /**
  * Created by tuanluong on 2/6/18.

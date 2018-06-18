@@ -10,7 +10,6 @@ import com.ping.android.R
 
 import com.ping.android.model.Message
 import com.ping.android.model.enums.MessageCallType
-import com.ping.android.model.enums.MessageType
 import com.ping.android.utils.CommonMethod
 import com.ping.android.utils.DateUtils
 
@@ -29,7 +28,8 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
         private val tvCall: TextView = itemView.findViewById(R.id.txtCall)
         private val description: TextView = itemView.findViewById(R.id.txtCallDescription)
         private val tvCallDuration: TextView = itemView.findViewById(R.id.call_duration)
-        private val callTypeIcon: ImageView = itemView.findViewById(R.id.call_type);
+        private val callTypeIcon: ImageView = itemView.findViewById(R.id.call_type)
+        private val callTypeText: TextView = itemView.findViewById(R.id.call_type_text)
 
         init {
             tvCall.setOnClickListener {
@@ -43,7 +43,7 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
         override fun bindData(item: MessageBaseItem<*>, lastItem: Boolean) {
             super.bindData(item, lastItem)
             val message = item.message
-            updateCallTypeIcon(message.messageCallType)
+            updateCallType(message.messageCallType)
             updateCallDuration(message)
             updateCallDescription(message)
         }
@@ -53,7 +53,8 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
                 // Show format: duration + timestamp
                 val duration = CommonMethod.getCallDuration(itemView.context, message.callDuration)
                 val timestamp = DateUtils.toString("h:mm a", message.timestamp)
-                "$duration, $timestamp"
+                //"$duration, $timestamp"
+                "$duration"
             } else {
                 // Show timestamp
                 DateUtils.toString("h:mm a", message.timestamp)
@@ -81,14 +82,15 @@ abstract class CallMessageBaseItem(message: Message) : MessageBaseItem<CallMessa
             this.description.text = description
         }
 
-        private fun updateCallTypeIcon(messageCallType: MessageCallType) {
+        private fun updateCallType(messageCallType: MessageCallType) {
             val iconRes = if (messageCallType == MessageCallType.VOICE_CALL
                     || messageCallType == MessageCallType.MISSED_VOICE_CALL) {
-                R.drawable.ic_chat_audio
+                R.drawable.ic_call_filled
             } else {
-                R.drawable.ic_chat_video
+                R.drawable.ic_video_filled
             }
             callTypeIcon.setImageResource(iconRes)
+            callTypeText.setText(messageCallType.callTypeDescription())
         }
 
         override fun getClickableView(): View? {

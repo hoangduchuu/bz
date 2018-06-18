@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
+import com.ping.android.model.enums.Color;
 
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public interface MainPresenter extends BasePresenter {
 
     void randomizeTransphabet(Map<String, String> maps);
 
+    void handleNewConversation(String conversationId);
+
     interface View extends BaseView {
 
         void openPhoneRequireView();
@@ -25,5 +28,7 @@ public interface MainPresenter extends BasePresenter {
         void showMappingConfirm();
 
         void startCallService();
+
+        void moveToChatScreen(String conversationId, Color color);
     }
 }

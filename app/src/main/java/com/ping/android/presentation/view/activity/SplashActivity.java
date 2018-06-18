@@ -11,6 +11,7 @@ import com.ping.android.R;
 import com.ping.android.dagger.loggedout.splash.SplashComponent;
 import com.ping.android.dagger.loggedout.splash.SplashModule;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
 import javax.inject.Inject;
@@ -43,9 +44,6 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     public void navigateToMainScreen() {
         Intent intent;
         intent = new Intent(SplashActivity.this, MainActivity.class);
-        if (!TextUtils.isEmpty(conversationId)) {
-            intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-        }
         startActivity(intent);
         finish();
     }

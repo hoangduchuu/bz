@@ -117,7 +117,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         for (Mapping mapping : mappings) {
             int resId = getResources().getIdentifier("mapping_" +
                     mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
-            RelativeLayout mappingItem = rootView.findViewById(resId);
+            ViewGroup mappingItem = rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 
             TextView keyTV = mappingItem.findViewById(R.id.mapping_item_key);

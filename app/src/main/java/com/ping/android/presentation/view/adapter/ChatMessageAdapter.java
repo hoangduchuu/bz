@@ -18,6 +18,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 

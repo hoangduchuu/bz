@@ -103,15 +103,17 @@
                 <Button
                     android:id="@+id/chat_unmask"
                     style="@style/ActionButton"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:text="@string/chat_unmask_all" />
             </RelativeLayout>
         </FrameLayout>
 
-        <com.ping.android.presentation.view.custom.VoiceRecordView
-            android:id="@+id/chat_layout_voice"
+        <ViewStub
+            android:id="@+id/stub_import"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inflatedId="@+id/chat_layout_voice"
+            android:layout="@layout/view_chat_bottom_voice_record"/>
     </LinearLayout>
 
     <include layout="@layout/notify_network_main" />

@@ -26,6 +26,7 @@ import com.ping.android.device.Notification;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.service.NotificationBroadcastReceiver;
 import com.ping.android.model.Callback;
@@ -114,7 +115,7 @@ public class NotificationImpl implements Notification {
         PendingIntent callbackPendingIntent = PendingIntent.getBroadcast(context, 124,
                 callbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action callbackAction = new NotificationCompat.Action.Builder(
-                R.drawable.ic_chat_audio_selected, "CALL BACK", callbackPendingIntent)
+                R.drawable.ic_call_filled, "CALL BACK", callbackPendingIntent)
                 .build();
         builder.addAction(callbackAction);
         //android.app.Notification notification = builder.build();
@@ -163,7 +164,7 @@ public class NotificationImpl implements Notification {
         // Create pending intent, mention the Activity which needs to be
         Intent intent = new Intent(context, SplashActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-        intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
+        //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

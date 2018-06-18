@@ -107,7 +107,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ImageButton tgMarkOut;
     private TextView tvChatStatus;
     private ImageButton btVoiceCall, btVideoCall;
-    private Button btnMask, btnUnmask;
+    private Button btnMask, btnUnmask, btnDelete;
     private EmojiEditText edMessage;
     private TextView tvChatName, tvNewMsgCount;
     private ImageView btnSend;
@@ -165,11 +165,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         bindViews();
-
-        init();
         initView();
-        presenter.create();
-        presenter.initConversationData(conversationID);
+        init();
     }
 
     private void initView() {
@@ -213,8 +210,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);
         ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
-
-        onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
     }
 
     @Override
@@ -230,7 +225,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onStart() {
         super.onStart();
-
         int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount);
         prefs.registerOnSharedPreferenceChangeListener(listener);
@@ -247,8 +241,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     @Override
     protected void onStop() {
         super.onStop();
-        isTyping = false;
-        updateConversationTyping(false);
+        if (isTyping) {
+            isTyping = false;
+            updateConversationTyping(false);
+        }
 
         prefs.unregisterOnSharedPreferenceChangeListener(listener);
     }
@@ -269,7 +265,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             this.shakeEventManager.unregister();
         }
         messagesAdapter.destroy();
-        layoutVoice.release();
+        if (layoutVoice != null) {
+            layoutVoice.release();
+        }
     }
 
     @Override
@@ -288,9 +286,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 break;
             case R.id.chat_back:
                 onExitChat();
-                break;
-            case R.id.chat_text_btn:
-                onSetMessageMode(Constant.MESSAGE_TYPE.TEXT);
                 break;
             case R.id.chat_camera_btn:
                 onSendCamera();
@@ -358,6 +353,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private void handleEditMessages() {
         toggleEditMode(true);
+        // there is 1 message that is the current selected one
+        updateMessageSelection(1);
         messageActions.dismiss();
     }
 
@@ -409,6 +406,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra("IMAGE_URL", imageUrl);
         intent.putExtra("LOCAL_IMAGE", localImage);
         intent.putExtra("PUZZLE_STATUS", isPuzzled);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sharedElements
         );
@@ -430,20 +428,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra("SENDER", message.sender);
         intent.putExtra("MESSAGE_ID", message.key);
         intent.putExtra("IMAGE_URL", message.gameUrl);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         startActivity(intent);
     }
 
     @Override
     public void updateMessageSelection(int size) {
-        if (size == 0) {
-            //btDelete.setEnabled(false);
-//            btMask.setEnabled(false);
-//            btUnMask.setEnabled(false);
-        } else {
-            //btDelete.setEnabled(true);
-//            btMask.setEnabled(true);
-//            btUnMask.setEnabled(true);
-        }
+        btnDelete.setEnabled(size != 0);
+        btnMask.setEnabled(size != 0);
+        btnUnmask.setEnabled(size != 0);
     }
 
     @Override
@@ -455,6 +448,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void openVideo(String videoUrl) {
         Intent intent = new Intent(this, VideoPlayerActivity.class);
         intent.putExtra(VideoPlayerActivity.VIDEO_PATH_EXTRA_KEY, videoUrl);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         startActivity(intent);
     }
 
@@ -520,7 +514,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         btVideoCall = findViewById(R.id.chat_video_call);
         btnMask = findViewById(R.id.chat_mask);
         btnUnmask = findViewById(R.id.chat_unmask);
-//        btDelete = findViewById(R.id.chat_voice_call);
+        btnDelete = findViewById(R.id.btn_delete_messages);
 //        btEdit = findViewById(R.id.chat_video_call);
 //        btCancelEdit = findViewById(R.id.chat_cancel_edit);
         //layoutText = findViewById(R.id.chat_layout_text);
@@ -530,7 +524,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         bottomLayoutContainer = findViewById(R.id.bottom_layout_container);
         bottomLayoutChat = findViewById(R.id.bottom_layout_chat);
         bottomMenuEditMode = findViewById(R.id.bottom_menu_edit_mode);
-        layoutVoice = findViewById(R.id.chat_layout_voice);
         tgMarkOut = findViewById(R.id.chat_tgl_outcoming);
         tvNewMsgCount = findViewById(R.id.chat_new_message_count);
         ImageButton btEmoji = findViewById(R.id.chat_emoji_btn);
@@ -554,7 +547,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             setButtonsState(0);
-            if (layoutVoice.getVisibility() == View.VISIBLE) {
+            if (layoutVoice != null && layoutVoice.getVisibility() == View.VISIBLE) {
                 layoutVoice.setVisibility(View.GONE);
             }
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
@@ -565,8 +558,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
         tvChatName.setText(conversationName);
         tvChatName.setTransitionName(conversationTransionName);
-        layoutVoice.setListener((outputFile, selectedVoice) -> presenter.sendAudioMessage(outputFile, selectedVoice));
-        //layoutBottomMenu = findViewById(R.id.chat_bottom_menu);
 
         edMessage = findViewById(R.id.chat_message_tv);
         //emoji
@@ -635,6 +626,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 .subscribe(o -> {
                     handleShakePhone();
                 }));
+
+        // Delay conversation initialize to make smooth UI transition
+        new Handler().postDelayed(() -> {
+            presenter.create();
+            presenter.initConversationData(conversationID);
+        }, 500);
     }
 
     private void handleShakePhone() {
@@ -775,7 +772,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         edMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 emojiPopup.dismiss();
-                layoutVoice.setVisibility(View.GONE);
+                if (layoutVoice != null) {
+                    layoutVoice.setVisibility(View.GONE);
+                }
                 KeyboardHelpers.showKeyboard(this, edMessage);
             }
         });
@@ -865,30 +864,10 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         toggleEditMode(false);
     }
 
-    private void onSetMessageMode(Constant.MESSAGE_TYPE type) {
-        if (emojiPopup.isShowing()) {
-            emojiPopup.toggle();
-            setButtonsState(0);
-        }
-        if (type == Constant.MESSAGE_TYPE.TEXT) {
-            //layoutText.setVisibility(View.VISIBLE);
-            layoutVoice.setVisibility(View.GONE);
-            edMessage.requestFocus();
-            KeyboardHelpers.showKeyboard(this, edMessage);
-        } else if (type == Constant.MESSAGE_TYPE.VOICE) {
-            //layoutText.setVisibility(View.GONE);
-            //TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
-            layoutVoice.setVisibility(View.VISIBLE);
-            layoutVoice.prepare();
-        }
-
-        if (type != Constant.MESSAGE_TYPE.TEXT) {
-            KeyboardHelpers.hideSoftInputKeyboard(this);
-        }
-    }
-
     private void showEmojiEditor() {
-        layoutVoice.setVisibility(View.GONE);
+        if (layoutVoice != null) {
+            layoutVoice.setVisibility(View.GONE);
+        }
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
@@ -998,11 +977,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             emojiPopup.toggle();
             setButtonsState(0);
         }
+        if (layoutVoice == null) {
+            findViewById(R.id.stub_import).setVisibility(View.VISIBLE);
+            layoutVoice = findViewById(R.id.chat_layout_voice);
+            layoutVoice.setConversationId(originalConversation.key);
+            layoutVoice.setListener((outputFile, selectedVoice) -> presenter.sendAudioMessage(outputFile, selectedVoice));
+        }
         //TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
         layoutVoice.setVisibility(View.VISIBLE);
         layoutVoice.prepare();
         KeyboardHelpers.hideSoftInputKeyboard(this);
-
     }
 
     private void onVoiceCall() {
@@ -1042,7 +1026,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             this.shakeEventManager.register();
         }
         this.originalConversation = conv;
-        layoutVoice.setConversationId(conv.key);
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall.setVisibility(View.GONE);
             btVoiceCall.setVisibility(View.GONE);
@@ -1075,9 +1058,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void removeMessage(MessageHeaderItem headerItem, MessageBaseItem data) {
-        //adapter.deleteMessage(data.key);
         messagesAdapter.deleteMessage(headerItem, data);
-        //this.updateConversationLastMessage();
     }
 
     @Override
@@ -1151,7 +1132,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void refreshMessages() {
-        messagesAdapter.notifyDataSetChanged();
+        if (messagesAdapter.getItemCount() > 0) {
+            messagesAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -1169,6 +1152,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra(UserDetailActivity.EXTRA_USER, user);
         intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second);
         intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "");
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sharedElements
         );

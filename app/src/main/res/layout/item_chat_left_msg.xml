@@ -54,11 +54,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="200dp"
-            android:padding="2dp"
             android:textIsSelectable="false"
             android:textSelectHandle="@null"
             android:textSize="@dimen/text_size_large"
-            tools:text="Hi there. How old are you?. Do you like it?" />
+            tools:text="Hi there." />
     </LinearLayout>
 
     <TextView

@@ -32,6 +32,21 @@ enum class MessageCallType(val code: Int) {
         }
     }
 
+    @StringRes
+    fun callTypeDescription(): Int {
+        return when (this) {
+            VIDEO_CALL -> R.string.chat_call_ended
+            VOICE_CALL -> R.string.chat_call_ended
+            MISSED_VIDEO_CALL -> R.string.chat_missed_call
+            MISSED_VOICE_CALL -> R.string.chat_missed_call
+            else -> 0
+        }
+    }
+
+    fun isMissedCall(): Boolean {
+        return this == MISSED_VOICE_CALL || this == MISSED_VIDEO_CALL
+    }
+
     companion object {
         @JvmStatic
         fun from(code: Int): MessageCallType {

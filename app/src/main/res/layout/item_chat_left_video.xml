@@ -52,7 +52,8 @@
             android:minWidth="100dp"
             android:maxWidth="200dp"
             android:maxHeight="200dp"
-            android:adjustViewBounds="true" />
+            android:adjustViewBounds="true"
+            android:src="@drawable/img_loading_image"/>
 
         <ImageView
             android:id="@+id/imgPlay"
