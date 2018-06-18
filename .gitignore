@@ -6,3 +6,5 @@ bzzz-android.iml
 build/
 .DS_Store
 *.iml
+app/release/
+*.apk
