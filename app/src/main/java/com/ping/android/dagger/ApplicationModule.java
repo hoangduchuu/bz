@@ -10,10 +10,13 @@ import com.ping.android.device.Device;
 import com.ping.android.device.Notification;
 import com.ping.android.device.impl.DeviceImpl;
 import com.ping.android.device.impl.NotificationImpl;
+import com.ping.android.domain.repository.NotificationMessageRepository;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.NotificationMessage;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.service.CallServiceHandlerImpl;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -57,8 +60,8 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public Notification provideNotification() {
-        return new NotificationImpl(application);
+    public Notification provideNotification(NotificationMessageRepository notificationMessageRepository) {
+        return new NotificationImpl(application, notificationMessageRepository);
     }
 
     @Provides

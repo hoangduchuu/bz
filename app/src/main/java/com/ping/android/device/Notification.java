@@ -20,4 +20,6 @@ public interface Notification {
     void showMessageNotification(User user, String message, String conversationId, String senderProfile);
 
     void clearAll();
+
+    void clearMessageNotification(String key);
 }
