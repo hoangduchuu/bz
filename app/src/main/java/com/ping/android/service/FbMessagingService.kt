@@ -81,7 +81,14 @@ class FbMessagingService: QBFcmPushListenerService() {
 
                 val senderId = data["senderId"] as String
                 this.badgeHelper.increaseMissedCall()
-                showMissedCallNotificationUseCase.execute(DefaultObserver(), ShowMissedCallNotificationUseCase.Params(senderId, senderProfile, message, isVideo == 1))
+                showMissedCallNotificationUseCase
+                        .execute(DefaultObserver(),
+                                ShowMissedCallNotificationUseCase.Params(
+                                        senderId,
+                                        senderProfile,
+                                        message,
+                                        isVideo == 1
+                                ))
             } else if (TextUtils.equals(notificationType, "incoming_message")) {
                 if (!needDisplayNotification(conversationId)) {
                     return

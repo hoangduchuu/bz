@@ -40,9 +40,9 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
             public void onNext(List<User> users) {
                 super.onNext(users);
                 view.hideSearching();
+                view.displaySearchResult(users);
                 if (users.size() > 0) {
                     view.hideNoResults();
-                    view.displaySearchResult(users);
                 } else {
                     view.showNoResults();
                 }
@@ -52,6 +52,7 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
             public void onError(@NotNull Throwable exception) {
                 super.onError(exception);
                 exception.printStackTrace();
+                view.displaySearchResult(new ArrayList<>());
                 view.hideLoading();
                 view.showNoResults();
             }

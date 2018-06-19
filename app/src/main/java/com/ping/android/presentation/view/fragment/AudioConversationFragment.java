@@ -156,7 +156,7 @@ public class AudioConversationFragment extends BaseConversationFragment
 
     @Override
     public void updateOpponentInfo(User opponentInfo) {
-        UiUtils.displayProfileImage(getContext(), opponentImage, opponentInfo);
+        UiUtils.displayProfileAvatar(opponentImage, opponentInfo.profile, R.drawable.ic_avatar_orange);
         allOpponentsTextView.setText(opponentInfo.nickName);
     }
 }

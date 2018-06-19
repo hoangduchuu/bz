@@ -273,14 +273,18 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     @Override
     public void showNoResults() {
-        recycleChatView.post(()-> recycleChatView.setVisibility(View.GONE));
-        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
+        //recycleChatView.setVisibility(View.INVISIBLE);
+        noResultsView.setVisibility(View.VISIBLE);
+//        recycleChatView.post(()-> recycleChatView.setVisibility(View.INVISIBLE));
+//        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
     @Override
     public void hideNoResults() {
-        recycleChatView.post(()->recycleChatView.setVisibility(View.VISIBLE));
-        noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
+        //recycleChatView.setVisibility(View.VISIBLE);
+        noResultsView.setVisibility(View.INVISIBLE);
+//        recycleChatView.post(()->recycleChatView.setVisibility(View.VISIBLE));
+//        noResultsView.post(() -> noResultsView.setVisibility(View.INVISIBLE));
     }
 
     public NewChatComponent getComponent() {
