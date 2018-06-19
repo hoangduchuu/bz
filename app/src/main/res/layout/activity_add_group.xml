@@ -1,8 +1,8 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context="com.ping.android.presentation.view.activity.AddGroupActivity">
 
@@ -17,7 +17,7 @@
 
             <ImageView
                 android:id="@+id/new_group_back"
-                style="@style/BackButton"/>
+                style="@style/BackButton" />
 
             <TextView
                 style="@style/TextTitle"
@@ -50,8 +50,8 @@
                 android:id="@+id/new_group_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
                 android:layout_marginStart="@dimen/default_padding"
+                android:background="@null"
                 android:hint="Name this group" />
         </LinearLayout>
 
@@ -86,8 +86,7 @@
 
         </LinearLayout>
 
-        <View
-            style="@style/horizontal_divider"/>
+        <View style="@style/horizontal_divider" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -103,14 +102,13 @@
 
             <com.wang.avi.AVLoadingIndicatorView
                 android:id="@+id/avi"
+                style="@style/AVLoadingIndicatorView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                style="@style/AVLoadingIndicatorView"
                 android:visibility="gone"
-                app:indicatorName="BallPulseIndicator"
                 app:indicatorColor="@color/colorAccent"
-                />
+                app:indicatorName="BallPulseIndicator" />
 
             <LinearLayout
                 android:id="@+id/no_results"
@@ -124,22 +122,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAllCaps="true"
-                    android:text="No results"/>
+                    android:text="No results"
+                    android:textAllCaps="true" />
             </LinearLayout>
-
-            <View
-                style="@style/horizontal_divider"
-                android:layout_gravity="bottom" />
         </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/new_group_layout_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_top_border_gray"
-            android:padding="7dp"
-            android:orientation="horizontal">
+            android:background="@color/main_background_gray"
+            android:orientation="horizontal"
+            android:padding="7dp">
 
             <EditText
                 android:id="@+id/new_group_message_tv"

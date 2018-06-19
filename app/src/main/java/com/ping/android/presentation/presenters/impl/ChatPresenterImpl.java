@@ -252,12 +252,12 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
         int status = CommonMethod.getIntFrom(messageChildData.getData().status, currentUser.key);
         updateReadStatus(messageChildData.getData(), status);
+        updateConversationReadStatus();
         prepareMessageStatus(messageChildData.getData());
         switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
                 checkMessageError(messageChildData.getData());
-                updateConversationReadStatus();
                 addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:

@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
+import android.support.v4.content.ContextCompat;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -111,6 +112,9 @@ public class NotificationImpl implements Notification {
         } else {
             builder.setDefaults(android.app.Notification.DEFAULT_ALL);
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            builder.setContentTitle(context.getResources().getString(R.string.app_name));
+        }
         Intent callbackIntent = NotificationBroadcastReceiver.getCallbackIntent(context, opponentUserId, isVideo);
         PendingIntent callbackPendingIntent = PendingIntent.getBroadcast(context, 124,
                 callbackIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -167,6 +171,26 @@ public class NotificationImpl implements Notification {
         //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // https://willowtreeapps.com/ideas/mobile-notifications-part-2-some-useful-android-notifications
+        // https://stackoverflow.com/questions/14671453/catch-on-swipe-to-dismiss-event
+//        android.app.Notification notification0 = new NotificationCompat.Builder(context, "message")
+//                .setGroup(conversationId)
+//                .setGroupSummary(true)
+//                .setContentIntent(contentIntent)
+//                .setAutoCancel(true)
+//                .setSmallIcon(android.R.drawable.ic_dialog_email)
+//                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+//                        android.R.drawable.ic_dialog_email))
+//                .setContentTitle("Bundled Notifications Content Title")
+//                .setContentText("Content Text for group summary")
+//                .setStyle(new NotificationCompat.InboxStyle()
+//                        .setSummaryText("This is my inbox style summary."))
+//                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+//                .setLights(ContextCompat.getColor(
+//                        context, R.color.orange_dark), 1000, 1000)
+//                .setVibrate(new long[]{800, 800, 800, 800})
+//                .setDefaults(android.app.Notification.DEFAULT_SOUND)
+//                .build();
 
         notificationBuilder
                 .setContentText(message)
@@ -190,7 +214,7 @@ public class NotificationImpl implements Notification {
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             notificationBuilder
-                    .setContentTitle("BZZZ");
+                    .setContentTitle(context.getResources().getString(R.string.app_name));
         } else {
             // 1. Build label
             String replyLabel = getString(R.string.notif_action_reply);
@@ -241,6 +265,7 @@ public class NotificationImpl implements Notification {
                             setColor(context.getResources().getColor(R.color.colorAccent)).
                             setLargeIcon((Bitmap) data[0]);
                 }
+                //notificationManager.notify(getID(), notification0);
                 notificationManager.notify(notificationId, notificationBuilder.build());
             }));
         } else {

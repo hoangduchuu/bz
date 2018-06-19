@@ -424,7 +424,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Override
     public void updateOpponentInfo(User opponentUser) {
-        UiUtils.displayProfileImage(getContext(), firstOpponentAvatarImageView, opponentUser);
+        UiUtils.displayProfileAvatar(firstOpponentAvatarImageView, opponentUser.profile, R.drawable.ic_avatar_orange);
         allOpponentsTextView.setText(opponentUser.nickName);
     }
 

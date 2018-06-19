@@ -120,7 +120,7 @@
             android:label="Chat"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".presentation.view.activity.SelectContactActivity"
             android:label="Chat"
