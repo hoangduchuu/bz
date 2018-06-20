@@ -292,6 +292,9 @@ public class CommonMethod {
         StringBuilder builder = new StringBuilder();
         if (minutes > 0) {
             builder.append(String.format(context.getResources().getQuantityString(R.plurals.plural__minute, minutes), minutes));
+            if (seconds > 0) {
+                builder.append(" ");
+            }
         }
         if (seconds > 0 || minutes == 0) {
             builder.append(String.format(context.getResources().getQuantityString(R.plurals.plural__second, seconds), seconds));

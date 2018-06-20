@@ -97,23 +97,23 @@ public enum Color {
 
     public static Color from(int mainColor) {
         switch (mainColor) {
-            case 1:
+            case 0:
                 return COLOR_1;
-            case 2:
+            case 1:
                 return COLOR_2;
-            case 3:
+            case 2:
                 return COLOR_3;
-            case 4:
+            case 3:
                 return COLOR_4;
-            case 5:
+            case 4:
                 return COLOR_5;
-            case 6:
+            case 5:
                 return COLOR_6;
-            case 7:
+            case 6:
                 return COLOR_7;
-            case 8:
+            case 7:
                 return COLOR_8;
-            case 9:
+            case 8:
                 return COLOR_9;
             default:
                 return DEFAULT;
@@ -123,25 +123,25 @@ public enum Color {
     public int getCode() {
         switch (this) {
             case COLOR_1:
-                return 1;
-            case COLOR_2:
-                return 2;
-            case COLOR_3:
-                return 3;
-            case COLOR_4:
-                return 4;
-            case COLOR_5:
-                return 5;
-            case COLOR_6:
-                return 6;
-            case COLOR_7:
-                return 7;
-            case COLOR_8:
-                return 8;
-            case COLOR_9:
-                return 9;
-            default:
                 return 0;
+            case COLOR_2:
+                return 1;
+            case COLOR_3:
+                return 2;
+            case COLOR_4:
+                return 3;
+            case COLOR_5:
+                return 4;
+            case COLOR_6:
+                return 5;
+            case COLOR_7:
+                return 6;
+            case COLOR_8:
+                return 7;
+            case COLOR_9:
+                return 8;
+            default:
+                return 9;
         }
     }
 }

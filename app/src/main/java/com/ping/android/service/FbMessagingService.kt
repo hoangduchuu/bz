@@ -96,20 +96,14 @@ class FbMessagingService: QBFcmPushListenerService() {
                 this.badgeHelper.increaseBadgeCount(conversationId)
                 showIncomingMessageNotificationUseCase.execute(DefaultObserver(),
                         ShowIncomingMessageNotificationUseCase.Params(message, conversationId, senderProfile))
-            } else if (TextUtils.equals(notificationType, "missed_call") || TextUtils.equals(notificationType, "game_status")) {
+            } else if (TextUtils.equals(notificationType, "game_status")) {
                 if (!needDisplayNotification(conversationId)) {
                     return
                 }
-                if (TextUtils.equals(notificationType, "incoming_message")) {
-                    this.badgeHelper.increaseBadgeCount(conversationId)
-                } else if (TextUtils.equals(notificationType, "missed_call")) {
-                    this.badgeHelper.increaseMissedCall()
-                }
-                val allowReply = notificationType == "incoming_message"
                 getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
                     override fun onNext(user: User) {
                         try {
-                            postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile, allowReply)
+                            postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
                         } catch (e: JSONException) {
                             e.printStackTrace()
                         }
@@ -122,7 +116,7 @@ class FbMessagingService: QBFcmPushListenerService() {
 
     @Throws(JSONException::class)
     private fun postNotification(context: Context, currentUser: User?, message: String,
-                                 conversationId: String, profileImage: String, allowReply: Boolean) {
+                                 conversationId: String, profileImage: String) {
         val soundNotification = currentUser == null || currentUser.settings.notification
         mNotificationId = getID()
         mConversationId = conversationId
@@ -148,33 +142,9 @@ class FbMessagingService: QBFcmPushListenerService() {
         } else {
             notificationBuilder.priority = Notification.PRIORITY_HIGH
         }
-        if (allowReply) {
-            //do not show double BZZZ, will change if use title for other meaning
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                notificationBuilder
-                        .setContentTitle("BZZZ")
-            } else {
-                // 1. Build label
-                val replyLabel = getString(R.string.notif_action_reply)
-                val remoteInput = RemoteInput.Builder(KEY_REPLY)
-                        .setLabel(replyLabel)
-                        .build()
-
-
-                val intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, mNotificationId, mConversationId)
-                PendingIntent.getBroadcast(context, 100, intent1,
-                        PendingIntent.FLAG_UPDATE_CURRENT)
-
-                // 2. Build action
-                val replyAction = NotificationCompat.Action.Builder(
-                        android.R.drawable.ic_menu_send, replyLabel, PendingIntent.getBroadcast(context, 100, intent1,
-                        PendingIntent.FLAG_UPDATE_CURRENT))
-                        .addRemoteInput(remoteInput)
-                        .setAllowGeneratedReplies(true)
-                        .build()
-                notificationBuilder.addAction(replyAction)
-
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            notificationBuilder
+                    .setContentTitle(context.resources.getString(R.string.app_name))
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             prepareProfileImage(context, profileImage, Callback { error, data ->
