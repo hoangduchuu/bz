@@ -65,6 +65,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         setContentView(R.layout.activity_add_group);
         getComponent().inject(this);
         searchPresenter.create();
+        presenter.create();
         bindViews();
         init();
     }
