@@ -584,17 +584,18 @@ class Camera2VideoFragment : Fragment(),
         val task = object : TimerTask() {
             override fun run() {
                 currentRecordTime += 1000
+                Log.d("HEHEHE", "$currentRecordTime")
                 if (currentRecordTime >= MAXIMUM_RECORD_TIME + 1000) {
-                    videoButton.post({ videoButton.resetRecordState() })
+                    videoButton.post { videoButton.resetRecordState() }
                     return
                 }
-                videoButton.post({
+                videoButton.post {
                     videoButton.setProgressWithAnimation(
                             currentRecordTime.toFloat() / MAXIMUM_RECORD_TIME * 100, 1000)
-                })
+                }
             }
         }
-        recordTimer?.scheduleAtFixedRate(task, 0, 1000)
+        recordTimer?.scheduleAtFixedRate(task, 1000, 1000)
     }
 
     private fun stopRecordTimer() {
@@ -675,7 +676,9 @@ class Camera2VideoFragment : Fragment(),
                 stop()
                 reset()
             }
-            (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
+            if (currentRecordTime >= 1000) {
+                (activity as VideoRecorderActivity).openPreviewVideo(File(nextVideoAbsolutePath))
+            }
             nextVideoAbsolutePath = null
             startPreview()
         }

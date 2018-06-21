@@ -19,12 +19,10 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
-import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.ThemeUtils;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +46,6 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
 
     private CountDownTimer gameCountDown;
     private Handler handler = new Handler();
-    private boolean isGameNotificationSent = false;
     private Vibrator vibrator;
 
     @Inject
@@ -115,20 +112,17 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (status == GAME_STARTED) {
+            updateGameStatus(true);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         gameCountDown.cancel();
-        boolean gameWin = checkGameStatus();
-        if (gameWin) {
-            updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
-        } else {
-            updateMessageStatus(Constant.MESSAGE_STATUS_GAME_FAIL);
-        }
-        if(!isGameNotificationSent) {
-            //send game status to sender
-            sendNotification(gameWin);
-            isGameNotificationSent = true;
-        }
         originalBitmap = null;
         for (Bitmap bitmap : chunkedImages) {
             bitmap.recycle();
@@ -188,12 +182,18 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
         });
     }
 
+    @Override
+    protected void startGame() {
+        super.startGame();
+        puzzleView.setVisibility(View.VISIBLE);
+        gameCountDown.start();
+    }
+
     private void displayPuzzle() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("Start", (dialogInterface, i) -> {
-                    puzzleView.setVisibility(View.VISIBLE);
-                    gameCountDown.start();
+                    startGame();
                 }).setMessage("You have 30 seconds to complete this game.")
                 .setTitle("PUZZLE GAME");
         alertDialogBuilder.create().show();
@@ -292,22 +292,15 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
 
     private void updateGameStatus(boolean isTimeOut) {
         boolean gameWin = checkGameStatus();
-        if ((gameWin || isTimeOut) & !isGameNotificationSent) {
-            //send game status to sender
-            sendNotification(gameWin);
-            isGameNotificationSent = true;
-        }
-
+        gameCountDown.cancel();
+        stopVibrate();
         if (gameWin) {
-            gameCountDown.cancel();
             puzzleView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(originalBitmap);
             onGamePassed();
-            stopVibrate();
         } else if (isTimeOut) {
             onGameFailed();
-            stopVibrate();
         }
     }
 

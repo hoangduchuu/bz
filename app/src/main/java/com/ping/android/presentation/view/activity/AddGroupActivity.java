@@ -304,11 +304,14 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     @Override
     public void initProfileImagePath(String key) {
-        String profileFileFolder = getExternalFilesDir(null).getAbsolutePath() + File.separator +
-                "profile" + File.separator + key;
+        String parentPath = getExternalFilesDir(null).getAbsolutePath() + File.separator + "profile" +  File.separator + key;
+        File parent = new File(parentPath);
+        if (!parent.exists()) {
+            parent.mkdirs();
+        }
         double timestamp = System.currentTimeMillis() / 1000d;
         String profileFileName = "" + timestamp + "-" + key + ".jpeg";
-        String profileFilePath = profileFileFolder + File.separator + profileFileName;
+        String profileFilePath = parentPath + File.separator + profileFileName;
         imagePickerHelper = ImagePickerHelper.from(this)
                 .setFilePath(profileFilePath)
                 .setCrop(true)

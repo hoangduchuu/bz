@@ -59,6 +59,14 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (status == GAME_STARTED) {
+            onGameFailed();
+        }
+    }
+
+    @Override
     public GamePresenter getPresenter() {
         return presenter;
     }
@@ -74,7 +82,9 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         alertDialog.show();
     }
 
-    private void startGame() {
+    @Override
+    protected void startGame() {
+        super.startGame();
         gameCountDown.start();
     }
 

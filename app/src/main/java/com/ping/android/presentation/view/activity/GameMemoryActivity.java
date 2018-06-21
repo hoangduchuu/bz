@@ -149,6 +149,14 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (status == GAME_STARTED) {
+            onGameFailed();
+        }
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.red:
@@ -216,6 +224,12 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
         findViewById(R.id.game_container).setVisibility(View.GONE);
     }
 
+    @Override
+    protected void startGame() {
+        super.startGame();
+        handler.postDelayed(this::playOriginalPatterns, 500);
+    }
+
     private void showStartGameDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.memory_game_title)
@@ -223,7 +237,7 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
                 .setCancelable(false)
                 .setPositiveButton("Start", (dialogInterface, i) -> {
                     dialogInterface.dismiss();
-                    handler.postDelayed(this::playOriginalPatterns, 500);
+                    startGame();
                 }).create();
         alertDialog.show();
     }
