@@ -52,4 +52,11 @@ public class CommonMethodTest extends TestCase {
         long result4 = (long) (timestamp4 / Constant.MILLISECOND_PER_DAY);
         Assert.assertFalse(result3 == result4);
     }
+
+    public void testVersionValid() {
+        String currentVersion = "3.0.0";
+        String expectVersion = "2.3.3";
+        Assert.assertTrue(CommonMethod.checkVersionValid(currentVersion, expectVersion));
+        Assert.assertFalse(CommonMethod.checkVersionValid("2.3.3", "3.0.0"));
+    }
 }

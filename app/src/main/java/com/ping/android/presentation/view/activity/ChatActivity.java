@@ -914,8 +914,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         // Should check permission here
         Intent intent = new Intent(this, VideoRecorderActivity.class);
         Bundle extras = new Bundle();
-        String outputFolder = getExternalCacheDir() + File.separator + "conversations" + File.separator + conversationID;
-        extras.putString(VideoRecorderActivity.OUTPUT_FOLDER_EXTRA_KEY, outputFolder);
+        String outputPath = getExternalCacheDir() + File.separator + "conversations" + File.separator + conversationID;
+        File outputFolder = new File(outputPath);
+        if (outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
+        extras.putString(VideoRecorderActivity.OUTPUT_FOLDER_EXTRA_KEY, outputFolder.getAbsolutePath());
         intent.putExtras(extras);
         startActivityForResult(intent, CAMERA_REQUEST_CODE);
     }
