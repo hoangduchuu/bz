@@ -36,6 +36,19 @@ public class CommonMethod {
     private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
     private static final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
 
+    public static boolean checkVersionValid(String currentVersion, String expectVersion) {
+        String[] expectVersionSet = expectVersion.split("\\.");
+        String[] currentVersionSet = currentVersion.split("\\.");
+
+        int expectMajor = Integer.parseInt(expectVersionSet[0]);
+        int expectMinor = Integer.parseInt(expectVersionSet[1]);
+        int currentMajor = Integer.parseInt(currentVersionSet[0]);
+        int currentMinor = Integer.parseInt(currentVersionSet[1]);
+
+        return currentMajor > expectMajor
+                || (currentMajor == expectMajor && currentMinor >= expectMinor);
+    }
+
     public static boolean isValidName(String name) {
         Pattern p = Pattern.compile(NAME_PATTERN);
         Matcher matcher = p.matcher(name);

@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.ping.android.BuildConfig;
+import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -54,22 +55,10 @@ public class CheckAppUpdateUseCase extends UseCase<CheckAppUpdateUseCase.Output,
                 Output output = new Output();
                 output.appId = appId;
                 output.currentVersion = storeCurrentVersion;
-                if (forceUpdateEnabled <= 0 || !versionCompare(storeCurrentVersion, BuildConfig.VERSION_NAME)) {
-                    output.needUpdate = false;
-                } else {
-                    output.needUpdate = true;
-                }
+                output.needUpdate = forceUpdateEnabled > 0 && !CommonMethod.checkVersionValid(BuildConfig.VERSION_NAME, storeCurrentVersion);
                 emitter.onNext(output);
             });
         });
-    }
-
-    private boolean versionCompare(String storeVersion, String installedVersion) {
-        String[] ver1s = storeVersion.split("\\.");
-        String[] ver2s = installedVersion.split("\\.");
-
-        return Integer.parseInt(ver1s[0]) > Integer.parseInt(ver2s[0])
-                || Integer.parseInt(ver1s[1]) > Integer.parseInt(ver2s[1]);
     }
 
     public static class Output {
