@@ -57,10 +57,10 @@ ext {
             firebase_config     : "16.0.0",
     ]
 
-    versionMajor = 2
-    versionMinor = 3
-    versionPatch = 22
-    versionBuild = 107
+    versionMajor = 3
+    versionMinor = 0
+    versionPatch = 0
+    versionBuild = 109
 
     versionCode = versionBuild //versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
     versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
