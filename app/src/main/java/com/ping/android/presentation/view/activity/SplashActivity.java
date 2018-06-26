@@ -41,6 +41,11 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     }
 
     @Override
+    public void onBackPressed() {
+
+    }
+
+    @Override
     public void navigateToMainScreen() {
         Intent intent;
         intent = new Intent(SplashActivity.this, MainActivity.class);

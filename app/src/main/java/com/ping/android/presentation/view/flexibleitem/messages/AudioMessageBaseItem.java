@@ -403,6 +403,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
 
         private void initMediaPlayer(String audioFile, MediaPlayer.OnPreparedListener listener) {
             mMediaPlayer = ChatMessageAdapter.audioPlayerInstance;
+            if (mMediaPlayer == null) return;
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(listener);
             if (audioFile.endsWith("m4a")) {

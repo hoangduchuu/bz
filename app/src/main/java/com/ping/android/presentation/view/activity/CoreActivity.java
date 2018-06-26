@@ -164,6 +164,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     DialogFragment loadingDialog;
 
     public void showLoading() {
+        if (isFinishing() || isDestroyed()) return;
+
         if (loadingDialog != null) {
             loadingDialog.dismiss();
         }

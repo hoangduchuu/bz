@@ -4,6 +4,7 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -69,15 +70,22 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
         rootView = localInflater.inflate(R.layout.fragment_mapping, container, false);
         bindViews(rootView);
-        presenter.create();
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.create();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.mapping_back:
-                getActivity().onBackPressed();
+                if (getActivity() != null){
+                    getActivity().onBackPressed();
+                }
                 break;
             case R.id.mapping_reset:
                 resetMapping();
@@ -114,9 +122,10 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void updateMapping(List<Mapping> mappings) {
+        if (getActivity() == null || getActivity().isFinishing()) return;
         for (Mapping mapping : mappings) {
             int resId = getResources().getIdentifier("mapping_" +
-                    mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
+                    mapping.mapKey.toLowerCase(), "id", getActivity().getPackageName());
             ViewGroup mappingItem = rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 

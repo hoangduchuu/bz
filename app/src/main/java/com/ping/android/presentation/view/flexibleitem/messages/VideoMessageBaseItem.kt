@@ -1,5 +1,7 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
+import android.app.Activity
+import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.view.View
@@ -55,6 +57,10 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         }
 
         private fun setupUI(videoFile: File) {
+            if (itemView.context is Activity) {
+                val activity = itemView.context as Activity
+                if (activity.isFinishing) return
+            }
             if (!videoFile.exists() || itemView == null || itemView.context == null) return
             imgPlay.visibility = View.VISIBLE
             imgPlay.setImageResource(R.drawable.ic_play_arrow)
