@@ -35,7 +35,7 @@ import io.reactivex.disposables.Disposable;
 
 public abstract class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
 
-    private NetworkConnectionChecker networkConnectionChecker;
+    private static NetworkConnectionChecker networkConnectionChecker;
     protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
     // Disposable for UI events
     private CompositeDisposable disposables;
@@ -154,7 +154,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     }
 
     private void initWiFiManagerListener() {
-        networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        if (networkConnectionChecker == null) {
+            networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        }
     }
 
     protected void exit() {

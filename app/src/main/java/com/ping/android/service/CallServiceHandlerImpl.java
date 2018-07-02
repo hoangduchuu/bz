@@ -53,7 +53,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
     public void create() {
         Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
         String pingId = SharedPrefsHelper.getInstance().get("pingId");
-        if (qbId > 0 && !TextUtils.isEmpty(pingId)) {
+        if (qbId != null && qbId > 0 && !TextUtils.isEmpty(pingId)) {
             loginUser(qbId, pingId);
         }
     }
