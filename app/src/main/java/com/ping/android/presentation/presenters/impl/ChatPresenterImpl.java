@@ -512,6 +512,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 updateLastMessages(output.messages, output.canLoadMore);
                 observeMessageUpdate();
                 observeTypingEvent();
+                view.hideLoading();
             }
 
             @Override
@@ -520,6 +521,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.updateLastMessages(new ArrayList<>(), false);
                 observeMessageUpdate();
                 observeTypingEvent();
+                view.hideLoading();
             }
         }, conversation);
     }
@@ -618,7 +620,6 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         this.conversation = conversation;
         view.updateConversation(conversation);
-        view.hideLoading();
         observeConversationUpdate();
         updateConversationReadStatus();
         //observeMessageUpdate();

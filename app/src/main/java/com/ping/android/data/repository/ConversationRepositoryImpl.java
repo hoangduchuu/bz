@@ -146,7 +146,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(Integer.class);
                     }
-                    return 0;
+                    return -1;
                 });
     }
 
