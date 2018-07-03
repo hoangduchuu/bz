@@ -167,6 +167,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         bindViews();
         initView();
         init();
+
+        findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
     }
 
     private void initView() {
@@ -381,7 +383,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setButtonsState(int selectedViewId) {
-        if (emojiPopup.isShowing()) {
+        if (emojiPopup.isShowing() && selectedViewId != R.id.chat_emoji_btn) {
             emojiPopup.dismiss();
         }
         for (int viewId : actionButtons) {
@@ -631,7 +633,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         new Handler().postDelayed(() -> {
             presenter.create();
             presenter.initConversationData(conversationID);
-        }, 500);
+        }, 700);
     }
 
     private void handleShakePhone() {
@@ -982,7 +984,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             setButtonsState(0);
         }
         if (layoutVoice == null) {
-            findViewById(R.id.stub_import).setVisibility(View.VISIBLE);
+            findViewById(R.id.stub_import_voice).setVisibility(View.VISIBLE);
             layoutVoice = findViewById(R.id.chat_layout_voice);
             layoutVoice.setConversationId(originalConversation.key);
             layoutVoice.setListener((outputFile, selectedVoice) -> presenter.sendAudioMessage(outputFile, selectedVoice));
