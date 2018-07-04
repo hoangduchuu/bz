@@ -41,6 +41,8 @@ import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.configuration.GlideApp;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.bzzzchat.videorecorder.view.ImagesProvider;
+import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity;
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity;
 import com.google.firebase.storage.FirebaseStorage;
@@ -58,6 +60,7 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.VoiceRecordView;
+import com.ping.android.presentation.view.custom.media.MediaPickerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -65,6 +68,7 @@ import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.PermissionsChecker;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.Constant;
@@ -79,6 +83,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
+
+import io.reactivex.disposables.Disposable;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
@@ -102,6 +110,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ViewGroup bottomLayoutChat;
     private ViewGroup bottomMenuEditMode;
     private VoiceRecordView layoutVoice;
+    private MediaPickerView layoutMediaPicker;
     private LinearLayout copyContainer;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageButton tgMarkOut;
@@ -130,6 +139,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private ImagePickerHelper imagePickerHelper;
     private ShakeEventManager shakeEventManager;
+    private PermissionsChecker permissionsChecker;
 
     private boolean isScrollToTop = false;
     private EmojiPopup emojiPopup;
@@ -167,51 +177,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         bindViews();
         initView();
         init();
-
-        findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
-    }
-
-    private void initView() {
-        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn};
-        actionButtons = new ArrayList<>(buttonIDs.length);
-        for (int buttonId : buttonIDs) {
-            actionButtons.add(buttonId);
-        }
-        btnSend.setSelected(false);
-        initTextWatcher();
-
-        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
-            @Override
-            public void onLayoutCompleted(RecyclerView.State state) {
-                super.onLayoutCompleted(state);
-                if (isSettingStackFromEnd.get()) return;
-
-                int contentView = recycleChatView.computeVerticalScrollRange();
-                int listHeight = recycleChatView.getMeasuredHeight();
-                if (contentView > listHeight) {
-                    if (mLinearLayoutManager.getStackFromEnd()) return;
-                    setLinearStackFromEnd(true);
-                } else {
-                    if (!mLinearLayoutManager.getStackFromEnd()) return;
-                    isSettingStackFromEnd.set(true);
-                    setLinearStackFromEnd(false);
-                }
-            }
-        };
-        recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                int lastVisibleItem = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
-                isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
-            }
-        });
-        recycleChatView.setLayoutManager(mLinearLayoutManager);
-        messagesAdapter = new ChatMessageAdapter();
-        messagesAdapter.setMessageListener(this);
-        recycleChatView.setAdapter(messagesAdapter);
-        ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
     }
 
     @Override
@@ -481,8 +446,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (imagePickerHelper != null) {
-            imagePickerHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (permissionsChecker != null) {
+            permissionsChecker.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
         if (requestCode == 111) {
             if (grantResults.length > 0
@@ -549,9 +514,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
             setButtonsState(0);
-            if (layoutVoice != null && layoutVoice.getVisibility() == View.VISIBLE) {
-                layoutVoice.setVisibility(View.GONE);
-            }
+            hideVoiceRecordView();
             KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
             return false;
         });
@@ -589,6 +552,73 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
     }
 
+    private void hideVoiceRecordView() {
+        if (layoutVoice != null && layoutVoice.getVisibility() == View.VISIBLE) {
+            layoutVoice.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideMediaPickerView() {
+        if (layoutMediaPicker != null && layoutMediaPicker.getVisibility() == View.VISIBLE) {
+            layoutMediaPicker.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupMediaPickerView() {
+        if (layoutMediaPicker == null) {
+            findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
+            layoutMediaPicker = findViewById(R.id.chat_layout_media);
+            layoutMediaPicker.initProvider(this);
+            layoutMediaPicker.setListener(photoItem -> {
+                presenter.sendImageMessage(photoItem.getImagePath(), photoItem.getThumbnailPath(), tgMarkOut.isSelected());
+                return null;
+            });
+        }
+    }
+
+    private void initView() {
+        int[] buttonIDs = new int[]{R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn};
+        actionButtons = new ArrayList<>(buttonIDs.length);
+        for (int buttonId : buttonIDs) {
+            actionButtons.add(buttonId);
+        }
+        btnSend.setSelected(false);
+        initTextWatcher();
+
+        mLinearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
+            @Override
+            public void onLayoutCompleted(RecyclerView.State state) {
+                super.onLayoutCompleted(state);
+                if (isSettingStackFromEnd.get()) return;
+
+                int contentView = recycleChatView.computeVerticalScrollRange();
+                int listHeight = recycleChatView.getMeasuredHeight();
+                if (contentView > listHeight) {
+                    if (mLinearLayoutManager.getStackFromEnd()) return;
+                    setLinearStackFromEnd(true);
+                } else {
+                    if (!mLinearLayoutManager.getStackFromEnd()) return;
+                    isSettingStackFromEnd.set(true);
+                    setLinearStackFromEnd(false);
+                }
+            }
+        };
+        recycleChatView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int lastVisibleItem = mLinearLayoutManager.findLastCompletelyVisibleItemPosition();
+                isScrollToTop = lastVisibleItem == mLinearLayoutManager.getItemCount() - 1;
+            }
+        });
+        recycleChatView.setLayoutManager(mLinearLayoutManager);
+        messagesAdapter = new ChatMessageAdapter();
+        messagesAdapter.setMessageListener(this);
+        recycleChatView.setAdapter(messagesAdapter);
+        ((RevealableViewRecyclerView) recycleChatView).setCallback(messagesAdapter);
+    }
+
     private void setLinearStackFromEnd(boolean value) {
         isSettingStackFromEnd.set(true);
         // Set stack from end
@@ -613,6 +643,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void init() {
+        permissionsChecker = PermissionsChecker.from(this);
         badgeHelper = new BadgeHelper(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         listener = (prefs, key) -> {
@@ -774,9 +805,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         edMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 emojiPopup.dismiss();
-                if (layoutVoice != null) {
-                    layoutVoice.setVisibility(View.GONE);
-                }
+                hideVoiceRecordView();
+                hideMediaPickerView();
                 KeyboardHelpers.showKeyboard(this, edMessage);
             }
         });
@@ -867,9 +897,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void showEmojiEditor() {
-        if (layoutVoice != null) {
-            layoutVoice.setVisibility(View.GONE);
-        }
+        hideVoiceRecordView();
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
@@ -927,26 +955,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendImage() {
-        imagePickerHelper = ImagePickerHelper.from(this)
-                .setCrop(false)
-                .setScale(true)
-                .setGenerateThumbnail(true)
-                .setListener(new ImagePickerHelper.ImagePickerListener() {
-                    @Override
-                    public void onImageReceived(File file) {
-//                        cacheMessage = sendImageMessage("", "", Constant.MSG_TYPE_IMAGE, null);
-//                        cacheMessage.localFilePath = file.getAbsolutePath();
-//                        adapter.addOrUpdate(cacheMessage);
-                    }
-
-                    @Override
-                    public void onFinalImage(File... files) {
-                        File file = files[0];
-                        File thumbnail = files[1];
-                        sendImageFirebase(file, thumbnail);
+        Disposable disposable = permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(isGranted -> {
+                    if (isGranted) {
+                        KeyboardHelpers.hideSoftInputKeyboard(this);
+                        hideVoiceRecordView();
+                        setupMediaPickerView();
+                        layoutMediaPicker.setVisibility(View.VISIBLE);
+                        layoutMediaPicker.refreshData();
                     }
                 });
-        imagePickerHelper.openPicker();
     }
 
     private void onGameClicked() {
@@ -981,8 +999,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         if (emojiPopup.isShowing()) {
             emojiPopup.toggle();
-            setButtonsState(0);
         }
+        hideMediaPickerView();
+        setButtonsState(0);
         if (layoutVoice == null) {
             findViewById(R.id.stub_import_voice).setVisibility(View.VISIBLE);
             layoutVoice = findViewById(R.id.chat_layout_voice);

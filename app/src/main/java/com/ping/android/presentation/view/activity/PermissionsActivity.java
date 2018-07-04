@@ -34,7 +34,7 @@ public class PermissionsActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_permissions);
 
-        checker = new PermissionsChecker(this);
+        checker = PermissionsChecker.from(this);
         checkPermissions();
         //requiresCheck = true;
     }

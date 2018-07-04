@@ -170,7 +170,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        checker = new PermissionsChecker(getApplicationContext());
+        checker = PermissionsChecker.from(this);
 
         initWiFiManagerListener();
         initAudioSettings();
