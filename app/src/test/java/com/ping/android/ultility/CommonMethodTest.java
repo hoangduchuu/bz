@@ -28,6 +28,7 @@ public class CommonMethodTest extends TestCase {
         String sample = "luong ANH TUan";
         String result = CommonMethod.capitalFirstLetters(sample);
         Assert.assertEquals(result, "Luong Anh Tuan");
+        Assert.assertEquals(CommonMethod.capitalFirstLetters("Tien dung"), "Tien Dung");
     }
 
     public void testValidPassword() {

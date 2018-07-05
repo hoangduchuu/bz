@@ -1,32 +1,22 @@
 package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,16 +27,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedout.registration.RegistrationComponent;
 import com.ping.android.dagger.loggedout.registration.RegistrationModule;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
-import com.ping.android.presentation.view.custom.KeyboardListener;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.KeyboardHelpers;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
-import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
 
@@ -249,17 +235,14 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         final String password = txtPassword.getText().toString().trim();
 
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
-                            hideLoading();
-                            Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            createUserProfile(auth.getCurrentUser(), firstName, lastName, pingId, email, password);
-                            //sendVerificationEmail(firebaseUser);
-                        }
+                .addOnCompleteListener(RegistrationActivity.this, task -> {
+                    if (!task.isSuccessful()) {
+                        hideLoading();
+                        Toast.makeText(RegistrationActivity.this, getString(R.string.msg_create_account_failed),
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        createUserProfile(auth.getCurrentUser(), firstName, lastName, pingId, email, password);
+                        //sendVerificationEmail(firebaseUser);
                     }
                 });
     }
@@ -269,46 +252,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         Toast.makeText(RegistrationActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
     }
 
-    private void sendVerificationEmail(FirebaseUser firebaseUser) {
-        if (firebaseUser != null) {
-            firebaseUser.sendEmailVerification()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(RegistrationActivity.this, "Please verify register email", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void loginAfterRegist() {
-        final String firstName = txtFirstName.getText().toString().trim();
-        final String lastName = txtLastName.getText().toString().trim();
-        final String pingId = txtPingId.getText().toString().trim();
-        final String email = txtEmail.getText().toString().trim();
-        final String password = txtPassword.getText().toString().trim();
-
-        auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
-                            hideLoading();
-                            Toast.makeText(RegistrationActivity.this, getString(R.string.msg_auth_failed), Toast.LENGTH_LONG).show();
-                        } else {
-                            createUserProfile(auth.getCurrentUser(), firstName, lastName, pingId, email, password);
-                        }
-                    }
-                });
-    }
-
     private void createUserProfile(final FirebaseUser firebaseUser, String firstName, String lastName,
                                    String pingId, String email, String password) {
-
-        firstName = CommonMethod.capitalFirstLetter(firstName);
-        lastName = CommonMethod.capitalFirstLetter(lastName);
         User user = new User(firstName, lastName, pingId, email, CommonMethod.encryptPassword(password));
         mDatabase.child("ping_id_lookup").child(pingId).setValue(firebaseUser.getUid()).addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
@@ -330,10 +275,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
             }
         });
 
-    }
-
-    private void exitRegistration() {
-        finish();
     }
 
     public RegistrationComponent getComponent() {
