@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
 //        if (user != null) {
 //            return Observable.just(user);
 //        } else {
-            return initializeUser();
+        return initializeUser();
 //        }
     }
 
@@ -117,7 +117,8 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<ChildData<CallEntity>> observeCalls(String userId) {
         Query query =
                 database.getReference(CHILD_CALLS).child(userId)
-                        .orderByChild("timestamp");
+                        .orderByChild("timestamp")
+                        .limitToLast(10);
         query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
                 .onChildEvent()
@@ -133,16 +134,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<List<CallEntity>> getCalls(String userId) {
-        Query query =
-                database.getReference(CHILD_CALLS).child(userId)
-                .orderByChild("timestamp");
-                //.limitToLast(15);
+        DatabaseReference call = database.getReference(CHILD_CALLS).child(userId);
+        call.keepSynced(true);
+        Query query = call.orderByChild("timestamp");
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                        for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                             CallEntity callEntity = callEntityMapper.transform(childDataSnapshot);
                             callEntities.add(callEntity);
                         }
@@ -166,7 +166,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
-                        for (DataSnapshot childDataSnapshot: dataSnapshot.getChildren()) {
+                        for (DataSnapshot childDataSnapshot : dataSnapshot.getChildren()) {
                             CallEntity callEntity = callEntityMapper.transform(childDataSnapshot);
                             callEntities.add(callEntity);
                         }
@@ -339,9 +339,9 @@ public class UserRepositoryImpl implements UserRepository {
                 .flatMap(databaseReference -> RxFirebaseDatabase.getInstance(userBadgesRef)
                         .onSingleValueEvent()
                         .map(dataSnapshot -> {
-                            Map<String, Long> badges = (Map<String, Long>)dataSnapshot.getValue();
+                            Map<String, Long> badges = (Map<String, Long>) dataSnapshot.getValue();
                             int result = 0;
-                            for (Map.Entry<String, Long> entry: badges.entrySet()
+                            for (Map.Entry<String, Long> entry : badges.entrySet()
                                     ) {
                                 result += entry.getValue();
                             }

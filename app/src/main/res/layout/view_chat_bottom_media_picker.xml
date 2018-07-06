@@ -1,4 +1,23 @@
-<com.ping.android.presentation.view.custom.media.MediaPickerView android:id="@+id/chat_layout_voice"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="200dp"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.ping.android.presentation.view.custom.media.MediaPickerView
+        android:id="@+id/list_photos"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        tools:listitem="@layout/item_media" />
+
+    <ImageView
+        android:id="@+id/btn_grid"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_grid"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="20dp"
+        android:tint="@color/gray_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+</android.support.constraint.ConstraintLayout>

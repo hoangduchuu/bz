@@ -13,7 +13,7 @@ object AdapterConstants {
     const val BLANK = 5
 }
 
-class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), SelectableListener {
     private var items: ArrayList<ViewType>
 
     private val delegateAdapters: SparseArrayCompat<ViewTypeDelegateAdapter> = SparseArrayCompat()
@@ -25,6 +25,9 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     fun registerItemType(type: Int, viewTypeDelegate: ViewTypeDelegateAdapter) {
         if (delegateAdapters[type] != null) {
             throw RuntimeException("Register same view type $type for multiple delegate ${delegateAdapters[type]}")
+        }
+        if (viewTypeDelegate is SelectableViewTypeDelegateAdapter) {
+            viewTypeDelegate.listener = this
         }
         delegateAdapters.put(type, viewTypeDelegate)
     }
@@ -53,4 +56,18 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         this.items = ArrayList(items)
         notifyDataSetChanged()
     }
+
+    // region SelectableListener
+
+    override fun deselectOthers() {
+        for (item in items) {
+            if (item is SelectableViewType) {
+                if (item.isSelected) {
+                    item.isSelected = false
+                }
+            }
+        }
+    }
+
+    // endregion
 }

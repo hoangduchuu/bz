@@ -3,9 +3,42 @@ package com.bzzzchat.videorecorder.view
 import android.app.Activity
 import android.content.Context
 import android.database.Cursor
+import android.os.Parcel
+import android.os.Parcelable
 import android.provider.MediaStore
 
-data class PhotoItem(val imageId: Int, val thumbnailPath: String, val imagePath: String, var isSelected: Boolean = false)
+data class PhotoItem(val imageId: Int,
+                     val thumbnailPath: String,
+                     val imagePath: String,
+                     var isSelected: Boolean = false
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+            parcel.readInt(),
+            parcel.readString(),
+            parcel.readString(),
+            parcel.readByte() != 0.toByte())
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(imageId)
+        parcel.writeString(thumbnailPath)
+        parcel.writeString(imagePath)
+        parcel.writeByte(if (isSelected) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<PhotoItem> {
+        override fun createFromParcel(parcel: Parcel): PhotoItem {
+            return PhotoItem(parcel)
+        }
+
+        override fun newArray(size: Int): Array<PhotoItem?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 
 class ImagesProvider(val activity: Activity) {
     val photoId = 111

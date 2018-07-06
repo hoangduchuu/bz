@@ -41,7 +41,6 @@ import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.bzzzchat.configuration.GlideApp;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
-import com.bzzzchat.videorecorder.view.ImagesProvider;
 import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity;
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity;
@@ -85,12 +84,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 public class ChatActivity extends CoreActivity implements ChatPresenter.View, HasComponent<ChatComponent>,
         View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
     private static final int CAMERA_REQUEST_CODE = 12345;
+    private static final int REQUEST_CODE_MEDIA_PICKER = 1111;
 
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     public static final String EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME";
@@ -162,7 +160,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         getComponent().inject(this);
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            originalConversation = bundle.getParcelable("CONVERSATION");
+            //originalConversation = bundle.getParcelable("CONVERSATION");
             Color currentColor = Color.DEFAULT;
             if (bundle.containsKey(EXTRA_CONVERSATION_COLOR)) {
                 int color = bundle.getInt(EXTRA_CONVERSATION_COLOR);
@@ -280,7 +278,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 onVideoCall();
                 break;
             case R.id.chat_emoji_btn:
-                showEmojiEditor();
+                handleEmojiPressed();
                 break;
             case R.id.btn_copy:
                 onCopySelectedMessageText();
@@ -315,7 +313,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             case R.id.btn_cancel_game_selection:
                 hideGameSelection();
                 break;
+            case R.id.btn_grid:
+                handleGridMediaPickerPress();
+                break;
         }
+    }
+
+    private void handleGridMediaPickerPress() {
+        // TODO start grid media picker
+        Intent intent = new Intent(this, GridMediaPickerActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_MEDIA_PICKER);
     }
 
     private void handleEditMessages() {
@@ -348,7 +355,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void setButtonsState(int selectedViewId) {
-        if (emojiPopup.isShowing() && selectedViewId != R.id.chat_emoji_btn) {
+        if (emojiPopup != null && emojiPopup.isShowing() && selectedViewId != R.id.chat_emoji_btn) {
             emojiPopup.dismiss();
         }
         for (int viewId : actionButtons) {
@@ -361,6 +368,17 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void onLongPress(MessageBaseItem message, boolean allowCopy) {
         KeyboardHelpers.hideSoftInputKeyboard(this);
         selectedMessage = message;
+        if (messageActions == null) {
+            // Bottom message action
+            View messageActionsView = getLayoutInflater().inflate(R.layout.bottom_sheet_message_actions, null);
+            copyContainer = messageActionsView.findViewById(R.id.btn_copy);
+            copyContainer.setOnClickListener(this);
+            messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
+            messageActionsView.findViewById(R.id.btn_edit).setOnClickListener(this);
+            messageActions = new BottomSheetDialog(this);
+            messageActions.setContentView(messageActionsView);
+            messageActions.setOnDismissListener(dialog -> hideSelectedMessage());
+        }
         copyContainer.setVisibility(allowCopy ? View.VISIBLE : View.GONE);
         messageActions.show();
     }
@@ -440,6 +458,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                 presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isSelected());
             } else if (!TextUtils.isEmpty(videoPath)) {
                 presenter.sendVideoMessage(videoPath);
+            }
+        }
+        if (requestCode == REQUEST_CODE_MEDIA_PICKER && resultCode == RESULT_OK) {
+            List<PhotoItem> items = data.getParcelableArrayListExtra("data");
+            for (PhotoItem item : items) {
+                presenter.sendImageMessage(item.getImagePath(), item.getThumbnailPath(), tgMarkOut.isSelected());
             }
         }
     }
@@ -525,31 +549,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         tvChatName.setTransitionName(conversationTransionName);
 
         edMessage = findViewById(R.id.chat_message_tv);
-        //emoji
-        emojiPopup = EmojiPopup.Builder
-                .fromRootView(findViewById(R.id.contentRoot))
-                .build(edMessage);
         btEmoji.setOnClickListener(this);
-
-        // Bottom message action
-        View messageActionsView = getLayoutInflater().inflate(R.layout.bottom_sheet_message_actions, null);
-        copyContainer = messageActionsView.findViewById(R.id.btn_copy);
-        copyContainer.setOnClickListener(this);
-        messageActionsView.findViewById(R.id.btn_delete).setOnClickListener(this);
-        messageActionsView.findViewById(R.id.btn_edit).setOnClickListener(this);
-        messageActions = new BottomSheetDialog(this);
-        messageActions.setContentView(messageActionsView);
-        messageActions.setOnDismissListener(dialog -> hideSelectedMessage());
-
-        // Bottom chat menu
-        View view = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_game_menu, null);
-        chatGameMenu = new BottomSheetDialog(this);
-        chatGameMenu.setContentView(view);
-        chatGameMenu.setOnDismissListener(dialogInterface -> setButtonsState(0));
-        view.findViewById(R.id.puzzle_game).setOnClickListener(this);
-        view.findViewById(R.id.memory_game).setOnClickListener(this);
-        view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
-        view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
     }
 
     private void hideVoiceRecordView() {
@@ -567,12 +567,13 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void setupMediaPickerView() {
         if (layoutMediaPicker == null) {
             findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
-            layoutMediaPicker = findViewById(R.id.chat_layout_media);
+            layoutMediaPicker = findViewById(R.id.list_photos);
             layoutMediaPicker.initProvider(this);
             layoutMediaPicker.setListener(photoItem -> {
                 presenter.sendImageMessage(photoItem.getImagePath(), photoItem.getThumbnailPath(), tgMarkOut.isSelected());
                 return null;
             });
+            findViewById(R.id.btn_grid).setOnClickListener(this);
         }
     }
 
@@ -799,12 +800,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         edMessage.addTextChangedListener(textWatcher);
         edMessage.setOnTouchListener((view, motionEvent) -> {
             setButtonsState(0);
-            emojiPopup.dismiss();
             return false;
         });
         edMessage.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                emojiPopup.dismiss();
+                if (emojiPopup != null) emojiPopup.dismiss();
                 hideVoiceRecordView();
                 hideMediaPickerView();
                 KeyboardHelpers.showKeyboard(this, edMessage);
@@ -896,7 +896,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         toggleEditMode(false);
     }
 
-    private void showEmojiEditor() {
+    private void handleEmojiPressed() {
+        if (emojiPopup == null) {
+            emojiPopup = EmojiPopup.Builder
+                    .fromRootView(findViewById(R.id.contentRoot))
+                    .build(edMessage);
+        }
         hideVoiceRecordView();
         if (!emojiPopup.isShowing()) {
             emojiPopup.toggle();
@@ -968,6 +973,17 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onGameClicked() {
+        if (chatGameMenu == null) {
+            // Bottom chat menu
+            View view = getLayoutInflater().inflate(R.layout.bottom_sheet_chat_game_menu, null);
+            chatGameMenu = new BottomSheetDialog(this);
+            chatGameMenu.setContentView(view);
+            chatGameMenu.setOnDismissListener(dialogInterface -> setButtonsState(0));
+            view.findViewById(R.id.puzzle_game).setOnClickListener(this);
+            view.findViewById(R.id.memory_game).setOnClickListener(this);
+            view.findViewById(R.id.tic_tac_toe_game).setOnClickListener(this);
+            view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
+        }
         chatGameMenu.show();
     }
 
@@ -997,7 +1013,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 111);
             return;
         }
-        if (emojiPopup.isShowing()) {
+        if (emojiPopup != null && emojiPopup.isShowing()) {
             emojiPopup.toggle();
         }
         hideMediaPickerView();

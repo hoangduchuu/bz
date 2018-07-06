@@ -17,6 +17,9 @@ import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -34,6 +37,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
     ConversationRepository conversationRepository;
     @Inject
     CallMapper mapper;
+    private Map<String, String> cachedNicknames = new HashMap<>();
 
     @Inject
     public ObserveCallUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -54,7 +58,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                         ? ChildData.Type.CHILD_REMOVED : ChildData.Type.CHILD_ADDED;
                                 if (childData.getType() == ChildData.Type.CHILD_ADDED && type == ChildData.Type.CHILD_ADDED) {
                                     String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
-                                    return getUser(opponentUserId)
+                                    return userManager.getUser(opponentUserId)
                                             .zipWith(conversationRepository.getConversationNickName(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
                                                 call.opponentUser = user;
                                                 call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
@@ -69,11 +73,11 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
 
     }
 
-    private Observable<User> getUser(String userId) {
-        User user = userManager.getCacheUser(userId);
-        if (user != null) {
-            return Observable.just(user);
+    private Observable<String> getNickname(String userId, String conversationId, String opponentUserId) {
+        if (cachedNicknames.containsKey(conversationId)) {
+            return Observable.just(cachedNicknames.get(conversationId));
         }
-        return userRepository.getUser(userId);
+        return conversationRepository.getConversationNickName(userId, conversationId, opponentUserId)
+                .doOnNext(s -> cachedNicknames.put(conversationId, s));
     }
 }

@@ -276,14 +276,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void onOpenChatScreen(Conversation conversation, Pair<View, String>... sharedElements) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("CONVERSATION", conversation);
+        //Bundle bundle = new Bundle();
+        //bundle.putParcelable("CONVERSATION", conversation);
         Intent intent = new Intent(getContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, conversation.conversationName);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
-        intent.putExtras(bundle);
+        //intent.putExtras(bundle);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 getActivity(),
                 sharedElements

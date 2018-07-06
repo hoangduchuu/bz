@@ -70,6 +70,17 @@ public class UserManager {
         return cachedUsers.get(userId);
     }
 
+    public Observable<User> getUser(String userId) {
+        User user = getCacheUser(userId);
+        if (user != null) {
+            Log.e("User was cached " + user.getDisplayName());
+            return Observable.just(user);
+        } else {
+            return userRepository.getUser(userId)
+                    .doOnNext(this::setCachedUser);
+        }
+    }
+
     public void logout() {
         SharedPrefsHelper.getInstance().save("isLoggedIn", false);
         SharedPrefsHelper.getInstance().save("quickbloxId", 0);

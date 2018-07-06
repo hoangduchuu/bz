@@ -30,8 +30,6 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     @Inject
     MessageRepository messageRepository;
     @Inject
-    UserRepository userRepository;
-    @Inject
     UserManager userManager;
 
     @Inject

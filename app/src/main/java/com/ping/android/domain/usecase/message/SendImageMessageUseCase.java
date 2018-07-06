@@ -39,7 +39,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     ConversationRepository conversationRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
-    SendMessageUseCase.Params.Builder builder;
+    // builder;
 
     @Inject
     public SendImageMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -49,7 +49,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
-        builder = new SendMessageUseCase.Params.Builder()
+        SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
                 .setMessageType(params.messageType)
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
@@ -73,10 +73,10 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                             message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))
-                .concatWith(sendMessage(params));
+                .concatWith(sendMessage(params, builder));
     }
 
-    private Observable<Message> sendMessage(Params params) {
+    private Observable<Message> sendMessage(Params params, SendMessageUseCase.Params.Builder builder) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .map(s -> {
                     // FIXME: Use same image for thumbnail

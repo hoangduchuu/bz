@@ -46,8 +46,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         super.onCreate(savedInstanceState);
         disposables = new CompositeDisposable();
         initWiFiManagerListener();
-        NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
-        updateNetworkStatus(networkStatus);
+        //NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
+        //updateNetworkStatus(networkStatus);
     }
 
     @Override
@@ -135,17 +135,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
         switch (networkStatus) {
             case CONNECTED:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.GONE);
                 break;
             case CONNECTING:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_connecting);
                 notifyNetworkText.setText(getString(R.string.msg_network_connecting));
                 break;
             case NOT_CONNECT:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
                 notifyNetworkText.setText(getString(R.string.no_internet_connection));
@@ -170,8 +170,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
         if (loadingDialog != null) {
             loadingDialog.dismiss();
+        } else {
+            loadingDialog = new LoadingDialog();
         }
-        loadingDialog = new LoadingDialog();
         loadingDialog.show(getSupportFragmentManager(), "LOADING");
     }
 

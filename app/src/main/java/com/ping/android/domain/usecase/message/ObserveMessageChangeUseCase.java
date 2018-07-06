@@ -14,6 +14,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +92,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         } else if (childData.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
-                        return getUser(childData.getData().senderId)
+                        return userManager.getUser(childData.getData().senderId)
                                 .map(user -> {
                                     childData.getData().sender = user;
                                     return childData;
@@ -117,14 +118,6 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                 //}
             }
         }
-    }
-
-    private Observable<User> getUser(String userId) {
-        User user = userManager.getCacheUser(userId);
-        if (user != null) {
-            return Observable.just(user);
-        }
-        return userRepository.getUser(userId);
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

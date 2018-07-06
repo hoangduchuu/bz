@@ -62,7 +62,7 @@ public class Constant {
     public static final String QB_PING_ROOM = "mnb";
     public static final String QB_ACC_PASS = "QB_ACC_PASS";
 
-    public static final int LATEST_RECENT_MESSAGES = 50;
+    public static final int LATEST_RECENT_MESSAGES = 20;
     public static final int LOAD_MORE_MESSAGE_AMOUNT = 20;
 
     public static final double MILLISECOND_PER_DAY = 1000 * 60 * 60 * 24;

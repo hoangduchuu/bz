@@ -19,6 +19,7 @@ public class BadgeHelper {
     private static final String BADGE_COUNT_MISSED_CALL = "BADGE_COUNT_MISSED_CALL";
     private final SharedPreferences prefs;
     private Context context;
+    private static Gson gson;
 
     public BadgeHelper(Context context) {
         this.context = context;
@@ -78,7 +79,7 @@ public class BadgeHelper {
         String json = prefs.getString(BADGE_COUNT_CONVERSATION, "");
         Map<String, Integer> ret = new HashMap<>();
         if (!TextUtils.isEmpty(json)) {
-            Gson gson = new Gson();
+            gson = getGson();
             Type type = new TypeToken<Map<String, Integer>>(){}.getType();
             ret = gson.fromJson(json, type);
         }
@@ -87,8 +88,15 @@ public class BadgeHelper {
 
     private void setBadgeCounts(Map<String, Integer> data) {
         SharedPreferences.Editor editor = prefs.edit();
-        Gson gson = new Gson();
+        Gson gson = getGson();
         editor.putString(BADGE_COUNT_CONVERSATION, gson.toJson(data));
         editor.apply();
+    }
+
+    private Gson getGson() {
+        if (gson == null) {
+            gson = new Gson();
+        }
+        return gson;
     }
 }
