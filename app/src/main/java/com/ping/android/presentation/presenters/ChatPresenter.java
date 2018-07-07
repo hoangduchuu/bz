@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
+import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -28,6 +29,8 @@ public interface ChatPresenter extends BasePresenter {
     void sendTextMessage(String message, boolean markStatus);
 
     void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus);
+
+    void sendImagesMessage(List<PhotoItem> items, boolean markStatus);
 
     void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus);
 

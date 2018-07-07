@@ -108,6 +108,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ViewGroup bottomLayoutChat;
     private ViewGroup bottomMenuEditMode;
     private VoiceRecordView layoutVoice;
+    private View mediaPickerContainer;
     private MediaPickerView layoutMediaPicker;
     private LinearLayout copyContainer;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -462,9 +463,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         if (requestCode == REQUEST_CODE_MEDIA_PICKER && resultCode == RESULT_OK) {
             List<PhotoItem> items = data.getParcelableArrayListExtra("data");
-            for (PhotoItem item : items) {
-                presenter.sendImageMessage(item.getImagePath(), item.getThumbnailPath(), tgMarkOut.isSelected());
-            }
+            presenter.sendImagesMessage(items, tgMarkOut.isSelected());
         }
     }
 
@@ -559,14 +558,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void hideMediaPickerView() {
-        if (layoutMediaPicker != null && layoutMediaPicker.getVisibility() == View.VISIBLE) {
-            layoutMediaPicker.setVisibility(View.GONE);
+        if (mediaPickerContainer != null && mediaPickerContainer.getVisibility() == View.VISIBLE) {
+            mediaPickerContainer.setVisibility(View.GONE);
         }
     }
 
     private void setupMediaPickerView() {
         if (layoutMediaPicker == null) {
             findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
+            mediaPickerContainer = findViewById(R.id.chat_layout_media);
             layoutMediaPicker = findViewById(R.id.list_photos);
             layoutMediaPicker.initProvider(this);
             layoutMediaPicker.setListener(photoItem -> {
@@ -966,7 +966,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                         KeyboardHelpers.hideSoftInputKeyboard(this);
                         hideVoiceRecordView();
                         setupMediaPickerView();
-                        layoutMediaPicker.setVisibility(View.VISIBLE);
+                        mediaPickerContainer.setVisibility(View.VISIBLE);
                         layoutMediaPicker.refreshData();
                     }
                 });

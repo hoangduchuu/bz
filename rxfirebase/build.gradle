@@ -42,4 +42,5 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
     implementation "com.google.firebase:firebase-database:${libraries.firebase_database}"
     implementation "com.google.firebase:firebase-storage:${libraries.firebase_storage}"
+    implementation "com.android.support:exifinterface:$supportLibVersion"
 }

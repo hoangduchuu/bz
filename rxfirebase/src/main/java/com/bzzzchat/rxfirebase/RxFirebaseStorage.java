@@ -24,4 +24,8 @@ public class RxFirebaseStorage {
     public Single<UploadTask.TaskSnapshot> putFile(Uri uri) {
         return Single.create(new UploadTaskSingleOnSubscribe(storageReference, uri));
     }
+
+    public Single<UploadTask.TaskSnapshot> putByteArrays(byte[] data) {
+        return Single.create(new UploadTaskSingleOnSubscribe(storageReference, data));
+    }
 }

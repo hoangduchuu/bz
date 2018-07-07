@@ -11,5 +11,7 @@ public interface StorageRepository {
 
     Observable<String> uploadFile(String key, String filePath);
 
+    Observable<String> uploadFile(String key, String fileName, byte[] bytes);
+
     Observable<String> uploadUserProfileImage(String userId, String filePath);
 }

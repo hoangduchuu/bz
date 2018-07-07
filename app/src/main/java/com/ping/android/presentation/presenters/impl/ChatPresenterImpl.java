@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -27,6 +28,7 @@ import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
+import com.ping.android.domain.usecase.message.SendImagesMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
@@ -85,6 +87,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendImageMessageUseCase sendImageMessageUseCase;
+    @Inject
+    SendImagesMessageUseCase sendImagesMessageUseCase;
     @Inject
     SendGameMessageUseCase sendGameMessageUseCase;
     @Inject
@@ -356,6 +360,18 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
             }
         }, params);
+    }
+
+    @Override
+    public void sendImagesMessage(List<PhotoItem> items, boolean markStatus) {
+        if (!beAbleToSendMessage()) return;
+        SendImagesMessageUseCase.Params params = new SendImagesMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.markStatus = markStatus;
+        params.messageType = MessageType.IMAGE;
+        params.items = items;
+        sendImagesMessageUseCase.execute(new DefaultObserver<>(), params);
     }
 
     @Override
