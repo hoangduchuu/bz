@@ -2,36 +2,45 @@ package com.ping.android.presentation.view.custom.media
 
 import android.app.Activity
 import android.content.Context
+import android.support.constraint.ConstraintLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
+import android.widget.ImageView
+import com.bzzzchat.extensions.inflate
 import com.bzzzchat.videorecorder.view.ImagesProvider
 import com.bzzzchat.videorecorder.view.PhotoItem
+import com.ping.android.R
 import com.ping.android.presentation.view.adapter.MediaAdapter
 import com.ping.android.presentation.view.adapter.MediaClickListener
 
+interface MediaPickerListener {
+    fun openGridMediaPicker()
+    fun sendImage(item: PhotoItem)
+}
+
 class MediaPickerView @JvmOverloads constructor(
         context: Context,
-        attributeSet: AttributeSet?,
-        defStyleAttr: Int = 0) : RecyclerView(context, attributeSet, defStyleAttr), MediaClickListener {
+        attributeSet: AttributeSet? = null,
+        defStyleAttr: Int = 0) : ConstraintLayout(context, attributeSet, defStyleAttr), MediaClickListener {
 
-    private lateinit var myAdapter: MediaAdapter
+    private var myAdapter = MediaAdapter(ArrayList(), this)
     private lateinit var imagesProvider: ImagesProvider
-
-    var listener: ((PhotoItem) -> Unit)? = null
+    var listener: MediaPickerListener? = null
 
     init {
-        layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-    }
-
-    private fun initData() {
-        myAdapter = MediaAdapter(ArrayList(), this)
-        adapter = myAdapter
+        inflate(R.layout.view_media_picker, true)
+        val recyclerView: RecyclerView = findViewById(R.id.list_photos)
+        recyclerView.adapter = myAdapter
+        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        val button: ImageView = findViewById(R.id.btn_grid)
+        button.setOnClickListener {
+            listener?.openGridMediaPicker()
+        }
     }
 
     fun initProvider(activity: Activity) {
         imagesProvider = ImagesProvider(activity)
-        initData()
         getData()
     }
 
@@ -42,7 +51,7 @@ class MediaPickerView @JvmOverloads constructor(
     }
 
     override fun onSendPress(photoItem: PhotoItem) {
-        listener?.invoke(photoItem)
+        listener?.sendImage(photoItem)
     }
 
     fun refreshData() {

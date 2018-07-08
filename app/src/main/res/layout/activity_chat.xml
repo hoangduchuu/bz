@@ -115,13 +115,7 @@
             android:inflatedId="@+id/chat_layout_voice"
             android:layout="@layout/view_chat_bottom_voice_record"/>
 
-        <!--<include layout="@layout/view_chat_bottom_media_picker" />-->
-        <ViewStub
-            android:id="@+id/stub_import_media"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inflatedId="@+id/chat_layout_media"
-            android:layout="@layout/view_chat_bottom_media_picker" />
+        <!--<include layout="@layout/view_media_picker" />-->
     </LinearLayout>
 
     <include layout="@layout/notify_network_main" />

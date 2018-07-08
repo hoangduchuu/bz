@@ -2,21 +2,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="match_parent"
     android:id="@+id/chat_layout_media">
 
-    <com.ping.android.presentation.view.custom.media.MediaPickerView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/list_photos"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
         tools:listitem="@layout/item_media" />
 
     <ImageView
         android:id="@+id/btn_grid"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_marginBottom="20dp"
         android:layout_marginStart="20dp"
+        android:background="@drawable/background_circle_gray"
+        android:padding="14dp"
         android:src="@drawable/ic_grid"
         android:tint="@color/gray_bg"
         app:layout_constraintBottom_toBottomOf="parent"

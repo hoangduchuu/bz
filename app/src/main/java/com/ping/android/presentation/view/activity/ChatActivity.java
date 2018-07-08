@@ -59,7 +59,8 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.VoiceRecordView;
-import com.ping.android.presentation.view.custom.media.MediaPickerView;
+import com.ping.android.presentation.view.custom.media.MediaPickerListener;
+import com.ping.android.presentation.view.custom.media.MediaPickerPopup;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
@@ -73,6 +74,8 @@ import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.Constant;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -108,8 +111,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private ViewGroup bottomLayoutChat;
     private ViewGroup bottomMenuEditMode;
     private VoiceRecordView layoutVoice;
-    private View mediaPickerContainer;
-    private MediaPickerView layoutMediaPicker;
     private LinearLayout copyContainer;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ImageButton tgMarkOut;
@@ -142,6 +143,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     private boolean isScrollToTop = false;
     private EmojiPopup emojiPopup;
+    private MediaPickerPopup mediaPickerPopup;
 
     private MessageBaseItem selectedMessage;
     private BadgeHelper badgeHelper;
@@ -359,6 +361,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (emojiPopup != null && emojiPopup.isShowing() && selectedViewId != R.id.chat_emoji_btn) {
             emojiPopup.dismiss();
         }
+        hideMediaPickerView();
         for (int viewId : actionButtons) {
             ImageButton imageButton = findViewById(viewId);
             imageButton.setSelected(viewId == selectedViewId);
@@ -558,22 +561,25 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void hideMediaPickerView() {
-        if (mediaPickerContainer != null && mediaPickerContainer.getVisibility() == View.VISIBLE) {
-            mediaPickerContainer.setVisibility(View.GONE);
+        if (mediaPickerPopup != null && mediaPickerPopup.isShowing()) {
+            mediaPickerPopup.toggle();
         }
     }
 
     private void setupMediaPickerView() {
-        if (layoutMediaPicker == null) {
-            findViewById(R.id.stub_import_media).setVisibility(View.VISIBLE);
-            mediaPickerContainer = findViewById(R.id.chat_layout_media);
-            layoutMediaPicker = findViewById(R.id.list_photos);
-            layoutMediaPicker.initProvider(this);
-            layoutMediaPicker.setListener(photoItem -> {
-                presenter.sendImageMessage(photoItem.getImagePath(), photoItem.getThumbnailPath(), tgMarkOut.isSelected());
-                return null;
+        if (mediaPickerPopup == null) {
+            mediaPickerPopup = new MediaPickerPopup(this, findViewById(R.id.contentRoot), edMessage);
+            mediaPickerPopup.setListener(new MediaPickerListener() {
+                @Override
+                public void openGridMediaPicker() {
+                    handleGridMediaPickerPress();
+                }
+
+                @Override
+                public void sendImage(@NotNull PhotoItem item) {
+                    presenter.sendImageMessage(item.getImagePath(), item.getThumbnailPath(), tgMarkOut.isSelected());
+                }
             });
-            findViewById(R.id.btn_grid).setOnClickListener(this);
         }
     }
 
@@ -963,11 +969,12 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         Disposable disposable = permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe(isGranted -> {
                     if (isGranted) {
-                        KeyboardHelpers.hideSoftInputKeyboard(this);
+                        //KeyboardHelpers.hideSoftInputKeyboard(this);
                         hideVoiceRecordView();
                         setupMediaPickerView();
-                        mediaPickerContainer.setVisibility(View.VISIBLE);
-                        layoutMediaPicker.refreshData();
+                        if (!mediaPickerPopup.isShowing()) {
+                            mediaPickerPopup.toggle();
+                        }
                     }
                 });
     }
