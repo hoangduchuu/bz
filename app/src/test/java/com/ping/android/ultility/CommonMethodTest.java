@@ -60,4 +60,13 @@ public class CommonMethodTest extends TestCase {
         Assert.assertTrue(CommonMethod.checkVersionValid(currentVersion, expectVersion));
         Assert.assertFalse(CommonMethod.checkVersionValid("2.3.3", "3.0.0"));
     }
+
+    public void testValidPhoneNumber() {
+        Assert.assertTrue(CommonMethod.isValidPhone("1234567"));
+        Assert.assertTrue(CommonMethod.isValidPhone("123456789"));
+        Assert.assertTrue(CommonMethod.isValidPhone("1234567890123"));
+        Assert.assertFalse(CommonMethod.isValidPhone("1234567w89"));
+        Assert.assertFalse(CommonMethod.isValidPhone("123456"));
+        Assert.assertFalse(CommonMethod.isValidPhone("12345678901234"));
+    }
 }

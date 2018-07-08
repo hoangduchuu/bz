@@ -33,7 +33,7 @@ public class CommonMethod {
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private static final String PING_ID_PATTERN = "^[a-zA-Z0-9]*$";
     private static final String NAME_PATTERN = "^[^±!@£$%^&*_+§¡€#¢¶•ªº«\\\\/<>?:;|=.,0-9]{1,20}$";
-    private static final String PHONE_PATTERN = "^\\s*(?:\\+?(\\d{1,3}))?[-. (]*(\\d{3})[-. )]*(\\d{3})[-. ]*(\\d{4})(?: *x(\\d+))?\\s*$";
+    private static final String PHONE_PATTERN = "^(\\+?\\d{1,4}[\\s-])?(?!0+\\s+,?$)\\d{7,13}\\s*,?$";
     private static final String emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])";
 
     public static boolean checkVersionValid(String currentVersion, String expectVersion) {
