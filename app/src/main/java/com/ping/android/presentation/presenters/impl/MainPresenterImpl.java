@@ -64,9 +64,9 @@ public class MainPresenterImpl implements MainPresenter {
     private void handleUserUpdate(User user) {
         this.currentUser = user;
         if (!isInit) {
-            //if (TextUtils.isEmpty(currentUser.phone)) {
+            if (TextUtils.isEmpty(currentUser.phone)) {
                 view.openPhoneRequireView();
-            //}
+            }
             if (!currentUser.showMappingConfirm) {
                 view.showMappingConfirm();
             }

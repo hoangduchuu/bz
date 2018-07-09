@@ -10,6 +10,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
@@ -44,6 +45,8 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     ConversationRepository conversationRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
+    @Inject
+    MessageRepository messageRepository;
     // builder;
 
     @Inject
@@ -78,39 +81,31 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                             message1.currentUserId = params.currentUser.key;
                             return message1;
                         }))
-                .concatWith(sendMessage(params, builder));
+                .flatMap(message -> sendMessage(params.conversation.key, message.key, params.filePath)
+                        .map(aBoolean -> message));
     }
 
-    private Observable<Message> sendMessage(Params params, SendMessageUseCase.Params.Builder builder) {
-        return this.uploadImage(params.conversation.key, params.filePath)
-                .map(s -> {
-                    // FIXME: Use same image for thumbnail
-                    builder.setFileUrl(s);
-                    builder.setThumbUrl(s);
-                    return builder.build();
-                })
-//                .zipWith(uploadImage(params.conversation.key, params.thumbFilePath), (s, s2) -> {
-//                    builder.setFileUrl(s);
-//                    builder.setThumbUrl(s2);
-//                    return builder.build();
-//                })
-                .flatMap(params1 -> {
-                    Message message = params1.getMessage();
-                    Map<String, Object> updateValue = new HashMap<>();
-                    updateValue.put(String.format("messages/%s/%s/photoUrl", params1.getConversation().key, message.key), message.photoUrl);
-                    updateValue.put(String.format("messages/%s/%s/thumbUrl", params1.getConversation().key, message.key), message.thumbUrl);
-                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
-                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
-                });
+    private Observable<Boolean> sendMessage(String conversationId, String messageId, String filePath) {
+        return this.uploadThumbnail(conversationId, messageId, filePath)
+                .concatWith(uploadImage(conversationId, messageId, filePath))
+                .map(s -> true);
     }
 
-    private Observable<String> uploadImage(String conversationKey, String filePath) {
+    private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
         String fileName = new File(filePath).getName();
-        return storageRepository.uploadFile(conversationKey, fileName, getImageData(filePath, 512, 512));
+        return storageRepository.uploadFile(conversationKey, fileName, getImageData(filePath, 512, 512))
+                .flatMap(s -> messageRepository.updateImage(conversationKey, messageKey, s));
     }
 
-    public static byte[] getImageData(String imagePath, int reqWidth, int reqHeight) {
+    private Observable<String> uploadThumbnail(String conversationKey, String messageKey, String filePath) {
+        if (TextUtils.isEmpty(filePath)) return Observable.just("");
+        String fileName = "thumb_" + new File(filePath).getName();
+        return storageRepository.uploadFile(conversationKey, fileName, getImageData(filePath, 128, 128))
+                .flatMap(s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s));
+    }
+
+    private static byte[] getImageData(String imagePath, int reqWidth, int reqHeight) {
         // Decode with inJustDecodeBounds = true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -128,7 +123,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
         return byteArray;
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;

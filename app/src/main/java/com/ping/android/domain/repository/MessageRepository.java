@@ -5,6 +5,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.ping.android.model.Message;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -24,4 +25,8 @@ public interface MessageRepository {
     Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
 
     Observable<ChildEvent> observeMediaUpdate(String conversationId);
+
+    Observable<String> updateThumbnailImage(String conversationKey, String messageKey, String filePath);
+
+    Observable<String> updateImage(String conversationKey, String messageKey, String s);
 }

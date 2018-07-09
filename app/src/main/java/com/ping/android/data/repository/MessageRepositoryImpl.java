@@ -94,4 +94,20 @@ public class MessageRepositoryImpl implements MessageRepository {
         return RxFirebaseDatabase.getInstance(reference)
                 .onChildEvent();
     }
+
+    @Override
+    public Observable<String> updateThumbnailImage(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("thumbUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<String> updateImage(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("photoUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
 }

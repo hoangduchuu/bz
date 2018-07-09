@@ -325,6 +325,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     private void handleGridMediaPickerPress() {
         // TODO start grid media picker
         Intent intent = new Intent(this, GridMediaPickerActivity.class);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         startActivityForResult(intent, REQUEST_CODE_MEDIA_PICKER);
     }
 
