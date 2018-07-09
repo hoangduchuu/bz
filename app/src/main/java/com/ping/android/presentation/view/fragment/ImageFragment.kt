@@ -22,12 +22,16 @@ import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.fragment_image.*
 
 class ImageFragment : Fragment() {
-    private lateinit var message: Message
+    private var messageKey: String = ""
+    private lateinit var imageUrl: String
+    private var isMask: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments.let {
-            message = it!!.getParcelable("message")
+        arguments?.let {
+            messageKey = it.getString("messageKey")
+            imageUrl = it.getString("imageUrl")
+            isMask = it.getBoolean("isMask")
         }
     }
 
@@ -40,20 +44,16 @@ class ImageFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        image_detail.transitionName = message.key
+        image_detail.transitionName = messageKey
         bindData()
     }
 
     fun updateData(message: Message) {
-        this.message = message
         bindData()
     }
 
     fun bindData() {
-        val url: String = when (message.messageType) {
-            Constant.MSG_TYPE_IMAGE -> message.photoUrl
-            else -> message.gameUrl
-        }
+        val url: String = this.imageUrl
         if (TextUtils.isEmpty(url) || !url.startsWith("gs://")) {
             return
         }
@@ -74,8 +74,8 @@ class ImageFragment : Fragment() {
                 .override(512)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
-                .transform(BitmapEncode(message.isMask))
-                .signature(ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded")))
+                .transform(BitmapEncode(isMask))
+                .signature(ObjectKey(String.format("%s%s", messageKey, if (isMask) "encoded" else "decoded")))
                 .listener(listener)
                 .into(image_detail)
     }
@@ -84,8 +84,14 @@ class ImageFragment : Fragment() {
         @JvmStatic
         fun newInstance(message: Message) =
                 ImageFragment().apply {
+                    val url: String = when (message.messageType) {
+                        Constant.MSG_TYPE_IMAGE -> message.photoUrl
+                        else -> message.gameUrl
+                    }
                     arguments = Bundle().apply {
-                        putParcelable("message", message)
+                        putString("messageKey", message.key)
+                        putString("imageUrl", url)
+                        putBoolean("isMask", message.isMask)
                     }
                 }
     }
