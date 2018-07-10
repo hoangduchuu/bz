@@ -13,6 +13,7 @@ import com.ping.android.utils.configs.Constant;
 import junit.framework.Assert;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
@@ -36,6 +37,7 @@ public class Message {
     public int gameType;
     public int voiceType = 0;
     public double callDuration; // in seconds
+    public List<String> imageGroup;
 
     // Local variable, don't store on Firebase
     public User sender;
@@ -79,6 +81,7 @@ public class Message {
         message.voiceType = wrapper.getIntValue("voiceType", 0);
         message.callType = wrapper.getIntValue("callType", 0);
         message.callDuration = wrapper.getIntValue("callDuration", 0);
+        message.imageGroup = (List<String>) wrapper.getObject("imageGroup");
         message.messageCallType = MessageCallType.from(message.callType);
         message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         message.status = new HashMap<>();

@@ -72,13 +72,6 @@ public class Constant {
         IS_FRIEND
     }
 
-    public enum MESSAGE_TYPE {
-        TEXT,
-        IMAGE,
-        VOICE,
-        GAME
-    }
-
     public static String URL_TERMS_OF_SERVICE = "http://www.bzzz.chat/terms-of-service/";
     public static String URL_PRIVACY = "http://www.bzzz.chat/privacy/";
     public static String URL_HELP = "http://www.bzzz.chat/help/";

@@ -23,6 +23,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessa
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
@@ -78,12 +79,14 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             case CALL:
-//            case MISSED_CALL:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new CallMessageRightItem(message);
                 } else {
                     baseItem = new CallMessageLeftItem(message);
                 }
+                break;
+            case IMAGE_GROUP:
+                baseItem = new GroupImageRightItem(message);
                 break;
             default:
                 if (message.senderId.equals(currentUserID)) {

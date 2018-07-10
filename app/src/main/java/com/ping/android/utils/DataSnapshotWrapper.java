@@ -66,7 +66,7 @@ public class DataSnapshotWrapper {
         return new HashMap();
     }
 
-    private Object getObject(String name) {
+    public Object getObject(String name) {
         return snapshot.child(name).getValue();
     }
 
