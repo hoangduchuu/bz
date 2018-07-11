@@ -8,15 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.ping.android.App;
-import com.ping.android.CoreApp;
 import com.ping.android.R;
-import com.ping.android.device.ImageStorage;
 import com.ping.android.model.Message;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,12 +36,10 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
         private ImageView imageView;
         private boolean isUpdated;
-        private ImageStorage imageStorage;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.item_chat_image);
-            imageStorage = ((App)itemView.getContext().getApplicationContext()).getComponent().provideImageStorage();
             initGestureListener();
         }
 
@@ -184,7 +178,6 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (isUpdated) {
                 placeholder = imageView.getDrawable();
             }
-//            imageStorage.loadImage(url, imageView, bitmapMark);
             UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder);
         }
     }

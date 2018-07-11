@@ -40,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -311,7 +312,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 if (item.message.sender != null) {
                     String imageName = "imageProfile" + getAdapterPosition();
                     Pair imagePair = Pair.create(senderProfileImage, imageName);
-                    messageListener.handleProfileImagePress(item.message.sender, imagePair);
+                    messageListener.onProfileImagePress(item.message.sender, imagePair);
                 }
             }
         }
@@ -343,7 +344,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public interface MessageListener {
 
-        void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
+        void onProfileImagePress(User user, Pair<View, String>... sharedElements);
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
 
@@ -364,5 +365,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void openVideo(@NotNull String videoUrl);
 
         void onCall(boolean isVideo);
+
+        void onGroupImageItemPress(@NotNull List<Message> data, int position);
     }
 }

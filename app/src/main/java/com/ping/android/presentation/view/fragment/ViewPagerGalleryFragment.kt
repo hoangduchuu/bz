@@ -51,13 +51,13 @@ class ViewPagerGalleryFragment : BaseFragment() {
         postponeEnterTransition()
         //}
         prepareSharedElementTransition()
-        registerEvent(busProvider.events.subscribe({
+        registerEvent(busProvider.events.subscribe {
             if (it is MessageUpdateEvent) {
                 if (viewpager.currentItem == it.index) {
                     adapter.updateMessage(it.message, it.index)
                 }
             }
-        }))
+        })
         return view
     }
 

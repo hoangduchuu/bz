@@ -39,7 +39,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private ChatMessageListener messageListener;
     private List<MessageBaseItem> selectedMessages;
     private TypingItem typingItem;
-    private PaddingItem paddingItem;
 
     private Map<String, String> nickNames = new HashMap<>();
 
@@ -84,7 +83,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void handleProfileImagePress(User user, Pair<View, String>[] sharedElements) {
+    public void onProfileImagePress(User user, Pair<View, String>[] sharedElements) {
         if (messageListener != null) {
             messageListener.handleProfileImagePress(user, sharedElements);
         }
@@ -162,6 +161,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     public void onCall(boolean isVideo) {
         if (messageListener != null) {
             messageListener.onCall(isVideo);
+        }
+    }
+
+    @Override
+    public void onGroupImageItemPress(@NotNull List<Message> data, int position) {
+        if (messageListener != null) {
+            messageListener.onGroupImageItemPress(data, position);
         }
     }
 
@@ -389,5 +395,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void openVideo(String videoUrl);
 
         void onCall(boolean isVideo);
+
+        void onGroupImageItemPress(@NotNull List<Message> data, int position);
     }
 }

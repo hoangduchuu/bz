@@ -452,6 +452,15 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void onGroupImageItemPress(@NotNull List<Message> data, int position) {
+        Intent intent = new Intent(this, GroupImageGalleryActivity.class);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
+        intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, new ArrayList<>(data));
+        intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position);
+        startActivity(intent);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);

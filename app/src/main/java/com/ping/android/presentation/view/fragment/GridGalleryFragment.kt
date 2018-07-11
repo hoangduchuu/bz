@@ -1,19 +1,15 @@
 package com.ping.android.presentation.view.fragment
 
-
 import android.os.Bundle
 import android.support.transition.TransitionInflater
 import android.support.transition.TransitionSet
 import android.support.v4.app.SharedElementCallback
-import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
 import com.bzzzchat.extensions.inflate
-import com.bzzzchat.extensions.px
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GridGalleryComponent
@@ -25,7 +21,6 @@ import com.ping.android.presentation.view.adapter.AdapterConstants
 import com.ping.android.presentation.view.adapter.FlexibleAdapterV2
 import com.ping.android.presentation.view.adapter.delegate.FirebaseMessageDelegateAdapter
 import com.ping.android.presentation.view.custom.GridItemDecoration
-import com.ping.android.utils.Log
 import com.ping.android.utils.Navigator
 import com.ping.android.utils.bus.BusProvider
 import kotlinx.android.synthetic.main.fragment_grid_gallery.*
@@ -58,14 +53,14 @@ class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.Fireb
         prepareTransitions()
         postponeEnterTransition()
 
-        registerEvent(busProvider.events.subscribe({
+        registerEvent(busProvider.events.subscribe {
             if (it is MediaItemsEvent) {
                 val data = it.messages.map {
                     ImageMessage(it)
                 }
                 adapter.addItems(data)
             }
-        }))
+        })
         return view
     }
 

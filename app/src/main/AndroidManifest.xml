@@ -244,7 +244,8 @@
         <activity
             android:name=".presentation.view.activity.GalleryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".presentation.view.activity.GridMediaPickerActivity"></activity>
+        <activity android:name=".presentation.view.activity.GridMediaPickerActivity" />
+        <activity android:name=".presentation.view.activity.GroupImageGalleryActivity"></activity>
     </application>
 
 </manifest>

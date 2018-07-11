@@ -1,5 +1,7 @@
 package com.ping.android.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.firebase.database.DataSnapshot;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class Message {
+public class Message implements Parcelable {
     public String key;
     public String message;
     public String photoUrl;
@@ -65,6 +67,47 @@ public class Message {
 
     public Message() {
     }
+
+    protected Message(Parcel in) {
+        key = in.readString();
+        message = in.readString();
+        photoUrl = in.readString();
+        thumbUrl = in.readString();
+        audioUrl = in.readString();
+        videoUrl = in.readString();
+        gameUrl = in.readString();
+        senderId = in.readString();
+        senderName = in.readString();
+        timestamp = in.readDouble();
+        messageType = in.readInt();
+        callType = in.readInt();
+        gameType = in.readInt();
+        voiceType = in.readInt();
+        callDuration = in.readDouble();
+        imageGroup = in.createStringArrayList();
+        sender = in.readParcelable(User.class.getClassLoader());
+        localFilePath = in.readString();
+        isCached = in.readByte() != 0;
+        currentUserId = in.readString();
+        messageStatus = in.readString();
+        messageStatusCode = in.readInt();
+        days = in.readLong();
+        isMask = in.readByte() != 0;
+        showExtraInfo = in.readByte() != 0;
+        opponentUser = in.readParcelable(User.class.getClassLoader());
+    }
+
+    public static final Creator<Message> CREATOR = new Creator<Message>() {
+        @Override
+        public Message createFromParcel(Parcel in) {
+            return new Message(in);
+        }
+
+        @Override
+        public Message[] newArray(int size) {
+            return new Message[size];
+        }
+    };
 
     public static Message from(DataSnapshot dataSnapshot) {
         Message message = new Message();
@@ -298,5 +341,40 @@ public class Message {
             return readAllowed.get(key);
         }
         return true;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(key);
+        dest.writeString(message);
+        dest.writeString(photoUrl);
+        dest.writeString(thumbUrl);
+        dest.writeString(audioUrl);
+        dest.writeString(videoUrl);
+        dest.writeString(gameUrl);
+        dest.writeString(senderId);
+        dest.writeString(senderName);
+        dest.writeDouble(timestamp);
+        dest.writeInt(messageType);
+        dest.writeInt(callType);
+        dest.writeInt(gameType);
+        dest.writeInt(voiceType);
+        dest.writeDouble(callDuration);
+        dest.writeStringList(imageGroup);
+        dest.writeParcelable(sender, flags);
+        dest.writeString(localFilePath);
+        dest.writeByte((byte) (isCached ? 1 : 0));
+        dest.writeString(currentUserId);
+        dest.writeString(messageStatus);
+        dest.writeInt(messageStatusCode);
+        dest.writeLong(days);
+        dest.writeByte((byte) (isMask ? 1 : 0));
+        dest.writeByte((byte) (showExtraInfo ? 1 : 0));
+        dest.writeParcelable(opponentUser, flags);
     }
 }
