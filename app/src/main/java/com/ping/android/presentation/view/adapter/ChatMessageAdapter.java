@@ -16,9 +16,8 @@ import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.presentation.view.flexibleitem.messages.PaddingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
-import com.ping.android.utils.Log;
+import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -165,9 +164,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void onGroupImageItemPress(@NotNull List<Message> data, int position) {
+    public void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements) {
         if (messageListener != null) {
-            messageListener.onGroupImageItemPress(data, position);
+            messageListener.onGroupImageItemPress(viewHolder, data, position, sharedElements);
         }
     }
 
@@ -396,6 +395,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
         void onCall(boolean isVideo);
 
-        void onGroupImageItemPress(@NotNull List<Message> data, int position);
+        void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
     }
 }

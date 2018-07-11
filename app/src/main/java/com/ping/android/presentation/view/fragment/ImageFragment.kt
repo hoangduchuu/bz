@@ -61,11 +61,13 @@ class ImageFragment : Fragment() {
         val listener = object : RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                 parentFragment?.startPostponedEnterTransition()
+                activity?.startPostponedEnterTransition()
                 return false
             }
 
             override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                 parentFragment?.startPostponedEnterTransition()
+                activity?.startPostponedEnterTransition()
                 return false
             }
         }

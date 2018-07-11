@@ -17,6 +17,7 @@ import android.support.transition.Slide;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -64,6 +65,7 @@ import com.ping.android.presentation.view.custom.media.MediaPickerPopup;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
+import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem;
 import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.KeyboardHelpers;
@@ -71,6 +73,8 @@ import com.ping.android.utils.Log;
 import com.ping.android.utils.PermissionsChecker;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.Toaster;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.GroupImagePositionEvent;
 import com.ping.android.utils.configs.Constant;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
@@ -152,10 +156,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     ChatPresenter presenter;
     @Inject
     UserManager userManager;
+    @Inject
+    BusProvider busProvider;
     ChatComponent component;
     private boolean isVisible = false;
     private List<Integer> actionButtons;
     private boolean isEditMode = false;
+    private GroupImagePositionEvent groupImagePositionEvent;
+    private GroupImageMessageBaseItem.ViewHolder groupImageViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -452,12 +460,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
-    public void onGroupImageItemPress(@NotNull List<Message> data, int position) {
+    public void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>[] sharedElements) {
+        this.groupImageViewHolder = viewHolder;
         Intent intent = new Intent(this, GroupImageGalleryActivity.class);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, new ArrayList<>(data));
         intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position);
-        startActivity(intent);
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this, sharedElements
+        );
+        startActivity(intent, options.toBundle());
     }
 
     @Override
@@ -476,7 +488,14 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         }
         if (requestCode == REQUEST_CODE_MEDIA_PICKER && resultCode == RESULT_OK) {
             List<PhotoItem> items = data.getParcelableArrayListExtra("data");
-            presenter.sendImagesMessage(items, tgMarkOut.isSelected());
+            int size = items.size();
+            if (size > 0) {
+                if (size == 1) {
+                    presenter.sendImageMessage(items.get(0).getImagePath(), items.get(0).getThumbnailPath(), tgMarkOut.isSelected());
+                } else {
+                    presenter.sendImagesMessage(items, tgMarkOut.isSelected());
+                }
+            }
         }
     }
 
@@ -677,6 +696,30 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
                     handleShakePhone();
                 }));
 
+        registerEvent(busProvider.getEvents()
+                .subscribe(o -> {
+                    if (o instanceof GroupImagePositionEvent) {
+                        this.groupImagePositionEvent = (GroupImagePositionEvent) o;
+                    }
+                }));
+
+        setExitSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                super.onMapSharedElements(names, sharedElements);
+                if (groupImagePositionEvent != null) {
+                    int position = groupImagePositionEvent.getPosition();
+                    groupImagePositionEvent = null;
+                    if (groupImageViewHolder != null && groupImageViewHolder.itemView != null) {
+                        View sharedView = groupImageViewHolder.getShareElementForPosition(position);
+                        String name = names.size() > 0 ? names.get(0) : null;
+                        if (name != null && sharedView != null) {
+                            sharedElements.put(name, sharedView);
+                        }
+                    }
+                }
+            }
+        });
         // Delay conversation initialize to make smooth UI transition
         new Handler().postDelayed(() -> {
             presenter.create();

@@ -23,7 +23,8 @@ import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessa
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
-import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
@@ -87,7 +88,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             case IMAGE_GROUP:
-                baseItem = new GroupImageRightItem(message);
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new GroupImageMessageRightItem(message);
+                } else {
+                    baseItem = new GroupImageMessageMessageLeftItem(message);
+                }
                 break;
             default:
                 if (message.senderId.equals(currentUserID)) {
@@ -366,6 +371,6 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         void onCall(boolean isVideo);
 
-        void onGroupImageItemPress(@NotNull List<Message> data, int position);
+        void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
     }
 }

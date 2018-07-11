@@ -23,7 +23,7 @@
 
         <TextView
             style="@style/TextTitle"
-            android:text="GROUP IMAGE" />
+            android:text="IMAGES" />
     </RelativeLayout>
 
     <android.support.v4.view.ViewPager

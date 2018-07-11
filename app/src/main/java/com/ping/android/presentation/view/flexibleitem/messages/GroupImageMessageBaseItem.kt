@@ -1,6 +1,7 @@
-package com.ping.android.presentation.view.flexibleitem.messages.groupimage
+package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.graphics.Bitmap
+import android.support.v4.util.Pair
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -15,11 +16,10 @@ import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.presentation.view.custom.GridItemDecoration
-import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.Log
 
-class GroupImageAdapter(var data: List<Message>, var listener: MessageBaseItem.MessageListener?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
+class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View, String>) -> Unit)?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
 
     override fun getItemCount(): Int = data.size
@@ -27,7 +27,10 @@ class GroupImageAdapter(var data: List<Message>, var listener: MessageBaseItem.M
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindData(data[position])
         holder.itemView.setOnClickListener {
-            listener?.onGroupImageItemPress(data, position)
+            val map = HashMap<String, View>()
+            map[data[position].key] = holder.imageView
+            val pair: Pair<View, String> = Pair.create(holder.imageView, data[position].key)
+            listener?.let { it1 -> it1(position, pair) }
         }
     }
 
@@ -39,15 +42,14 @@ class GroupImageAdapter(var data: List<Message>, var listener: MessageBaseItem.M
     class ViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_image_group)
     ) {
-        private val imageView: ImageView = itemView as ImageView
+        val imageView: ImageView = itemView as ImageView
 
         init {
             imageView.clipToOutline = true
         }
 
         fun bindData(message: Message) {
-            val url = if (!message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
-            Log.e(url)
+            val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val target = object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
@@ -66,10 +68,8 @@ class GroupImageAdapter(var data: List<Message>, var listener: MessageBaseItem.M
     }
 }
 
-class GroupImageRightItem(message: Message): MessageBaseItem<GroupImageRightItem.ViewHolder>(message) {
-    override val layoutId: Int = R.layout.item_chat_right_img_group
-
-    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = GroupImageRightItem.ViewHolder(parent.inflate(layoutId))
+abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<GroupImageMessageBaseItem.ViewHolder>(message) {
+    override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
     override fun onBindViewHolder(holder: ViewHolder, lastItem: Boolean) {
         super.onBindViewHolder(holder, lastItem)
@@ -77,7 +77,9 @@ class GroupImageRightItem(message: Message): MessageBaseItem<GroupImageRightItem
 
     class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView) {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
-        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(), messageListener)
+        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList()) { selectedPosition, pair ->
+            messageListener?.onGroupImageItemPress(this, item.message.childMessages, selectedPosition, pair)
+        }
         private val gridLayoutManager = GridLayoutManager(itemView.context, 3)
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
 
@@ -89,11 +91,6 @@ class GroupImageRightItem(message: Message): MessageBaseItem<GroupImageRightItem
         }
 
         override fun getClickableView(): View? = null
-
-        override fun setMessageListener(messageListener: MessageListener?) {
-            super.setMessageListener(messageListener)
-            groupImageAdapter.listener = messageListener
-        }
 
         override fun getSlideView(): View = groupImage
 
@@ -112,6 +109,14 @@ class GroupImageRightItem(message: Message): MessageBaseItem<GroupImageRightItem
                     groupImageAdapter.updateData(it.message.childMessages)
                 }
             }
+        }
+
+        fun getShareElementForPosition(position: Int): View? {
+            val selectedViewHolder = groupImage.findViewHolderForAdapterPosition(position)
+            if (selectedViewHolder?.itemView == null) {
+                return null
+            }
+            return selectedViewHolder.itemView
         }
     }
 }
