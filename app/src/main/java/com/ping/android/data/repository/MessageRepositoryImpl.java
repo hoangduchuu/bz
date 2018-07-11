@@ -120,7 +120,10 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .child("childMessages");
         String key = reference.push().getKey();
         return RxFirebaseDatabase.setValue(reference.child(key), data.toMap())
-                .map(databaseReference -> data)
+                .map(databaseReference -> {
+                    data.key = databaseReference.getKey();
+                    return data;
+                })
                 .toObservable();
     }
 }

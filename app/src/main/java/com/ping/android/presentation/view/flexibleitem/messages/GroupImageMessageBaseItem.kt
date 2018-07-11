@@ -17,7 +17,8 @@ import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.BitmapEncode
-import com.ping.android.utils.Log
+import com.ping.android.utils.CommonMethod
+import com.ping.android.utils.UiUtils
 
 class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View, String>) -> Unit)?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
@@ -49,6 +50,11 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
         }
 
         fun bindData(message: Message) {
+            val maskStatus = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId)
+            if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
+                UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, maskStatus)
+                return
+            }
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val target = object : SimpleTarget<Bitmap>() {
@@ -71,10 +77,6 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
 abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<GroupImageMessageBaseItem.ViewHolder>(message) {
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
-    override fun onBindViewHolder(holder: ViewHolder, lastItem: Boolean) {
-        super.onBindViewHolder(holder, lastItem)
-    }
-
     class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView) {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
         private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList()) { selectedPosition, pair ->
@@ -85,6 +87,7 @@ abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<Grou
 
         init {
             groupImage.clipToOutline = true
+            groupImage.isNestedScrollingEnabled = false
             groupImage.layoutManager = gridLayoutManager
             groupImage.addItemDecoration(gridItemDecoration)
             groupImage.adapter = groupImageAdapter

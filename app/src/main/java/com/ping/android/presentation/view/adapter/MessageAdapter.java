@@ -391,6 +391,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                                 model.conversationName);
                     }
                     break;
+                case IMAGE_GROUP:
+                    message = "[Images]";
+                    break;
             }
 
             this.tvMessage.setText(message);

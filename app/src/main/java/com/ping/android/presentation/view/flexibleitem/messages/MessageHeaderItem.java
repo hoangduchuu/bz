@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -54,8 +55,17 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
 
     public boolean addChildItem(MessageBaseItem item) {
         boolean isAdded = true;
-        if (childItemTreeMap.get(item.message.timestamp) != null) {
+        MessageBaseItem currentMessage = childItemTreeMap.get(item.message.timestamp);
+        if (currentMessage != null) {
             isAdded = false;
+        }
+        // Keep local image
+        Message message = item.message;
+        if (message.type == MessageType.IMAGE_GROUP) {
+            if (!isAdded && currentMessage.message.isCached) {
+                message.childMessages = currentMessage.message.childMessages;
+                message.isCached = true;
+            }
         }
         childItemTreeMap.put(item.message.timestamp, item);
         childItems = new ArrayList<>(childItemTreeMap.values());

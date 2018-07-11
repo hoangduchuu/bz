@@ -1,10 +1,7 @@
 package com.ping.android.domain.usecase.message;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 
-import com.bumptech.glide.util.Util;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -22,10 +19,10 @@ import com.ping.android.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -73,6 +70,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                 .flatMap(message -> sendChildMessages(params, message.key)
                         .map(messages -> {
                             message.childMessages = messages;
+                            message.isCached = true;
                             return message;
                         }));
     }
@@ -86,10 +84,15 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                             .setConversation(params.conversation)
                             .setMarkStatus(params.markStatus)
                             .setCurrentUser(params.currentUser)
+                            .setFileUrl(photoItem.getImagePath())
                             .setCacheImage(photoItem.getImagePath())
                             .setMessageType(MessageType.IMAGE);
-                    return builder.build().getMessage();
+                    Message message = builder.build().getMessage();
+                    message.isCached = true;
+                    message.key = UUID.randomUUID().toString();
+                    return message;
                 })
+                .take(params.items.size())
                 .toList()
                 .toObservable()
                 .concatWith(Observable.fromArray(params.items.toArray(photoArray))
@@ -102,13 +105,15 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                                             .setCurrentUser(params.currentUser)
                                             .setFileUrl(s2)
                                             .setThumbUrl(s)
+                                            .setCacheImage(photoItem.getImagePath())
                                             .setMessageType(MessageType.IMAGE);
                                     return builder.build().getMessage();
                                 })
                                 .flatMap(message -> messageRepository.addChildMessage(params.conversation.key, messageKey, message))
                         )
                         .take(params.items.size())
-                        .toList());
+                        .toList()
+                );
 
     }
 

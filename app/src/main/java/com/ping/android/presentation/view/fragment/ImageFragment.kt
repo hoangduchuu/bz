@@ -19,7 +19,10 @@ import com.ping.android.model.Message
 import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.BitmapEncode
 import com.bzzzchat.configuration.GlideApp
+import com.bzzzchat.configuration.GlideRequest
+import com.bzzzchat.configuration.GlideRequests
 import kotlinx.android.synthetic.main.fragment_image.*
+import java.io.File
 
 class ImageFragment : Fragment() {
     private var messageKey: String = ""
@@ -54,10 +57,9 @@ class ImageFragment : Fragment() {
 
     fun bindData() {
         val url: String = this.imageUrl
-        if (TextUtils.isEmpty(url) || !url.startsWith("gs://")) {
+        if (TextUtils.isEmpty(url)) {
             return
         }
-        val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
         val listener = object : RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                 parentFragment?.startPostponedEnterTransition()
@@ -71,9 +73,17 @@ class ImageFragment : Fragment() {
                 return false
             }
         }
-        GlideApp.with(this)
-                .load(gsReference)
-                .override(512)
+        val request: GlideRequest<Drawable>
+        request = if (!url.startsWith("gs://")) {
+            GlideApp.with(this)
+                    .load(File(url))
+        } else {
+            val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
+            GlideApp.with(this)
+                    .load(gsReference)
+        }
+
+        request.override(512)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.DATA)
                 .transform(BitmapEncode(isMask))
