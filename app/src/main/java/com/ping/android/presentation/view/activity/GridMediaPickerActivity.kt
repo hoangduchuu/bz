@@ -12,6 +12,7 @@ import com.ping.android.R
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.view.activity.ChatActivity.EXTRA_CONVERSATION_COLOR
 import com.ping.android.presentation.view.adapter.MediaMultiSelectAdapter
+import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.ThemeUtils
 import kotlinx.android.synthetic.main.activity_grid_media_picker.*
 
@@ -22,6 +23,7 @@ class GridMediaPickerActivity : AppCompatActivity() {
 
     private val listMedia by lazy {
         list_media.layoutManager = GridLayoutManager(this, 3)
+        list_media.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
         list_media
     }
 

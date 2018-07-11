@@ -226,6 +226,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     case CALL:
                         message = buildCallMessage(currentUser, messageType, callType);
                         break;
+                    case IMAGE_GROUP:
+                        message = buildGroupImageMessage(currentUser);
+                        break;
                 }
                 message.key = messageKey;
                 message.localFilePath = cacheImage;
@@ -234,6 +237,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 params.newConversation = conversationFrom(message);
                 params.filePath = fileUrl;
                 return params;
+            }
+
+            private Message buildGroupImageMessage(User currentUser) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return Message.createGroupImageMessage(currentUser.key, currentUser.getDisplayName(), messageType,
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
             private Message buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {

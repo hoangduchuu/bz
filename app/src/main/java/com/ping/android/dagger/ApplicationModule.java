@@ -7,8 +7,10 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.ping.android.device.Device;
+import com.ping.android.device.ImageStorage;
 import com.ping.android.device.Notification;
 import com.ping.android.device.impl.DeviceImpl;
+import com.ping.android.device.impl.ImageStorageImpl;
 import com.ping.android.device.impl.NotificationImpl;
 import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallServiceHandler;
@@ -65,5 +67,11 @@ public class ApplicationModule {
     @Singleton
     public CallServiceHandler provideCallServiceHandler(CallServiceHandlerImpl handler) {
         return handler;
+    }
+
+    @Provides
+    @Singleton
+    public ImageStorage provideImageStorgate() {
+        return new ImageStorageImpl(application);
     }
 }

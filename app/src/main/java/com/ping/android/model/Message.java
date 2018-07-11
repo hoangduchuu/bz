@@ -3,6 +3,7 @@ package com.ping.android.model;
 import android.text.TextUtils;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.model.enums.MessageCallType;
@@ -12,6 +13,7 @@ import com.ping.android.utils.configs.Constant;
 
 import junit.framework.Assert;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ public class Message {
     public int gameType;
     public int voiceType = 0;
     public double callDuration; // in seconds
+    public List<Message> childMessages;
     public List<String> imageGroup;
 
     // Local variable, don't store on Firebase
@@ -100,6 +103,16 @@ public class Message {
         message.markStatuses = (HashMap<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
         message.deleteStatuses = (HashMap<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
         message.readAllowed = (HashMap<String, Boolean>) dataSnapshot.child("readAllowed").getValue();
+        if (message.type == MessageType.IMAGE_GROUP) {
+            DataSnapshot childMessageSnapshot = dataSnapshot.child("childMessages");
+            List<Message> childMessages = new ArrayList<>();
+            if (childMessageSnapshot.exists()) {
+                for (DataSnapshot snapshot: childMessageSnapshot.getChildren()) {
+                    childMessages.add(Message.from(snapshot));
+                }
+            }
+            message.childMessages = childMessages;
+        }
 
         Assert.assertNotNull(message);
         message.key = dataSnapshot.getKey();
@@ -222,6 +235,23 @@ public class Message {
         message.readAllowed = readAllowed;
         message.callType = callType;
         message.callDuration = callDuration;
+        return message;
+    }
+
+    public static Message createGroupImageMessage(String senderId, String senderName, MessageType messageType,
+                                                  double timestamp, Map<String, Integer> status,
+                                                  Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
+                                                  Map<String, Boolean> readAllowed) {
+        Message message = new Message();
+        message.messageType = messageType.ordinal();
+        message.type = messageType;
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.readAllowed = readAllowed;
         return message;
     }
 

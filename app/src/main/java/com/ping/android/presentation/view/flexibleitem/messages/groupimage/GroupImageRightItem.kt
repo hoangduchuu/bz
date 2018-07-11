@@ -18,9 +18,12 @@ import com.ping.android.model.Message
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.utils.BitmapEncode
+import com.ping.android.utils.CommonMethod
+import com.ping.android.utils.Log
+import com.ping.android.utils.UiUtils
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
-class GroupImageAdapter(var data: List<String>): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
+class GroupImageAdapter(var data: List<Message>): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
 
     override fun getItemCount(): Int = data.size
@@ -29,7 +32,7 @@ class GroupImageAdapter(var data: List<String>): RecyclerView.Adapter<GroupImage
         holder.bindData(data[position])
     }
 
-    fun updateData(imageGroup: List<String>) {
+    fun updateData(imageGroup: List<Message>) {
         this.data = imageGroup
         notifyDataSetChanged()
     }
@@ -43,22 +46,24 @@ class GroupImageAdapter(var data: List<String>): RecyclerView.Adapter<GroupImage
             imageView.clipToOutline = true
         }
 
-        fun bindData(s: String) {
-            val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(s)
-            val target = object : SimpleTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    imageView.setImageBitmap(resource)
-                }
-
-            }
-            GlideApp.with(itemView.context)
-                    .asBitmap()
-                    .load(gsReference)
-                    .override(100)
-                    .skipMemoryCache(false)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .transform(BitmapEncode(false))
-                    .into(target)
+        fun bindData(message: Message) {
+            val imageName = UiUtils.getFileName(message.photoUrl)
+            Log.e(imageName)
+//            val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(s)
+//            val target = object : SimpleTarget<Bitmap>() {
+//                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+//                    imageView.setImageBitmap(resource)
+//                }
+//
+//            }
+//            GlideApp.with(itemView.context)
+//                    .asBitmap()
+//                    .load(gsReference)
+//                    .override(100)
+//                    .skipMemoryCache(false)
+//                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+//                    .transform(BitmapEncode(false))
+//                    .into(target)
         }
     }
 }
@@ -75,20 +80,34 @@ class GroupImageRightItem(message: Message): MessageBaseItem<GroupImageRightItem
     class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView) {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
         private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList())
+        private val gridLayoutManager = GridLayoutManager(itemView.context, 3)
+        private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
 
         init {
             groupImage.clipToOutline = true
-            groupImage.layoutManager = GridLayoutManager(itemView.context, 3)
+            groupImage.layoutManager = gridLayoutManager
+            groupImage.addItemDecoration(gridItemDecoration)
             groupImage.adapter = groupImageAdapter
-            groupImage.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding_small))
         }
 
         override fun getClickableView(): View? = null
 
+        override fun getSlideView(): View = groupImage
+
+        private fun updateSpanCount(spanCount: Int) {
+            gridLayoutManager.spanCount = spanCount
+            gridItemDecoration.spanCount = spanCount
+        }
+
         override fun bindData(item: MessageBaseItem<*>?, lastItem: Boolean) {
             super.bindData(item, lastItem)
             item?.let {
-                groupImageAdapter.updateData(it.message.imageGroup)
+                if (it.message.childMessages != null) {
+                    val count = if (it.message.childMessages.size >= 3) 3 else it.message.childMessages.size
+                    if (count < 1) return
+                    updateSpanCount(count)
+                    groupImageAdapter.updateData(it.message.childMessages)
+                }
             }
         }
     }

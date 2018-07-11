@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.domain.repository.MessageRepository;
+import com.ping.android.model.Message;
 import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
@@ -108,6 +109,18 @@ public class MessageRepositoryImpl implements MessageRepository {
         DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("photoUrl");
         return RxFirebaseDatabase.setValue(reference, filePath)
                 .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data) {
+        DatabaseReference reference = database.getReference("messages")
+                .child(conversationKey)
+                .child(messageKey)
+                .child("childMessages");
+        String key = reference.push().getKey();
+        return RxFirebaseDatabase.setValue(reference.child(key), data.toMap())
+                .map(databaseReference -> data)
                 .toObservable();
     }
 }

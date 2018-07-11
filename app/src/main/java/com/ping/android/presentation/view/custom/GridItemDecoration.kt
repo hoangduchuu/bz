@@ -10,7 +10,7 @@ import com.bzzzchat.extensions.px
  * Spacing between grid's items
  * The first row will have default spacing
  */
-class GridItemDecoration(val spanCount: Int, @DimenRes val itemOffset: Int) : RecyclerView.ItemDecoration() {
+class GridItemDecoration(var spanCount: Int, @DimenRes val itemOffset: Int, val topSpace: Int = 30) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(outRect: Rect?, view: View?, parent: RecyclerView?, state: RecyclerView.State?) {
         super.getItemOffsets(outRect, view, parent, state)
@@ -19,7 +19,7 @@ class GridItemDecoration(val spanCount: Int, @DimenRes val itemOffset: Int) : Re
         if (position != -1) {
             var top = itemPadding
             if (position < spanCount) {
-                top = 30.px
+                top = topSpace.px
             }
             outRect?.set(itemPadding, top, itemPadding, itemPadding)
         }

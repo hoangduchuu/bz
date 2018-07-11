@@ -29,4 +29,6 @@ public interface MessageRepository {
     Observable<String> updateThumbnailImage(String conversationKey, String messageKey, String filePath);
 
     Observable<String> updateImage(String conversationKey, String messageKey, String s);
+
+    Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data);
 }

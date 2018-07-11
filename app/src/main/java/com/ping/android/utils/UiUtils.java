@@ -391,7 +391,11 @@ public class UiUtils {
         rs.destroy();
 
         return outBitmap;
+    }
 
-
+    public static String getFileName(String filePath) {
+        String[] components = filePath.split("/");
+        if (components.length <= 0) return "";
+        return components[components.length - 1];
     }
 }

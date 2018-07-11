@@ -18,6 +18,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -94,52 +95,15 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
         String fileName = new File(filePath).getName();
-        return storageRepository.uploadFile(conversationKey, fileName, getImageData(filePath, 512, 512))
+        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512))
                 .flatMap(s -> messageRepository.updateImage(conversationKey, messageKey, s));
     }
 
     private Observable<String> uploadThumbnail(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
         String fileName = "thumb_" + new File(filePath).getName();
-        return storageRepository.uploadFile(conversationKey, fileName, getImageData(filePath, 128, 128))
+        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128))
                 .flatMap(s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s));
-    }
-
-    private static byte[] getImageData(String imagePath, int reqWidth, int reqHeight) {
-        // Decode with inJustDecodeBounds = true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(imagePath, options);
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize
-        options.inJustDecodeBounds = false;
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-        byte[] byteArray = stream.toByteArray();
-        bitmap.recycle();
-        return byteArray;
-    }
-
-    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keep boths
-            // height and width larger then the requested height and width
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-        return inSampleSize;
     }
 
     public static class Params {

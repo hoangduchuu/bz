@@ -2,6 +2,7 @@ package com.ping.android.dagger;
 
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
+import com.ping.android.device.ImageStorage;
 import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
@@ -30,4 +31,6 @@ public interface ApplicationComponent {
     void inject(@NotNull FbMessagingService fbMessagingService);
 
     UserManager provideUserManager();
+
+    ImageStorage provideImageStorage();
 }
