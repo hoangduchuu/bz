@@ -1,9 +1,11 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/chat_layout_media">
+    android:background="@color/white"
+    android:id="@+id/chat_layout_media"
+    tools:parentTag="android.support.constraint.ConstraintLayout">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list_photos"
@@ -23,4 +25,4 @@
         android:tint="@color/gray_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-</android.support.constraint.ConstraintLayout>
+</merge>

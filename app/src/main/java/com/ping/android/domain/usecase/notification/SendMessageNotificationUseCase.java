@@ -9,6 +9,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -67,25 +68,28 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                             //get incoming mask of target opponentUser
                                             boolean incomingMask = CommonMethod.getBooleanFrom(params.conversation.maskMessages, user.key);
                                             String body = "";
-                                            switch (params.message.messageType) {
-                                                case Constant.MSG_TYPE_TEXT:
+                                            switch (params.message.type) {
+                                                case TEXT:
                                                     String messageText = params.message.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
                                                         messageText = CommonMethod.encodeMessage(params.message.message, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
-                                                case Constant.MSG_TYPE_VOICE:
+                                                case VOICE:
                                                     body = userName + ": sent a voice message.";
                                                     break;
-                                                case Constant.MSG_TYPE_IMAGE:
+                                                case IMAGE:
                                                     body = userName + ": sent a picture message.";
                                                     break;
-                                                case Constant.MSG_TYPE_GAME:
+                                                case GAME:
                                                     body = userName + ": sent a game.";
                                                     break;
-                                                case Constant.MSG_TYPE_VIDEO:
+                                                case VIDEO:
                                                     body = userName + ": sent a video message.";
+                                                    break;
+                                                case IMAGE_GROUP:
+                                                    body = userName + ": sent multiple pictures message.";
                                                     break;
                                                 default:
                                                     break;

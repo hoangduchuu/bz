@@ -11,6 +11,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.PopupWindow
+import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.utils.ResourceUtils.dpToPx
 import com.ping.android.utils.Utils
 

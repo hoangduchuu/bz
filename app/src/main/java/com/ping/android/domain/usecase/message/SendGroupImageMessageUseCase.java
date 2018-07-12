@@ -66,16 +66,23 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                     builder.setMessageKey(messageKey);
                     return builder;
                 })
-                .flatMap(builder1 -> sendMessageUseCase.buildUseCaseObservable(builder1.build()))
-                .flatMap(message -> sendChildMessages(params, message.key)
-                        .map(messages -> {
-                            message.childMessages = messages;
-                            message.isCached = true;
-                            return message;
-                        }));
+                .flatMap(builder1 -> sendMessageUseCase.buildUseCaseObservable(builder1.build())
+                        .flatMap(message -> buildCacheChildMessages(params, message.key)
+                                .map(messages -> {
+                                    message.isCached = true;
+                                    message.childMessages = messages;
+                                    return message;
+                                })
+                                .concatWith(sendChildMessages(params, message.key)
+                                .map(messages -> {
+                                    // Need set isCached to false in order to notify presenter to trigger send notification
+                                    message.isCached = false;
+                                    message.childMessages = messages;
+                                    return message;
+                                }))));
     }
 
-    private Observable<List<Message>> sendChildMessages(SendGroupImageMessageUseCase.Params params, String messageKey) {
+    private Observable<List<Message>> buildCacheChildMessages(SendGroupImageMessageUseCase.Params params, String messageKey) {
         PhotoItem[] photoArray = new PhotoItem[params.items.size()];
         return Observable.fromArray(params.items.toArray(photoArray))
                 .map(photoItem -> {
@@ -94,26 +101,30 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                 })
                 .take(params.items.size())
                 .toList()
-                .toObservable()
-                .concatWith(Observable.fromArray(params.items.toArray(photoArray))
-                        .flatMap(photoItem -> uploadThumbnail(params.conversation.key, photoItem.getImagePath())
-                                .zipWith(uploadImage(params.conversation.key, photoItem.getImagePath()), (s, s2) -> {
-                                    SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
-                                            .setMessageType(params.messageType)
-                                            .setConversation(params.conversation)
-                                            .setMarkStatus(params.markStatus)
-                                            .setCurrentUser(params.currentUser)
-                                            .setFileUrl(s2)
-                                            .setThumbUrl(s)
-                                            .setCacheImage(photoItem.getImagePath())
-                                            .setMessageType(MessageType.IMAGE);
-                                    return builder.build().getMessage();
-                                })
-                                .flatMap(message -> messageRepository.addChildMessage(params.conversation.key, messageKey, message))
-                        )
-                        .take(params.items.size())
-                        .toList()
-                );
+                .toObservable();
+    }
+
+    private Observable<List<Message>> sendChildMessages(SendGroupImageMessageUseCase.Params params, String messageKey) {
+        PhotoItem[] photoArray = new PhotoItem[params.items.size()];
+        return Observable.fromArray(params.items.toArray(photoArray))
+                .flatMap(photoItem -> uploadThumbnail(params.conversation.key, photoItem.getImagePath())
+                        .zipWith(uploadImage(params.conversation.key, photoItem.getImagePath()), (s, s2) -> {
+                            SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
+                                    .setMessageType(params.messageType)
+                                    .setConversation(params.conversation)
+                                    .setMarkStatus(params.markStatus)
+                                    .setCurrentUser(params.currentUser)
+                                    .setFileUrl(s2)
+                                    .setThumbUrl(s)
+                                    .setCacheImage(photoItem.getImagePath())
+                                    .setMessageType(MessageType.IMAGE);
+                            return builder.build().getMessage();
+                        })
+                        .flatMap(message -> messageRepository.addChildMessage(params.conversation.key, messageKey, message))
+                )
+                .take(params.items.size())
+                .toList()
+                .toObservable();
 
     }
 

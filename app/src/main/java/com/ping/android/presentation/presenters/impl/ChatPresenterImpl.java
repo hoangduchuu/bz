@@ -373,7 +373,12 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendGroupImageMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                super.onNext(message);
+                if (!message.isCached) {
+                    sendNotification(conversation, message);
+                }
+
+                // Add trick here to keep cache data
+                message.isCached = true;
                 addMessage(message);
             }
         }, params);

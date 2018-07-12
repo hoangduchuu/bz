@@ -392,7 +392,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     }
                     break;
                 case IMAGE_GROUP:
-                    message = "[Images]";
+                    message = "[Pictures]";
                     break;
             }
 

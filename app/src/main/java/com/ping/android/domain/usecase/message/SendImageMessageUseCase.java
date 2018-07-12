@@ -81,15 +81,27 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                             message1.localFilePath = params.filePath;
                             message1.currentUserId = params.currentUser.key;
                             return message1;
-                        }))
-                .flatMap(message -> sendMessage(params.conversation.key, message.key, params.filePath)
-                        .map(aBoolean -> message));
+                        })
+                        .concatWith(sendMessage(message, params.conversation.key, message.key, params.filePath)
+                                .flatMap(message1 -> {
+                                    message.isCached = false;
+                                    Map<String, Object> updateValue = new HashMap<>();
+                                    updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, message.key), message.photoUrl);
+                                    updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, message.key), message.thumbUrl);
+                                    updateValue.put(String.format("media/%s/%s", params.conversation.key, message.key), message.toMap());
+                                    return commonRepository.updateBatchData(updateValue)
+                                            .map(aBoolean -> message);
+                                }))
+                );
     }
 
-    private Observable<Boolean> sendMessage(String conversationId, String messageId, String filePath) {
+    private Observable<Message> sendMessage(Message message, String conversationId, String messageId, String filePath) {
         return this.uploadThumbnail(conversationId, messageId, filePath)
-                .concatWith(uploadImage(conversationId, messageId, filePath))
-                .map(s -> true);
+                .zipWith(uploadImage(conversationId, messageId, filePath), (s, s2) -> {
+                    message.thumbUrl = s;
+                    message.photoUrl = s2;
+                    return message;
+                });
     }
 
     private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {

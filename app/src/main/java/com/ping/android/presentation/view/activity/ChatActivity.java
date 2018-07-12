@@ -568,9 +568,9 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
         ((SimpleItemAnimator) recycleChatView.getItemAnimator()).setSupportsChangeAnimations(false);
         recycleChatView.setOnTouchListener((view, motionEvent) -> {
+            KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
             setButtonsState(0);
             hideVoiceRecordView();
-            KeyboardHelpers.hideSoftInputKeyboard(ChatActivity.this);
             return false;
         });
 
