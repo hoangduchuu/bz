@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -33,6 +34,8 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
     UserRepository userRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public LoadMoreMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -55,11 +58,10 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                 double lastTimestamp = Double.MAX_VALUE;
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    Message message = Message.from(child);
+                                    Message message = messageMapper.transform(child, user);
                                     if (lastTimestamp > message.timestamp) {
                                         lastTimestamp = message.timestamp;
                                     }
-                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted) {
                                         continue;
@@ -74,7 +76,6 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                     }
 
                                     message.sender = getUser(message.senderId, params.conversation);
-                                    message.currentUserId = user.key;
                                     messages.add(message);
                                 }
                                 Output output = new Output();

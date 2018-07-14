@@ -31,4 +31,10 @@ public interface MessageRepository {
     Observable<String> updateImage(String conversationKey, String messageKey, String s);
 
     Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data);
+
+    Observable<Message> sendMediaMessage(String conversationId, Message message);
+
+    String populateChildMessageKey(String conversationId, String messageId);
+
+    Observable<Boolean> updateChildMessageImage(String conversationId, String parentMessageKey, String messageKey, String thumbnail, String image);
 }

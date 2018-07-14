@@ -58,6 +58,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void updateMaskOutput(boolean checked);
 
+    void updateMaskChildMessage(Message message, String parentKey, boolean maskStatus);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

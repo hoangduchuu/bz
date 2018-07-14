@@ -351,7 +351,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         void onProfileImagePress(User user, Pair<View, String>... sharedElements);
 
-        void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
+        void updateMessageMask(Message message, boolean maskStatus, boolean lastItem);
 
         void onLongPress(MessageBaseItem messageItem);
 
@@ -372,5 +372,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void onCall(boolean isVideo);
 
         void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
+
+        void updateChildMessageMask(Message message, boolean maskStatus);
     }
 }

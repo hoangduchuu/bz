@@ -10,6 +10,9 @@ import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.model.Message;
 import com.ping.android.utils.configs.Constant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -114,16 +117,49 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data) {
-        DatabaseReference reference = database.getReference("messages")
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
+        updateValue.put(String.format("media/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
+        return updateBatchData(updateValue)
+                .map(aBoolean -> data);
+    }
+
+    public Observable<Message> addChildMedia(String conversationKey, String messageKey, Message data) {
+        DatabaseReference reference = database.getReference("media")
                 .child(conversationKey)
                 .child(messageKey)
-                .child("childMessages");
-        String key = reference.push().getKey();
-        return RxFirebaseDatabase.setValue(reference.child(key), data.toMap())
-                .map(databaseReference -> {
-                    data.key = databaseReference.getKey();
-                    return data;
-                })
+                .child("childMessages").child(data.key);
+        return RxFirebaseDatabase.setValue(reference, data.toMap())
+                .map(databaseReference -> data)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Message> sendMediaMessage(String conversationId, Message message) {
+        DatabaseReference reference = database.getReference("media")
+                .child(conversationId).child(message.key);
+        return RxFirebaseDatabase.setValue(reference, message.toMap())
+                .map(databaseReference -> message)
+                .toObservable();
+    }
+
+    @Override
+    public String populateChildMessageKey(String conversationId, String messageId) {
+        return database.getReference("messages").child(conversationId).child(messageId).child("childMessages").push().getKey();
+    }
+
+    @Override
+    public Observable<Boolean> updateChildMessageImage(String conversationId, String parentMessageKey, String messageKey, String thumbnail, String image) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s/thumbUrl", conversationId, parentMessageKey, messageKey), thumbnail);
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s/photoUrl", conversationId, parentMessageKey, messageKey), image);
+        updateValue.put(String.format("media/%s/%s/childMessages/%s/thumbUrl", conversationId, parentMessageKey, messageKey), thumbnail);
+        updateValue.put(String.format("media/%s/%s/childMessages/%s/photoUrl", conversationId, parentMessageKey, messageKey), image);
+        return updateBatchData(updateValue);
+    }
+
+    private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
+        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
     }
 }

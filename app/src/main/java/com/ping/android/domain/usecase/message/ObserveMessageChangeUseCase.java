@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.data.entity.ChildData;
@@ -34,7 +35,8 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     UserRepository userRepository;
     @Inject
     UserManager userManager;
-
+    @Inject
+    MessageMapper messageMapper;
     User currentUser;
 
     @Inject
@@ -49,9 +51,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
         return messageRepository.observeMessageUpdate(params.conversation.key)
                 .map(childEvent -> {
                     if (childEvent.dataSnapshot.exists()) {
-                        Message message = Message.from(childEvent.dataSnapshot);
-                        message.currentUserId = currentUser.key;
-                        message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
+                        Message message = messageMapper.transform(childEvent.dataSnapshot, currentUser);
                         return new ChildData<>(message, childEvent.type);
                     } else {
                         throw new NullPointerException();

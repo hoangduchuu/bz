@@ -2,20 +2,13 @@ package com.ping.android.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.TextUtils;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.utils.DataSnapshotWrapper;
 import com.ping.android.utils.configs.Constant;
 
-import junit.framework.Assert;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +35,7 @@ public class Message implements Parcelable {
     public int voiceType = 0;
     public double callDuration; // in seconds
     public List<Message> childMessages;
-    public List<String> imageGroup;
-
+    public String parentKey;
     // Local variable, don't store on Firebase
     public User sender;
     public String localFilePath;
@@ -84,7 +76,6 @@ public class Message implements Parcelable {
         gameType = in.readInt();
         voiceType = in.readInt();
         callDuration = in.readDouble();
-        imageGroup = in.createStringArrayList();
         sender = in.readParcelable(User.class.getClassLoader());
         localFilePath = in.readString();
         isCached = in.readByte() != 0;
@@ -108,70 +99,6 @@ public class Message implements Parcelable {
             return new Message[size];
         }
     };
-
-    public static Message from(DataSnapshot dataSnapshot) {
-        Message message = new Message();
-        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
-        message.message = wrapper.getStringValue("message");
-        message.photoUrl = wrapper.getStringValue("photoUrl");
-        message.thumbUrl = wrapper.getStringValue("thumbUrl");
-        message.audioUrl = wrapper.getStringValue("audioUrl");
-        message.gameUrl = wrapper.getStringValue("gameUrl");
-        message.videoUrl = wrapper.getStringValue("videoUrl");
-        message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT);
-        message.type = MessageType.from(message.messageType);
-        message.timestamp = wrapper.getDoubleValue("timestamp", 0.0d);
-        message.senderId = wrapper.getStringValue("senderId");
-        message.senderName = wrapper.getStringValue("senderName");
-        message.gameType = wrapper.getIntValue("gameType", 0);
-        message.voiceType = wrapper.getIntValue("voiceType", 0);
-        message.callType = wrapper.getIntValue("callType", 0);
-        message.callDuration = wrapper.getIntValue("callDuration", 0);
-        message.imageGroup = (List<String>) wrapper.getObject("imageGroup");
-        message.messageCallType = MessageCallType.from(message.callType);
-        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
-        message.status = new HashMap<>();
-        Map<String, Object> status = (Map<String, Object>)dataSnapshot.child("status").getValue();
-        if (status != null) {
-            for (String k : status.keySet()) {
-                Object value = status.get(k);
-                int intValue = 0;
-                if (value instanceof Long) {
-                    intValue = ((Long) value).intValue();
-                }
-                message.status.put(k, intValue);
-            }
-        }
-
-        message.markStatuses = (HashMap<String, Boolean>) dataSnapshot.child("markStatuses").getValue();
-        message.deleteStatuses = (HashMap<String, Boolean>) dataSnapshot.child("deleteStatuses").getValue();
-        message.readAllowed = (HashMap<String, Boolean>) dataSnapshot.child("readAllowed").getValue();
-        if (message.type == MessageType.IMAGE_GROUP) {
-            DataSnapshot childMessageSnapshot = dataSnapshot.child("childMessages");
-            List<Message> childMessages = new ArrayList<>();
-            if (childMessageSnapshot.exists()) {
-                for (DataSnapshot snapshot: childMessageSnapshot.getChildren()) {
-                    childMessages.add(Message.from(snapshot));
-                }
-            }
-            message.childMessages = childMessages;
-        }
-
-        Assert.assertNotNull(message);
-        message.key = dataSnapshot.getKey();
-        if (message.messageType == 0) {
-            if (!TextUtils.isEmpty(message.message)) {
-                message.messageType = Constant.MSG_TYPE_TEXT;
-            } else if (!TextUtils.isEmpty(message.photoUrl)) {
-                message.messageType = Constant.MSG_TYPE_IMAGE;
-            } else if (!TextUtils.isEmpty(message.gameUrl)) {
-                message.messageType = Constant.MSG_TYPE_GAME;
-            } else if (!TextUtils.isEmpty(message.audioUrl)) {
-                message.messageType = Constant.MSG_TYPE_VOICE;
-            }
-        }
-        return message;
-    }
 
     public static Message createTextMessage(String text, String senderId, String senderName,
                                             double timestamp, Map<String, Integer> status,
@@ -365,7 +292,6 @@ public class Message implements Parcelable {
         dest.writeInt(gameType);
         dest.writeInt(voiceType);
         dest.writeDouble(callDuration);
-        dest.writeStringList(imageGroup);
         dest.writeParcelable(sender, flags);
         dest.writeString(localFilePath);
         dest.writeByte((byte) (isCached ? 1 : 0));

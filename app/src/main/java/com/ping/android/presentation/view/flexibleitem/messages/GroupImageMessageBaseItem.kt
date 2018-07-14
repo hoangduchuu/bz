@@ -14,6 +14,7 @@ import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.bumptech.glide.signature.ObjectKey
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
 import com.bzzzchat.extensions.px
@@ -27,19 +28,19 @@ import com.ping.android.utils.CommonMethod
 import com.ping.android.utils.Log
 import com.ping.android.utils.UiUtils
 
-class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View, String>) -> Unit)?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
+interface GroupImageAdapterListener {
+    fun onSingleClick(position: Int, sharedElements: Pair<View, String>)
+    fun onDoubleClick(position: Int, isMask: Boolean)
+}
+
+class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
 
     override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindData(data[position], position, data.size)
-        holder.itemView.setOnClickListener {
-            val map = HashMap<String, View>()
-            map[data[position].key] = holder.imageView
-            val pair: Pair<View, String> = Pair.create(holder.imageView, data[position].key)
-            listener?.let { it1 -> it1(position, pair) }
-        }
+        holder.listener = listener
     }
 
     fun updateData(imageGroup: List<Message>) {
@@ -47,23 +48,45 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
         notifyDataSetChanged()
     }
 
-    class ViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder (
             parent.inflate(R.layout.item_image_group)
     ) {
         val imageView: ImageView = itemView as ImageView
         val curveRadius = 20F
-        val imageDimension = 90.px
+        private val imageDimension = 90.px
+        private lateinit var message: Message
 
         init {
             imageView.clipToOutline = true
+            initGestureListener()
+        }
+
+        override fun getClickableView(): View? = imageView
+
+        override fun onSingleTap() {
+            val position = adapterPosition
+            val map = HashMap<String, View>()
+            map[message.key] = imageView
+            val pair: Pair<View, String> = Pair.create(imageView, message.key)
+            listener?.onSingleClick(position, pair)
+        }
+
+        override fun onDoubleTap() {
+            val isMasked = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId)
+            listener?.onDoubleClick(adapterPosition, !isMasked)
+        }
+
+        override fun onLongPress() {
+
         }
 
         fun bindData(message: Message, position: Int, total: Int) {
+            this.message = message
             var top = -curveRadius.toInt()
             var left = -curveRadius.toInt()
             var right = (imageDimension + curveRadius).toInt()
             var bottom = (imageDimension + curveRadius).toInt()
-            if (total >= 2) {
+            if (total > 2) {
                 val isLeftItem = (position + 1) % 3 == 1
                 val isRightItem = (position + 1) % 3 == 0
                 val isFirstRow = position < 3
@@ -102,10 +125,14 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
                 // Just 2 items
                 if (position == 0) {
                     // Left item
-                    right = (imageView.width + curveRadius).toInt()
+                    left = 0
+                    top = 0
+                    bottom = imageDimension
                 } else {
                     // Right item
-                    left = curveRadius.toInt()
+                    top = 0
+                    right = imageDimension
+                    bottom = imageDimension
                 }
             }
             imageView.outlineProvider = object : ViewOutlineProvider() {
@@ -121,20 +148,18 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
                 return
             }
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
+            if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
-            val target = object : SimpleTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    imageView.setImageBitmap(resource)
-                }
-            }
+            val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))
             GlideApp.with(itemView.context)
                     .asBitmap()
                     .load(gsReference)
                     .override(128)
                     .skipMemoryCache(false)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .transform(BitmapEncode(false))
-                    .into(target)
+                    .transform(BitmapEncode(message.isMask))
+                    .signature(key)
+                    .into(imageView)
         }
     }
 }
@@ -142,11 +167,9 @@ class GroupImageAdapter(var data: List<Message>, var listener: ((Int, Pair<View,
 abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<GroupImageMessageBaseItem.ViewHolder>(message) {
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
-    class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView) {
+    class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
-        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList()) { selectedPosition, pair ->
-            messageListener?.onGroupImageItemPress(this, item.message.childMessages, selectedPosition, pair)
-        }
+        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(), this)
         private val gridLayoutManager = GridNonScrollableLayoutManager(itemView.context, 3)
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
 
@@ -156,6 +179,10 @@ abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<Grou
             groupImage.layoutManager = gridLayoutManager
             groupImage.addItemDecoration(gridItemDecoration)
             groupImage.adapter = groupImageAdapter
+        }
+
+        fun setRecycledViewPool(viewPool: RecyclerView.RecycledViewPool) {
+            groupImage.recycledViewPool = viewPool
         }
 
         override fun getClickableView(): View? = null
@@ -185,6 +212,19 @@ abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<Grou
                 return null
             }
             return selectedViewHolder.itemView
+        }
+
+        override fun onSingleClick(position: Int, sharedElements: Pair<View, String>) {
+            if (item.isEditMode) return
+            messageListener?.onGroupImageItemPress(this, item.message.childMessages, position, sharedElements)
+        }
+
+        override fun onDoubleClick(position: Int, isMask: Boolean) {
+            if (item.isEditMode) return
+            val childMessage = item.message.childMessages[position]
+            // TODO should check to see whether all child messages are masked, then mask parent messages too
+
+            messageListener?.updateChildMessageMask(childMessage, isMask)
         }
     }
 }

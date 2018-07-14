@@ -31,6 +31,7 @@ import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
+import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
@@ -103,6 +104,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Inject
     UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
     @Inject
+    UpdateMaskChildMessagesUseCase updateMaskChildMessagesUseCase;
+    @Inject
     UpdateMaskOutputConversationUseCase updateMaskOutputConversationUseCase;
     @Inject
     ObserveConversationValueFromExistsConversationUseCase observeConversationValueFromExistsConversationUseCase;
@@ -135,6 +138,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private List<ChildData<Message>> messagesInBackground;
     private AtomicBoolean isInBackground;
     private TreeMap<Long, MessageHeaderItem> headerItemMap;
+    private Map<String, String> localCacheFile;
 
     User currentUser;
     private Color currentColor;
@@ -144,6 +148,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         isInBackground = new AtomicBoolean(false);
         messagesInBackground = new ArrayList<>();
         headerItemMap = new TreeMap<>();
+        localCacheFile = new HashMap<>();
     }
 
     @Override
@@ -304,6 +309,13 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = new MessageHeaderItem();
             headerItemMap.put(message.days, headerItem);
         }
+        if (message.type == MessageType.IMAGE_GROUP) {
+            if (message.childMessages != null) {
+                for (Message child: message.childMessages) {
+                    child.localFilePath = localCacheFile.get(child.key);
+                }
+            }
+        }
         message.opponentUser = conversation.opponentUser;
         MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
         boolean added = headerItem.addChildItem(item);
@@ -376,7 +388,11 @@ public class ChatPresenterImpl implements ChatPresenter {
                 if (!message.isCached) {
                     sendNotification(conversation, message);
                 }
-
+                if (message.childMessages != null) {
+                    for (Message child : message.childMessages) {
+                        localCacheFile.put(child.key, child.localFilePath);
+                    }
+                }
                 // Add trick here to keep cache data
                 message.isCached = true;
                 addMessage(message);
@@ -711,6 +727,16 @@ public class ChatPresenterImpl implements ChatPresenter {
                 conversation.key, conversation.memberIDs, checked
         );
         updateMaskOutputConversationUseCase.execute(new DefaultObserver<>(), params);
+    }
+
+    @Override
+    public void updateMaskChildMessage(Message message, String parentKey, boolean maskStatus) {
+        UpdateMaskChildMessagesUseCase.Params params = new UpdateMaskChildMessagesUseCase.Params();
+        params.conversationId = conversation.key;
+        params.isMask = maskStatus;
+        params.parentKey = parentKey;
+        params.setMessage(message);
+        updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
     }
 
     private void sendNotification(Conversation conversation, Message message) {

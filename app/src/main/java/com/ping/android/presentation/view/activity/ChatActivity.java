@@ -473,6 +473,11 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     @Override
+    public void updateChildMessageMask(Message message, boolean maskStatus) {
+        presenter.updateMaskChildMessage(message, message.parentKey, maskStatus);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);
@@ -649,6 +654,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             }
         });
         recycleChatView.setLayoutManager(mLinearLayoutManager);
+        recycleChatView.setNestedScrollingEnabled(false);
         messagesAdapter = new ChatMessageAdapter();
         messagesAdapter.setMessageListener(this);
         recycleChatView.setAdapter(messagesAdapter);

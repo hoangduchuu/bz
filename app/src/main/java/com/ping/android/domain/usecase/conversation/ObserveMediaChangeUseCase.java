@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -28,6 +29,8 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
     MessageRepository messageRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public ObserveMediaChangeUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -41,7 +44,7 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
                 .flatMap(user -> messageRepository.observeMediaUpdate(conversation.key)
                         .flatMap(childEvent -> {
                             if (childEvent.type == ChildEvent.Type.CHILD_CHANGED) {
-                                Message message = Message.from(childEvent.dataSnapshot);
+                                Message message = messageMapper.transform(childEvent.dataSnapshot, user);
                                 message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                 boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                 if (isDeleted || TextUtils.isEmpty(message.senderId)) {

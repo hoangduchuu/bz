@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -31,6 +32,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     MessageRepository messageRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public GetLastMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -49,7 +52,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
-                                    Message message = Message.from(child);
+                                    Message message = messageMapper.transform(child, user);
                                     if (lastTimestamp > message.timestamp) {
                                         lastTimestamp = message.timestamp;
                                     }
@@ -64,9 +67,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                             && (message.readAllowed.containsKey(user.key) && !message.readAllowed.get(user.key)))
                                         continue;
 
-                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
                                     message.sender = getUser(message.senderId, conversation);
-                                    message.currentUserId = user.key;
                                     messages.add(message);
                                 }
 

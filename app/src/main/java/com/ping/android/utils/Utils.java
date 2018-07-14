@@ -1,15 +1,22 @@
 package com.ping.android.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.media.ExifInterface;
 import android.view.View;
 import android.widget.PopupWindow;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Utils {
 
@@ -78,6 +85,11 @@ public class Utils {
         // Decode bitmap with inSampleSize
         options.inJustDecodeBounds = false;
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath, options);
+        try {
+            bitmap = rotateImageIfRequired(bitmap, imagePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
         byte[] byteArray = stream.toByteArray();
@@ -103,4 +115,29 @@ public class Utils {
         }
         return inSampleSize;
     }
+
+    private static Bitmap rotateImageIfRequired(Bitmap img, String selectedImage) throws IOException {
+        ExifInterface ei = new ExifInterface(selectedImage);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
+
 }

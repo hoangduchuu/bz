@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -31,6 +32,8 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
     UserRepository userRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public LoadConversationMediaUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -52,8 +55,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                             if (dataSnapshot.getChildrenCount() > 0) {
                                 List<Message> messages = new ArrayList<>();
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    Message message = Message.from(child);
-                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
+                                    Message message = messageMapper.transform(child, user);
                                     boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
                                     if (isDeleted || TextUtils.isEmpty(message.senderId)) {
                                         continue;
@@ -68,7 +70,6 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                     }
 
                                     message.sender = getUser(message.senderId, params.conversation);
-                                    message.currentUserId = user.key;
                                     String nickName = params.conversation.nickNames.get(message.senderId);
                                     if (!TextUtils.isEmpty(nickName)) {
                                         message.senderName = nickName;

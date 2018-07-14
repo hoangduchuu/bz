@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
@@ -43,6 +44,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
     private boolean isEditMode = false;
+    private RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
 
     public static MediaPlayer audioPlayerInstance = null;
     public static AudioMessageBaseItem currentPlayingMessage = null;
@@ -64,6 +66,15 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
         boundsViewHolder.remove(holder);
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        RecyclerView.ViewHolder holder = super.onCreateViewHolder(parent, viewType);
+        if (holder instanceof GroupImageMessageBaseItem.ViewHolder) {
+            ((GroupImageMessageBaseItem.ViewHolder)holder).setRecycledViewPool(viewPool);
+        }
+        return holder;
     }
 
     @Override
@@ -89,9 +100,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void updateMessageMask(Message message, boolean markStatus, boolean lastItem) {
+    public void updateMessageMask(Message message, boolean maskStatus, boolean lastItem) {
         if (messageListener != null) {
-            messageListener.updateMessageMask(message, markStatus, lastItem);
+            messageListener.updateMessageMask(message, maskStatus, lastItem);
         }
     }
 
@@ -167,6 +178,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     public void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements) {
         if (messageListener != null) {
             messageListener.onGroupImageItemPress(viewHolder, data, position, sharedElements);
+        }
+    }
+
+    @Override
+    public void updateChildMessageMask(Message message, boolean maskStatus) {
+        if (messageListener != null) {
+            messageListener.updateChildMessageMask(message, maskStatus);
         }
     }
 
@@ -396,5 +414,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void onCall(boolean isVideo);
 
         void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
+
+        void updateChildMessageMask(Message message, boolean maskStatus);
     }
 }
