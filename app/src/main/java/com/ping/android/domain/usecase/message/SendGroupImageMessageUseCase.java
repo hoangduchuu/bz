@@ -71,6 +71,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                         .flatMap(message -> buildCacheChildMessages(params, message.key)
                                 .map(messages -> {
                                     message.isCached = true;
+                                    message.isMask = params.markStatus;
                                     message.childMessages = messages;
                                     return message;
                                 })
@@ -107,7 +108,9 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                     message.localFilePath = photoItem.getImagePath();
                     return messageRepository.addChildMessage(params.conversation.key, messageKey, message)
                             .map(message1 -> {
+                                // Should set those params to make the UI action right cause this is cached message
                                 message1.photoUrl = message1.localFilePath;
+                                message1.isMask = params.markStatus;
                                 return message1;
                             });
                 })

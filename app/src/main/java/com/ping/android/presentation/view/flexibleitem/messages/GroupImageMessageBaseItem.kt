@@ -72,8 +72,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
         }
 
         override fun onDoubleTap() {
-            val isMasked = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId)
-            listener?.onDoubleClick(adapterPosition, !isMasked)
+            listener?.onDoubleClick(adapterPosition, !message.isMask)
         }
 
         override fun onLongPress() {
@@ -142,9 +141,8 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                 }
             }
             imageView.clipToOutline = true
-            val maskStatus = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId)
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
-                UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, maskStatus)
+                UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
                 return
             }
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
