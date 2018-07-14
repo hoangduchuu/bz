@@ -55,8 +55,8 @@ public class CustomSwitch extends LinearLayout {
         TypedArray styleAttrs = getContext().obtainStyledAttributes(
                 attrs, R.styleable.CustomSwitch);
 
-        String leftSwitch = styleAttrs.getString(R.styleable.CustomSwitch_leftSwitch);
-        String rightSwitch = styleAttrs.getString(R.styleable.CustomSwitch_rightSwitch);
+        String leftSwitch = styleAttrs.getString(R.styleable.CustomSwitch_leftSwitchText);
+        String rightSwitch = styleAttrs.getString(R.styleable.CustomSwitch_rightSwitchText);
         setSwitches(leftSwitch, rightSwitch);
         toggleSwitch();
         invalidate();

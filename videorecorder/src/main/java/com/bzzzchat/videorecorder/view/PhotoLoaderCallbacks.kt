@@ -19,7 +19,7 @@ class PhotoLoaderCallbacks(val context: Context, val resultCallback: (List<Photo
                 do {
                     val imageId = it.getInt(it.getColumnIndexOrThrow(BaseColumns._ID))
                     val path = it.getString(it.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
-                    val thumbnail = getThumnail(imageId.toString())
+                    val thumbnail = getThumbnail(imageId.toString())
 //                    val imageId = it.getString(it.getColumnIndex(MediaStore.Images.Thumbnails.IMAGE_ID))
 //                    //val imagePath = ImagesProvider.getImagePath(context, imageId)
                     result.add(PhotoItem(imageId, thumbnail, path))
@@ -34,7 +34,7 @@ class PhotoLoaderCallbacks(val context: Context, val resultCallback: (List<Photo
 
     }
 
-    fun getThumnail(imageId: String): String {
+    private fun getThumbnail(imageId: String): String {
         val projection = arrayOf(MediaStore.Images.Thumbnails.DATA, MediaStore.Images.Thumbnails.IMAGE_ID)
         val selection = "${MediaStore.Images.Thumbnails.IMAGE_ID}=?"
         val selectionArgs = arrayOf(imageId)

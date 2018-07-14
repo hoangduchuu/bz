@@ -16,7 +16,7 @@ class MaxHeightRecyclerView @JvmOverloads constructor(
     init {
         attrs.let {
             val typeArray = context.obtainStyledAttributes(it, R.styleable.MaxHeightRecyclerView, 0, 0)
-            maxHeight = typeArray.getLayoutDimension(typeArray.getResourceId(R.styleable.MaxHeightRecyclerView_maxHeight, 0), 0)
+            maxHeight = typeArray.getLayoutDimension(typeArray.getResourceId(R.styleable.MaxHeightRecyclerView_maxViewHeight, 0), 0)
             typeArray.recycle()
         }
     }

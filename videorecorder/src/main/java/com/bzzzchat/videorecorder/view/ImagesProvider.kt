@@ -51,7 +51,7 @@ class ImagesProvider(val activity: Activity) {
         }
     }
 
-//    fun getThumnail(imageId: String): String {
+//    fun getThumbnail(imageId: String): String {
 //        val projection = arrayOf(MediaStore.Images.Thumbnails.DATA, MediaStore.Images.Thumbnails.IMAGE_ID)
 //        val order = "${MediaStore.Images.Thumbnails.IMAGE_ID} DESC"
 //        val selection = "${MediaStore.Images.Thumbnails.IMAGE_ID}=?"

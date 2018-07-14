@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item"
     style="@style/ItemSetting"
-    app:title="Text"
+    app:titleText="Text"
     android:orientation="vertical">
 
     <ImageView style="@style/ItemSettingIconRight" />

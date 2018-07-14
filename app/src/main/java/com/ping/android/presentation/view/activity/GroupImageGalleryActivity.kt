@@ -7,8 +7,10 @@ import android.support.v4.view.ViewPager
 import android.view.View
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
+import com.ping.android.dagger.loggedin.groupimage.GroupImageModule
 import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
+import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
 import com.ping.android.utils.ThemeUtils
 import com.ping.android.utils.bus.BusProvider
@@ -18,14 +20,16 @@ import javax.inject.Inject
 
 class GroupImageGalleryActivity : CoreActivity() {
     lateinit var messages: MutableList<Message>
-
+    private var conversationId: String = ""
     lateinit var adapter: ImagePagerAdapter
     private var currentPosition: Int = 0
 
     @Inject
     lateinit var busProvider: BusProvider
+    @Inject
+    lateinit var presenter: GroupImageGalleryPresenter
     private val component: GroupImageComponent by lazy {
-        loggedInComponent.provideGroupImageComponent()
+        loggedInComponent.provideGroupImageComponent(GroupImageModule())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,21 +41,25 @@ class GroupImageGalleryActivity : CoreActivity() {
                 val color = Color.from(it.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR))
                 ThemeUtils.onActivityCreateSetTheme(this, color)
             }
+            conversationId = it.getString(CONVERSATION_ID)
             messages = it.getParcelableArrayList(IMAGES_EXTRA)
             currentPosition = it.getInt(POSITION_EXTRA)
         }
 
         setContentView(R.layout.activity_group_image_gallery)
         btn_back.setOnClickListener { onBackPressed() }
+        togglePuzzle.setOnClickListener {
+            val isChecked = !messages[currentPosition].isMask
+            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
+            messages[currentPosition].isMask = isChecked
+            adapter.updateMessage(messages[currentPosition], currentPosition)
+        }
 
-        adapter = ImagePagerAdapter(supportFragmentManager, messages)
-        viewpager.adapter = adapter
-        viewpager.currentItem = currentPosition
         val listener = object : ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
                 currentPosition = position
                 val message = messages[position]
-
+                onMessageSelected(message)
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -63,8 +71,16 @@ class GroupImageGalleryActivity : CoreActivity() {
             }
         }
         viewpager.addOnPageChangeListener(listener)
+        adapter = ImagePagerAdapter(supportFragmentManager, messages)
+        viewpager.adapter = adapter
+        viewpager.currentItem = currentPosition
+        onMessageSelected(messages[currentPosition])
 
         prepareSharedElementTransition()
+    }
+
+    private fun onMessageSelected(message: Message) {
+        togglePuzzle.isChecked = message.isMask
     }
 
     private fun prepareSharedElementTransition() {
@@ -91,6 +107,7 @@ class GroupImageGalleryActivity : CoreActivity() {
     }
 
     companion object {
+        const val CONVERSATION_ID = "CONVERSATION_ID"
         const val IMAGES_EXTRA = "IMAGES_EXTRA"
         const val POSITION_EXTRA = "POSITION_EXTRA"
     }

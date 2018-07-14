@@ -44,7 +44,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void deleteMessages(List<Message> messages);
 
-    void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask);
+    void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask, boolean updateChild);
 
     void updateConversationReadStatus();
 
@@ -58,7 +58,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void updateMaskOutput(boolean checked);
 
-    void updateMaskChildMessage(Message message, String parentKey, boolean maskStatus);
+    void updateMaskChildMessages(List<Message> messages, boolean maskStatus);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);

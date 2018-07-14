@@ -86,6 +86,7 @@ public class Message implements Parcelable {
         isMask = in.readByte() != 0;
         showExtraInfo = in.readByte() != 0;
         opponentUser = in.readParcelable(User.class.getClassLoader());
+        parentKey = in.readString();
     }
 
     public static final Creator<Message> CREATOR = new Creator<Message>() {
@@ -302,5 +303,6 @@ public class Message implements Parcelable {
         dest.writeByte((byte) (isMask ? 1 : 0));
         dest.writeByte((byte) (showExtraInfo ? 1 : 0));
         dest.writeParcelable(opponentUser, flags);
+        dest.writeString(parentKey);
     }
 }

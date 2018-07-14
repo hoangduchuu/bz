@@ -57,6 +57,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.model.enums.GameType;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.VoiceRecordView;
@@ -83,6 +84,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -466,6 +469,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation.currentColor.getCode());
         intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, new ArrayList<>(data));
         intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position);
+        intent.putExtra(GroupImageGalleryActivity.CONVERSATION_ID, originalConversation.key);
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sharedElements
         );
@@ -474,7 +478,8 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
 
     @Override
     public void updateChildMessageMask(Message message, boolean maskStatus) {
-        presenter.updateMaskChildMessage(message, message.parentKey, maskStatus);
+        List<Message> childsToUpdate = Collections.singletonList(message);
+        presenter.updateMaskChildMessages(childsToUpdate, maskStatus);
     }
 
     @Override
@@ -741,14 +746,16 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         List<Message> visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible);
         boolean isMask = false;
         for (Message message : visibleMessages) {
-            if (message.messageType == Constant.MSG_TYPE_TEXT || message.messageType == Constant.MSG_TYPE_IMAGE) {
+            if (message.type == MessageType.TEXT
+                    || message.type == MessageType.IMAGE
+                    || message.type == MessageType.IMAGE_GROUP) {
                 if (!message.isMask) {
                     isMask = true;
                     break;
                 }
             }
         }
-        presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.getItemCount() - 1, isMask);
+        presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.getItemCount() - 1, isMask, true);
     }
 
     private void updateSendButtonStatus(boolean isEnable) {
@@ -957,7 +964,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
         if (!isNetworkAvailable()) {
             new Handler().postDelayed(this::hideLoading, 2000);
         }
-        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask);
+        presenter.updateMaskMessages(selectedMessages, isLastMessage, mask, true);
         toggleEditMode(false);
     }
 
@@ -1270,7 +1277,7 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     public void updateMessageMask(Message message, boolean maskStatus, boolean lastItem) {
         List<Message> messages = new ArrayList<>(1);
         messages.add(message);
-        presenter.updateMaskMessages(messages, lastItem, maskStatus);
+        presenter.updateMaskMessages(messages, lastItem, maskStatus, false);
     }
 
     private void updateMaskTintColor(boolean isEnable) {

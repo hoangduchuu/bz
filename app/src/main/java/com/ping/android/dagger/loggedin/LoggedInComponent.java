@@ -18,6 +18,7 @@ import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule
 import com.ping.android.dagger.loggedin.game.GameComponent;
 import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent;
+import com.ping.android.dagger.loggedin.groupimage.GroupImageModule;
 import com.ping.android.dagger.loggedin.main.MainComponent;
 import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
@@ -75,5 +76,5 @@ public interface LoggedInComponent {
 
     AddPhoneComponent provideAddPhoneComponent(AddPhoneModule module);
 
-    GroupImageComponent provideGroupImageComponent();
+    GroupImageComponent provideGroupImageComponent(GroupImageModule module);
 }

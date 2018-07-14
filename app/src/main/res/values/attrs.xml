@@ -13,21 +13,21 @@
     </declare-styleable>
 
     <declare-styleable name="CustomSwitch">
-        <attr name="leftSwitch" format="string" />
-        <attr name="rightSwitch" format="string" />
+        <attr name="leftSwitchText" format="string|reference" />
+        <attr name="rightSwitchText" format="string|reference" />
     </declare-styleable>
 
     <attr name="backgroundTheme" format="reference" />
 
     <declare-styleable name="MaxHeightRecyclerView">
-        <attr name="maxHeight" format="integer" />
+        <attr name="maxViewHeight" format="dimension|reference" />
     </declare-styleable>
 
     <declare-styleable name="SettingItem">
         <attr name="showDivider" format="boolean" />
         <attr name="leftIcon" format="reference" />
         <attr name="leftIconTint" format="reference" />
-        <attr name="title" format="reference" />
+        <attr name="titleText" format="string|reference" />
         <attr name="titleColor" format="reference" />
     </declare-styleable>
 </resources>

@@ -33,7 +33,7 @@ interface GroupImageAdapterListener {
     fun onDoubleClick(position: Int, isMask: Boolean)
 }
 
-class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?): RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
+class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?) : RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
 
     override fun getItemCount(): Int = data.size
@@ -48,7 +48,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
         notifyDataSetChanged()
     }
 
-    class ViewHolder(parent: ViewGroup, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder (
+    class ViewHolder(parent: ViewGroup, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder(
             parent.inflate(R.layout.item_image_group)
     ) {
         val imageView: ImageView = itemView as ImageView
@@ -162,10 +162,10 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
     }
 }
 
-abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<GroupImageMessageBaseItem.ViewHolder>(message) {
+abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<GroupImageMessageBaseItem.ViewHolder>(message) {
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
-    class ViewHolder(itemView: View): MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
+    class ViewHolder(itemView: View) : MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
         private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(), this)
         private val gridLayoutManager = GridNonScrollableLayoutManager(itemView.context, 3)
@@ -221,7 +221,18 @@ abstract class GroupImageMessageBaseItem(message: Message): MessageBaseItem<Grou
             if (item.isEditMode) return
             val childMessage = item.message.childMessages[position]
             // TODO should check to see whether all child messages are masked, then mask parent messages too
-
+            var shouldMaskParent = isMask
+            for (mess in item.message.childMessages) {
+                if (mess.key != childMessage.key) {
+                    if (!mess.isMask) {
+                        shouldMaskParent = false
+                        break
+                    }
+                }
+            }
+            if (item.message.isMask != shouldMaskParent) {
+                messageListener?.updateMessageMask(item.message, shouldMaskParent, false)
+            }
             messageListener?.updateChildMessageMask(childMessage, isMask)
         }
     }

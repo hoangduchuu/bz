@@ -7,6 +7,7 @@ import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -43,39 +44,22 @@ public class UpdateMaskChildMessagesUseCase extends UseCase<Boolean, UpdateMaskC
         return userManager.getCurrentUser()
                 .flatMap(user -> {
                     Map<String, Object> updateValue = new HashMap<>();
-                    for (String message : params.messageKeys) {
+                    for (Message child : params.messages) {
                         updateValue.put(String.format("messages/%s/%s/childMessages/%s/markStatuses/%s",
-                                params.conversationId, params.parentKey,
-                                message, user.key), params.isMask);
-                    }
-                    for (String message : params.mediaMessages) {
-                        updateValue.put(String.format("media/%s/%s/childMessages/%s/markStatuses/%s",
-                                params.conversationId, params.parentKey, message, user.key), params.isMask);
+                                params.conversationId, child.parentKey,
+                                child.key, user.key), params.isMask);
+                        if (child.type == MessageType.IMAGE || child.type == MessageType.GAME) {
+                            updateValue.put(String.format("media/%s/%s/childMessages/%s/markStatuses/%s",
+                                    params.conversationId, child.parentKey, child.key, user.key), params.isMask);
+                        }
                     }
                     return commonRepository.updateBatchData(updateValue);
                 });
     }
 
     public static class Params {
-        List<String> messageKeys = new ArrayList<>();
-        List<String> mediaMessages = new ArrayList<>();
+        public List<Message> messages;
         public String conversationId;
         public boolean isMask;
-        public String parentKey;
-
-        public void setMessages(List<Message> messages) {
-            for (Message message : messages) {
-                setMessage(message);
-            }
-        }
-
-        public void setMessage(Message message) {
-            this.messageKeys.add(message.key);
-            if (message.messageType == Constant.MSG_TYPE_IMAGE
-                    || message.messageType == Constant.MSG_TYPE_GAME) {
-                this.mediaMessages = new ArrayList<>();
-                this.mediaMessages.add(message.key);
-            }
-        }
     }
 }

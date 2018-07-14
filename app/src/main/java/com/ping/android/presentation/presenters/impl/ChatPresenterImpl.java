@@ -528,7 +528,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask) {
+    public void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask, boolean updateChild) {
         UpdateMaskMessagesUseCase.Params params = new UpdateMaskMessagesUseCase.Params();
         params.conversationId = conversation.key;
         params.isLastMessage = isLastMessage;
@@ -545,6 +545,19 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.hideLoading();
             }
         }, params);
+
+        // Update child messages if possible
+        if (updateChild) {
+            List<Message> childToUpdate = new ArrayList<>();
+            for (Message message : messages) {
+                if (message.type == MessageType.IMAGE_GROUP) {
+                    if (message.childMessages != null) {
+                        childToUpdate.addAll(message.childMessages);
+                    }
+                }
+            }
+            updateMaskChildMessages(childToUpdate, isMask);
+        }
     }
 
     private void getLastMessages(Conversation conversation) {
@@ -730,12 +743,11 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void updateMaskChildMessage(Message message, String parentKey, boolean maskStatus) {
+    public void updateMaskChildMessages(List<Message> messages, boolean maskStatus) {
         UpdateMaskChildMessagesUseCase.Params params = new UpdateMaskChildMessagesUseCase.Params();
         params.conversationId = conversation.key;
         params.isMask = maskStatus;
-        params.parentKey = parentKey;
-        params.setMessage(message);
+        params.messages = messages;
         updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
     }
 

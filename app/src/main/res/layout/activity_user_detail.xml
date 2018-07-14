@@ -102,7 +102,7 @@
                         app:leftIcon="@drawable/ic_username"
                         app:leftIconTint="?colorAccent"
                         app:showDivider="false"
-                        app:title="Username">
+                        app:titleText="Username">
 
                         <TextView
                             android:id="@+id/user_detail_name"
@@ -125,7 +125,7 @@
                             app:leftIcon="@drawable/ic_add_circle"
                             app:leftIconTint="?colorAccent"
                             app:showDivider="false"
-                            app:title="Save Contact"
+                            app:titleText="Save Contact"
                             app:titleColor="?colorAccent" />
 
                         <com.ping.android.presentation.view.custom.SettingItem
@@ -134,7 +134,7 @@
                             app:leftIcon="@drawable/ic_subtract_circle"
                             app:leftIconTint="?colorAccent"
                             app:showDivider="false"
-                            app:title="Delete Contact"
+                            app:titleText="Delete Contact"
                             app:titleColor="?colorAccent" />
                     </LinearLayout>
 
@@ -149,7 +149,7 @@
                         style="@style/ItemSetting"
                         app:leftIcon="@drawable/ic_block_outline"
                         app:leftIconTint="?colorAccent"
-                        app:title="Block">
+                        app:titleText="Block">
 
                         <android.support.v7.widget.SwitchCompat
                             android:id="@+id/user_detail_block"

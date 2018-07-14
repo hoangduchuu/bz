@@ -42,7 +42,7 @@ class SettingItem : ConstraintLayout {
                 val leftIconTintColor = typeArray.getColor(R.styleable.SettingItem_leftIconTint, ContextCompat.getColor(context, R.color.orange))
                 leftIcon.setColorFilter(leftIconTintColor, android.graphics.PorterDuff.Mode.SRC_IN)
             }
-            val title = typeArray.getString(R.styleable.SettingItem_title)
+            val title = typeArray.getString(R.styleable.SettingItem_titleText)
             tv_title.text = title
             val color = typeArray.getColor(R.styleable.SettingItem_titleColor, ContextCompat.getColor(context, R.color.black))
             tv_title.setTextColor(color)
