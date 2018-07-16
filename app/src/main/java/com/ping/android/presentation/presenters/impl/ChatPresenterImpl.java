@@ -309,15 +309,23 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = new MessageHeaderItem();
             headerItemMap.put(message.days, headerItem);
         }
+        MessageBaseItem item = null;
         if (message.type == MessageType.IMAGE_GROUP) {
-            if (message.childMessages != null) {
+            if (!message.isCached) {
                 for (Message child: message.childMessages) {
                     child.localFilePath = localCacheFile.get(child.key);
                 }
+            } else {
+                item = headerItem.getChildItem(message);
+                if (item != null) {
+                    item.message.childMessages = message.childMessages;
+                }
             }
         }
-        message.opponentUser = conversation.opponentUser;
-        MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+        if (item == null) {
+            message.opponentUser = conversation.opponentUser;
+            item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+        }
         boolean added = headerItem.addChildItem(item);
         view.updateMessage(item, headerItem, added);
     }

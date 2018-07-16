@@ -22,11 +22,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by tuanluong on 2/28/18.
@@ -73,15 +77,17 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                                     message.isCached = true;
                                     message.isMask = params.markStatus;
                                     message.childMessages = messages;
+                                    Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
                                     return message;
                                 })
                                 .flatMap(message1 -> Observable.just(message1)
                                         .concatWith(sendChildMessages(params.conversation.key, message1)
                                                 .map(messages -> {
                                                     // Need set isCached to false in order to notify presenter to trigger send notification
-                                                    message.isCached = false;
-                                                    message.childMessages = messages;
-                                                    return message;
+                                                    message1.isCached = false;
+                                                    message1.childMessages = messages;
+                                                    Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
+                                                    return message1;
                                                 })
                                         )
                                 )
@@ -122,6 +128,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
     private Observable<List<Message>> sendChildMessages(String conversationId, Message parentMessage) {
         Message[] messages = new Message[parentMessage.childMessages.size()];
         return Observable.fromArray(parentMessage.childMessages.toArray(messages))
+                .observeOn(Schedulers.io())
                 .flatMap(message -> uploadThumbnail(conversationId, message.localFilePath)
                         .zipWith(uploadImage(conversationId, message.localFilePath), Pair::create)
                         .flatMap(pair -> messageRepository.updateChildMessageImage(conversationId,

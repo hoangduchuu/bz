@@ -14,10 +14,12 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.Utils;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +97,8 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        return storageRepository.uploadFile(conversationKey, filePath);
+        String fileName = new File(filePath).getName();
+        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512));
     }
 
     public static class Params {

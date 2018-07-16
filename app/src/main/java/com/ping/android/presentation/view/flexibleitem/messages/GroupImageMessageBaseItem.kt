@@ -140,12 +140,15 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                     outline?.setRoundRect(left, top, right, bottom, curveRadius)
                 }
             }
-            imageView.clipToOutline = true
+            Log.d("Start-----------------------------------")
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
+                Log.d(message.localFilePath)
                 UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
                 return
             }
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
+            Log.d("Url: $url")
+            Log.d("End-----------------------------------")
             if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))

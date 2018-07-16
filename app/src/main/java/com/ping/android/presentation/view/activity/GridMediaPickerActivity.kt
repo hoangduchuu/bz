@@ -10,7 +10,7 @@ import com.bzzzchat.videorecorder.view.ImagesProvider
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import com.ping.android.model.enums.Color
-import com.ping.android.presentation.view.activity.ChatActivity.EXTRA_CONVERSATION_COLOR
+import com.ping.android.presentation.view.activity.ChatActivity.Companion.EXTRA_CONVERSATION_COLOR
 import com.ping.android.presentation.view.adapter.MediaMultiSelectAdapter
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.ThemeUtils
