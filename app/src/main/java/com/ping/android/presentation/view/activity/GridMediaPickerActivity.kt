@@ -6,20 +6,24 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.view.View
+import android.widget.Toast
 import com.bzzzchat.videorecorder.view.ImagesProvider
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.view.activity.ChatActivity.Companion.EXTRA_CONVERSATION_COLOR
 import com.ping.android.presentation.view.adapter.MediaMultiSelectAdapter
+import com.ping.android.presentation.view.adapter.MediaMultiSelectListener
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.ThemeUtils
 import kotlinx.android.synthetic.main.activity_grid_media_picker.*
+import kotlin.math.max
 
 class GridMediaPickerActivity : AppCompatActivity() {
 
     private lateinit var adapter: MediaMultiSelectAdapter
     private lateinit var imagesProvider: ImagesProvider
+    private var maxItemCount = 5
 
     private val listMedia by lazy {
         list_media.layoutManager = GridLayoutManager(this, 3)
@@ -30,19 +34,28 @@ class GridMediaPickerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val bundle = intent.extras
-        if (bundle != null) {
+        bundle.let {
             //originalConversation = bundle.getParcelable("CONVERSATION");
             var currentColor = Color.DEFAULT
-            if (bundle.containsKey(EXTRA_CONVERSATION_COLOR)) {
-                val color = bundle.getInt(EXTRA_CONVERSATION_COLOR)
+            if (it.containsKey(EXTRA_CONVERSATION_COLOR)) {
+                val color = it.getInt(EXTRA_CONVERSATION_COLOR)
                 currentColor = Color.from(color)
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor)
             }
+            maxItemCount = it.getInt(MAX_SELECTED_ITEM_COUNT)
         }
         setContentView(R.layout.activity_grid_media_picker)
-        adapter = MediaMultiSelectAdapter(ArrayList()) {
-            updateSelectedCount(it)
-        }
+        adapter = MediaMultiSelectAdapter(ArrayList(), object : MediaMultiSelectListener {
+            override fun onCountChange(count: Int) {
+                updateSelectedCount(count)
+            }
+
+            override fun onItemsExceeded() {
+                Toast.makeText(this@GridMediaPickerActivity, "Maximum images is $maxItemCount", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+        adapter.updateMaxItemCount(maxItemCount)
         listMedia.adapter = adapter
         btn_back.setOnClickListener { onBackPressed() }
 
@@ -68,5 +81,16 @@ class GridMediaPickerActivity : AppCompatActivity() {
         } else {
             tvCount.visibility = View.GONE
         }
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent()
+        intent.putExtra("data", false)
+        setResult(Activity.RESULT_CANCELED, intent)
+        finish()
+    }
+
+    companion object {
+        const val MAX_SELECTED_ITEM_COUNT = "MAX_SELECTED_ITEM_COUNT"
     }
 }

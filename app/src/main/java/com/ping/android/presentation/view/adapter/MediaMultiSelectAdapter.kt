@@ -10,23 +10,38 @@ import com.bzzzchat.extensions.inflate
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import java.io.File
+import kotlin.math.max
 
-class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: (Int) -> Unit): RecyclerView.Adapter<MediaMultiSelectAdapter.ViewHolder>() {
+interface MediaMultiSelectListener {
+    fun onCountChange(count: Int)
+    fun onItemsExceeded()
+}
+
+class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: MediaMultiSelectListener): RecyclerView.Adapter<MediaMultiSelectAdapter.ViewHolder>() {
     private val selectedItems: MutableList<PhotoItem> = ArrayList()
+    private var maxItemCount = 5
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent) {
-        if (it.isSelected) {
-            selectedItems.add(it)
-        } else {
-            selectedItems.remove(it)
-        }
-        listener(selectedItems.size)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
 
     override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bindData(data[position])
+        holder.itemView.setOnClickListener {
+            val size= selectedItems.size
+            val selectedItem = data[position]
+            if (size < maxItemCount || (size == maxItemCount && selectedItem.isSelected)) {
+                holder.toggleCheck()
+                if (data[position].isSelected) {
+                    selectedItems.add(data[position])
+                } else {
+                    selectedItems.remove(data[position])
+                }
+                listener.onCountChange(selectedItems.size)
+            } else {
+                listener.onItemsExceeded()
+            }
+        }
     }
 
     fun updateData(data: List<PhotoItem>) {
@@ -34,9 +49,13 @@ class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: (Int) -> 
         notifyDataSetChanged()
     }
 
+    fun updateMaxItemCount(maxItemCount: Int) {
+        this.maxItemCount = maxItemCount
+    }
+
     fun getSelectedItems(): List<PhotoItem> = selectedItems
 
-    class ViewHolder(parent: ViewGroup, val clickListener: (PhotoItem) -> Unit): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup): RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media_selectable)
     ) {
         private val image: ImageView = itemView.findViewById(R.id.image)
@@ -51,12 +70,11 @@ class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: (Int) -> 
             checkbox.isClickable = false
         }
 
-        private fun toggleCheck() {
+        fun toggleCheck() {
             val isSelected = item.isSelected
             checkbox.isChecked = !isSelected
             checkbox.isSelected = !isSelected
             item.isSelected = !isSelected
-            clickListener(item)
         }
 
         fun bindData(item: PhotoItem) {

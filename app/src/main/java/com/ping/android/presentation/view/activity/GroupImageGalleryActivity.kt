@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.activity
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.SharedElementCallback
@@ -22,7 +23,6 @@ class GroupImageGalleryActivity : CoreActivity() {
     lateinit var messages: MutableList<Message>
     private var conversationId: String = ""
     lateinit var adapter: ImagePagerAdapter
-    private var maxItemCount = 5
     private var currentPosition: Int = 0
 
     @Inject
@@ -45,7 +45,6 @@ class GroupImageGalleryActivity : CoreActivity() {
             conversationId = it.getString(CONVERSATION_ID)
             messages = it.getParcelableArrayList(IMAGES_EXTRA)
             currentPosition = it.getInt(POSITION_EXTRA)
-            maxItemCount = it.getInt(MAX_SELECTED_ITEM_COUNT)
         }
 
         setContentView(R.layout.activity_group_image_gallery)
@@ -112,6 +111,5 @@ class GroupImageGalleryActivity : CoreActivity() {
         const val CONVERSATION_ID = "CONVERSATION_ID"
         const val IMAGES_EXTRA = "IMAGES_EXTRA"
         const val POSITION_EXTRA = "POSITION_EXTRA"
-        const val MAX_SELECTED_ITEM_COUNT = "MAX_SELECTED_ITEM_COUNT"
     }
 }

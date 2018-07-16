@@ -1,11 +1,7 @@
 package com.ping.android.presentation.view.activity
 
 import android.Manifest
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -29,24 +25,16 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
-
+import android.widget.*
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent
 import com.bzzzchat.configuration.GlideApp
-import com.bzzzchat.flexibleadapter.FlexibleItem
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity
 import com.bzzzchat.videorecorder.view.withDelay
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.chat.ChatComponent
 import com.ping.android.dagger.loggedin.chat.ChatModule
@@ -66,33 +54,21 @@ import com.ping.android.presentation.view.custom.VoiceRecordViewListener
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
 import com.ping.android.presentation.view.custom.media.MediaPickerPopup
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
+import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
-import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem
-import com.ping.android.utils.BadgeHelper
-import com.ping.android.utils.ImagePickerHelper
-import com.ping.android.utils.KeyboardHelpers
-import com.ping.android.utils.Log
-import com.ping.android.utils.PermissionsChecker
-import com.ping.android.utils.ThemeUtils
-import com.ping.android.utils.Toaster
+import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
 import com.vanniktech.emoji.EmojiPopup
-
+import kotlinx.android.synthetic.main.view_chat_bottom.*
 import java.io.File
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
+import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-
 import javax.inject.Inject
-
-import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.view_chat_bottom.*
 
 class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
 
@@ -140,7 +116,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
     private var textWatcher: TextWatcher? = null
 
-    private val imagePickerHelper: ImagePickerHelper? = null
     private var shakeEventManager: ShakeEventManager? = null
     private var permissionsChecker: PermissionsChecker? = null
 
@@ -300,6 +275,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         // TODO start grid media picker
         val intent = Intent(this, GridMediaPickerActivity::class.java)
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
+        intent.putExtra(GridMediaPickerActivity.MAX_SELECTED_ITEM_COUNT, 10)
         startActivityForResult(intent, REQUEST_CODE_MEDIA_PICKER)
     }
 
@@ -336,7 +312,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         if (emojiPopup != null && emojiPopup!!.isShowing && selectedViewId != R.id.chat_emoji_btn) {
             emojiPopup!!.dismiss()
         }
-        hideMediaPickerView()
+        if (selectedViewId != R.id.chat_image_btn) {
+            hideMediaPickerView()
+        }
         for (viewId in actionButtons!!) {
             val imageButton = findViewById<ImageButton>(viewId)
             imageButton.isSelected = viewId == selectedViewId
@@ -425,7 +403,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, ArrayList(data))
         intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position)
         intent.putExtra(GroupImageGalleryActivity.CONVERSATION_ID, originalConversation!!.key)
-        intent.putExtra(GroupImageGalleryActivity.MAX_SELECTED_ITEM_COUNT, 10)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, *sharedElements
         )
@@ -438,7 +415,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        imagePickerHelper?.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             val imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY)
             val videoPath = data.getStringExtra(VideoRecorderActivity.VIDEO_EXTRA_KEY)
@@ -452,10 +428,12 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             val items = data.getParcelableArrayListExtra<PhotoItem>("data")
             val size = items.size
             if (size > 0) {
-                if (size == 1) {
-                    presenter.sendImageMessage(items[0].imagePath, items[0].thumbnailPath, tgMarkOut!!.isSelected)
-                } else {
-                    presenter.sendImagesMessage(items, tgMarkOut!!.isSelected)
+                if (selectedGame == GameType.UNKNOWN) {
+                    if (size == 1) {
+                        presenter.sendImageMessage(items[0].imagePath, items[0].thumbnailPath, tgMarkOut!!.isSelected)
+                    } else {
+                        presenter.sendImagesMessage(items, tgMarkOut!!.isSelected)
+                    }
                 }
             }
         }
@@ -978,6 +956,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     private fun openMediaPicker() {
         setupMediaPickerView()
+        if (mediaPickerPopup!!.isShowing()) return
         val disposable = permissionsChecker!!.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe { isGranted ->
                     if (isGranted!!) {
