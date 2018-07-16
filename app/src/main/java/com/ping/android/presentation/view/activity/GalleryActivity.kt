@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.activity
 
 import android.os.Bundle
+import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
@@ -49,6 +50,10 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
 
     override fun hideLoading() {
         super<CoreActivity>.hideLoading()
+    }
+
+    override fun getPresenter(): BasePresenter {
+        return presenter
     }
 
 }

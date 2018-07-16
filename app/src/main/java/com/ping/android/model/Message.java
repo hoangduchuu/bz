@@ -258,7 +258,7 @@ public class Message implements Parcelable {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Message) {
-            return timestamp == ((Message) obj).timestamp && key.equals(((Message) obj).key);
+            return key.equals(((Message) obj).key);
         }
         return false;
     }

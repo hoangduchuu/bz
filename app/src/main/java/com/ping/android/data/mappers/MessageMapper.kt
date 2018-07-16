@@ -63,6 +63,7 @@ class MessageMapper @Inject constructor() {
                     childMessages.add(childMessage)
                 }
             }
+            childMessages.sortByDescending { it.timestamp }
             message.childMessages = childMessages
         }
 

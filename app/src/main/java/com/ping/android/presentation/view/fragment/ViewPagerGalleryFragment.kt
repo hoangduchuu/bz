@@ -66,7 +66,7 @@ class ViewPagerGalleryFragment : BaseFragment() {
         btn_back.setOnClickListener { activity?.onBackPressed() }
         togglePuzzle.setOnClickListener {
             val message = messages[presenter.currentPosition]
-            presenter.updateMask(message.key, !message.isMask) }
+            presenter.updateMask(message, !message.isMask) }
         bindData()
     }
 
