@@ -1032,12 +1032,20 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
     }
 
     private void onSendImage() {
+        openMediaPicker();
+    }
+
+    private void onSendGame(GameType gameType) {
+        chatGameMenu.hide();
+        openMediaPicker();
+    }
+
+    private void openMediaPicker() {
+        setupMediaPickerView();
         Disposable disposable = permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe(isGranted -> {
                     if (isGranted) {
-                        //KeyboardHelpers.hideSoftInputKeyboard(this);
                         hideVoiceRecordView();
-                        setupMediaPickerView();
                         if (!mediaPickerPopup.isShowing()) {
                             mediaPickerPopup.toggle();
                         }
@@ -1058,27 +1066,6 @@ public class ChatActivity extends CoreActivity implements ChatPresenter.View, Ha
             view.findViewById(R.id.btn_cancel_game_selection).setOnClickListener(this);
         }
         chatGameMenu.show();
-    }
-
-    private void onSendGame(GameType gameType) {
-        chatGameMenu.hide();
-        imagePickerHelper = ImagePickerHelper.from(this)
-                .setCrop(false)
-                .setScale(true)
-                .setGenerateThumbnail(true)
-                .setListener(new ImagePickerHelper.ImagePickerListener() {
-                    @Override
-                    public void onImageReceived(File file) {
-
-                    }
-
-                    @Override
-                    public void onFinalImage(File... files) {
-                        File file = files[0];
-                        sendGameFirebase(file, gameType);
-                    }
-                });
-        imagePickerHelper.openPicker();
     }
 
     private void handleRecordVoice() {
