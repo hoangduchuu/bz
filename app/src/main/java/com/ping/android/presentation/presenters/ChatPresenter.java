@@ -12,6 +12,9 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,8 @@ public interface ChatPresenter extends BasePresenter {
     void sendImagesMessage(List<PhotoItem> items, boolean markStatus);
 
     void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus);
+
+    void sendGameMessages(@NotNull List<PhotoItem> items, GameType gameType, boolean isMask);
 
     void sendAudioMessage(String audioUrl, VoiceType voiceType);
 

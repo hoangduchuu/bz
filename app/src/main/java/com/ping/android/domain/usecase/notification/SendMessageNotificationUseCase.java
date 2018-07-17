@@ -50,7 +50,8 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                         senderName = nickNames.get(sender.key);
                     }
                     if (params.conversation.group != null) {
-                        senderName = String.format("%s to %s", senderName, params.conversation.group.groupName);
+                        String groupName = params.conversation.group.groupName;
+                        senderName = String.format("%s to %s", senderName, groupName);
                     }
                     ArrayList<User> validUsers = new ArrayList<>();
                     for (User user : params.conversation.members) {
@@ -68,11 +69,11 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                             //get incoming mask of target opponentUser
                                             boolean incomingMask = CommonMethod.getBooleanFrom(params.conversation.maskMessages, user.key);
                                             String body = "";
-                                            switch (params.message.type) {
+                                            switch (params.messageType) {
                                                 case TEXT:
-                                                    String messageText = params.message.message;
+                                                    String messageText = params.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                                                        messageText = CommonMethod.encodeMessage(params.message.message, user.mappings);
+                                                        messageText = CommonMethod.encodeMessage(params.message, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
@@ -89,7 +90,10 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                     body = userName + ": sent a video message.";
                                                     break;
                                                 case IMAGE_GROUP:
-                                                    body = userName + ": sent multiple pictures message.";
+                                                    body = userName + ": sent (" + params.message + ") pictures.";
+                                                    break;
+                                                case GAME_GROUP:
+                                                    body = userName + ": sent (" + params.message + ") games." ;
                                                     break;
                                                 default:
                                                     break;
@@ -99,8 +103,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 profile = "";
                                             }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, profile, body, params.conversation.key,
-                                                    params.message, user, integer);
+                                                    sender.key, profile, body, params.conversation.key, user, integer);
                                         });
                             })
                             .take(validUsers.size());
@@ -122,11 +125,14 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
 
     public static class Params {
         private Conversation conversation;
-        private Message message;
+        //private Message message;
+        private MessageType messageType;
+        private String message;
 
-        public Params(Conversation conversation, Message message) {
+        public Params(Conversation conversation, String message, MessageType messageType) {
             this.conversation = conversation;
             this.message = message;
+            this.messageType = messageType;
         }
     }
 }

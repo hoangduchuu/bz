@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by tuanluong on 2/28/18.
@@ -101,7 +102,8 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                     message.thumbUrl = s;
                     message.photoUrl = s2;
                     return message;
-                });
+                })
+                .observeOn(Schedulers.io());
     }
 
     private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {

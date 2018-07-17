@@ -23,7 +23,6 @@ import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.utils.configs.Constant;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +35,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     private LinearLayoutManager mLinearLayoutManager;
     private EditText searchView;
     private ImageView btBack;
-    private AVLoadingIndicatorView avi;
-
+    private View loading;
     private AddContactAdapter adapter;
     private LinearLayout noResultsView;
 
@@ -77,8 +75,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = findViewById(R.id.add_contact_search_view);
         noResultsView = findViewById(R.id.no_results);
-        avi = findViewById(R.id.avi);
-
+        loading = findViewById(R.id.spin_kit);
         registerEvent(RxTextView.textChanges(searchView)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(new UIThread().getScheduler())
@@ -160,18 +157,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     @Override
     public void showSearching() {
-        avi.post(() -> {
-            avi.setVisibility(View.VISIBLE);
-            avi.show();
-        });
+        loading.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideSearching() {
-        avi.post(() -> {
-            avi.hide();
-            avi.setVisibility(View.GONE);
-        });
+        loading.setVisibility(View.GONE);
     }
 
     @Override

@@ -81,16 +81,19 @@
                 android:layout_height="match_parent"
                 android:scrollbars="none" />
 
-            <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/avi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.github.ybq.android.spinkit.SpinKitView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.Small.ThreeBounce"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_centerHorizontal="true"
-                style="@style/AVLoadingIndicatorView"
                 android:visibility="gone"
-                app:indicatorName="BallPulseIndicator"
-                app:indicatorColor="@color/colorAccent"
-            />
+                app:SpinKit_Color="@color/colorAccent" />
+            <!--<ProgressBar-->
+                <!--android:id="@+id/spin_kit"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
 
             <LinearLayout
                 android:id="@+id/no_results"

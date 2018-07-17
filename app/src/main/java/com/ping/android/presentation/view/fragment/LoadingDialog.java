@@ -12,13 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 
 import com.ping.android.R;
-import com.wang.avi.AVLoadingIndicatorView;
 
 public class LoadingDialog extends DialogFragment {
-    AVLoadingIndicatorView loadingView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,7 +27,7 @@ public class LoadingDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.loading_view, container, false);
-        loadingView = view.findViewById(R.id.avi);
+        //loadingView = view.findViewById(R.id.avi);
         return view;
     }
 
@@ -64,12 +61,12 @@ public class LoadingDialog extends DialogFragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadingView.show();
+        //loadingView.show();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        loadingView.hide();
+//        loadingView.hide();
     }
 }

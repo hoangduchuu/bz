@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/avi"
+    <com.github.ybq.android.spinkit.SpinKitView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/spin_kit"
+        style="@style/SpinKitView.Large.DoubleBounce"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/AVLoadingIndicatorView"
-        android:visibility="visible"
-        app:indicatorName="LineScaleIndicator"
-        app:indicatorColor="@color/colorAccent"
-        />
+        android:layout_gravity="center"
+        app:SpinKit_Color="@color/colorAccent" />
 </LinearLayout>

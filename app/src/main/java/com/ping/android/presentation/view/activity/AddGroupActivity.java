@@ -28,7 +28,6 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     private ChipsEditText edtTo;
     private RecyclerView recycleChatView;
     private LinearLayout noResultsView;
-    private AVLoadingIndicatorView avi;
+    private View loading;
 
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage = null;
@@ -86,12 +85,12 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
         groupAvatar = findViewById(R.id.profile_image);
         groupAvatar.setOnClickListener(this);
 
-        avi = findViewById(R.id.avi);
         noResultsView = findViewById(R.id.no_results);
 
         edMessage = findViewById(R.id.new_group_message_tv);
         btSendMessage = findViewById(R.id.new_group_send_message_btn);
         btSendMessage.setOnClickListener(this);
+        loading = findViewById(R.id.spin_kit);
 
         findViewById(R.id.new_group_select_contact).setOnClickListener(this);
 
@@ -256,18 +255,12 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
 
     @Override
     public void showSearching() {
-        avi.post(() -> {
-            avi.setVisibility(View.VISIBLE);
-            avi.show();
-        });
+        loading.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideSearching() {
-        avi.post(() -> {
-            avi.hide();
-            avi.setVisibility(View.GONE);
-        });
+        loading.setVisibility(View.GONE);
     }
 
     @Override

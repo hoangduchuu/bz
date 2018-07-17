@@ -9,7 +9,7 @@
     tools:background="@color/color_1">
 
     <ImageButton
-        android:id="@+id/chat_tgl_outcoming"
+        android:id="@+id/tgMarkOut"
         style="?attr/backgroundTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:scrollHorizontally="false"
         android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toStartOf="@+id/btn_send"
-        app:layout_constraintStart_toEndOf="@+id/chat_tgl_outcoming"
+        app:layout_constraintStart_toEndOf="@+id/tgMarkOut"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="" />
 

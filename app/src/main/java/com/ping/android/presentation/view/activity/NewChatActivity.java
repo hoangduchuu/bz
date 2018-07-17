@@ -27,7 +27,6 @@ import com.ping.android.presentation.view.adapter.SelectContactAdapter;
 import com.ping.android.presentation.view.custom.ChipsEditText;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.configs.Constant;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +44,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     private ChipsEditText edtTo;
     private EditText edMessage;
     private LinearLayout noResultsView;
-    private AVLoadingIndicatorView avi;
     private Button btnDone;
+    private View loading;
 
     private SelectContactAdapter adapter;
     private ArrayList<User> selectedUsers = new ArrayList<>();
@@ -136,6 +135,8 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         btnDone = findViewById(R.id.btn_done);
         edtTo = findViewById(R.id.edt_to);
         btBack = findViewById(R.id.chat_back);
+        loading = findViewById(R.id.spin_kit);
+
         btBack.setOnClickListener(this);
 
         btSelectContact = findViewById(R.id.new_chat_select_contact);
@@ -149,7 +150,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         btSendMessage = findViewById(R.id.chat_send_message_btn);
         btSendMessage.setOnClickListener(this);
 
-        avi = findViewById(R.id.avi);
         noResultsView = findViewById(R.id.no_results);
 
         LinearLayout bottomLayout = findViewById(R.id.chat_layout_text);
@@ -257,18 +257,12 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
 
     @Override
     public void showSearching() {
-        avi.post(() -> {
-            avi.setVisibility(View.VISIBLE);
-            avi.show();
-        });
+        loading.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideSearching() {
-        avi.post(() -> {
-            avi.hide();
-            avi.setVisibility(View.GONE);
-        });
+        loading.setVisibility(View.GONE);
     }
 
     @Override

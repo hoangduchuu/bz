@@ -26,6 +26,7 @@ import com.ping.android.domain.usecase.message.ObserveMessageChangeUseCase;
 import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
+import com.ping.android.domain.usecase.message.SendGroupGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGroupImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
@@ -91,6 +92,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendGroupImageMessageUseCase sendGroupImageMessageUseCase;
     @Inject
     SendGameMessageUseCase sendGameMessageUseCase;
+    @Inject
+    SendGroupGameMessageUseCase sendGroupGameMessageUseCase;
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
     @Inject
@@ -343,7 +346,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
-                sendNotification(conversation, message1);
+                sendNotification(conversation, message1.message, MessageType.TEXT);
             }
 
             @Override
@@ -370,7 +373,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.message, MessageType.IMAGE);
                 }
             }
 
@@ -393,7 +396,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (!message.isCached) {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, "" + items.size(), MessageType.IMAGE_GROUP);
                 }
                 if (message.childMessages != null) {
                     for (Message child : message.childMessages) {
@@ -416,21 +419,42 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.filePath = gameUrl;
         params.gameType = gameType;
         params.markStatus = markStatus;
-        params.messageType = MessageType.GAME;
         sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.message, MessageType.GAME);
                 }
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendGameMessages(@NotNull List<PhotoItem> items, GameType gameType, boolean isMask) {
+        SendGroupGameMessageUseCase.Params params = new SendGroupGameMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.gameType = gameType;
+        params.markStatus = isMask;
+        params.items = items;
+        sendGroupGameMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (message.isCached) {
+                    addMessage(message);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                sendNotification(conversation, "" + params.items.size(), MessageType.GAME_GROUP);
             }
         }, params);
     }
@@ -448,7 +472,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (!message.isCached) {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.message, MessageType.from(message.messageType));
                 }
             }
 
@@ -472,7 +496,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Message message) {
                 super.onNext(message);
                 if (!message.isCached) {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.message, MessageType.VIDEO);
                 } else {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
@@ -758,9 +782,9 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
     }
 
-    private void sendNotification(Conversation conversation, Message message) {
+    private void sendNotification(Conversation conversation, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
-                new SendMessageNotificationUseCase.Params(conversation, message));
+                new SendMessageNotificationUseCase.Params(conversation, message, messageType));
     }
 
     private void checkMessageError(Message message) {

@@ -56,6 +56,11 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
                 view.hideLoading();
                 view.showNoResults();
             }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+            }
         }, query);
     }
 

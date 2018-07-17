@@ -10,7 +10,6 @@ import android.preference.PreferenceManager
 import android.support.design.widget.BottomSheetDialog
 import android.support.transition.Slide
 import android.support.transition.TransitionManager
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v4.content.ContextCompat
@@ -85,9 +84,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var bottomLayoutChat: ViewGroup? = null
     private var bottomMenuEditMode: ViewGroup? = null
     private var layoutVoice: VoiceRecordView? = null
-    private var copyContainer: LinearLayout? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
-    private var tgMarkOut: ImageButton? = null
     private var tvChatStatus: TextView? = null
     private var btVoiceCall: ImageButton? = null
     private var btVideoCall: ImageButton? = null
@@ -111,7 +108,41 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         view.findViewById<View>(R.id.btn_cancel_game_selection).setOnClickListener(this)
         dialog
     }
-    private var messageActions: BottomSheetDialog? = null
+
+    private var copyContainer: LinearLayout? = null
+    private val messageActions: BottomSheetDialog by lazy {
+        // Bottom message action
+        val messageActionsView = layoutInflater.inflate(R.layout.bottom_sheet_message_actions, null)
+        copyContainer = messageActionsView.findViewById(R.id.btn_copy)
+        copyContainer?.setOnClickListener(this)
+        messageActionsView.findViewById<View>(R.id.btn_delete).setOnClickListener(this)
+        messageActionsView.findViewById<View>(R.id.btn_edit).setOnClickListener(this)
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(messageActionsView)
+        dialog.setOnDismissListener { hideSelectedMessage() }
+        dialog
+    }
+
+    private val prefs: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(this)
+    }
+
+    private val listener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
+                val messageCount = prefs.getInt(key, 0)
+                updateMessageCount(messageCount)
+            }
+        }
+    }
+    private var textWatcher: TextWatcher? = null
+
+    private val shakeEventManager: ShakeEventManager by lazy {
+        ShakeEventManager(this)
+    }
+    private val permissionsChecker: PermissionsChecker by lazy {
+        PermissionsChecker.from(this)
+    }
 
     var conversationId: String? = null
         private set
@@ -123,19 +154,14 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var originalText = ""
     private var selectPosition = 0
 
-    private lateinit var prefs: SharedPreferences
-    private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
-    private var textWatcher: TextWatcher? = null
-
-    private lateinit var shakeEventManager: ShakeEventManager
-    private lateinit var permissionsChecker: PermissionsChecker
-
     private var isScrollToTop = false
     private var emojiPopup: EmojiPopup? = null
     private var mediaPickerPopup: MediaPickerPopup? = null
 
     private var selectedMessage: MessageBaseItem<*>? = null
-    private var badgeHelper: BadgeHelper? = null
+    private val badgeHelper: BadgeHelper by lazy {
+        BadgeHelper(this)
+    }
 
     @Inject
     lateinit var presenter: ChatPresenter
@@ -260,7 +286,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             } else {
                 handleRecordVoice()
             }
-            R.id.chat_tgl_outcoming -> onChangeTypingMark()
+            R.id.tgMarkOut -> onChangeTypingMark()
             R.id.chat_voice_call -> onVoiceCall()
             R.id.chat_video_call -> onVideoCall()
             R.id.chat_emoji_btn -> handleEmojiPressed()
@@ -281,17 +307,21 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     private fun handleGridMediaPickerPress() {
         // TODO start grid media picker
-        val intent = Intent(this, GridMediaPickerActivity::class.java)
-        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
-        intent.putExtra(GridMediaPickerActivity.MAX_SELECTED_ITEM_COUNT, 10)
-        startActivityForResult(intent, REQUEST_CODE_MEDIA_PICKER)
+        KeyboardHelpers.hideSoftInputKeyboard(this)
+        mediaPickerPopup?.toggle()
+        withDelay(300) {
+            val intent = Intent(this, GridMediaPickerActivity::class.java)
+            intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
+            intent.putExtra(GridMediaPickerActivity.MAX_SELECTED_ITEM_COUNT, 10)
+            startActivityForResult(intent, REQUEST_CODE_MEDIA_PICKER)
+        }
     }
 
     private fun handleEditMessages() {
         toggleEditMode(true)
         // there is 1 message that is the current selected one
         updateMessageSelection(1)
-        messageActions!!.dismiss()
+        messageActions.dismiss()
     }
 
     private fun toggleEditMode(b: Boolean) {
@@ -332,19 +362,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     override fun onLongPress(message: MessageBaseItem<*>, allowCopy: Boolean) {
         KeyboardHelpers.hideSoftInputKeyboard(this)
         selectedMessage = message
-        if (messageActions == null) {
-            // Bottom message action
-            val messageActionsView = layoutInflater.inflate(R.layout.bottom_sheet_message_actions, null)
-            copyContainer = messageActionsView.findViewById(R.id.btn_copy)
-            copyContainer!!.setOnClickListener(this)
-            messageActionsView.findViewById<View>(R.id.btn_delete).setOnClickListener(this)
-            messageActionsView.findViewById<View>(R.id.btn_edit).setOnClickListener(this)
-            messageActions = BottomSheetDialog(this)
-            messageActions!!.setContentView(messageActionsView)
-            messageActions!!.setOnDismissListener { dialog -> hideSelectedMessage() }
-        }
-        copyContainer!!.visibility = if (allowCopy) View.VISIBLE else View.GONE
-        messageActions!!.show()
+        messageActions.show()
+        copyContainer?.visibility = if (allowCopy) View.VISIBLE else View.GONE
     }
 
     override fun openImage(messageKey: String, imageUrl: String, localImage: String, isPuzzled: Boolean, vararg sharedElements: Pair<View, String>) {
@@ -427,7 +446,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             val imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY)
             val videoPath = data.getStringExtra(VideoRecorderActivity.VIDEO_EXTRA_KEY)
             if (!TextUtils.isEmpty(imagePath)) {
-                presenter.sendImageMessage(imagePath, imagePath, tgMarkOut!!.isSelected)
+                presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isSelected)
             } else if (!TextUtils.isEmpty(videoPath)) {
                 presenter.sendVideoMessage(videoPath)
             }
@@ -438,19 +457,19 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             if (size > 0) {
                 if (selectedGame == GameType.UNKNOWN) {
                     if (size == 1) {
-                        presenter.sendImageMessage(items[0].imagePath, items[0].thumbnailPath, tgMarkOut!!.isSelected)
+                        presenter.sendImageMessage(items[0].imagePath, items[0].thumbnailPath, tgMarkOut.isSelected)
                     } else {
-                        presenter.sendImagesMessage(items, tgMarkOut!!.isSelected)
+                        presenter.sendImagesMessage(items, tgMarkOut.isSelected)
                     }
+                } else {
+                    presenter.sendGameMessages(items, selectedGame, tgMarkOut.isSelected)
                 }
             }
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (permissionsChecker != null) {
-            permissionsChecker.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
+        permissionsChecker.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 111) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 handleRecordVoice()
@@ -484,7 +503,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         bottomLayoutContainer = findViewById(R.id.bottom_layout_container)
         bottomLayoutChat = findViewById(R.id.bottom_layout_chat)
         bottomMenuEditMode = findViewById(R.id.bottom_menu_edit_mode)
-        tgMarkOut = chat_tgl_outcoming
 
         tvNewMsgCount = findViewById(R.id.chat_new_message_count)
         val btEmoji = findViewById<ImageButton>(R.id.chat_emoji_btn)
@@ -494,7 +512,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         btnSend!!.setOnClickListener(this)
         btVoiceCall!!.setOnClickListener(this)
         btVideoCall!!.setOnClickListener(this)
-        tgMarkOut!!.setOnClickListener(this)
+        tgMarkOut.setOnClickListener(this)
         btnMask!!.setOnClickListener(this)
         btnUnmask!!.setOnClickListener(this)
         findViewById<View>(R.id.chat_person_name).setOnClickListener(this)
@@ -549,9 +567,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
                 override fun sendImage(item: PhotoItem) {
                     if (selectedGame != GameType.UNKNOWN) {
-                        presenter.sendGameMessage(item.imagePath, selectedGame, tgMarkOut!!.isSelected)
+                        presenter.sendGameMessage(item.imagePath, selectedGame, tgMarkOut.isSelected)
                     } else {
-                        presenter.sendImageMessage(item.imagePath, item.thumbnailPath, tgMarkOut!!.isSelected)
+                        presenter.sendImageMessage(item.imagePath, item.thumbnailPath, tgMarkOut.isSelected)
                     }
                 }
             })
@@ -610,17 +628,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun init() {
-        permissionsChecker = PermissionsChecker.from(this)
-        badgeHelper = BadgeHelper(this)
-        prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        listener = SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
-            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
-                val messageCount = prefs.getInt(key, 0)
-                updateMessageCount(messageCount)
-            }
-        }
-
-        shakeEventManager = ShakeEventManager(this)
         registerEvent(shakeEventManager.getShakeEvent()
                 .debounce(700, TimeUnit.MILLISECONDS)
                 .subscribe { handleShakePhone() })
@@ -695,7 +702,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
                 updateSendButtonStatus(!TextUtils.isEmpty(charSequence.toString()))
-                if (!tgMarkOut!!.isSelected) {
+                if (!tgMarkOut.isSelected) {
                     return
                 }
 
@@ -772,7 +779,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
                     updateConversationTyping(isTyping)
                 }
 
-                if (!tgMarkOut!!.isSelected) {
+                if (!tgMarkOut.isSelected) {
                     originalText = editable.toString()
                     return
                 }
@@ -835,7 +842,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     // endregion
 
     private fun onCopySelectedMessageText() {
-        messageActions!!.hide()
+        messageActions.hide()
         if (selectedMessage == null) return
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText("message", selectedMessage!!.message.message)
@@ -846,7 +853,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun onDeleteSelectedMessage() {
-        messageActions!!.hide()
+        messageActions.hide()
         if (selectedMessage == null) return
 
         val messagesToDelete = ArrayList<Message>()
@@ -904,11 +911,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun onChangeTypingMark() {
-        tgMarkOut!!.isSelected = !tgMarkOut!!.isSelected
-        presenter.updateMaskOutput(tgMarkOut!!.isSelected)
+        tgMarkOut.isSelected = !tgMarkOut.isSelected
+        presenter.updateMaskOutput(tgMarkOut.isSelected)
         edMessage!!.removeTextChangedListener(textWatcher)
         var select = edMessage!!.selectionStart
-        if (tgMarkOut!!.isSelected) {
+        if (tgMarkOut.isSelected) {
             updateMaskTintColor(true)
             edMessage!!.setText(userManager.encodeMessage(originalText))
             select = userManager.encodeMessage(originalText.substring(0, select))!!.length
@@ -937,7 +944,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             return
         }
         edMessage!!.text = null
-        presenter.sendTextMessage(text, tgMarkOut!!.isSelected)
+        presenter.sendTextMessage(text, tgMarkOut.isSelected)
     }
 
     private fun onSendCamera() {
@@ -1016,11 +1023,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun sendImageFirebase(file: File, thumbnail: File) {
-        presenter.sendImageMessage(file.absolutePath, thumbnail.absolutePath, tgMarkOut!!.isSelected)
+        presenter.sendImageMessage(file.absolutePath, thumbnail.absolutePath, tgMarkOut.isSelected)
     }
 
     private fun sendGameFirebase(file: File, gameType: GameType) {
-        presenter.sendGameMessage(file.absolutePath, gameType, tgMarkOut!!.isSelected)
+        presenter.sendGameMessage(file.absolutePath, gameType, tgMarkOut.isSelected)
     }
 
     private fun showTyping(typing: Boolean) {
@@ -1055,7 +1062,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateMaskSetting(isEnable: Boolean) {
-        tgMarkOut!!.isSelected = isEnable
+        tgMarkOut.isSelected = isEnable
         updateMaskTintColor(isEnable)
     }
 
@@ -1159,9 +1166,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private fun updateMaskTintColor(isEnable: Boolean) {
         if (isEnable) {
             val color = ContextCompat.getColor(this, originalConversation!!.currentColor.color)
-            tgMarkOut!!.backgroundTintList = ColorStateList.valueOf(color)
+            tgMarkOut.backgroundTintList = ColorStateList.valueOf(color)
         } else {
-            tgMarkOut!!.backgroundTintList = null
+            tgMarkOut.backgroundTintList = null
         }
     }
 

@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by tuanluong on 2/28/18.
@@ -53,7 +54,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
         builder = new SendMessageUseCase.Params.Builder()
-                .setMessageType(params.messageType)
+                .setMessageType(MessageType.GAME)
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
@@ -75,6 +76,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                             message1.isCached = true;
                             message1.localFilePath = params.filePath;
                             message1.currentUserId = params.currentUser.key;
+                            message1.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                             return message1;
                         }))
                 .concatWith(sendMessage(params));
@@ -82,6 +84,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
 
     private Observable<Message> sendMessage(Params params) {
         return this.uploadImage(params.conversation.key, params.filePath)
+                .observeOn(Schedulers.io())
                 .map(s -> {
                     builder.setFileUrl(s);
                     return builder.build();
@@ -91,7 +94,10 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
                     updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
-                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
+                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> {
+                        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                        return message;
+                    });
                 });
     }
 
@@ -105,7 +111,6 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
         public String filePath;
         public Conversation conversation;
         public User currentUser;
-        public MessageType messageType;
         public GameType gameType;
         public boolean markStatus;
     }
