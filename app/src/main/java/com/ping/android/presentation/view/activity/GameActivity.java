@@ -292,14 +292,16 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
 
     private void updateGameStatus(boolean isTimeOut) {
         boolean gameWin = checkGameStatus();
-        gameCountDown.cancel();
-        stopVibrate();
         if (gameWin) {
             puzzleView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(originalBitmap);
             onGamePassed();
+            gameCountDown.cancel();
+            stopVibrate();
         } else if (isTimeOut) {
+            gameCountDown.cancel();
+            stopVibrate();
             onGameFailed();
         }
     }
