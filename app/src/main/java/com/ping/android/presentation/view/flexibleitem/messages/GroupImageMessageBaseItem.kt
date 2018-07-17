@@ -1,19 +1,13 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
-import android.graphics.Bitmap
 import android.graphics.Outline
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.ShapeDrawable
 import android.support.v4.util.Pair
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.ObjectKey
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
@@ -24,7 +18,6 @@ import com.ping.android.model.Message
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.presentation.view.custom.GridNonScrollableLayoutManager
 import com.ping.android.utils.BitmapEncode
-import com.ping.android.utils.CommonMethod
 import com.ping.android.utils.Log
 import com.ping.android.utils.UiUtils
 
@@ -136,19 +129,15 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
             }
             imageView.outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view: View?, outline: Outline?) {
-                    Log.d("Left: $left, Top: $top, Right: $right, Bottom: $bottom")
                     outline?.setRoundRect(left, top, right, bottom, curveRadius)
                 }
             }
-            Log.d("Start-----------------------------------")
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
                 Log.d(message.localFilePath)
                 UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
                 return
             }
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
-            Log.d("Url: $url")
-            Log.d("End-----------------------------------")
             if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))
@@ -175,7 +164,6 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
 
         init {
-            groupImage.clipToOutline = true
             groupImage.isNestedScrollingEnabled = false
             groupImage.layoutManager = gridLayoutManager
             groupImage.addItemDecoration(gridItemDecoration)
@@ -223,7 +211,6 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
         override fun onDoubleClick(position: Int, isMask: Boolean) {
             if (item.isEditMode) return
             val childMessage = item.message.childMessages[position]
-            // TODO should check to see whether all child messages are masked, then mask parent messages too
             var shouldMaskParent = isMask
             for (mess in item.message.childMessages) {
                 if (mess.key != childMessage.key) {

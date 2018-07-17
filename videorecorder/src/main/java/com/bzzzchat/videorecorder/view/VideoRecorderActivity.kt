@@ -95,6 +95,9 @@ class VideoRecorderActivity : Activity() {
             fragmentManager.popBackStackImmediate()
             return
         } else {
+            val intent = Intent()
+            intent.putExtra("data", false)
+            setResult(Activity.RESULT_CANCELED, intent)
             finish()
         }
     }

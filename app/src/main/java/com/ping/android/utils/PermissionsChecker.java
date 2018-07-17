@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -60,15 +61,6 @@ public class PermissionsChecker {
         return Single.just(true);
     }
 
-    private Context getContext() {
-        if (activity != null) {
-            return activity;
-        } else if (fragment != null) {
-            return fragment.getContext();
-        }
-        throw new NullPointerException("Activity and Fragment is null");
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     private void requestPermissions(String... permissions) {
         if (activity != null) {
@@ -94,7 +86,8 @@ public class PermissionsChecker {
                             break;
                         }
                     }
-                    publishSubject.onNext(isGrant);
+                    boolean finalIsGrant = isGrant;
+                    new Handler().postDelayed(() -> publishSubject.onNext(finalIsGrant), 700);
                 } else {
                     publishSubject.onNext(false);
                     // permission denied, boo! Disable the

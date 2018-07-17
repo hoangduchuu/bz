@@ -11,4 +11,8 @@ class GridNonScrollableLayoutManager(context: Context, spanCount: Int): GridLayo
     override fun canScrollVertically(): Boolean {
         return false
     }
+
+    override fun isAutoMeasureEnabled(): Boolean {
+        return true
+    }
 }

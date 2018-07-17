@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
     style="@style/ItemChat"
+    android:focusableInTouchMode="true"
     android:orientation="vertical">
 
     <RadioButton
@@ -20,6 +21,7 @@
         android:id="@+id/group_images"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:itemCount="1"

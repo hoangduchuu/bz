@@ -35,6 +35,7 @@ public class Message implements Parcelable {
     public int voiceType = 0;
     public double callDuration; // in seconds
     public List<Message> childMessages;
+    public int childCount;
     public String parentKey;
     // Local variable, don't store on Firebase
     public User sender;
@@ -212,7 +213,7 @@ public class Message implements Parcelable {
     public static Message createGroupImageMessage(String senderId, String senderName, MessageType messageType,
                                                   double timestamp, Map<String, Integer> status,
                                                   Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                                  Map<String, Boolean> readAllowed) {
+                                                  Map<String, Boolean> readAllowed, int childCount) {
         Message message = new Message();
         message.messageType = messageType.ordinal();
         message.type = messageType;
@@ -223,6 +224,7 @@ public class Message implements Parcelable {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.readAllowed = readAllowed;
+        message.childCount = childCount;
         return message;
     }
 
@@ -252,6 +254,7 @@ public class Message implements Parcelable {
         result.put("voiceType", voiceType);
         result.put("callType", callType);
         result.put("callDuration", callDuration);
+        result.put("childCount", childCount);
         return result;
     }
 

@@ -99,7 +99,18 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var tvNewMsgCount: TextView? = null
     private var btnSend: ImageView? = null
 
-    private var chatGameMenu: BottomSheetDialog? = null
+    private val chatGameMenu: BottomSheetDialog by lazy {
+        // Bottom chat menu
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(view)
+        dialog.setOnDismissListener { dialogInterface -> setButtonsState(0) }
+        view.findViewById<View>(R.id.puzzle_game).setOnClickListener(this)
+        view.findViewById<View>(R.id.memory_game).setOnClickListener(this)
+        view.findViewById<View>(R.id.tic_tac_toe_game).setOnClickListener(this)
+        view.findViewById<View>(R.id.btn_cancel_game_selection).setOnClickListener(this)
+        dialog
+    }
     private var messageActions: BottomSheetDialog? = null
 
     var conversationId: String? = null
@@ -116,8 +127,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
     private var textWatcher: TextWatcher? = null
 
-    private var shakeEventManager: ShakeEventManager? = null
-    private var permissionsChecker: PermissionsChecker? = null
+    private lateinit var shakeEventManager: ShakeEventManager
+    private lateinit var permissionsChecker: PermissionsChecker
 
     private var isScrollToTop = false
     private var emojiPopup: EmojiPopup? = null
@@ -141,9 +152,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     private var groupImagePositionEvent: GroupImagePositionEvent? = null
     private var groupImageViewHolder: GroupImageMessageBaseItem.ViewHolder? = null
     private var selectedGame: GameType = GameType.UNKNOWN
-
-    private val isMicroPermissionGrant: Boolean
-        get() = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
 
     private val lastMessage: Message?
         get() {
@@ -226,7 +234,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     override fun onDestroy() {
         super.onDestroy()
         if (this.shakeEventManager != null) {
-            this.shakeEventManager!!.unregister()
+            this.shakeEventManager.unregister()
         }
         messagesAdapter.destroy()
         if (layoutVoice != null) {
@@ -245,7 +253,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             R.id.chat_header_center, R.id.chat_person_name -> onOpenProfile()
             R.id.chat_back -> onExitChat()
             R.id.chat_camera_btn -> onSendCamera()
-            R.id.chat_image_btn -> onSendImage()
+            R.id.chat_image_btn -> handleImageButtonPress()
             R.id.chat_game_btn -> onGameClicked()
             R.id.btn_send -> if (btnSend!!.isSelected) {
                 onSentMessage(originalText)
@@ -304,7 +312,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun hideGameSelection() {
-        chatGameMenu!!.hide()
+        chatGameMenu.hide()
         setButtonsState(0)
     }
 
@@ -441,10 +449,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (permissionsChecker != null) {
-            permissionsChecker!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            permissionsChecker.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
         if (requestCode == 111) {
-            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 handleRecordVoice()
             }
         }
@@ -521,15 +529,20 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun hideMediaPickerView() {
-        if (mediaPickerPopup != null && mediaPickerPopup!!.isShowing()) {
-            mediaPickerPopup!!.toggle()
+        mediaPickerPopup?.let {
+            if (it.isShowing()) {
+                it.toggle()
+            }
         }
     }
 
     private fun setupMediaPickerView() {
         if (mediaPickerPopup == null) {
-            mediaPickerPopup = MediaPickerPopup(this, findViewById(R.id.contentRoot), edMessage!!)
-            mediaPickerPopup!!.setListener(object : MediaPickerListener {
+            mediaPickerPopup = MediaPickerPopup(this, findViewById(R.id.contentRoot), edMessage!!) {
+                // Dismiss
+                setButtonsState(0)
+            }
+            mediaPickerPopup?.setListener(object : MediaPickerListener {
                 override fun openGridMediaPicker() {
                     handleGridMediaPickerPress()
                 }
@@ -584,7 +597,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         messagesAdapter = ChatMessageAdapter()
         messagesAdapter.setMessageListener(this)
         recycleChatView!!.adapter = messagesAdapter
-        (recycleChatView as RevealableViewRecyclerView).setCallback(messagesAdapter)
+        (recycleChatView as? RevealableViewRecyclerView)?.setCallback(messagesAdapter)
     }
 
     private fun setLinearStackFromEnd(value: Boolean) {
@@ -608,9 +621,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         }
 
         shakeEventManager = ShakeEventManager(this)
-        registerEvent(shakeEventManager!!.getShakeEvent()
+        registerEvent(shakeEventManager.getShakeEvent()
                 .debounce(700, TimeUnit.MILLISECONDS)
-                .subscribe { o -> handleShakePhone() })
+                .subscribe { handleShakePhone() })
 
         registerEvent(busProvider.events
                 .subscribe { o ->
@@ -627,7 +640,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
                     groupImagePositionEvent = null
                     if (groupImageViewHolder != null && groupImageViewHolder!!.itemView != null) {
                         val sharedView = groupImageViewHolder!!.getShareElementForPosition(position)
-                        val name = if (names!!.size > 0) names[0] else null
+                        val name = if (names!!.isNotEmpty()) names[0] else null
                         if (name != null && sharedView != null) {
                             sharedElements!![name] = sharedView
                         }
@@ -636,10 +649,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             }
         })
         // Delay conversation initialize to make smooth UI transition
-        Handler().postDelayed({
+        withDelay(700) {
             presenter.create()
             presenter.initConversationData(conversationId)
-        }, 700)
+        }
     }
 
     private fun handleShakePhone() {
@@ -941,7 +954,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         startActivityForResult(intent, CAMERA_REQUEST_CODE)
     }
 
-    private fun onSendImage() {
+    private fun handleImageButtonPress() {
         selectedGame = GameType.UNKNOWN
         openMediaPicker()
     }
@@ -955,59 +968,43 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     private fun openMediaPicker() {
-        setupMediaPickerView()
-        if (mediaPickerPopup!!.isShowing()) return
-        val disposable = permissionsChecker!!.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe { isGranted ->
-                    if (isGranted!!) {
+                    if (isGranted) {
+                        setupMediaPickerView()
+                        if (mediaPickerPopup!!.isShowing()) return@subscribe
+
                         hideVoiceRecordView()
-                        if (!mediaPickerPopup!!.isShowing()) {
-                            mediaPickerPopup!!.toggle()
-                        }
+                        mediaPickerPopup?.toggle()
                     }
                 }
     }
 
     private fun onGameClicked() {
-        if (chatGameMenu == null) {
-            // Bottom chat menu
-            val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
-            chatGameMenu = BottomSheetDialog(this)
-            chatGameMenu!!.setContentView(view)
-            chatGameMenu!!.setOnDismissListener { dialogInterface -> setButtonsState(0) }
-            view.findViewById<View>(R.id.puzzle_game).setOnClickListener(this)
-            view.findViewById<View>(R.id.memory_game).setOnClickListener(this)
-            view.findViewById<View>(R.id.tic_tac_toe_game).setOnClickListener(this)
-            view.findViewById<View>(R.id.btn_cancel_game_selection).setOnClickListener(this)
-        }
-        chatGameMenu!!.show()
+        chatGameMenu.show()
     }
 
     private fun handleRecordVoice() {
-        if (!isMicroPermissionGrant) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 111)
-            return
-        }
-        if (emojiPopup != null && emojiPopup!!.isShowing) {
-            emojiPopup!!.toggle()
-        }
-        hideMediaPickerView()
-        setButtonsState(0)
-        if (layoutVoice == null) {
-            findViewById<View>(R.id.stub_import_voice).visibility = View.VISIBLE
-            layoutVoice = findViewById(R.id.chat_layout_voice)
-            layoutVoice?.setConversationId(originalConversation!!.key)
-            val listener = object : VoiceRecordViewListener {
-                override fun sendVoice(outputFile: String, selectedVoice: VoiceType) {
-                    presenter.sendAudioMessage(outputFile, selectedVoice)
-                }
-            }
-            layoutVoice?.setListener(listener)
-        }
-        //TransitionManager.beginDelayedTransition((ViewGroup) bottomContainer, new Slide());
-        layoutVoice!!.visibility = View.VISIBLE
-        layoutVoice!!.prepare()
         KeyboardHelpers.hideSoftInputKeyboard(this)
+        setButtonsState(0)
+        permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
+                .subscribe { isGranted ->
+                    if (isGranted) {
+                        if (layoutVoice == null) {
+                            findViewById<View>(R.id.stub_import_voice).visibility = View.VISIBLE
+                            layoutVoice = findViewById(R.id.chat_layout_voice)
+                            layoutVoice?.setConversationId(originalConversation!!.key)
+                            val listener = object : VoiceRecordViewListener {
+                                override fun sendVoice(outputFile: String, selectedVoice: VoiceType) {
+                                    presenter.sendAudioMessage(outputFile, selectedVoice)
+                                }
+                            }
+                            layoutVoice?.setListener(listener)
+                        }
+                        layoutVoice?.visibility = View.VISIBLE
+                        layoutVoice?.prepare()
+                    }
+                }
     }
 
     private fun onVoiceCall() {
@@ -1042,9 +1039,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateConversation(conv: Conversation) {
-        if (this.shakeEventManager != null) {
-            this.shakeEventManager!!.register()
-        }
+        this.shakeEventManager.register()
         this.originalConversation = conv
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall!!.visibility = View.GONE

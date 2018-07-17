@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:fillViewport="true"
     tools:context="com.ping.android.presentation.view.activity.ChatActivity">
 
     <LinearLayout
@@ -70,6 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="none"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/item_chat_right_msg" />
 
             </android.support.v4.widget.SwipeRefreshLayout>

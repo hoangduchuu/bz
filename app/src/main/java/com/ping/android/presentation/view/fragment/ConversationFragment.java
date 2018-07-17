@@ -3,6 +3,7 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -240,8 +241,10 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
         presenter.deleteConversations(readConversations);
         adapter.cleanSelectConversation();
-        isEditMode = false;
-        updateEditMode();
+        new Handler().postDelayed(() -> {
+            isEditMode = false;
+            updateEditMode();
+        }, 500);
     }
 
     @Override

@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import com.ping.android.utils.Log;
+
 public class RevealableViewRecyclerView extends RecyclerView {
     private int mTouchSlop;
     private boolean mIsBeingDragged;
@@ -57,6 +59,7 @@ public class RevealableViewRecyclerView extends RecyclerView {
                 if (mIsBeingDragged) {
                     // We're currently scrolling, so yes, intercept the
                     // touch event!
+                    Log.d("Is being drag");
                     return true;
                 }
                 // If the user has dragged her finger horizontally more than
@@ -70,8 +73,10 @@ public class RevealableViewRecyclerView extends RecyclerView {
                 if (xDiff > mTouchSlop) {
                     // Start scrolling!
                     mIsBeingDragged = true;
+                    Log.d("Is being drag " + xDiff);
                     return true;
                 }
+                Log.d("Is being drag false " + xDiff);
                 break;
             }
         }

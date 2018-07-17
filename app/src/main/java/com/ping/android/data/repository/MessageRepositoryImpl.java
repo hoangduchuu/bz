@@ -158,6 +158,14 @@ public class MessageRepositoryImpl implements MessageRepository {
         return updateBatchData(updateValue);
     }
 
+    @Override
+    public Observable<Boolean> updateChildMessageGame(String conversationId, String parentMessageKey, String messageKey, String gameUrl) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
+        updateValue.put(String.format("media/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
+        return updateBatchData(updateValue);
+    }
+
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();

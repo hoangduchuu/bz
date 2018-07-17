@@ -134,6 +134,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String cacheImage;
             private double timestamp;
             private double callDuration;
+            private int childCount = 0;
 
             public Builder() {
                 timestamp = System.currentTimeMillis() / 1000d;
@@ -204,6 +205,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return this;
             }
 
+            public Builder setChildCount(int childCount) {
+                this.childCount = childCount;
+                return this;
+            }
+
             public SendMessageUseCase.Params build() {
                 Params params = new Params();
                 Message message = null;
@@ -243,7 +249,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return Message.createGroupImageMessage(currentUser.key, currentUser.getDisplayName(), messageType,
-                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, childCount);
             }
 
             private Message buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {

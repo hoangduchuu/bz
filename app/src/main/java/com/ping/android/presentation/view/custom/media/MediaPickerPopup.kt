@@ -15,7 +15,12 @@ import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.utils.ResourceUtils.dpToPx
 import com.ping.android.utils.Utils
 
-class MediaPickerPopup(val context: Activity, private val rootView: View, private val editText: EditText) {
+class MediaPickerPopup(
+        val context: Activity,
+        private val rootView: View,
+        private val editText: EditText,
+        var dismissListener: (() -> Unit)? = null
+) {
     private val MIN_KEYBOARD_HEIGHT = 100
     private lateinit var popupWindow: PopupWindow
     private var isKeyboardOpen = false
@@ -55,7 +60,7 @@ class MediaPickerPopup(val context: Activity, private val rootView: View, privat
         popupWindow.inputMethodMode = PopupWindow.INPUT_METHOD_NOT_NEEDED
         popupWindow.setBackgroundDrawable(BitmapDrawable(context.resources, null as Bitmap?)) // To avoid borders and overdraw.
         popupWindow.setOnDismissListener {
-
+            dismissListener?.invoke()
         }
     }
 

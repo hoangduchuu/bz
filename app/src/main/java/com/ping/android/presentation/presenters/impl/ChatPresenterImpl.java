@@ -388,7 +388,6 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.conversation = conversation;
         params.currentUser = currentUser;
         params.markStatus = markStatus;
-        params.messageType = MessageType.IMAGE;
         params.items = items;
         sendGroupImageMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override

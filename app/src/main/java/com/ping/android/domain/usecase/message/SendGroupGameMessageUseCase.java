@@ -15,6 +15,7 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.Utils;
 
@@ -34,7 +35,7 @@ import io.reactivex.schedulers.Schedulers;
  * Created by tuanluong on 2/28/18.
  */
 
-public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImageMessageUseCase.Params> {
+public class SendGroupGameMessageUseCase extends UseCase<Message, SendGroupGameMessageUseCase.Params> {
     @Inject
     UserRepository userRepository;
     @Inject
@@ -49,7 +50,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
     SendMessageUseCase sendMessageUseCase;
 
     @Inject
-    public SendGroupImageMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
+    public SendGroupGameMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
@@ -92,17 +93,17 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                 );
     }
 
-    private Observable<List<Message>> buildCacheChildMessages(SendGroupImageMessageUseCase.Params params, String messageKey) {
+    private Observable<List<Message>> buildCacheChildMessages(SendGroupGameMessageUseCase.Params params, String messageKey) {
         PhotoItem[] photoArray = new PhotoItem[params.items.size()];
         return Observable.fromArray(params.items.toArray(photoArray))
                 .flatMap(photoItem -> {
                     SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
-                            .setMessageType(MessageType.IMAGE)
+                            .setMessageType(MessageType.GAME)
+                            .setGameType(params.gameType)
                             .setConversation(params.conversation)
                             .setMarkStatus(params.markStatus)
                             .setCurrentUser(params.currentUser)
-                            .setCacheImage(photoItem.getImagePath())
-                            .setMessageType(MessageType.IMAGE);
+                            .setCacheImage(photoItem.getImagePath());
                     String childKey = messageRepository.populateChildMessageKey(params.conversation.key, messageKey);
                     Message message = builder.build().getMessage();
                     message.isCached = true;
@@ -126,10 +127,9 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
         Message[] messages = new Message[parentMessage.childMessages.size()];
         return Observable.fromArray(parentMessage.childMessages.toArray(messages))
                 .observeOn(Schedulers.io())
-                .flatMap(message -> uploadThumbnail(conversationId, message.localFilePath)
-                        .zipWith(uploadImage(conversationId, message.localFilePath), Pair::create)
-                        .flatMap(pair -> messageRepository.updateChildMessageImage(conversationId,
-                                parentMessage.key, message.key, pair.first, pair.second)
+                .flatMap(message -> uploadImage(conversationId, message.localFilePath)
+                        .flatMap(gameUrl -> messageRepository.updateChildMessageGame(conversationId,
+                                parentMessage.key, message.key, gameUrl)
                                 .map(aBoolean -> message))
                 )
                 .take(messages.length)
@@ -144,12 +144,6 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512));
     }
 
-    private Observable<String> uploadThumbnail(String conversationKey, String filePath) {
-        if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        String fileName = "thumb_" + System.currentTimeMillis() + new File(filePath).getName();
-        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128));
-    }
-
     private Observable<Message> sendMediaMessage(String conversationId, Message message) {
         return messageRepository.sendMediaMessage(conversationId, message);
     }
@@ -158,6 +152,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
         public List<PhotoItem> items;
         public Conversation conversation;
         public User currentUser;
+        public GameType gameType;
         public boolean markStatus;
     }
 }

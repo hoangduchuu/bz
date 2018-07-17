@@ -37,4 +37,6 @@ public interface MessageRepository {
     String populateChildMessageKey(String conversationId, String messageId);
 
     Observable<Boolean> updateChildMessageImage(String conversationId, String parentMessageKey, String messageKey, String thumbnail, String image);
+
+    Observable<Boolean> updateChildMessageGame(String conversationId, String parentMessageKey, String messageKey, String gameUrl);
 }
