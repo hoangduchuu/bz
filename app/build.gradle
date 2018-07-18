@@ -28,8 +28,8 @@ android {
         applicationId "com.ping.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
+        versionCode readBuildCode()
+        versionName readVersionName()
         multiDexEnabled true
     }
     buildTypes {
