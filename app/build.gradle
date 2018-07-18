@@ -14,15 +14,16 @@ repositories {
 
 apply plugin: 'io.fabric'
 
-android {
-    signingConfigs {
-        config {
-            keyAlias 'key0'
-            keyPassword '123456'
-            storeFile file('./bzzz-android-key')
-            storePassword '123456'
+def increaseVersionCode() {
+    gradle.taskGraph.whenReady { taskGraph ->
+        if (taskGraph.hasTask(assembleDebug)) {
+            incrementBuildNumber()
         }
     }
+}
+
+android {
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.ping.android"
@@ -31,6 +32,14 @@ android {
         versionCode readBuildCode()
         versionName readVersionName()
         multiDexEnabled true
+    }
+    signingConfigs {
+        config {
+            keyAlias 'key0'
+            keyPassword '123456'
+            storeFile file('./bzzz-android-key')
+            storePassword '123456'
+        }
     }
     buildTypes {
         release {
@@ -68,7 +77,8 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
-    buildToolsVersion '27.0.3'
+
+    increaseVersionCode()
 
     aaptOptions {
         // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg

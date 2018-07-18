@@ -33,7 +33,7 @@ allprojects {
 
 ext {
     compileSdkVersion = 27
-    buildToolsVersion = "26.0.2"
+    buildToolsVersion = "27.0.3"
     minSdkVersion = 21
     targetSdkVersion = 27
 
@@ -56,14 +56,6 @@ ext {
             firebase_messaging  : "17.0.0",
             firebase_config     : "16.0.0",
     ]
-
-    versionMajor = 3
-    versionMinor = 0
-    versionPatch = 7
-    versionBuild = 116
-
-    versionCode = versionBuild //versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
-    versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 }
 
 task clean(type: Delete) {
