@@ -52,6 +52,25 @@
         app:layout_constraintTop_toBottomOf="@+id/item_chat_info"
         tools:src="@drawable/img_loading_bottom" />
 
+    <RelativeLayout
+        android:id="@+id/loading_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/item_chat_image"
+        app:layout_constraintStart_toStartOf="@id/item_chat_image"
+        app:layout_constraintEnd_toEndOf="@id/item_chat_image"
+        app:layout_constraintBottom_toBottomOf="@id/item_chat_image">
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/spin_kit"
+            style="@style/SpinKitView.Small.FoldingCube"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"
+            app:SpinKit_Color="@color/colorAccent" />
+    </RelativeLayout>
+
     <TextView
         android:id="@+id/item_chat_status"
         style="@style/AppTextAppearance.VerySmall.Grey"

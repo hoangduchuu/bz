@@ -131,7 +131,7 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
         }
 
         findViewById(R.id.btn_exit).setOnClickListener(this);
-        UiUtils.loadImage(imageView, imageURL, messageID, false, (error, data) -> {
+        UiUtils.loadImage(imageView, imageURL, messageID, false, null, (error, data) -> {
             if (error == null) {
                 Bitmap originalBitmap = (Bitmap) data[0];
                 imageView.setImageBitmap(originalBitmap);

@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
@@ -9,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.ping.android.R;
+import com.ping.android.model.Callback;
 import com.ping.android.model.Message;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
@@ -36,10 +38,12 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
         private ImageView imageView;
         private boolean isUpdated;
+        private View loadingView;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.item_chat_image);
+            loadingView = itemView.findViewById(R.id.loading_container);
             initGestureListener();
         }
 
@@ -147,6 +151,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (imageView == null) return;
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
                 UiUtils.loadImageFromFile(imageView, item.message.localFilePath, message.key, maskStatus);
+                loadingView.setVisibility(View.GONE);
                 return;
             }
 
@@ -159,26 +164,33 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 return;
             }
             int status = CommonMethod.getIntFrom(message.status, message.currentUserId);
-            //int status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (!TextUtils.isEmpty(message.gameUrl) && !message.currentUserId.equals(message.senderId)) {
+            if (!TextUtils.isEmpty(message.gameUrl) && !message.isFromMe()) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     imageView.setImageResource(R.drawable.img_game_over);
+                    loadingView.setVisibility(View.GONE);
                     return;
                 } else if (status != Constant.MESSAGE_STATUS_GAME_PASS) {
                     bitmapMark = true;
                 }
             }
             String url = imageURL;
+            Callback callback = (error, data) -> {
+                if (error == null) {
+                    imageView.setImageBitmap((Bitmap) data[0]);
+                }
+                loadingView.setVisibility(View.GONE);
+            };
+            loadingView.setVisibility(View.VISIBLE);
             if (imageURL.startsWith(Constant.IMAGE_PREFIX)) {
                 url = imageURL.substring(Constant.IMAGE_PREFIX.length());
-                UiUtils.loadImageFromFile(imageView, url, message.key, bitmapMark);
+                UiUtils.loadImageFromFile(imageView, url, message.key, bitmapMark, callback);
                 return;
             }
             Drawable placeholder = null;
             if (isUpdated) {
                 placeholder = imageView.getDrawable();
             }
-            UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder);
+            UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder, callback);
         }
     }
 }

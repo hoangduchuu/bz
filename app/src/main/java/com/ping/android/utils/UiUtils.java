@@ -304,7 +304,6 @@ public class UiUtils {
     }
 
     public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
-
         if (TextUtils.isEmpty(imageUrl)) {
             return null;
         }
@@ -326,6 +325,38 @@ public class UiUtils {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .load(gsReference)
                 .placeholder(R.drawable.img_loading_bottom)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
+                .into(target);
+        return target;
+    }
+
+    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder, Callback callback) {
+        if (TextUtils.isEmpty(imageUrl)) {
+            return null;
+        }
+        if (placeholder == null) {
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                Log.d("Image loaded " + imageUrl);
+                callback.complete(null, resource);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                callback.complete(new Error());
+            }
+        };
+        GlideApp.with(imageView.getContext())
+                .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .load(gsReference)
+                .placeholder(placeholder)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
                 .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
