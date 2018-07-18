@@ -14,15 +14,18 @@ repositories {
 
 apply plugin: 'io.fabric'
 
-def increaseVersionCode() {
-    gradle.taskGraph.whenReady { taskGraph ->
-        if (taskGraph.hasTask(assembleDebug)) {
-            incrementBuildNumber()
-        }
-    }
-}
+//def increaseVersionCode() {
+//    gradle.taskGraph.whenReady { taskGraph ->
+//        if (taskGraph.hasTask(assembleHockeyDebug)) {
+//            incrementBuildNumber()
+//        }
+//    }
+//}
 
 android {
+    // FIXME: When using this method, version code is increase 1 after generate apk
+    //increaseVersionCode()
+
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -60,6 +63,18 @@ android {
             ext.enableCrashlytics = false
         }
     }
+//    flavorDimensions "version"
+//    productFlavors {
+//        dev {
+//            dimension "version"
+//        }
+//        hockey {
+//            dimension "version"
+//        }
+//        production {
+//            dimension "version"
+//        }
+//    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -77,8 +92,6 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
-
-    increaseVersionCode()
 
     aaptOptions {
         // Use ffmpeg inside javacv, so we exclude them all from nl.bravobit:android-ffmpeg
