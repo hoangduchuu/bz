@@ -1,40 +1,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:id="@+id/header"
-        style="?attr/backgroundTheme"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:background="#F1F2F2"
-        android:gravity="center_vertical">
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/header"-->
+        <!--style="?attr/backgroundTheme"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="45dp"-->
+        <!--android:background="#F1F2F2"-->
+        <!--android:gravity="center_vertical">-->
 
-        <ImageView
-            android:id="@+id/btn_back"
-            style="@style/BackButton" />
+        <!--<ImageView-->
+            <!--android:id="@+id/btn_back"-->
+            <!--style="@style/BackButton" />-->
 
-        <TextView
-            style="@style/TextTitle"
-            android:text="@string/conversation_detail_media"
-            android:textAllCaps="true" />
+        <!--<TextView-->
+            <!--style="@style/TextTitle"-->
+            <!--android:text="@string/conversation_detail_media"-->
+            <!--android:textAllCaps="true" />-->
 
-        <ToggleButton
-            android:id="@+id/togglePuzzle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:background="@null"
-            android:textColor="@color/white"
-            android:textOff="Puzzle"
-            android:textOn="UnPuzzle" />
-    </RelativeLayout>
+        <!--<ToggleButton-->
+            <!--android:id="@+id/togglePuzzle"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:background="@null"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:textOff="Puzzle"-->
+            <!--android:textOn="UnPuzzle" />-->
+    <!--</RelativeLayout>-->
 
     <com.ping.android.presentation.view.custom.ExtendedViewPager
         android:id="@+id/viewpager"
         android:layout_below="@id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white" />
+        android:layout_height="match_parent" />
 </RelativeLayout>

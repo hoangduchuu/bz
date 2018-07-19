@@ -58,6 +58,7 @@ class PullableFrameLayout @JvmOverloads constructor(
                 if (Math.abs(yDiff) > mTouchSlop) {
                     // Start scrolling!
                     mIsBeingDragged = true
+                    listener?.onPullStart()
                     Log.d("Is being drag $yDiff")
                     return true
                 }
@@ -73,6 +74,7 @@ class PullableFrameLayout @JvmOverloads constructor(
         if (action == MotionEvent.ACTION_DOWN && !mIsBeingDragged) {
             mIsBeingDragged = true
             mInitialMotionY = event.y
+            listener?.onPullStart()
             return true
         } else if (action == MotionEvent.ACTION_MOVE) {
             if (mIsBeingDragged) {

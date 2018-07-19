@@ -22,8 +22,13 @@ import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.BitmapEncode
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequest
+import com.ping.android.App
+import com.ping.android.presentation.view.activity.CoreActivity
 import com.ping.android.presentation.view.custom.PullListener
 import com.ping.android.utils.Log
+import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.ImagePullEvent
+import com.ping.android.utils.bus.events.ImageTapEvent
 import kotlinx.android.synthetic.main.fragment_image.*
 import java.io.File
 
@@ -38,8 +43,13 @@ class ImageFragment : Fragment() {
     private val background: ColorDrawable = ColorDrawable(Color.BLACK)
     private var translateY = 0.0f
 
+    private var busProvider: BusProvider? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (activity as? CoreActivity)?.let {
+            busProvider = it.applicationComponent.provideBusProvider()
+        }
         arguments?.let {
             messageKey = it.getString("messageKey")
             imageUrl = it.getString("imageUrl")
@@ -59,9 +69,12 @@ class ImageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         image_detail.transitionName = messageKey
         image_detail.minimumScale = 0.8f
+        image_detail.setOnPhotoTapListener { view, x, y ->
+            busProvider?.post(ImageTapEvent())
+        }
         puller.setListener(object: PullListener {
             override fun onPullStart() {
-
+                busProvider?.post(ImagePullEvent(true))
             }
 
             override fun onPullProgress(diff: Float) {
@@ -70,18 +83,22 @@ class ImageFragment : Fragment() {
                     val scaleValue = Math.abs(diff) / 100 * (1.0f - image_detail.minimumScale)
                     image_detail.scale = 1 - scaleValue
                     updateBackgroundOpacity(Math.abs(diff / 8) / 100)
+                } else {
+                    image_detail.scale = image_detail.minimumScale
+                    updateBackgroundOpacity(0.2f)
                 }
             }
 
             override fun onPullEnd() {
                 val translationY = image_detail.translationY
                 if (Math.abs(translationY) > 90) {
-                    activity?.supportFinishAfterTransition()
+                    activity?.onBackPressed()
                 } else {
                     image_detail.translationY = 0.0f
                     image_detail.scale = 1.0f
                     updateBackgroundOpacity(0f)
                 }
+                busProvider?.post(ImagePullEvent(false))
             }
         })
         bindData()
@@ -149,4 +166,8 @@ class ImageFragment : Fragment() {
                     }
                 }
     }
+}
+
+interface ImageListener {
+    fun onImageTap()
 }

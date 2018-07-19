@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.SharedElementCallback
 import android.support.v4.view.ViewPager
 import android.view.View
+import com.bzzzchat.extensions.toggleVisibility
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
 import com.ping.android.dagger.loggedin.groupimage.GroupImageModule
@@ -14,6 +15,8 @@ import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
+import com.ping.android.utils.bus.events.ImagePullEvent
+import com.ping.android.utils.bus.events.ImageTapEvent
 import kotlinx.android.synthetic.main.activity_group_image_gallery.*
 import javax.inject.Inject
 
@@ -51,13 +54,13 @@ class GroupImageGalleryActivity : CoreActivity() {
         hideSystemUI()
         setContentView(R.layout.activity_group_image_gallery)
 
-        //btn_back.setOnClickListener { onBackPressed() }
-//        togglePuzzle.setOnClickListener {
-//            val isChecked = !messages[currentPosition].isMask
-//            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
-//            messages[currentPosition].isMask = isChecked
-//            adapter.updateMessage(messages[currentPosition], currentPosition)
-//        }
+        btn_back.setOnClickListener { onBackPressed() }
+        togglePuzzle.setOnClickListener {
+            val isChecked = !messages[currentPosition].isMask
+            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
+            messages[currentPosition].isMask = isChecked
+            adapter.updateMessage(messages[currentPosition], currentPosition)
+        }
 
         val listener = object : ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
@@ -80,11 +83,29 @@ class GroupImageGalleryActivity : CoreActivity() {
         viewpager.currentItem = currentPosition
         onMessageSelected(messages[currentPosition])
 
+        registerEvent(busProvider.events.subscribe {
+            if (it is ImageTapEvent) {
+                btn_back.toggleVisibility()
+                togglePuzzle.toggleVisibility()
+            }
+            if (it is ImagePullEvent) {
+                if (it.isStart) {
+                    // Hide buttons
+                    btn_back.alpha = 0.0f
+                    togglePuzzle.alpha = 0.0f
+                } else {
+                    // Show buttons
+                    btn_back.alpha = 1.0f
+                    togglePuzzle.alpha = 1.0f
+                }
+            }
+        })
+
         prepareSharedElementTransition()
     }
 
     private fun onMessageSelected(message: Message) {
-//        togglePuzzle.isChecked = message.isMask
+        togglePuzzle.isChecked = message.isMask
     }
 
     private fun prepareSharedElementTransition() {

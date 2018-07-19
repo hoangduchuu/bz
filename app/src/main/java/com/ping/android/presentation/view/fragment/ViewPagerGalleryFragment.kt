@@ -64,11 +64,11 @@ class ViewPagerGalleryFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        btn_back.setOnClickListener { activity?.onBackPressed() }
-        togglePuzzle.setOnClickListener {
-            val message = messages[presenter.currentPosition]
-            presenter.updateMask(message, !message.isMask)
-        }
+//        btn_back.setOnClickListener { activity?.onBackPressed() }
+//        togglePuzzle.setOnClickListener {
+//            val message = messages[presenter.currentPosition]
+//            presenter.updateMask(message, !message.isMask)
+//        }
         bindData()
     }
 
@@ -97,7 +97,7 @@ class ViewPagerGalleryFragment : BaseFragment() {
     }
 
     private fun onMessageSelected(message: Message) {
-        togglePuzzle.isChecked = message.isMask
+//        togglePuzzle.isChecked = message.isMask
     }
 
     private fun prepareSharedElementTransition() {

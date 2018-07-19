@@ -105,7 +105,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         return null;
     }
 
-    protected ApplicationComponent getApplicationComponent() {
+    public ApplicationComponent getApplicationComponent() {
         return ((App) getApplication()).getComponent();
     }
 
