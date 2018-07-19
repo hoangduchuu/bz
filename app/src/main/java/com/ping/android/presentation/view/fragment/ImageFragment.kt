@@ -1,5 +1,7 @@
 package com.ping.android.presentation.view.fragment
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -20,14 +22,21 @@ import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.BitmapEncode
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequest
-import com.bzzzchat.configuration.GlideRequests
+import com.ping.android.presentation.view.custom.PullListener
+import com.ping.android.utils.Log
 import kotlinx.android.synthetic.main.fragment_image.*
 import java.io.File
+
+/**
+ * @author tuanluong
+ */
 
 class ImageFragment : Fragment() {
     private var messageKey: String = ""
     private lateinit var imageUrl: String
     private var isMask: Boolean = false
+    private val background: ColorDrawable = ColorDrawable(Color.BLACK)
+    private var translateY = 0.0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,17 +51,50 @@ class ImageFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_image, container, false)
+        view.background = background
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         image_detail.transitionName = messageKey
+        image_detail.minimumScale = 0.8f
+        puller.setListener(object: PullListener {
+            override fun onPullStart() {
+
+            }
+
+            override fun onPullProgress(diff: Float) {
+                image_detail.translationY = diff
+                if (Math.abs(diff) < 100) {
+                    val scaleValue = Math.abs(diff) / 100 * (1.0f - image_detail.minimumScale)
+                    image_detail.scale = 1 - scaleValue
+                    updateBackgroundOpacity(Math.abs(diff / 8) / 100)
+                }
+            }
+
+            override fun onPullEnd() {
+                val translationY = image_detail.translationY
+                if (Math.abs(translationY) > 90) {
+                    activity?.supportFinishAfterTransition()
+                } else {
+                    image_detail.translationY = 0.0f
+                    image_detail.scale = 1.0f
+                    updateBackgroundOpacity(0f)
+                }
+            }
+        })
         bindData()
     }
 
     fun updateData(message: Message) {
         bindData()
+    }
+
+    private fun updateBackgroundOpacity(progress: Float) {
+        val finalProgress = Math.min(1f, progress * 3f)
+        Log.d("Update background opacity $finalProgress")
+        background.alpha = (0xff * (1f - finalProgress)).toInt()
     }
 
     fun bindData() {

@@ -41,6 +41,7 @@ class ViewPagerGalleryFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
+        setFullScreen()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -66,7 +67,8 @@ class ViewPagerGalleryFragment : BaseFragment() {
         btn_back.setOnClickListener { activity?.onBackPressed() }
         togglePuzzle.setOnClickListener {
             val message = messages[presenter.currentPosition]
-            presenter.updateMask(message, !message.isMask) }
+            presenter.updateMask(message, !message.isMask)
+        }
         bindData()
     }
 
@@ -119,6 +121,15 @@ class ViewPagerGalleryFragment : BaseFragment() {
             }
         }
         setEnterSharedElementCallback(callback)
+    }
+
+    private fun setFullScreen() {
+        var flags = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_FULLSCREEN
+
+        flags = flags or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+
+        activity?.window?.decorView?.systemUiVisibility = flags
     }
 
     companion object {

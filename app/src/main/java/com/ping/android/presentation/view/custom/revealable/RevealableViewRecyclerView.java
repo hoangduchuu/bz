@@ -10,6 +10,10 @@ import android.view.ViewConfiguration;
 
 import com.ping.android.utils.Log;
 
+/**
+ * @author tuanluong
+ */
+
 public class RevealableViewRecyclerView extends RecyclerView {
     private int mTouchSlop;
     private boolean mIsBeingDragged;

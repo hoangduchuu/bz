@@ -1,6 +1,5 @@
 package com.ping.android.presentation.view.activity
 
-import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.SharedElementCallback
@@ -13,11 +12,14 @@ import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
-import com.ping.android.utils.ThemeUtils
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import kotlinx.android.synthetic.main.activity_group_image_gallery.*
 import javax.inject.Inject
+
+/**
+ * @author tuanluong
+ */
 
 class GroupImageGalleryActivity : CoreActivity() {
     lateinit var messages: MutableList<Message>
@@ -40,21 +42,22 @@ class GroupImageGalleryActivity : CoreActivity() {
         intent.extras.let {
             if (it.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
                 val color = Color.from(it.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR))
-                ThemeUtils.onActivityCreateSetTheme(this, color)
+                //ThemeUtils.onActivityCreateSetTheme(this, color)
             }
             conversationId = it.getString(CONVERSATION_ID)
             messages = it.getParcelableArrayList(IMAGES_EXTRA)
             currentPosition = it.getInt(POSITION_EXTRA)
         }
-
+        hideSystemUI()
         setContentView(R.layout.activity_group_image_gallery)
-        btn_back.setOnClickListener { onBackPressed() }
-        togglePuzzle.setOnClickListener {
-            val isChecked = !messages[currentPosition].isMask
-            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
-            messages[currentPosition].isMask = isChecked
-            adapter.updateMessage(messages[currentPosition], currentPosition)
-        }
+
+        //btn_back.setOnClickListener { onBackPressed() }
+//        togglePuzzle.setOnClickListener {
+//            val isChecked = !messages[currentPosition].isMask
+//            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
+//            messages[currentPosition].isMask = isChecked
+//            adapter.updateMessage(messages[currentPosition], currentPosition)
+//        }
 
         val listener = object : ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
@@ -81,7 +84,7 @@ class GroupImageGalleryActivity : CoreActivity() {
     }
 
     private fun onMessageSelected(message: Message) {
-        togglePuzzle.isChecked = message.isMask
+//        togglePuzzle.isChecked = message.isMask
     }
 
     private fun prepareSharedElementTransition() {
@@ -105,6 +108,41 @@ class GroupImageGalleryActivity : CoreActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         busProvider.post(GroupImagePositionEvent(currentPosition))
+    }
+
+    override fun finishAfterTransition() {
+        busProvider.post(GroupImagePositionEvent(currentPosition))
+        super.finishAfterTransition()
+    }
+
+    override fun supportFinishAfterTransition() {
+        busProvider.post(GroupImagePositionEvent(currentPosition))
+        super.supportFinishAfterTransition()
+    }
+
+    private fun hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        val decorView = window.decorView
+        decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private fun showSystemUI() {
+        val decorView = window.decorView
+        decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 
     companion object {

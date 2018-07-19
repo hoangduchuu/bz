@@ -1,5 +1,6 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.ping.android.presentation.view.custom.PullableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/puller"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.ping.android.presentation.view.fragment.ImageFragment">
@@ -9,4 +10,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-</FrameLayout>
+</com.ping.android.presentation.view.custom.PullableFrameLayout>
