@@ -130,6 +130,16 @@ public class Navigator {
                 .commit();
     }
 
+    public void openFragment(BaseFragment fragment, Map<String, View> map) {
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        transaction.add(containerId, fragment);
+        transaction.setReorderingAllowed(true);
+        for (String key : map.keySet()) {
+            transaction.addSharedElement(map.get(key), key);
+        }
+        transaction.addToBackStack(fragment.getClass().getName())
+                .commit();
+    }
     /**
      * Navigates back by popping teh back stack. If there is no more items left we finish the current activity.
      *

@@ -1,17 +1,15 @@
 package com.ping.android.presentation.presenters
 
+import android.support.v4.util.Pair
+import android.view.View
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.ping.android.domain.usecase.conversation.LoadConversationMediaUseCase
 import com.ping.android.domain.usecase.conversation.ObserveMediaChangeUseCase
-import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase
-import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase
 import com.ping.android.model.Conversation
 import com.ping.android.model.Message
 import com.ping.android.model.enums.MessageType
-import com.ping.android.utils.bus.BusProvider
-import com.ping.android.utils.bus.events.MessageUpdateEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
@@ -22,12 +20,14 @@ interface GalleryPresenter : BasePresenter {
 
     fun getMessageList(): List<Message>
 
-    fun updateMask(message: Message, isMask: Boolean)
+    fun handleImagePress(position: Int, pair: Pair<android.view.View, String>)
 
     var currentPosition: Int
 
     interface View : BaseView {
-        //fun displayMedia(messages: List<Message>)
+        fun openImageDetail(conversationId: String, messages: MutableList<Message>, position: Int, pair: Pair<android.view.View, String>)
+        fun updateMessages(messages: List<Message>)
+        fun updateMessage(message: Message, index: Int)
     }
 }
 
@@ -39,13 +39,7 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
     @Inject
     lateinit var loadConversationMediaUseCase: LoadConversationMediaUseCase
     @Inject
-    lateinit var updateMaskMessagesUseCase: UpdateMaskMessagesUseCase
-    @Inject
-    lateinit var updateMaskChildMessagesUseCase: UpdateMaskChildMessagesUseCase
-    @Inject
     lateinit var observeMediaChangeUseCase: ObserveMediaChangeUseCase
-    @Inject
-    lateinit var busProvider: BusProvider
 
     lateinit var conversation: Conversation
     override var currentPosition = 0
@@ -63,14 +57,14 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
                         val index = messages.indexOf(message)
                         if (index >= 0) {
                             messages[index] = message
-                            busProvider.post(MessageUpdateEvent(message, index))
+                            view.updateMessage(message, index)
                         }
                     }
                 } else {
                     val index = messages.indexOf(t)
                     if (index >= 0) {
                         messages[index] = t
-                        busProvider.post(MessageUpdateEvent(t, index))
+                        view.updateMessage(t, index)
                     }
                 }
             }
@@ -101,7 +95,7 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
                     result.sortByDescending { it.timestamp }
                     lastTimestamp = result.last().timestamp - 0.001
                     messages.addAll(result)
-                    busProvider.post(MediaItemsEvent(result))
+                    view.updateMessages(result)
                 }
                 isLoading.set(false)
                 view.hideLoading()
@@ -121,21 +115,8 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
         return messages
     }
 
-    override fun updateMask(message: Message, isMask: Boolean) {
-        if (message.parentKey == null || message.parentKey.isEmpty()) {
-            val params = UpdateMaskMessagesUseCase.Params()
-            params.conversationId = conversation.key
-            params.isLastMessage = false
-            params.isMask = isMask
-            params.setMessageId(message.key)
-            updateMaskMessagesUseCase.execute(DefaultObserver<Boolean>(), params)
-        } else {
-            val params = UpdateMaskChildMessagesUseCase.Params()
-            params.conversationId = conversation.key
-            params.isMask = isMask
-            params.messages = arrayListOf(message)
-            updateMaskChildMessagesUseCase.execute(DefaultObserver<Boolean>(), params)
-        }
+    override fun handleImagePress(position: Int, pair: Pair<View, String>) {
+        view.openImageDetail(conversation.key, messages, position, pair)
     }
 
     override fun destroy() {

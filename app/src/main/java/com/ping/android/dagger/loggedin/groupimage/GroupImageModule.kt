@@ -7,7 +7,13 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class GroupImageModule {
+class GroupImageModule(val view: GroupImageGalleryPresenter.View) {
+    @Provides
+    @PerActivity
+    fun provideView(): GroupImageGalleryPresenter.View {
+        return view
+    }
+
     @Provides
     @PerActivity
     fun provideGroupImageGalleryPresenter(presenter: GroupImageGalleryPresenterImpl): GroupImageGalleryPresenter {

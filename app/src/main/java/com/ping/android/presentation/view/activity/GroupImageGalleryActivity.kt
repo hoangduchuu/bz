@@ -1,11 +1,18 @@
 package com.ping.android.presentation.view.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.SharedElementCallback
+import android.support.v4.content.ContextCompat
+import android.support.v4.util.Pair
 import android.support.v4.view.ViewPager
 import android.view.View
+import android.view.WindowManager
 import com.bzzzchat.extensions.toggleVisibility
+import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
 import com.ping.android.dagger.loggedin.groupimage.GroupImageModule
@@ -18,24 +25,26 @@ import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.ImagePullEvent
 import com.ping.android.utils.bus.events.ImageTapEvent
 import kotlinx.android.synthetic.main.activity_group_image_gallery.*
+import java.util.*
 import javax.inject.Inject
 
 /**
  * @author tuanluong
  */
 
-class GroupImageGalleryActivity : CoreActivity() {
+class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.View {
     lateinit var messages: MutableList<Message>
     private var conversationId: String = ""
-    lateinit var adapter: ImagePagerAdapter
     private var currentPosition: Int = 0
+    private var isGroupImage = false
 
+    lateinit var adapter: ImagePagerAdapter
     @Inject
     lateinit var busProvider: BusProvider
     @Inject
     lateinit var presenter: GroupImageGalleryPresenter
     private val component: GroupImageComponent by lazy {
-        loggedInComponent.provideGroupImageComponent(GroupImageModule())
+        loggedInComponent.provideGroupImageComponent(GroupImageModule(this))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,23 +52,19 @@ class GroupImageGalleryActivity : CoreActivity() {
         component.inject(this)
         postponeEnterTransition()
         intent.extras.let {
-            if (it.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
-                val color = Color.from(it.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR))
-                //ThemeUtils.onActivityCreateSetTheme(this, color)
-            }
             conversationId = it.getString(CONVERSATION_ID)
             messages = it.getParcelableArrayList(IMAGES_EXTRA)
             currentPosition = it.getInt(POSITION_EXTRA)
+            isGroupImage = it.getBoolean(IS_GROUP_IMAGE_EXTRA)
         }
-        hideSystemUI()
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = ContextCompat.getColor(this, R.color.black)
+
         setContentView(R.layout.activity_group_image_gallery)
 
         btn_back.setOnClickListener { onBackPressed() }
         togglePuzzle.setOnClickListener {
-            val isChecked = !messages[currentPosition].isMask
-            presenter.togglePuzzle(messages[currentPosition], isChecked, conversationId)
-            messages[currentPosition].isMask = isChecked
-            adapter.updateMessage(messages[currentPosition], currentPosition)
+            presenter.togglePuzzle(currentPosition)
         }
 
         val listener = object : ViewPager.OnPageChangeListener {
@@ -93,15 +98,38 @@ class GroupImageGalleryActivity : CoreActivity() {
                     // Hide buttons
                     btn_back.alpha = 0.0f
                     togglePuzzle.alpha = 0.0f
+                    showSystemUI()
                 } else {
                     // Show buttons
                     btn_back.alpha = 1.0f
                     togglePuzzle.alpha = 1.0f
+                    hideSystemUI()
                 }
             }
         })
 
         prepareSharedElementTransition()
+        presenter.init(conversationId, messages, isGroupImage)
+
+        withDelay(1000) {
+//            hideSystemUI()
+        }
+    }
+
+    override fun showImageMessages(messages: List<Message>) {
+        adapter.updateMessages(messages)
+    }
+
+    override fun updateMessage(message: Message, position: Int) {
+        adapter.updateMessage(message, position)
+    }
+
+    override fun hideLoading() {
+        super<CoreActivity>.hideLoading()
+    }
+
+    override fun showLoading() {
+        super<CoreActivity>.showLoading()
     }
 
     private fun onMessageSelected(message: Message) {
@@ -128,7 +156,9 @@ class GroupImageGalleryActivity : CoreActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        busProvider.post(GroupImagePositionEvent(currentPosition))
+        showSystemUI()
+        //busProvider.post(GroupImagePositionEvent(currentPosition))
+        finishAfterTransition()
     }
 
     override fun finishAfterTransition() {
@@ -170,5 +200,20 @@ class GroupImageGalleryActivity : CoreActivity() {
         const val CONVERSATION_ID = "CONVERSATION_ID"
         const val IMAGES_EXTRA = "IMAGES_EXTRA"
         const val POSITION_EXTRA = "POSITION_EXTRA"
+        const val IS_GROUP_IMAGE_EXTRA = "IS_GROUP_IMAGE_EXTRA"
+
+        @JvmStatic
+        fun start(activity: Activity, conversationId: String, messages: List<Message>, position: Int, isGroupImage: Boolean, sharedElements: Pair<View, String>) {
+            val intent = Intent(activity, GroupImageGalleryActivity::class.java)
+            intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, Color.COLOR_1)
+            intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, ArrayList(messages))
+            intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position)
+            intent.putExtra(GroupImageGalleryActivity.CONVERSATION_ID, conversationId)
+            intent.putExtra(GroupImageGalleryActivity.IS_GROUP_IMAGE_EXTRA, isGroupImage)
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity, sharedElements
+            )
+            activity.startActivity(intent, options.toBundle())
+        }
     }
 }

@@ -425,15 +425,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onGroupImageItemPress(viewHolder: GroupImageMessageBaseItem.ViewHolder, data: List<Message>, position: Int, sharedElements: Array<Pair<View, String>>) {
         this.groupImageViewHolder = viewHolder
-        val intent = Intent(this, GroupImageGalleryActivity::class.java)
-        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
-        intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, ArrayList(data))
-        intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position)
-        intent.putExtra(GroupImageGalleryActivity.CONVERSATION_ID, originalConversation!!.key)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this, *sharedElements
-        )
-        startActivity(intent, options.toBundle())
+        GroupImageGalleryActivity.start(this, originalConversation!!.key, data, position, false, sharedElements[0])
     }
 
     override fun updateChildMessageMask(message: Message, maskStatus: Boolean) {

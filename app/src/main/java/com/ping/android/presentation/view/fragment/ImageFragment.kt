@@ -97,8 +97,8 @@ class ImageFragment : Fragment() {
                     image_detail.translationY = 0.0f
                     image_detail.scale = 1.0f
                     updateBackgroundOpacity(0f)
+                    busProvider?.post(ImagePullEvent(false))
                 }
-                busProvider?.post(ImagePullEvent(false))
             }
         })
         bindData()

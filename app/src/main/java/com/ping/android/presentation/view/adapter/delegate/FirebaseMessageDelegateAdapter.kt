@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.adapter.delegate
 
 import android.graphics.Bitmap
+import android.support.v4.util.Pair
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
@@ -24,23 +25,25 @@ import com.ping.android.utils.BitmapEncode
 import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
-class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener): ViewTypeDelegateAdapter {
+class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener) : ViewTypeDelegateAdapter {
     override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, listener)
 
     override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as ImageMessage)
     }
 
-    class ViewHolder(parent: ViewGroup, var listener: FirebaseMessageListener): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, var listener: FirebaseMessageListener) : RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_gallery_image)
     ) {
         private lateinit var item: ImageMessage
+
         init {
             itemView.card_view.setOnClickListener {
                 itemView.image.transitionName = item.message.key
                 val map = HashMap<String, View>()
                 map[item.message.key] = itemView.image
-                listener.onClick(it, adapterPosition, map)
+                val pair: Pair<View, String> = Pair.create(itemView.image, item.message.key)
+                listener.onClick(it, adapterPosition, pair)
             }
         }
 
@@ -88,7 +91,7 @@ class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener): Vie
     }
 
     interface FirebaseMessageListener {
-        fun onClick(view: View, position: Int, map: Map<String, View>)
+        fun onClick(view: View, position: Int, pair: Pair<View, String>)
         fun onLoaded(position: Int)
     }
 }

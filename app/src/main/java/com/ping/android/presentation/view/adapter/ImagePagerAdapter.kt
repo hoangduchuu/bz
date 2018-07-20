@@ -21,4 +21,9 @@ class ImagePagerAdapter(fragmentManager: FragmentManager, var messages: MutableL
         messages[position] = message
         notifyDataSetChanged()
     }
+
+    fun updateMessages(messages: List<Message>) {
+        this.messages = ArrayList(messages)
+        notifyDataSetChanged()
+    }
 }

@@ -1,6 +1,8 @@
 package com.ping.android.presentation.view.fragment
 
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.transition.TransitionInflater
 import android.support.v4.app.Fragment
@@ -41,7 +43,12 @@ class ViewPagerGalleryFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         component.inject(this)
-        setFullScreen()
+        //setFullScreen()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //activity?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

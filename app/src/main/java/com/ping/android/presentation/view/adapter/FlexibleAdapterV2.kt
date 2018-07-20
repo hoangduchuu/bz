@@ -13,6 +13,10 @@ object AdapterConstants {
     const val BLANK = 5
 }
 
+/**
+ * @author tuanluong
+ */
+
 class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), SelectableListener {
     private var items: ArrayList<ViewType>
 
@@ -55,6 +59,14 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), Select
     fun updateItems(items: List<ViewType>) {
         this.items = ArrayList(items)
         notifyDataSetChanged()
+    }
+
+    fun updateItem(item: ViewType) {
+        val index = items.indexOf(item)
+        if (index != RecyclerView.NO_POSITION) {
+            this.items[index] = item
+            notifyItemChanged(index)
+        }
     }
 
     // region SelectableListener

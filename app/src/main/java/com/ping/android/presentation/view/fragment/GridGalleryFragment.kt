@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.fragment
 
 import android.os.Bundle
+import android.support.v4.util.Pair
 import android.support.transition.TransitionInflater
 import android.support.transition.TransitionSet
 import android.support.v4.app.SharedElementCallback
@@ -69,10 +70,6 @@ class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.Fireb
         btn_back.setOnClickListener { activity?.onBackPressed() }
         adapter = FlexibleAdapterV2()
         adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(this))
-        val messages = galleryPresenter.getMessageList()
-        val data = messages.map {
-            ImageMessage(it)
-        }
         gallery_list.layoutManager = GridLayoutManager(context, 3)
         gallery_list.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
         val listener = object : RecyclerView.OnScrollListener() {
@@ -86,16 +83,26 @@ class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.Fireb
             }
         }
         gallery_list.addOnScrollListener(listener)
-        adapter.addItems(data)
         gallery_list.adapter = adapter
     }
 
-    override fun onClick(view: View, position: Int, map: Map<String, View>) {
+    override fun onResume() {
+        super.onResume()
+        val messages = galleryPresenter.getMessageList()
+        val data = messages.map {
+            ImageMessage(it)
+        }
+        adapter.addItems(data)
+    }
+
+    override fun onClick(view: View, position: Int, pair: Pair<View, String>) {
         // Open image in viewpager
         galleryPresenter.currentPosition = position
         (exitTransition as TransitionSet).excludeTarget(view, true)
+        //val fragment = ViewPagerGalleryFragment.newInstance()
+        //navigationManager.moveToFragment(fragment, map)
 
-        navigationManager.moveToFragment(ViewPagerGalleryFragment.newInstance(), map)
+        galleryPresenter.handleImagePress(position, pair)
     }
 
     override fun onLoaded(position: Int) {
@@ -129,6 +136,14 @@ class GridGalleryFragment : BaseFragment(), FirebaseMessageDelegateAdapter.Fireb
 
     override fun hideLoading() {
         super<BaseFragment>.hideLoading()
+    }
+
+    fun getShareElementForPosition(position: Int): View? {
+        val selectedViewHolder = gallery_list.findViewHolderForAdapterPosition(position)
+        if (selectedViewHolder?.itemView == null) {
+            return null
+        }
+        return selectedViewHolder.itemView.findViewById(R.id.image)
     }
 
 //    override fun displayMedia(messages: List<Message>) {

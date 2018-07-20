@@ -73,6 +73,7 @@ public class Message implements Parcelable {
         senderName = in.readString();
         timestamp = in.readDouble();
         messageType = in.readInt();
+        type = MessageType.from(messageType);
         callType = in.readInt();
         gameType = in.readInt();
         voiceType = in.readInt();
