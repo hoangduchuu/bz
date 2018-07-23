@@ -8,4 +8,8 @@ public interface Device {
     String getDeviceId();
 
     boolean getNetworkStatus();
+
+    String getExternalImageFolder();
+
+    void refreshMedia(String file);
 }

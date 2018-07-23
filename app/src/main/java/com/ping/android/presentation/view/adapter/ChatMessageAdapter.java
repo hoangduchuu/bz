@@ -115,9 +115,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>[] sharedElements) {
+    public void openImage(Message message, boolean isPuzzled, Pair<View, String>[] sharedElements) {
         if (messageListener != null) {
-            messageListener.openImage(messageKey, imageUrl, localImage, isPuzzled, sharedElements);
+            messageListener.openImage(message, isPuzzled, sharedElements);
         }
     }
 
@@ -401,7 +401,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
         void onLongPress(MessageBaseItem message, boolean allowCopy);
 
-        void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
+        void openImage(Message message, boolean isPuzzled, Pair<View, String>... sharedElements);
 
         void openGameMessage(Message message);
 

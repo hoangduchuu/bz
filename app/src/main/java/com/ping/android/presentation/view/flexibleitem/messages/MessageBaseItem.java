@@ -355,7 +355,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         void onLongPress(MessageBaseItem messageItem);
 
-        void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
+        void openImage(Message message, boolean isPuzzled, Pair<View, String>... sharedElements);
 
         void openGameMessage(Message message);
 

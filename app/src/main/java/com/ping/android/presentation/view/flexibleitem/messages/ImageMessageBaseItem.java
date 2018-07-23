@@ -142,7 +142,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private void viewImage(String imageUrl, String localUrl, boolean isPuzzled) {
             Pair imagePair = Pair.create(imageView, item.message.key);
             if (messageListener != null) {
-                messageListener.openImage(item.message.key, imageUrl, localUrl, isPuzzled, imagePair);
+                messageListener.openImage(item.message, isPuzzled, imagePair);
             }
         }
 

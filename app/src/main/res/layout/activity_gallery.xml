@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/main_background_gray"
-    android:clickable="true"
-    android:focusable="true"
-    tools:context="com.ping.android.presentation.view.fragment.GridGalleryFragment">
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="@color/main_background_gray">
 
         <RelativeLayout
+            android:id="@+id/nav_bar"
             style="?attr/backgroundTheme"
             android:layout_width="match_parent"
             android:layout_height="45dp"
@@ -32,14 +32,18 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/gallery_list"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:clipToPadding="false"
-            android:layout_height="match_parent"
-            android:paddingStart="@dimen/grid_item_padding"
-            android:paddingEnd="@dimen/grid_item_padding"
             android:paddingBottom="@dimen/grid_item_padding"
-            tools:listitem="@layout/item_media"
+            android:paddingEnd="@dimen/grid_item_padding"
+            android:paddingStart="@dimen/grid_item_padding"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/nav_bar"
             tools:layoutManager="android.support.v7.widget.GridLayoutManager"
-            tools:spanCount="3"/>
-    </LinearLayout>
-</FrameLayout>
+            tools:listitem="@layout/item_media"
+            tools:spanCount="3" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -3,11 +3,17 @@ package com.ping.android.device.impl;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Environment;
 import android.provider.Settings;
 
 import com.ping.android.device.Device;
+import com.ping.android.utils.Log;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
@@ -36,4 +42,24 @@ public class DeviceImpl implements Device {
         return activeNetwork != null
                 && activeNetwork.isConnectedOrConnecting();
     }
+
+    @Override
+    public String getExternalImageFolder() {
+        String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+        File bzzzFolder = new File(root, "bzzz");
+        if (!bzzzFolder.exists()) {
+            bzzzFolder.mkdirs();
+        }
+        return bzzzFolder.getAbsolutePath();
+    }
+
+    @Override
+    public void refreshMedia(String file) {
+        MediaScannerConnection.scanFile(application, new String[]{file}, null, (path, uri) -> {
+            Log.i("Scanned " + path + ":");
+            Log.i("uri=" + uri);
+        });
+    }
+
+
 }

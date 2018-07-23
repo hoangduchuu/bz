@@ -246,8 +246,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".presentation.view.activity.GridMediaPickerActivity" />
         <activity
-            android:theme="@style/AppTheme.NoActionBar.Transparent1"
-            android:name=".presentation.view.activity.GroupImageGalleryActivity" />
+            android:name=".presentation.view.activity.GroupImageGalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar.Transparent1" />
     </application>
 
 </manifest>

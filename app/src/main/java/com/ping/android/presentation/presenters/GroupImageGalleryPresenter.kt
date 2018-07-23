@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.ping.android.R.id.view
+import com.ping.android.domain.usecase.message.DownloadImageUseCase
 import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase
 import com.ping.android.model.Message
@@ -13,11 +14,14 @@ interface GroupImageGalleryPresenter : BasePresenter {
     fun init(conversationId: String, messages: List<Message>, isGroupImage: Boolean)
 
     fun togglePuzzle(position: Int)
+    fun downloadImage(message: Message)
 
     interface View : BaseView {
         fun showImageMessages(messages: List<Message>)
 
         fun updateMessage(message: Message, position: Int)
+
+        fun showMessageDownloadSuccessfully()
     }
 }
 
@@ -27,11 +31,13 @@ class GroupImageGalleryPresenterImpl @Inject constructor() : GroupImageGalleryPr
     @Inject
     lateinit var updateMaskChildMessagesUseCase: UpdateMaskChildMessagesUseCase
     @Inject
+    lateinit var downloadImageUseCase: DownloadImageUseCase
+    @Inject
     lateinit var view: GroupImageGalleryPresenter.View
 
     var messages: List<Message> = ArrayList()
     var conversationId: String = ""
-    var isGroupImage = false
+    private var isGroupImage = false
 
     override fun init(conversationId: String, messages: List<Message>, isGroupImage: Boolean) {
         this.conversationId = conversationId
@@ -60,5 +66,14 @@ class GroupImageGalleryPresenterImpl @Inject constructor() : GroupImageGalleryPr
         }
         messages[position].isMask = isMask
         view.updateMessage(messages[position], position)
+    }
+
+    override fun downloadImage(message: Message) {
+        val observer = object: DefaultObserver<Boolean>() {
+            override fun onNext(t: Boolean) {
+                view.showMessageDownloadSuccessfully()
+            }
+        }
+        downloadImageUseCase.execute(observer, message)
     }
 }

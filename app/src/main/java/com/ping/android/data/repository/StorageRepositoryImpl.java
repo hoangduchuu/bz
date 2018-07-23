@@ -3,16 +3,21 @@ package com.ping.android.data.repository;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.RxFirebaseStorage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.domain.repository.StorageRepository;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created by tuanluong on 2/1/18.
@@ -72,6 +77,13 @@ public class StorageRepositoryImpl implements StorageRepository {
         return RxFirebaseStorage.getInstance(photoRef)
                 .putFile(Uri.fromFile(file))
                 .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
+                .toObservable();
+    }
+
+    @NotNull
+    @Override
+    public Observable<Boolean> downloadFile(@NotNull String url, @NotNull String saveFile) {
+        return RxFirebaseStorage.downloadFile(url, saveFile)
                 .toObservable();
     }
 

@@ -40,7 +40,6 @@ class ImageFragment : Fragment() {
     private var messageKey: String = ""
     private lateinit var imageUrl: String
     private var isMask: Boolean = false
-    private val background: ColorDrawable = ColorDrawable(Color.BLACK)
     private var translateY = 0.0f
 
     private var busProvider: BusProvider? = null
@@ -61,19 +60,20 @@ class ImageFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_image, container, false)
-        view.background = background
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         image_detail.transitionName = messageKey
-        image_detail.minimumScale = 0.8f
+        image_detail.minimumScale = 1.0f
         image_detail.setOnPhotoTapListener { view, x, y ->
             busProvider?.post(ImageTapEvent())
         }
+        //image_detail.set
         puller.setListener(object: PullListener {
             override fun onPullStart() {
+                image_detail.minimumScale = 0.8f
                 busProvider?.post(ImagePullEvent(true))
             }
 
@@ -82,36 +82,27 @@ class ImageFragment : Fragment() {
                 if (Math.abs(diff) < 100) {
                     val scaleValue = Math.abs(diff) / 100 * (1.0f - image_detail.minimumScale)
                     image_detail.scale = 1 - scaleValue
-                    updateBackgroundOpacity(Math.abs(diff / 8) / 100)
+                    val progress = Math.abs(diff / 8) / 100
+                    busProvider?.post(ImagePullEvent(false, progress))
                 } else {
+                    busProvider?.post(ImagePullEvent(false, 0.2f))
                     image_detail.scale = image_detail.minimumScale
-                    updateBackgroundOpacity(0.2f)
                 }
             }
 
             override fun onPullEnd() {
+                image_detail.minimumScale = 1.0f
                 val translationY = image_detail.translationY
                 if (Math.abs(translationY) > 90) {
                     activity?.onBackPressed()
                 } else {
                     image_detail.translationY = 0.0f
                     image_detail.scale = 1.0f
-                    updateBackgroundOpacity(0f)
                     busProvider?.post(ImagePullEvent(false))
                 }
             }
         })
         bindData()
-    }
-
-    fun updateData(message: Message) {
-        bindData()
-    }
-
-    private fun updateBackgroundOpacity(progress: Float) {
-        val finalProgress = Math.min(1f, progress * 3f)
-        Log.d("Update background opacity $finalProgress")
-        background.alpha = (0xff * (1f - finalProgress)).toInt()
     }
 
     fun bindData() {

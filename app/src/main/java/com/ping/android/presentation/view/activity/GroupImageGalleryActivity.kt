@@ -2,7 +2,9 @@ package com.ping.android.presentation.view.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.support.transition.TransitionManager
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.SharedElementCallback
@@ -12,6 +14,7 @@ import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.WindowManager
 import com.bzzzchat.extensions.toggleVisibility
+import com.bzzzchat.videorecorder.view.showToast
 import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
@@ -20,6 +23,7 @@ import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
+import com.ping.android.utils.Log
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.ImagePullEvent
@@ -37,6 +41,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
     private var conversationId: String = ""
     private var currentPosition: Int = 0
     private var isGroupImage = false
+    private val background: ColorDrawable = ColorDrawable(android.graphics.Color.BLACK)
 
     lateinit var adapter: ImagePagerAdapter
     @Inject
@@ -61,10 +66,13 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         window.statusBarColor = ContextCompat.getColor(this, R.color.black)
 
         setContentView(R.layout.activity_group_image_gallery)
-
+        container.background = background
         btn_back.setOnClickListener { onBackPressed() }
         togglePuzzle.setOnClickListener {
             presenter.togglePuzzle(currentPosition)
+        }
+        btnDownload.setOnClickListener {
+            presenter.downloadImage(messages[currentPosition])
         }
 
         val listener = object : ViewPager.OnPageChangeListener {
@@ -72,6 +80,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                 currentPosition = position
                 val message = messages[position]
                 onMessageSelected(message)
+                updateTitle(position)
             }
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -87,33 +96,58 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         viewpager.adapter = adapter
         viewpager.currentItem = currentPosition
         onMessageSelected(messages[currentPosition])
+        updateTitle(currentPosition)
 
         registerEvent(busProvider.events.subscribe {
             if (it is ImageTapEvent) {
-                btn_back.toggleVisibility()
+                if (top_bar.visibility == View.GONE) {
+                    showSystemUI()
+                } else {
+                    hideSystemUI()
+                }
+                TransitionManager.beginDelayedTransition(container)
+                top_bar.toggleVisibility()
                 togglePuzzle.toggleVisibility()
             }
             if (it is ImagePullEvent) {
                 if (it.isStart) {
                     // Hide buttons
-                    btn_back.alpha = 0.0f
-                    togglePuzzle.alpha = 0.0f
-                    showSystemUI()
-                } else {
-                    // Show buttons
-                    btn_back.alpha = 1.0f
-                    togglePuzzle.alpha = 1.0f
+                    top_bar.animate().alpha(0.0f).start()
+                    togglePuzzle.animate().alpha(0.0f).start()
                     hideSystemUI()
+                } else {
+                    updateBackgroundOpacity(it.progress)
+                    // Show buttons
+                    if (it.progress == 0.0f) {
+                        TransitionManager.beginDelayedTransition(container)
+                        top_bar.animate().alpha(1.0f).start()
+                        togglePuzzle.animate().alpha(1.0f).start()
+                        if (top_bar.visibility == View.VISIBLE) {
+                            showSystemUI()
+                        }
+                    }
                 }
             }
         })
 
         prepareSharedElementTransition()
         presenter.init(conversationId, messages, isGroupImage)
+    }
 
-        withDelay(1000) {
-//            hideSystemUI()
-        }
+
+    private fun updateBackgroundOpacity(progress: Float) {
+        val finalProgress = Math.min(1f, progress * 3f)
+        background.alpha = (0xff * (1f - finalProgress)).toInt()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        hideSystemUI()
+    }
+
+    private fun updateTitle(position: Int) {
+        val title = "${position + 1} of ${messages.size}"
+        txtTitle.text = title
     }
 
     override fun showImageMessages(messages: List<Message>) {
@@ -122,6 +156,10 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
 
     override fun updateMessage(message: Message, position: Int) {
         adapter.updateMessage(message, position)
+    }
+
+    override fun showMessageDownloadSuccessfully() {
+        showToast("Your image saved to gallery")
     }
 
     override fun hideLoading() {

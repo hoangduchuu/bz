@@ -39,11 +39,11 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
     private lateinit var adapter: FlexibleAdapterV2
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         intent.extras.let {
             conversation = intent.extras.getParcelable("conversation")
             ThemeUtils.onActivityCreateSetTheme(this, conversation.currentColor)
         }
-        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gallery)
         component.inject(this)
 

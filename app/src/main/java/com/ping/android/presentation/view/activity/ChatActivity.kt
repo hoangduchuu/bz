@@ -366,18 +366,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         copyContainer?.visibility = if (allowCopy) View.VISIBLE else View.GONE
     }
 
-    override fun openImage(messageKey: String, imageUrl: String, localImage: String, isPuzzled: Boolean, vararg sharedElements: Pair<View, String>) {
-        val intent = Intent(this, PuzzleActivity::class.java)
-        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId)
-        intent.putExtra("MESSAGE_ID", messageKey)
-        intent.putExtra("IMAGE_URL", imageUrl)
-        intent.putExtra("LOCAL_IMAGE", localImage)
-        intent.putExtra("PUZZLE_STATUS", isPuzzled)
-        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this, *sharedElements
-        )
-        startActivity(intent, options.toBundle())
+    override fun openImage(message: Message, isPuzzled: Boolean, vararg sharedElements: Pair<View, String>) {
+        GroupImageGalleryActivity.start(this, originalConversation!!.key, arrayListOf(message), 0, false, sharedElements[0])
     }
 
     override fun openGameMessage(message: Message) {
