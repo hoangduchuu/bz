@@ -71,8 +71,7 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
 
         private void setTextMessage(Message message) {
             String messageText = message.message;
-            boolean shouldMaskMessage = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId);
-            if (shouldMaskMessage) {
+            if (message.isMask) {
                 messageText = userManager.encodeMessage(message.message);
             }
             txtMessage.setText(messageText);

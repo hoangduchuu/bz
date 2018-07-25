@@ -5,14 +5,15 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -51,18 +52,17 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
         }
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.loadConversationMedia(params.conversation.key, params.lastTimestamp)
-                        .map(dataSnapshot -> {
-                            if (dataSnapshot.getChildrenCount() > 0) {
+                        .map(entities -> {
+                            if (entities.size() > 0) {
                                 List<Message> messages = new ArrayList<>();
-                                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    Message message = messageMapper.transform(child, user);
-                                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
+                                for (MessageEntity entity : entities) {
+                                    Message message = messageMapper.transform(entity, user);
+                                    boolean isDeleted = CommonMethod.getBooleanFrom(entity.deleteStatuses, user.key);
                                     if (isDeleted || TextUtils.isEmpty(message.senderId)) {
                                         continue;
                                     }
 
-                                    if (message.readAllowed != null && message.readAllowed.size() > 0
-                                            && !message.readAllowed.containsKey(user.key))
+                                    if (!entity.isReadable(user.key))
                                         continue;
 
                                     if (message.timestamp < params.conversation.deleteTimestamp) {
@@ -75,7 +75,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                         message.senderName = nickName;
                                     }
                                     int status = CommonMethod.getIntFrom(message.status, user.key);
-                                    if (message.messageType == Constant.MSG_TYPE_GAME && !TextUtils.equals(message.senderId, user.key)) {
+                                    if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {
                                         if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
                                             messages.add(message);
                                         }
@@ -85,7 +85,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                 }
                                 LoadConversationMediaUseCase.Output output = new LoadConversationMediaUseCase.Output();
                                 output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
+                                output.canLoadMore = entities.size() >= Constant.LOAD_MORE_MESSAGE_AMOUNT;
                                 return output;
                             }
                             throw new NullPointerException("");

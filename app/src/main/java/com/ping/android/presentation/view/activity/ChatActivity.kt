@@ -383,7 +383,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         intent.putExtra("CONVERSATION", originalConversation)
         intent.putExtra("SENDER", message.sender)
         intent.putExtra("MESSAGE_ID", message.key)
-        intent.putExtra("IMAGE_URL", message.gameUrl)
+        intent.putExtra("IMAGE_URL", message.mediaUrl)
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
         startActivity(intent)
     }

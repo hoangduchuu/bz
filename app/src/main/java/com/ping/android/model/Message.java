@@ -13,29 +13,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@IgnoreExtraProperties
 public class Message implements Parcelable {
     public String key;
     public String message;
-    public String photoUrl;
+    public String mediaUrl;
     public String thumbUrl;
-    public String audioUrl;
-    public String videoUrl;
-    public String gameUrl;
     public String senderId;
     public String senderName;
     public double timestamp;
     public Map<String, Integer> status;
-    public Map<String, Boolean> markStatuses;
-    public Map<String, Boolean> deleteStatuses;
-    public Map<String, Boolean> readAllowed;
-    public int messageType;
     public int callType;
     public int gameType;
     public int voiceType = 0;
     public double callDuration; // in seconds
     public List<Message> childMessages;
-    public int childCount;
     public String parentKey;
     // Local variable, don't store on Firebase
     public User sender;
@@ -64,15 +55,12 @@ public class Message implements Parcelable {
     protected Message(Parcel in) {
         key = in.readString();
         message = in.readString();
-        photoUrl = in.readString();
+        mediaUrl = in.readString();
         thumbUrl = in.readString();
-        audioUrl = in.readString();
-        videoUrl = in.readString();
-        gameUrl = in.readString();
         senderId = in.readString();
         senderName = in.readString();
         timestamp = in.readDouble();
-        messageType = in.readInt();
+        int messageType = in.readInt();
         type = MessageType.from(messageType);
         callType = in.readInt();
         gameType = in.readInt();
@@ -103,160 +91,8 @@ public class Message implements Parcelable {
         }
     };
 
-    public static Message createTextMessage(String text, String senderId, String senderName,
-                                            double timestamp, Map<String, Integer> status,
-                                            Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                            Map<String, Boolean> readAllowed) {
-        Message message = new Message();
-        message.message = text;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_TEXT;
-        message.readAllowed = readAllowed;
-        return message;
-    }
-
-    public static Message createImageMessage(String photoUrl, String thumbUrl, String senderId,
-                                             String senderName, double timestamp, Map<String, Integer> status,
-                                             Map<String, Boolean> markStatuses,
-                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
-        Message message = new Message();
-        message.photoUrl = photoUrl;
-        message.thumbUrl = thumbUrl;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_IMAGE;
-        message.type = MessageType.IMAGE;
-        message.readAllowed = readAllowed;
-        return message;
-    }
-
-    public static Message createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
-                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int voiceType) {
-        Message message = new Message();
-        message.audioUrl = audioUrl;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_VOICE;
-        message.type = MessageType.VOICE;
-        message.readAllowed = readAllowed;
-        message.voiceType = voiceType;
-        return message;
-    }
-
-    public static Message createGameMessage(String gameUrl, String senderId, String senderName, double timestamp,
-                                            Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                            Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int gameType) {
-        Message message = new Message();
-        message.gameUrl = gameUrl;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_GAME;
-        message.type = MessageType.GAME;
-        message.readAllowed = readAllowed;
-        message.gameType = gameType;
-        return message;
-    }
-
-    public static Message createVideoMessage(String fileUrl, String senderId, String senderName, double timestamp,
-                                             Map<String, Integer> status, Map<String, Boolean> markStatuses,
-                                             Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
-        Message message = new Message();
-        message.videoUrl = fileUrl;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_VIDEO;
-        message.type = MessageType.VIDEO;
-        message.readAllowed = readAllowed;
-        return message;
-    }
-
-    public static Message createCallMessage(String senderId, String senderName, MessageType type,
-                                            double timestamp, Map<String, Integer> status,
-                                            Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                            Map<String, Boolean> readAllowed, int callType, double callDuration) {
-        Message message = new Message();
-        message.messageType = type.ordinal();
-        message.type = type;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.readAllowed = readAllowed;
-        message.callType = callType;
-        message.callDuration = callDuration;
-        return message;
-    }
-
-    public static Message createGroupImageMessage(String senderId, String senderName, MessageType messageType,
-                                                  double timestamp, Map<String, Integer> status,
-                                                  Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                                  Map<String, Boolean> readAllowed, int childCount) {
-        Message message = new Message();
-        message.messageType = messageType.ordinal();
-        message.type = messageType;
-        message.senderId = senderId;
-        message.senderName = senderName;
-        message.timestamp = timestamp;
-        message.status = status;
-        message.markStatuses = markStatuses;
-        message.deleteStatuses = deleteStatuses;
-        message.readAllowed = readAllowed;
-        message.childCount = childCount;
-        return message;
-    }
-
     public boolean isFromMe() {
         return this.senderId.equals(currentUserId);
-    }
-
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("key", key);
-        result.put("message", message);
-        result.put("photoUrl", photoUrl);
-        result.put("thumbUrl", thumbUrl);
-        result.put("audioUrl", audioUrl);
-        result.put("gameUrl", gameUrl);
-        result.put("videoUrl", videoUrl);
-        result.put("timestamp", timestamp);
-        result.put("senderId", senderId);
-        result.put("senderName", senderName);
-        result.put("status", status);
-        result.put("markStatuses", markStatuses);
-        result.put("deleteStatuses", deleteStatuses);
-        result.put("messageType", messageType);
-        result.put("readAllowed", readAllowed);
-        result.put("gameType", gameType);
-        result.put("voiceType", voiceType);
-        result.put("callType", callType);
-        result.put("callDuration", callDuration);
-        result.put("childCount", childCount);
-        return result;
     }
 
     @Override
@@ -265,14 +101,6 @@ public class Message implements Parcelable {
             return key.equals(((Message) obj).key);
         }
         return false;
-    }
-
-    public boolean isReadable(String key) {
-        if (readAllowed != null
-                && readAllowed.containsKey(key)) {
-            return readAllowed.get(key);
-        }
-        return true;
     }
 
     @Override
@@ -284,15 +112,12 @@ public class Message implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(key);
         dest.writeString(message);
-        dest.writeString(photoUrl);
+        dest.writeString(mediaUrl);
         dest.writeString(thumbUrl);
-        dest.writeString(audioUrl);
-        dest.writeString(videoUrl);
-        dest.writeString(gameUrl);
         dest.writeString(senderId);
         dest.writeString(senderName);
         dest.writeDouble(timestamp);
-        dest.writeInt(messageType);
+        dest.writeInt(type.ordinal());
         dest.writeInt(callType);
         dest.writeInt(gameType);
         dest.writeInt(voiceType);

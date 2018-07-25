@@ -137,7 +137,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                 UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
                 return
             }
-            val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.photoUrl
+            val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.mediaUrl
             if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))

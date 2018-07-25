@@ -7,6 +7,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.videorecorder.view.PhotoItem;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.MessageRepository;
@@ -14,6 +15,7 @@ import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.Utils;
@@ -21,7 +23,6 @@ import com.ping.android.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +48,8 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
     MessageRepository messageRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public SendGroupImageMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -68,7 +71,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                     return builder;
                 })
                 .flatMap(builder1 -> sendMessageUseCase.buildUseCaseObservable(builder1.build())
-                        .flatMap(message -> sendMediaMessage(params.conversation.key, message))
+                        .zipWith(sendMediaMessage(params.conversation.key, builder1.build().getMessage(), params.currentUser), (message, message2) -> message)
                         .flatMap(message -> buildCacheChildMessages(params, message.key)
                                 .map(messages -> {
                                     message.isCached = true;
@@ -104,17 +107,18 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                             .setCacheImage(photoItem.getImagePath())
                             .setMessageType(MessageType.IMAGE);
                     String childKey = messageRepository.populateChildMessageKey(params.conversation.key, messageKey);
-                    Message message = builder.build().getMessage();
-                    message.isCached = true;
-                    message.parentKey = messageKey;
+                    MessageEntity message = builder.build().getMessage();
                     message.key = childKey;
-                    message.localFilePath = photoItem.getImagePath();
                     return messageRepository.addChildMessage(params.conversation.key, messageKey, message)
-                            .map(message1 -> {
+                            .map(entity -> {
+                                Message mess = messageMapper.transform(entity, params.currentUser);
+                                mess.isCached = true;
+                                mess.parentKey = messageKey;
+                                mess.localFilePath = photoItem.getImagePath();
                                 // Should set those params to make the UI action right cause this is cached message
-                                message1.photoUrl = message1.localFilePath;
-                                message1.isMask = params.markStatus;
-                                return message1;
+                                mess.mediaUrl = photoItem.getImagePath();
+                                mess.isMask = params.markStatus;
+                                return mess;
                             });
                 })
                 .take(params.items.size())
@@ -150,8 +154,9 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128));
     }
 
-    private Observable<Message> sendMediaMessage(String conversationId, Message message) {
-        return messageRepository.sendMediaMessage(conversationId, message);
+    private Observable<Message> sendMediaMessage(String conversationId, MessageEntity message, User user) {
+        return messageRepository.sendMediaMessage(conversationId, message)
+                .map(entity -> messageMapper.transform(entity, user));
     }
 
     public static class Params {

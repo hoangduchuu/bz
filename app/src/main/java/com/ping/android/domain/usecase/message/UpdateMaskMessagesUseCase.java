@@ -7,6 +7,7 @@ import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -74,8 +75,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
 
         public void setMessage(Message message) {
             this.messageKeys.add(message.key);
-            if (message.messageType == Constant.MSG_TYPE_IMAGE
-                    || message.messageType == Constant.MSG_TYPE_GAME) {
+            if (message.type == MessageType.IMAGE
+                    || message.type == MessageType.GAME) {
                 this.mediaMessages = new ArrayList<>();
                 this.mediaMessages.add(message.key);
             }

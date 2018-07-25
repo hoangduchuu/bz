@@ -47,30 +47,22 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
     public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
         currentUser = params.user;
         return messageRepository.observeLastMessage(params.conversation.key)
-                .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_ADDED) {
-                        Message message = messageMapper.transform(childEvent.dataSnapshot, currentUser);
-                        return new ChildData<>(message, childEvent.type);
-                    } else {
-                        return new ChildData<Message>(null, childEvent.type);
-                    }
-                })
-                //.onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
                     if (childData.getType() != ChildData.Type.CHILD_ADDED) return Observable.empty();
-                    Message message = childData.getData();
-                    boolean isReadable = message.isReadable(currentUser.key);
+                    Message message = messageMapper.transform(childData.getData(), currentUser);
+                    ChildData<Message> data = new ChildData<>(message, childData.getType());
+                    boolean isReadable = childData.getData().isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
-                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
+                    boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, currentUser.key);
                     if (isDeleted || isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
-                    return getUser(childData.getData().senderId)
+                    return getUser(data.getData().senderId)
                             .map(user -> {
-                                childData.getData().sender = user;
-                                return childData;
+                                data.getData().sender = user;
+                                return data;
                             });
                 });
     }

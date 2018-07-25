@@ -9,10 +9,8 @@ import com.google.firebase.database.Query;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,7 +79,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<Message> sendMessage(String conversationId, Message message) {
+    public Observable<MessageEntity> sendMessage(String conversationId, MessageEntity message) {
         DatabaseReference reference = database.getReference("messages").child(conversationId).child(message.key);
         return RxFirebaseDatabase.setValue(reference, message.toMap())
                 .map(reference1 -> message)
@@ -202,5 +200,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 //                .map(reference -> true)
 //                .toObservable();
         return null;
+    }
+
+    @Override
+    public Observable<Boolean> updateConversation(String userId, String conversationId, Map<String, Object> values) {
+        DatabaseReference reference = database.getReference(CHILD_CONVERSATION).child(userId).child(conversationId);
+        return RxFirebaseDatabase.updateBatchData(reference, values)
+                .toObservable();
     }
 }

@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public class UpdateMessageStatusUseCase extends UseCase<Boolean, UpdateMessageSt
         .flatMap(user -> {
             Map<String, Object> updateValue = new HashMap<>();
             updateValue.put(String.format("messages/%s/%s/status/%s", params.conversationId, params.messageId, user.key), params.status);
-            if (params.messageType == Constant.MSG_TYPE_GAME) {
+            if (params.messageType == MessageType.GAME) {
                 updateValue.put(String.format("media/%s/%s/status/%s", params.conversationId, params.messageId, user.key), params.status);
             }
             return commonRepository.updateBatchData(updateValue);
@@ -48,9 +49,9 @@ public class UpdateMessageStatusUseCase extends UseCase<Boolean, UpdateMessageSt
         private String conversationId;
         private int status;
         private String messageId;
-        private int messageType;
+        private MessageType messageType;
 
-        public Params(String conversationId, int status, String messageId, int messageType) {
+        public Params(String conversationId, int status, String messageId, MessageType messageType) {
             this.conversationId = conversationId;
             this.status = status;
             this.messageId = messageId;

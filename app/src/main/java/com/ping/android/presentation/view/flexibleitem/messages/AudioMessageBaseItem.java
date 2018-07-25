@@ -221,7 +221,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
             if (mMediaPlayer == null) {
                 showLoading();
-                String audioFile = getSuitableAudioFile(item.message.audioUrl);
+                String audioFile = getSuitableAudioFile(item.message.mediaUrl);
                 initMediaPlayer(audioFile, mediaPlayer -> {
                     if (mediaPlayer == null) {
                         showError();
@@ -272,7 +272,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private void setAudioSrc(Message message) {
-            String audioUrl = message.audioUrl;
+            String audioUrl = message.mediaUrl;
             if (TextUtils.isEmpty(audioUrl)) {
                 //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
                 // FIXME: should think about message send first then uploading file
@@ -367,7 +367,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 showPlay(false);
                 seekBar.setVisibility(View.GONE);
                 if (status == AudioStatus.UNKNOWN) {
-                    totalTime = getTotalTime(getSuitableAudioFile(item.message.audioUrl));
+                    totalTime = getTotalTime(getSuitableAudioFile(item.message.mediaUrl));
                     ((AudioMessageBaseItem) item).setAudioDuration(totalTime);
                     audioStatus = AudioStatus.INITIALIZED;
                     ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);

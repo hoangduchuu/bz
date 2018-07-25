@@ -5,6 +5,7 @@ import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendGameStatusNotificationUseCase;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.GamePresenter;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,14 +34,14 @@ public class GamePresenterImpl implements GamePresenter {
     }
 
     @Override
-    public void updateMessageStatus(String conversationId, String messageID, int messageType, int status) {
+    public void updateMessageStatus(String conversationId, String messageID, int status) {
         updateMessageStatusUseCase.execute(new DefaultObserver<Boolean>() {
                                                @Override
                                                public void onError(@NotNull Throwable exception) {
                                                    exception.printStackTrace();
                                                }
                                            },
-                new UpdateMessageStatusUseCase.Params(conversationId, status, messageID, messageType));
+                new UpdateMessageStatusUseCase.Params(conversationId, status, messageID, MessageType.GAME));
     }
 
     @Override

@@ -107,7 +107,7 @@ public abstract class BaseGameActivity extends CoreActivity {
 
     private void updateMessageStatus(int status) {
         if (getPresenter() instanceof GamePresenter) {
-            ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, Constant.MSG_TYPE_GAME, status);
+            ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, status);
         }
     }
 

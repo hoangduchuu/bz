@@ -3,18 +3,19 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
-import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +42,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     MessageRepository messageRepository;
     @Inject
     UserRepository userRepository;
-    private Message message;
+    @Inject
+    MessageMapper messageMapper;
+    private MessageEntity message;
     private Conversation conversation;
     private Timer timer;
 
@@ -67,7 +70,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         timer = new Timer();
         timer.schedule(task, 5000);
         message = params.getMessage();
-        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
         conversation = params.getConversation();
         return conversationRepository.sendMessage(params.conversation.key, message)
                 .flatMap(message1 -> {
@@ -80,11 +82,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
                             message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
                     for (String toUser : conversation.memberIDs.keySet()) {
-                        if (!CommonMethod.getBooleanFrom(message1.readAllowed, toUser)) continue;
+                        if (!message1.isReadable(toUser)) continue;
                         updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
                     }
                     return commonRepository.updateBatchData(updateData)
-                            .map(success -> message1);
+                            .map(success -> messageMapper.transform(message1, params.user));
                 });
     }
 
@@ -104,10 +106,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     public static class Params {
         private Conversation conversation;
         private Conversation newConversation;
-        private Message message;
+        private MessageEntity message;
+        private User user;
         private String filePath;
 
-        public Message getMessage() {
+        public MessageEntity getMessage() {
             return message;
         }
 
@@ -212,7 +215,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
 
             public SendMessageUseCase.Params build() {
                 Params params = new Params();
-                Message message = null;
+                MessageEntity message = null;
                 switch (messageType) {
                     case TEXT:
                         message = buildMessage(currentUser, text);
@@ -237,66 +240,67 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         break;
                 }
                 message.key = messageKey;
-                message.localFilePath = cacheImage;
+                //message.localFilePath = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);
+                params.user = currentUser;
                 params.filePath = fileUrl;
                 return params;
             }
 
-            private Message buildGroupImageMessage(User currentUser) {
+            private MessageEntity buildGroupImageMessage(User currentUser) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createGroupImageMessage(currentUser.key, currentUser.getDisplayName(), messageType,
+                return MessageEntity.createGroupImageMessage(currentUser.key, currentUser.getDisplayName(), messageType,
                         timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, childCount);
             }
 
-            private Message buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {
+            private MessageEntity buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
+                return MessageEntity.createCallMessage(currentUser.key, currentUser.getDisplayName(), messageType,
                         timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, callType.ordinal(), callDuration);
             }
 
-            private Message buildVideoMessage(User currentUser, String fileUrl) {
+            private MessageEntity buildVideoMessage(User currentUser, String fileUrl) {
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createVideoMessage(fileUrl,
+                return MessageEntity.createVideoMessage(fileUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp,
                         getStatuses(), getAudioMaskStatuses(voiceType),
                         getMessageDeleteStatuses(), allowance);
             }
 
-            private Message buildAudioMessage(User currentUser, String audioUrl, VoiceType voiceType) {
+            private MessageEntity buildAudioMessage(User currentUser, String audioUrl, VoiceType voiceType) {
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createAudioMessage(audioUrl,
+                return MessageEntity.createAudioMessage(audioUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getAudioMaskStatuses(voiceType),
                         getMessageDeleteStatuses(), allowance, voiceType.ordinal());
             }
 
-            private Message buildMessage(User currentUser, String text) {
+            private MessageEntity buildMessage(User currentUser, String text) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
+                return MessageEntity.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
-            private Message buildImageMessage(User currentUser, String photoUrl, String thumbUrl) {
+            private MessageEntity buildImageMessage(User currentUser, String photoUrl, String thumbUrl) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createImageMessage(photoUrl, thumbUrl, currentUser.key, currentUser.getDisplayName(),
+                return MessageEntity.createImageMessage(photoUrl, thumbUrl, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getImageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
-            private Message buildGameMessage(User currentUser, String imageUrl, GameType gameType) {
+            private MessageEntity buildGameMessage(User currentUser, String imageUrl, GameType gameType) {
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
-                return Message.createGameMessage(imageUrl,
+                return MessageEntity.createGameMessage(imageUrl,
                         currentUser.key, currentUser.getDisplayName(), timestamp, getStatuses(), getImageMaskStatuses(),
                         getMessageDeleteStatuses(), allowance, gameType.ordinal());
             }
 
-            private Conversation conversationFrom(Message message) {
+            private Conversation conversationFrom(MessageEntity message) {
                 return new Conversation(conversation.conversationType, message.messageType, message.callType,
                         text, conversation.groupID, currentUser.key, getMemberIDs(), getMessageMaskStatuses(),
                         getMessageReadStatuses(), message.timestamp, conversation);

@@ -51,10 +51,7 @@ class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener) : Vi
             this.item = item
             itemView.sender.visibility = View.VISIBLE
             itemView.sender.text = item.message.senderName
-            val url: String = when (item.message.messageType) {
-                Constant.MSG_TYPE_IMAGE -> item.message.photoUrl
-                else -> item.message.gameUrl
-            }
+            val url: String = item.message.mediaUrl
             itemView.image.transitionName = item.message.key
             if (TextUtils.isEmpty(url) || !url.startsWith("gs://")) {
                 return

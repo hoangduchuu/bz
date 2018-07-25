@@ -16,6 +16,7 @@ import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
@@ -170,7 +171,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public void bindData(MessageBaseItem item, boolean lastItem) {
             this.item = item;
             this.lastItem = lastItem;
-            this.maskStatus = CommonMethod.getBooleanFrom(item.message.markStatuses, item.message.currentUserId);
+            this.maskStatus = item.message.isMask;
             rbSelection.setVisibility(item.isEditMode ? View.VISIBLE : View.GONE);
             rbSelection.setChecked(item.isSelected);
             rbSelection.setSelected(item.isSelected);
@@ -325,7 +326,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         private void setMessageStatus(Message message, boolean lastItem) {
             if (tvStatus == null) return;
             String messageStatus = message.messageStatus;
-            if ((lastItem || message.messageType == Constant.MSG_TYPE_GAME) && !TextUtils.isEmpty(messageStatus)) {
+            if ((lastItem || message.type == MessageType.GAME) && !TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setText(messageStatus);
                 tvStatus.setVisibility(View.VISIBLE);
                 if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {

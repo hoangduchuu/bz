@@ -130,6 +130,7 @@ kapt {
 }
 
 def libraries = rootProject.ext.libraries
+def dbflow_version = "4.2.4"
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -221,6 +222,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
+
+    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}@aar"
 
     implementation 'com.github.chrisbanes:PhotoView:2.1.4'
 

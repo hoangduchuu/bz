@@ -251,7 +251,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         if (!message.senderId.equals(currentUser.key)) {
             if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
-                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.messageType));
+                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.type));
             }
         }
     }
@@ -407,6 +407,11 @@ public class ChatPresenterImpl implements ChatPresenter {
                 message.isCached = true;
                 addMessage(message);
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
         }, params);
     }
 
@@ -472,7 +477,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (!message.isCached) {
-                    sendNotification(conversation, message.message, MessageType.from(message.messageType));
+                    sendNotification(conversation, message.message, message.type);
                 }
             }
 
@@ -520,12 +525,14 @@ public class ChatPresenterImpl implements ChatPresenter {
      */
     @Override
     public void updateConversationLastMessage(@Nullable Message lastMessage) {
+        Map<String, Boolean> maskStatus = new HashMap<>();
+        maskStatus.put(currentUser.key, lastMessage != null && lastMessage.isMask);
         Conversation conversation = new Conversation(this.conversation.conversationType,
-                lastMessage != null ? lastMessage.messageType : Constant.MSG_TYPE_TEXT,
+                lastMessage != null ? lastMessage.type.ordinal() : Constant.MSG_TYPE_TEXT,
                 lastMessage != null ? lastMessage.callType : 0,
                 lastMessage != null ? lastMessage.message : "",
                 this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs,
-                lastMessage != null ? lastMessage.markStatuses : new HashMap<>(),
+                maskStatus,
                 this.conversation.readStatuses,
                 lastMessage != null ? lastMessage.timestamp : System.currentTimeMillis() / 1000L,
                 this.conversation);
@@ -847,7 +854,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
         String messageStatus = "";
         if (TextUtils.equals(message.senderId, currentUser.key)) {
-            if (message.messageType != Constant.MSG_TYPE_GAME) {
+            if (message.type != MessageType.GAME) {
                 switch (status) {
                     case Constant.MESSAGE_STATUS_SENT:
                         messageStatus = "";
@@ -921,7 +928,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
             }
         } else {
-            if (message.messageType == Constant.MSG_TYPE_GAME) {
+            if (message.type == MessageType.GAME) {
                 messageStatus = "Game";
             }
         }

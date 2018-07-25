@@ -20,10 +20,9 @@ class DownloadImageUseCase @Inject constructor(
     @Inject lateinit var device: Device
 
     override fun buildUseCaseObservable(params: Message): Observable<Boolean> {
-        val url = if (params.type == MessageType.IMAGE) params.photoUrl else params.gameUrl
-        val name = UiUtils.getFileName(url)
+        val name = UiUtils.getFileName(params.mediaUrl)
         val fileToSave = File(device.externalImageFolder, name)
-        return storageRepository.downloadFile(url, fileToSave.absolutePath)
+        return storageRepository.downloadFile(params.mediaUrl, fileToSave.absolutePath)
                 .doOnNext {success -> device.refreshMedia(fileToSave.absolutePath) }
     }
 }

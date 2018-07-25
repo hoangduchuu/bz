@@ -14,6 +14,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
@@ -49,39 +50,32 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
         currentUser = params.user;
         return messageRepository.observeMessageUpdate(params.conversation.key)
-                .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists()) {
-                        Message message = messageMapper.transform(childEvent.dataSnapshot, currentUser);
-                        return new ChildData<>(message, childEvent.type);
-                    } else {
-                        throw new NullPointerException();
-                    }
-                })
                 .flatMap(childData -> {
                     if (childData.getType() != ChildData.Type.CHILD_CHANGED) {
                         return Observable.empty();
                     }
-                    Message message = childData.getData();
-                    boolean isReadable = message.isReadable(currentUser.key);
+                    Message message = messageMapper.transform(childData.getData(), currentUser);
+                    ChildData<Message> data = new ChildData<>(message, childData.getType());
+                    boolean isReadable = childData.getData().isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     if (isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
                     boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, currentUser.key);
                     if (isDeleted) {
-                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
-                            childData.setType(ChildData.Type.CHILD_REMOVED);
-                            return Observable.just(childData);
+                        if (data.getType() == ChildData.Type.CHILD_CHANGED) {
+                            data.setType(ChildData.Type.CHILD_REMOVED);
+                            return Observable.just(data);
                         } else {
                             return Observable.empty();
                         }
                     } else {
                         int status = CommonMethod.getIntFrom(message.status, currentUser.key);
-                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
-                            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                        if (data.getType() == ChildData.Type.CHILD_CHANGED) {
+                            if (message.type == MessageType.GAME) {
                                 // Update status of game if not update
-                                if (!TextUtils.isEmpty(message.gameUrl)
-                                        && !message.gameUrl.equals("PPhtotoMessageIdentifier")
+                                if (!TextUtils.isEmpty(message.mediaUrl)
+                                        && !message.mediaUrl.equals("PPhtotoMessageIdentifier")
                                         && status == Constant.MESSAGE_STATUS_ERROR) {
                                     messageRepository.updateMessageStatus(params.conversation.key,
                                             message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
@@ -89,13 +83,13 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                                 }
                             }
                             //updateReadStatus(message, params.conversation, status);
-                        } else if (childData.getType() == ChildData.Type.CHILD_ADDED) {
+                        } else if (data.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
-                        return userManager.getUser(childData.getData().senderId)
+                        return userManager.getUser(data.getData().senderId)
                                 .map(user -> {
-                                    childData.getData().sender = user;
-                                    return childData;
+                                    data.getData().sender = user;
+                                    return data;
                                 });
                     }
                 })

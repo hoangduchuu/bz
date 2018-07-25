@@ -10,6 +10,7 @@ import com.ping.android.dagger.DaggerApplicationComponent;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
+import com.raizlabs.android.dbflow.config.FlowManager;
 
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.plugins.RxJavaPlugins;
@@ -37,6 +38,7 @@ public class App extends CoreApp {
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
         setupRxErrorHandler();
+        //FlowManager.init(this);
 
         if (FFmpeg.getInstance(this).isSupported()) {
             // ffmpeg is supported

@@ -5,12 +5,14 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
@@ -43,6 +45,8 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     CommonRepository commonRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
+    @Inject
+    MessageMapper messageMapper;
     SendMessageUseCase.Params.Builder builder;
 
     @Inject
@@ -61,10 +65,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
         builder.setFileUrl("PPhtotoMessageIdentifier");
-        Message cachedMessage = builder.build().getMessage();
-        cachedMessage.isCached = true;
-        cachedMessage.localFilePath = params.filePath;
-        cachedMessage.days = (long) (cachedMessage.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+        MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
                     message.key = s;
@@ -90,14 +91,11 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                     return builder.build();
                 })
                 .flatMap(params1 -> {
-                    Message message = params1.getMessage();
+                    MessageEntity message = params1.getMessage();
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
                     updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
-                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> {
-                        message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
-                        return message;
-                    });
+                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> messageMapper.transform(message, params.currentUser));
                 });
     }
 

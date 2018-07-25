@@ -45,14 +45,14 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 // Prepare UI
                 setupUI(cacheVideo)
             } else {
-                if (TextUtils.isEmpty(videoItem.message.videoUrl)) {
+                if (TextUtils.isEmpty(videoItem.message.mediaUrl)) {
                     imgPlay.visibility = View.VISIBLE
                     imgPlay.setImageResource(R.drawable.ic_error_outline)
                     imgPlay.setBackgroundColor(ContextCompat.getColor(itemView.context, android.R.color.transparent))
                     return
                 }
                 // Download video file
-                downloadVideoFile(videoItem.message.videoUrl, cacheVideo)
+                downloadVideoFile(videoItem.message.mediaUrl, cacheVideo)
             }
         }
 
@@ -109,7 +109,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
             if (!TextUtils.isEmpty(message.localFilePath)) {
                 return message.localFilePath
             }
-            val videoName = CommonMethod.getFileNameFromFirebase(message.videoUrl)
+            val videoName = CommonMethod.getFileNameFromFirebase(message.mediaUrl)
             return itemView.context
                     .externalCacheDir!!.absolutePath + File.separator + videoName
         }

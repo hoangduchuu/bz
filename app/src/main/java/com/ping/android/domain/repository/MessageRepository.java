@@ -1,38 +1,38 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.database.ChildEvent;
-import com.google.firebase.database.DataSnapshot;
-import com.ping.android.model.Message;
+import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity;
+
+import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 2/26/18.
  */
 
 public interface MessageRepository {
-    Observable<DataSnapshot> getLastMessages(String conversationId);
+    Observable<List<MessageEntity>> getLastMessages(String conversationId);
 
-    Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp);
+    Observable<List<MessageEntity>> loadMoreMessages(String conversationId, double endTimestamp);
 
-    Observable<DataSnapshot> loadConversationMedia(String conversationId, double lastTimestamp);
+    Observable<List<MessageEntity>> loadConversationMedia(String conversationId, double lastTimestamp);
 
-    Observable<ChildEvent> observeMessageUpdate(String conversationId);
+    Observable<ChildData<MessageEntity>> observeMessageUpdate(String conversationId);
 
-    Observable<ChildEvent> observeLastMessage(String conversationId);
+    Observable<ChildData<MessageEntity>> observeLastMessage(String conversationId);
 
     Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status);
 
-    Observable<ChildEvent> observeMediaUpdate(String conversationId);
+    Observable<ChildData<MessageEntity>> observeMediaUpdate(String conversationId);
 
     Observable<String> updateThumbnailImage(String conversationKey, String messageKey, String filePath);
 
     Observable<String> updateImage(String conversationKey, String messageKey, String s);
 
-    Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data);
+    Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data);
 
-    Observable<Message> sendMediaMessage(String conversationId, Message message);
+    Observable<MessageEntity> sendMediaMessage(String conversationId, MessageEntity message);
 
     String populateChildMessageKey(String conversationId, String messageId);
 

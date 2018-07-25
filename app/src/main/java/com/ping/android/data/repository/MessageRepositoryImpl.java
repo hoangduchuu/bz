@@ -6,11 +6,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.utils.configs.Constant;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -23,6 +27,8 @@ import io.reactivex.Observable;
 
 public class MessageRepositoryImpl implements MessageRepository {
     FirebaseDatabase database;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public MessageRepositoryImpl() {
@@ -30,31 +36,52 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Observable<DataSnapshot> getLastMessages(String conversationId) {
+    public Observable<List<MessageEntity>> getLastMessages(String conversationId) {
         DatabaseReference reference = database.getReference("messages").child(conversationId);
         reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
-//        query.keepSynced(true);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .toObservable();
+                .toObservable()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                });
     }
 
     @Override
-    public Observable<DataSnapshot> loadMoreMessages(String conversationId, double endTimestamp) {
+    public Observable<List<MessageEntity>> loadMoreMessages(String conversationId, double endTimestamp) {
         Query query = database.getReference("messages").child(conversationId)
                 .orderByChild("timestamp")
                 .endAt(endTimestamp)
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .toObservable();
+                .toObservable()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                });
     }
 
     @Override
-    public Observable<DataSnapshot> loadConversationMedia(String conversationId, double lastTimestamp) {
+    public Observable<List<MessageEntity>> loadConversationMedia(String conversationId, double lastTimestamp) {
         DatabaseReference reference = database.getReference("media").child(conversationId);
         reference.keepSynced(true);
         Query query = reference
@@ -63,25 +90,52 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .limitToLast(20);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .toObservable();
+                .toObservable()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                });
     }
 
     @Override
-    public Observable<ChildEvent> observeMessageUpdate(String conversationId) {
+    public Observable<ChildData<MessageEntity>> observeMessageUpdate(String conversationId) {
         Query query = database.getReference("messages").child(conversationId);
         return RxFirebaseDatabase.getInstance(query)
-                .onChildEvent();
+                .onChildEvent()
+                .map(childEvent -> {
+                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_CHANGED) {
+                        MessageEntity message = messageMapper.transform(childEvent.dataSnapshot);
+                        return new ChildData<>(message, childEvent.type);
+                    } else {
+                        return new ChildData<MessageEntity>(null, childEvent.type);
+                    }
+                });
     }
 
     @Override
-    public Observable<ChildEvent> observeLastMessage(String conversationId) {
+    public Observable<ChildData<MessageEntity>> observeLastMessage(String conversationId) {
         DatabaseReference reference = database.getReference("messages").child(conversationId);
         reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(1);
         return RxFirebaseDatabase.getInstance(query)
-                .onChildEvent();
+                .onChildEvent()
+                .map(childEvent -> {
+                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_ADDED) {
+                        MessageEntity message = messageMapper.transform(childEvent.dataSnapshot);
+                        return new ChildData<>(message, childEvent.type);
+                    } else {
+                        return new ChildData<MessageEntity>(null, childEvent.type);
+                    }
+                });
     }
 
     @Override
@@ -93,10 +147,18 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Observable<ChildEvent> observeMediaUpdate(String conversationId) {
+    public Observable<ChildData<MessageEntity>> observeMediaUpdate(String conversationId) {
         DatabaseReference reference = database.getReference("media").child(conversationId);
         return RxFirebaseDatabase.getInstance(reference)
-                .onChildEvent();
+                .onChildEvent()
+                .map(childEvent -> {
+                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_ADDED) {
+                        MessageEntity message = messageMapper.transform(childEvent.dataSnapshot);
+                        return new ChildData<>(message, childEvent.type);
+                    } else {
+                        return new ChildData<MessageEntity>(null, childEvent.type);
+                    }
+                });
     }
 
     @Override
@@ -116,7 +178,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Observable<Message> addChildMessage(String conversationKey, String messageKey, Message data) {
+    public Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("messages/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
         updateValue.put(String.format("media/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
@@ -124,7 +186,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .map(aBoolean -> data);
     }
 
-    public Observable<Message> addChildMedia(String conversationKey, String messageKey, Message data) {
+    public Observable<MessageEntity> addChildMedia(String conversationKey, String messageKey, MessageEntity data) {
         DatabaseReference reference = database.getReference("media")
                 .child(conversationKey)
                 .child(messageKey)
@@ -135,7 +197,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Observable<Message> sendMediaMessage(String conversationId, Message message) {
+    public Observable<MessageEntity> sendMediaMessage(String conversationId, MessageEntity message) {
         DatabaseReference reference = database.getReference("media")
                 .child(conversationId).child(message.key);
         return RxFirebaseDatabase.setValue(reference, message.toMap())

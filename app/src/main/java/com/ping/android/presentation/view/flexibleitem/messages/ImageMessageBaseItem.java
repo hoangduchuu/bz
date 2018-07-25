@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import com.ping.android.R;
 import com.ping.android.model.Callback;
 import com.ping.android.model.Message;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
@@ -57,7 +58,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.isEditMode) {
                 return;
             }
-            if (item.message.messageType == Constant.MSG_TYPE_GAME) {
+            if (item.message.type == MessageType.GAME) {
                 if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_PASS
                         && !item.message.isFromMe()) {
                     return;
@@ -74,11 +75,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.isEditMode) {
                 return;
             }
-            switch (item.message.messageType) {
-                case Constant.MSG_TYPE_IMAGE:
+            switch (item.message.type) {
+                case IMAGE:
                     handleImagePress(maskStatus);
                     break;
-                case Constant.MSG_TYPE_GAME:
+                case GAME:
                     handleGamePress(maskStatus);
                     break;
             }
@@ -104,21 +105,21 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         private void handleImagePress(boolean isPuzzled) {
             if (TextUtils.isEmpty(item.message.localFilePath)) {
-                String photoUrl = !TextUtils.isEmpty(item.message.photoUrl)
-                        ? item.message.photoUrl : item.message.thumbUrl;
+                String photoUrl = !TextUtils.isEmpty(item.message.mediaUrl)
+                        ? item.message.mediaUrl : item.message.thumbUrl;
                 if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith("PPhtotoMessageIdentifier"))
                     return;
-                viewImage(photoUrl, "", isPuzzled);
+                viewImage(isPuzzled);
             } else {
-                viewImage("", item.message.localFilePath, isPuzzled);
+                viewImage(isPuzzled);
             }
         }
 
         private void handleGamePress(boolean isPuzzled) {
-            if (!TextUtils.isEmpty(item.message.gameUrl) && item.message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
+            if (!TextUtils.isEmpty(item.message.mediaUrl) && item.message.mediaUrl.startsWith("PPhtotoMessageIdentifier")) {
                 return;
             }
-            if (TextUtils.isEmpty(item.message.gameUrl)) {
+            if (TextUtils.isEmpty(item.message.mediaUrl)) {
                 return;
             }
             // Only play game for player
@@ -127,7 +128,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (!item.message.currentUserId.equals(item.message.senderId)) {
                 if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
-                    viewImage(item.message.gameUrl, "", isPuzzled);
+                    viewImage(isPuzzled);
                 } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     if (messageListener != null) {
                         messageListener.openGameMessage(item.message);
@@ -135,11 +136,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 }
             } else {
                 // Show image for current User
-                viewImage(item.message.gameUrl, "", isPuzzled);
+                viewImage(isPuzzled);
             }
         }
 
-        private void viewImage(String imageUrl, String localUrl, boolean isPuzzled) {
+        private void viewImage(boolean isPuzzled) {
             Pair imagePair = Pair.create(imageView, item.message.key);
             if (messageListener != null) {
                 messageListener.openImage(item.message, isPuzzled, imagePair);
@@ -155,16 +156,13 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 return;
             }
 
-            String imageURL = message.photoUrl;
-            if (item.message.messageType == Constant.MSG_TYPE_GAME) {
-                imageURL = message.gameUrl;
-            }
+            String imageURL = message.mediaUrl;
             if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
             int status = CommonMethod.getIntFrom(message.status, message.currentUserId);
-            if (!TextUtils.isEmpty(message.gameUrl) && !message.isFromMe()) {
+            if (!TextUtils.isEmpty(message.mediaUrl) && !message.isFromMe()) {
                 if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
                     imageView.setImageResource(R.drawable.img_game_over);
                     loadingView.setVisibility(View.GONE);

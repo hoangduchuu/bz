@@ -146,13 +146,9 @@ class ImageFragment : Fragment() {
         @JvmStatic
         fun newInstance(message: Message) =
                 ImageFragment().apply {
-                    val url: String = when (message.messageType) {
-                        Constant.MSG_TYPE_IMAGE -> message.photoUrl
-                        else -> message.gameUrl
-                    }
                     arguments = Bundle().apply {
                         putString("messageKey", message.key)
-                        putString("imageUrl", url)
+                        putString("imageUrl", message.mediaUrl)
                         putBoolean("isMask", message.isMask)
                     }
                 }

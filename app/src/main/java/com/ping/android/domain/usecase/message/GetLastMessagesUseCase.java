@@ -3,16 +3,14 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,41 +43,28 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     public Observable<Output> buildUseCaseObservable(Conversation conversation) {
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.getLastMessages(conversation.key)
-                        .map(dataSnapshot -> {
+                        .map(entities -> {
                             Output output = new Output();
-                            if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                                double lastTimestamp = Double.MAX_VALUE;
-                                List<Message> messages = new ArrayList<>();
-                                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    if (!child.exists()) continue;
-                                    Message message = messageMapper.transform(child, user);
-                                    if (lastTimestamp > message.timestamp) {
-                                        lastTimestamp = message.timestamp;
-                                    }
-                                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
-                                    boolean isOld = message.timestamp < conversation.deleteTimestamp;
-                                    boolean isReadable = message.isReadable(user.key);
-                                    if (isDeleted || isOld || !isReadable) {
-                                        continue;
-                                    }
-
-                                    if (message.readAllowed != null
-                                            && (message.readAllowed.containsKey(user.key) && !message.readAllowed.get(user.key)))
-                                        continue;
-
-                                    message.sender = getUser(message.senderId, conversation);
-                                    messages.add(message);
+                            List<Message> messages = new ArrayList<>();
+                            double lastTimestamp = Double.MAX_VALUE;
+                            for (MessageEntity entity : entities) {
+                                Message message = messageMapper.transform(entity, user);
+                                if (lastTimestamp > message.timestamp) {
+                                    lastTimestamp = message.timestamp;
+                                }
+                                boolean isDeleted = CommonMethod.getBooleanFrom(entity.deleteStatuses, user.key);
+                                boolean isOld = message.timestamp < conversation.deleteTimestamp;
+                                boolean isReadable = entity.isReadable(user.key);
+                                if (isDeleted || isOld || !isReadable) {
+                                    continue;
                                 }
 
-                                output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LATEST_RECENT_MESSAGES
-                                        && lastTimestamp > conversation.deleteTimestamp;
-                                return output;
-                            } else {
-                                output.messages = new ArrayList<>();
-                                output.canLoadMore = false;
-                                return output;
+                                message.sender = getUser(message.senderId, conversation);
+                                messages.add(message);
                             }
+                            output.messages = messages;
+                            output.canLoadMore = messages.size() > 0;
+                            return output;
                         })
                 );
     }

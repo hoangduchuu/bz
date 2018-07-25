@@ -1,13 +1,11 @@
 package com.ping.android.domain.usecase.message;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.MessageRepository;
@@ -15,6 +13,7 @@ import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
@@ -22,7 +21,6 @@ import com.ping.android.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +47,8 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     SendMessageUseCase sendMessageUseCase;
     @Inject
     MessageRepository messageRepository;
+    @Inject
+    MessageMapper messageMapper;
     // builder;
 
     @Inject
@@ -67,9 +67,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
         builder.setFileUrl("PPhtotoMessageIdentifier");
-        Message cachedMessage = builder.build().getMessage();
-        cachedMessage.isCached = true;
-        cachedMessage.localFilePath = params.filePath;
+        MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
                     message.key = s;
@@ -85,18 +83,17 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                         })
                         .concatWith(sendMessage(message, params.conversation.key, message.key, params.filePath)
                                 .flatMap(message1 -> {
-                                    message.isCached = false;
                                     Map<String, Object> updateValue = new HashMap<>();
                                     updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, message.key), message.photoUrl);
                                     updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, message.key), message.thumbUrl);
                                     updateValue.put(String.format("media/%s/%s", params.conversation.key, message.key), message.toMap());
                                     return commonRepository.updateBatchData(updateValue)
-                                            .map(aBoolean -> message);
+                                            .map(aBoolean -> messageMapper.transform(message1, params.currentUser));
                                 }))
                 );
     }
 
-    private Observable<Message> sendMessage(Message message, String conversationId, String messageId, String filePath) {
+    private Observable<MessageEntity> sendMessage(MessageEntity message, String conversationId, String messageId, String filePath) {
         return this.uploadThumbnail(conversationId, messageId, filePath)
                 .zipWith(uploadImage(conversationId, messageId, filePath), (s, s2) -> {
                     message.thumbUrl = s;
