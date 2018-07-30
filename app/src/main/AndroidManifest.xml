@@ -141,28 +141,25 @@
             android:name=".presentation.view.activity.GameActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.ChangePasswordActivity"
-            android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Dark"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".presentation.view.activity.ForgotPasswordActivity"
-            android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Dark" />
         <activity
             android:name=".presentation.view.activity.CallActivity"
             android:configChanges="orientation|screenSize"
-            android:label="GameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="fullUser"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.PermissionsActivity"
-            android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -200,9 +197,11 @@
             android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
         <activity
             android:name=".presentation.view.activity.GameMemoryActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.GameTicTacToeActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name="com.bzzzchat.videorecorder.view.VideoRecorderActivity"

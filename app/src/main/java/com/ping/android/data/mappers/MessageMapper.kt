@@ -1,7 +1,9 @@
 package com.ping.android.data.mappers
 
 import android.text.TextUtils
+import android.view.View
 import com.google.firebase.database.DataSnapshot
+import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.data.entity.MessageEntity
 import com.ping.android.model.User
@@ -105,7 +107,13 @@ class MessageMapper @Inject constructor() {
         message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_DAY).toLong()
         message.status = entity.status
 
+        prepareMessageStatus(message, currentUser)
         message.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, currentUser.key)
+        if (entity.gameType > 0 && message.senderId != currentUser.key) {
+            if (message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_PASS) {
+                message.isMask = true
+            }
+        }
         if (message.type === MessageType.IMAGE_GROUP && entity.childMessages != null) {
             val childMessages = ArrayList<Message>()
             for (childEntity in entity.childMessages) {
@@ -118,6 +126,11 @@ class MessageMapper @Inject constructor() {
             message.childMessages = childMessages
         }
         message.currentUserId = currentUser.key
+        message.maskable = message.type == MessageType.TEXT
+                || message.type == MessageType.IMAGE
+                || message.type == MessageType.IMAGE_GROUP
+                || (message.type == MessageType.GAME && message.isFromMe)
+                || (message.type == MessageType.GAME && !message.isFromMe && message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_PASS)
         return message
     }
 
@@ -242,84 +255,20 @@ class MessageMapper @Inject constructor() {
 //        return message
 //    }
 
-//    private fun prepareMessageStatus(message: Message, user: User, isGroup: Boolean) {
-//        var status = Constant.MESSAGE_STATUS_SENT
-//        for (statusValue in message.status.values) {
-//            if (statusValue == Constant.MESSAGE_STATUS_READ) {
-//                status = statusValue
-//                break
-//            }
-//        }
-//        if (status != Constant.MESSAGE_STATUS_READ) {
-//            status = CommonMethod.getIntFrom(message.status, user.key)
-//            if (status == -1) {
-//                status = Constant.MESSAGE_STATUS_SENT
-//            }
-//        }
-//        var messageStatus = ""
-//        if (TextUtils.equals(message.senderId, user.key)) {
-//            if (message.messageType != Constant.MSG_TYPE_GAME) {
-//                messageStatus = when (status) {
-//                    Constant.MESSAGE_STATUS_SENT -> ""
-//                    Constant.MESSAGE_STATUS_DELIVERED -> "Delivered"
-//                    Constant.MESSAGE_STATUS_ERROR -> "Undelivered"
-//                    Constant.MESSAGE_STATUS_READ -> "Read"
-//                    else -> ""
-//                }
-//            } else {
-//                if (isGroup) {
-//                    var passedCount = 0
-//                    var failedCount = 0
-//                    for ((key, value) in message.status) {
-//                        if (TextUtils.equals(key, user.key)) {
-//                            continue
-//                        }
-//                        if (value == Constant.MESSAGE_STATUS_GAME_PASS) {
-//                            passedCount += 1
-//                        }
-//                        if (value == Constant.MESSAGE_STATUS_GAME_FAIL) {
-//                            failedCount += 1
-//                        }
-//                    }
-//                    if (status == Constant.MESSAGE_STATUS_ERROR) {
-//                        messageStatus = "Game Undelivered"
-//                    } else if (status == Constant.MESSAGE_STATUS_SENT) {
-//                        messageStatus = ""
-//                    } else if (passedCount == 0 && failedCount == 0) {
-//                        if (status == Constant.MESSAGE_STATUS_READ) {
-//                            messageStatus = "Read"
-//                        } else {
-//                            messageStatus = "Game Delivered"
-//                        }
-//                    } else {
-//                        messageStatus = String.format("%s Passed, %s Failed", passedCount, failedCount)
-//                    }
-//                } else {
-//                    var opponentStatus = Constant.MESSAGE_STATUS_GAME_DELIVERED
-//                    for (key in message.status.keys) {
-//                        if (key == user.key) continue
-//                        opponentStatus = message.status[key] ?: Constant.MESSAGE_STATUS_DELIVERED
-//                    }
-//
-//                    if (opponentStatus == Constant.MESSAGE_STATUS_GAME_PASS || opponentStatus == Constant.MESSAGE_STATUS_GAME_FAIL) {
-//                        status = opponentStatus
-//                    }
-//                    messageStatus = when (status) {
-//                        Constant.MESSAGE_STATUS_GAME_PASS -> "Game Passed"
-//                        Constant.MESSAGE_STATUS_GAME_FAIL -> "Game Failed"
-//                        Constant.MESSAGE_STATUS_ERROR -> "Game Undelivered"
-//                        Constant.MESSAGE_STATUS_SENT -> ""
-//                        Constant.MESSAGE_STATUS_READ -> "Read"
-//                        else -> "Game Delivered"
-//                    }
-//                }
-//            }
-//        } else {
-//            if (message.messageType == Constant.MSG_TYPE_GAME) {
-//                messageStatus = "Game"
-//            }
-//        }
-//        message.messageStatus = messageStatus
-//        message.messageStatusCode = status
-//    }
+    private fun prepareMessageStatus(message: Message, user: User) {
+        var status = Constant.MESSAGE_STATUS_SENT
+        for (statusValue in message.status.values) {
+            if (statusValue == Constant.MESSAGE_STATUS_READ) {
+                status = statusValue
+                break
+            }
+        }
+        if (status != Constant.MESSAGE_STATUS_READ) {
+            status = CommonMethod.getIntFrom(message.status, user.key)
+            if (status == -1) {
+                status = Constant.MESSAGE_STATUS_SENT
+            }
+        }
+        message.messageStatusCode = status
+    }
 }

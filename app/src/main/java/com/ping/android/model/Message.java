@@ -40,6 +40,7 @@ public class Message implements Parcelable {
     public boolean isMask;
     public MessageType type = MessageType.TEXT;
     public MessageCallType messageCallType = MessageCallType.VOICE_CALL;
+    public boolean maskable;
 
     /**
      * Indicates whether show user profile and date time or not

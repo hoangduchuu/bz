@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -15,7 +16,6 @@ import android.view.View
 import android.view.WindowManager
 import com.bzzzchat.extensions.toggleVisibility
 import com.bzzzchat.videorecorder.view.showToast
-import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.R
 import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
 import com.ping.android.dagger.loggedin.groupimage.GroupImageModule
@@ -23,7 +23,7 @@ import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
-import com.ping.android.utils.Log
+import com.ping.android.utils.PermissionsChecker
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.ImagePullEvent
@@ -51,6 +51,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
     private val component: GroupImageComponent by lazy {
         loggedInComponent.provideGroupImageComponent(GroupImageModule(this))
     }
+    private lateinit var permissionChecker: PermissionsChecker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +66,8 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         window.statusBarColor = ContextCompat.getColor(this, R.color.black)
 
+        permissionChecker = PermissionsChecker.from(this)
+
         setContentView(R.layout.activity_group_image_gallery)
         container.background = background
         btn_back.setOnClickListener { onBackPressed() }
@@ -72,7 +75,12 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
             presenter.togglePuzzle(currentPosition)
         }
         btnDownload.setOnClickListener {
-            presenter.downloadImage(messages[currentPosition])
+            permissionChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .subscribe { success ->
+                        if (success) {
+                            presenter.downloadImage(messages[currentPosition])
+                        }
+                    }
         }
 
         val listener = object : ViewPager.OnPageChangeListener {
@@ -184,7 +192,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                 // At this stage, the method will simply return the fragment at the
                 // position and will not create a new one.
                 val currentFragment = viewpager.adapter?.instantiateItem(viewpager, currentPosition) as? Fragment
-                if (currentFragment?.view != null && names != null && sharedElements != null) {
+                if (currentFragment?.view != null && names != null && sharedElements != null && sharedElements.isNotEmpty()) {
                     sharedElements[names[0]] = currentFragment.view!!.findViewById(R.id.image_detail)
                 }
             }
@@ -241,16 +249,18 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         const val IS_GROUP_IMAGE_EXTRA = "IS_GROUP_IMAGE_EXTRA"
 
         @JvmStatic
-        fun start(activity: Activity, conversationId: String, messages: List<Message>, position: Int, isGroupImage: Boolean, sharedElements: Pair<View, String>) {
+        fun start(activity: Activity, conversationId: String, messages: List<Message>, position: Int, isGroupImage: Boolean, sharedElements: Pair<View, String>? = null) {
             val intent = Intent(activity, GroupImageGalleryActivity::class.java)
             intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, Color.COLOR_1)
             intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, ArrayList(messages))
             intent.putExtra(GroupImageGalleryActivity.POSITION_EXTRA, position)
             intent.putExtra(GroupImageGalleryActivity.CONVERSATION_ID, conversationId)
             intent.putExtra(GroupImageGalleryActivity.IS_GROUP_IMAGE_EXTRA, isGroupImage)
-            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    activity, sharedElements
-            )
+            val options  = if (sharedElements != null) {
+                ActivityOptionsCompat.makeSceneTransitionAnimation(activity, sharedElements)
+            } else {
+                ActivityOptionsCompat.makeSceneTransitionAnimation(activity)
+            }
             activity.startActivity(intent, options.toBundle())
         }
     }

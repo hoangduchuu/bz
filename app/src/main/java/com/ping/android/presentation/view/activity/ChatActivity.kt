@@ -379,6 +379,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId)
         intent.putExtra("CONVERSATION", originalConversation)
         intent.putExtra("MESSAGE_ID", message.key)
+        intent.putExtra("MESSAGE", message)
         intent.putExtra("IMAGE_URL", message.mediaUrl)
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
         startActivity(intent)
@@ -648,13 +649,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         val visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible)
         var isMask = false
         for (message in visibleMessages) {
-            if (message.type === MessageType.TEXT
-                    || message.type === MessageType.IMAGE
-                    || message.type === MessageType.IMAGE_GROUP) {
-                if (!message.isMask) {
-                    isMask = true
-                    break
-                }
+            if (message.maskable && !message.isMask) {
+                isMask = true
+                break
             }
         }
         presenter.updateMaskMessages(visibleMessages, lastVisible == messagesAdapter.itemCount - 1, isMask, true)

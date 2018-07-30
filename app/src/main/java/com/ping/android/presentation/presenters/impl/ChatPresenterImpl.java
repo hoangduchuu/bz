@@ -247,9 +247,9 @@ public class ChatPresenterImpl implements ChatPresenter {
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
 
-    private void updateReadStatus(Message message, int status) {
+    private void updateReadStatus(Message message) {
         if (!message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_SENT) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
                         new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.type));
             }
@@ -261,8 +261,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             messagesInBackground.add(messageChildData);
             return;
         }
-        int status = CommonMethod.getIntFrom(messageChildData.getData().status, currentUser.key);
-        updateReadStatus(messageChildData.getData(), status);
+        updateReadStatus(messageChildData.getData());
         updateConversationReadStatus();
         prepareMessageStatus(messageChildData.getData());
         String senderNickname = conversation.nickNames.get(messageChildData.getData().senderId);

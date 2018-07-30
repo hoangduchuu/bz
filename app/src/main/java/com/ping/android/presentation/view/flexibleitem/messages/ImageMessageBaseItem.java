@@ -123,13 +123,12 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 return;
             }
             // Only play game for player
-            int status = CommonMethod.getIntFrom(item.message.status, item.message.currentUserId);
             //int status = ServiceManager.getInstance().getCurrentStatus(item.message.status);
             if (!item.message.currentUserId.equals(item.message.senderId)) {
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                if (item.message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
                     viewImage(isPuzzled);
-                } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
+                } else if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     if (messageListener != null) {
                         messageListener.openGameMessage(item.message);
                     }
@@ -161,15 +160,10 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
-            int status = CommonMethod.getIntFrom(message.status, message.currentUserId);
-            if (!TextUtils.isEmpty(message.mediaUrl) && !message.isFromMe()) {
-                if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    imageView.setImageResource(R.drawable.img_game_over);
-                    loadingView.setVisibility(View.GONE);
-                    return;
-                } else if (status != Constant.MESSAGE_STATUS_GAME_PASS) {
-                    bitmapMark = true;
-                }
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                imageView.setImageResource(R.drawable.img_game_over);
+                loadingView.setVisibility(View.GONE);
+                return;
             }
             String url = imageURL;
             Callback callback = (error, data) -> {

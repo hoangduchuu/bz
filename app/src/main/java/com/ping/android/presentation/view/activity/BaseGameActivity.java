@@ -7,15 +7,21 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IntDef;
+import android.support.v4.util.Pair;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.TicTacToeGame;
 import com.ping.android.utils.configs.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseGameActivity extends CoreActivity {
     private static final int GAME_INIT = 0;
@@ -26,6 +32,7 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected ImageView imageView;
     protected String conversationID, messageID;
     protected String imageURL;
+    protected Message message;
     protected Conversation conversation;
     protected Handler handler = new Handler(Looper.getMainLooper());
     protected Color currentColor = Color.DEFAULT;
@@ -37,6 +44,7 @@ public abstract class BaseGameActivity extends CoreActivity {
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
+        message = getIntent().getParcelableExtra("MESSAGE");
         conversation = getIntent().getParcelableExtra("CONVERSATION");
         if (getIntent().hasExtra(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
             int color = getIntent().getIntExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, 0);
@@ -58,17 +66,12 @@ public abstract class BaseGameActivity extends CoreActivity {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    Intent intent = new Intent(this, PuzzleActivity.class);
-                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                    intent.putExtra("MESSAGE_ID", messageID);
-                    intent.putExtra("IMAGE_URL", imageURL);
-                    intent.putExtra("PUZZLE_STATUS", false);
-                    intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, currentColor.getCode());
-                    ActivityOptions options = ActivityOptions
-                            .makeSceneTransitionAnimation(this, imageView, messageID);
-                    startActivity(intent, options.toBundle());
-                    //finishAfterTransition();
-                    handler.postDelayed(() -> finish(), 2000);
+                    List<Message> messages = new ArrayList<>();
+                    messages.add(message);
+                    Pair<View, String> pair = Pair.create(imageView, messageID);
+                    GroupImageGalleryActivity.start(this, conversationID, messages, 0, false, null);
+                    finishAfterTransition();
+//                    handler.postDelayed(this::finish, 2000);
                 })
                 .setMessage("Congratulations! You won.")
                 .setTitle(gameTitle());
