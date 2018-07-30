@@ -15,25 +15,25 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
-import android.support.v4.content.ContextCompat;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.bzzzchat.configuration.GlideApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
-import com.ping.android.device.Notification;
+import com.ping.android.domain.repository.NotificationMessageRepository;
+import com.ping.android.model.Callback;
+import com.ping.android.model.NotificationMessage;
 import com.ping.android.model.User;
 import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
-import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.service.NotificationBroadcastReceiver;
-import com.ping.android.model.Callback;
 import com.ping.android.utils.ActivityLifecycle;
-import com.bzzzchat.configuration.GlideApp;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
@@ -43,15 +43,19 @@ import static com.ping.android.utils.ResourceUtils.getString;
  * Created by tuanluong on 3/27/18.
  */
 
-public class NotificationImpl implements Notification {
+public class NotificationImpl implements com.ping.android.device.Notification {
+    private static final String MY_DISPLAY_NAME = "";
     public static final int ONGOING_NOTIFICATION_ID = 1111;
     public static final int MESSAGE_NOTIFICATION_ID = 2222;
     private Context context;
     private NotificationManager notificationManager;
+    private boolean groupNotification = false;
+    private NotificationMessageRepository notificationMessageRepository;
 
-    public NotificationImpl(Context context) {
+    public NotificationImpl(Context context, NotificationMessageRepository notificationMessageRepository) {
         this.context = context;
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.notificationMessageRepository = notificationMessageRepository;
     }
 
     private final static AtomicInteger c = new AtomicInteger(0);
@@ -162,62 +166,169 @@ public class NotificationImpl implements Notification {
     @Override
     public void showMessageNotification(User user, String message, String conversationId, String senderProfile) {
         boolean soundNotification = user.settings.notification;
-        int notificationId = getID();
-        // 3. Build notification
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, "message");
+        NotificationMessage notificationMessage = new NotificationMessage(message, System.currentTimeMillis(), "Tuan");
+        notificationMessageRepository.addMessage(conversationId, notificationMessage);
+        List<NotificationMessage> messages = notificationMessageRepository.getMessages(conversationId);
+        updateMessagingStyleNotification(messages, conversationId, user, senderProfile);
+
+//        int notificationId = getID();
+//        // 3. Build notification
+//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, "message");
+//        // Create pending intent, mention the Activity which needs to be
+//        Intent intent = new Intent(context, SplashActivity.class);
+//        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+//        //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
+//        PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
+//                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        // https://willowtreeapps.com/ideas/mobile-notifications-part-2-some-useful-android-notifications
+//        // https://stackoverflow.com/questions/14671453/catch-on-swipe-to-dismiss-event
+//        if (!groupNotification) {
+//            android.app.Notification notification0 = new NotificationCompat.Builder(context, "message")
+//                    .setGroup("messages")
+//                    .setGroupSummary(true)
+//                    .setContentIntent(contentIntent)
+//                    .setAutoCancel(true)
+//                    .setSmallIcon(R.drawable.ic_notification)
+//                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
+//                            R.drawable.ic_notification))
+//                    .setContentTitle("Bundled Notifications Content Title")
+//                    .setContentText("Content Text for group summary")
+//                    .setStyle(new NotificationCompat.InboxStyle()
+//                            .setSummaryText("This is my inbox style summary."))
+//                    .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
+//                    .setLights(ContextCompat.getColor(
+//                            context, R.color.orange_dark), 1000, 1000)
+//                    .setVibrate(new long[]{800, 800, 800, 800})
+//                    .setDefaults(android.app.Notification.DEFAULT_SOUND)
+//                    .build();
+//            groupNotification = true;
+//            notificationManager.notify(getID(), notification0);
+//        }
+//        notificationBuilder
+//                .setContentText(message)
+//                .setContentIntent(contentIntent)
+//                // FIXME I want to group all message in conversation to a group but it seems not working
+//                .setGroup("messages");
+//                //setShowWhen(true).
+//                //setWhen(0).
+//                //.setAutoCancel(true);
+//        if (ActivityLifecycle.getInstance().isForeground() && !soundNotification) {
+//            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
+//        } else {
+//            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_ALL);
+//        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
+//        } else {
+//            notificationBuilder
+//                    .setPriority(android.app.Notification.PRIORITY_HIGH);
+//        }
+//        //do not show double BZZZ, will change if use title for other meaning
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+//            notificationBuilder
+//                    .setContentTitle(context.getResources().getString(R.string.app_name));
+//        } else {
+//            // 1. Build label
+//            String replyLabel = getString(R.string.notif_action_reply);
+//            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
+//                    .setLabel(replyLabel)
+//                    .build();
+//
+//
+//            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, notificationId, conversationId);
+//            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, notificationId, intent1,
+//                    PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//            // 2. Build action
+//            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+//                    android.R.drawable.ic_menu_send, replyLabel, replyPendingIntent)
+//                    .addRemoteInput(remoteInput)
+//                    .setAllowGeneratedReplies(true)
+//                    .build();
+//            notificationBuilder.addAction(replyAction);
+//
+//        }
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            NotificationChannel channel =
+//                    notificationManager.getNotificationChannel("message");
+//            if (channel == null) {
+//                channel = new NotificationChannel("message", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
+//                channel.enableLights(true);
+//                channel.setLightColor(Color.GREEN);
+//                channel.enableVibration(true);
+//                channel.setShowBadge(true);
+//                notificationManager.createNotificationChannel(channel);
+//            }
+//            //builder.setChannelId("missed_call");
+//        }
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            Handler handler = new Handler(Looper.getMainLooper());
+//            handler.post(() -> prepareProfileImage(context, senderProfile, (error, data) -> {
+//                if (error != null) {
+//                    notificationBuilder.
+//                            setSmallIcon(R.drawable.ic_notification).
+//                            setColor(context.getResources().getColor(R.color.colorAccent)).
+//                            setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+//                } else {
+//                    notificationBuilder.
+//                            setSmallIcon(R.drawable.ic_notification).
+//                            setColor(context.getResources().getColor(R.color.colorAccent)).
+//                            setLargeIcon((Bitmap) data[0]);
+//                }
+//                notificationManager.notify(notificationId, notificationBuilder.build());
+//            }));
+//        } else {
+//            notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
+//            notificationManager.notify(notificationId, notificationBuilder.build());
+//        }
+    }
+
+    @Override
+    public void clearAll() {
+        notificationManager.cancelAll();
+    }
+
+    @Override
+    public void clearMessageNotification(String conversationId) {
+        notificationManager.cancel(conversationId.hashCode());
+    }
+
+    private void updateMessagingStyleNotification(List<NotificationMessage> messages, String conversationId,
+                                                  User user, String senderProfile) {
+        boolean soundNotification = user.settings.notification;
+        int notificationId = conversationId.hashCode();
         // Create pending intent, mention the Activity which needs to be
         Intent intent = new Intent(context, SplashActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        // https://willowtreeapps.com/ideas/mobile-notifications-part-2-some-useful-android-notifications
-        // https://stackoverflow.com/questions/14671453/catch-on-swipe-to-dismiss-event
-//        android.app.Notification notification0 = new NotificationCompat.Builder(context, "message")
-//                .setGroup(conversationId)
-//                .setGroupSummary(true)
-//                .setContentIntent(contentIntent)
-//                .setAutoCancel(true)
-//                .setSmallIcon(android.R.drawable.ic_dialog_email)
-//                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
-//                        android.R.drawable.ic_dialog_email))
-//                .setContentTitle("Bundled Notifications Content Title")
-//                .setContentText("Content Text for group summary")
-//                .setStyle(new NotificationCompat.InboxStyle()
-//                        .setSummaryText("This is my inbox style summary."))
-//                .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
-//                .setLights(ContextCompat.getColor(
-//                        context, R.color.orange_dark), 1000, 1000)
-//                .setVibrate(new long[]{800, 800, 800, 800})
-//                .setDefaults(android.app.Notification.DEFAULT_SOUND)
-//                .build();
 
-        notificationBuilder
-                .setContentText(message)
+        NotificationCompat.MessagingStyle messagingStyle = buildMessageList(messages, user.key);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "messages")
+                .setStyle(messagingStyle)
                 .setContentIntent(contentIntent)
-                // FIXME I want to group all message in conversation to a group but it seems not working
-                .setGroup(conversationId)
-                //setShowWhen(true).
-                //setWhen(0).
-                .setAutoCancel(true);
+                .setSmallIcon(R.drawable.ic_notification);
         if (ActivityLifecycle.getInstance().isForeground() && !soundNotification) {
-            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
+            builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
         } else {
-            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_ALL);
+            builder.setDefaults(android.app.Notification.DEFAULT_ALL);
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
+            builder.setPriority(NotificationManager.IMPORTANCE_HIGH);
         } else {
-            notificationBuilder
+            builder
                     .setPriority(android.app.Notification.PRIORITY_HIGH);
         }
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            notificationBuilder
+            builder
                     .setContentTitle(context.getResources().getString(R.string.app_name));
         } else {
             // 1. Build label
-            String replyLabel = getString(R.string.notif_action_reply);
+            String replyLabel = context.getResources().getString(R.string.notif_action_reply);
             RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
                     .setLabel(replyLabel)
                     .build();
@@ -233,7 +344,7 @@ public class NotificationImpl implements Notification {
                     .addRemoteInput(remoteInput)
                     .setAllowGeneratedReplies(true)
                     .build();
-            notificationBuilder.addAction(replyAction);
+            builder.addAction(replyAction);
 
         }
 
@@ -250,33 +361,39 @@ public class NotificationImpl implements Notification {
             }
             //builder.setChannelId("missed_call");
         }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(() -> prepareProfileImage(context, senderProfile, (error, data) -> {
                 if (error != null) {
-                    notificationBuilder.
+                    builder.
                             setSmallIcon(R.drawable.ic_notification).
                             setColor(context.getResources().getColor(R.color.colorAccent)).
                             setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
                 } else {
-                    notificationBuilder.
+                    builder.
                             setSmallIcon(R.drawable.ic_notification).
                             setColor(context.getResources().getColor(R.color.colorAccent)).
                             setLargeIcon((Bitmap) data[0]);
                 }
-                //notificationManager.notify(getID(), notification0);
-                notificationManager.notify(notificationId, notificationBuilder.build());
+                notificationManager.notify(conversationId.hashCode(), builder.build());
             }));
         } else {
-            notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
-            notificationManager.notify(notificationId, notificationBuilder.build());
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            notificationManager.notify(conversationId.hashCode(), builder.build());
         }
     }
 
-    @Override
-    public void clearAll() {
-        notificationManager.cancelAll();
+    private NotificationCompat.MessagingStyle buildMessageList(List<NotificationMessage> messages, String userId) {
+        NotificationCompat.MessagingStyle messagingStyle =
+                new NotificationCompat.MessagingStyle(MY_DISPLAY_NAME);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            messagingStyle.setConversationTitle(context.getString(R.string.app_name));
+        }
+        for (NotificationMessage message : messages) {
+            String sender = message.getSenderId().equals(userId) ? null : message.getSenderId();
+            messagingStyle.addMessage(message.getMessage(), message.getTimestamp(), "");
+        }
+        return messagingStyle;
     }
 
     private void prepareProfileImage(Context context, String profileImage, Callback callback) {

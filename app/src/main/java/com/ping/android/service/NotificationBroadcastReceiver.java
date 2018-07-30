@@ -102,13 +102,13 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void updateNotification(Context context, int notifyId) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
+        notificationManager.cancel(notifyId);
+        /*NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentText(context.getString(R.string.notif_content_sent))
                 .setTimeoutAfter(60000); // Dismiss after 1min
 
-        notificationManager.notify(notifyId, builder.build());
+        notificationManager.notify(notifyId, builder.build());*/
     }
 
     public CharSequence getReplyMessage(Intent intent) {

@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.NotificationMessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
@@ -34,6 +35,8 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
+    @Inject
+    NotificationMessageRepository notificationMessageRepository;
 
     @Inject
     public ReplyMessageFromNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -73,6 +76,7 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
                                         return sendMessageNotificationUseCase.buildUseCaseObservable(notificationParams);
                                     });
                         })
+                        .doOnNext(aBoolean -> notificationMessageRepository.clearMessages(params.conversationId))
                 );
     }
 
