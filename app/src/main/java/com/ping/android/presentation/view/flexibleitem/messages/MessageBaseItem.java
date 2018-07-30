@@ -290,9 +290,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     tvMessageInfo.setVisibility(View.GONE);
                 } else {
                     tvMessageInfo.setVisibility(View.VISIBLE);
-                    String nickName = (String) nickNames.get(message.senderId);
-                    String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
-                    tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName));
+                    tvMessageInfo.setText(message.senderName);
                 }
             }
         }
@@ -302,12 +300,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
             if (message.showExtraInfo) {
                 senderProfileImage.setVisibility(View.VISIBLE);
-                User sender = message.sender;
-                if (sender != null) {
-                    UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
-                } else {
-                    senderProfileImage.setImageResource(R.drawable.ic_avatar_gray);
-                }
+                UiUtils.displayProfileAvatar(senderProfileImage, message.senderProfile, R.drawable.ic_avatar_gray);
             } else {
                 senderProfileImage.setVisibility(View.INVISIBLE);
             }
@@ -315,11 +308,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         private void handleProfileImagePress() {
             if (messageListener != null) {
-                if (item.message.sender != null) {
-                    String imageName = "imageProfile" + getAdapterPosition();
-                    Pair imagePair = Pair.create(senderProfileImage, imageName);
-                    messageListener.onProfileImagePress(item.message.sender, imagePair);
-                }
+                String imageName = "imageProfile" + getAdapterPosition();
+                Pair imagePair = Pair.create(senderProfileImage, imageName);
+                messageListener.onProfileImagePress(item.message.senderId, imagePair);
             }
         }
 
@@ -350,7 +341,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public interface MessageListener {
 
-        void onProfileImagePress(User user, Pair<View, String>... sharedElements);
+        void onProfileImagePress(String senderId, Pair<View, String>... sharedElements);
 
         void updateMessageMask(Message message, boolean maskStatus, boolean lastItem);
 

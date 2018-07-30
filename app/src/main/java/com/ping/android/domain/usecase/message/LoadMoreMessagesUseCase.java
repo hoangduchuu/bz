@@ -73,8 +73,6 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                     if (message.timestamp < params.conversation.deleteTimestamp) {
                                         continue;
                                     }
-
-                                    message.sender = getUser(message.senderId, params.conversation);
                                     messages.add(message);
                                 }
                                 Output output = new Output();

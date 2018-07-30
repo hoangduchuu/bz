@@ -68,11 +68,9 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                     if (message.timestamp < params.conversation.deleteTimestamp) {
                                         continue;
                                     }
-
-                                    message.sender = getUser(message.senderId, params.conversation);
-                                    String nickName = params.conversation.nickNames.get(message.senderId);
-                                    if (!TextUtils.isEmpty(nickName)) {
-                                        message.senderName = nickName;
+                                    User sender = getUser(message.senderId, params.conversation);
+                                    if (sender != null) {
+                                        message.senderProfile = sender.profile;
                                     }
                                     int status = CommonMethod.getIntFrom(message.status, user.key);
                                     if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {

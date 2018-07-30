@@ -81,7 +81,7 @@ class MessageMapper @Inject constructor() {
         return message
     }
 
-    fun transform(entity: MessageEntity, user: User): Message {
+    fun transform(entity: MessageEntity, currentUser: User): Message {
         val message = Message()
         message.key = entity.key
         message.message = entity.message
@@ -105,20 +105,19 @@ class MessageMapper @Inject constructor() {
         message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_DAY).toLong()
         message.status = entity.status
 
-        message.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, user.key)
+        message.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, currentUser.key)
         if (message.type === MessageType.IMAGE_GROUP && entity.childMessages != null) {
             val childMessages = ArrayList<Message>()
             for (childEntity in entity.childMessages) {
-                val childMessage = transform(childEntity, user)
+                val childMessage = transform(childEntity, currentUser)
                 childMessage.parentKey = entity.key
-                childMessage.isMask = CommonMethod.getBooleanFrom(childEntity.markStatuses, user.key)
+                childMessage.isMask = CommonMethod.getBooleanFrom(childEntity.markStatuses, currentUser.key)
                 childMessages.add(childMessage)
             }
             childMessages.sortByDescending { it.timestamp }
             message.childMessages = childMessages
         }
-
-        message.currentUserId = user.key
+        message.currentUserId = currentUser.key
         return message
     }
 

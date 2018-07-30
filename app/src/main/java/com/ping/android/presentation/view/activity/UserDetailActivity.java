@@ -6,8 +6,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +32,8 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private SwitchCompat swUserBlock;
     private ViewGroup layoutSaveContact, layoutDeleteContact;
 
-    private String userID;
-    private User user;
+    //private String userID;
+    //private User user;
 
     @Inject
     UserDetailPresenter presenter;
@@ -56,15 +54,15 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         presenter.create();
         setContentView(R.layout.activity_user_detail);
         bindViews();
-        userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
-        user = getIntent().getParcelableExtra(EXTRA_USER);
+        String userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
+        //user = getIntent().getParcelableExtra(EXTRA_USER);
         String imageName = getIntent().getStringExtra(EXTRA_USER_IMAGE);
         ivAvatar.setTransitionName(imageName);
         String userName = getIntent().getStringExtra(EXTRA_USER_NAME);
         tvDisplayName.setTransitionName(userName);
         //ViewCompat.setTransitionName(ivAvatar, imageName);
+        presenter.init(userID);
         presenter.observeFriendStatus(userID);
-        bindData();
     }
 
     @Override
@@ -110,11 +108,11 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void addContact() {
-        presenter.addContact(user.key);
+        presenter.addContact();
     }
 
     private void deleteContact() {
-        presenter.deleteContact(user.key);
+        presenter.deleteContact();
     }
 
     private void bindViews() {
@@ -136,7 +134,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         findViewById(R.id.user_detail_back).setOnClickListener(this);
     }
 
-    private void bindData() {
+    private void bindData(User user) {
         tvDisplayName.setText(user.getDisplayName());
         userName.setText(user.pingID);
 
@@ -148,7 +146,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.sendMessageToUser(user);
+        presenter.sendMessageToUser();
     }
 
     private void onVoiceCall() {
@@ -156,7 +154,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.handleVoiceCallPress(user);
+        presenter.handleVoiceCallPress();
     }
 
     private void onVideoCall() {
@@ -164,12 +162,12 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.handleVideoCallPress(user);
+        presenter.handleVideoCallPress();
     }
 
     private void onBlock() {
         showLoading();
-        presenter.toggleBlockUser(user.key, swUserBlock.isChecked());
+        presenter.toggleBlockUser(swUserBlock.isChecked());
     }
 
     private void onBack() {
@@ -184,8 +182,8 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     @Override
-    public void toggleBlockUser(User user) {
-        swUserBlock.setChecked(user.blocks.containsKey(userID));
+    public void toggleBlockUser(boolean isBlocked) {
+        swUserBlock.setChecked(isBlocked);
     }
 
     @Override
@@ -209,5 +207,10 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     @Override
     public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
         CallActivity.start(this, currentUser, otherUser, isVideoCall);
+    }
+
+    @Override
+    public void updateUI(User otherUser) {
+        bindData(otherUser);
     }
 }

@@ -58,8 +58,10 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 if (isDeleted || isOld || !isReadable) {
                                     continue;
                                 }
-
-                                message.sender = getUser(message.senderId, conversation);
+                                User sender = getUser(message.senderId, conversation);
+                                if (sender != null) {
+                                    message.senderProfile = sender.profile;
+                                }
                                 messages.add(message);
                             }
                             output.messages = messages;

@@ -265,6 +265,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateReadStatus(messageChildData.getData(), status);
         updateConversationReadStatus();
         prepareMessageStatus(messageChildData.getData());
+        String senderNickname = conversation.nickNames.get(messageChildData.getData().senderId);
+        if (!TextUtils.isEmpty(senderNickname)){
+            messageChildData.getData().senderName = senderNickname;
+        }
         switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message

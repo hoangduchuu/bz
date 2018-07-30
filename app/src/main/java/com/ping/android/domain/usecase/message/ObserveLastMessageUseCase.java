@@ -59,11 +59,7 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                     }
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
-                    return getUser(data.getData().senderId)
-                            .map(user -> {
-                                data.getData().sender = user;
-                                return data;
-                            });
+                    return Observable.just(data);
                 });
     }
 

@@ -1,12 +1,7 @@
 package com.ping.android.data.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.ping.android.model.User;
-import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
 

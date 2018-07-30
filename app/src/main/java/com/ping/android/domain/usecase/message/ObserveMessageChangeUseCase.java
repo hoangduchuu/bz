@@ -86,11 +86,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         } else if (data.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
-                        return userManager.getUser(data.getData().senderId)
-                                .map(user -> {
-                                    data.getData().sender = user;
-                                    return data;
-                                });
+                        return Observable.just(data);
                     }
                 })
                 .onErrorResumeNext(Observable.empty());

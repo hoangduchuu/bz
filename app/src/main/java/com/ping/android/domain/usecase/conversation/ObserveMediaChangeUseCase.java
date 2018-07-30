@@ -57,12 +57,11 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
                                 return Observable.empty();
                             }
 
-                            message.sender = getUser(message.senderId, conversation);
-                            message.currentUserId = user.key;
-                            String nickName = conversation.nickNames.get(message.senderId);
-                            if (!TextUtils.isEmpty(nickName)) {
-                                message.senderName = nickName;
+                            User sender = getUser(message.senderId, conversation);
+                            if (sender != null) {
+                                message.senderProfile = sender.profile;
                             }
+                            message.currentUserId = user.key;
                             int status = CommonMethod.getIntFrom(message.status, user.key);
                             if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {
                                 if (status == Constant.MESSAGE_STATUS_GAME_PASS) {

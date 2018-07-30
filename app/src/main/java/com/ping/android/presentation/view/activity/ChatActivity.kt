@@ -371,17 +371,13 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun openGameMessage(message: Message) {
-        var intent: Intent? = null
-        if (message.gameType == GameType.MEMORY.ordinal) {
-            intent = Intent(this, GameMemoryActivity::class.java)
-        } else if (message.gameType == GameType.TIC_TAC_TOE.ordinal) {
-            intent = Intent(this, GameTicTacToeActivity::class.java)
-        } else {
-            intent = Intent(this, GameActivity::class.java)
+        val intent = when {
+            message.gameType == GameType.MEMORY.ordinal -> Intent(this, GameMemoryActivity::class.java)
+            message.gameType == GameType.TIC_TAC_TOE.ordinal -> Intent(this, GameTicTacToeActivity::class.java)
+            else -> Intent(this, GameActivity::class.java)
         }
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId)
         intent.putExtra("CONVERSATION", originalConversation)
-        intent.putExtra("SENDER", message.sender)
         intent.putExtra("MESSAGE_ID", message.key)
         intent.putExtra("IMAGE_URL", message.mediaUrl)
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
@@ -1126,10 +1122,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         }
     }
 
-    override fun handleProfileImagePress(user: User, sharedElements: Array<Pair<View, String>>) {
+    override fun handleProfileImagePress(senderId: String, sharedElements: Array<Pair<View, String>>) {
         val intent = Intent(this, UserDetailActivity::class.java)
-        intent.putExtra(Constant.START_ACTIVITY_USER_ID, user.key)
-        intent.putExtra(UserDetailActivity.EXTRA_USER, user)
+        intent.putExtra(Constant.START_ACTIVITY_USER_ID, senderId)
+        //intent.putExtra(UserDetailActivity.EXTRA_USER, user)
         intent.putExtra(UserDetailActivity.EXTRA_USER_IMAGE, sharedElements[0].second)
         intent.putExtra(UserDetailActivity.EXTRA_USER_NAME, "")
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)

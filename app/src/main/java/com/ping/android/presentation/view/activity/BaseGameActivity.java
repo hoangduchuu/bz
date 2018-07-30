@@ -27,7 +27,6 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected String conversationID, messageID;
     protected String imageURL;
     protected Conversation conversation;
-    protected User sender;
     protected Handler handler = new Handler(Looper.getMainLooper());
     protected Color currentColor = Color.DEFAULT;
     @GameStatus protected int status = GAME_INIT;
@@ -39,7 +38,6 @@ public abstract class BaseGameActivity extends CoreActivity {
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
         conversation = getIntent().getParcelableExtra("CONVERSATION");
-        sender = getIntent().getParcelableExtra("SENDER");
         if (getIntent().hasExtra(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
             int color = getIntent().getIntExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, 0);
             currentColor = Color.from(color);

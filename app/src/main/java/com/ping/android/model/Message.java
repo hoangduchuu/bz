@@ -30,6 +30,7 @@ public class Message implements Parcelable {
     public String parentKey;
     // Local variable, don't store on Firebase
     public User sender;
+    public String senderProfile;
     public String localFilePath;
     public boolean isCached;
     public String currentUserId;
@@ -66,7 +67,6 @@ public class Message implements Parcelable {
         gameType = in.readInt();
         voiceType = in.readInt();
         callDuration = in.readDouble();
-        sender = in.readParcelable(User.class.getClassLoader());
         localFilePath = in.readString();
         isCached = in.readByte() != 0;
         currentUserId = in.readString();
@@ -122,7 +122,6 @@ public class Message implements Parcelable {
         dest.writeInt(gameType);
         dest.writeInt(voiceType);
         dest.writeDouble(callDuration);
-        dest.writeParcelable(sender, flags);
         dest.writeString(localFilePath);
         dest.writeByte((byte) (isCached ? 1 : 0));
         dest.writeString(currentUserId);

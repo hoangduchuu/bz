@@ -93,9 +93,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     @Override
-    public void onProfileImagePress(User user, Pair<View, String>[] sharedElements) {
+    public void onProfileImagePress(String senderId, Pair<View, String>[] sharedElements) {
         if (messageListener != null) {
-            messageListener.handleProfileImagePress(user, sharedElements);
+            messageListener.handleProfileImagePress(senderId, sharedElements);
         }
     }
 
@@ -395,7 +395,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     public interface ChatMessageListener {
-        void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
+        void handleProfileImagePress(String senderId, Pair<View, String>... sharedElements);
 
         void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
 
