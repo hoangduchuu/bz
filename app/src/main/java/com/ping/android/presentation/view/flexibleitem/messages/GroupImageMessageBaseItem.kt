@@ -167,6 +167,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
             groupImage.isNestedScrollingEnabled = false
             groupImage.layoutManager = gridLayoutManager
             groupImage.addItemDecoration(gridItemDecoration)
+            groupImage.setHasFixedSize(true)
             groupImage.adapter = groupImageAdapter
         }
 
