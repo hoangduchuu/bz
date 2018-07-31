@@ -581,6 +581,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
                 }
             }
         }
+        mLinearLayoutManager?.stackFromEnd = true
         recycleChatView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -635,10 +636,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             }
         })
         // Delay conversation initialize to make smooth UI transition
-        withDelay(700) {
+        //withDelay(700) {
             presenter.create()
             presenter.initConversationData(conversationId)
-        }
+        //}
     }
 
     private fun handleShakePhone() {
@@ -794,7 +795,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             tvNewMsgCount!!.visibility = View.GONE
         } else {
             tvNewMsgCount!!.visibility = View.VISIBLE
-            tvNewMsgCount!!.text = "" + messageCount
+            tvNewMsgCount!!.text = messageCount.toString()
         }
     }
 
@@ -943,7 +944,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     private fun onSendGame(gameType: GameType) {
         selectedGame = gameType
-        chatGameMenu?.hide()
+        chatGameMenu.hide()
         withDelay(500) {
             openMediaPicker()
         }
@@ -995,14 +996,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     private fun onVideoCall() {
         presenter.handleVideoCallPress()
-    }
-
-    private fun sendImageFirebase(file: File, thumbnail: File) {
-        presenter.sendImageMessage(file.absolutePath, thumbnail.absolutePath, tgMarkOut.isSelected)
-    }
-
-    private fun sendGameFirebase(file: File, gameType: GameType) {
-        presenter.sendGameMessage(file.absolutePath, gameType, tgMarkOut.isSelected)
     }
 
     private fun showTyping(typing: Boolean) {
@@ -1061,9 +1054,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateNickNames(nickNames: Map<String, String>) {
-        if (messagesAdapter != null) {
-            messagesAdapter.updateNickNames(nickNames)
-        }
+        messagesAdapter.updateNickNames(nickNames)
     }
 
     override fun toggleTyping(b: Boolean) {
@@ -1156,8 +1147,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     companion object {
-        private val CAMERA_REQUEST_CODE = 12345
-        private val REQUEST_CODE_MEDIA_PICKER = 1111
+        const val CAMERA_REQUEST_CODE = 12345
+        const val REQUEST_CODE_MEDIA_PICKER = 1111
         const val EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME"
         const val EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME"
         const val EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR"

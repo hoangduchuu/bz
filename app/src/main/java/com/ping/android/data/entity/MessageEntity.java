@@ -2,41 +2,77 @@ package com.ping.android.data.entity;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.ping.android.data.db.AppDatabase;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.configs.Constant;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.OneToMany;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
-public class MessageEntity {
+@Table(database = AppDatabase.class)
+public class MessageEntity extends BaseModel {
+    @PrimaryKey
     public String key;
+    @ForeignKey(tableClass = MessageEntity.class)
+    public String parentKey;
+    @Column
     public String message;
+    @Column
     public String photoUrl;
+    @Column
     public String thumbUrl;
+    @Column
     public String audioUrl;
+    @Column
     public String videoUrl;
+    @Column
     public String gameUrl;
+    @Column
     public String senderId;
+    @Column
     public String senderName;
+    @Column
     public double timestamp;
+    @Column
+    public String conversationId;
     public Map<String, Integer> status;
     public Map<String, Boolean> markStatuses;
     public Map<String, Boolean> deleteStatuses;
     public Map<String, Boolean> readAllowed;
+    @Column
     public int messageType;
+    @Column
     public int callType;
+    @Column
     public int gameType;
+    @Column
     public int voiceType = 0;
+    @Column
     public double callDuration; // in seconds
     public List<MessageEntity> childMessages;
     public int childCount;
-    public String parentKey;
-    public boolean isMask;
-    public MessageType type = MessageType.TEXT;
 
     public MessageEntity() {
+    }
+
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "childMessages")
+    public List<MessageEntity> getChildMessages() {
+        if (childMessages == null || childMessages.isEmpty()) {
+            childMessages = SQLite.select()
+                    .from(MessageEntity.class)
+                    .where(MessageEntity_Table.parentKey_key.eq(key))
+                    .queryList();
+        }
+        return childMessages;
     }
 
     public static MessageEntity createTextMessage(String text, String senderId, String senderName,
@@ -70,7 +106,6 @@ public class MessageEntity {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_IMAGE;
-        message.type = MessageType.IMAGE;
         message.readAllowed = readAllowed;
         return message;
     }
@@ -87,7 +122,6 @@ public class MessageEntity {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VOICE;
-        message.type = MessageType.VOICE;
         message.readAllowed = readAllowed;
         message.voiceType = voiceType;
         return message;
@@ -105,7 +139,6 @@ public class MessageEntity {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_GAME;
-        message.type = MessageType.GAME;
         message.readAllowed = readAllowed;
         message.gameType = gameType;
         return message;
@@ -123,7 +156,6 @@ public class MessageEntity {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.messageType = Constant.MSG_TYPE_VIDEO;
-        message.type = MessageType.VIDEO;
         message.readAllowed = readAllowed;
         return message;
     }
@@ -134,7 +166,6 @@ public class MessageEntity {
                                                   Map<String, Boolean> readAllowed, int callType, double callDuration) {
         MessageEntity message = new MessageEntity();
         message.messageType = type.ordinal();
-        message.type = type;
         message.senderId = senderId;
         message.senderName = senderName;
         message.timestamp = timestamp;
@@ -153,7 +184,6 @@ public class MessageEntity {
                                                         Map<String, Boolean> readAllowed, int childCount) {
         MessageEntity message = new MessageEntity();
         message.messageType = messageType.ordinal();
-        message.type = messageType;
         message.senderId = senderId;
         message.senderName = senderName;
         message.timestamp = timestamp;

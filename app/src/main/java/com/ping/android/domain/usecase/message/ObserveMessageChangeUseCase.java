@@ -70,13 +70,12 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                             return Observable.empty();
                         }
                     } else {
-                        int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                         if (data.getType() == ChildData.Type.CHILD_CHANGED) {
                             if (message.type == MessageType.GAME) {
                                 // Update status of game if not update
                                 if (!TextUtils.isEmpty(message.mediaUrl)
                                         && !message.mediaUrl.equals("PPhtotoMessageIdentifier")
-                                        && status == Constant.MESSAGE_STATUS_ERROR) {
+                                        && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
                                     messageRepository.updateMessageStatus(params.conversation.key,
                                             message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
                                             .subscribe();

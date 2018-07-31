@@ -62,9 +62,8 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
                                 message.senderProfile = sender.profile;
                             }
                             message.currentUserId = user.key;
-                            int status = CommonMethod.getIntFrom(message.status, user.key);
                             if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {
-                                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                                if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_PASS) {
                                     return Observable.just(message);
                                 }
                             }

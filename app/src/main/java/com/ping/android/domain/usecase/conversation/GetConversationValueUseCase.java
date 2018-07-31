@@ -45,7 +45,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
                         .flatMap(conversation -> {
                             conversation.currentColor = conversation.getColor(user.key);
                             conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);
-                            return userRepository.getUserList(conversation.memberIDs)
+                            return userManager.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         conversation.members = users;
                                         if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {

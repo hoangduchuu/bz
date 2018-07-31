@@ -798,9 +798,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void checkMessageError(Message message) {
-        int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
                 resendMessage(message);
             }
         }
@@ -842,19 +841,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void prepareMessageStatus(Message message) {
-        int status = Constant.MESSAGE_STATUS_SENT;
-        for (String userId : conversation.memberIDs.keySet()) {
-            status = CommonMethod.getIntFrom(message.status, userId);
-            if (status == Constant.MESSAGE_STATUS_READ) {
-                break;
-            }
-        }
-        if (status != Constant.MESSAGE_STATUS_READ) {
-            status = CommonMethod.getIntFrom(message.status, currentUser.key);
-            if (status == -1) {
-                status = Constant.MESSAGE_STATUS_SENT;
-            }
-        }
+        int status = message.messageStatusCode;
         String messageStatus = "";
         if (TextUtils.equals(message.senderId, currentUser.key)) {
             if (message.type != MessageType.GAME) {
@@ -936,6 +923,5 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         message.messageStatus = messageStatus;
-        message.messageStatusCode = status;
     }
 }

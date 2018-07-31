@@ -327,7 +327,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
                     this.items.add(index, headerItem);
                     notifyItemInserted(index);
                 }
-                List<MessageBaseItem> items = headerItem.getNewItems();
 
                 this.items.addAll(index + 1, headerItem.getNewItems());
                 headerItem.processNewItems();
