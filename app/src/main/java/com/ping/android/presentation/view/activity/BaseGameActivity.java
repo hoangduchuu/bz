@@ -63,15 +63,14 @@ public abstract class BaseGameActivity extends CoreActivity {
         sendNotification(true);
 
         updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
                     List<Message> messages = new ArrayList<>();
                     messages.add(message);
-                    Pair<View, String> pair = Pair.create(imageView, messageID);
                     GroupImageGalleryActivity.start(this, conversationID, messages, 0, false, null);
                     finishAfterTransition();
-//                    handler.postDelayed(this::finish, 2000);
                 })
                 .setMessage("Congratulations! You won.")
                 .setTitle(gameTitle());
@@ -109,6 +108,10 @@ public abstract class BaseGameActivity extends CoreActivity {
     private void updateMessageStatus(int status) {
         if (getPresenter() instanceof GamePresenter) {
             ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, status);
+            if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                message.isMask = false;
+                ((GamePresenter) getPresenter()).updateMessageMask(conversationID, messageID, false);
+            }
         }
     }
 

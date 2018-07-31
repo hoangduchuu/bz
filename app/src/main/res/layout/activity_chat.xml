@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="none"
-                    android:nestedScrollingEnabled="false"
+                    android:descendantFocusability="blocksDescendants"
                     tools:listitem="@layout/item_chat_right_msg" />
 
             </android.support.v4.widget.SwipeRefreshLayout>
