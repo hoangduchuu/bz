@@ -80,8 +80,12 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
                                 output.canLoadMore = entities.size() >= Constant.LOAD_MORE_MESSAGE_AMOUNT
                                         && lastTimestamp > params.conversation.deleteTimestamp;
                                 return output;
+                            } else {
+                                Output output = new Output();
+                                output.messages = new ArrayList<>();
+                                output.canLoadMore = false;
+                                return output;
                             }
-                            throw new NullPointerException();
                         })
                 );
     }

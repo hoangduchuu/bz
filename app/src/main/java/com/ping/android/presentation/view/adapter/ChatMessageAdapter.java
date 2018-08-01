@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.RequestManager;
 import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
@@ -37,6 +38,7 @@ import java.util.Set;
 public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         MessageBaseItem.MessageListener, RevealableViewRecyclerView.RevealableCallback {
     public static float xDiff = 0;
+    private final RequestManager glide;
     private ChatMessageListener messageListener;
     private List<MessageBaseItem> selectedMessages;
     private TypingItem typingItem;
@@ -50,8 +52,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     public static MediaPlayer audioPlayerInstance = null;
     public static AudioMessageBaseItem currentPlayingMessage = null;
 
-    public ChatMessageAdapter() {
+    public ChatMessageAdapter(RequestManager glide) {
         super();
+        this.glide = glide;
         if (audioPlayerInstance == null) {
             audioPlayerInstance = new MediaPlayer();
             audioPlayerInstance.setOnCompletionListener(mediaPlayer -> {
@@ -84,6 +87,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (holder instanceof MessageBaseItem.ViewHolder) {
             ((MessageBaseItem.ViewHolder) holder).setMessageListener(this);
             ((MessageBaseItem.ViewHolder) holder).setNickNames(nickNames);
+            ((MessageBaseItem.ViewHolder) holder).setGlide(glide);
         }
         super.onBindViewHolder(holder, position);
     }

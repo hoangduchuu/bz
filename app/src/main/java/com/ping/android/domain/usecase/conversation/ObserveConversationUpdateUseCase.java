@@ -46,7 +46,7 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                 .flatMap(user -> conversationRepository.observeConversationValue(user.key, s)
                         .flatMap(dataSnapshot -> {
                             Conversation conversation = mapper.transform(dataSnapshot, user);
-                            return userRepository.getUserList(conversation.memberIDs)
+                            return userManager.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         for (User u : users) {
                                             u.nickName = conversation.nickNames.containsKey(u.key) ? conversation.nickNames.get(u.key) : "";

@@ -68,7 +68,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                             return Observable.empty();
                         }
                     } else {
-                        User sender = getUser(message.senderId, params.conversation);
+                        User sender = params.conversation.getUser(message.senderId);
                         if (sender != null) {
                             message.senderProfile = sender.profile;
                             message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
@@ -110,15 +110,6 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                 //}
             }
         }
-    }
-
-    private User getUser(String userId, Conversation conversation) {
-        for (User user : conversation.members) {
-            if (userId.equals(user.key)) {
-                return user;
-            }
-        }
-        return null;
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

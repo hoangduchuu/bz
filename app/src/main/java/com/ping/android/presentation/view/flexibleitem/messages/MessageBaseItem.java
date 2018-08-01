@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestManager;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
@@ -137,8 +138,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public boolean lastItem;
         private float mInitialTranslateX = ResourceUtils.dpToPx(80);
 
-        protected @Nullable
-        MessageListener messageListener;
+        @Nullable
+        protected MessageListener messageListener;
+        protected RequestManager glide;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
@@ -327,6 +329,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 return;
             }
             tvStatus.setVisibility(View.GONE);
+        }
+
+        public void setGlide(RequestManager glide) {
+            this.glide = glide;
         }
     }
 

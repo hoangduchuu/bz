@@ -266,9 +266,9 @@ public class MessageRepositoryImpl implements MessageRepository {
                         .from(MessageEntity.class)
                         .where(MessageEntity_Table.conversationId.eq(conversationId))
                         .orderBy(MessageEntity_Table.timestamp, false)
-                        .limit(Constant.LATEST_RECENT_MESSAGES)
+                        .limit(20)
         ).queryList();
-//        return Single.just(new ArrayList<MessageEntity>());
+        //return Single.just(new ArrayList<MessageEntity>());
     }
 
     private void saveMessages(List<MessageEntity> messageEntities) {

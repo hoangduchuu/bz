@@ -597,7 +597,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         })
         recycleChatView!!.layoutManager = mLinearLayoutManager
         recycleChatView!!.isNestedScrollingEnabled = false
-        messagesAdapter = ChatMessageAdapter()
+        messagesAdapter = ChatMessageAdapter(GlideApp.with(this))
         messagesAdapter.setMessageListener(this)
         recycleChatView!!.adapter = messagesAdapter
         (recycleChatView as? RevealableViewRecyclerView)?.setCallback(messagesAdapter)

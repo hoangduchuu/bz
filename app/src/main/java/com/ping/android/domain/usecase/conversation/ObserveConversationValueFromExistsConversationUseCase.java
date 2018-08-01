@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 
@@ -25,7 +26,7 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
     @Inject
     ConversationRepository conversationRepository;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
     @Inject
     ConversationMapper mapper;
 
@@ -43,7 +44,7 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
                     conversation.opponentUser = params.conversation.opponentUser;
                     conversation.group = params.conversation.group;
                     if (conversation.memberIDs.keySet().size() != params.conversation.memberIDs.keySet().size()) {
-                        return initMemberList(conversation)
+                        return userManager.getUserList(conversation.memberIDs)
                                 .map(users -> {
                                     params.conversation.members = users;
                                     conversation.members = users;
@@ -54,10 +55,6 @@ public class ObserveConversationValueFromExistsConversationUseCase extends UseCa
                     }
                     return Observable.just(conversation);
                 });
-    }
-
-    private Observable<List<User>> initMemberList(Conversation conversation) {
-        return userRepository.getUserList(conversation.memberIDs);
     }
 
     public static class Params {
