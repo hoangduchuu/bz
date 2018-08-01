@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.message;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -61,7 +63,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 User sender = getUser(message.senderId, conversation);
                                 if (sender != null) {
                                     message.senderProfile = sender.profile;
-                                    message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
+                                    message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                 }
                                 messages.add(message);
                             }
