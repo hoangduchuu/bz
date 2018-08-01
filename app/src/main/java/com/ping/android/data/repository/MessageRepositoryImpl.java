@@ -6,12 +6,23 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.db.AppDatabase;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity_Table;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.model.Message;
 import com.ping.android.utils.configs.Constant;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.rx2.language.RXSQLite;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +31,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -42,20 +54,24 @@ public class MessageRepositoryImpl implements MessageRepository {
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
-                .toObservable()
-                .map(dataSnapshot -> {
-                    List<MessageEntity> messages = new ArrayList<>();
-                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                            if (!child.exists()) continue;
-                            MessageEntity message = messageMapper.transform(child);
-                            messages.add(message);
-                        }
-                    }
-                    return messages;
-                });
+        return getCachedMessages(conversationId)
+                .concatWith(
+                        RxFirebaseDatabase.getInstance(query)
+                                .onSingleValueEvent()
+                                .map(dataSnapshot -> {
+                                    List<MessageEntity> messages = new ArrayList<>();
+                                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                            if (!child.exists()) continue;
+                                            MessageEntity message = messageMapper.transform(child);
+                                            messages.add(message);
+                                        }
+                                    }
+                                    saveMessages(messages);
+                                    return messages;
+                                })
+                )
+                .toObservable();
     }
 
     @Override
@@ -226,6 +242,46 @@ public class MessageRepositoryImpl implements MessageRepository {
         updateValue.put(String.format("messages/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
         updateValue.put(String.format("media/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
         return updateBatchData(updateValue);
+    }
+
+    @Override
+    public void deleteCacheMessage(String messageKey) {
+        SQLite.delete()
+                .from(MessageEntity.class)
+                .where(MessageEntity_Table.key.eq(messageKey))
+                .execute();
+    }
+
+    @Override
+    public void deleteCacheMessages(String conversationId) {
+        SQLite.delete()
+                .from(MessageEntity.class)
+                .where(MessageEntity_Table.conversationId.eq(conversationId))
+                .execute();
+    }
+
+    private Single<List<MessageEntity>> getCachedMessages(String conversationId) {
+        return RXSQLite.rx(
+                SQLite.select()
+                        .from(MessageEntity.class)
+                        .where(MessageEntity_Table.conversationId.eq(conversationId))
+                        .orderBy(MessageEntity_Table.timestamp, false)
+                        .limit(20)
+        ).queryList();
+        //return Single.just(new ArrayList<MessageEntity>());
+    }
+
+    private void saveMessages(List<MessageEntity> messageEntities) {
+        DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
+        Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+            @Override
+            public void execute(DatabaseWrapper databaseWrapper) {
+                for (MessageEntity entity : messageEntities) {
+                    entity.save();
+                }
+            }
+        }).build();
+        transaction.execute(); // execute
     }
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {

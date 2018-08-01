@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bzzzchat.configuration.GlideApp;
 import com.ping.android.R;
 import com.ping.android.model.Callback;
 import com.ping.android.model.Message;
@@ -150,7 +151,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
-                UiUtils.loadImageFromFile(imageView, item.message.localFilePath, message.key, maskStatus);
+                UiUtils.loadImageFromFile(this.glide, imageView, item.message.localFilePath, message.key, maskStatus);
                 loadingView.setVisibility(View.GONE);
                 return;
             }
@@ -173,16 +174,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 loadingView.setVisibility(View.GONE);
             };
             loadingView.setVisibility(View.VISIBLE);
-            if (imageURL.startsWith(Constant.IMAGE_PREFIX)) {
-                url = imageURL.substring(Constant.IMAGE_PREFIX.length());
-                UiUtils.loadImageFromFile(imageView, url, message.key, bitmapMark, callback);
-                return;
-            }
             Drawable placeholder = null;
             if (isUpdated) {
                 placeholder = imageView.getDrawable();
             }
-            UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder, callback);
+            UiUtils.loadImage(this.glide, imageView, url, message.key, bitmapMark, placeholder, callback);
         }
     }
 }

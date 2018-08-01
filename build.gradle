@@ -43,7 +43,6 @@ ext {
     okhttpLibraryVersion = '3.9.1'
 
     libraries = [
-            kotlin              : '1.1.51',
             dagger              : "2.12",
             rx_android          : "2.0.2",
             rx_java             : "2.1.12",

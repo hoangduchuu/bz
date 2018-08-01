@@ -290,4 +290,13 @@ public class Conversation implements Parcelable {
     public boolean isFromMe() {
         return senderId.equals(currentUserId);
     }
+
+    public User getUser(String userId) {
+        for (User user : members) {
+            if (userId.equals(user.key)) {
+                return user;
+            }
+        }
+        return null;
+    }
 }

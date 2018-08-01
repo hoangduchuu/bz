@@ -39,4 +39,8 @@ public interface MessageRepository {
     Observable<Boolean> updateChildMessageImage(String conversationId, String parentMessageKey, String messageKey, String thumbnail, String image);
 
     Observable<Boolean> updateChildMessageGame(String conversationId, String parentMessageKey, String messageKey, String gameUrl);
+
+    void deleteCacheMessage(String messageKey);
+
+    void deleteCacheMessages(String conversationId);
 }

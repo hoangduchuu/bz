@@ -5,18 +5,16 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +68,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                             return Observable.empty();
                         }
                     } else {
-                        int status = CommonMethod.getIntFrom(message.status, currentUser.key);
-                        User sender = getUser(message.senderId, params.conversation);
+                        User sender = params.conversation.getUser(message.senderId);
                         if (sender != null) {
                             message.senderProfile = sender.profile;
                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
@@ -81,7 +78,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                                 // Update status of game if not update
                                 if (!TextUtils.isEmpty(message.mediaUrl)
                                         && !message.mediaUrl.equals("PPhtotoMessageIdentifier")
-                                        && status == Constant.MESSAGE_STATUS_ERROR) {
+                                        && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
                                     messageRepository.updateMessageStatus(params.conversation.key,
                                             message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
                                             .subscribe();
@@ -113,15 +110,6 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                 //}
             }
         }
-    }
-
-    private User getUser(String userId, Conversation conversation) {
-        for (User user : conversation.members) {
-            if (userId.equals(user.key)) {
-                return user;
-            }
-        }
-        return null;
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

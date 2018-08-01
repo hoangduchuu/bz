@@ -234,7 +234,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onResume() {
         super.onResume()
-        badgeHelper!!.read(conversationId)
+        badgeHelper.read(conversationId)
         setButtonsState(0)
         isScreenVisible = true
     }
@@ -567,6 +567,12 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         mLinearLayoutManager = object : LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
             override fun onLayoutCompleted(state: RecyclerView.State?) {
                 super.onLayoutCompleted(state)
+                Log.e("state $state")
+                if (state != null) {
+                    if (state.itemCount <= 0) {
+                        return
+                    }
+                }
                 if (isSettingStackFromEnd.get()) return
 
                 val contentView = recycleChatView!!.computeVerticalScrollRange()
@@ -576,11 +582,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
                     setLinearStackFromEnd(true)
                 } else {
                     if (!mLinearLayoutManager!!.stackFromEnd) return
-                    isSettingStackFromEnd.set(true)
                     setLinearStackFromEnd(false)
                 }
             }
         }
+        mLinearLayoutManager?.stackFromEnd = true
         recycleChatView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -591,7 +597,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         })
         recycleChatView!!.layoutManager = mLinearLayoutManager
         recycleChatView!!.isNestedScrollingEnabled = false
-        messagesAdapter = ChatMessageAdapter()
+        messagesAdapter = ChatMessageAdapter(GlideApp.with(this))
         messagesAdapter.setMessageListener(this)
         recycleChatView!!.adapter = messagesAdapter
         (recycleChatView as? RevealableViewRecyclerView)?.setCallback(messagesAdapter)
@@ -635,10 +641,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             }
         })
         // Delay conversation initialize to make smooth UI transition
-        withDelay(700) {
+        //withDelay(700) {
             presenter.create()
             presenter.initConversationData(conversationId)
-        }
+        //}
     }
 
     private fun handleShakePhone() {
@@ -794,7 +800,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             tvNewMsgCount!!.visibility = View.GONE
         } else {
             tvNewMsgCount!!.visibility = View.VISIBLE
-            tvNewMsgCount!!.text = "" + messageCount
+            tvNewMsgCount!!.text = messageCount.toString()
         }
     }
 
@@ -943,7 +949,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     private fun onSendGame(gameType: GameType) {
         selectedGame = gameType
-        chatGameMenu?.hide()
+        chatGameMenu.hide()
         withDelay(500) {
             openMediaPicker()
         }
@@ -997,14 +1003,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         presenter.handleVideoCallPress()
     }
 
-    private fun sendImageFirebase(file: File, thumbnail: File) {
-        presenter.sendImageMessage(file.absolutePath, thumbnail.absolutePath, tgMarkOut.isSelected)
-    }
-
-    private fun sendGameFirebase(file: File, gameType: GameType) {
-        presenter.sendGameMessage(file.absolutePath, gameType, tgMarkOut.isSelected)
-    }
-
     private fun showTyping(typing: Boolean) {
         if (typing) {
             messagesAdapter.showTyping()
@@ -1054,16 +1052,26 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateLastMessages(messages: List<MessageHeaderItem>, canLoadMore: Boolean) {
+//        if (!mLinearLayoutManager!!.stackFromEnd) {
+//            if (messages.size > 20) {
+//                mLinearLayoutManager!!.stackFromEnd = true
+//            }
+//        }
         messagesAdapter.updateData(messages)
         if (!canLoadMore) {
             swipeRefreshLayout!!.isEnabled = false
         }
     }
 
-    override fun updateNickNames(nickNames: Map<String, String>) {
-        if (messagesAdapter != null) {
-            messagesAdapter.updateNickNames(nickNames)
+    override fun appendHistoryMessages(messages: List<MessageHeaderItem>?, canLoadMore: Boolean) {
+        messagesAdapter.appendMessages(messages)
+        if (!canLoadMore) {
+            swipeRefreshLayout!!.isEnabled = false
         }
+    }
+
+    override fun updateNickNames(nickNames: Map<String, String>) {
+        messagesAdapter.updateNickNames(nickNames)
     }
 
     override fun toggleTyping(b: Boolean) {
@@ -1156,8 +1164,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     companion object {
-        private val CAMERA_REQUEST_CODE = 12345
-        private val REQUEST_CODE_MEDIA_PICKER = 1111
+        const val CAMERA_REQUEST_CODE = 12345
+        const val REQUEST_CODE_MEDIA_PICKER = 1111
         const val EXTRA_CONVERSATION_NAME = "EXTRA_CONVERSATION_NAME"
         const val EXTRA_CONVERSATION_TRANSITION_NAME = "EXTRA_CONVERSATION_TRANSITION_NAME"
         const val EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR"

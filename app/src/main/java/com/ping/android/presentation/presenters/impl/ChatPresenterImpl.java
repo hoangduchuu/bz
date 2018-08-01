@@ -235,7 +235,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         loadMoreMessagesUseCase.execute(new DefaultObserver<LoadMoreMessagesUseCase.Output>() {
             @Override
             public void onNext(LoadMoreMessagesUseCase.Output output) {
-                updateLastMessages(output.messages, output.canLoadMore);
+                appendHistoryMessages(output.messages, output.canLoadMore);
                 view.hideRefreshView();
             }
 
@@ -289,6 +289,27 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
+    private void appendHistoryMessages(List<Message> messages, boolean canLoadMore) {
+        MessageHeaderItem headerItem;
+        for (Message message : messages) {
+            prepareMessageStatus(message);
+            message.opponentUser = conversation.opponentUser;
+            headerItem = headerItemMap.get(message.days);
+            if (headerItem == null) {
+                headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
+                headerItemMap.put(message.days, headerItem);
+            }
+
+            MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+            headerItem.addNewItem(item);
+            //messageBaseItems.add(item);
+        }
+        //headerItemMap = CommonMethod.sortByKeys(headerItemMap);
+        List<MessageHeaderItem> headerItems = new ArrayList<>(headerItemMap.values());
+        view.appendHistoryMessages(headerItems, canLoadMore);
+    }
+
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
@@ -297,6 +318,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
                 headerItemMap.put(message.days, headerItem);
             }
 
@@ -313,6 +335,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         MessageHeaderItem headerItem = headerItemMap.get(message.days);
         if (headerItem == null) {
             headerItem = new MessageHeaderItem();
+            headerItem.setKey(message.days);
             headerItemMap.put(message.days, headerItem);
         }
         MessageBaseItem item = null;
@@ -798,9 +821,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void checkMessageError(Message message) {
-        int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
                 resendMessage(message);
             }
         }
@@ -842,19 +864,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void prepareMessageStatus(Message message) {
-        int status = Constant.MESSAGE_STATUS_SENT;
-        for (String userId : conversation.memberIDs.keySet()) {
-            status = CommonMethod.getIntFrom(message.status, userId);
-            if (status == Constant.MESSAGE_STATUS_READ) {
-                break;
-            }
-        }
-        if (status != Constant.MESSAGE_STATUS_READ) {
-            status = CommonMethod.getIntFrom(message.status, currentUser.key);
-            if (status == -1) {
-                status = Constant.MESSAGE_STATUS_SENT;
-            }
-        }
+        int status = message.messageStatusCode;
         String messageStatus = "";
         if (TextUtils.equals(message.senderId, currentUser.key)) {
             if (message.type != MessageType.GAME) {
@@ -936,6 +946,5 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         message.messageStatus = messageStatus;
-        message.messageStatusCode = status;
     }
 }

@@ -38,7 +38,7 @@ public class App extends CoreApp {
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
         setupRxErrorHandler();
-        //FlowManager.init(this);
+        FlowManager.init(this);
 
         if (FFmpeg.getInstance(this).isSupported()) {
             // ffmpeg is supported

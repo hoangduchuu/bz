@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -29,6 +30,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.signature.ObjectKey;
 import com.bzzzchat.configuration.GlideApp;
+import com.bzzzchat.configuration.GlideRequests;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
@@ -244,9 +246,23 @@ public class UiUtils {
     }
 
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         GlideApp.with(imageView.getContext())
+                .load(filePath)
+                .placeholder(placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(key)
+                .dontAnimate()
+                .into(imageView);
+    }
+
+    public static void loadImageFromFile(RequestManager requestManager, ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
+        Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+        ((GlideRequests) requestManager)
                 .load(filePath)
                 .placeholder(placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
@@ -270,7 +286,7 @@ public class UiUtils {
                 callback.complete(new Error());
             }
         };
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         GlideApp.with(imageView.getContext())
                 .asBitmap()
                 .load(filePath)
@@ -291,7 +307,7 @@ public class UiUtils {
         }
 
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -327,7 +343,7 @@ public class UiUtils {
                 .placeholder(R.drawable.img_loading_bottom)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
-                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
                 .into(target);
         return target;
     }
@@ -359,12 +375,44 @@ public class UiUtils {
                 .placeholder(placeholder)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
-                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
                 .into(target);
         return target;
     }
 
-    public static @Nullable Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) throws Throwable {
+    public static void loadImage(RequestManager requestManager, ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder, Callback callback) {
+        if (TextUtils.isEmpty(imageUrl)) {
+            return;
+        }
+        if (placeholder == null) {
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        ((GlideRequests) requestManager)
+                .load(gsReference)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(placeholder)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        callback.complete(null);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        callback.complete(new Error());
+                        return false;
+                    }
+                })
+                .into(imageView);
+    }
+
+    public static @Nullable
+    Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) throws Throwable {
         Bitmap bitmap = null;
         MediaMetadataRetriever mediaMetadataRetriever = null;
         try {
@@ -390,7 +438,7 @@ public class UiUtils {
         imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
     }
 
-    public static Bitmap blurBitmap(Context context, Bitmap bitmap){
+    public static Bitmap blurBitmap(Context context, Bitmap bitmap) {
 
         //Let's create an empty bitmap with the same size of the bitmap we want to blur
         Bitmap outBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
