@@ -63,7 +63,6 @@ public class RevealableViewRecyclerView extends RecyclerView {
                 if (mIsBeingDragged) {
                     // We're currently scrolling, so yes, intercept the
                     // touch event!
-                    Log.d("Is being drag");
                     return true;
                 }
                 // If the user has dragged her finger horizontally more than
@@ -77,10 +76,8 @@ public class RevealableViewRecyclerView extends RecyclerView {
                 if (xDiff > mTouchSlop) {
                     // Start scrolling!
                     mIsBeingDragged = true;
-                    Log.d("Is being drag " + xDiff);
                     return true;
                 }
-                Log.d("Is being drag false " + xDiff);
                 break;
             }
         }

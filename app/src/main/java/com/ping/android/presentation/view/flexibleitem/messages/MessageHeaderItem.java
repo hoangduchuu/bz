@@ -24,11 +24,16 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     private TreeMap<Double, MessageBaseItem> childItemTreeMap;
     private List<MessageBaseItem> childItems;
     private TreeMap<Double, MessageBaseItem> newItems;
+    private long key = 0;
 
     public MessageHeaderItem() {
         childItemTreeMap = new TreeMap<>();
         childItems = new ArrayList<>();
         newItems = new TreeMap<>();
+    }
+
+    public void setKey(long key) {
+        this.key = key;
     }
 
     @Override
@@ -68,6 +73,7 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
 
     public void addNewItem(MessageBaseItem item) {
         //prepareMessage(item);
+        childItemTreeMap.remove(item.message.timestamp);
         newItems.put(item.message.timestamp, item);
     }
 
@@ -123,5 +129,10 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         public void bindData(Date date) {
             tvDate.setText(DateUtils.toHeaderString(date));
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof MessageHeaderItem && ((MessageHeaderItem) obj).key == key;
     }
 }

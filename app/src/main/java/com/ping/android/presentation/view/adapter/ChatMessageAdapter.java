@@ -3,6 +3,7 @@ package com.ping.android.presentation.view.adapter;
 import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
-import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
@@ -21,6 +21,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
 import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = super.onCreateViewHolder(parent, viewType);
         if (holder instanceof GroupImageMessageBaseItem.ViewHolder) {
-            ((GroupImageMessageBaseItem.ViewHolder)holder).setRecycledViewPool(viewPool);
+            ((GroupImageMessageBaseItem.ViewHolder) holder).setRecycledViewPool(viewPool);
         }
         return holder;
     }
@@ -312,8 +313,41 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         notifyDataSetChanged();
     }
 
-
     public void updateData(List<MessageHeaderItem> headerItems) {
+        List<FlexibleItem> result = new ArrayList<>();
+        for (int i = headerItems.size() - 1; i >= 0; i--) {
+            MessageHeaderItem headerItem = headerItems.get(i);
+            List<MessageBaseItem> newItems = headerItem.getNewItems();
+            int newItemsSize = newItems.size();
+            if (newItemsSize > 0) {
+                // Find header index
+                result.add(0, headerItem);
+//                int index = this.items.indexOf(headerItem);
+//                if (index < 0) {
+//                    index = 0;
+//                    // Add header to list
+//                    this.items.add(index, headerItem);
+//                    //notifyItemInserted(index);
+//                }
+
+                result.addAll(1, newItems);
+                headerItem.processNewItems();
+                //notifyItemRangeInserted(index + 1, newItemsSize);
+            }
+        }
+//        if (items.size() == 0) {
+        items.clear();
+        items.addAll(result);
+        notifyDataSetChanged();
+//            return;
+//        }
+//        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new MessageDiffCallback(this.items, result));
+//        diffResult.dispatchUpdatesTo(this);
+//        this.items.clear();
+//        this.items.addAll(result);
+    }
+
+    public void appendMessages(List<MessageHeaderItem> headerItems) {
         //this.items.clear();
         for (int i = headerItems.size() - 1; i >= 0; i--) {
             MessageHeaderItem headerItem = headerItems.get(i);
@@ -415,5 +449,40 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
 
         void updateChildMessageMask(Message message, boolean maskStatus);
+    }
+
+    public class MessageDiffCallback extends DiffUtil.Callback {
+        private List<FlexibleItem> oldItems;
+        private List<FlexibleItem> newItems;
+
+        public MessageDiffCallback(List<FlexibleItem> oldItems, List<FlexibleItem> newItems) {
+            this.oldItems = oldItems;
+            this.newItems = newItems;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldItems.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newItems.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            FlexibleItem oldItem = oldItems.get(oldItemPosition);
+            FlexibleItem newItem = newItems.get(oldItemPosition);
+//            if (oldItem instanceof MessageHeaderItem) {
+//                return oldItem.equals(newItem);
+//            }
+            return oldItem.equals(newItem);
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            return true;
+        }
     }
 }

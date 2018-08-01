@@ -235,7 +235,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         loadMoreMessagesUseCase.execute(new DefaultObserver<LoadMoreMessagesUseCase.Output>() {
             @Override
             public void onNext(LoadMoreMessagesUseCase.Output output) {
-                updateLastMessages(output.messages, output.canLoadMore);
+                appendHistoryMessages(output.messages, output.canLoadMore);
                 view.hideRefreshView();
             }
 
@@ -289,6 +289,27 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
+    private void appendHistoryMessages(List<Message> messages, boolean canLoadMore) {
+        MessageHeaderItem headerItem;
+        for (Message message : messages) {
+            prepareMessageStatus(message);
+            message.opponentUser = conversation.opponentUser;
+            headerItem = headerItemMap.get(message.days);
+            if (headerItem == null) {
+                headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
+                headerItemMap.put(message.days, headerItem);
+            }
+
+            MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+            headerItem.addNewItem(item);
+            //messageBaseItems.add(item);
+        }
+        //headerItemMap = CommonMethod.sortByKeys(headerItemMap);
+        List<MessageHeaderItem> headerItems = new ArrayList<>(headerItemMap.values());
+        view.appendHistoryMessages(headerItems, canLoadMore);
+    }
+
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
@@ -297,6 +318,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
                 headerItemMap.put(message.days, headerItem);
             }
 
@@ -313,6 +335,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         MessageHeaderItem headerItem = headerItemMap.get(message.days);
         if (headerItem == null) {
             headerItem = new MessageHeaderItem();
+            headerItem.setKey(message.days);
             headerItemMap.put(message.days, headerItem);
         }
         MessageBaseItem item = null;

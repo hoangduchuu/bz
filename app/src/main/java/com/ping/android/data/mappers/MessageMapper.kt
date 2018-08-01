@@ -126,7 +126,7 @@ class MessageMapper @Inject constructor() {
                 break
             }
         }
-        if (status != Constant.MESSAGE_STATUS_READ) {
+        if (status != Constant.MESSAGE_STATUS_READ || message.gameType > 0) {
             status = CommonMethod.getIntFrom(message.status, user.key)
             if (status == -1) {
                 status = Constant.MESSAGE_STATUS_SENT

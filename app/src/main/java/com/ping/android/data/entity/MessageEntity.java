@@ -58,6 +58,8 @@ public class MessageEntity extends BaseModel {
     public int voiceType = 0;
     @Column
     public double callDuration; // in seconds
+    @Column
+    public boolean isMask;
     public List<MessageEntity> childMessages;
     public int childCount;
 

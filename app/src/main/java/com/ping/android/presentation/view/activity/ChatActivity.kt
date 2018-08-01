@@ -234,7 +234,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onResume() {
         super.onResume()
-        badgeHelper!!.read(conversationId)
+        badgeHelper.read(conversationId)
         setButtonsState(0)
         isScreenVisible = true
     }
@@ -567,6 +567,12 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         mLinearLayoutManager = object : LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
             override fun onLayoutCompleted(state: RecyclerView.State?) {
                 super.onLayoutCompleted(state)
+                Log.e("state $state")
+                if (state != null) {
+                    if (state.itemCount <= 0) {
+                        return
+                    }
+                }
                 if (isSettingStackFromEnd.get()) return
 
                 val contentView = recycleChatView!!.computeVerticalScrollRange()
@@ -576,7 +582,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
                     setLinearStackFromEnd(true)
                 } else {
                     if (!mLinearLayoutManager!!.stackFromEnd) return
-                    isSettingStackFromEnd.set(true)
                     setLinearStackFromEnd(false)
                 }
             }
@@ -1047,7 +1052,19 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateLastMessages(messages: List<MessageHeaderItem>, canLoadMore: Boolean) {
+//        if (!mLinearLayoutManager!!.stackFromEnd) {
+//            if (messages.size > 20) {
+//                mLinearLayoutManager!!.stackFromEnd = true
+//            }
+//        }
         messagesAdapter.updateData(messages)
+        if (!canLoadMore) {
+            swipeRefreshLayout!!.isEnabled = false
+        }
+    }
+
+    override fun appendHistoryMessages(messages: List<MessageHeaderItem>?, canLoadMore: Boolean) {
+        messagesAdapter.appendMessages(messages)
         if (!canLoadMore) {
             swipeRefreshLayout!!.isEnabled = false
         }
