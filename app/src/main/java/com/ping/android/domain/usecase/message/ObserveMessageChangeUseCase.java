@@ -71,6 +71,11 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         }
                     } else {
                         int status = CommonMethod.getIntFrom(message.status, currentUser.key);
+                        User sender = getUser(message.senderId, params.conversation);
+                        if (sender != null) {
+                            message.senderProfile = sender.profile;
+                            message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
+                        }
                         if (data.getType() == ChildData.Type.CHILD_CHANGED) {
                             if (message.type == MessageType.GAME) {
                                 // Update status of game if not update
@@ -108,6 +113,15 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                 //}
             }
         }
+    }
+
+    private User getUser(String userId, Conversation conversation) {
+        for (User user : conversation.members) {
+            if (userId.equals(user.key)) {
+                return user;
+            }
+        }
+        return null;
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

@@ -50,7 +50,6 @@ import java.util.Map;
  */
 
 public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> implements FlexibleItem<VH> {
-    //private Map<String, String> nickNames = new HashMap<>();
     public Message message;
     public int conversationType;
     protected boolean isEditMode = false;
@@ -115,10 +114,6 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
     public void onBindViewHolder(@NotNull VH holder, boolean lastItem) {
         holder.bindData(this, lastItem);
     }
-
-//    public void setNickNames(Map<String, String> nickNames) {
-//        this.nickNames = nickNames;
-//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -290,7 +285,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     tvMessageInfo.setVisibility(View.GONE);
                 } else {
                     tvMessageInfo.setVisibility(View.VISIBLE);
-                    tvMessageInfo.setText(message.senderName);
+                    if (nickNames.containsKey(message.senderId)) {
+                        tvMessageInfo.setText(nickNames.get(message.senderId));
+                    } else {
+                        tvMessageInfo.setText(message.senderName);
+                    }
                 }
             }
         }
