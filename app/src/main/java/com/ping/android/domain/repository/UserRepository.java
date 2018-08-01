@@ -63,8 +63,6 @@ public interface UserRepository {
 
     Observable<Map<String, String>> observeMappings(String key);
 
-    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
-
     Observable<ChildEvent> observeFriendsChildEvent(String userId);
 
     Observable<Map<String, Boolean>> observeFriendsValue(String userId);

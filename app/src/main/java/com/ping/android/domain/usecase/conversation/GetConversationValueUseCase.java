@@ -45,7 +45,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
                         .flatMap(conversation -> {
                             conversation.currentColor = conversation.getColor(user.key);
                             conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);
-                            return userRepository.getUserList(conversation.memberIDs)
+                            return userManager.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
                                         for (User u : users) {
                                             u.nickName = conversation.nickNames.containsKey(u.key) ? conversation.nickNames.get(u.key) : "";

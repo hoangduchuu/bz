@@ -71,6 +71,7 @@ public class LoadConversationMediaUseCase extends UseCase<LoadConversationMediaU
                                     User sender = getUser(message.senderId, params.conversation);
                                     if (sender != null) {
                                         message.senderProfile = sender.profile;
+                                        message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                     }
                                     int status = CommonMethod.getIntFrom(message.status, user.key);
                                     if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {

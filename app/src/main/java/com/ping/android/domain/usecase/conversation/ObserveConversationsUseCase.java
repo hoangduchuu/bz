@@ -60,7 +60,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 ChildData<Conversation> childData = new ChildData<>(conversation, ChildData.Type.CHILD_REMOVED);
                                 return Observable.just(childData);
                             }
-                            return userRepository.getUserList(conversation.memberIDs)
+                            return userManager.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;
                                         if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {

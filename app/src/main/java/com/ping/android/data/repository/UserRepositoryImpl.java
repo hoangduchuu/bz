@@ -105,15 +105,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<List<User>> getUserList(Map<String, Boolean> userIds) {
-        return Observable.fromArray(userIds.keySet().toArray())
-                .flatMap(userId -> getUser((String) userId))
-                .take(userIds.size())
-                .toList()
-                .toObservable();
-    }
-
-    @Override
     public Observable<ChildData<CallEntity>> observeCalls(String userId) {
         Query query =
                 database.getReference(CHILD_CALLS).child(userId)

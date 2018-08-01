@@ -9,6 +9,7 @@ import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -79,6 +80,14 @@ public class UserManager {
             return userRepository.getUser(userId)
                     .doOnNext(this::setCachedUser);
         }
+    }
+
+    public Observable<List<User>> getUserList(Map<String, Boolean> userIds) {
+        return Observable.fromArray(userIds.keySet().toArray())
+                .flatMap(userId -> getUser((String) userId))
+                .take(userIds.size())
+                .toList()
+                .toObservable();
     }
 
     public void logout() {

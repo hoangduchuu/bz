@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.notification;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -47,7 +49,10 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                     String senderName = sender.getDisplayName();
                     Map<String, String> nickNames = params.conversation.nickNames;
                     if (nickNames.containsKey(sender.key)) {
-                        senderName = nickNames.get(sender.key);
+                        String nickname = nickNames.get(sender.key);
+                        if (!TextUtils.isEmpty(nickname)) {
+                            senderName = nickname;
+                        }
                     }
                     if (params.conversation.group != null) {
                         String groupName = params.conversation.group.groupName;
