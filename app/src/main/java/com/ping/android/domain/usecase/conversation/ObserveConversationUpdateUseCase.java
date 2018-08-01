@@ -48,6 +48,9 @@ public class ObserveConversationUpdateUseCase extends UseCase<Conversation, Stri
                             Conversation conversation = mapper.transform(dataSnapshot, user);
                             return userRepository.getUserList(conversation.memberIDs)
                                     .flatMap(users -> {
+                                        for (User u : users) {
+                                            u.nickName = conversation.nickNames.containsKey(u.key) ? conversation.nickNames.get(u.key) : "";
+                                        }
                                         conversation.members = users;
                                         if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                             for (User user1 : users) {

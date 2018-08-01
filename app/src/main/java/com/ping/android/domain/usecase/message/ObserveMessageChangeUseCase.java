@@ -5,18 +5,16 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -73,6 +71,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         User sender = getUser(message.senderId, params.conversation);
                         if (sender != null) {
                             message.senderProfile = sender.profile;
+                            message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
                         }
                         if (data.getType() == ChildData.Type.CHILD_CHANGED) {
                             if (message.type == MessageType.GAME) {

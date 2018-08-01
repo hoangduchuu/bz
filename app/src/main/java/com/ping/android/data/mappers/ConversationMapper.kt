@@ -18,7 +18,7 @@ class ConversationMapper @Inject constructor() {
         conversation.currentColor = conversation.getColor(user.key)
         val maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, user.key)
         val maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, user.key)
-        conversation.isMask = maskStatus || maskMessage
+        conversation.isMask = maskStatus// || maskMessage
         conversation.type = MessageType.from(conversation.messageType)
         conversation.messageCallType = MessageCallType.from(conversation.callType)
         return conversation
