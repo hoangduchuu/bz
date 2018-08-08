@@ -135,7 +135,7 @@ class ImageFragment : Fragment() {
 
         request.override(512)
                 .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .transform(BitmapEncode(isMask))
                 .signature(ObjectKey(String.format("%s%s", messageKey, if (isMask) "encoded" else "decoded")))
                 .listener(listener)

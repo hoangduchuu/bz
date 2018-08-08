@@ -75,6 +75,9 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = super.onCreateViewHolder(parent, viewType);
+        if (holder instanceof MessageBaseItem.ViewHolder) {
+            ((MessageBaseItem.ViewHolder) holder).setGlide(glide);
+        }
         if (holder instanceof GroupImageMessageBaseItem.ViewHolder) {
             ((GroupImageMessageBaseItem.ViewHolder) holder).setRecycledViewPool(viewPool);
         }
@@ -87,7 +90,6 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (holder instanceof MessageBaseItem.ViewHolder) {
             ((MessageBaseItem.ViewHolder) holder).setMessageListener(this);
             ((MessageBaseItem.ViewHolder) holder).setNickNames(nickNames);
-            ((MessageBaseItem.ViewHolder) holder).setGlide(glide);
         }
         super.onBindViewHolder(holder, position);
     }

@@ -192,7 +192,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                 // At this stage, the method will simply return the fragment at the
                 // position and will not create a new one.
                 val currentFragment = viewpager.adapter?.instantiateItem(viewpager, currentPosition) as? Fragment
-                if (currentFragment?.view != null && names != null && sharedElements != null && sharedElements.isNotEmpty()) {
+                if (currentFragment?.view != null && names != null && sharedElements != null) {
                     sharedElements[names[0]] = currentFragment.view!!.findViewById(R.id.image_detail)
                 }
             }
@@ -250,6 +250,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
 
         @JvmStatic
         fun start(activity: Activity, conversationId: String, messages: List<Message>, position: Int, isGroupImage: Boolean, sharedElements: Pair<View, String>? = null) {
+            if (messages.isEmpty()) return
             val intent = Intent(activity, GroupImageGalleryActivity::class.java)
             intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, Color.COLOR_1)
             intent.putParcelableArrayListExtra(GroupImageGalleryActivity.IMAGES_EXTRA, ArrayList(messages))

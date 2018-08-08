@@ -234,6 +234,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onResume() {
         super.onResume()
+        shakeEventManager.register()
         badgeHelper.read(conversationId)
         setButtonsState(0)
         isScreenVisible = true
@@ -251,6 +252,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onPause() {
         super.onPause()
+        shakeEventManager.unregister()
         isTyping = false
         messagesAdapter.pause()
         updateConversationTyping(false)
@@ -259,9 +261,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onDestroy() {
         super.onDestroy()
-        if (this.shakeEventManager != null) {
-            this.shakeEventManager.unregister()
-        }
         messagesAdapter.destroy()
         if (layoutVoice != null) {
             layoutVoice!!.release()
@@ -641,10 +640,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
             }
         })
         // Delay conversation initialize to make smooth UI transition
-        //withDelay(700) {
+        withDelay(300) {
             presenter.create()
             presenter.initConversationData(conversationId)
-        //}
+        }
     }
 
     private fun handleShakePhone() {
@@ -1019,7 +1018,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     }
 
     override fun updateConversation(conv: Conversation) {
-        this.shakeEventManager.register()
         this.originalConversation = conv
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall!!.visibility = View.GONE

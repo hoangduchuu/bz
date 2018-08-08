@@ -54,23 +54,19 @@ public class MessageRepositoryImpl implements MessageRepository {
         Query query = reference
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
-        return getCachedMessages(conversationId)
-                .concatWith(
-                        RxFirebaseDatabase.getInstance(query)
-                                .onSingleValueEvent()
-                                .map(dataSnapshot -> {
-                                    List<MessageEntity> messages = new ArrayList<>();
-                                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
-                                        for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                            if (!child.exists()) continue;
-                                            MessageEntity message = messageMapper.transform(child);
-                                            messages.add(message);
-                                        }
-                                    }
-                                    saveMessages(messages);
-                                    return messages;
-                                })
-                )
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                })
                 .toObservable();
     }
 
@@ -260,28 +256,37 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .execute();
     }
 
-    private Single<List<MessageEntity>> getCachedMessages(String conversationId) {
+    @Override
+    public Observable<List<MessageEntity>> getCachedMessages(String conversationId) {
         return RXSQLite.rx(
                 SQLite.select()
                         .from(MessageEntity.class)
                         .where(MessageEntity_Table.conversationId.eq(conversationId))
                         .orderBy(MessageEntity_Table.timestamp, false)
                         .limit(20)
-        ).queryList();
-        //return Single.just(new ArrayList<MessageEntity>());
+        )
+                .queryList()
+                .toObservable();
     }
 
-    private void saveMessages(List<MessageEntity> messageEntities) {
+    @Override
+    public void saveMessages(List<MessageEntity> messageEntities) {
         DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
-        Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                for (MessageEntity entity : messageEntities) {
-                    entity.save();
-                }
+        Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {
+            for (MessageEntity entity : messageEntities) {
+                entity.save();
             }
         }).build();
         transaction.execute(); // execute
+    }
+
+    @Override
+    public void updateLocalMaskStatus(String message, boolean isMask) {
+        SQLite.update(MessageEntity.class)
+                .set(MessageEntity_Table.isMask.eq(isMask))
+                .where(MessageEntity_Table.key.eq(message))
+                .execute();
+
     }
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {

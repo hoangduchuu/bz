@@ -286,7 +286,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     @Override
     public void navigateToMainScreen() {
-        startCallService(this);
+        //startCallService(this);
         Intent intent = new Intent(RegistrationActivity.this, PhoneActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

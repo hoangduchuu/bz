@@ -59,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:background="@color/black_bg"
+            android:background="@color/black"
             android:textColor="@color/white"
             android:textOff="Puzzle"
             android:textOn="UnPuzzle"

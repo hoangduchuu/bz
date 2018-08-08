@@ -62,6 +62,7 @@ public class MessageEntity extends BaseModel {
     public boolean isMask;
     public List<MessageEntity> childMessages;
     public int childCount;
+    public boolean isCached;
 
     public MessageEntity() {
     }

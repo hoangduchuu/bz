@@ -7,9 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.signature.ObjectKey
 import com.bzzzchat.configuration.GlideApp
+import com.bzzzchat.configuration.GlideRequests
 import com.bzzzchat.extensions.inflate
 import com.bzzzchat.extensions.px
 import com.google.firebase.storage.FirebaseStorage
@@ -27,7 +29,9 @@ interface GroupImageAdapterListener {
 }
 
 class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?) : RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent)
+    lateinit var glide: RequestManager
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent, glide)
 
     override fun getItemCount(): Int = data.size
 
@@ -41,7 +45,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
         notifyDataSetChanged()
     }
 
-    class ViewHolder(parent: ViewGroup, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder(
+    class ViewHolder(parent: ViewGroup, var glide: RequestManager, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder(
             parent.inflate(R.layout.item_image_group)
     ) {
         val imageView: ImageView = itemView as ImageView
@@ -141,7 +145,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
             if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))
-            GlideApp.with(itemView.context)
+            (glide as GlideRequests)
                     .asBitmap()
                     .load(gsReference)
                     .override(128)
@@ -159,7 +163,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
 
     class ViewHolder(itemView: View) : MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
         private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
-        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(), this)
+        private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(),this)
         private val gridLayoutManager = GridNonScrollableLayoutManager(itemView.context, 3)
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
 
@@ -186,6 +190,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
 
         override fun bindData(item: MessageBaseItem<*>?, lastItem: Boolean) {
             super.bindData(item, lastItem)
+            groupImageAdapter.glide = glide
             item?.let {
                 if (it.message.childMessages != null) {
                     val count = if (it.message.childMessages.size >= 3) 3 else it.message.childMessages.size

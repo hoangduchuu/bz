@@ -44,22 +44,13 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     @Override
     public Observable<Output> buildUseCaseObservable(Conversation conversation) {
         return userManager.getCurrentUser()
-                .flatMap(user -> messageRepository.getLastMessages(conversation.key)
-                        .map(entities -> {
+                .flatMap(user -> messageRepository.getCachedMessages(conversation.key)
+                        .map(messageEntities -> {
                             Output output = new Output();
                             List<Message> messages = new ArrayList<>();
-                            double lastTimestamp = Double.MAX_VALUE;
-                            for (MessageEntity entity : entities) {
+                            for (MessageEntity entity : messageEntities) {
                                 Message message = messageMapper.transform(entity, user);
-                                if (lastTimestamp > message.timestamp) {
-                                    lastTimestamp = message.timestamp;
-                                }
-                                boolean isDeleted = CommonMethod.getBooleanFrom(entity.deleteStatuses, user.key);
-                                boolean isOld = message.timestamp < conversation.deleteTimestamp;
-                                boolean isReadable = entity.isReadable(user.key);
-                                if (isDeleted || isOld || !isReadable) {
-                                    continue;
-                                }
+                                message.isMask = entity.isMask;
                                 User sender = getUser(message.senderId, conversation);
                                 if (sender != null) {
                                     message.senderProfile = sender.profile;
@@ -68,10 +59,39 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 messages.add(message);
                             }
                             output.messages = messages;
-                            output.canLoadMore = messages.size() > 0;
+                            output.canLoadMore = true;
                             return output;
-                        })
-                );
+                        }).concatWith(messageRepository.getLastMessages(conversation.key)
+                                .map(entities -> {
+                                    Output output = new Output();
+                                    List<Message> messages = new ArrayList<>();
+                                    double lastTimestamp = Double.MAX_VALUE;
+                                    for (MessageEntity entity : entities) {
+                                        entity.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, user.key);
+                                        Message message = messageMapper.transform(entity, user);
+                                        if (lastTimestamp > message.timestamp) {
+                                            lastTimestamp = message.timestamp;
+                                        }
+                                        boolean isDeleted = CommonMethod.getBooleanFrom(entity.deleteStatuses, user.key);
+                                        boolean isOld = message.timestamp < conversation.deleteTimestamp;
+                                        boolean isReadable = entity.isReadable(user.key);
+                                        if (isDeleted || isOld || !isReadable) {
+                                            continue;
+                                        }
+                                        User sender = getUser(message.senderId, conversation);
+                                        if (sender != null) {
+                                            message.senderProfile = sender.profile;
+                                            message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
+                                        }
+                                        messages.add(message);
+                                    }
+                                    //messageRepository.deleteCacheMessages(conversation.key);
+                                    messageRepository.saveMessages(entities);
+                                    output.messages = messages;
+                                    output.canLoadMore = messages.size() > 0;
+                                    return output;
+                                })
+                        ));
     }
 
     private User getUser(String userId, Conversation conversation) {

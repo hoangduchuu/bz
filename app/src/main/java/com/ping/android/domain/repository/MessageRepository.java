@@ -40,7 +40,13 @@ public interface MessageRepository {
 
     Observable<Boolean> updateChildMessageGame(String conversationId, String parentMessageKey, String messageKey, String gameUrl);
 
+    Observable<List<MessageEntity>> getCachedMessages(String conversationId);
+
     void deleteCacheMessage(String messageKey);
 
     void deleteCacheMessages(String conversationId);
+
+    void saveMessages(List<MessageEntity> entities);
+
+    void updateLocalMaskStatus(String message, boolean isMask);
 }

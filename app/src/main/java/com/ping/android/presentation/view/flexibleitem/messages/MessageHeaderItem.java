@@ -98,7 +98,7 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     }
 
     private void prepareMessage(MessageBaseItem item) {
-        Map.Entry<Double, MessageBaseItem> entry = childItemTreeMap.higherEntry(item.message.timestamp);
+        Map.Entry<Double, MessageBaseItem> entry = childItemTreeMap.lowerEntry(item.message.timestamp);
         if (entry != null) {
             MessageBaseItem previousMessage = entry.getValue();
             item.message.showExtraInfo = !item.message.senderId.equals(previousMessage.message.senderId);
