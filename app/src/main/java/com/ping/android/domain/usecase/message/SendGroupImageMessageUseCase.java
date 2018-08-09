@@ -116,7 +116,7 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                                 mess.parentKey = messageKey;
                                 mess.localFilePath = photoItem.getImagePath();
                                 // Should set those params to make the UI action right cause this is cached message
-                                mess.mediaUrl = photoItem.getImagePath();
+                                //mess.mediaUrl = photoItem.getImagePath();
                                 mess.isMask = params.markStatus;
                                 return mess;
                             });

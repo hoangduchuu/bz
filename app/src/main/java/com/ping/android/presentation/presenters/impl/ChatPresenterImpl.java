@@ -350,6 +350,10 @@ public class ChatPresenterImpl implements ChatPresenter {
                     item.message.childMessages = message.childMessages;
                 }
             }
+        } else if (message.type == MessageType.IMAGE) {
+            if (!message.isCached) {
+                message.localFilePath = localCacheFile.get(message.key);
+            }
         }
         if (item == null) {
             message.opponentUser = conversation.opponentUser;
@@ -397,6 +401,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Message message) {
                 if (message.isCached) {
                     message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {
                     sendNotification(conversation, message.message, MessageType.IMAGE);
@@ -629,6 +634,9 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(GetLastMessagesUseCase.Output output) {
                 updateLastMessages(output.messages, output.canLoadMore);
+                if (output.isCached) {
+                    return;
+                }
                 observeMessageUpdate();
                 observeTypingEvent();
                 view.hideLoading();

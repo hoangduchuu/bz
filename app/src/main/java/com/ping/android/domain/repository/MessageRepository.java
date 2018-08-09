@@ -46,6 +46,8 @@ public interface MessageRepository {
 
     void deleteCacheMessages(String conversationId);
 
+    void saveMessage(MessageEntity entity);
+
     void saveMessages(List<MessageEntity> entities);
 
     void updateLocalMaskStatus(String message, boolean isMask);

@@ -47,7 +47,6 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     SendMessageUseCase sendMessageUseCase;
     @Inject
     MessageMapper messageMapper;
-    SendMessageUseCase.Params.Builder builder;
 
     @Inject
     public SendGameMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -57,14 +56,13 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
-        builder = new SendMessageUseCase.Params.Builder()
+        SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.GAME)
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
-        builder.setFileUrl("PPhtotoMessageIdentifier");
         MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {
@@ -80,10 +78,10 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                             message1.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                             return message1;
                         }))
-                .concatWith(sendMessage(params));
+                .concatWith(sendMessage(params, builder));
     }
 
-    private Observable<Message> sendMessage(Params params) {
+    private Observable<Message> sendMessage(Params params, SendMessageUseCase.Params.Builder builder) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .observeOn(Schedulers.io())
                 .map(s -> {

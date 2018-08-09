@@ -270,6 +270,15 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public void saveMessage(MessageEntity entity) {
+        DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
+        Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {
+            entity.save();
+        }).build();
+        transaction.execute();
+    }
+
+    @Override
     public void saveMessages(List<MessageEntity> messageEntities) {
         DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
         Transaction transaction = database.beginTransactionAsync(databaseWrapper -> {

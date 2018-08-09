@@ -19,14 +19,17 @@ import android.text.TextUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.DrawableCrossFadeTransition;
 import com.bumptech.glide.request.transition.Transition;
 import com.bumptech.glide.signature.ObjectKey;
 import com.bzzzchat.configuration.GlideApp;
@@ -259,20 +262,6 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static void loadImageFromFile(RequestManager requestManager, ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
-        Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
-        ((GlideRequests) requestManager)
-                .load(filePath)
-                .placeholder(placeholder)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .override(512)
-                .transform(new BitmapEncode(bitmapMark))
-                .signature(key)
-                .dontAnimate()
-                .into(imageView);
-    }
-
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark, Callback callback) {
         SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
             @Override
@@ -378,37 +367,6 @@ public class UiUtils {
                 .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
                 .into(target);
         return target;
-    }
-
-    public static void loadImage(RequestManager requestManager, ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder, Callback callback) {
-        if (TextUtils.isEmpty(imageUrl)) {
-            return;
-        }
-        if (placeholder == null) {
-            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
-        }
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-        ((GlideRequests) requestManager)
-                .load(gsReference)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(placeholder)
-                .override(512)
-                .transform(new BitmapEncode(bitmapMark))
-                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        callback.complete(null);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        callback.complete(new Error());
-                        return false;
-                    }
-                })
-                .into(imageView);
     }
 
     public static @Nullable

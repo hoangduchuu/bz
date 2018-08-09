@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -77,7 +78,6 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                             if (message.type == MessageType.GAME) {
                                 // Update status of game if not update
                                 if (!TextUtils.isEmpty(message.mediaUrl)
-                                        && !message.mediaUrl.equals("PPhtotoMessageIdentifier")
                                         && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
                                     messageRepository.updateMessageStatus(params.conversation.key,
                                             message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
@@ -88,6 +88,11 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                         } else if (data.getType() == ChildData.Type.CHILD_ADDED) {
                             //updateReadStatus(message, params.conversation, status);
                         }
+
+                        MessageEntity entity = childData.getData();
+                        entity.isMask = message.isMask;
+                        messageRepository.saveMessage(entity);
+
                         return Observable.just(data);
                     }
                 })

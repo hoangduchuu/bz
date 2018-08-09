@@ -54,6 +54,7 @@ ext {
             firebase_storage    : "16.0.1",
             firebase_messaging  : "17.0.0",
             firebase_config     : "16.0.0",
+            glide               : "4.7.1",
     ]
 }
 

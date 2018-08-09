@@ -2,6 +2,7 @@ package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -9,17 +10,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.bzzzchat.configuration.GlideApp;
+import com.bzzzchat.configuration.GlideRequests;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Callback;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.BitmapEncode;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Text;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -108,7 +120,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (TextUtils.isEmpty(item.message.localFilePath)) {
                 String photoUrl = !TextUtils.isEmpty(item.message.mediaUrl)
                         ? item.message.mediaUrl : item.message.thumbUrl;
-                if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith("PPhtotoMessageIdentifier"))
+                if (TextUtils.isEmpty(photoUrl))
                     return;
                 viewImage(isPuzzled);
             } else {
@@ -117,7 +129,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         }
 
         private void handleGamePress(boolean isPuzzled) {
-            if (!TextUtils.isEmpty(item.message.mediaUrl) && item.message.mediaUrl.startsWith("PPhtotoMessageIdentifier")) {
+            if (!TextUtils.isEmpty(item.message.mediaUrl)) {
                 return;
             }
             if (TextUtils.isEmpty(item.message.mediaUrl)) {
@@ -150,14 +162,28 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private void setImageMessage(Message message) {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
+            Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
-                UiUtils.loadImageFromFile(this.glide, imageView, item.message.localFilePath, message.key, maskStatus);
+                ((GlideRequests) this.glide)
+                        .load(item.message.localFilePath)
+                        .placeholder(placeholder)
+                        .messageImage(message.key, bitmapMark)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        //.transition(DrawableTransitionOptions.withCrossFade())
+                        .into(imageView);
+                // should preload remote image
+                if (!TextUtils.isEmpty(message.mediaUrl)) {
+                    StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
+                    ((GlideRequests) this.glide).load(gsReference)
+                            .messageImage(message.key, bitmapMark)
+                            .preload();
+                }
                 loadingView.setVisibility(View.GONE);
                 return;
             }
 
             String imageURL = message.mediaUrl;
-            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
+            if (TextUtils.isEmpty(imageURL)) {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
@@ -166,19 +192,30 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 loadingView.setVisibility(View.GONE);
                 return;
             }
-            String url = imageURL;
-            Callback callback = (error, data) -> {
-                if (error == null) {
-                    imageView.setImageBitmap((Bitmap) data[0]);
-                }
-                loadingView.setVisibility(View.GONE);
-            };
             loadingView.setVisibility(View.VISIBLE);
-            Drawable placeholder = null;
+
             if (isUpdated) {
                 placeholder = imageView.getDrawable();
             }
-            UiUtils.loadImage(this.glide, imageView, url, message.key, bitmapMark, placeholder, callback);
+            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
+            ((GlideRequests) this.glide)
+                    .load(gsReference)
+                    .placeholder(placeholder)
+                    .messageImage(message.key, bitmapMark)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@android.support.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            loadingView.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            loadingView.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .into(imageView);
         }
     }
 }

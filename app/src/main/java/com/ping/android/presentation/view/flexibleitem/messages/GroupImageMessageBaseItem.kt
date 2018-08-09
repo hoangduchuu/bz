@@ -1,14 +1,17 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.graphics.Outline
+import android.support.v4.content.ContextCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.signature.ObjectKey
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequests
@@ -136,23 +139,33 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                     outline?.setRoundRect(left, top, right, bottom, curveRadius)
                 }
             }
+            var placeholder = ContextCompat.getDrawable(imageView.context, R.drawable.img_loading_image)
+            val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.mediaUrl
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
                 Log.d(message.localFilePath)
                 UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
+                (this.glide as GlideRequests)
+                        .load(message.localFilePath)
+                        .placeholder(placeholder)
+                        .messageImage(message.key, message.isMask)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .into(imageView)
+                if (!TextUtils.isEmpty(url) && url.startsWith("gs://")) {
+                    val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
+                    (this.glide as GlideRequests).load(gsReference)
+                            .messageImage(message.key, message.isMask)
+                            .preload()
+                }
                 return
             }
-            val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.mediaUrl
             if (url == null || !url.startsWith("gs://")) return
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
-            val key = ObjectKey(String.format("%s%s", message.key, if (message.isMask) "encoded" else "decoded"))
             (glide as GlideRequests)
-                    .asBitmap()
                     .load(gsReference)
+                    .messageImage(message.key, message.isMask)
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .override(128)
-                    .skipMemoryCache(false)
-                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .transform(BitmapEncode(message.isMask))
-                    .signature(key)
                     .into(imageView)
         }
     }

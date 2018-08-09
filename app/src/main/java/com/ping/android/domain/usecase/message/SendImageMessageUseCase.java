@@ -66,7 +66,6 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
         builder.setCacheImage(params.filePath);
-        builder.setFileUrl("PPhtotoMessageIdentifier");
         MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {

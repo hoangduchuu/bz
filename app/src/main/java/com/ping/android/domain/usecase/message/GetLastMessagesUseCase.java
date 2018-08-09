@@ -59,6 +59,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 messages.add(message);
                             }
                             output.messages = messages;
+                            output.isCached = true;
                             output.canLoadMore = true;
                             return output;
                         }).concatWith(messageRepository.getLastMessages(conversation.key)
@@ -66,8 +67,8 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                     Output output = new Output();
                                     List<Message> messages = new ArrayList<>();
                                     double lastTimestamp = Double.MAX_VALUE;
+                                    List<MessageEntity> availableEntities = new ArrayList<>();
                                     for (MessageEntity entity : entities) {
-                                        entity.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, user.key);
                                         Message message = messageMapper.transform(entity, user);
                                         if (lastTimestamp > message.timestamp) {
                                             lastTimestamp = message.timestamp;
@@ -84,10 +85,13 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                         }
                                         messages.add(message);
+                                        entity.isMask = message.isMask;
+                                        availableEntities.add(entity);
                                     }
-                                    //messageRepository.deleteCacheMessages(conversation.key);
-                                    messageRepository.saveMessages(entities);
+                                    messageRepository.deleteCacheMessages(conversation.key);
+                                    messageRepository.saveMessages(availableEntities);
                                     output.messages = messages;
+                                    output.isCached = false;
                                     output.canLoadMore = messages.size() > 0;
                                     return output;
                                 })
@@ -106,5 +110,6 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
     public static class Output {
         public List<Message> messages;
         public boolean canLoadMore;
+        public boolean isCached;
     }
 }

@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -57,6 +58,11 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                     if (isDeleted || isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
+
+                    MessageEntity entity = childData.getData();
+                    entity.isMask = message.isMask;
+                    messageRepository.saveMessage(entity);
+
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
                     User sender = params.conversation.getUser(message.senderId);
