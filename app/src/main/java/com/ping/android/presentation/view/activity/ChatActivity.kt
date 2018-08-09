@@ -1083,8 +1083,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         CallActivity.start(this, currentUser, opponentUser, isVideo)
     }
 
-    override fun updateMessage(item: MessageBaseItem<*>, headerItem: MessageHeaderItem, added: Boolean) {
-        messagesAdapter.handleNewMessage(item, headerItem, added)
+    override fun updateMessage(item: MessageBaseItem<*>, headerItem: MessageHeaderItem, higherHeaderItem: MessageHeaderItem?, added: Boolean) {
+        messagesAdapter.handleNewMessage(item, headerItem, higherHeaderItem, added)
         if (isScrollToTop) {
             recycleChatView!!.scrollToPosition(messagesAdapter.itemCount - 1)
         }

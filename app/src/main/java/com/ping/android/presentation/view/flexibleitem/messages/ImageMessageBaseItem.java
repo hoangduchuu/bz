@@ -183,7 +183,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
 
             String imageURL = message.mediaUrl;
-            if (TextUtils.isEmpty(imageURL)) {
+            if (TextUtils.isEmpty(imageURL) || !imageURL.startsWith("gs://")) {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }

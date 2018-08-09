@@ -36,6 +36,10 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         this.key = key;
     }
 
+    public long getKey() {
+        return key;
+    }
+
     @Override
     public int getLayoutId() {
         return R.layout.item_message_header;

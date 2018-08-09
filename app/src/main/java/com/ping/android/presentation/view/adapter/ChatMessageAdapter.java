@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -375,13 +376,17 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         }
     }
 
-    public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added) {
+    public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, MessageHeaderItem higherHeaderItem, boolean added) {
         int headerIndex = this.items.indexOf(headerItem);
         if (headerIndex < 0) {
-            int size = this.items.size();
-            this.items.add(headerItem);
-            headerIndex = size;
-            notifyItemInserted(size);
+            if (higherHeaderItem != null) {
+                headerIndex = this.items.indexOf(higherHeaderItem);
+            }
+            if (headerIndex < 0) {
+                headerIndex = 0;
+            }
+            this.items.add(headerIndex, headerItem);
+            notifyItemInserted(headerIndex);
         }
         if (added) {
             int childIndex = headerItem.findChildIndex(item);

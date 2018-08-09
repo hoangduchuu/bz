@@ -55,6 +55,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -338,6 +339,11 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem.setKey(message.days);
             headerItemMap.put(message.days, headerItem);
         }
+        Map.Entry<Long, MessageHeaderItem> entry = headerItemMap.higherEntry(message.days);
+        MessageHeaderItem higherHeaderItem = null;
+        if (entry != null) {
+            higherHeaderItem = entry.getValue();
+        }
         MessageBaseItem item = null;
         if (message.type == MessageType.IMAGE_GROUP) {
             if (!message.isCached) {
@@ -360,7 +366,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
         }
         boolean added = headerItem.addChildItem(item);
-        view.updateMessage(item, headerItem, added);
+        view.updateMessage(item, headerItem, higherHeaderItem, added);
     }
 
     @Override
@@ -633,13 +639,18 @@ public class ChatPresenterImpl implements ChatPresenter {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
             public void onNext(GetLastMessagesUseCase.Output output) {
-                updateLastMessages(output.messages, output.canLoadMore);
+                view.hideLoading();
                 if (output.isCached) {
+                    Collections.reverse(output.messages);
+                    updateLastMessages(output.messages, output.canLoadMore);
                     return;
+                }
+                //updateLastMessages(output.messages, output.canLoadMore);
+                for (Message message : output.messages) {
+                    addMessage(message);
                 }
                 observeMessageUpdate();
                 observeTypingEvent();
-                view.hideLoading();
             }
 
             @Override

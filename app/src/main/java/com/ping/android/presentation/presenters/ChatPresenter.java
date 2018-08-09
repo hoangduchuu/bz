@@ -90,7 +90,7 @@ public interface ChatPresenter extends BasePresenter {
 
         void openCallScreen(User currentUser, User opponentUser, boolean isVideoCall);
 
-        void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added);
+        void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, MessageHeaderItem higherHeaderItem, boolean added);
 
         void changeTheme(Color from);
 
