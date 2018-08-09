@@ -121,6 +121,10 @@ public class SplashPresenterImpl implements SplashPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         initializeUserUseCase.dispose();
+        getCurrentUserUseCase.dispose();
+        getConversationValueUseCase.dispose();
+        checkAppUpdateUseCase.dispose();
     }
 }

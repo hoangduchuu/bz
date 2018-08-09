@@ -641,7 +641,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(GetLastMessagesUseCase.Output output) {
                 view.hideLoading();
                 if (output.isCached) {
-                    Collections.reverse(output.messages);
+                    //Collections.reverse(output.messages);
                     updateLastMessages(output.messages, output.canLoadMore);
                     return;
                 }

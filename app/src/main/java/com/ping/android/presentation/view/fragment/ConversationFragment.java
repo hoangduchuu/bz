@@ -287,10 +287,10 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
         //intent.putExtras(bundle);
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(),
-                sharedElements
-        );
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeBasic();
+//                getActivity()
+//                //sharedElements
+//        );
         startActivity(intent, options.toBundle());
     }
 

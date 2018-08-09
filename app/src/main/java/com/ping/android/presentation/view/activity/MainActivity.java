@@ -75,7 +75,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     @Override
     protected void onResume() {
         super.onResume();
-        startCallService(this);
+        //startCallService(this);
     }
 
     @Override

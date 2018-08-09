@@ -36,7 +36,6 @@ import io.reactivex.disposables.Disposable;
 public abstract class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
 
     private static NetworkConnectionChecker networkConnectionChecker;
-    protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
     // Disposable for UI events
     private CompositeDisposable disposables;
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
@@ -82,14 +81,6 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
             getPresenter().destroy();
         }
         disposables.dispose();
-        for (DatabaseReference reference : databaseReferences.keySet()) {
-            Object listener = databaseReferences.get(reference);
-            if (listener instanceof ChildEventListener) {
-                reference.removeEventListener((ChildEventListener) listener);
-            } else if (listener instanceof ValueEventListener) {
-                reference.removeEventListener((ValueEventListener) listener);
-            }
-        }
     }
 
     @Override
