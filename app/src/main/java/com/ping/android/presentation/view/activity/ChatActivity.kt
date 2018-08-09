@@ -566,7 +566,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
         mLinearLayoutManager = object : LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
             override fun onLayoutCompleted(state: RecyclerView.State?) {
                 super.onLayoutCompleted(state)
-                Log.e("state $state")
                 if (state != null) {
                     if (state.itemCount <= 0) {
                         return
