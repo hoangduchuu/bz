@@ -6,7 +6,6 @@ import com.bzzzchat.cleanarchitecture.UseCase
 import com.ping.android.device.Device
 import com.ping.android.domain.repository.StorageRepository
 import com.ping.android.model.Message
-import com.ping.android.model.enums.MessageType
 import com.ping.android.utils.UiUtils
 import io.reactivex.Observable
 import java.io.File

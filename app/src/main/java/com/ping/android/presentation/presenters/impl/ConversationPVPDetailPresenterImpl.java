@@ -1,13 +1,13 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
+import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationColorUseCase;
 import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
-import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
-import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
-import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;

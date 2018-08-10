@@ -1,8 +1,8 @@
 package com.ping.android.presentation.view.custom;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.View;
-import android.graphics.Bitmap;
 
 public class BitmapViewBackgroundTarget extends ViewBackgroundTarget<Bitmap> {
     public BitmapViewBackgroundTarget(View view) {

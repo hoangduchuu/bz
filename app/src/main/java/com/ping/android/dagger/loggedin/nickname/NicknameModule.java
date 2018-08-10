@@ -1,9 +1,7 @@
 package com.ping.android.dagger.loggedin.nickname;
 
 import com.ping.android.dagger.scopes.PerActivity;
-import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.NicknamePresenter;
-import com.ping.android.presentation.presenters.impl.AddGroupPresenterImpl;
 import com.ping.android.presentation.presenters.impl.NicknamePresenterImpl;
 import com.ping.android.presentation.view.activity.NicknameActivity;
 

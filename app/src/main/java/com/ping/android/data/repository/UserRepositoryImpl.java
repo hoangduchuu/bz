@@ -11,9 +11,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.data.entity.CallEntity;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.CallEntityMapper;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by tuanluong on 1/28/18.

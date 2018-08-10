@@ -1,6 +1,5 @@
 package com.ping.android.domain.repository;
 
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 
 import io.reactivex.Observable;

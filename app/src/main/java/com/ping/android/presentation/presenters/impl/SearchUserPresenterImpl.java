@@ -2,10 +2,10 @@ package com.ping.android.presentation.presenters.impl;
 
 import android.text.TextUtils;
 
+import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.SearchUsersUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
-import com.bzzzchat.cleanarchitecture.DefaultObserver;
 
 import org.jetbrains.annotations.NotNull;
 

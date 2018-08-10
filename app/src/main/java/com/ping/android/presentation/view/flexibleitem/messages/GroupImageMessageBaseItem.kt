@@ -12,8 +12,6 @@ import android.widget.ImageView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.signature.ObjectKey
-import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequests
 import com.bzzzchat.extensions.inflate
 import com.bzzzchat.extensions.px
@@ -22,7 +20,6 @@ import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.presentation.view.custom.GridNonScrollableLayoutManager
-import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.Log
 import com.ping.android.utils.UiUtils
 

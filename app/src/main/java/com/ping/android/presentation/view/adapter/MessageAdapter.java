@@ -18,13 +18,11 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;

@@ -13,11 +13,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.presentation.view.activity.AddContactActivity;
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ContactPresenter;
+import com.ping.android.presentation.view.activity.AddContactActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.ContactAdapter;

@@ -2,8 +2,8 @@ package com.ping.android.managers;
 
 import android.content.Context;
 
-import com.ping.android.model.enums.VoiceType;
 import com.ping.android.model.Callback;
+import com.ping.android.model.enums.VoiceType;
 
 import java.io.File;
 

@@ -8,21 +8,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.ping.android.data.db.AppDatabase;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.entity.MessageEntity_Table;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
-import com.ping.android.data.entity.MessageEntity;
-import com.ping.android.model.Message;
 import com.ping.android.utils.configs.Constant;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.rx2.language.RXSQLite;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +27,6 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 2/26/18.

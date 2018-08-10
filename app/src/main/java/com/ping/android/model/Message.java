@@ -3,13 +3,9 @@ package com.ping.android.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.utils.configs.Constant;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

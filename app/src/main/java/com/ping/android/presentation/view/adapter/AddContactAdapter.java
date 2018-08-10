@@ -11,8 +11,8 @@ import android.widget.ToggleButton;
 
 import com.ping.android.R;
 import com.ping.android.model.User;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 

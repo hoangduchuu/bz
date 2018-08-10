@@ -13,16 +13,15 @@ import com.bzzzchat.flexibleadapter.FlexibleAdapter;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
+import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView;
 import com.ping.android.presentation.view.flexibleitem.messages.AudioMessageBaseItem;
+import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.presentation.view.flexibleitem.messages.TypingItem;
-import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Created by tuanluong on 3/2/18.

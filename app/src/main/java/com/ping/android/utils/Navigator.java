@@ -4,15 +4,11 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
 import android.view.View;
 
 import com.ping.android.presentation.view.fragment.BaseFragment;
 
-import java.util.List;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 

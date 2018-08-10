@@ -3,8 +3,8 @@ package com.ping.android.presentation.presenters;
 import android.content.Intent;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.model.User;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.quickblox.videochat.webrtc.QBRTCSession;
 
 import org.webrtc.CameraVideoCapturer;

@@ -18,8 +18,6 @@ import org.jivesoftware.smack.SmackException;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 
 /**

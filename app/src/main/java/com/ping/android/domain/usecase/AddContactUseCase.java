@@ -5,7 +5,6 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
-import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
 

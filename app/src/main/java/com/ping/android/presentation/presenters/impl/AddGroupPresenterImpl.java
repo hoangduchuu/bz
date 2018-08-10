@@ -9,7 +9,6 @@ import com.ping.android.presentation.presenters.AddGroupPresenter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;

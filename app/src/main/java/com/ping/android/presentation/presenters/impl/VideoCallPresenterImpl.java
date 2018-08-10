@@ -1,9 +1,9 @@
 package com.ping.android.presentation.presenters.impl;
 
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCSession;

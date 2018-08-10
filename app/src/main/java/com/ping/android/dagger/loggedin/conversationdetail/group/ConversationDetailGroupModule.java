@@ -2,9 +2,7 @@ package com.ping.android.dagger.loggedin.conversationdetail.group;
 
 import com.ping.android.dagger.scopes.PerFragment;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
-import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
 import com.ping.android.presentation.presenters.impl.ConversationGroupDetailPresenterImpl;
-import com.ping.android.presentation.presenters.impl.ConversationPVPDetailPresenterImpl;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
 
 import dagger.Binds;

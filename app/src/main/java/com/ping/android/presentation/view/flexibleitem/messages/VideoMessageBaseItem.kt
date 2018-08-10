@@ -1,7 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.app.Activity
-import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.view.View
@@ -17,7 +16,6 @@ import com.ping.android.model.Message
 import com.ping.android.utils.CommonMethod
 import com.ping.android.utils.UiUtils
 import jp.wasabeef.glide.transformations.RoundedCornersTransformation
-import org.w3c.dom.Text
 import java.io.File
 
 abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMessageBaseItem.ViewHolder>(message) {

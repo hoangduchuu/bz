@@ -8,7 +8,6 @@ import android.support.v7.widget.GridLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.bzzzchat.videorecorder.view.ImagesProvider
-import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.view.activity.ChatActivity.Companion.EXTRA_CONVERSATION_COLOR
@@ -17,7 +16,6 @@ import com.ping.android.presentation.view.adapter.MediaMultiSelectListener
 import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.ThemeUtils
 import kotlinx.android.synthetic.main.activity_grid_media_picker.*
-import kotlin.math.max
 
 class GridMediaPickerActivity : AppCompatActivity() {
 

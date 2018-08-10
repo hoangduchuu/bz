@@ -1,11 +1,11 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.conversation.DeleteConversationsUseCase;
 import com.ping.android.domain.usecase.conversation.LoadMoreConversationUseCase;
+import com.ping.android.domain.usecase.conversation.ObserveConversationsUseCase;
 import com.ping.android.domain.usecase.user.ObserveMappingsUseCase;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.presentation.presenters.ConversationListPresenter;
 import com.ping.android.utils.configs.Constant;

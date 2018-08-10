@@ -1,7 +1,5 @@
 package com.ping.android.presentation.view.fragment
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -15,17 +13,14 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.signature.ObjectKey
+import com.bzzzchat.configuration.GlideApp
+import com.bzzzchat.configuration.GlideRequest
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.Message
-import com.ping.android.utils.configs.Constant
-import com.ping.android.utils.BitmapEncode
-import com.bzzzchat.configuration.GlideApp
-import com.bzzzchat.configuration.GlideRequest
-import com.ping.android.App
 import com.ping.android.presentation.view.activity.CoreActivity
 import com.ping.android.presentation.view.custom.PullListener
-import com.ping.android.utils.Log
+import com.ping.android.utils.BitmapEncode
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.ImagePullEvent
 import com.ping.android.utils.bus.events.ImageTapEvent

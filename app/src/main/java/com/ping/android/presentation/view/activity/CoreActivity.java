@@ -2,19 +2,13 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.transition.Slide;
-import android.support.transition.TransitionManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.ping.android.App;
 import com.ping.android.R;
 import com.ping.android.dagger.ApplicationComponent;
@@ -23,12 +17,9 @@ import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
 import com.ping.android.service.CallService;
-import com.ping.android.utils.SharedPrefsHelper;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
+import com.ping.android.utils.SharedPrefsHelper;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.disposables.CompositeDisposable;

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.TextUtils;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
-import com.ping.android.R;
 import com.ping.android.device.impl.NotificationImpl;
 import com.ping.android.domain.usecase.CallbackUseCase;
 import com.ping.android.domain.usecase.notification.ReplyMessageFromNotificationUseCase;

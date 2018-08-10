@@ -2,8 +2,6 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Message;
-import com.ping.android.model.enums.MessageType;
 
 /**
  * Created by tuanluong on 3/22/18.

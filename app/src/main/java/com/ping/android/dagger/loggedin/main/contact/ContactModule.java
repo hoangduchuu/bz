@@ -3,7 +3,6 @@ package com.ping.android.dagger.loggedin.main.contact;
 import com.ping.android.dagger.scopes.PerFragment;
 import com.ping.android.presentation.presenters.ContactPresenter;
 import com.ping.android.presentation.presenters.impl.ContactPresenterImpl;
-import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.presentation.view.fragment.ContactFragment;
 
 import dagger.Binds;

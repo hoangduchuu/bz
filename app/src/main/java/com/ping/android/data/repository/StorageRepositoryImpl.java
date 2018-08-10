@@ -3,7 +3,6 @@ package com.ping.android.data.repository;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.RxFirebaseStorage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -16,8 +15,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created by tuanluong on 2/1/18.

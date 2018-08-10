@@ -6,8 +6,8 @@ import com.ping.android.domain.usecase.DeleteFriendUseCase;
 import com.ping.android.domain.usecase.GetUserByKeyUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveSpecificFriendStatusUseCase;
-import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
+import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
 

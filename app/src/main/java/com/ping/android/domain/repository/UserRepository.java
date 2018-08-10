@@ -3,7 +3,6 @@ package com.ping.android.domain.repository;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.entity.CallEntity;
-import com.ping.android.model.Call;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 

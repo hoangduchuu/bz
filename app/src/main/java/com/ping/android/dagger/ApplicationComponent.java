@@ -1,11 +1,8 @@
 package com.ping.android.dagger;
 
-import android.app.Application;
-
 import com.ping.android.App;
 import com.ping.android.dagger.loggedin.LoggedInComponent;
 import com.ping.android.dagger.loggedout.LoggedOutComponent;
-import com.ping.android.device.ImageStorage;
 import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
@@ -16,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Singleton;
 
-import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.support.AndroidSupportInjectionModule;
 

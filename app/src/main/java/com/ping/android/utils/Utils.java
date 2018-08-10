@@ -1,14 +1,11 @@
 package com.ping.android.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.media.ExifInterface;
 import android.view.View;
@@ -16,7 +13,6 @@ import android.widget.PopupWindow;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class Utils {
 

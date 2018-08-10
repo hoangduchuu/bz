@@ -2,7 +2,6 @@ package com.ping.android.presentation.view.fragment;
 
 import android.animation.ValueAnimator;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;

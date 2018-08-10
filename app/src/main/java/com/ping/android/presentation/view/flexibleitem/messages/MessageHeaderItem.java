@@ -9,7 +9,6 @@ import android.widget.TextView;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.DateUtils;
 
 import org.jetbrains.annotations.NotNull;

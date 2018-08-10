@@ -11,9 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
+import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.BlockContactPresenter;
 import com.ping.android.presentation.view.adapter.BlockAdapter;
-import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;

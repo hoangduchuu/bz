@@ -6,14 +6,12 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.data.entity.CallEntity;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
-import com.ping.android.data.entity.ChildData;
-import com.ping.android.model.User;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -3,7 +3,6 @@ package com.ping.android.presentation.view.adapter
 import android.support.v4.util.SparseArrayCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.ping.android.presentation.view.adapter.delegate.LoadingDelegateAdapter
 
 object AdapterConstants {
     const val LOADING = 1

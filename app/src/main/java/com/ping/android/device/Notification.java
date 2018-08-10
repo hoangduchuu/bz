@@ -2,9 +2,6 @@ package com.ping.android.device;
 
 import com.ping.android.model.User;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-
 /**
  * Created by tuanluong on 3/27/18.
  */

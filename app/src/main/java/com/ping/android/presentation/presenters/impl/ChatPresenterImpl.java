@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.videorecorder.view.PhotoItem;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -36,7 +37,6 @@ import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -55,7 +55,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ping.android.R;
+import com.ping.android.model.Transphabet;
 import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.adapter.TransphabetCategoryAdapter;
-import com.ping.android.model.Transphabet;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;

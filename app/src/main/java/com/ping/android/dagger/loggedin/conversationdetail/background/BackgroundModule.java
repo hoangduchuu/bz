@@ -5,8 +5,6 @@ import com.ping.android.presentation.presenters.BackgroundPresenter;
 import com.ping.android.presentation.presenters.BackgroundPresenterImpl;
 import com.ping.android.presentation.view.fragment.BackgroundFragment;
 
-import javax.inject.Inject;
-
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;

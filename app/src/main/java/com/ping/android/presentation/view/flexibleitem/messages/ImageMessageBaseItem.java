@@ -1,6 +1,5 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
@@ -13,25 +12,18 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.bzzzchat.configuration.GlideApp;
 import com.bzzzchat.configuration.GlideRequests;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
-import com.ping.android.model.Callback;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.utils.BitmapEncode;
-import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 /**
  * Created by tuanluong on 3/2/18.

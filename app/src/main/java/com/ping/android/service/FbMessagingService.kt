@@ -12,14 +12,12 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.support.v4.app.NotificationCompat
-import android.support.v4.app.RemoteInput
 import android.text.TextUtils
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.bzzzchat.configuration.GlideApp
-import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.App
 import com.ping.android.R
@@ -30,7 +28,6 @@ import com.ping.android.model.Callback
 import com.ping.android.model.User
 import com.ping.android.presentation.view.activity.ChatActivity
 import com.ping.android.presentation.view.activity.SplashActivity
-import com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY
 import com.ping.android.utils.ActivityLifecycle
 import com.ping.android.utils.BadgeHelper
 import com.ping.android.utils.Log

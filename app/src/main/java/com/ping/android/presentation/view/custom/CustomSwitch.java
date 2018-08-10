@@ -8,13 +8,10 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-
-import org.w3c.dom.Text;
 
 public class CustomSwitch extends LinearLayout {
 

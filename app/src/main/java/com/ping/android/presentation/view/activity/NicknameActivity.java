@@ -9,13 +9,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.presentation.presenters.NicknamePresenter;
-import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.presentation.presenters.NicknamePresenter;
+import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.utils.ThemeUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.List;

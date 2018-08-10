@@ -1,13 +1,10 @@
 package com.ping.android.presentation.presenters.impl;
 
-import android.support.v4.content.ContextCompat;
-
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.CheckAppUpdateUseCase;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
-import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SplashPresenter;
 

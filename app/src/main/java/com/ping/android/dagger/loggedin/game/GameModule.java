@@ -1,9 +1,7 @@
 package com.ping.android.dagger.loggedin.game;
 
 import com.ping.android.dagger.scopes.PerActivity;
-import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.presentation.presenters.impl.AddContactPresenterImpl;
 import com.ping.android.presentation.presenters.impl.GamePresenterImpl;
 
 import dagger.Module;

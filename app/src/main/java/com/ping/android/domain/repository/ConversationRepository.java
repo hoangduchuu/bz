@@ -2,8 +2,8 @@ package com.ping.android.domain.repository;
 
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
-import com.ping.android.model.Conversation;
 import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 
 import java.util.Map;

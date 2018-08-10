@@ -76,17 +76,14 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
     private void init() {
         mContacts = new ArrayList<>();
         // TODO SelectContactAdapter
-        adapter = new SelectContactAdapter(mContacts, new SelectContactAdapter.ClickListener() {
-            @Override
-            public void onSelect(User contact, Boolean isSelected) {
-                if (isSelected) {
-                    selectedUsers.add(contact);
-                } else {
-                    for (User user : selectedUsers) {
-                        if (user.key.equals(contact.key)) {
-                            selectedUsers.remove(user);
-                            break;
-                        }
+        adapter = new SelectContactAdapter(mContacts, (contact, isSelected) -> {
+            if (isSelected) {
+                selectedUsers.add(contact);
+            } else {
+                for (User user : selectedUsers) {
+                    if (user.key.equals(contact.key)) {
+                        selectedUsers.remove(user);
+                        break;
                     }
                 }
             }

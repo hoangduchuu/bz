@@ -1,17 +1,16 @@
 package com.ping.android.presentation.view.custom.media
 
 import android.app.Activity
-import android.view.ViewTreeObserver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
 import android.view.Gravity
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.PopupWindow
-import com.bzzzchat.videorecorder.view.withDelay
 import com.ping.android.utils.ResourceUtils.dpToPx
 import com.ping.android.utils.Utils
 

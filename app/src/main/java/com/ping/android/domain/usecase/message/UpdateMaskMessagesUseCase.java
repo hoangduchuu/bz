@@ -9,7 +9,6 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 

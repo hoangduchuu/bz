@@ -3,20 +3,19 @@ package com.ping.android.presentation.view.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
 import com.ping.android.dagger.loggedin.call.CallComponent;
 import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
 import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AudioCallPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
 

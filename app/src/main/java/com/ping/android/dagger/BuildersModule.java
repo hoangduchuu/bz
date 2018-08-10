@@ -3,6 +3,7 @@ package com.ping.android.dagger;
 import com.ping.android.dagger.loggedin.SearchUserModule;
 import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
 import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
+import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.dagger.loggedin.chat.ChatModule;
 import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailModule;
 import com.ping.android.dagger.loggedin.gallery.GalleryModule;
@@ -20,10 +21,10 @@ import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.dagger.loggedout.registration.RegistrationViewModule;
 import com.ping.android.dagger.loggedout.splash.SplashModule;
 import com.ping.android.dagger.scopes.PerActivity;
-import com.ping.android.dagger.scopes.PerFragment;
 import com.ping.android.presentation.view.activity.AddContactActivity;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.BlockActivity;
+import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.GalleryActivity;
@@ -98,4 +99,8 @@ public abstract class BuildersModule {
     @PerActivity
     @ContributesAndroidInjector(modules = NicknameModule.class)
     abstract NicknameActivity bindNicknameActivity();
+
+    @PerActivity
+    @ContributesAndroidInjector(modules = ChangePasswordModule.class)
+    abstract ChangePasswordActivity bindChangePasswordActivity();
 }

@@ -10,7 +10,6 @@ import com.bzzzchat.extensions.inflate
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import java.io.File
-import kotlin.math.max
 
 interface MediaMultiSelectListener {
     fun onCountChange(count: Int)

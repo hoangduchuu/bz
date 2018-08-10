@@ -10,7 +10,6 @@ import com.ping.android.App;
 import com.ping.android.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
-import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 

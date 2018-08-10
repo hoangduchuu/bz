@@ -8,8 +8,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
-import com.ping.android.utils.Log;
-
 /**
  * @author tuanluong
  */

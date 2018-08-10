@@ -3,7 +3,6 @@ package com.ping.android.presentation.presenters
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView
 import com.bzzzchat.cleanarchitecture.DefaultObserver
-import com.ping.android.R.id.view
 import com.ping.android.domain.usecase.message.DownloadImageUseCase
 import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase

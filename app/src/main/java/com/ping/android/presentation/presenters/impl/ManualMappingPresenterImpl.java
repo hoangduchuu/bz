@@ -2,8 +2,8 @@ package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
-import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
 import com.ping.android.domain.usecase.user.UpdateUserMappingUseCase;
+import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
 import com.ping.android.model.Mapping;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;

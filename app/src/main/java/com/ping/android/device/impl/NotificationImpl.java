@@ -34,12 +34,8 @@ import com.ping.android.service.NotificationBroadcastReceiver;
 import com.ping.android.utils.ActivityLifecycle;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.inject.Inject;
 
 import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
-import static com.ping.android.utils.ResourceUtils.getString;
 
 /**
  * Created by tuanluong on 3/27/18.

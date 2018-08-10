@@ -16,7 +16,6 @@ import com.bumptech.glide.RequestManager;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.revealable.RevealStyle;
@@ -33,11 +32,10 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageRightItem;
-import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

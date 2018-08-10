@@ -12,21 +12,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ping.android.R;
+import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
-import com.ping.android.R;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
-import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;

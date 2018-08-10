@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
@@ -51,8 +50,6 @@ import org.webrtc.CameraVideoCapturer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.inject.Inject;
 
 /**
  * QuickBlox team

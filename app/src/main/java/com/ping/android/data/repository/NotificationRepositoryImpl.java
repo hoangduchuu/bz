@@ -4,7 +4,6 @@ import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.google.gson.JsonObject;
 import com.ping.android.BuildConfig;
 import com.ping.android.domain.repository.NotificationRepository;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.core.server.Performer;

@@ -8,14 +8,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
-import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.DataSnapshotWrapper;
 import com.ping.android.utils.configs.Constant;
-import com.ping.android.utils.DataProvider;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

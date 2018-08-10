@@ -3,7 +3,6 @@ package com.ping.android.presentation.module.recorder
 import android.media.MediaRecorder
 import com.ping.android.utils.Log
 import java.io.File
-import java.io.FileNotFoundException
 import java.util.*
 
 

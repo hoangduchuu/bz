@@ -1,9 +1,9 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.domain.usecase.conversation.CreateGroupConversationUseCase;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 

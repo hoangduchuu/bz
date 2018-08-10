@@ -1,20 +1,19 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.DeleteCallsUseCase;
 import com.ping.android.domain.usecase.GetCallsUseCase;
 import com.ping.android.domain.usecase.ObserveCallUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.call.LoadMoreCallUseCase;
 import com.ping.android.model.Call;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 

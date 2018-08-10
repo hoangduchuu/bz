@@ -1,23 +1,18 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.CallSuper;
 import android.support.annotation.IntDef;
-import android.support.v4.util.Pair;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
-import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.utils.TicTacToeGame;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;

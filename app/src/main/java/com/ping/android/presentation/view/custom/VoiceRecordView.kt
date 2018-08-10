@@ -7,10 +7,11 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.support.v7.widget.LinearLayoutManager
-import android.transition.Fade
-import android.transition.TransitionManager
 import android.util.AttributeSet
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.GLAudioVisualizationView

@@ -14,15 +14,14 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.ObjectKey
+import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.ImageMessage
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
-import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.BitmapEncode
-import com.bzzzchat.configuration.GlideApp
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class FirebaseMessageDelegateAdapter(var listener: FirebaseMessageListener) : ViewTypeDelegateAdapter {

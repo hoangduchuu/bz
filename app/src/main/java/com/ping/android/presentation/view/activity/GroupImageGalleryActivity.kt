@@ -30,7 +30,6 @@ import com.ping.android.utils.bus.events.ImagePullEvent
 import com.ping.android.utils.bus.events.ImageTapEvent
 import kotlinx.android.synthetic.main.activity_group_image_gallery.*
 import java.util.*
-import javax.inject.Inject
 
 /**
  * @author tuanluong

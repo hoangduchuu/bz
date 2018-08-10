@@ -6,10 +6,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
-import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.User;
 
 import java.util.HashMap;
