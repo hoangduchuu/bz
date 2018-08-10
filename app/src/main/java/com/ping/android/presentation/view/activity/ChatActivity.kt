@@ -368,7 +368,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         val intent = when {
             message.gameType == GameType.MEMORY.ordinal -> Intent(this, GameMemoryActivity::class.java)
             message.gameType == GameType.TIC_TAC_TOE.ordinal -> Intent(this, GameTicTacToeActivity::class.java)
-            else -> Intent(this, GameActivity::class.java)
+            else -> Intent(this, GamePuzzleActivity::class.java)
         }
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId)
         intent.putExtra("CONVERSATION", originalConversation)

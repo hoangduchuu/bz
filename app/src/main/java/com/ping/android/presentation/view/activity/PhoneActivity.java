@@ -16,12 +16,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.hbb20.CountryCodePicker;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.addphone.AddPhoneComponent;
-import com.ping.android.dagger.loggedin.addphone.AddPhoneModule;
 import com.ping.android.presentation.presenters.AddPhonePresenter;
 import com.ping.android.utils.CommonMethod;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class PhoneActivity extends CoreActivity implements View.OnClickListener, AddPhonePresenter.View {
 
@@ -32,12 +32,11 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener,
 
     @Inject
     AddPhonePresenter presenter;
-    AddPhoneComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         setContentView(R.layout.activity_phone);
         bindViews();
         init();
@@ -114,10 +113,4 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener,
         });
     }
 
-    public AddPhoneComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideAddPhoneComponent(new AddPhoneModule(this));
-        }
-        return component;
-    }
 }

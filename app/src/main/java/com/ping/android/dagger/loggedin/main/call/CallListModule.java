@@ -13,7 +13,7 @@ import dagger.Provides;
  * Created by tuanluong on 1/30/18.
  */
 @Module
-public abstract class CallModule {
+public abstract class CallListModule {
     @Binds
     abstract CallListPresenter.View provideView(CallFragment fragment);
 

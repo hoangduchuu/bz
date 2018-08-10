@@ -1,4 +1,4 @@
-package com.ping.android.dagger.loggedout.registration;
+package com.ping.android.dagger.registration;
 
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.presenters.RegistrationPresenter;

@@ -17,8 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.game.GameComponent;
-import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
@@ -29,7 +27,9 @@ import java.util.Collections;
 
 import javax.inject.Inject;
 
-public class GameActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
+import dagger.android.AndroidInjection;
+
+public class GamePuzzleActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
     private Button btnExit;
     private ImageView puzzleSelect;
     private LinearLayout puzzleView;
@@ -50,19 +50,11 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
 
     @Inject
     GamePresenter presenter;
-    GameComponent component;
-
-    public GameComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
-        }
-        return component;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         setContentView(R.layout.activity_game);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         initResources(getIntent());
@@ -233,7 +225,7 @@ public class GameActivity extends BaseGameActivity implements View.OnClickListen
                 int remainTime = (int) millisUntilFinished / 1000;
                 handler.post(() -> {
                     if (remainTime == 5) {
-                        tvTimer.setTextColor(ContextCompat.getColor(GameActivity.this, R.color.red));
+                        tvTimer.setTextColor(ContextCompat.getColor(GamePuzzleActivity.this, R.color.red));
                         startVibrate();
                     }
                     tvTimer.setText("" + remainTime);

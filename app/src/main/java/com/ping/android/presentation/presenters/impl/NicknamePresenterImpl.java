@@ -6,6 +6,8 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.presentation.presenters.NicknamePresenter;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Inject;
 
 /**
@@ -40,6 +42,12 @@ public class NicknamePresenterImpl implements NicknamePresenter {
                                  conversation.nickNames.put(nickname.userId, nickname.nickName);
                                  view.hideLoading();
                                  view.updateNickname(nickname);
+                             }
+
+                             @Override
+                             public void onError(@NotNull Throwable exception) {
+                                 exception.printStackTrace();
+                                 view.hideLoading();
                              }
                          },
                         new UpdateConversationNicknameUseCase.Params(conversation, nickname));

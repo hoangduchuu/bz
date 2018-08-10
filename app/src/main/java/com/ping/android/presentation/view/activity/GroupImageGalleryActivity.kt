@@ -17,8 +17,6 @@ import android.view.WindowManager
 import com.bzzzchat.extensions.toggleVisibility
 import com.bzzzchat.videorecorder.view.showToast
 import com.ping.android.R
-import com.ping.android.dagger.loggedin.groupimage.GroupImageComponent
-import com.ping.android.dagger.loggedin.groupimage.GroupImageModule
 import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
@@ -28,8 +26,10 @@ import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.ImagePullEvent
 import com.ping.android.utils.bus.events.ImageTapEvent
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_group_image_gallery.*
 import java.util.*
+import javax.inject.Inject
 
 /**
  * @author tuanluong
@@ -43,18 +43,15 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
     private val background: ColorDrawable = ColorDrawable(android.graphics.Color.BLACK)
 
     lateinit var adapter: ImagePagerAdapter
-    //@Inject
+    @Inject
     lateinit var busProvider: BusProvider
-    //@Inject
+    @Inject
     lateinit var presenter: GroupImageGalleryPresenter
-    private val component: GroupImageComponent by lazy {
-        loggedInComponent.provideGroupImageComponent(GroupImageModule(this))
-    }
     private lateinit var permissionChecker: PermissionsChecker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        component.inject(this)
+        AndroidInjection.inject(this)
         postponeEnterTransition()
         intent.extras.let {
             conversationId = it.getString(CONVERSATION_ID)

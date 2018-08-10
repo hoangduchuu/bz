@@ -133,13 +133,7 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".presentation.view.activity.PuzzleActivity"
-            android:label="PuzzleActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".presentation.view.activity.GameActivity"
+            android:name=".presentation.view.activity.GamePuzzleActivity"
             android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:noHistory="true"

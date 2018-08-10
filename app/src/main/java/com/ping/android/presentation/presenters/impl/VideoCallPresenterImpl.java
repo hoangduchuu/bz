@@ -50,6 +50,7 @@ public class VideoCallPresenterImpl implements VideoCallPresenter, CallActivity.
 
     @Override
     public void destroy() {
+        view = null;
         presenter.removeCallStateCallback(this);
         if (currentSession != null) {
             currentSession.removeVideoTrackCallbacksListener(this);

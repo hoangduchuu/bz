@@ -1,4 +1,4 @@
-package com.ping.android.dagger.loggedout.splash;
+package com.ping.android.dagger.splash;
 
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.presenters.SplashPresenter;

@@ -121,9 +121,6 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         }
 
         private void handleGamePress(boolean isPuzzled) {
-            if (!TextUtils.isEmpty(item.message.mediaUrl)) {
-                return;
-            }
             if (TextUtils.isEmpty(item.message.mediaUrl)) {
                 return;
             }

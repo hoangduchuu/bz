@@ -1,6 +1,6 @@
 package com.ping.android.dagger.loggedin.main;
 
-import com.ping.android.dagger.loggedin.main.call.CallModule;
+import com.ping.android.dagger.loggedin.main.call.CallListModule;
 import com.ping.android.dagger.loggedin.main.contact.ContactModule;
 import com.ping.android.dagger.loggedin.main.conversation.ConversationViewModule;
 import com.ping.android.dagger.loggedin.main.group.GroupModule;
@@ -22,7 +22,7 @@ public abstract class MainBuilderModule {
     public abstract ConversationFragment bindConversationFragment();
 
     @PerFragment
-    @ContributesAndroidInjector(modules = {CallModule.class})
+    @ContributesAndroidInjector(modules = {CallListModule.class})
     public abstract CallFragment bindCallFragment();
 
     @PerFragment

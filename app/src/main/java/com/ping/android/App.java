@@ -9,8 +9,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
-import com.ping.android.dagger.loggedin.LoggedInComponent;
-import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.utils.ActivityLifecycle;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.squareup.leakcanary.LeakCanary;
@@ -27,8 +25,6 @@ import nl.bravobit.ffmpeg.FFmpeg;
 public class App extends CoreApp implements HasActivityInjector {
 
     private ApplicationComponent component;
-    private LoggedInComponent loggedInComponent;
-    private LoggedOutComponent loggedOutComponent;
 
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingActivityInjector;
@@ -72,21 +68,6 @@ public class App extends CoreApp implements HasActivityInjector {
                     .build();
         }
         return component;
-    }
-
-    public LoggedInComponent getLoggedInComponent() {
-        if (loggedInComponent == null) {
-            loggedInComponent = getComponent()
-                    .provideLoggedInComponent();
-        }
-        return loggedInComponent;
-    }
-
-    public LoggedOutComponent getLoggedOutComponent() {
-        if (loggedOutComponent == null) {
-            loggedOutComponent = getComponent().provideLoggedOutComponent();
-        }
-        return loggedOutComponent;
     }
 
     private void setupRxErrorHandler() {

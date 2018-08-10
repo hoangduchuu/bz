@@ -1,8 +1,6 @@
 package com.ping.android.dagger;
 
 import com.ping.android.App;
-import com.ping.android.dagger.loggedin.LoggedInComponent;
-import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
@@ -44,10 +42,6 @@ public interface ApplicationComponent {
     void inject(NotificationBroadcastReceiver receiver);
 
     void inject(@NotNull FbMessagingService fbMessagingService);
-
-    LoggedInComponent provideLoggedInComponent();
-
-    LoggedOutComponent provideLoggedOutComponent();
 
     UserManager provideUserManager();
 

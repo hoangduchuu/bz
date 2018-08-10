@@ -103,7 +103,6 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
 
     private void onNicknameSet(Nickname nickname, String s) {
         nickname.nickName = s;
-        showLoading();
         presenter.updateNickName(nickname);
     }
 

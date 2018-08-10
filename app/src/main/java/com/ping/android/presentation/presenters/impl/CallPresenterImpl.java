@@ -259,6 +259,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void destroy() {
+        view = null;
         callService.removeSessionCallbacks();
         //observeCurrentUserUseCase.dispose();
         if (this.currentSession != null) {

@@ -21,9 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.call.CallComponent;
-import com.ping.android.dagger.loggedin.call.video.VideoCallComponent;
-import com.ping.android.dagger.loggedin.call.video.VideoCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.ping.android.presentation.view.adapter.OpponentsFromCallAdapter;
@@ -47,6 +44,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 
 /**
@@ -83,7 +82,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Inject
     VideoCallPresenter presenter;
-    VideoCallComponent component;
     private LinearLayout outgoingViewContainer;
     private boolean shouldToggleControlsVisibility = false;
 
@@ -159,7 +157,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setHasOptionsMenu(true);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -492,12 +490,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         ENABLED_FROM_USER
     }
 
-    public VideoCallComponent getComponent() {
-        if (component == null) {
-            component = getComponent(CallComponent.class).provideVideoCallComponent(new VideoCallModule(this));
-        }
-        return component;
-    }
 }
 
 

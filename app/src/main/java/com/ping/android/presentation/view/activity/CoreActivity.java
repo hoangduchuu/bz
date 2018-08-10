@@ -12,8 +12,6 @@ import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.ping.android.App;
 import com.ping.android.R;
 import com.ping.android.dagger.ApplicationComponent;
-import com.ping.android.dagger.loggedin.LoggedInComponent;
-import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
 import com.ping.android.service.CallService;
@@ -95,14 +93,6 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     public ApplicationComponent getApplicationComponent() {
         return ((App) getApplication()).getComponent();
-    }
-
-    protected LoggedInComponent getLoggedInComponent() {
-        return ((App) getApplication()).getLoggedInComponent();
-    }
-
-    protected LoggedOutComponent getLoggedOutComponent() {
-        return ((App) getApplication()).getLoggedOutComponent();
     }
 
     protected void registerEvent(Disposable disposable) {

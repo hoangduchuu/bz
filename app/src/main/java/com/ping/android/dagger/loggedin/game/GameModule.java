@@ -12,18 +12,6 @@ import dagger.Provides;
  */
 @Module
 public class GameModule {
-    private final GamePresenter.View view;
-
-    public GameModule(GamePresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public GamePresenter.View provideView() {
-        return view;
-    }
-
     @Provides
     @PerActivity
     public GamePresenter providePresenter(GamePresenterImpl presenter) {

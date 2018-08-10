@@ -32,7 +32,8 @@ class GroupImageGalleryPresenterImpl @Inject constructor() : GroupImageGalleryPr
     @Inject
     lateinit var downloadImageUseCase: DownloadImageUseCase
     @Inject
-    lateinit var view: GroupImageGalleryPresenter.View
+    @JvmField
+    var view: GroupImageGalleryPresenter.View? = null
 
     var messages: List<Message> = ArrayList()
     var conversationId: String = ""
@@ -43,7 +44,7 @@ class GroupImageGalleryPresenterImpl @Inject constructor() : GroupImageGalleryPr
         this.messages = messages
         this.isGroupImage = isGroupImage
 
-        view.showImageMessages(messages)
+        view?.showImageMessages(messages)
     }
 
     override fun togglePuzzle(position: Int) {
@@ -64,15 +65,21 @@ class GroupImageGalleryPresenterImpl @Inject constructor() : GroupImageGalleryPr
             updateMaskChildMessagesUseCase.execute(DefaultObserver<Boolean>(), params)
         }
         messages[position].isMask = isMask
-        view.updateMessage(messages[position], position)
+        view?.updateMessage(messages[position], position)
     }
 
     override fun downloadImage(message: Message) {
         val observer = object: DefaultObserver<Boolean>() {
             override fun onNext(t: Boolean) {
-                view.showMessageDownloadSuccessfully()
+                view?.showMessageDownloadSuccessfully()
             }
         }
         downloadImageUseCase.execute(observer, message)
+    }
+
+    override fun destroy() {
+        view = null
+        updateMaskMessagesUseCase.dispose()
+        updateMaskChildMessagesUseCase.dispose()
     }
 }

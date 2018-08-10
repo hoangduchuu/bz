@@ -16,8 +16,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.game.GameComponent;
-import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.TicTacToeGame;
 import com.ping.android.utils.UiUtils;
@@ -28,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -40,19 +39,11 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
 
     @Inject
     GamePresenter presenter;
-    GameComponent component;
-
-    public GameComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
-        }
-        return component;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         setContentView(R.layout.activity_game_tic_tac_toe);
         initResources(getIntent());
         showStartDialog();

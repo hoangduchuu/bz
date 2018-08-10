@@ -1,4 +1,4 @@
-package com.ping.android.dagger.loggedout.login;
+package com.ping.android.dagger.login;
 
 import com.ping.android.presentation.presenters.LoginPresenter;
 import com.ping.android.presentation.view.activity.LoginActivity;
