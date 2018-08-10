@@ -129,6 +129,7 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
 
     @Override
     public void destroy() {
+        view = null;
         observeConversationsUseCase.dispose();
         loadMoreConversationUseCase.dispose();
     }

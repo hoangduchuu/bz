@@ -8,25 +8,22 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedout.splash.SplashComponent;
-import com.ping.android.dagger.loggedout.splash.SplashModule;
-import com.ping.android.managers.UserManager;
-import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.SplashPresenter;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 public class SplashActivity extends CoreActivity implements SplashPresenter.View {
     @Inject
     public SplashPresenter presenter;
-    private SplashComponent component;
     private String conversationId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         presenter.create();
         conversationId = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         if (!TextUtils.isEmpty(conversationId)) {
@@ -101,13 +98,5 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     @Override
     public SplashPresenter getPresenter() {
         return presenter;
-    }
-
-    public SplashComponent getComponent() {
-        if (component == null) {
-            component = getLoggedOutComponent()
-                    .provideSplashComponent(new SplashModule(this));
-        }
-        return component;
     }
 }

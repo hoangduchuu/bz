@@ -196,6 +196,7 @@ public class ConversationPVPDetailPresenterImpl implements ConversationPVPDetail
 
     @Override
     public void destroy() {
+        view = null;
         observeConversationUpdateUseCase.dispose();
         toggleConversationNotificationSettingUseCase.dispose();
         toggleMaskIncomingUseCase.dispose();

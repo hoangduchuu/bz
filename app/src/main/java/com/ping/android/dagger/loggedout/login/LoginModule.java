@@ -12,18 +12,6 @@ import dagger.Provides;
  */
 @Module
 public class LoginModule {
-    private final LoginPresenter.View view;
-
-    public LoginModule(LoginPresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public LoginPresenter.View provideView() {
-        return view;
-    }
-
     @Provides
     @PerActivity
     public LoginPresenter provideLoginPresenter(LoginPresenterImpl presenter) {

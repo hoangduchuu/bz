@@ -8,12 +8,9 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.blockcontact.BlockContactComponent;
-import com.ping.android.dagger.loggedin.blockcontact.BlockContactModule;
 import com.ping.android.presentation.presenters.BlockContactPresenter;
 import com.ping.android.presentation.view.adapter.BlockAdapter;
 import com.ping.android.model.User;
@@ -23,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class BlockActivity extends CoreActivity implements View.OnClickListener, BlockAdapter.ClickListener, BlockContactPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
@@ -38,13 +37,12 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
 
     @Inject
     BlockContactPresenter presenter;
-    BlockContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_block);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         bindViews();
         init();
         presenter.create();
@@ -143,14 +141,6 @@ public class BlockActivity extends CoreActivity implements View.OnClickListener,
         for (User contact : contacts) {
             presenter.toggleBlockUser(contact.key, false);
         }
-    }
-
-    public BlockContactComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideBlockContactComponent(new BlockContactModule(this));
-        }
-        return component;
     }
 
     @Override

@@ -10,8 +10,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
-import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
@@ -20,6 +18,8 @@ import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class UserDetailActivity extends CoreActivity implements View.OnClickListener, UserDetailPresenter.View {
     public static final String EXTRA_USER = "EXTRA_USER";
@@ -37,7 +37,6 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
     @Inject
     UserDetailPresenter presenter;
-    UserDetailComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
             }
         }
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         presenter.create();
         setContentView(R.layout.activity_user_detail);
         bindViews();
@@ -172,13 +171,6 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
 
     private void onBack() {
         supportFinishAfterTransition();
-    }
-
-    public UserDetailComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideUserDetailComponent(new UserDetailModule(this));
-        }
-        return component;
     }
 
     @Override

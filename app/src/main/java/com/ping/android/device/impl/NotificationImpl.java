@@ -36,6 +36,8 @@ import com.ping.android.utils.ActivityLifecycle;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
 import static com.ping.android.utils.ResourceUtils.getString;
 
@@ -47,21 +49,15 @@ public class NotificationImpl implements com.ping.android.device.Notification {
     private static final String MY_DISPLAY_NAME = "";
     public static final int ONGOING_NOTIFICATION_ID = 1111;
     public static final int MESSAGE_NOTIFICATION_ID = 2222;
-    private Context context;
     private NotificationManager notificationManager;
     private boolean groupNotification = false;
-    private NotificationMessageRepository notificationMessageRepository;
+    Context context;
+    NotificationMessageRepository notificationMessageRepository;
 
     public NotificationImpl(Context context, NotificationMessageRepository notificationMessageRepository) {
         this.context = context;
-        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.notificationMessageRepository = notificationMessageRepository;
-    }
-
-    private final static AtomicInteger c = new AtomicInteger(0);
-
-    public static int getID() {
-        return c.incrementAndGet();
     }
 
     @Override

@@ -27,7 +27,6 @@ import android.view.ViewGroup
 import android.widget.*
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.cleanarchitecture.BasePresenter
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity
@@ -35,8 +34,6 @@ import com.bzzzchat.videorecorder.view.VideoRecorderActivity
 import com.bzzzchat.videorecorder.view.withDelay
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
-import com.ping.android.dagger.loggedin.chat.ChatComponent
-import com.ping.android.dagger.loggedin.chat.ChatModule
 import com.ping.android.device.impl.ShakeEventManager
 import com.ping.android.managers.UserManager
 import com.ping.android.model.Conversation
@@ -44,7 +41,6 @@ import com.ping.android.model.Message
 import com.ping.android.model.User
 import com.ping.android.model.enums.Color
 import com.ping.android.model.enums.GameType
-import com.ping.android.model.enums.MessageType
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.presenters.ChatPresenter
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter
@@ -62,6 +58,7 @@ import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
 import com.vanniktech.emoji.EmojiPopup
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.view_chat_bottom.*
 import java.io.File
 import java.util.*
@@ -69,7 +66,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatComponent>, View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
+class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
 
     private val TAG = "Ping: " + this.javaClass.simpleName
 
@@ -170,8 +167,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
     @Inject
     lateinit var busProvider: BusProvider
 
-    override val component: ChatComponent
-        get() = loggedInComponent.provideChatComponent(ChatModule(this))
     private var isScreenVisible = false
     private var actionButtons: MutableList<Int>? = null
     private var isEditMode = false
@@ -196,7 +191,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, HasComponent<ChatCompon
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        component.inject(this)
+        AndroidInjection.inject(this);
         val bundle = intent.extras
         if (bundle != null) {
             //originalConversation = bundle.getParcelable("CONVERSATION");

@@ -1,5 +1,7 @@
 package com.ping.android;
 
+import android.app.Activity;
+
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.firebase.FirebaseApp;
@@ -13,15 +15,23 @@ import com.ping.android.utils.ActivityLifecycle;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.squareup.leakcanary.LeakCanary;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.HasActivityInjector;
 import io.fabric.sdk.android.Fabric;
 import io.reactivex.plugins.RxJavaPlugins;
 import nl.bravobit.ffmpeg.FFmpeg;
 
-public class App extends CoreApp {
+public class App extends CoreApp implements HasActivityInjector {
 
     private ApplicationComponent component;
     private LoggedInComponent loggedInComponent;
     private LoggedOutComponent loggedOutComponent;
+
+    @Inject
+    DispatchingAndroidInjector<Activity> dispatchingActivityInjector;
 
     @Override
     public void onCreate() {
@@ -32,6 +42,7 @@ public class App extends CoreApp {
             return;
         }
         LeakCanary.install(this);
+        getComponent().inject(this);
         ActivityLifecycle.init(this);
         FirebaseApp.initializeApp(getApplicationContext());
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -80,5 +91,10 @@ public class App extends CoreApp {
 
     private void setupRxErrorHandler() {
         RxJavaPlugins.setErrorHandler(throwable -> throwable.printStackTrace());
+    }
+
+    @Override
+    public AndroidInjector<Activity> activityInjector() {
+        return dispatchingActivityInjector;
     }
 }

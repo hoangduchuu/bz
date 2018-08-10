@@ -21,9 +21,6 @@ import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
-import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.enums.NetworkStatus;
@@ -45,6 +42,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import dagger.android.support.AndroidSupportInjection;
+
 public class ConversationFragment extends BaseFragment implements View.OnClickListener,
         MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
 
@@ -65,12 +64,11 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     ConversationListPresenter presenter;
     @Inject
     BusProvider busProvider;
-    ConversationComponent component;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        component().inject(this);
+        AndroidSupportInjection.inject(this);
         presenter.create();
         listenTransphabetChanged();
     }
@@ -302,13 +300,6 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private void updateUnreadNumber() {
         int unread = adapter.unreadNum();
         prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
-    }
-
-    public ConversationComponent component() {
-        if (component == null) {
-            component = getComponent(MainComponent.class).provideConversationComponent(new ConversationModule(this));
-        }
-        return component;
     }
 
     @Override

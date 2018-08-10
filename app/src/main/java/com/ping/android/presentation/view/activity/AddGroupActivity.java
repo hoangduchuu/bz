@@ -15,9 +15,6 @@ import android.widget.LinearLayout;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.SearchUserModule;
-import com.ping.android.dagger.loggedin.newgroup.NewGroupComponent;
-import com.ping.android.dagger.loggedin.newgroup.NewGroupModule;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
@@ -34,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class AddGroupActivity extends CoreActivity implements View.OnClickListener, SearchUserPresenter.View, AddGroupPresenter.View {
     private LinearLayoutManager mLinearLayoutManager;
@@ -56,13 +55,12 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     public SearchUserPresenter searchPresenter;
     @Inject
     public AddGroupPresenter presenter;
-    public NewGroupComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_group);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         searchPresenter.create();
         presenter.create();
         bindViews();
@@ -144,7 +142,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void init() {
-        adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
+        adapter = new SelectContactAdapter(new ArrayList<>(), (contact, isSelected) -> {
             if (isSelected) {
                 selectedUsers.add(contact);
                 updateChips();
@@ -272,14 +270,6 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     @Override
     public void hideNoResults() {
         noResultsView.post(() -> noResultsView.setVisibility(View.GONE));
-    }
-
-    public NewGroupComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideNewGroupComponent(new NewGroupModule(this), new SearchUserModule(this));
-        }
-        return component;
     }
 
     @Override

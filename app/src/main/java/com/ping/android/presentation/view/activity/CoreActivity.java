@@ -29,6 +29,7 @@ import com.ping.android.utils.NetworkConnectionChecker;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -39,6 +40,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     // Disposable for UI events
     private CompositeDisposable disposables;
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
+    private AtomicBoolean showLoading = new AtomicBoolean(false);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +82,11 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         if (getPresenter() != null) {
             getPresenter().destroy();
         }
-        disposables.dispose();
+        if (showLoading.get()) {
+            throw new IllegalStateException("Loading still showing");
+        }
+        //disposables.dispose();
+        disposables.clear();
     }
 
     @Override
@@ -157,19 +163,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     DialogFragment loadingDialog;
 
     public void showLoading() {
-        if (isFinishing() || isDestroyed()) return;
+        if (isFinishing() || isDestroyed() || showLoading.get()) return;
 
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        } else {
-            loadingDialog = new LoadingDialog();
-        }
+        loadingDialog = new LoadingDialog();
         loadingDialog.show(getSupportFragmentManager(), "LOADING");
     }
 
     public void hideLoading() {
+        showLoading.set(false);
         if (loadingDialog != null) {
             loadingDialog.dismissAllowingStateLoss();
+            loadingDialog = null;
         }
     }
 

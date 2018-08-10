@@ -64,6 +64,7 @@ public class GroupPresenterImpl implements GroupPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeGroupsUseCase.dispose();
         createGroupConversationUseCase.dispose();
     }

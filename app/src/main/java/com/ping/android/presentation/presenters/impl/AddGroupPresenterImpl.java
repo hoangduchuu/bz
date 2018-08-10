@@ -71,4 +71,12 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
         view.initProfileImagePath(currentUser.key);
         view.openPicker();
     }
+
+    @Override
+    public void destroy() {
+        view = null;
+        uploadGroupProfileImageUseCase.dispose();
+        createGroupUseCase.dispose();
+        getCurrentUserUseCase.dispose();
+    }
 }

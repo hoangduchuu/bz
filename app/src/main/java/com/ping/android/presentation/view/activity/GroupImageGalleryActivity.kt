@@ -44,9 +44,9 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
     private val background: ColorDrawable = ColorDrawable(android.graphics.Color.BLACK)
 
     lateinit var adapter: ImagePagerAdapter
-    @Inject
+    //@Inject
     lateinit var busProvider: BusProvider
-    @Inject
+    //@Inject
     lateinit var presenter: GroupImageGalleryPresenter
     private val component: GroupImageComponent by lazy {
         loggedInComponent.provideGroupImageComponent(GroupImageModule(this))

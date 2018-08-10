@@ -144,6 +144,7 @@ public class CallListPresenterImpl implements CallListPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeCallUseCase.dispose();
         observeCurrentUserUseCase.dispose();
         deleteCallsUseCase.dispose();

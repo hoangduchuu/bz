@@ -12,17 +12,6 @@ import dagger.Provides;
  */
 @Module
 public class SearchUserModule {
-    SearchUserPresenter.View view;
-
-    public SearchUserModule(SearchUserPresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public SearchUserPresenter.View provideView() {
-        return view;
-    }
 
     @Provides
     @PerActivity

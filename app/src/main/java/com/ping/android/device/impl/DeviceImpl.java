@@ -26,7 +26,8 @@ public class DeviceImpl implements Device {
     Application application;
 
     @Inject
-    public DeviceImpl() {}
+    public DeviceImpl() {
+    }
 
     @SuppressLint("HardwareIds")
     @Override

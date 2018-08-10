@@ -19,19 +19,17 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
-import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
-import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
 import com.ping.android.model.Mapping;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
 
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,7 +45,6 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
 
     @Inject
     ManualMappingPresenter presenter;
-    ManualMappingComponent component;
 
     public static MappingFragment newInstance() {
         return new MappingFragment();
@@ -56,7 +53,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -202,13 +199,5 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         userInput.setSelection(0, mapping.mapValue.length());
         // show it
         alertDialog.show();
-    }
-
-    public ManualMappingComponent getComponent() {
-        if (component == null) {
-            component = getComponent(TransphabetComponent.class)
-                    .provideManualMappingComponent(new ManualMappingModule(this));
-        }
-        return component;
     }
 }

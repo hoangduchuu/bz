@@ -15,9 +15,6 @@ import android.widget.Toast;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.SearchUserModule;
-import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
-import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
@@ -29,6 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener, SearchUserPresenter.View, AddContactPresenter.View {
     private RecyclerView rvListContact;
@@ -43,13 +42,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     public SearchUserPresenter searchUserPresenter;
     @Inject
     public AddContactPresenter presenter;
-    private AddContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_contact);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         searchUserPresenter.create();
         bindViews();
         init();
@@ -128,14 +126,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     private void onExitAddContact() {
         finish();
-    }
-
-    public AddContactComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideAddContactComponent(new AddContactModule(this), new SearchUserModule(this));
-        }
-        return component;
     }
 
     @Override

@@ -222,6 +222,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
+    implementation "com.google.dagger:dagger-android:${libraries.dagger}"
+    implementation "com.google.dagger:dagger-android-support:${libraries.dagger}" // if you use the support libraries
+    kapt "com.google.dagger:dagger-android-processor:${libraries.dagger}"
 
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"

@@ -10,8 +10,12 @@ import com.bzzzchat.cleanarchitecture.BaseView;
 public interface LoginPresenter extends BasePresenter {
     void initializeUser();
 
+    void login(String name, String password);
+
     interface View extends BaseView {
 
         void navigateToMainScreen();
+
+        void showMessageLoginFailed();
     }
 }

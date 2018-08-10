@@ -51,4 +51,11 @@ public class BlockContactPresenterImpl implements BlockContactPresenter {
             }
         }, params);
     }
+
+    @Override
+    public void destroy() {
+        view = null;
+        blockedContactsUseCase.dispose();
+        blockUserUseCase.dispose();
+    }
 }

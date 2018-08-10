@@ -2,8 +2,11 @@ package com.ping.android.dagger.loggedin.addcontact;
 
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.presenters.AddContactPresenter;
+import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.presenters.impl.AddContactPresenterImpl;
+import com.ping.android.presentation.view.activity.AddContactActivity;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
@@ -11,22 +14,16 @@ import dagger.Provides;
  * Created by tuanluong on 3/21/18.
  */
 @Module
-public class AddContactModule {
-    private final AddContactPresenter.View view;
+public abstract class AddContactModule {
+    @Binds
+    abstract AddContactPresenter.View provideView(AddContactActivity addContactActivity);
 
-    public AddContactModule(AddContactPresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public AddContactPresenter.View provideView() {
-        return view;
-    }
+    @Binds
+    abstract SearchUserPresenter.View proviView(AddContactActivity addContactActivity);
 
     @Provides
     @PerActivity
-    public AddContactPresenter providePresenter(AddContactPresenterImpl presenter) {
+    public static AddContactPresenter providePresenter(AddContactPresenterImpl presenter) {
         return presenter;
     }
 }

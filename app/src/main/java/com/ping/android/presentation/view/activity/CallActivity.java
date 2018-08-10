@@ -86,7 +86,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     private Navigator navigator;
     private RingtonePlayer ringtonePlayer;
 
-    @Inject
+    //@Inject
     CallPresenter presenter;
     CallComponent component;
 

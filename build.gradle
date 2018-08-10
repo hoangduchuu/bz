@@ -43,7 +43,7 @@ ext {
     okhttpLibraryVersion = '3.9.1'
 
     libraries = [
-            dagger              : "2.12",
+            dagger              : "2.17",
             rx_android          : "2.0.2",
             rx_java             : "2.1.12",
             arrow               : "1.0.0",

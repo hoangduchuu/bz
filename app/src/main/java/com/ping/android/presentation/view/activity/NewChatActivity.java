@@ -16,9 +16,6 @@ import android.widget.TextView;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.SearchUserModule;
-import com.ping.android.dagger.loggedin.newchat.NewChatComponent;
-import com.ping.android.dagger.loggedin.newchat.NewChatModule;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.NewChatPresenter;
@@ -32,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class NewChatActivity extends CoreActivity implements View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
     private final String TAG = NewChatActivity.class.getSimpleName();
@@ -56,13 +55,12 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     public NewChatPresenter presenter;
     @Inject
     public SearchUserPresenter searchUserPresenter;
-    private NewChatComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_chat);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         presenter.create();
         searchUserPresenter.create();
         isAddMember = getIntent().getBooleanExtra("ADD_MEMBER", false);
@@ -103,7 +101,7 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
     }
 
     private void init() {
-        adapter = new SelectContactAdapter(this, new ArrayList<>(), (contact, isSelected) -> {
+        adapter = new SelectContactAdapter(new ArrayList<>(), (contact, isSelected) -> {
             if (isSelected) {
                 selectedUsers.add(contact);
                 updateChips();
@@ -279,17 +277,6 @@ public class NewChatActivity extends CoreActivity implements View.OnClickListene
         noResultsView.setVisibility(View.INVISIBLE);
 //        recycleChatView.post(()->recycleChatView.setVisibility(View.VISIBLE));
 //        noResultsView.post(() -> noResultsView.setVisibility(View.INVISIBLE));
-    }
-
-    public NewChatComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideNewChatComponent(
-                            new NewChatModule(this),
-                            new SearchUserModule(this)
-                    );
-        }
-        return component;
     }
 
     @Override

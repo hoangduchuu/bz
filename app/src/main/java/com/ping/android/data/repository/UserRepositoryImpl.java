@@ -2,6 +2,7 @@ package com.ping.android.data.repository;
 
 import android.text.TextUtils;
 
+import com.bzzzchat.rxfirebase.RxFirebaseAuth;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +24,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -175,6 +177,55 @@ public class UserRepositoryImpl implements UserRepository {
         updateValue.put(String.format("calls/%s/%s", entity.getSenderId(), callId), entity);
         updateValue.put(String.format("calls/%s/%s", entity.getReceiveId(), callId), entity);
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<User> loginByEmail(String email, String password) {
+        return RxFirebaseAuth.loginByEmail(auth, email, password)
+                .toObservable()
+                .flatMap(authResult -> {
+                    String userKey = authResult.getUser().getUid();
+                    return getUser(userKey);
+                });
+    }
+
+    @Override
+    public Observable<User> checkValidUser(String userName) {
+        DatabaseReference userRef = database.getReference("users");
+        Query pingIdQuery = userRef.orderByChild("ping_id").equalTo(userName);
+        Query emailQuery = userRef.orderByChild("email").equalTo(userName);
+        Query phoneQuery = userRef.orderByChild("phone").equalTo(userName);
+        Single<User> pingIdSingle = RxFirebaseDatabase.getInstance(pingIdQuery)
+                .onSingleValueEvent()
+                .flatMap(dataSnapshot -> {
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        User user = new User(dataSnapshot.getChildren().iterator().next());
+                        return Single.just(user);
+                    }
+                    throw new NullPointerException();
+                });
+        Single<User> emailSingle = RxFirebaseDatabase.getInstance(emailQuery)
+                .onSingleValueEvent()
+                .flatMap(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        User user = new User(dataSnapshot);
+                        return Single.just(user);
+                    }
+                    throw new NullPointerException();
+                });
+        Single<User> phoneSingle = RxFirebaseDatabase.getInstance(phoneQuery)
+                .onSingleValueEvent()
+                .flatMap(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        User user = new User(dataSnapshot);
+                        return Single.just(user);
+                    }
+                    throw new NullPointerException();
+                });
+        return pingIdSingle
+                .onErrorResumeNext(emailSingle)
+                .onErrorResumeNext(phoneSingle)
                 .toObservable();
     }
 

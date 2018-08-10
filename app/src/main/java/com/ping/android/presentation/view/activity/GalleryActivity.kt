@@ -1,18 +1,13 @@
 package com.ping.android.presentation.view.activity
 
-import android.media.Image
 import android.os.Bundle
 import android.support.v4.app.SharedElementCallback
 import android.support.v4.util.Pair
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.ImageView
 import com.bzzzchat.cleanarchitecture.BasePresenter
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent
 import com.ping.android.R
-import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryComponent
-import com.ping.android.dagger.loggedin.conversationdetail.gallery.GalleryModule
 import com.ping.android.model.Conversation
 import com.ping.android.model.ImageMessage
 import com.ping.android.model.Message
@@ -24,13 +19,11 @@ import com.ping.android.presentation.view.custom.GridItemDecoration
 import com.ping.android.utils.ThemeUtils
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_gallery.*
 import javax.inject.Inject
 
-class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryPresenter.View, FirebaseMessageDelegateAdapter.FirebaseMessageListener {
-    override val component: GalleryComponent by lazy {
-        loggedInComponent.provideGalleryComponent(GalleryModule(this))
-    }
+class GalleryActivity : CoreActivity(), GalleryPresenter.View, FirebaseMessageDelegateAdapter.FirebaseMessageListener {
     @Inject
     lateinit var presenter: GalleryPresenter
     @Inject
@@ -45,7 +38,7 @@ class GalleryActivity : CoreActivity(), HasComponent<GalleryComponent>, GalleryP
             ThemeUtils.onActivityCreateSetTheme(this, conversation.currentColor)
         }
         setContentView(R.layout.activity_gallery)
-        component.inject(this)
+        AndroidInjection.inject(this)
 
         presenter.initConversation(conversation)
         presenter.loadMedia()

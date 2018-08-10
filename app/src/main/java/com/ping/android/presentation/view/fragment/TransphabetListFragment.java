@@ -10,11 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
 import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
-import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
-import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.TransphabetEvent;
@@ -23,24 +20,25 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import dagger.android.support.AndroidSupportInjection;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TransphabetFragment extends BaseFragment implements View.OnClickListener, TransphabetPresenter.View {
+public class TransphabetListFragment extends BaseFragment implements View.OnClickListener, TransphabetPresenter.View {
 
-    public static TransphabetFragment newInstance() {
-        return new TransphabetFragment();
+    public static TransphabetListFragment newInstance() {
+        return new TransphabetListFragment();
     }
     @Inject
     BusProvider busProvider;
     @Inject
     TransphabetPresenter presenter;
-    TransphabetSelectionComponent component;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -104,13 +102,5 @@ public class TransphabetFragment extends BaseFragment implements View.OnClickLis
                 .setNegativeButton(android.R.string.cancel, null).show();
 
         //ServiceManager.getInstance().updateShowMappingConfirm(true);
-    }
-
-    public TransphabetSelectionComponent getComponent() {
-        if (component == null) {
-            component = getComponent(TransphabetComponent.class)
-                    .provideTransphabetSelectionComponent(new TransphabetModule(this));
-        }
-        return component;
     }
 }

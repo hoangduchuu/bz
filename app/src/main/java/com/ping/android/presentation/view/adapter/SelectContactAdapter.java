@@ -23,13 +23,11 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
-    private Context mContext;
 
-    public SelectContactAdapter(Context context, ArrayList<User> mContacts, ClickListener clickListener) {
+    public SelectContactAdapter(ArrayList<User> mContacts, ClickListener clickListener) {
         this.originalContacts = mContacts;
         this.displayContacts = (ArrayList<User>) mContacts.clone();
         selectPingIDs = new ArrayList<>();
-        mContext = context;
         mClickListener = clickListener;
     }
 
@@ -94,7 +92,7 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
             holder.rbSelect.setChecked(false);
         }
 
-        UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
+        UiUtils.displayProfileImage(holder.ivProfileImage.getContext(), holder.ivProfileImage, contact);
     }
 
     private void toggleSelect(ViewHolder holder) {

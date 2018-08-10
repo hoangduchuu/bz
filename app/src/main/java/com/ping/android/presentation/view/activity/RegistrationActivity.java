@@ -25,8 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedout.registration.RegistrationComponent;
-import com.ping.android.dagger.loggedout.registration.RegistrationModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
@@ -36,25 +34,23 @@ import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 public class RegistrationActivity extends CoreActivity implements View.OnClickListener, RegistrationPresenter.View {
     private EditText txtFirstName, txtLastName, txtPingId, txtEmail, txtPassword, txtRetypePassword;
-    private TextView tvAgreeTermOfService;
     private CheckBox termCheckBox;
-    private KeyboardAwaredView container;
     private LinearLayout bottomLayout;
 
     private FirebaseAuth auth;
-    private FirebaseDatabase database;
     private DatabaseReference mDatabase;
 
     @Inject
     public RegistrationPresenter presenter;
-    private RegistrationComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         setContentView(R.layout.activity_registration);
         bindViews();
         init();
@@ -90,7 +86,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
     }
 
     private void bindViews() {
-        container = findViewById(R.id.container);
+        KeyboardAwaredView container = findViewById(R.id.container);
         bottomLayout = findViewById(R.id.bottom_layout);
         txtFirstName = findViewById(R.id.registration_first_name);
         txtLastName = findViewById(R.id.registration_last_name);
@@ -98,7 +94,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         txtEmail = findViewById(R.id.registration_email);
         txtPassword = findViewById(R.id.registration_password);
         txtRetypePassword = findViewById(R.id.registration_retype_password);
-        tvAgreeTermOfService = findViewById(R.id.tv_register_agree_term_of_service);
+        TextView tvAgreeTermOfService = findViewById(R.id.tv_register_agree_term_of_service);
         tvAgreeTermOfService.setOnClickListener(this);
         termCheckBox = findViewById(R.id.registration_terms);
         findViewById(R.id.registration_next).setOnClickListener(this);
@@ -119,7 +115,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     private void init() {
         auth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
     }
 
@@ -275,13 +271,6 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
             }
         });
 
-    }
-
-    public RegistrationComponent getComponent() {
-        if (component == null) {
-            component = getLoggedOutComponent().provideRegistrationComponent(new RegistrationModule(this));
-        }
-        return component;
     }
 
     @Override

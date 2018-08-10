@@ -9,8 +9,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
-import com.ping.android.dagger.loggedin.nickname.NicknameModule;
 import com.ping.android.presentation.presenters.NicknamePresenter;
 import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
@@ -24,6 +22,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener, NicknamePresenter.View {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
 
@@ -34,7 +34,6 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
 
     @Inject
     NicknamePresenter presenter;
-    NicknameComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         initView();
         presenter.init(conversation);
     }
@@ -106,13 +105,6 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
         nickname.nickName = s;
         showLoading();
         presenter.updateNickName(nickname);
-    }
-
-    public NicknameComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideNickNameComponent(new NicknameModule(this));
-        }
-        return component;
     }
 
     @Override

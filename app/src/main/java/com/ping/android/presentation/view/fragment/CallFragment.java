@@ -14,26 +14,25 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.presentation.view.activity.CallActivity;
-import com.ping.android.presentation.view.activity.MainActivity;
 import com.ping.android.R;
-import com.ping.android.presentation.view.activity.UserDetailActivity;
-import com.ping.android.presentation.view.adapter.CallAdapter;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.call.CallComponent;
-import com.ping.android.dagger.loggedin.main.call.CallModule;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallListPresenter;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.presentation.view.activity.CallActivity;
+import com.ping.android.presentation.view.activity.MainActivity;
+import com.ping.android.presentation.view.activity.UserDetailActivity;
+import com.ping.android.presentation.view.adapter.CallAdapter;
+import com.ping.android.presentation.view.custom.CustomSwitch;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
-import com.ping.android.presentation.view.custom.CustomSwitch;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 public class CallFragment extends BaseFragment implements View.OnClickListener, CallAdapter.ClickListener, CallListPresenter.View {
 
@@ -55,12 +54,11 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
     public BusProvider busProvider;
     @Inject
     public CallListPresenter presenter;
-    private CallComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         listenConversationChange();
     }
 
@@ -243,13 +241,6 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
 
     private void scrollToTop() {
         rvListCall.scrollToPosition(0);
-    }
-
-    public CallComponent getComponent() {
-        if (component == null) {
-            component = getComponent(MainComponent.class).provideCallComponent(new CallModule(this));
-        }
-        return component;
     }
 
     @Override

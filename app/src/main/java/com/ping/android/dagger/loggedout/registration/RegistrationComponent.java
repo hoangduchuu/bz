@@ -11,5 +11,5 @@ import dagger.Subcomponent;
 @PerActivity
 @Subcomponent(modules = {RegistrationModule.class})
 public interface RegistrationComponent {
-    void inject(RegistrationActivity activity);
+    //void inject(RegistrationActivity activity);
 }

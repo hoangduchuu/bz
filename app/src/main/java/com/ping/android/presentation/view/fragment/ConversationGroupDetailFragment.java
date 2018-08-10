@@ -18,16 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
@@ -48,6 +43,8 @@ import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -77,7 +74,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
     ConversationGroupDetailPresenter presenter;
     @Inject
     Navigator navigator;
-    private ConversationDetailGroupComponent component;
     private String profileImageKey;
     private boolean isFirstLoad = true;
 
@@ -90,7 +86,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
             profileImageKey = getArguments().getString(EXTRA_IMAGE_KEY);
@@ -283,7 +279,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private void bindData(Conversation conversation) {
         groupName.setText(conversation.conversationName);
         if (getActivity() != null) {
-            UiUtils.displayProfileAvatar(groupProfile, conversation.conversationAvatarUrl,
+            UiUtils.displayProfileAvatar(this, groupProfile, conversation.conversationAvatarUrl,
                     (error, data) -> {
                         if (isFirstLoad) {
                             isFirstLoad = false;
@@ -294,14 +290,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
         adapter.initContact(conversation.members);
         adapter.updateNickNames(conversation.nickNames);
-    }
-
-    public ConversationDetailGroupComponent getComponent() {
-        if (component == null) {
-            component = getComponent(ConversationDetailComponent.class)
-                    .provideConversationDetailGroupComponent(new ConversationDetailGroupModule(this));
-        }
-        return component;
     }
 
     @Override

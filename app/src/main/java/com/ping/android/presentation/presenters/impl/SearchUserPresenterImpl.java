@@ -82,6 +82,7 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         searchUsersUseCase.dispose();
     }
 }

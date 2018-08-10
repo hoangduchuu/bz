@@ -19,8 +19,8 @@ public class NetworkConnectionChecker {
 
     private Set<OnConnectivityChangedListener> listeners = new CopyOnWriteArraySet<>();
 
-    public NetworkConnectionChecker(Application context) {
-        this.connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    public NetworkConnectionChecker(Context context) {
+        this.connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         context.registerReceiver(new NetworkStateReceiver(), intentFilter);
     }

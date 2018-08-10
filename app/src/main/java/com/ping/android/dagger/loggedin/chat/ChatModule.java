@@ -3,7 +3,9 @@ package com.ping.android.dagger.loggedin.chat;
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.presenters.impl.ChatPresenterImpl;
+import com.ping.android.presentation.view.activity.ChatActivity;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,22 +14,13 @@ import dagger.Provides;
  */
 
 @Module
-public class ChatModule {
-    private final ChatPresenter.View view;
-
-    public ChatModule(ChatPresenter.View view) {
-        this.view = view;
-    }
+public abstract class ChatModule {
+    @Binds
+    public abstract ChatPresenter.View provideView(ChatActivity activity);
 
     @Provides
     @PerActivity
-    public ChatPresenter.View provideView() {
-        return view;
-    }
-
-    @Provides
-    @PerActivity
-    public ChatPresenter provideChatPresenter(ChatPresenterImpl presenter) {
+    public static ChatPresenter provideChatPresenter(ChatPresenterImpl presenter) {
         return presenter;
     }
 }

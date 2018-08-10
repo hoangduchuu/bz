@@ -14,6 +14,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -217,7 +218,7 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, Callback callback) {
+    public static void displayProfileAvatar(Fragment fragment, ImageView imageView, String firebaseUrl, Callback callback) {
         if (TextUtils.isEmpty(firebaseUrl)) {
             imageView.setImageResource(IMG_DEFAULT);
             if (callback != null) {
@@ -226,7 +227,7 @@ public class UiUtils {
             return;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
-        GlideApp.with(imageView.getContext())
+        GlideApp.with(fragment)
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
                 .override(100, 100)

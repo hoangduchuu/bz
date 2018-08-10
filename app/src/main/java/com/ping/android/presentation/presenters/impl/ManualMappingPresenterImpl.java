@@ -81,6 +81,7 @@ public class ManualMappingPresenterImpl implements ManualMappingPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         getCurrentUserUseCase.dispose();
         updateUserMappingUseCase.dispose();
         updateUserTransphabetUseCase.dispose();

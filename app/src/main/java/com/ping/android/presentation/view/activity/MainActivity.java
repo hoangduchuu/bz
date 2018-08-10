@@ -20,10 +20,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.MainModule;
 import com.ping.android.model.Call;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.MainPresenter;
@@ -44,7 +41,12 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-public class MainActivity extends CoreActivity implements HasComponent<MainComponent>,MainPresenter.View {
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+
+public class MainActivity extends CoreActivity implements HasSupportFragmentInjector, MainPresenter.View {
 
     SharedPreferences prefs;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -55,12 +57,13 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     @Inject
     public MainPresenter presenter;
-    private MainComponent component;
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         presenter.create();
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(ChatActivity.CONVERSATION_ID)) {
@@ -316,14 +319,6 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
 
     @Override
-    public MainComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideMainComponent(new MainModule(this));
-        }
-        return component;
-    }
-
-    @Override
     public void openPhoneRequireView() {
         startActivity(new Intent(MainActivity.this, PhoneActivity.class));
     }
@@ -365,6 +360,11 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, color.getCode());
         startActivity(intent);
+    }
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

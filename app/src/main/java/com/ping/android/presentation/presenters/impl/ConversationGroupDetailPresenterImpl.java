@@ -268,7 +268,9 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     @Override
     public void destroy() {
+        view = null;
         observeCurrentUserUseCase.dispose();
+        observeGroupValueUseCase.dispose();
         observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();
         leaveGroupUseCase.dispose();
@@ -277,5 +279,6 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         togglePuzzlePictureUseCase.dispose();
         uploadGroupProfileImageUseCase.dispose();
         updateGroupNameUseCase.dispose();
+        updateConversationColorUseCase.dispose();
     }
 }

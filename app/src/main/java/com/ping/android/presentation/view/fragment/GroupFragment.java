@@ -17,9 +17,6 @@ import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.group.GroupComponent;
-import com.ping.android.dagger.loggedin.main.group.GroupModule;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
@@ -31,6 +28,8 @@ import com.ping.android.presentation.view.adapter.GroupAdapter;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener, GroupPresenter.View {
     private RelativeLayout bottomMenu;
@@ -44,12 +43,11 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
 
     @Inject
     GroupPresenter presenter;
-    private GroupComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         presenter.create();
         init();
         loadData = true;
@@ -219,14 +217,6 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     @Override
     public void onSelect(ArrayList<Group> groups) {
         updateEditMode();
-    }
-
-    public GroupComponent getComponent() {
-        if (component == null) {
-            component = getComponent(MainComponent.class)
-                    .provideGroupComponent(new GroupModule(this));
-        }
-        return component;
     }
 
     private void scrollToTop() {

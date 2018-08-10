@@ -5,7 +5,9 @@ import com.ping.android.presentation.presenters.AddGroupPresenter;
 import com.ping.android.presentation.presenters.NicknamePresenter;
 import com.ping.android.presentation.presenters.impl.AddGroupPresenterImpl;
 import com.ping.android.presentation.presenters.impl.NicknamePresenterImpl;
+import com.ping.android.presentation.view.activity.NicknameActivity;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
@@ -14,22 +16,13 @@ import dagger.Provides;
  */
 
 @Module
-public class NicknameModule {
-    public NicknamePresenter.View view;
-
-    public NicknameModule(NicknamePresenter.View view) {
-        this.view = view;
-    }
+public abstract class NicknameModule {
+    @Binds
+    public abstract NicknamePresenter.View provideView(NicknameActivity activity);
 
     @Provides
     @PerActivity
-    public NicknamePresenter.View provideView() {
-        return view;
-    }
-
-    @Provides
-    @PerActivity
-    public NicknamePresenter provideAddGroupPresenter(NicknamePresenterImpl presenter) {
+    public static NicknamePresenter provideAddGroupPresenter(NicknamePresenterImpl presenter) {
         return presenter;
     }
 }

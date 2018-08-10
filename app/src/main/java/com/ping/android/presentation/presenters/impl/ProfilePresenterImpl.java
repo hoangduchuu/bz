@@ -114,6 +114,7 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
     @Override
     public void destroy() {
+        view = null;
         logoutUseCase.dispose();
         observeCurrentUserUseCase.dispose();
         toggleUserNotificationSettingUseCase.dispose();

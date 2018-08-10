@@ -861,6 +861,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeCurrentUserUseCase.dispose();
         getConversationValueUseCase.dispose();
         observeLastMessageUseCase.dispose();

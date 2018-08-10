@@ -40,6 +40,7 @@ public class SelectContactPresenterImpl implements SelectContactPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeFriendsChildEventUseCase.dispose();
     }
 }

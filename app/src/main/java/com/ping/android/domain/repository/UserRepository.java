@@ -74,4 +74,8 @@ public interface UserRepository {
     Observable<List<CallEntity>> loadMoreCalls(String key, Double params);
 
     Observable<Boolean> addCallHistory(CallEntity entity);
+
+    Observable<User> loginByEmail(String email, String password);
+
+    Observable<User> checkValidUser(String userName);
 }

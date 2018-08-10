@@ -11,5 +11,5 @@ import dagger.Subcomponent;
 @PerActivity
 @Subcomponent(modules = {LoginModule.class})
 public interface LoginComponent {
-    void inject(LoginActivity activity);
+    //void inject(LoginActivity activity);
 }

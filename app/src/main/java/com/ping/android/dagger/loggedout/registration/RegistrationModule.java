@@ -14,18 +14,6 @@ import dagger.Provides;
  */
 @Module
 public class RegistrationModule {
-    private final RegistrationPresenter.View view;
-
-    public RegistrationModule(RegistrationPresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public RegistrationPresenter.View provideView() {
-        return view;
-    }
-
     @Provides
     @PerActivity
     public RegistrationPresenter provideLoginPresenter(RegistrationPresenterImpl presenter) {

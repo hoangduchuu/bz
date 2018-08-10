@@ -2,29 +2,34 @@ package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
 import com.ping.android.presentation.view.fragment.BaseFragment;
-import com.ping.android.presentation.view.fragment.MappingFragment;
-import com.ping.android.presentation.view.fragment.TransphabetFragment;
+import com.ping.android.presentation.view.fragment.TransphabetListFragment;
 import com.ping.android.utils.Navigator;
 
-public class TransphabetActivity extends CoreActivity implements HasComponent<TransphabetComponent> {
+import javax.inject.Inject;
 
-    private Navigator navigator;
-    TransphabetComponent component;
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+
+public class TransphabetActivity extends CoreActivity implements HasSupportFragmentInjector {
+    @Inject
+    Navigator navigator;
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transphabet);
-
-        navigator = new Navigator();
+        AndroidInjection.inject(this);
         navigator.setNavigationListener(() -> {
             BaseFragment fragment = navigator.getCurrentFragment();
 //            if (fragment instanceof MappingFragment) {
@@ -35,7 +40,7 @@ public class TransphabetActivity extends CoreActivity implements HasComponent<Tr
         });
         navigator.init(getSupportFragmentManager(), R.id.transphabet_container);
         if (savedInstanceState == null) {
-            navigator.openAsRoot(TransphabetFragment.newInstance());
+            navigator.openAsRoot(TransphabetListFragment.newInstance());
         }
     }
 
@@ -55,10 +60,7 @@ public class TransphabetActivity extends CoreActivity implements HasComponent<Tr
     }
 
     @Override
-    public TransphabetComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideTransphabetComponent();
-        }
-        return component;
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
     }
 }

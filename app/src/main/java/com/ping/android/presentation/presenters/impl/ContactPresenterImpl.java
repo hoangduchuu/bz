@@ -62,6 +62,7 @@ public class ContactPresenterImpl implements ContactPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeFriendsChildEventUseCase.dispose();
         createPVPConversationUseCase.dispose();
         observeCurrentUserUseCase.dispose();

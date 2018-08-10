@@ -88,7 +88,8 @@
             android:label="Log"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Dark"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:noHistory="true" />
         <activity
             android:name=".presentation.view.activity.RegistrationActivity"
             android:label="Registration"
