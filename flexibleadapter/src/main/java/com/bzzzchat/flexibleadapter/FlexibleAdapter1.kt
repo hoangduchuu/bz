@@ -1,7 +1,5 @@
 package com.bzzzchat.flexibleadapter
 
-import android.support.v4.util.SparseArrayCompat
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bzzzchat.flexibleadapter.baseitems.LoadingItem
 import java.util.*
@@ -12,9 +10,9 @@ import java.util.*
  * Created by tuanluong on 10/18/17.
  */
 
-class FlexibleAdapter1<V, in T> : RecyclerView.Adapter<V>() where V: RecyclerView.ViewHolder, T: FlexibleItem<V> {
+class FlexibleAdapter1<V, in T> : androidx.recyclerview.widget.RecyclerView.Adapter<V>() where V: androidx.recyclerview.widget.RecyclerView.ViewHolder, T: FlexibleItem<V> {
     private val items = ArrayList<T>()
-    private val viewTypes = SparseArrayCompat<T>()
+    private val viewTypes = androidx.collection.SparseArrayCompat<T>()
     private val loadingItem: LoadingItem by lazy {
         LoadingItem()
     }
@@ -23,12 +21,12 @@ class FlexibleAdapter1<V, in T> : RecyclerView.Adapter<V>() where V: RecyclerVie
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: V, position: Int) {
-        var isLastPosition = position == itemCount - 1
+        val isLastPosition = position == itemCount - 1
         items[position].onBindViewHolder(holder, isLastPosition)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): V {
-        return viewTypes.get(viewType).onCreateViewHolder(parent)
+        return viewTypes.get(viewType)!!.onCreateViewHolder(parent)
     }
 
     override fun getItemViewType(position: Int): Int {

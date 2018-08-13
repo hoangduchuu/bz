@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.adapter
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +18,7 @@ interface MediaClickListener {
     fun onSendPress(photoItem: PhotoItem)
 }
 
-class MediaAdapter(private var items: List<PhotoItem>, val clickListener: MediaClickListener) : RecyclerView.Adapter<MediaAdapter.ViewHolder>() {
+class MediaAdapter(private var items: List<PhotoItem>, val clickListener: MediaClickListener) : androidx.recyclerview.widget.RecyclerView.Adapter<MediaAdapter.ViewHolder>() {
     private var currentSelectedViewHolder: ViewHolder? = null
     private val boundViewHolders = HashSet<ViewHolder>()
 
@@ -54,7 +54,7 @@ class MediaAdapter(private var items: List<PhotoItem>, val clickListener: MediaC
         notifyDataSetChanged()
     }
 
-    class ViewHolder(parent: ViewGroup, clickListener: (ViewHolder) -> Unit, sendHandler: (PhotoItem) -> Unit) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, clickListener: (ViewHolder) -> Unit, sendHandler: (PhotoItem) -> Unit) : androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media_send, false)
     ) {
         private lateinit var item: PhotoItem

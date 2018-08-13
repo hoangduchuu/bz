@@ -1,8 +1,8 @@
 package com.ping.android.utils;
 
 import android.graphics.Rect;
-import android.support.annotation.IntDef;
-import android.support.annotation.StringRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.StringRes;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;

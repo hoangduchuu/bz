@@ -1,6 +1,5 @@
 package com.bzzzchat.flexibleadapter.baseitems
 
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
@@ -22,5 +21,5 @@ class LoadingItem: FlexibleItem<LoadingItem.ViewHolder> {
 
     }
 
-    class ViewHolder(view: View): RecyclerView.ViewHolder(view)
+    class ViewHolder(view: View): androidx.recyclerview.widget.RecyclerView.ViewHolder(view)
 }

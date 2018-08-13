@@ -19,7 +19,7 @@ package com.example.android.videoplayersample
 import android.content.Context
 import android.media.AudioManager
 import android.net.Uri
-import android.support.v4.media.AudioAttributesCompat
+import androidx.media.AudioAttributesCompat
 import com.bzzzchat.videorecorder.view.custom.MediaCatalog
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
@@ -54,9 +54,9 @@ class PlayerHolder(private val context: Context,
     // Create the player instance.
     init {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val audioAttributes = AudioAttributesCompat.Builder()
-                .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+        val audioAttributes = androidx.media.AudioAttributesCompat.Builder()
+                .setContentType(androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+                .setUsage(androidx.media.AudioAttributesCompat.USAGE_MEDIA)
                 .build()
         audioFocusPlayer = AudioFocusWrapper(
                 audioAttributes,

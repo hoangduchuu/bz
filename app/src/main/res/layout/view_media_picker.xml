@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:id="@+id/chat_layout_media"
-    tools:parentTag="android.support.constraint.ConstraintLayout">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_photos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,9 +1,9 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.graphics.Outline
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.Pair
-import android.support.v7.widget.RecyclerView
+import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
+import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
@@ -28,7 +28,7 @@ interface GroupImageAdapterListener {
     fun onDoubleClick(position: Int, isMask: Boolean)
 }
 
-class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?) : RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
+class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapterListener?) : androidx.recyclerview.widget.RecyclerView.Adapter<GroupImageAdapter.ViewHolder>() {
     lateinit var glide: RequestManager
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(parent, glide)
@@ -172,7 +172,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
     class ViewHolder(itemView: View) : MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
-        private val groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
+        private val groupImage: androidx.recyclerview.widget.RecyclerView = itemView.findViewById(R.id.group_images)
         private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(),this)
         private val gridLayoutManager = GridNonScrollableLayoutManager(itemView.context, 3)
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
@@ -185,7 +185,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
             groupImage.adapter = groupImageAdapter
         }
 
-        fun setRecycledViewPool(viewPool: RecyclerView.RecycledViewPool) {
+        fun setRecycledViewPool(viewPool: androidx.recyclerview.widget.RecyclerView.RecycledViewPool) {
             groupImage.recycledViewPool = viewPool
         }
 

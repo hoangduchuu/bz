@@ -1,8 +1,8 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -193,7 +193,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                     .messageImage(message.key, bitmapMark)
                     .listener(new RequestListener<Drawable>() {
                         @Override
-                        public boolean onLoadFailed(@android.support.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                             loadingView.setVisibility(View.GONE);
                             return false;
                         }

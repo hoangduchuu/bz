@@ -1,7 +1,7 @@
 package com.ping.android.presentation.view.adapter
 
-import android.support.v4.util.SparseArrayCompat
-import android.support.v7.widget.RecyclerView
+import androidx.collection.SparseArrayCompat
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 
 object AdapterConstants {
@@ -16,10 +16,10 @@ object AdapterConstants {
  * @author tuanluong
  */
 
-class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), SelectableListener {
+class FlexibleAdapterV2: androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>(), SelectableListener {
     private var items: ArrayList<ViewType>
 
-    private val delegateAdapters: SparseArrayCompat<ViewTypeDelegateAdapter> = SparseArrayCompat()
+    private val delegateAdapters: androidx.collection.SparseArrayCompat<ViewTypeDelegateAdapter> = androidx.collection.SparseArrayCompat()
 
     init {
         items = ArrayList()
@@ -35,13 +35,13 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), Select
         delegateAdapters.put(type, viewTypeDelegate)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         return delegateAdapters[viewType].createViewHolder(parent)
     }
 
     override fun getItemCount(): Int = items.size
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         delegateAdapters[getItemViewType(position)].bindViewHolder(holder, this.items[position])
     }
 
@@ -62,7 +62,7 @@ class FlexibleAdapterV2: RecyclerView.Adapter<RecyclerView.ViewHolder>(), Select
 
     fun updateItem(item: ViewType) {
         val index = items.indexOf(item)
-        if (index != RecyclerView.NO_POSITION) {
+        if (index != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
             this.items[index] = item
             notifyItemChanged(index)
         }

@@ -1,8 +1,8 @@
 package com.ping.android.presentation.view.adapter;
 
-import android.support.transition.TransitionManager;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
+import androidx.transition.TransitionManager;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;

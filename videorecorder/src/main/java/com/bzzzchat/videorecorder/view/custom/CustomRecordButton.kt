@@ -124,7 +124,7 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
         //Reading values from the XML layout
         try {
             strokeWidth = typedArray.getDimension(R.styleable.CustomRecordButton_progressBarThickness, strokeWidth)
-            progress = typedArray.getFloat(R.styleable.CustomRecordButton_progress, progress)
+            progress = typedArray.getFloat(R.styleable.CustomRecordButton_bzzzProgress, progress)
             fillColor = typedArray.getInt(R.styleable.CustomRecordButton_fillColor, fillColor)
             color = typedArray.getInt(R.styleable.CustomRecordButton_progressbarColor, color)
             min = typedArray.getInt(R.styleable.CustomRecordButton_min, min)

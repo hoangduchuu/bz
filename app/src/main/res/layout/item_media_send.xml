@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/main_background_gray">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -35,5 +35,5 @@
                 android:src="@drawable/ic_send_record" />
         </LinearLayout>
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.ping.android.presentation.view.custom.SquareLayout>

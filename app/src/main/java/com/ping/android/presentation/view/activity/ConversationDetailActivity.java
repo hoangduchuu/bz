@@ -1,7 +1,7 @@
 package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import com.ping.android.R;
 import com.ping.android.model.enums.Color;

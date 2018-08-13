@@ -1,6 +1,6 @@
 package com.ping.android.presentation.presenters
 
-import android.support.v4.util.Pair
+import androidx.core.util.Pair
 import android.view.View
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.cleanarchitecture.BaseView

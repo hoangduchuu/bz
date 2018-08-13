@@ -36,7 +36,7 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_recycle_view"
         style="@style/RecyclerView"
         android:layout_height="wrap_content"

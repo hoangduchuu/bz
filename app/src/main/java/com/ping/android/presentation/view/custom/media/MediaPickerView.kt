@@ -2,9 +2,9 @@ package com.ping.android.presentation.view.custom.media
 
 import android.app.Activity
 import android.content.Context
-import android.support.constraint.ConstraintLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.AttributeSet
 import android.widget.ImageView
 import com.bzzzchat.extensions.inflate
@@ -30,9 +30,9 @@ class MediaPickerView @JvmOverloads constructor(
 
     init {
         inflate(R.layout.view_media_picker, true)
-        val recyclerView: RecyclerView = findViewById(R.id.list_photos)
+        val recyclerView: androidx.recyclerview.widget.RecyclerView = findViewById(R.id.list_photos)
         recyclerView.adapter = myAdapter
-        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
         val button: ImageView = findViewById(R.id.btn_grid)
         button.setOnClickListener {
             listener?.openGridMediaPicker()

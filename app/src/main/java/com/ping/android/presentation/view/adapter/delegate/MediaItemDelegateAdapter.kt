@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.adapter.delegate
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
@@ -25,15 +25,15 @@ data class MediaItem(var photoItem: PhotoItem, var isSelected: Boolean = false) 
 }
 
 class MediaItemDelegateAdapter(clickListener: MediaClickListener): ViewTypeDelegateAdapter {
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, {
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent, {
 
     }, {})
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as MediaItem)
     }
 
-    class ViewHolder(parent: ViewGroup, clickListener: (PhotoItem) -> Unit, sendHandler: (PhotoItem) -> Unit) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, clickListener: (PhotoItem) -> Unit, sendHandler: (PhotoItem) -> Unit) : androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media_send, false)
     ) {
         private lateinit var item: MediaItem
@@ -89,13 +89,13 @@ class MediaItemDelegateAdapter(clickListener: MediaClickListener): ViewTypeDeleg
 }
 
 class MediaItemSelectableDelegateAdapter: ViewTypeDelegateAdapter {
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as PhotoItem)
     }
 
-    class ViewHolder(parent: ViewGroup): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media_selectable, false)
     ) {
         fun bindData(item: PhotoItem) {

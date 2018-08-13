@@ -13,7 +13,7 @@
         app:leftIconTint="?colorAccent"
         app:titleText="@string/conversation_detail_notifications">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_notification"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>
@@ -24,7 +24,7 @@
         app:leftIconTint="?colorAccent"
         app:titleText="@string/conversation_detail_mask_message">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_mask"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>
@@ -36,7 +36,7 @@
         app:showDivider="false"
         app:titleText="@string/conversation_detail_puzzule_image">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_puzzle"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>

@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.adapter.delegate
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
@@ -10,13 +10,13 @@ import kotlinx.android.synthetic.main.item_media.view.*
 
 class GalleryItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegateAdapter {
 
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
 
     }
 
-    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media)
     ) {
 
@@ -29,12 +29,12 @@ class GalleryItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelega
 
 class CameraItemDelegateAdapter(var clickListener: () -> Unit) : ViewTypeDelegateAdapter {
 
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
     }
 
-    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, clickListener: () -> Unit) : androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media)
     ) {
 

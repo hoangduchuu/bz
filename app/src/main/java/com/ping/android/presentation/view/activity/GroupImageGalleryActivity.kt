@@ -5,13 +5,13 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.support.transition.TransitionManager
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.app.Fragment
-import android.support.v4.app.SharedElementCallback
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.Pair
-import android.support.v4.view.ViewPager
+import androidx.transition.TransitionManager
+import androidx.core.app.ActivityOptionsCompat
+import androidx.fragment.app.Fragment
+import androidx.core.app.SharedElementCallback
+import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
+import androidx.viewpager.widget.ViewPager
 import android.view.View
 import android.view.WindowManager
 import com.bzzzchat.extensions.toggleVisibility
@@ -79,7 +79,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                     }
         }
 
-        val listener = object : ViewPager.OnPageChangeListener {
+        val listener = object : androidx.viewpager.widget.ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
                 currentPosition = position
                 val message = messages[position]
@@ -187,7 +187,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                 // instantiateItem with the selection position.
                 // At this stage, the method will simply return the fragment at the
                 // position and will not create a new one.
-                val currentFragment = viewpager.adapter?.instantiateItem(viewpager, currentPosition) as? Fragment
+                val currentFragment = viewpager.adapter?.instantiateItem(viewpager, currentPosition) as? androidx.fragment.app.Fragment
                 if (currentFragment?.view != null && names != null && sharedElements != null) {
                     sharedElements[names[0]] = currentFragment.view!!.findViewById(R.id.image_detail)
                 }

@@ -1,9 +1,9 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
-import android.support.annotation.CallSuper;
-import android.support.transition.TransitionManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
+import androidx.annotation.CallSuper;
+import androidx.transition.TransitionManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;

@@ -3,8 +3,8 @@ package com.ping.android.presentation.view.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.bzzzchat.videorecorder.view.ImagesProvider
@@ -24,7 +24,7 @@ class GridMediaPickerActivity : AppCompatActivity() {
     private var maxItemCount = 5
 
     private val listMedia by lazy {
-        list_media.layoutManager = GridLayoutManager(this, 3)
+        list_media.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 3)
         list_media.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
         list_media
     }

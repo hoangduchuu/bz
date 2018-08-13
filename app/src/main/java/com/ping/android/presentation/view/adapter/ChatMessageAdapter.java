@@ -1,10 +1,10 @@
 package com.ping.android.presentation.view.adapter;
 
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
-import android.support.v4.util.Pair;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 

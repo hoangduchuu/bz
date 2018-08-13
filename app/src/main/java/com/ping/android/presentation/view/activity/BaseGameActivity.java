@@ -4,8 +4,8 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.CallSuper;
-import android.support.annotation.IntDef;
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
 import android.widget.ImageView;
 
 import com.ping.android.R;

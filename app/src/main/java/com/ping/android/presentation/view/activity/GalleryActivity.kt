@@ -1,10 +1,10 @@
 package com.ping.android.presentation.view.activity
 
 import android.os.Bundle
-import android.support.v4.app.SharedElementCallback
-import android.support.v4.util.Pair
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.core.app.SharedElementCallback
+import androidx.core.util.Pair
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.configuration.GlideApp
@@ -55,13 +55,13 @@ class GalleryActivity : CoreActivity(), GalleryPresenter.View, FirebaseMessageDe
         val glide = GlideApp.with(this)
         adapter = FlexibleAdapterV2()
         adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(glide, this))
-        gallery_list.layoutManager = GridLayoutManager(this, 3)
+        gallery_list.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 3)
         gallery_list.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
-        val listener = object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+        val listener = object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView?, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItem = gallery_list.layoutManager.itemCount
-                val lastVisibleItem = (gallery_list.layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                val lastVisibleItem = (gallery_list.layoutManager as androidx.recyclerview.widget.GridLayoutManager).findLastVisibleItemPosition()
                 if (totalItem <= lastVisibleItem + 5) {
                     presenter.loadMedia(true)
                 }

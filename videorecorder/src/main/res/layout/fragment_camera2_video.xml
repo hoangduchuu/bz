@@ -35,7 +35,7 @@
         android:layout_marginBottom="24dp"
         android:elevation="10dp"
         app:fillColor="#60ffffff"
-        app:progress="0"
+        app:bzzzProgress="0"
         app:progressBarThickness="4dp"
         app:progressbarColor="@color/colorAccent" />
 

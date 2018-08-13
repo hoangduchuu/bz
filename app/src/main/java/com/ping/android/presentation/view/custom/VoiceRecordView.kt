@@ -6,7 +6,7 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -130,7 +130,7 @@ class VoiceRecordView : LinearLayout {
         voiceTypes.add(VoiceTypeItem(VoiceType.MALE, false))
         voiceTypes.add(VoiceTypeItem(VoiceType.FEMALE, false))
         voiceTypeAdapter.addItems(voiceTypes)
-        listVoiceType.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        listVoiceType.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
         listVoiceType.adapter = voiceTypeAdapter
     }
 

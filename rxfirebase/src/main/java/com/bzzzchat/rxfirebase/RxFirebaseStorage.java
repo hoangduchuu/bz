@@ -1,7 +1,7 @@
 package com.bzzzchat.rxfirebase;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.bzzzchat.rxfirebase.storage.UploadTaskSingleOnSubscribe;
 import com.google.android.gms.tasks.OnFailureListener;

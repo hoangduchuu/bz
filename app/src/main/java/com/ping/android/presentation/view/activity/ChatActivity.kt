@@ -7,17 +7,17 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
-import android.support.design.widget.BottomSheetDialog
-import android.support.transition.Slide
-import android.support.transition.TransitionManager
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.app.SharedElementCallback
-import android.support.v4.content.ContextCompat
-import android.support.v4.util.Pair
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SimpleItemAnimator
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.app.SharedElementCallback
+import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -72,8 +72,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     //Views UI
     private var backgroundImage: ImageView? = null
-    private var recycleChatView: RecyclerView? = null
-    private var mLinearLayoutManager: LinearLayoutManager? = null
+    private var recycleChatView: androidx.recyclerview.widget.RecyclerView? = null
+    private var mLinearLayoutManager: androidx.recyclerview.widget.LinearLayoutManager? = null
     private var topLayoutContainer: ViewGroup? = null
     private var topLayoutChat: ViewGroup? = null
     private var topLayoutEditMode: ViewGroup? = null
@@ -81,7 +81,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var bottomLayoutChat: ViewGroup? = null
     private var bottomMenuEditMode: ViewGroup? = null
     private var layoutVoice: VoiceRecordView? = null
-    private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout? = null
     private var tvChatStatus: TextView? = null
     private var btVoiceCall: ImageButton? = null
     private var btVideoCall: ImageButton? = null
@@ -414,9 +414,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         presenter.updateMaskChildMessages(childsToUpdate, maskStatus)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
-            val imagePath = data.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY)
+            val imagePath = data!!.getStringExtra(VideoRecorderActivity.IMAGE_EXTRA_KEY)
             val videoPath = data.getStringExtra(VideoRecorderActivity.VIDEO_EXTRA_KEY)
             if (!TextUtils.isEmpty(imagePath)) {
                 presenter.sendImageMessage(imagePath, imagePath, tgMarkOut.isSelected)
@@ -425,7 +425,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             }
         }
         if (requestCode == REQUEST_CODE_MEDIA_PICKER && resultCode == RESULT_OK) {
-            val items = data.getParcelableArrayListExtra<PhotoItem>("data")
+            val items = data!!.getParcelableArrayListExtra<PhotoItem>("data")
             val size = items.size
             if (size > 0) {
                 if (selectedGame == GameType.UNKNOWN) {
@@ -558,8 +558,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         btnSend!!.isSelected = false
         initTextWatcher()
 
-        mLinearLayoutManager = object : LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false) {
-            override fun onLayoutCompleted(state: RecyclerView.State?) {
+        mLinearLayoutManager = object : androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.VERTICAL, false) {
+            override fun onLayoutCompleted(state: androidx.recyclerview.widget.RecyclerView.State?) {
                 super.onLayoutCompleted(state)
                 if (state != null) {
                     if (state.itemCount <= 0) {
@@ -581,9 +581,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         mLinearLayoutManager?.stackFromEnd = true
         recycleChatView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-
                 val lastVisibleItem = mLinearLayoutManager!!.findLastCompletelyVisibleItemPosition()
                 isScrollToTop = lastVisibleItem == mLinearLayoutManager!!.itemCount - 1
             }

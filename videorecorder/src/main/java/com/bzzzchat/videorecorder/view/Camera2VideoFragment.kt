@@ -17,8 +17,8 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat.checkSelfPermission
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray

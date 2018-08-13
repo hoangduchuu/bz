@@ -1,7 +1,7 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.app.Activity
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup

@@ -3,7 +3,7 @@ package com.ping.android.presentation.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +30,7 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     lateinit var presenter: BackgroundPresenter
 
     private val galleryList by lazy {
-        gallery_list.layoutManager = GridLayoutManager(context, 3)
+        gallery_list.layoutManager = androidx.recyclerview.widget.GridLayoutManager(context, 3)
         gallery_list
     }
 

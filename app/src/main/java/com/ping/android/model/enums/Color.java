@@ -1,7 +1,7 @@
 package com.ping.android.model.enums;
 
-import android.support.annotation.ColorRes;
-import android.support.annotation.StyleRes;
+import androidx.annotation.ColorRes;
+import androidx.annotation.StyleRes;
 
 import com.ping.android.R;
 

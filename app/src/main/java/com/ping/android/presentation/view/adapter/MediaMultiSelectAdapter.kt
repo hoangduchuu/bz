@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.adapter
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
@@ -16,7 +16,7 @@ interface MediaMultiSelectListener {
     fun onItemsExceeded()
 }
 
-class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: MediaMultiSelectListener): RecyclerView.Adapter<MediaMultiSelectAdapter.ViewHolder>() {
+class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: MediaMultiSelectListener): androidx.recyclerview.widget.RecyclerView.Adapter<MediaMultiSelectAdapter.ViewHolder>() {
     private val selectedItems: MutableList<PhotoItem> = ArrayList()
     private var maxItemCount = 5
 
@@ -54,7 +54,7 @@ class MediaMultiSelectAdapter(var data: List<PhotoItem>, val listener: MediaMult
 
     fun getSelectedItems(): List<PhotoItem> = selectedItems
 
-    class ViewHolder(parent: ViewGroup): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_media_selectable)
     ) {
         private val image: ImageView = itemView.findViewById(R.id.image)

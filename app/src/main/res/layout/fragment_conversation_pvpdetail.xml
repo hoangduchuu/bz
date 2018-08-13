@@ -104,7 +104,7 @@
                 app:leftIconTint="?colorAccent"
                 app:titleText="@string/conversation_detail_block">
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/user_profile_block"
                     style="@style/ItemSettingIconRight.Toggle" />
 

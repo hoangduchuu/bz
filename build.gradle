@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.2.51'
+    ext.kotlin_version = '1.2.60'
     repositories {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
@@ -28,14 +28,18 @@ allprojects {
         }
         maven { url 'https://maven.fabric.io/public' }
         maven { url "https://jitpack.io" }
+        maven {
+            name 'glide-snapshot'
+            url 'http://oss.sonatype.org/content/repositories/snapshots'
+        }
     }
 }
 
 ext {
-    compileSdkVersion = 27
+    compileSdkVersion = 28
     buildToolsVersion = "27.0.3"
     minSdkVersion = 21
-    targetSdkVersion = 27
+    targetSdkVersion = 28
 
     supportLibVersion = '27.1.1'
     qbSdkVersion = '3.8.1'
@@ -43,7 +47,7 @@ ext {
     okhttpLibraryVersion = '3.9.1'
 
     libraries = [
-            dagger              : "2.17",
+            dagger              : "2.16",
             rx_android          : "2.0.2",
             rx_java             : "2.1.12",
             arrow               : "1.0.0",
@@ -54,7 +58,7 @@ ext {
             firebase_storage    : "16.0.1",
             firebase_messaging  : "17.0.0",
             firebase_config     : "16.0.0",
-            glide               : "4.7.1",
+            glide               : "4.8.0-SNAPSHOT",
     ]
 }
 

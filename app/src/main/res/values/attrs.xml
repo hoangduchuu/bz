@@ -12,7 +12,7 @@
         <attr name="stepSize" format="integer" />
     </declare-styleable>
 
-    <declare-styleable name="CustomSwitch">
+    <declare-styleable name="MyCustomSwitch">
         <attr name="leftSwitchText" format="string|reference" />
         <attr name="rightSwitchText" format="string|reference" />
     </declare-styleable>

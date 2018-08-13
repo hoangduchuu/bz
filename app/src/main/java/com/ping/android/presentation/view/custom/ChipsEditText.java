@@ -27,7 +27,7 @@ import io.reactivex.subjects.PublishSubject;
  * Created by tuanluong on 12/7/17.
  */
 
-public class ChipsEditText extends android.support.v7.widget.AppCompatEditText {
+public class ChipsEditText extends androidx.appcompat.widget.AppCompatEditText {
     private static final int DELAY = 500;
 
     private Timer timer;

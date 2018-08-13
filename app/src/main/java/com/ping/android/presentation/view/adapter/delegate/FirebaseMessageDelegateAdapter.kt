@@ -2,8 +2,8 @@ package com.ping.android.presentation.view.adapter.delegate
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.support.v4.util.Pair
-import android.support.v7.widget.RecyclerView
+import androidx.core.util.Pair
+import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
@@ -28,13 +28,13 @@ import com.ping.android.utils.BitmapEncode
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class FirebaseMessageDelegateAdapter(val glide: RequestManager, val listener: FirebaseMessageListener) : ViewTypeDelegateAdapter {
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, glide, listener)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent, glide, listener)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as ImageMessage)
     }
 
-    class ViewHolder(parent: ViewGroup, val glide: RequestManager, var listener: FirebaseMessageListener) : RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup, val glide: RequestManager, var listener: FirebaseMessageListener) : androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_gallery_image)
     ) {
         private lateinit var item: ImageMessage
