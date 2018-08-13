@@ -66,6 +66,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     private ToggleButton cameraToggle;
     private ImageView firstOpponentAvatarImageView;
     private LinearLayout controlsLayout;
+    private DragFrameLayout dragLayout;
 
     private QBRTCSurfaceView remoteFullScreenVideoView;
     private QBRTCSurfaceView localVideoView;
@@ -171,7 +172,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         localVideoView = view.findViewById(R.id.local_video_view);
         localVideoView.setZOrderMediaOverlay(true);
 
-        DragFrameLayout dragLayout = view.findViewById(R.id.drag_layout);
+        dragLayout = view.findViewById(R.id.drag_layout);
         dragLayout.setDragFrameController(captured -> {
         });
         dragLayout.addDragView(localVideoView);
@@ -261,6 +262,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         super.onDestroyView();
         Log.d(TAG, "onDestroyView");
         presenter.destroy();
+        dragLayout.releaseResources();
         removeVideoTrackRenderers();
         releaseViews();
     }

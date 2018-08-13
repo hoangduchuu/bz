@@ -15,6 +15,7 @@ import com.ping.android.R;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
@@ -345,8 +346,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                 setInfoColor(Constant.CALL_STATUS_MISS);
             }
 
-            String time = CommonMethod.convertTimestampToTime(call.timestamp);
-            tvInfo.setText(info + time);
+            String time = info + DateUtils.convertTimestampToTime(call.timestamp);
+            tvInfo.setText(time);
             tvName.setText(call.opponentName);
             setEditMode(isEditMode);
             setSelect(selectCalls.contains(call));

@@ -7,6 +7,7 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.bzzzchat.cleanarchitecture.BasePresenter
+import com.bzzzchat.configuration.GlideApp
 import com.ping.android.R
 import com.ping.android.model.Conversation
 import com.ping.android.model.ImageMessage
@@ -51,8 +52,9 @@ class GalleryActivity : CoreActivity(), GalleryPresenter.View, FirebaseMessageDe
                 })
 
         btn_back.setOnClickListener { onBackPressed() }
+        val glide = GlideApp.with(this)
         adapter = FlexibleAdapterV2()
-        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(this))
+        adapter.registerItemType(AdapterConstants.IMAGE, FirebaseMessageDelegateAdapter(glide, this))
         gallery_list.layoutManager = GridLayoutManager(this, 3)
         gallery_list.addItemDecoration(GridItemDecoration(3, R.dimen.grid_item_padding))
         val listener = object : RecyclerView.OnScrollListener() {

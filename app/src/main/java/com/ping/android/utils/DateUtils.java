@@ -1,5 +1,7 @@
 package com.ping.android.utils;
 
+import android.text.format.DateFormat;
+
 import com.ping.android.utils.configs.Constant;
 
 import java.text.SimpleDateFormat;
@@ -21,13 +23,46 @@ public class DateUtils {
         return toString(format, new Date(finalTimestamp));
     }
 
+    public static String convertTimestampToDate(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
+        long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
+        long days = (long)(milliSeconds / Constant.MILLISECOND_PER_DAY);
+        if (currentDays == days) {
+            return toString("h:mm a", seconds);
+        } else if (currentDays - days == 1) {
+            return "Yesterday";
+        } else if (currentDays - days <= 7) {
+            return toString("EEE", seconds);
+        } else {
+            return toString("MM/dd/yyyy", seconds);
+        }
+    }
+
+    public static String convertTimestampToTime(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
+        long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
+        long days = (long)(milliSeconds / Constant.MILLISECOND_PER_DAY);
+        if (currentDays == days) {
+            return toString("h:mm a", seconds);
+        } else if (currentDays - days == 1) {
+            return toString("Yesterday h:mm a", seconds);
+        } else if (currentDays - days <= 7) {
+            return toString("EEE h:mm a", seconds);
+        } else {
+            return toString("MM/dd/yyyy h:mm a", seconds);
+        }
+
+    }
+
     public static String toHeaderString(Date date) {
-        if (isSameDay(date.getTime(), new Date().getTime())) {
+        long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
+        long days = (long)(date.getTime() / Constant.MILLISECOND_PER_DAY);
+        if (currentDays == days) {
             return "Today, " + toString("h:mm a", date);
-        } else if (isYesterday(date)) {
+        } else if (currentDays - days == 1) {
             return "Yesterday, " + toString("h:mm a", date);
         } else {
-            if (withinOneWeek(date)) {
+            if (currentDays - days <= 7) {
                 return toString("EEEE, h:mm a", date);
             } else {
                 return toString("MMMM d, yyyy", date);

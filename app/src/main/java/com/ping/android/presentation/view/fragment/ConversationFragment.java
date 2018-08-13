@@ -285,11 +285,9 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
         //intent.putExtras(bundle);
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeBasic();
-//                getActivity()
-//                //sharedElements
-//        );
-        startActivity(intent, options.toBundle());
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(getActivity(),
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
     }
 
     @Override

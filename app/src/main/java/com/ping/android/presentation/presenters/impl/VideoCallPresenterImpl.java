@@ -54,6 +54,7 @@ public class VideoCallPresenterImpl implements VideoCallPresenter, CallActivity.
         presenter.removeCallStateCallback(this);
         if (currentSession != null) {
             currentSession.removeVideoTrackCallbacksListener(this);
+            currentSession = null;
         }
     }
 

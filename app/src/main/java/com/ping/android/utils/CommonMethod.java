@@ -316,18 +316,7 @@ public class CommonMethod {
     }
 
     public static String getDisplayTime(double timestamps) {
-        Date date = new Date((long) timestamps * 1000);
-        if (com.ping.android.utils.DateUtils.isSameDay(date.getTime(), new Date().getTime())) {
-            return com.ping.android.utils.DateUtils.toString("h:mm a", date);
-        } else if (com.ping.android.utils.DateUtils.isYesterday(date)) {
-            return "Yesterday";
-        } else {
-            if (com.ping.android.utils.DateUtils.withinOneWeek(date)) {
-                return com.ping.android.utils.DateUtils.toString("EEEE", date);
-            } else {
-                return com.ping.android.utils.DateUtils.toString("MMMM d, yyyy", date);
-            }
-        }
+        return com.ping.android.utils.DateUtils.convertTimestampToDate(timestamps);
     }
 
     public static String convertTimestampToTime(double seconds) {

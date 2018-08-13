@@ -44,7 +44,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     protected void onStart() {
         super.onStart();
         NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
-        updateNetworkStatus(networkStatus);
+        if (networkStatus != this.networkStatus) {
+            updateNetworkStatus(networkStatus);
+        }
     }
 
     @Override
@@ -54,6 +56,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
             getPresenter().resume();
         }
         networkConnectionChecker.registerListener(this);
+
     }
 
     @Override
@@ -106,6 +109,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     private void updateNetworkStatus(NetworkStatus networkStatus) {
         this.networkStatus = networkStatus;
+        if (networkStatus == NetworkStatus.CONNECTED) {
+            connectivityChanged(true);
+        }
         LinearLayout notifyNetworkLayout = findViewById(R.id.notify_network_layout);
         TextView notifyNetworkText = findViewById(R.id.notify_network_text);
 

@@ -24,7 +24,7 @@ class MessageMapper @Inject constructor() {
             Constant.MSG_TYPE_VIDEO -> entity.videoUrl
             else -> entity.photoUrl
         }
-        message.thumbUrl = entity.thumbUrl
+        message.thumbUrl = entity.thumbUrl ?: ""
         message.type = MessageType.from(entity.messageType)
         message.timestamp = entity.timestamp
         message.senderId = entity.senderId

@@ -11,7 +11,6 @@ import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
 import com.ping.android.utils.ActivityLifecycle;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.squareup.leakcanary.LeakCanary;
 
 import javax.inject.Inject;
 
@@ -32,12 +31,12 @@ public class App extends CoreApp implements HasActivityInjector {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-        LeakCanary.install(this);
+//        if (LeakCanary.isInAnalyzerProcess(this)) {
+//            // This process is dedicated to LeakCanary for heap analysis.
+//            // You should not init your app in this process.
+//            return;
+//        }
+//        LeakCanary.install(this);
         getComponent().inject(this);
         ActivityLifecycle.init(this);
         FirebaseApp.initializeApp(getApplicationContext());

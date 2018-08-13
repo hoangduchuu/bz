@@ -254,6 +254,11 @@ public class DragFrameLayout extends FrameLayout {
         mDragViews.add(dragView);
     }
 
+    public void releaseResources() {
+        mDragViews.clear();
+        mDragFrameLayoutController = null;
+    }
+
     /**
      * Sets the {@link DragFrameLayoutController} that will receive the drag events.
      *

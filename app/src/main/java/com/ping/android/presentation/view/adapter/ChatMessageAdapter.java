@@ -381,7 +381,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
                 headerIndex = this.items.indexOf(higherHeaderItem);
             }
             if (headerIndex < 0) {
-                headerIndex = 0;
+                headerIndex = this.items.size();
             }
             this.items.add(headerIndex, headerItem);
             notifyItemInserted(headerIndex);

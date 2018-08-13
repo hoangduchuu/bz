@@ -193,7 +193,7 @@ public class UiUtils {
                 .error(R.drawable.ic_avatar_gray)
                 .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
     }
 

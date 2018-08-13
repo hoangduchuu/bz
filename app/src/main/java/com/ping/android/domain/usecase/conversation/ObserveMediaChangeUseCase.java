@@ -43,6 +43,7 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.observeMediaUpdate(conversation.key)
                         .flatMap(childData -> {
+                            if (childData.getData() == null) return Observable.empty();
                             Message message = messageMapper.transform(childData.getData(), user);
                             boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, user.key);
                             if (isDeleted || TextUtils.isEmpty(message.senderId)) {

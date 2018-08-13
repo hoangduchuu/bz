@@ -34,8 +34,9 @@ interface GalleryPresenter : BasePresenter {
 data class MediaItemsEvent(var messages: List<Message>)
 
 class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
+    @JvmField
     @Inject
-    lateinit var view: GalleryPresenter.View
+    var view: GalleryPresenter.View? = null
     @Inject
     lateinit var loadConversationMediaUseCase: LoadConversationMediaUseCase
     @Inject
@@ -57,16 +58,20 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
                         val index = messages.indexOf(message)
                         if (index >= 0) {
                             messages[index] = message
-                            view.updateMessage(message, index)
+                            view?.updateMessage(message, index)
                         }
                     }
                 } else {
                     val index = messages.indexOf(t)
                     if (index >= 0) {
                         messages[index] = t
-                        view.updateMessage(t, index)
+                        view?.updateMessage(t, index)
                     }
                 }
+            }
+
+            override fun onError(exception: Throwable) {
+                exception.printStackTrace()
             }
         }
         observeMediaChangeUseCase.execute(observer, conversation)
@@ -77,7 +82,7 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
             return
         }
         if (!isLoadMore) {
-            view.showLoading()
+            view?.showLoading()
         }
         isLoading.set(true)
         val observer = object : DefaultObserver<LoadConversationMediaUseCase.Output>() {
@@ -95,15 +100,15 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
                     result.sortByDescending { it.timestamp }
                     lastTimestamp = result.last().timestamp - 0.001
                     messages.addAll(result)
-                    view.updateMessages(result)
+                    view?.updateMessages(result)
                 }
                 isLoading.set(false)
-                view.hideLoading()
-                //view.showGridGallery()
+                view?.hideLoading()
+                //view?.showGridGallery()
             }
 
             override fun onError(exception: Throwable) {
-                view.hideLoading()
+                view?.hideLoading()
                 isLoading.set(false)
             }
         }
@@ -116,10 +121,11 @@ class GalleryPresenterImpl @Inject constructor() : GalleryPresenter {
     }
 
     override fun handleImagePress(position: Int, pair: Pair<View, String>) {
-        view.openImageDetail(conversation.key, messages, position, pair)
+        view?.openImageDetail(conversation.key, messages, position, pair)
     }
 
     override fun destroy() {
+        view = null
         observeMediaChangeUseCase.dispose()
     }
 }

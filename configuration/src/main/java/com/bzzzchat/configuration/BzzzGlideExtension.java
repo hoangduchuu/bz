@@ -14,10 +14,19 @@ public class BzzzGlideExtension {
     @GlideOption
     public static void messageImage(RequestOptions options, String messageKey, boolean isMask) {
         options
-                .override(500)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .override(512)
                 .transform(new BitmapEncode(isMask))
                 .signature(new ObjectKey(String.format("%s%s", messageKey, isMask ? "encoded" : "decoded")));
+    }
+
+    @GlideOption
+    public static void profileImage(RequestOptions options) {
+        options
+                .override(128)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.ic_avatar_gray)
+                .error(R.drawable.ic_avatar_gray)
+                .apply(RequestOptions.circleCropTransform());
     }
 }

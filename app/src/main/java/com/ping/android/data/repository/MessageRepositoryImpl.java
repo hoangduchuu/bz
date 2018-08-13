@@ -159,7 +159,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         return RxFirebaseDatabase.getInstance(reference)
                 .onChildEvent()
                 .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_ADDED) {
+                    if (childEvent.dataSnapshot.exists()) {
                         MessageEntity message = messageMapper.transform(childEvent.dataSnapshot);
                         return new ChildData<>(message, childEvent.type);
                     } else {

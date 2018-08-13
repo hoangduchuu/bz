@@ -42,6 +42,7 @@ public class AudioCallPresenterImpl implements AudioCallPresenter, CallActivity.
     @Override
     public void destroy() {
         view = null;
+        currentSession = null;
         presenter.removeCallStateCallback(this);
     }
 

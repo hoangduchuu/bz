@@ -26,7 +26,6 @@ public class NetworkConnectionChecker {
 
     public void registerListener(OnConnectivityChangedListener listener) {
         listeners.add(listener);
-        listener.connectivityChanged(isConnectedNow());
     }
 
     public void unregisterListener(OnConnectivityChangedListener listener) {

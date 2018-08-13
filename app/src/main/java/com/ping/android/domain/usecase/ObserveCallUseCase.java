@@ -57,7 +57,7 @@ public class ObserveCallUseCase extends UseCase<ChildData<Call>, Void> {
                                 if (childData.getType() == ChildData.Type.CHILD_ADDED && type == ChildData.Type.CHILD_ADDED) {
                                     String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
                                     return userManager.getUser(opponentUserId)
-                                            .zipWith(conversationRepository.getConversationNickName(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
+                                            .zipWith(getNickname(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
                                                 call.opponentUser = user;
                                                 call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
                                                 return new ChildData<>(call, childData.getType());

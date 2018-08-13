@@ -4,6 +4,8 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.ObserveGroupsUseCase;
 import com.ping.android.domain.usecase.conversation.CreateGroupConversationUseCase;
+import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 
@@ -20,6 +22,8 @@ public class GroupPresenterImpl implements GroupPresenter {
     ObserveGroupsUseCase observeGroupsUseCase;
     @Inject
     CreateGroupConversationUseCase createGroupConversationUseCase;
+    @Inject
+    GetConversationValueUseCase getConversationValueUseCase;
     @Inject
     GroupPresenter.View view;
 
@@ -51,15 +55,33 @@ public class GroupPresenterImpl implements GroupPresenter {
     }
 
     @Override
-    public void createConversation(Group group) {
-        view.showLoading();
-        createGroupConversationUseCase.execute(new DefaultObserver<String>() {
-            @Override
-            public void onNext(String s) {
-                view.hideLoading();
-                view.moveToChatScreen(s);
-            }
-        }, group);
+    public void handleGroupPress(Group group) {
+        if (group.conversationID != null && group.conversationID.length() > 0) {
+            getConversationValueUseCase.execute(new DefaultObserver<Conversation>() {
+                @Override
+                public void onNext(Conversation conversation) {
+                    view.moveToChatScreen(conversation);
+                }
+
+                @Override
+                public void onError(@NotNull Throwable exception) {
+                }
+            }, group.conversationID);
+        } else {
+            view.showLoading();
+            createGroupConversationUseCase.execute(new DefaultObserver<Conversation>() {
+                @Override
+                public void onNext(Conversation s) {
+                    view.hideLoading();
+                    view.moveToChatScreen(s);
+                }
+
+                @Override
+                public void onError(@NotNull Throwable exception) {
+                    view.hideLoading();
+                }
+            }, group);
+        }
     }
 
     @Override
