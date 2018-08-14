@@ -180,8 +180,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private void invalidateTabs(int selected) {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setCustomView(null);
-            tabLayout.getTabAt(i).setCustomView(getTabIcon(i, i == selected));
+            tabLayout.getTabAt(i).getCustomView().findViewById(R.id.tab_item_icon).setSelected(i == selected);
         }
         int messageCount1 = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
         updateMessageCount(messageCount1);
@@ -223,40 +222,30 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private View getTabIcon(int position, boolean selected) {
         int iconID = 0;
-        int colorID = selected ? R.color.orange : R.color.black_transparent_50;
-        String title = "Messages";
         View v;
         switch (position) {
             case 0:
-                iconID = selected ? R.drawable.ic_home_message_selected : R.drawable.ic_home_message;
-                title = "Messages";
+                iconID = R.drawable.ic_home_message_selector;
                 break;
             case 1:
-                iconID = selected ? R.drawable.ic_home_call_selected : R.drawable.ic_home_call;
-                title = "Calls";
+                iconID = R.drawable.ic_home_call_selector;
                 break;
             case 2:
-                iconID = selected ? R.drawable.ic_home_group_selected : R.drawable.ic_home_group;
-                title = "Groups";
+                iconID = R.drawable.ic_home_group_selector;
                 break;
             case 3:
-                iconID = selected ? R.drawable.ic_home_friend_selected : R.drawable.ic_home_friend;
-                title = "Contacts";
+                iconID = R.drawable.ic_home_friend_selector;
                 break;
             case 4:
-                iconID = selected ? R.drawable.ic_home_profile_selected : R.drawable.ic_home_profile;
-                title = "Profile";
+                iconID = R.drawable.ic_home_profile_selector;
                 break;
         }
 
         ImageView iconView;
-        TextView titleView;
         v = LayoutInflater.from(this).inflate(R.layout.tab_layout_message, null);
         iconView = v.findViewById(R.id.tab_item_icon);
         iconView.setImageResource(iconID);
-        titleView = v.findViewById(R.id.tab_item_title);
-        titleView.setText(title);
-        titleView.setTextColor(getResources().getColor(colorID));
+        iconView.setSelected(selected);
 
         return v;
     }
