@@ -74,7 +74,7 @@ public class AddGroupActivity extends CoreActivity implements View.OnClickListen
     }
 
     private void bindViews() {
-        edtTo = findViewById(R.id.edt_to);
+        edtTo = findViewById(R.id.edtTo);
         etGroupName = findViewById(R.id.new_group_name);
         btBack = findViewById(R.id.new_group_back);
         btBack.setOnClickListener(this);

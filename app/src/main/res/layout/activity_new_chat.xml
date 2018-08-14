@@ -23,7 +23,7 @@
                 style="@style/BackButton" />
 
             <TextView
-                android:id="@+id/new_chat_to"
+                android:id="@+id/tvTitle"
                 style="@style/TextTitle"
                 android:text="NEW CHAT" />
 
@@ -36,28 +36,55 @@
                 android:text="DONE" />
         </RelativeLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/new_chat_address_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:background="@color/main_background_gray"
-            android:orientation="horizontal">
+            android:background="@color/main_background_gray">
 
             <TextView
+                android:id="@+id/txt_to"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/default_padding"
-                android:text="To:   "
-                android:textSize="@dimen/text_size_medium" />
+                android:layout_marginStart="@dimen/default_padding"
+                android:text="To:"
+                android:paddingEnd="10dp"
+                android:layout_marginTop="20dp"
+                android:textSize="@dimen/text_size_medium"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/receipientsContainer"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent" />
 
-            <com.ping.android.presentation.view.custom.ChipsEditText
-                android:id="@+id/edt_to"
+            <com.ping.android.presentation.view.custom.MaxHeightScrollView
+                android:id="@+id/receipientsContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                app:maxScrollViewHeight="100dp"
+                android:paddingTop="10dp"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/txt_to"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/new_chat_select_contact">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                </com.google.android.material.chip.ChipGroup>
+            </com.ping.android.presentation.view.custom.MaxHeightScrollView>
+
+            <EditText
+                android:id="@+id/edtTo"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
                 android:background="@null"
-                android:hint="@string/hint_username"/>
+                android:hint="@string/hint_username"
+                android:textColorHint="@color/text_input_hint"
+                app:layout_constraintEnd_toStartOf="@+id/new_chat_select_contact"
+                app:layout_constraintStart_toEndOf="@+id/txt_to"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/receipientsContainer"/>
 
             <ImageView
                 android:id="@+id/new_chat_select_contact"
@@ -66,9 +93,12 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="center"
-                android:src="@drawable/ic_add_circle" />
+                android:src="@drawable/ic_add_circle"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/edtTo" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -76,7 +106,7 @@
             android:layout_weight="1">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/chat_list_view"
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="none" />
@@ -121,17 +151,21 @@
             android:padding="7dp">
 
             <EditText
-                android:id="@+id/chat_message_tv"
+                android:id="@+id/edMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
                 android:hint="New Message"
+                android:textColorHint="@color/text_input_hint"
                 android:inputType="textNoSuggestions" />
 
-            <Button
-                android:id="@+id/chat_send_message_btn"
+            <TextView
+                android:id="@+id/btnSend"
                 style="@style/ActionButton"
+                android:background="@null"
+                android:textAllCaps="true"
+                android:padding="10dp"
                 android:text="Send" />
         </LinearLayout>
     </LinearLayout>

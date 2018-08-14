@@ -10,6 +10,8 @@
     <color name="text_input_login">#666666</color>
     <color name="text_input_login_hint">#666666</color>
 
+    <color name="text_input_hint">#666666</color>
+
     <color name="random_color_1">#ff9500</color>
     <color name="random_color_2">#007aff</color>
     <color name="random_color_3">#ff0091</color>

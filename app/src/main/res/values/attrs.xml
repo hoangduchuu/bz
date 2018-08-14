@@ -23,6 +23,10 @@
         <attr name="maxViewHeight" format="dimension|reference" />
     </declare-styleable>
 
+    <declare-styleable name="MaxHeightScrollView">
+        <attr name="maxScrollViewHeight" format="dimension|reference" />
+    </declare-styleable>
+
     <declare-styleable name="SettingItem">
         <attr name="showDivider" format="boolean" />
         <attr name="leftIcon" format="reference" />
