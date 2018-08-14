@@ -6,40 +6,34 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
-        tools:context="com.ping.android.presentation.view.activity.MainActivity">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/main_background_white" />
 
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewpager"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/main_background_white" />
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/background_tab_bar"
+            app:tabIndicatorHeight="0dp"
+            app:tabMode="fixed"
+            app:tabPaddingBottom="0dp"
+            app:tabPaddingEnd="0dp"
+            app:tabPaddingStart="0dp"
+            app:tabSelectedTextColor="@color/orange" />
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabs"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/background_tab_bar"
-                app:tabIndicatorHeight="0dp"
-                app:tabSelectedTextColor="@color/orange"
-                app:tabMode="fixed"
-                app:tabPaddingStart="0dp"
-                app:tabPaddingEnd="0dp"
-                app:tabPaddingBottom="0dp"/>
+    </LinearLayout>
 
-        </LinearLayout>
-
-    </RelativeLayout>
     <include layout="@layout/notify_network_main" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
