@@ -36,13 +36,13 @@ class FlexibleAdapterV2: androidx.recyclerview.widget.RecyclerView.Adapter<andro
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
-        return delegateAdapters[viewType].createViewHolder(parent)
+        return delegateAdapters[viewType]!!.createViewHolder(parent)
     }
 
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
-        delegateAdapters[getItemViewType(position)].bindViewHolder(holder, this.items[position])
+        delegateAdapters[getItemViewType(position)]!!.bindViewHolder(holder, this.items[position])
     }
 
     override fun getItemViewType(position: Int): Int {

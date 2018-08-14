@@ -45,7 +45,7 @@ public class DateUtils {
         if (currentDays == days) {
             return toString("h:mm a", seconds);
         } else if (currentDays - days == 1) {
-            return toString("Yesterday h:mm a", seconds);
+            return "Yesterday " + toString("h:mm a", seconds);
         } else if (currentDays - days <= 7) {
             return toString("EEE h:mm a", seconds);
         } else {

@@ -172,7 +172,7 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
     override fun onCreateViewHolder(parent: ViewGroup): ViewHolder = ViewHolder(parent.inflate(layoutId))
 
     class ViewHolder(itemView: View) : MessageBaseItem.ViewHolder(itemView), GroupImageAdapterListener {
-        private val groupImage: androidx.recyclerview.widget.RecyclerView = itemView.findViewById(R.id.group_images)
+        private var groupImage: RecyclerView = itemView.findViewById(R.id.group_images)
         private var groupImageAdapter: GroupImageAdapter = GroupImageAdapter(ArrayList(),this)
         private val gridLayoutManager = GridNonScrollableLayoutManager(itemView.context, 3)
         private val gridItemDecoration = GridItemDecoration(3, R.dimen.grid_item_padding_small, topSpace = 0)
@@ -185,8 +185,8 @@ abstract class GroupImageMessageBaseItem(message: Message) : MessageBaseItem<Gro
             groupImage.adapter = groupImageAdapter
         }
 
-        fun setRecycledViewPool(viewPool: androidx.recyclerview.widget.RecyclerView.RecycledViewPool) {
-            groupImage.recycledViewPool = viewPool
+        fun setRecycledViewPool(viewPool: RecyclerView.RecycledViewPool) {
+            groupImage.setRecycledViewPool(viewPool)
         }
 
         override fun getClickableView(): View? = null

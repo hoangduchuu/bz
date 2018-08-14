@@ -898,10 +898,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             edMessage!!.setText(originalText)
         }
         try {
-            if (select > 0 && select <= edMessage!!.text.length) {
+            if (select > 0 && select <= edMessage!!.text!!.length) {
                 edMessage!!.setSelection(select)
             } else {
-                edMessage!!.setSelection(edMessage!!.text.length)
+                edMessage!!.setSelection(edMessage!!.text!!.length)
 
             }
         } catch (ex: IndexOutOfBoundsException) {
