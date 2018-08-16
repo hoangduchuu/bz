@@ -272,7 +272,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
-        LinearLayout messageItem;
         TextView tvSender, tvMessage, tvTime;
         RadioButton rbSelect;
         Conversation conversation;
@@ -281,7 +280,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
-            messageItem = (LinearLayout) itemView;
             ivProfileImage = itemView.findViewById(R.id.message_item_profile);
             tvSender = itemView.findViewById(R.id.message_item_sender);
             tvMessage = itemView.findViewById(R.id.message_item_message);
