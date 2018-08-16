@@ -1,8 +1,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorPrimary"
     android:fitsSystemWindows="true"
     tools:context="com.ping.android.presentation.view.activity.ChatActivity">
@@ -32,8 +32,8 @@
                 style="@style/ActionButton.TopMenu"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:text="DONE" />
+                android:text="DONE"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -47,31 +47,31 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/default_padding"
-                android:text="To:"
+                android:layout_marginTop="15dp"
                 android:paddingEnd="10dp"
-                android:layout_marginTop="20dp"
+                android:text="To:"
                 android:textSize="@dimen/text_size_medium"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/receipientsContainer"
+                app:layout_constraintEnd_toStartOf="@+id/edtTo"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.ping.android.presentation.view.custom.MaxHeightScrollView
-                android:id="@+id/receipientsContainer"
+                android:id="@+id/recipientsContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:maxScrollViewHeight="100dp"
                 android:paddingTop="10dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@id/new_chat_select_contact"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/txt_to"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/new_chat_select_contact">
+                app:maxScrollViewHeight="100dp">
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                </com.google.android.material.chip.ChipGroup>
+                    android:layout_height="wrap_content"></com.google.android.material.chip.ChipGroup>
             </com.ping.android.presentation.view.custom.MaxHeightScrollView>
 
             <EditText
@@ -81,10 +81,10 @@
                 android:background="@null"
                 android:hint="@string/hint_username"
                 android:textColorHint="@color/text_input_hint"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/new_chat_select_contact"
                 app:layout_constraintStart_toEndOf="@+id/txt_to"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/receipientsContainer"/>
+                app:layout_constraintTop_toBottomOf="@id/recipientsContainer" />
 
             <ImageView
                 android:id="@+id/new_chat_select_contact"
@@ -111,8 +111,7 @@
                 android:layout_height="match_parent"
                 android:scrollbars="none" />
 
-            <com.github.ybq.android.spinkit.SpinKitView
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+            <com.github.ybq.android.spinkit.SpinKitView xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/spin_kit"
                 style="@style/SpinKitView.Small.ThreeBounce"
                 android:layout_width="40dp"
@@ -121,9 +120,9 @@
                 android:visibility="gone"
                 app:SpinKit_Color="@color/colorAccent" />
             <!--<ProgressBar-->
-                <!--android:id="@+id/spin_kit"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content" />-->
+            <!--android:id="@+id/spin_kit"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content" />-->
 
             <LinearLayout
                 android:id="@+id/no_results"
@@ -137,8 +136,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAllCaps="true"
-                    android:text="No results"/>
+                    android:text="No results"
+                    android:textAllCaps="true" />
             </LinearLayout>
         </RelativeLayout>
 
@@ -157,16 +156,16 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:hint="New Message"
-                android:textColorHint="@color/text_input_hint"
-                android:inputType="textNoSuggestions" />
+                android:inputType="textNoSuggestions"
+                android:textColorHint="@color/text_input_hint" />
 
             <TextView
                 android:id="@+id/btnSend"
                 style="@style/ActionButton"
                 android:background="@null"
-                android:textAllCaps="true"
                 android:padding="10dp"
-                android:text="Send" />
+                android:text="Send"
+                android:textAllCaps="true" />
         </LinearLayout>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

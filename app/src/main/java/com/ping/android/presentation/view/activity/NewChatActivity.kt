@@ -1,7 +1,10 @@
 package com.ping.android.presentation.view.activity
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,8 +14,20 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
+import com.bzzzchat.configuration.GlideApp
+import com.bzzzchat.configuration.GlideRequests
+import com.bzzzchat.extensions.toggleVisibility
 
 import com.google.android.material.chip.Chip
+import com.google.firebase.storage.FirebaseStorage
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.ping.android.R
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase
@@ -27,6 +42,7 @@ import java.util.ArrayList
 
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_new_chat.*
+import java.io.File
 import javax.inject.Inject
 
 class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
@@ -43,6 +59,8 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     private var selectedUsers = ArrayList<User>()
 
     private var isAddMember = false
+
+    private lateinit var glide: RequestManager
 
     @Inject
     lateinit var presenter: NewChatPresenter
@@ -92,6 +110,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     }
 
     private fun init() {
+        glide = GlideApp.with(this.applicationContext)
         adapter = SelectContactAdapter(ArrayList()) { contact, isSelected ->
             if (isSelected!!) {
                 addContact(contact)
@@ -123,12 +142,15 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
 
     private fun removeContact(contact: User) {
         val index = selectedUsers.indexOfFirst {
-            it.key === contact.key
+            it.key == contact.key
         }
         if (index >= 0) {
             chipGroup.removeViewAt(index)
             selectedUsers.removeAt(index)
-            adapter.notifyDataSetChanged()
+            adapter.setSelectPingIDs(selectedPingId)
+            if (selectedUsers.size == 0) {
+                recipientsContainer.visibility = View.GONE
+            }
         }
     }
 
@@ -140,10 +162,31 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         //chip.setChipIcon();
         chip.isCloseIconVisible = true
         chip.isCheckable = false
+        if (contact.profile !== null && contact.profile.startsWith("gs://")) {
+            val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(contact.profile)
+            (this.glide as GlideRequests)
+                    .load(gsReference)
+                    .placeholder(R.drawable.ic_avatar_gray)
+                    .error(R.drawable.ic_avatar_gray)
+                    .profileImage()
+                    .into(object: SimpleTarget<Drawable>() {
+                        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                            chip.chipIcon = resource
+                        }
+                    })
+        } else {
+            chip.chipIcon = ContextCompat.getDrawable(this, R.drawable.ic_avatar_gray)
+        }
         chip.setOnCloseIconClickListener { v ->
-            removeContact(contact)
+            val childIndex = chipGroup.indexOfChild(v)
+            if (childIndex != -1 && childIndex < selectedUsers.size) {
+                removeContact(selectedUsers[childIndex])
+            }
         }
         chipGroup.addView(chip)
+        // Scroll to bottom
+        recipientsContainer.visibility = View.VISIBLE
+        recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
     }
 
     private fun updateChips() {
@@ -184,29 +227,6 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
                 edtTo.setText("")
             }
         }
-        //        registerEvent(edtTo.chipEventObservable()
-        //                .observeOn(new UIThread().getScheduler())
-        //                .subscribe(chipEvent -> {
-        //                    switch (chipEvent.type) {
-        //                        case SEARCH:
-        //                            if (TextUtils.isEmpty(chipEvent.text)) {
-        //                                adapter.updateData(new ArrayList<>());
-        //                            } else {
-        //                                searchUserPresenter.searchUsers(chipEvent.text);
-        //                            }
-        //                            break;
-        //                        case DELETE:
-        //                            for (User user : selectedUsers) {
-        //                                if (user.getDisplayName().equals(chipEvent.text)) {
-        //                                    selectedUsers.remove(user);
-        //                                    adapter.setSelectPingIDs(getSelectedPingId());
-        //                                    btnDone.setEnabled(selectedUsers.size() > 0);
-        //                                    break;
-        //                                }
-        //                            }
-        //                            break;
-        //                    }
-        //                }));
     }
 
     private fun checkReadySend() {
@@ -216,9 +236,13 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
-                selectedUsers = data!!.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY)
-                updateChips()
-                adapter!!.setSelectPingIDs(selectedPingId)
+                val contacts: ArrayList<User> = data!!.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY)
+                chipGroup.removeAllViews()
+                selectedUsers.clear()
+                contacts.map {
+                    addContact(it)
+                }
+                adapter.setSelectPingIDs(selectedPingId)
             }
         }
     }
@@ -267,17 +291,11 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     }
 
     override fun showNoResults() {
-        //recycleChatView.setVisibility(View.INVISIBLE);
         noResultsView!!.visibility = View.VISIBLE
-        //        recycleChatView.post(()-> recycleChatView.setVisibility(View.INVISIBLE));
-        //        noResultsView.post(() -> noResultsView.setVisibility(View.VISIBLE));
     }
 
     override fun hideNoResults() {
-        //recycleChatView.setVisibility(View.VISIBLE);
         noResultsView!!.visibility = View.INVISIBLE
-        //        recycleChatView.post(()->recycleChatView.setVisibility(View.VISIBLE));
-        //        noResultsView.post(() -> noResultsView.setVisibility(View.INVISIBLE));
     }
 
     override fun displaySearchResult(users: List<User>) {

@@ -42,6 +42,14 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         notifyItemInserted(displayContacts.size() - 1);
     }
 
+    public void toggleSelect(User contact, boolean isSelect) {
+        if (isSelect) {
+            selectPingIDs.add(contact.pingID);
+        } else {
+            selectPingIDs.remove(contact.pingID);
+        }
+    }
+
     public void filter(String text) {
         displayContacts = new ArrayList<>();
         for (User contact : originalContacts) {

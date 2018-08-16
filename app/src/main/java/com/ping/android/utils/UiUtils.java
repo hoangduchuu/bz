@@ -118,12 +118,7 @@ public class UiUtils {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
-                    .placeholder(placeholder)
-                    .error(placeholder)
-                    .override(200, 200)
-                    .apply(RequestOptions.circleCropTransform())
-                    .signature(new ObjectKey(user.profile))
-                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+                    .profileImage()
                     .into(imageView);
         } else {
             imageView.setImageResource(placeholder);
