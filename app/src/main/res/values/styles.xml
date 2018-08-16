@@ -285,6 +285,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:paddingStart">@dimen/default_padding</item>
         <item name="android:paddingEnd">@dimen/default_padding</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="RecyclerView">
