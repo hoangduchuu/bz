@@ -282,10 +282,12 @@
 
     <style name="ActionButton.TopMenu">
         <item name="android:minHeight">@dimen/top_bar_height</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:colorButtonNormal">@android:color/transparent</item>
+        <item name="android:colorAccent">@android:color/transparent</item>
         <item name="android:paddingStart">@dimen/default_padding</item>
         <item name="android:paddingEnd">@dimen/default_padding</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:textColor">@color/action_button_top</item>
     </style>
 
     <style name="RecyclerView">

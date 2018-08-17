@@ -1,71 +1,61 @@
 package com.ping.android.presentation.view.activity
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-
-import androidx.recyclerview.widget.LinearLayoutManager
-
 import android.text.TextUtils
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequests
-import com.bzzzchat.extensions.toggleVisibility
-
 import com.google.android.material.chip.Chip
 import com.google.firebase.storage.FirebaseStorage
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.ping.android.R
-import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase
 import com.ping.android.model.User
-import com.ping.android.presentation.presenters.NewChatPresenter
+import com.ping.android.model.enums.NetworkStatus
+import com.ping.android.presentation.presenters.AddGroupPresenter
 import com.ping.android.presentation.presenters.SearchUserPresenter
 import com.ping.android.presentation.view.adapter.SelectContactAdapter
+import com.ping.android.utils.ImagePickerHelper
 import com.ping.android.utils.Toaster
+import com.ping.android.utils.UiUtils
 import com.ping.android.utils.configs.Constant
-
-import java.util.ArrayList
-
 import dagger.android.AndroidInjection
-import kotlinx.android.synthetic.main.activity_new_chat.*
+import kotlinx.android.synthetic.main.activity_add_group.*
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
-class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
-    private val TAG = NewChatActivity::class.java.simpleName
-    //Views UI
+class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresenter.View, AddGroupPresenter.View {
     private var mLinearLayoutManager: LinearLayoutManager? = null
+    private var etGroupName: EditText? = null
+    private var edMessage: EditText? = null
+    private var btSave: TextView? = null
     private var btBack: ImageView? = null
-    private var btSelectContact: ImageView? = null
+    private var groupAvatar: ImageView? = null
+    private var recycleChatView: RecyclerView? = null
     private var noResultsView: LinearLayout? = null
-    private var btnDone: Button? = null
     private var loading: View? = null
+
+    private var imagePickerHelper: ImagePickerHelper? = null
+    private var groupProfileImage: File? = null
 
     private lateinit var adapter: SelectContactAdapter
     private var selectedUsers = ArrayList<User>()
-
-    private var isAddMember = false
-
     private lateinit var glide: RequestManager
 
     @Inject
-    lateinit var presenter: NewChatPresenter
+    lateinit var searchPresenter: SearchUserPresenter
     @Inject
-    lateinit var searchUserPresenter: SearchUserPresenter
+    lateinit var presenter: AddGroupPresenter
 
     private val selectedPingId: List<String>
         get() {
@@ -78,35 +68,46 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_new_chat)
+        setContentView(R.layout.activity_add_group)
         AndroidInjection.inject(this)
+        searchPresenter.create()
         presenter.create()
-        searchUserPresenter.create()
-        isAddMember = intent.getBooleanExtra("ADD_MEMBER", false)
         bindViews()
         init()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        searchPresenter.destroy()
         presenter.destroy()
-        searchUserPresenter.destroy()
     }
 
-    override fun onClick(view: View) {
-        when (view.id) {
-            R.id.chat_back -> onBackPressed()
-            R.id.new_chat_select_contact -> selectContact()
-            R.id.btnSend -> sendNewMessage()
-            R.id.btn_done -> handleDonePress()
+    private fun bindViews() {
+        etGroupName = findViewById(R.id.new_group_name)
+        btBack = findViewById(R.id.new_group_back)
+        btBack!!.setOnClickListener(this)
+        btSave = findViewById(R.id.new_group_save)
+        btSave!!.setOnClickListener(this)
+        groupAvatar = findViewById(R.id.profile_image)
+        groupAvatar!!.setOnClickListener(this)
+
+        noResultsView = findViewById(R.id.no_results)
+
+        edMessage = findViewById(R.id.new_group_message_tv)
+        new_group_send_message_btn.setOnClickListener(this)
+        loading = findViewById(R.id.spin_kit)
+
+        findViewById<View>(R.id.new_group_select_contact).setOnClickListener(this)
+
+        recycleChatView = findViewById(R.id.chat_list_view)
+        mLinearLayoutManager = LinearLayoutManager(this)
+        recycleChatView!!.layoutManager = mLinearLayoutManager
+
+        edMessage!!.setOnFocusChangeListener { view, b ->
+            if (b) {
+                adapter!!.updateData(ArrayList())
+            }
         }
-    }
-
-    private fun handleDonePress() {
-        val returnIntent = Intent()
-        returnIntent.putParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY, selectedUsers)
-        setResult(Activity.RESULT_OK, returnIntent)
-        finish()
     }
 
     private fun init() {
@@ -123,21 +124,34 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
                 }
             }
         }
-        recyclerView.adapter = adapter
-
-        registerEvent(RxTextView
-                .afterTextChangeEvents(edMessage)
-                .subscribe { textViewAfterTextChangeEvent -> checkReadySend() })
-        registerEvent(RxTextView.textChangeEvents(edtTo!!)
+        recycleChatView!!.adapter = adapter
+        registerEvent(RxTextView.textChangeEvents(edtTo)
                 .subscribe({ textViewTextChangeEvent ->
                     val text = textViewTextChangeEvent.text().toString()
                     if (TextUtils.isEmpty(text)) {
-                        adapter!!.updateData(ArrayList())
+                        adapter.updateData(ArrayList())
                     } else {
-                        searchUserPresenter.searchUsers(text)
+                        searchPresenter.searchUsers(text)
                     }
                 }, { throwable -> throwable.printStackTrace() }))
+
+        registerEvent(RxTextView
+                .afterTextChangeEvents(edMessage!!)
+                .subscribe { textViewAfterTextChangeEvent -> checkReadySend() })
+        registerEvent(RxTextView
+                .afterTextChangeEvents(etGroupName!!)
+                .subscribe { textViewAfterTextChangeEvent -> checkReadySend() })
         checkReadySend()
+    }
+
+    override fun onClick(v: View) {
+        when (v.id) {
+            R.id.new_group_save -> onCreateGroup()
+            R.id.new_group_back -> onCancelGroup()
+            R.id.new_group_select_contact -> selectContact()
+            R.id.new_group_send_message_btn -> onCreateGroup()
+            R.id.profile_image -> presenter.handlePickerPress()
+        }
     }
 
     private fun removeContact(contact: User) {
@@ -189,41 +203,10 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
     }
 
-    private fun bindViews() {
-        btnDone = findViewById(R.id.btn_done)
-        btBack = findViewById(R.id.chat_back)
-        loading = findViewById(R.id.spin_kit)
-
-        btBack!!.setOnClickListener(this)
-
-        btSelectContact = findViewById(R.id.new_chat_select_contact)
-        btSelectContact!!.setOnClickListener(this)
-
-        mLinearLayoutManager = LinearLayoutManager(this)
-        recyclerView.layoutManager = mLinearLayoutManager
-
-        noResultsView = findViewById(R.id.no_results)
-
-        val bottomLayout = findViewById<LinearLayout>(R.id.chat_layout_text)
-        bottomLayout.visibility = if (isAddMember) View.GONE else View.VISIBLE
-        tvTitle.text = if (isAddMember) "ADD MEMBER" else "NEW CHAT"
-        btnDone!!.visibility = if (isAddMember) View.VISIBLE else View.GONE
-        btnDone!!.setOnClickListener(this)
-        btnDone!!.isEnabled = selectedUsers.size > 0
-
-        edMessage.setOnFocusChangeListener { view, b ->
-            if (b) {
-                adapter.updateData(ArrayList())
-                edtTo.setText("")
-            }
-        }
-    }
-
-    private fun checkReadySend() {
-        btnSend.isEnabled = !(TextUtils.isEmpty(edMessage.text.toString().trim { it <= ' ' }) || selectedUsers.size <= 0)
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper!!.onActivityResult(requestCode, resultCode, data)
+        }
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
                 val contacts: ArrayList<User> = data!!.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY)
@@ -237,39 +220,48 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        if (imagePickerHelper != null) {
+            imagePickerHelper!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun checkReadySend() {
+        val isEnabled = !(TextUtils.isEmpty(edMessage!!.text.toString().trim { it <= ' ' })
+                || selectedUsers.size <= 0
+                || TextUtils.isEmpty(etGroupName!!.text.toString().trim { it <= ' ' }))
+        new_group_send_message_btn.isEnabled = isEnabled
+        btSave?.isEnabled = isEnabled
+    }
+
     private fun selectContact() {
         val i = Intent(this, SelectContactActivity::class.java)
         i.putParcelableArrayListExtra("SELECTED_USERS", selectedUsers)
         startActivityForResult(i, Constant.SELECT_CONTACT_REQUEST)
     }
 
-    private fun sendNewMessage() {
-        if (selectedUsers.size <= 0) {
+    private fun onCreateGroup() {
+        val groupNames = etGroupName!!.text.toString().trim { it <= ' ' }
+        if (TextUtils.isEmpty(groupNames)) {
+            Toaster.shortToast("Name this group.")
             return
         }
-
-        val text = edMessage.text.toString()
-        if (TextUtils.isEmpty(text)) {
-            Toaster.shortToast("Please enter message.")
-            return
-        }
-
-        if (!isNetworkAvailable) {
+        if (networkStatus !== NetworkStatus.CONNECTED) {
             Toaster.shortToast("Please check network connection.")
             return
         }
-        if (selectedUsers.size > 1) {
-            // TODO create group then send message
-            val toUsers = ArrayList<User>()
-            toUsers.addAll(selectedUsers)
-            presenter.createGroup(toUsers, edMessage.text.toString())
-        } else {
-            val toUser = selectedUsers[0]
-            val params = CreatePVPConversationUseCase.Params()
-            params.toUser = toUser
-            params.message = edMessage.text.toString()
-            presenter.createPVPConversation(params)
-        }
+        presenter.createGroup(selectedUsers, groupNames,
+                if (groupProfileImage != null) groupProfileImage!!.absolutePath else "",
+                edMessage!!.text.toString())
+    }
+
+    private fun onCancelGroup() {
+        finish()
+    }
+
+    override fun openPicker() {
+        imagePickerHelper!!.openPicker()
     }
 
     override fun showSearching() {
@@ -281,29 +273,54 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     }
 
     override fun showNoResults() {
-        noResultsView!!.visibility = View.VISIBLE
+        adapter.updateData(ArrayList())
+        noResultsView!!.post { noResultsView!!.visibility = View.VISIBLE }
     }
 
     override fun hideNoResults() {
-        noResultsView!!.visibility = View.INVISIBLE
+        noResultsView!!.post { noResultsView!!.visibility = View.GONE }
     }
 
     override fun displaySearchResult(users: List<User>) {
-        adapter!!.updateData(ArrayList(users))
+        adapter.updateData(ArrayList(users))
     }
 
-    override fun moveToChatScreen(conversationId: String) {
+    override fun moveToChatScreen(conversationID: String) {
         val intent = Intent(this, ChatActivity::class.java)
-        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId)
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID)
         startActivity(intent)
         finish()
     }
 
-    override fun hideLoading() {
-        super<CoreActivity>.hideLoading()
+    override fun initProfileImagePath(key: String) {
+        val parentPath = getExternalFilesDir(null)!!.absolutePath + File.separator + "profile" + File.separator + key
+        val parent = File(parentPath)
+        if (!parent.exists()) {
+            parent.mkdirs()
+        }
+        val timestamp = System.currentTimeMillis() / 1000.0
+        val profileFileName = "$timestamp-$key.jpeg"
+        val profileFilePath = parentPath + File.separator + profileFileName
+        imagePickerHelper = ImagePickerHelper.from(this)
+                .setFilePath(profileFilePath)
+                .setCrop(true)
+                .setListener(object : ImagePickerHelper.ImagePickerListener {
+                    override fun onImageReceived(file: File) {
+
+                    }
+
+                    override fun onFinalImage(vararg files: File) {
+                        groupProfileImage = files[0]
+                        UiUtils.displayProfileAvatar(groupAvatar, groupProfileImage)
+                    }
+                })
     }
 
     override fun showLoading() {
         super<CoreActivity>.showLoading()
+    }
+
+    override fun hideLoading() {
+        super<CoreActivity>.hideLoading()
     }
 }
