@@ -314,7 +314,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     @Override
     public void showMappingConfirm() {
-        String message = "Your Transphabet was randomized using Emojis > Smileys & People alphabet. Do you want to manually make changes to the Alphabet?";
+        String message = "Your Transphabet was randomized using Emoji. Do you want to manually make changes to it?";
         new AlertDialog.Builder(this)
                 .setTitle("NOTICE")
                 .setMessage(message)
