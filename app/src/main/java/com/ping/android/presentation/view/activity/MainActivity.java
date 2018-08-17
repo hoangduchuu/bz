@@ -314,26 +314,17 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     @Override
     public void showMappingConfirm() {
-        new AlertDialog.Builder(MainActivity.this)
+        String message = "Your Transphabet was randomized using Emojis > Smileys & People alphabet. Do you want to manually make changes to the Alphabet?";
+        new AlertDialog.Builder(this)
                 .setTitle("NOTICE")
-                .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
-                        presenter.turnOffMappingConfirmation();
-                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
-                    }
+                .setMessage(message)
+                .setCancelable(true)
+                .setPositiveButton("Yes", (dialog, whichButton) -> {
+                    startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
+                    presenter.turnOffMappingConfirmation();
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Map<String, String> mappings = UsersUtils.randomizeTransphabet();
-                        presenter.randomizeTransphabet(mappings);
-                        presenter.turnOffMappingConfirmation();
-                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
-                    }
+                .setNegativeButton("No", (dialog, which) -> {
+                    presenter.turnOffMappingConfirmation();
                 }).show();
     }
 

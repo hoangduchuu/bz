@@ -13,6 +13,7 @@ import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
+import com.ping.android.utils.UsersUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -68,8 +69,9 @@ public class MainPresenterImpl implements MainPresenter {
                 view.openPhoneRequireView();
             }
             if (!currentUser.showMappingConfirm) {
+                randomizeTransphabet(UsersUtils.randomizeEmoji());
                 view.showMappingConfirm();
-            }
+           }
             isInit = true;
         }
     }

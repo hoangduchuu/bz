@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -25,6 +25,7 @@
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 
         <item name="backgroundTheme">@style/BackgroundTintDefault</item>
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="AppTheme">
@@ -430,6 +431,12 @@
         <item name="android:textColor">@color/text_color_primary</item>
         <item name="android:textSize">16sp</item>
         <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <!--<item name="colorAccent">@color/white</item>-->
+        <!--<item name="android:textColorPrimary">#37474F</item>-->
+        <!--<item name="android:background">@color/white</item>-->
     </style>
 
     <style name="RoundedImageButton">
