@@ -14,8 +14,6 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.text.Editable
@@ -25,6 +23,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager.beginDelayedTransition
+import androidx.transition.TransitionSet
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.configuration.GlideApp
@@ -44,6 +45,8 @@ import com.ping.android.model.enums.GameType
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.presenters.ChatPresenter
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter
+import com.ping.android.presentation.view.custom.KeyboardHeightObserver
+import com.ping.android.presentation.view.custom.KeyboardHeightProvider
 import com.ping.android.presentation.view.custom.VoiceRecordView
 import com.ping.android.presentation.view.custom.VoiceRecordViewListener
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
@@ -59,6 +62,7 @@ import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
 import com.vanniktech.emoji.EmojiPopup
 import dagger.android.AndroidInjection
+import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
 import java.io.File
 import java.util.*
@@ -66,8 +70,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener {
-
+class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener, KeyboardHeightObserver {
     private val TAG = "Ping: " + this.javaClass.simpleName
 
     //Views UI
@@ -77,7 +80,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var topLayoutContainer: ViewGroup? = null
     private var topLayoutChat: ViewGroup? = null
     private var topLayoutEditMode: ViewGroup? = null
-    private var bottomLayoutContainer: ViewGroup? = null
     private var bottomLayoutChat: ViewGroup? = null
     private var bottomMenuEditMode: ViewGroup? = null
     private var layoutVoice: VoiceRecordView? = null
@@ -156,10 +158,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var mediaPickerPopup: MediaPickerPopup? = null
 
     private var selectedMessage: MessageBaseItem<*>? = null
-    private val badgeHelper: BadgeHelper by lazy {
-        BadgeHelper(this)
-    }
-
+    private val badgeHelper: BadgeHelper by lazy { BadgeHelper(this) }
+    private val keyboardHeightProvider: KeyboardHeightProvider by lazy { KeyboardHeightProvider(this) }
+    private var currentBottomHeight: Int = 200
     @Inject
     lateinit var presenter: ChatPresenter
     @Inject
@@ -191,7 +192,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AndroidInjection.inject(this);
+        AndroidInjection.inject(this)
         val bundle = intent.extras
         if (bundle != null) {
             //originalConversation = bundle.getParcelable("CONVERSATION");
@@ -230,6 +231,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
+        keyboardHeightProvider.setKeyboardHeightObserver(this)
         badgeHelper.read(conversationId)
         setButtonsState(0)
         isScreenVisible = true
@@ -248,6 +250,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     override fun onPause() {
         super.onPause()
         shakeEventManager.unregister()
+        keyboardHeightProvider.setKeyboardHeightObserver(null)
         isTyping = false
         messagesAdapter.pause()
         updateConversationTyping(false)
@@ -256,6 +259,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun onDestroy() {
         super.onDestroy()
+        keyboardHeightProvider.close()
         messagesAdapter.destroy()
         if (layoutVoice != null) {
             layoutVoice!!.release()
@@ -323,11 +327,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
         val slide = Slide(Gravity.BOTTOM)
         slide.duration = 300
-        TransitionManager.beginDelayedTransition(bottomLayoutContainer!!, slide)
+        //TransitionManager.beginDelayedTransition(bottomLayoutContainer!!, slide)
         bottomMenuEditMode!!.visibility = if (b) View.VISIBLE else View.GONE
         bottomLayoutChat!!.visibility = if (b) View.GONE else View.VISIBLE
         slide.slideEdge = Gravity.TOP
-        TransitionManager.beginDelayedTransition(topLayoutContainer!!, slide)
+        beginDelayedTransition(topLayoutContainer!!, slide)
         topLayoutEditMode!!.visibility = if (b) View.VISIBLE else View.GONE
         topLayoutChat!!.visibility = if (b) View.GONE else View.VISIBLE
 
@@ -473,7 +477,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         topLayoutContainer = findViewById(R.id.top_layout_container)
         topLayoutChat = findViewById(R.id.top_chat_layout)
         topLayoutEditMode = findViewById(R.id.top_menu_edit_mode)
-        bottomLayoutContainer = findViewById(R.id.bottom_layout_container)
         bottomLayoutChat = findViewById(R.id.bottom_layout_chat)
         bottomMenuEditMode = findViewById(R.id.bottom_menu_edit_mode)
 
@@ -636,6 +639,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         withDelay(300) {
             presenter.create()
             presenter.initConversationData(conversationId)
+        }
+        container.post {
+            keyboardHeightProvider.start()
         }
     }
 
@@ -874,7 +880,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private fun handleEmojiPressed() {
         if (emojiPopup == null) {
             emojiPopup = EmojiPopup.Builder
-                    .fromRootView(findViewById(R.id.contentRoot))
+                    .fromRootView(findViewById(R.id.container))
                     .build(edMessage!!)
         }
         hideVoiceRecordView()
@@ -1152,6 +1158,38 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun hideLoading() {
         super<CoreActivity>.hideLoading()
+    }
+
+    override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
+        Log.d("Keyboard height $height")
+        if (height > 0) this.currentBottomHeight = height
+        if (height != 0 || shouldHideBottomButton()) {
+            if (height > 0) {
+                showBottomView()
+            } else {
+                hideBottomView()
+            }
+        }
+    }
+
+    private fun showBottomView() {
+        beginDelayedTransition(bottom_view_container, TransitionSet()
+                .addTransition(ChangeBounds()))
+        val params = bottom_view_container.layoutParams
+        params.height = currentBottomHeight
+        bottom_view_container.layoutParams = params
+    }
+
+    private fun hideBottomView() {
+        beginDelayedTransition(bottom_view_container, TransitionSet()
+                .addTransition(ChangeBounds()))
+        val params = bottom_view_container.layoutParams
+        params.height = 0
+        bottom_view_container.layoutParams = params
+    }
+
+    private fun shouldHideBottomButton(): Boolean {
+        return true
     }
 
     companion object {
