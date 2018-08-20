@@ -57,6 +57,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
     private boolean isEditMode;
+    //private boolean isScrollToTop = false;
 
     private SharedPreferences prefs;
 
@@ -205,7 +206,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void scrollToTop() {
-        listChat.scrollToPosition(0);
+        listChat.post(() -> listChat.scrollToPosition(0));
     }
 
     private void onNewChat() {
@@ -286,8 +287,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
         //intent.putExtras(bundle);
         Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(getActivity(),
-                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
-        startActivity(intent, bundle);
+                    android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent);
     }
 
     @Override
@@ -304,14 +305,14 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     public void addConversation(Conversation conversation) {
         adapter.updateConversation(conversation, true);
         updateUnreadNumber();
-        //scrollToTop();
+        scrollToTop();
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
         adapter.updateConversation(conversation, false);
         updateUnreadNumber();
-        //scrollToTop();
+        scrollToTop();
     }
 
     @Override

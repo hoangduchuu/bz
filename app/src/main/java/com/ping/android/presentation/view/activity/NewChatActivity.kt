@@ -151,6 +151,9 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
             if (selectedUsers.size == 0) {
                 recipientsContainer.visibility = View.GONE
             }
+            if (selectedUsers.size == 0) {
+                edtTo.hint = "Username"
+            }
         }
     }
 
@@ -187,6 +190,10 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         // Scroll to bottom
         recipientsContainer.visibility = View.VISIBLE
         recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
+
+        // Clear result
+        edtTo.setText("")
+        edtTo.hint = ""
     }
 
     private fun bindViews() {
@@ -195,6 +202,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         loading = findViewById(R.id.spin_kit)
 
         btBack!!.setOnClickListener(this)
+        btnSend.setOnClickListener(this)
 
         btSelectContact = findViewById(R.id.new_chat_select_contact)
         btSelectContact!!.setOnClickListener(this)
@@ -245,6 +253,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
 
     private fun sendNewMessage() {
         if (selectedUsers.size <= 0) {
+            Toaster.shortToast("Please select recipients.")
             return
         }
 

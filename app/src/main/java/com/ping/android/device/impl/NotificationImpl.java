@@ -379,7 +379,7 @@ public class NotificationImpl implements com.ping.android.device.Notification {
         NotificationCompat.MessagingStyle messagingStyle =
                 new NotificationCompat.MessagingStyle(MY_DISPLAY_NAME);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            messagingStyle.setConversationTitle(context.getString(R.string.app_name));
+            messagingStyle.setConversationTitle(context.getString(R.string.app_name)).setGroupConversation(true);
         }
         for (NotificationMessage message : messages) {
             String sender = message.getSenderId().equals(userId) ? null : message.getSenderId();
