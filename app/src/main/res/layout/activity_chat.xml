@@ -93,6 +93,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <ViewStub
+            android:id="@+id/stub_import_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/chat_layout_voice"
+            android:layout="@layout/view_chat_bottom_voice_record" />
     </FrameLayout>
 
     <RelativeLayout
@@ -122,13 +128,6 @@
             android:layout_alignParentEnd="true"
             android:text="@string/chat_unmask_all" />
     </RelativeLayout>
-
-    <ViewStub
-        android:id="@+id/stub_import_voice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inflatedId="@+id/chat_layout_voice"
-        android:layout="@layout/view_chat_bottom_voice_record" />
 
     <!--<include layout="@layout/view_media_picker" />-->
     <include layout="@layout/notify_network_main" />

@@ -160,7 +160,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var selectedMessage: MessageBaseItem<*>? = null
     private val badgeHelper: BadgeHelper by lazy { BadgeHelper(this) }
     private val keyboardHeightProvider: KeyboardHeightProvider by lazy { KeyboardHeightProvider(this) }
-    private var currentBottomHeight: Int = 200
+    private var currentBottomHeight: Int = SharedPrefsHelper.getInstance().get("keyboardHeight", 200)
     @Inject
     lateinit var presenter: ChatPresenter
     @Inject
@@ -262,7 +262,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         keyboardHeightProvider.close()
         messagesAdapter.destroy()
         if (layoutVoice != null) {
-            layoutVoice!!.release()
+            layoutVoice?.release()
         }
     }
 
@@ -517,8 +517,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun hideVoiceRecordView() {
-        if (layoutVoice != null && layoutVoice!!.visibility == View.VISIBLE) {
-            layoutVoice!!.visibility = View.GONE
+        hideBottomView()
+        layoutVoice?.let {
+            if (it.visibility == View.VISIBLE) {
+                it.visibility = View.GONE
+            }
         }
     }
 
@@ -636,10 +639,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             }
         })
         // Delay conversation initialize to make smooth UI transition
-        withDelay(300) {
+        //withDelay(300) {
             presenter.create()
             presenter.initConversationData(conversationId)
-        }
+        //}
         container.post {
             keyboardHeightProvider.start()
         }
@@ -786,7 +789,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         edMessage!!.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
                 if (emojiPopup != null) emojiPopup!!.dismiss()
-                hideVoiceRecordView()
+                //hideVoiceRecordView()
                 hideMediaPickerView()
                 KeyboardHelpers.showKeyboard(this, edMessage)
             }
@@ -971,9 +974,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun handleRecordVoice() {
+        shouldHideBottomView = false
         KeyboardHelpers.hideSoftInputKeyboard(this)
         setButtonsState(0)
-        permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
+        val disposable = permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
                 .subscribe { isGranted ->
                     if (isGranted) {
                         if (layoutVoice == null) {
@@ -987,8 +991,12 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
                             }
                             layoutVoice?.setListener(listener)
                         }
+                        layoutVoice?.layoutParams?.let {
+                            it.height = this.currentBottomHeight
+                        }
                         layoutVoice?.visibility = View.VISIBLE
                         layoutVoice?.prepare()
+                        showBottomView()
                     }
                 }
     }
@@ -1160,36 +1168,42 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         super<CoreActivity>.hideLoading()
     }
 
+    private var shouldHideBottomView: Boolean = true
+
     override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
         Log.d("Keyboard height $height")
-        if (height > 0) this.currentBottomHeight = height
-        if (height != 0 || shouldHideBottomButton()) {
-            if (height > 0) {
-                showBottomView()
-            } else {
+        if (height > 0) {
+            this.currentBottomHeight = height
+            SharedPrefsHelper.getInstance().save("keyboardHeight", height)
+            showBottomView()
+        }
+        if (shouldHideBottomView) {
+            if (height == 0) {
                 hideBottomView()
             }
+        } else {
+            shouldHideBottomView = true
         }
     }
 
     private fun showBottomView() {
-        beginDelayedTransition(bottom_view_container, TransitionSet()
-                .addTransition(ChangeBounds()))
-        val params = bottom_view_container.layoutParams
-        params.height = currentBottomHeight
-        bottom_view_container.layoutParams = params
+        bottom_view_container.post {
+            beginDelayedTransition(bottom_view_container, TransitionSet()
+                    .addTransition(ChangeBounds()))
+            val params = bottom_view_container.layoutParams
+            params.height = currentBottomHeight
+            bottom_view_container.layoutParams = params
+        }
     }
 
     private fun hideBottomView() {
-        beginDelayedTransition(bottom_view_container, TransitionSet()
-                .addTransition(ChangeBounds()))
-        val params = bottom_view_container.layoutParams
-        params.height = 0
-        bottom_view_container.layoutParams = params
-    }
-
-    private fun shouldHideBottomButton(): Boolean {
-        return true
+        //beginDelayedTransition(bottom_view_container)
+        bottom_view_container.post {
+            val params = bottom_view_container.layoutParams
+            params.height = 1
+            bottom_view_container.layoutParams = params
+            shouldHideBottomView = true
+        }
     }
 
     companion object {

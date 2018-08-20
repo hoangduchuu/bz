@@ -102,6 +102,8 @@ class KeyboardHeightProvider
         this.observer = observer
     }
 
+    private var lastKeyboardHeight: Int = 0
+
     /**
      * Popup window itself is as big as the window of the Activity.
      * The keyboard can then be calculated by extracting the popup view bottom
@@ -120,15 +122,18 @@ class KeyboardHeightProvider
         // the keyboard height. But this worked fine on a Nexus.
         val orientation = screenOrientation
         val keyboardHeight = screenSize.y - rect.bottom
-
-        if (keyboardHeight == 0) {
-            notifyKeyboardHeightChanged(0, orientation)
-        } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            this.keyboardPortraitHeight = keyboardHeight
-            notifyKeyboardHeightChanged(keyboardPortraitHeight, orientation)
-        } else {
-            this.keyboardLandscapeHeight = keyboardHeight
-            notifyKeyboardHeightChanged(keyboardLandscapeHeight, orientation)
+        if (lastKeyboardHeight == keyboardHeight) {
+            return
+        }
+        lastKeyboardHeight = keyboardHeight
+        notifyKeyboardHeightChanged(keyboardHeight, orientation)
+        when (orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                this.keyboardPortraitHeight = keyboardHeight
+            }
+            else -> {
+                this.keyboardLandscapeHeight = keyboardHeight
+            }
         }
     }
 
