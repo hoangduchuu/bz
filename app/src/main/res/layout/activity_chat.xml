@@ -99,6 +99,13 @@
             android:layout_height="match_parent"
             android:inflatedId="@+id/chat_layout_voice"
             android:layout="@layout/view_chat_bottom_voice_record" />
+
+        <ViewStub
+            android:id="@+id/stub_media_picker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/chat_media_picker"
+            android:layout="@layout/view_chat_bottom_media_picker" />
     </FrameLayout>
 
     <RelativeLayout

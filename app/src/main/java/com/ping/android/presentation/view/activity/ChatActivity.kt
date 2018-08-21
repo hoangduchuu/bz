@@ -51,6 +51,7 @@ import com.ping.android.presentation.view.custom.VoiceRecordView
 import com.ping.android.presentation.view.custom.VoiceRecordViewListener
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
 import com.ping.android.presentation.view.custom.media.MediaPickerPopup
+import com.ping.android.presentation.view.custom.media.MediaPickerView
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
 import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
@@ -83,6 +84,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var bottomLayoutChat: ViewGroup? = null
     private var bottomMenuEditMode: ViewGroup? = null
     private var layoutVoice: VoiceRecordView? = null
+    private var layoutMediaPicker: MediaPickerView? = null
     private var swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout? = null
     private var tvChatStatus: TextView? = null
     private var btVoiceCall: ImageButton? = null
@@ -305,8 +307,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun handleGridMediaPickerPress() {
         // TODO start grid media picker
+        hideMediaPickerView()
+        hideBottomView()
         KeyboardHelpers.hideSoftInputKeyboard(this)
-        mediaPickerPopup?.toggle()
         withDelay(300) {
             val intent = Intent(this, GridMediaPickerActivity::class.java)
             intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
@@ -503,7 +506,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         recycleChatView!!.setOnTouchListener { view, motionEvent ->
             KeyboardHelpers.hideSoftInputKeyboard(this@ChatActivity)
             setButtonsState(0)
-            hideVoiceRecordView()
+            //hideVoiceRecordView()
+            //hideMediaPickerView()
             false
         }
 
@@ -517,7 +521,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun hideVoiceRecordView() {
-        hideBottomView()
+        //hideBottomView()
         layoutVoice?.let {
             if (it.visibility == View.VISIBLE) {
                 it.visibility = View.GONE
@@ -526,20 +530,19 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun hideMediaPickerView() {
-        mediaPickerPopup?.let {
-            if (it.isShowing()) {
-                it.toggle()
+        layoutMediaPicker?.let {
+            if (it.visibility == View.VISIBLE) {
+                it.visibility = View.GONE
             }
         }
     }
 
     private fun setupMediaPickerView() {
-        if (mediaPickerPopup == null) {
-            mediaPickerPopup = MediaPickerPopup(this, findViewById(R.id.contentRoot), edMessage!!) {
-                // Dismiss
-                setButtonsState(0)
-            }
-            mediaPickerPopup?.setListener(object : MediaPickerListener {
+        if (layoutMediaPicker == null) {
+            findViewById<View>(R.id.stub_media_picker).visibility = View.VISIBLE
+            layoutMediaPicker = findViewById(R.id.chat_media_picker)
+            layoutMediaPicker?.initProvider(this)
+            layoutMediaPicker?.listener = object : MediaPickerListener {
                 override fun openGridMediaPicker() {
                     handleGridMediaPickerPress()
                 }
@@ -551,8 +554,13 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
                         presenter.sendImageMessage(item.imagePath, item.thumbnailPath, tgMarkOut.isSelected)
                     }
                 }
-            })
+            }
         }
+        layoutMediaPicker?.layoutParams?.let {
+            it.height = this.currentBottomHeight
+        }
+        layoutMediaPicker?.visibility = View.VISIBLE
+        layoutMediaPicker?.refreshData()
     }
 
     private fun initView() {
@@ -640,8 +648,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         })
         // Delay conversation initialize to make smooth UI transition
         //withDelay(300) {
-            presenter.create()
-            presenter.initConversationData(conversationId)
+        presenter.create()
+        presenter.initConversationData(conversationId)
         //}
         container.post {
             keyboardHeightProvider.start()
@@ -805,7 +813,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
-    // region router
+// region router
 
     private fun onOpenProfile() {
         val intent = Intent(this, ConversationDetailActivity::class.java)
@@ -821,7 +829,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         finishAfterTransition()
     }
 
-    // endregion
+// endregion
 
     private fun onCopySelectedMessageText() {
         messageActions.hide()
@@ -883,10 +891,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private fun handleEmojiPressed() {
         if (emojiPopup == null) {
             emojiPopup = EmojiPopup.Builder
-                    .fromRootView(findViewById(R.id.container))
+                    .fromRootView(keyboardHeightProvider.contentView)
                     .build(edMessage!!)
         }
         hideVoiceRecordView()
+        hideMediaPickerView()
         if (!emojiPopup!!.isShowing) {
             emojiPopup!!.toggle()
         }
@@ -961,10 +970,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
                 .subscribe { isGranted ->
                     if (isGranted) {
                         setupMediaPickerView()
-                        if (mediaPickerPopup!!.isShowing()) return@subscribe
-
+                        shouldHideBottomView = false
+                        KeyboardHelpers.hideSoftInputKeyboard(this)
                         hideVoiceRecordView()
-                        mediaPickerPopup?.toggle()
+                        showBottomView()
                     }
                 }
     }
