@@ -1,8 +1,10 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
 import android.graphics.drawable.Drawable;
+
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bzzzchat.configuration.GlideRequest;
 import com.bzzzchat.configuration.GlideRequests;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -24,6 +27,8 @@ import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -161,7 +166,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                         //.transition(DrawableTransitionOptions.withCrossFade())
                         .into(imageView);
                 // should preload remote image
-                if (!TextUtils.isEmpty(message.mediaUrl)) {
+                if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
                     StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
                     ((GlideRequests) this.glide).load(gsReference)
                             .messageImage(message.key, bitmapMark)
@@ -172,7 +177,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
 
             String imageURL = message.mediaUrl;
-            if (TextUtils.isEmpty(imageURL) || !imageURL.startsWith("gs://")) {
+            if (TextUtils.isEmpty(imageURL)) {
                 imageView.setImageResource(R.drawable.img_loading_image);
                 return;
             }
@@ -186,10 +191,16 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (isUpdated) {
                 placeholder = imageView.getDrawable();
             }
-            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
-            ((GlideRequests) this.glide)
-                    .load(gsReference)
-                    .placeholder(placeholder)
+            GlideRequest<Drawable> request = null;
+            if (imageURL.startsWith("gs://")) {
+                StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
+                request = ((GlideRequests) this.glide)
+                        .load(gsReference);
+            } else {
+                request = ((GlideRequests) this.glide)
+                        .load(new File(imageURL));
+            }
+            request.placeholder(placeholder)
                     .messageImage(message.key, bitmapMark)
                     .listener(new RequestListener<Drawable>() {
                         @Override

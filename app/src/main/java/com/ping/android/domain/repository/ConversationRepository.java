@@ -6,6 +6,8 @@ import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -29,7 +31,7 @@ public interface ConversationRepository {
 
     Observable<String> getMessageKey(String conversationId);
 
-    Observable<MessageEntity> sendMessage(String conversationId, MessageEntity message);
+    Observable<MessageEntity> sendMessage(Conversation conversation, MessageEntity message);
 
     Observable<Conversation> getConversation(User user, String conversationID);
 

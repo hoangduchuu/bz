@@ -60,6 +60,8 @@ public class MessageEntity extends BaseModel {
     public double callDuration; // in seconds
     @Column
     public boolean isMask;
+    @Column
+    public int messageStatusCode;
     public List<MessageEntity> childMessages;
     public int childCount;
     public boolean isCached;

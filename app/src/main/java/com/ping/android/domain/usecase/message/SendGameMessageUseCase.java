@@ -62,7 +62,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
                 .setGameType(params.gameType);
-        builder.setCacheImage(params.filePath);
+        builder.setFileUrl(params.filePath);
         MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
                 .zipWith(Observable.just(cachedMessage), (s, message) -> {

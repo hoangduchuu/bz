@@ -14,8 +14,6 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import android.text.Editable
@@ -1152,6 +1150,14 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun hideLoading() {
         super<CoreActivity>.hideLoading()
+    }
+
+    override fun connectivityChanged(availableNow: Boolean) {
+        if (availableNow) {
+            messagesAdapter.lastMessage?.let {
+                presenter?.getUpdatedMessages(it.timestamp)
+            }
+        }
     }
 
     companion object {

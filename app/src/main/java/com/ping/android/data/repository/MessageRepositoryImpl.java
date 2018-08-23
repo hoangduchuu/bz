@@ -19,6 +19,8 @@ import com.raizlabs.android.dbflow.rx2.language.RXSQLite;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -291,6 +293,40 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .where(MessageEntity_Table.key.eq(message))
                 .execute();
 
+    }
+
+    @Override
+    public Observable<List<MessageEntity>> getErrorMessages() {
+        return RXSQLite.rx(
+                SQLite.select()
+                        .from(MessageEntity.class)
+                        .where(MessageEntity_Table.messageStatusCode.eq(Constant.MESSAGE_STATUS_ERROR))
+        )
+                .queryList()
+                .toObservable();
+    }
+
+    @Override
+    public Observable<List<MessageEntity>> getUpdatedMessages(@NotNull String conversationId, double timestamp) {
+        DatabaseReference reference = database.getReference("messages").child(conversationId);
+        reference.keepSynced(true);
+        Query query = reference
+                .orderByChild("timestamp")
+                .startAt(timestamp);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                })
+                .toObservable();
     }
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {

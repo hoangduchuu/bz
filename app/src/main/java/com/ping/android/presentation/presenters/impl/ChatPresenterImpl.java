@@ -21,6 +21,7 @@ import com.ping.android.domain.usecase.conversation.UpdateMaskOutputConversation
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
+import com.ping.android.domain.usecase.message.GetUpdatedMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveLastMessageUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageChangeUseCase;
@@ -82,6 +83,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveGroupValueUseCase observeGroupValueUseCase;
     @Inject
     GetLastMessagesUseCase getLastMessagesUseCase;
+    @Inject
+    GetUpdatedMessagesUseCase getUpdatedMessagesUseCase;
     @Inject
     LoadMoreMessagesUseCase loadMoreMessagesUseCase;
     @Inject
@@ -271,7 +274,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
-                checkMessageError(messageChildData.getData());
+//                checkMessageError(messageChildData.getData());
                 addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:
@@ -646,6 +649,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 //updateLastMessages(output.messages, output.canLoadMore);
                 for (Message message : output.messages) {
+                    prepareMessageStatus(message);
                     addMessage(message);
                 }
                 observeMessageUpdate();
@@ -833,6 +837,19 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
     }
 
+    @Override
+    public void getUpdatedMessages(double timestamp) {
+        getUpdatedMessagesUseCase.execute(new DefaultObserver<List<? extends Message>>() {
+                                              @Override
+                                              public void onNext(List<? extends Message> messages) {
+                                                  for (Message message : messages) {
+                                                      addMessage(message);
+                                                  }
+                                              }
+                                          },
+                new GetUpdatedMessagesUseCase.Params(conversation, timestamp, currentUser));
+    }
+
     private void sendNotification(Conversation conversation, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message, messageType));
@@ -875,7 +892,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeConversationColorUseCase.dispose();
         observeConversationBackgroundUseCase.dispose();
         observeNicknameConversationUseCase.dispose();
-//        sendTextMessageUseCase.dispose();
+        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();
 //        sendAudioMessageUseCase.dispose();

@@ -316,7 +316,8 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         private void setMessageStatus(Message message, boolean lastItem) {
             if (tvStatus == null) return;
             String messageStatus = message.messageStatus;
-            if ((lastItem || message.type == MessageType.GAME) && !TextUtils.isEmpty(messageStatus)) {
+            if ((lastItem || message.type == MessageType.GAME || message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR)
+                    && !TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setText(messageStatus);
                 tvStatus.setVisibility(View.VISIBLE);
                 if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {

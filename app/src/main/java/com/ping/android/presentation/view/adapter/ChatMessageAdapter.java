@@ -255,6 +255,13 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return null;
     }
 
+//    public Message getLastMessage() {
+//        if (getItemCount() > 0) {
+//            return ((MessageBaseItem) this.items.get(0)).message;
+//        }
+//        return null;
+//    }
+
     public void update(MessageBaseItem selectedMessage) {
         int index = this.items.indexOf(selectedMessage);
         if (index >= 0 && index < getItemCount()) {
@@ -385,6 +392,10 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             }
             this.items.add(headerIndex, headerItem);
             notifyItemInserted(headerIndex);
+            if (headerIndex > 0) {
+                // Refresh last item in previous section
+                notifyItemInserted(headerIndex - 1);
+            }
         }
         if (added) {
             int childIndex = headerItem.findChildIndex(item);

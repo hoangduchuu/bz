@@ -1,11 +1,20 @@
 package com.ping.android.data.db
 
+import com.ping.android.data.entity.MessageEntity
 import com.raizlabs.android.dbflow.annotation.Database
+import com.raizlabs.android.dbflow.annotation.Migration
+import com.raizlabs.android.dbflow.sql.SQLiteType
+import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration
 
 @Database(name = AppDatabase.NAME, version = AppDatabase.VERSION)
-class AppDatabase {
-    companion object {
-        const val NAME = "BZZZ"
-        const val VERSION = 1
+object AppDatabase {
+    const val NAME = "BZZZ"
+    const val VERSION = 2
+
+    @Migration(version = 2, database = AppDatabase::class)
+    class Migration2(table: Class<MessageEntity>): AlterTableMigration<MessageEntity>(table) {
+        override fun onPreMigrate() {
+            addColumn(SQLiteType.INTEGER, "messageStatusCode")
+        }
     }
 }

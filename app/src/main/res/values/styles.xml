@@ -275,6 +275,8 @@
         <item name="android:minWidth">40dp</item>
         <item name="android:minHeight">36dp</item>
         <item name="android:background">@null</item>
+        <item name="android:backgroundTint">@android:color/transparent</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:textColor">@color/action_button</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">sans-serif</item>
@@ -284,11 +286,16 @@
     <style name="ActionButton.TopMenu">
         <item name="android:minHeight">@dimen/top_bar_height</item>
         <item name="android:colorButtonNormal">@android:color/transparent</item>
-        <item name="android:colorAccent">@android:color/transparent</item>
+        <item name="colorAccent">@android:color/transparent</item>
         <item name="android:paddingStart">@dimen/default_padding</item>
         <item name="android:paddingEnd">@dimen/default_padding</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:textColor">@color/action_button_top</item>
+    </style>
+
+    <style name="DefaultButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="colorButtonNormal">@color/black</item>
+        <item name="android:textColor">@color/color_accent_5</item>
     </style>
 
     <style name="RecyclerView">

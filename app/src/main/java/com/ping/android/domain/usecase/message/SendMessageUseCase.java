@@ -44,60 +44,53 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     UserRepository userRepository;
     @Inject
     MessageMapper messageMapper;
-    private MessageEntity message;
-    private Conversation conversation;
-    private Timer timer;
 
     @Inject
     public SendMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
-        timer = new Timer();
     }
 
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
+        MessageEntity message = params.getMessage();
+        Conversation conversation = params.getConversation();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                updateMessageStatus(Constant.MESSAGE_STATUS_ERROR)
+                handleMessageError(conversation, message)
                         .subscribe();
             }
         };
-        if (timer != null) {
-            timer.cancel();
-        }
-        timer = new Timer();
+        Timer timer = new Timer();
         timer.schedule(task, 5000);
-        message = params.getMessage();
-        conversation = params.getConversation();
-        return conversationRepository.sendMessage(params.conversation.key, message)
-                .flatMap(message1 -> {
-                    if (timer != null) {
-                        timer.cancel();
+        Conversation newConversation = params.getNewConversation();
+        return commonRepository.getConnectionState()
+                .map(aBoolean -> {
+                    if (!aBoolean) {
+                        message.photoUrl = params.filePath;
                     }
-                    Conversation conversation = params.getNewConversation();
-                    Map<String, Object> updateData = new HashMap<>();
-                    // Update message for conversation for each opponentUser
-                    updateData.put(String.format("messages/%s/%s/status/%s", conversation.key,
-                            message.key, message.senderId), Constant.MESSAGE_STATUS_DELIVERED);
-                    for (String toUser : conversation.memberIDs.keySet()) {
-                        if (!message1.isReadable(toUser)) continue;
-                        updateData.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
-                    }
-                    return commonRepository.updateBatchData(updateData)
-                            .map(success -> messageMapper.transform(message1, params.user));
-                });
+                    return message;
+                })
+                .flatMap(msg -> conversationRepository.sendMessage(newConversation, msg)
+                        .flatMap(message1 -> {
+                            if (timer != null) {
+                                timer.cancel();
+                            }
+                            return messageRepository.updateMessageStatus(newConversation.key, message1.key, message1.senderId, Constant.MESSAGE_STATUS_DELIVERED)
+                                    .map(aBoolean -> messageMapper.transform(message1, params.user));
+                        }));
     }
 
-    private Observable<Boolean> updateMessageStatus(int messageStatus) {
+    private Observable<Boolean> handleMessageError(Conversation conversation, MessageEntity message) {
         if (message != null) {
-            //messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, messageStatus);
+            //messageRepository.handleMessageError(conversation.key, message.key, message.senderId, messageStatus);
             HashMap<String, Object> updateValue = new HashMap<>();
             for (String userId : conversation.memberIDs.keySet()) {
-                //messageRepository.updateMessageStatus(conversation.key, message.key, userId, messageStatus);
-                updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), messageStatus);
+                //messageRepository.handleMessageError(conversation.key, message.key, userId, messageStatus);
+                updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), Constant.MESSAGE_STATUS_ERROR);
             }
+            updateValue.put(String.format("media/%s/%s", conversation.key, message.key), message.toMap());
             return commonRepository.updateBatchData(updateValue);
         }
         return Observable.empty();
@@ -240,7 +233,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         break;
                 }
                 message.key = messageKey;
-                //message.localFilePath = cacheImage;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);

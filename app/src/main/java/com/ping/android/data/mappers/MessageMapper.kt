@@ -36,6 +36,7 @@ class MessageMapper @Inject constructor() {
         message.messageCallType = MessageCallType.from(entity.callType)
         message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_DAY).toLong()
         message.status = entity.status ?: HashMap()
+        message.messageStatusCode = entity.messageStatusCode
 
         prepareMessageStatus(message, currentUser)
         message.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, currentUser.key)

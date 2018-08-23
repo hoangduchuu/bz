@@ -64,6 +64,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void updateMaskChildMessages(List<Message> messages, boolean maskStatus);
 
+    void getUpdatedMessages(double timestamp);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

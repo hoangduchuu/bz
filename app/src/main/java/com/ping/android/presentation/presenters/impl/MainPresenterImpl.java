@@ -7,6 +7,7 @@ import com.ping.android.domain.usecase.LoginQuickBloxUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
+import com.ping.android.domain.usecase.SyncMessageUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
 import com.ping.android.domain.usecase.user.TurnOffMappingConfirmationUseCase;
 import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
@@ -42,6 +43,8 @@ public class MainPresenterImpl implements MainPresenter {
     UpdateUserTransphabetUseCase updateUserTransphabetUseCase;
     @Inject
     GetConversationValueUseCase getConversationValueUseCase;
+    @Inject
+    SyncMessageUseCase syncMessageUseCase;
     private User currentUser;
     private boolean isInit = false;
 
@@ -60,6 +63,7 @@ public class MainPresenterImpl implements MainPresenter {
             }
         }, null);
         observeFriendsStatusUseCase.execute(new DefaultObserver<>(), null);
+        syncMessageUseCase.execute(new DefaultObserver<>(), null);
     }
 
     private void handleUserUpdate(User user) {
@@ -80,6 +84,7 @@ public class MainPresenterImpl implements MainPresenter {
     public void destroy() {
         observeCurrentUserUseCase.dispose();
         observeFriendsStatusUseCase.dispose();
+        syncMessageUseCase.dispose();
     }
 
     @Override

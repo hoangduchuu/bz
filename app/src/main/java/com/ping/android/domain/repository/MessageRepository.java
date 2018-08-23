@@ -3,6 +3,8 @@ package com.ping.android.domain.repository;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.entity.MessageEntity;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -51,4 +53,8 @@ public interface MessageRepository {
     void saveMessages(List<MessageEntity> entities);
 
     void updateLocalMaskStatus(String message, boolean isMask);
+
+    Observable<List<MessageEntity>> getErrorMessages();
+
+    Observable<List<MessageEntity>> getUpdatedMessages(@NotNull String conversationId, double timestamp);
 }
