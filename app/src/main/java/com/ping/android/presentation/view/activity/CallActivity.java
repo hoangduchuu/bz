@@ -74,7 +74,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     private ConnectionListener connectionListener;
     private SharedPreferences sharedPref;
     private AppRTCAudioManager audioManager;
-    private NetworkConnectionChecker networkConnectionChecker;
+    @Inject
+    NetworkConnectionChecker networkConnectionChecker;
     private QbUsersDbManager dbManager;
     private ArrayList<CurrentCallStateCallback> currentCallStateCallbackList = new ArrayList<>();
     private boolean callStarted;
@@ -342,7 +343,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     }
 
     private void initWiFiManagerListener() {
-        networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        //networkConnectionChecker = new NetworkConnectionChecker(getApplication());
     }
 
     public void hangUpCurrentSession() {

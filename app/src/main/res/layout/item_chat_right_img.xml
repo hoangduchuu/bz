@@ -43,7 +43,7 @@
 
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/spin_kit"
-            style="@style/SpinKitView.Small.FoldingCube"
+            style="@style/SpinKitView.Small.FadingCircle"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"

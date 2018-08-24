@@ -65,6 +65,7 @@ public class MessageEntity extends BaseModel {
     public List<MessageEntity> childMessages;
     public int childCount;
     public boolean isCached;
+    public String fileUrl;
 
     public MessageEntity() {
     }
@@ -186,7 +187,7 @@ public class MessageEntity extends BaseModel {
     public static MessageEntity createGroupImageMessage(String senderId, String senderName, MessageType messageType,
                                                         double timestamp, Map<String, Integer> status,
                                                         Map<String, Boolean> markStatuses, Map<String, Boolean> deleteStatuses,
-                                                        Map<String, Boolean> readAllowed, int childCount) {
+                                                        Map<String, Boolean> readAllowed, List<MessageEntity> childMessages) {
         MessageEntity message = new MessageEntity();
         message.messageType = messageType.ordinal();
         message.senderId = senderId;
@@ -196,7 +197,8 @@ public class MessageEntity extends BaseModel {
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
         message.readAllowed = readAllowed;
-        message.childCount = childCount;
+        message.childMessages = childMessages;
+        message.childCount = childMessages.size();
         return message;
     }
 
@@ -223,6 +225,13 @@ public class MessageEntity extends BaseModel {
         result.put("callType", callType);
         result.put("callDuration", callDuration);
         result.put("childCount", childCount);
+        if (messageType == Constant.MSG_TYPE_IMAGE_GROUP && childMessages != null) {
+            Map<String, Object> child = new HashMap<>();
+            for (MessageEntity entity : childMessages) {
+                child.put(entity.key, entity.toMap());
+            }
+            result.put("childMessages", child);
+        }
         return result;
     }
 

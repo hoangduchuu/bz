@@ -20,16 +20,18 @@ import com.ping.android.utils.SharedPrefsHelper;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public abstract class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
-
-    private static NetworkConnectionChecker networkConnectionChecker;
-    // Disposable for UI events
     private CompositeDisposable disposables;
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
     private AtomicBoolean showLoading = new AtomicBoolean(false);
+
+    @Inject
+    NetworkConnectionChecker networkConnectionChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

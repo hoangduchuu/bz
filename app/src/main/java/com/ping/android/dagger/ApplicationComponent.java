@@ -5,6 +5,7 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
 import com.ping.android.service.NotificationBroadcastReceiver;
+import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.bus.BusProvider;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,4 +47,6 @@ public interface ApplicationComponent {
     UserManager provideUserManager();
 
     BusProvider provideBusProvider();
+
+    NetworkConnectionChecker provideNetworkConnectionChecker();
 }

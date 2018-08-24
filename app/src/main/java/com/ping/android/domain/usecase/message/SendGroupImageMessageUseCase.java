@@ -23,6 +23,7 @@ import com.ping.android.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,36 +64,54 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                 .setMessageType(MessageType.IMAGE_GROUP)
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
-                .setCurrentUser(params.currentUser)
-                .setChildCount(params.items.size());
+                .setCurrentUser(params.currentUser);
         return conversationRepository.getMessageKey(params.conversation.key)
-                .map(messageKey -> {
+                .flatMap(messageKey -> {
+                    List<MessageEntity> childMessages = buildChildMessages(messageKey, params, true);
+                    Collections.sort(childMessages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
                     builder.setMessageKey(messageKey);
-                    return builder;
-                })
-                .flatMap(builder1 -> sendMessageUseCase.buildUseCaseObservable(builder1.build())
-                        .zipWith(sendMediaMessage(params.conversation.key, builder1.build().getMessage(), params.currentUser), (message, message2) -> message)
-                        .flatMap(message -> buildCacheChildMessages(params, message.key)
-                                .map(messages -> {
-                                    message.isCached = true;
-                                    message.isMask = params.markStatus;
-                                    message.childMessages = messages;
-                                    Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
-                                    return message;
-                                })
-                                .flatMap(message1 -> Observable.just(message1)
-                                        .concatWith(sendChildMessages(params.conversation.key, message1)
-                                                .map(messages -> {
-                                                    // Need set isCached to false in order to notify presenter to trigger send notification
-                                                    message1.isCached = false;
-                                                    message1.childMessages = messages;
-                                                    Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
-                                                    return message1;
-                                                })
-                                        )
-                                )
-                        )
-                );
+                    builder.setChildMessages(childMessages);
+                    return sendMessageUseCase.buildUseCaseObservable(builder.build())
+//                            .flatMap(message -> buildCacheChildMessages(params, message.key)
+                                    .map(message -> {
+                                        message.isCached = true;
+//                                        message.isMask = params.markStatus;
+//                                        message.childMessages = messages;
+//                                        Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
+                                        return message;
+                                    })
+                                    .flatMap(message1 -> Observable.just(message1)
+                                            .concatWith(sendChildMessages(params.conversation.key, message1)
+                                                    .map(messages -> {
+                                                        // Need set isCached to false in order to notify presenter to trigger send notification
+                                                        message1.isCached = false;
+                                                        message1.childMessages = messages;
+                                                        Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
+                                                        return message1;
+                                                    })
+                                            )
+//                                    )
+                            );
+                });
+    }
+
+    private List<MessageEntity> buildChildMessages(String parentKey, SendGroupImageMessageUseCase.Params params, boolean isConnected) {
+        List<MessageEntity> childMessages = new ArrayList<>();
+        for (PhotoItem item : params.items) {
+            SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
+                    .setMessageType(MessageType.IMAGE)
+                    .setConversation(params.conversation)
+                    .setMarkStatus(params.markStatus)
+                    .setCurrentUser(params.currentUser)
+                    .setMessageType(MessageType.IMAGE)
+                    .setFileUrl(item.getImagePath())
+                    .setThumbUrl(item.getImagePath());
+            String childKey = messageRepository.populateChildMessageKey(params.conversation.key, parentKey);
+            MessageEntity message = builder.build().getMessage();
+            message.key = childKey;
+            childMessages.add(message);
+        }
+        return childMessages;
     }
 
     private Observable<List<Message>> buildCacheChildMessages(SendGroupImageMessageUseCase.Params params, String messageKey) {
@@ -104,7 +123,6 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                             .setConversation(params.conversation)
                             .setMarkStatus(params.markStatus)
                             .setCurrentUser(params.currentUser)
-                            .setCacheImage(photoItem.getImagePath())
                             .setMessageType(MessageType.IMAGE);
                     String childKey = messageRepository.populateChildMessageKey(params.conversation.key, messageKey);
                     MessageEntity message = builder.build().getMessage();

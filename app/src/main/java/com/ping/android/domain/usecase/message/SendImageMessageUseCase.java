@@ -64,36 +64,35 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
-                .setGameType(params.gameType);
-        builder.setFileUrl(params.filePath);
-        builder.setThumbUrl(params.thumbFilePath);
+                .setGameType(params.gameType)
+                .setFileUrl(params.filePath)
+                .setThumbUrl(params.thumbFilePath);
         MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
-                .zipWith(Observable.just(cachedMessage), (s, message) -> {
-                    message.key = s;
-                    builder.setMessageKey(s);
-                    return message;
-                })
-                .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
-                        .map(message1 -> {
-                            message1.isCached = true;
-                            message1.localFilePath = params.filePath;
-                            message1.currentUserId = params.currentUser.key;
-                            return message1;
-                        })
-                        .concatWith(sendMessage(message, params.conversation.key, message.key, params.filePath)
-                                .flatMap(message1 -> {
-                                    Map<String, Object> updateValue = new HashMap<>();
-                                    updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, message.key), message.photoUrl);
-                                    updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, message.key), message.thumbUrl);
-                                    updateValue.put(String.format("media/%s/%s", params.conversation.key, message.key), message.toMap());
-                                    return commonRepository.updateBatchData(updateValue)
-                                            .map(aBoolean -> messageMapper.transform(message1, params.currentUser));
-                                }))
-                );
+                .flatMap(messageKey -> {
+                    cachedMessage.key = messageKey;
+                    builder.setMessageKey(messageKey);
+                    Message temp = messageMapper.transform(cachedMessage, params.currentUser);
+                    temp.isCached = true;
+                    temp.localFilePath = params.filePath;
+                    temp.currentUserId = params.currentUser.key;
+                    return Observable.just(temp)
+                            .concatWith(sendMessageUseCase.buildUseCaseObservable(builder.build())
+                                    .flatMap(msg -> uploadImages(cachedMessage, params.conversation.key, cachedMessage.key, params.filePath)
+                                            .flatMap(message1 -> {
+                                                Map<String, Object> updateValue = new HashMap<>();
+                                                updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
+                                                updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
+                                                updateValue.put(String.format("media/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
+                                                updateValue.put(String.format("media/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
+                                                return commonRepository.updateBatchData(updateValue)
+                                                        .map(aBoolean -> messageMapper.transform(message1, params.currentUser));
+                                            }))
+                            );
+                });
     }
 
-    private Observable<MessageEntity> sendMessage(MessageEntity message, String conversationId, String messageId, String filePath) {
+    private Observable<MessageEntity> uploadImages(MessageEntity message, String conversationId, String messageId, String filePath) {
         return this.uploadThumbnail(conversationId, messageId, filePath)
                 .zipWith(uploadImage(conversationId, messageId, filePath), (s, s2) -> {
                     message.thumbUrl = s;

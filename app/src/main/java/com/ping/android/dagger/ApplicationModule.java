@@ -1,6 +1,7 @@
 package com.ping.android.dagger;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.bzzzchat.cleanarchitecture.JobExecutor;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
@@ -40,6 +41,12 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public Application provideApplication() {
+        return application;
+    }
+
+    @Provides
+    @Singleton
+    public Context provideContext() {
         return application;
     }
 

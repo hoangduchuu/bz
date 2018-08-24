@@ -157,13 +157,14 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
             Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+            if (isUpdated) {
+                placeholder = imageView.getDrawable();
+            }
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
                 ((GlideRequests) this.glide)
                         .load(item.message.localFilePath)
                         .placeholder(placeholder)
                         .messageImage(message.key, bitmapMark)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        //.transition(DrawableTransitionOptions.withCrossFade())
                         .into(imageView);
                 // should preload remote image
                 if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
@@ -188,9 +189,6 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
             loadingView.setVisibility(View.VISIBLE);
 
-            if (isUpdated) {
-                placeholder = imageView.getDrawable();
-            }
             GlideRequest<Drawable> request = null;
             if (imageURL.startsWith("gs://")) {
                 StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
@@ -202,6 +200,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
             request.placeholder(placeholder)
                     .messageImage(message.key, bitmapMark)
+                    .dontAnimate()
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

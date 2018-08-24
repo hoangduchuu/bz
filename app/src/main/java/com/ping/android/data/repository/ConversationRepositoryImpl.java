@@ -11,6 +11,7 @@ import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,6 +86,11 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         for (String toUser : conversation.memberIDs.keySet()) {
             if (!message.isReadable(toUser)) continue;
             updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME
+                    || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
+                updateValue.put(String.format("media/%s/%s", toUser, conversation.key), conversation.toMap());
+            }
         }
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .map(aBoolean -> message)

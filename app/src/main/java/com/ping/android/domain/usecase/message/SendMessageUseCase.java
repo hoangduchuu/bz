@@ -16,11 +16,13 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageCallType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
+import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,6 +46,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     UserRepository userRepository;
     @Inject
     MessageMapper messageMapper;
+    @Inject
+    NetworkConnectionChecker networkConnectionChecker;
 
     @Inject
     public SendMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -65,35 +69,54 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         Timer timer = new Timer();
         timer.schedule(task, 5000);
         Conversation newConversation = params.getNewConversation();
-        return commonRepository.getConnectionState()
-                .map(aBoolean -> {
-                    if (!aBoolean) {
-                        message.photoUrl = params.filePath;
-                    }
-                    return message;
-                })
-                .flatMap(msg -> conversationRepository.sendMessage(newConversation, msg)
-                        .flatMap(message1 -> {
-                            if (timer != null) {
-                                timer.cancel();
-                            }
-                            return messageRepository.updateMessageStatus(newConversation.key, message1.key, message1.senderId, Constant.MESSAGE_STATUS_DELIVERED)
-                                    .map(aBoolean -> messageMapper.transform(message1, params.user));
-                        }));
+        boolean isConnected = networkConnectionChecker.isConnected();
+        if (!isConnected) {
+            timer.cancel();
+            if (message.messageType == Constant.MSG_TYPE_GAME) {
+                message.gameUrl = params.filePath;
+            } else {
+                message.photoUrl = params.filePath;
+            }
+            for (String toUser : conversation.memberIDs.keySet()) {
+                if (!message.isReadable(toUser)) continue;
+                message.status.put(toUser, Constant.MESSAGE_STATUS_ERROR);
+            }
+        }
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s", conversation.key, message.key), message.toMap());
+        for (String toUser : conversation.memberIDs.keySet()) {
+            if (!message.isReadable(toUser)) continue;
+            updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME
+                    || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
+                updateValue.put(String.format("media/%s/%s", conversation.key, message.key), message.toMap());
+            }
+        }
+        return commonRepository.updateBatchData(updateValue)
+                .flatMap(aB -> {
+                    timer.cancel();
+                    return messageRepository.updateMessageStatus(newConversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
+                            .map(aBoolean1 -> messageMapper.transform(message, params.user));
+                });
     }
 
-    private Observable<Boolean> handleMessageError(Conversation conversation, MessageEntity message) {
-        if (message != null) {
-            //messageRepository.handleMessageError(conversation.key, message.key, message.senderId, messageStatus);
-            HashMap<String, Object> updateValue = new HashMap<>();
-            for (String userId : conversation.memberIDs.keySet()) {
-                //messageRepository.handleMessageError(conversation.key, message.key, userId, messageStatus);
-                updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), Constant.MESSAGE_STATUS_ERROR);
-            }
-            updateValue.put(String.format("media/%s/%s", conversation.key, message.key), message.toMap());
-            return commonRepository.updateBatchData(updateValue);
+    private Observable<MessageEntity> handleMessageError(Conversation
+                                                                 conversation, MessageEntity message) {
+        //messageRepository.handleMessageError(conversation.key, message.key, message.senderId, messageStatus);
+        HashMap<String, Object> updateValue = new HashMap<>();
+        for (String userId : conversation.memberIDs.keySet()) {
+            if (!message.isReadable(userId)) continue;
+            //messageRepository.handleMessageError(conversation.key, message.key, userId, messageStatus);
+            updateValue.put(String.format("messages/%s/%s/status/%s", conversation.key, message.key, userId), Constant.MESSAGE_STATUS_ERROR);
         }
-        return Observable.empty();
+//        if (message.messageType == Constant.MSG_TYPE_IMAGE
+//                || message.messageType == Constant.MSG_TYPE_GAME
+//                || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
+//            updateValue.put(String.format("media/%s/%s", conversation.key, message.key), message.toMap());
+//        }
+        return commonRepository.updateBatchData(updateValue)
+                .map(aBoolean -> message);
     }
 
     public static class Params {
@@ -127,10 +150,10 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             private String fileUrl;
             private String thumbUrl;
             private String messageKey;
-            private String cacheImage;
             private double timestamp;
             private double callDuration;
             private int childCount = 0;
+            private List<MessageEntity> childMessages;
 
             public Builder() {
                 timestamp = System.currentTimeMillis() / 1000d;
@@ -201,8 +224,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 return this;
             }
 
-            public Builder setChildCount(int childCount) {
-                this.childCount = childCount;
+            public Builder setChildMessages(List<MessageEntity> childMessages) {
+                this.childMessages = childMessages;
+                this.childCount = childMessages.size();
                 return this;
             }
 
@@ -214,7 +238,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         message = buildMessage(currentUser, text);
                         break;
                     case IMAGE:
-                        message = buildImageMessage(currentUser, fileUrl, thumbUrl);
+                        message = buildImageMessage(currentUser, "", thumbUrl);
                         break;
                     case GAME:
                         message = buildGameMessage(currentUser, fileUrl, gameType);
@@ -233,6 +257,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         break;
                 }
                 message.key = messageKey;
+                message.fileUrl = fileUrl;
                 params.message = message;
                 params.conversation = conversation;
                 params.newConversation = conversationFrom(message);
@@ -245,7 +270,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return MessageEntity.createGroupImageMessage(currentUser.key, currentUser.getDisplayName(), messageType,
-                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, childCount);
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance, childMessages);
             }
 
             private MessageEntity buildCallMessage(User currentUser, MessageType messageType, MessageCallType callType) {
@@ -377,11 +402,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 }
                 deleteStatuses.put(currentUser.key, false);
                 return deleteStatuses;
-            }
-
-            public Builder setCacheImage(String filePath) {
-                this.cacheImage = filePath;
-                return this;
             }
 
             public Builder setCallDuration(double callDuration) {
