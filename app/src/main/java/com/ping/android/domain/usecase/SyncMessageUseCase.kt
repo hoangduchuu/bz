@@ -8,7 +8,6 @@ import com.ping.android.data.entity.MessageEntity
 import com.ping.android.domain.repository.CommonRepository
 import com.ping.android.domain.repository.MessageRepository
 import com.ping.android.domain.repository.StorageRepository
-import com.ping.android.model.Message
 import com.ping.android.utils.Utils
 import com.ping.android.utils.configs.Constant
 import io.reactivex.Observable
@@ -38,8 +37,12 @@ class SyncMessageUseCase @Inject constructor(
                                     val textMessages = messages.filter {
                                         it.messageType == Constant.MSG_TYPE_TEXT
                                     }
+                                    val groupImageMessages = messages.filter {
+                                        it.messageType == Constant.MSG_TYPE_IMAGE_GROUP
+                                    }
                                     return@flatMap resendTextMessage(textMessages)
                                             .concatMap { resendImageMessages(ArrayList(imageMessages)) }
+                                            .concatMap { resendGroupImageMessages(ArrayList(groupImageMessages)) }
                                 }
                     } else {
                         Observable.just(true)
@@ -56,6 +59,44 @@ class SyncMessageUseCase @Inject constructor(
         return commonRepository.updateBatchData(updateValue)
     }
 
+    @Suppress("LABEL_NAME_CLASH")
+    private fun resendGroupImageMessages(messages: ArrayList<MessageEntity>): Observable<Boolean> {
+        if (messages.isEmpty()) return Observable.just(true)
+        return Observable.just(messages)
+                .flatMapIterable { list -> list }
+                .flatMap { message -> Observable.just(message.childMessages)
+                        .flatMapIterable { child -> child }
+                        .flatMap { childEntity ->
+                            val localFile = File(childEntity.photoUrl)
+                            if (!localFile.exists()) return@flatMap Observable.just(true)
+                            return@flatMap uploadThumbnail(message.conversationId, localFile.absolutePath)
+                                    .concatMap { thumbUrl ->
+                                        uploadImage(message.conversationId, localFile.absolutePath)
+                                                .flatMap { photoUrl ->
+                                                    return@flatMap messageRepository.updateChildMessageImage(message.conversationId,
+                                                            message.key, childEntity.key, thumbUrl, photoUrl)
+//                                                    val updateValue = java.util.HashMap<String, Any>()
+//                                                    if (message.messageType == Constant.MSG_TYPE_IMAGE) {
+//                                                        updateValue[String.format("messages/%s/%s/photoUrl", message.conversationId, message.key)] = photoUrl
+//                                                        updateValue[String.format("media/%s/%s/photoUrl", message.conversationId, message.key)] = photoUrl
+//                                                    } else {
+//                                                        updateValue[String.format("messages/%s/%s/gameUrl", message.conversationId, message.key)] = photoUrl
+//                                                        updateValue[String.format("media/%s/%s/gameUrl", message.conversationId, message.key)] = photoUrl
+//                                                    }
+//                                                    updateValue[String.format("messages/%s/%s/thumbUrl", message.conversationId, message.key)] = thumbUrl
+//                                                    updateValue[String.format("media/%s/%s/thumbUrl", message.conversationId, message.key)] = thumbUrl
+//                                                    updateValue["messages/${message.conversationId}/${message.key}/status/${message.senderId}"] = Constant.MESSAGE_STATUS_DELIVERED
+//                                                    return@flatMap commonRepository.updateBatchData(updateValue)
+                                                }
+                                    }
+                        }
+                        .take(message.childMessages.size.toLong())
+                        .flatMap {
+                            messageRepository.updateMessageStatus(message.conversationId, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
+                        }
+                }
+    }
+
     private fun resendImageMessages(messages: List<MessageEntity>): Observable<Boolean> {
         if (messages.isEmpty()) return Observable.just(true)
         return Observable.just(messages)
@@ -63,11 +104,11 @@ class SyncMessageUseCase @Inject constructor(
                 .flatMap { message ->
                     val localFile = if (message.messageType == Constant.MSG_TYPE_IMAGE) File(message.photoUrl) else File(message.gameUrl)
                     if (!localFile.exists()) return@flatMap Observable.just(true)
-                    return@flatMap uploadThumbnail(message.conversationId, message.key, localFile.absolutePath)
+                    return@flatMap uploadThumbnail(message.conversationId, localFile.absolutePath)
                             .concatMap { thumbUrl ->
-                                uploadImage(message.conversationId, message.key, localFile.absolutePath)
+                                uploadImage(message.conversationId, localFile.absolutePath)
                                         .flatMap { photoUrl ->
-                                            val updateValue = java.util.HashMap<String, Any>()
+                                            val updateValue = HashMap<String, Any>()
                                             if (message.messageType == Constant.MSG_TYPE_IMAGE) {
                                                 updateValue[String.format("messages/%s/%s/photoUrl", message.conversationId, message.key)] = photoUrl
                                                 updateValue[String.format("media/%s/%s/photoUrl", message.conversationId, message.key)] = photoUrl
@@ -85,17 +126,17 @@ class SyncMessageUseCase @Inject constructor(
 
     }
 
-    private fun uploadImage(conversationKey: String, messageKey: String, filePath: String): Observable<String> {
+    private fun uploadImage(conversationKey: String, filePath: String): Observable<String> {
         if (TextUtils.isEmpty(filePath)) return Observable.just("")
         val fileName = File(filePath).name
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512))
-                .flatMap { s -> messageRepository.updateImage(conversationKey, messageKey, s) }
+                //.flatMap { s -> messageRepository.updateImage(conversationKey, messageKey, s) }
     }
 
-    private fun uploadThumbnail(conversationKey: String, messageKey: String, filePath: String): Observable<String> {
+    private fun uploadThumbnail(conversationKey: String, filePath: String): Observable<String> {
         if (TextUtils.isEmpty(filePath)) return Observable.just("")
         val fileName = "thumb_" + File(filePath).name
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128))
-                .flatMap { s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s) }
+                //.flatMap { s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s) }
     }
 }

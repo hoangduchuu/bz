@@ -58,7 +58,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
         MessageEntity message = params.getMessage();
-        Conversation conversation = params.getConversation();
+        Conversation conversation = params.getNewConversation();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -68,7 +68,6 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         };
         Timer timer = new Timer();
         timer.schedule(task, 5000);
-        Conversation newConversation = params.getNewConversation();
         boolean isConnected = networkConnectionChecker.isConnected();
         if (!isConnected) {
             timer.cancel();
@@ -96,7 +95,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         return commonRepository.updateBatchData(updateValue)
                 .flatMap(aB -> {
                     timer.cancel();
-                    return messageRepository.updateMessageStatus(newConversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
+                    return messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
                             .map(aBoolean1 -> messageMapper.transform(message, params.user));
                 });
     }
