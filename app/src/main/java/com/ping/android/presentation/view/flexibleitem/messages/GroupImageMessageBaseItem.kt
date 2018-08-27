@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.graphics.Outline
+import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import androidx.core.util.Pair
 import androidx.recyclerview.widget.RecyclerView
@@ -9,12 +10,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.bzzzchat.configuration.GlideRequests
 import com.bzzzchat.extensions.inflate
 import com.bzzzchat.extensions.px
+import com.github.ybq.android.spinkit.SpinKitView
+import com.github.ybq.android.spinkit.style.FadingCircle
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.Message
@@ -48,7 +57,8 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
     class ViewHolder(parent: ViewGroup, var glide: RequestManager, var listener: GroupImageAdapterListener? = null) : BaseMessageViewHolder(
             parent.inflate(R.layout.item_image_group)
     ) {
-        val imageView: ImageView = itemView as ImageView
+        val imageView: ImageView = itemView.findViewById(R.id.image)
+        val loading: SpinKitView = itemView.findViewById(R.id.loading_indicator)
         val curveRadius = 20F
         private val imageDimension = 90.px
         private lateinit var message: Message
@@ -136,17 +146,27 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                     outline?.setRoundRect(left, top, right, bottom, curveRadius)
                 }
             }
-            var placeholder = ContextCompat.getDrawable(imageView.context, R.drawable.img_loading_image)
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.mediaUrl
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
                 Log.d(message.localFilePath)
                 UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
                 (this.glide as GlideRequests)
                         .load(message.localFilePath)
-                        .placeholder(placeholder)
                         .messageImage(message.key, message.isMask)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .transition(DrawableTransitionOptions.withCrossFade())
+                        .listener(object: RequestListener<Drawable> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                loading.visibility = View.GONE
+                                return false
+                            }
+
+                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                loading.visibility = View.GONE
+                                return false
+                            }
+
+                        })
                         .into(imageView)
                 if (!TextUtils.isEmpty(url) && url.startsWith("gs://")) {
                     val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
@@ -163,6 +183,18 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                     .messageImage(message.key, message.isMask)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .override(128)
+                    .listener(object: RequestListener<Drawable> {
+                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                            loading.visibility = View.GONE
+                            return false
+                        }
+
+                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            loading.visibility = View.GONE
+                            return false
+                        }
+
+                    })
                     .into(imageView)
         }
     }

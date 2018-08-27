@@ -7,6 +7,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.signature.ObjectKey;
 
 import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 @GlideExtension
 public class BzzzGlideExtension {
