@@ -33,9 +33,9 @@ public class SendGroupGameMessageUseCase extends UseCase<Message, SendGroupGameM
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
-        PhotoItem[] photoArray = new PhotoItem[params.items.size()];
-        return Observable.fromArray(params.items.toArray(photoArray))
-                .concatMap(photoItem -> {
+        return Observable.just(params.items)
+                .flatMapIterable(photoItems -> photoItems)
+                .flatMap(photoItem ->  {
                     SendGameMessageUseCase.Params gameParams = new SendGameMessageUseCase.Params();
                     gameParams.conversation = params.conversation;
                     gameParams.currentUser = params.currentUser;

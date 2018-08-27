@@ -73,8 +73,10 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
             timer.cancel();
             if (message.messageType == Constant.MSG_TYPE_GAME) {
                 message.gameUrl = params.filePath;
-            } else {
+            } else if (message.messageType == Constant.MSG_TYPE_IMAGE) {
                 message.photoUrl = params.filePath;
+            } else if (message.messageType == Constant.MSG_TYPE_VOICE) {
+                message.audioUrl = params.filePath;
             }
             for (String toUser : conversation.memberIDs.keySet()) {
                 if (!message.isReadable(toUser)) continue;

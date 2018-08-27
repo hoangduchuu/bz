@@ -5,7 +5,10 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
@@ -33,6 +36,10 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
     ConversationRepository conversationRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
+    @Inject
+    MessageMapper messageMapper;
+    @Inject
+    MessageRepository messageRepository;
     SendMessageUseCase.Params.Builder builder;
 
     @Inject
@@ -44,30 +51,30 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
         return conversationRepository.getMessageKey(params.conversation.key)
-                .flatMap(s -> {
+                .flatMap(messageKey -> {
                     builder = new SendMessageUseCase.Params.Builder()
                             .setMessageType(params.messageType)
                             .setConversation(params.conversation)
                             .setVoiceType(params.voiceType)
                             .setCurrentUser(params.currentUser)
-                            .setMessageKey(s);
-                    return sendMessageUseCase.buildUseCaseObservable(builder.build())
-                            .map(message -> {
-                                message.isCached = true;
-                                return message;
-                            })
-                            .concatWith(sendMessage(params));
+                            .setFileUrl(params.filePath)
+                            .setMessageKey(messageKey);
+                    MessageEntity cachedMessage = builder.build().getMessage();
+                    Message temp = messageMapper.transform(cachedMessage, params.currentUser);
+                    temp.isCached = true;
+                    temp.localFilePath = params.filePath;
+                    temp.currentUserId = params.currentUser.key;
+                    return Observable.just(temp)
+                            .concatWith(sendMessageUseCase.buildUseCaseObservable(builder.build())
+                                    .flatMap(message -> sendMessage(params.conversation.key, message.key, params.filePath)
+                                            .map(s -> message)));
                 });
 
     }
 
-    private Observable<Message> sendMessage(Params params) {
-        return this.uploadFile(params.conversation.key, params.filePath)
-                .map(s -> {
-                    builder.setFileUrl(s);
-                    return builder.build();
-                })
-                .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1));
+    private Observable<String> sendMessage(String conversationId, String messageId, String filePath) {
+        return this.uploadFile(conversationId, filePath)
+                .flatMap(s -> messageRepository.updateAudioUrl(conversationId, messageId, s));
     }
 
     private Observable<String> uploadFile(String conversationKey, String filePath) {

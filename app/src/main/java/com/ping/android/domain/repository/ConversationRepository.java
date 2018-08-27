@@ -33,7 +33,7 @@ public interface ConversationRepository {
 
     Observable<MessageEntity> sendMessage(Conversation conversation, MessageEntity message);
 
-    Observable<Conversation> getConversation(User user, String conversationID);
+    Observable<Conversation> getConversation(String userKey, String conversationID);
 
     Observable<Map<String,Boolean>> observeTypingEvent(String conversationId, String userId);
 

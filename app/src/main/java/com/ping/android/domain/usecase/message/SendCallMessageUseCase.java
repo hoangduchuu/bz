@@ -43,7 +43,7 @@ public class SendCallMessageUseCase extends UseCase<Message, SendCallMessageUseC
         return userManager.getCurrentUser()
                 .flatMap(user -> {
                     String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
-                    return conversationRepository.getConversation(user, conversationID)
+                    return conversationRepository.getConversation(user.key, conversationID)
                             .zipWith(conversationRepository.getMessageKey(conversationID), (conversation, messageKey) -> {
                                 conversation.opponentUser = params.toUser;
                                 builder = new SendMessageUseCase.Params.Builder()

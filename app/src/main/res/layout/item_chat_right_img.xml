@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/item_chat_image"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.joooonho.SelectableRoundedImageView
+    <ImageView
         android:id="@+id/item_chat_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,11 +26,7 @@
         android:scaleType="fitXY"
         android:src="@drawable/img_loading_image"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:sriv_left_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_left_top_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_right_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_right_top_corner_radius="@dimen/chat_bg_corner_radius" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <RelativeLayout
         android:id="@+id/loading_container"

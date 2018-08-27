@@ -358,7 +358,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                     item.message.childMessages = message.childMessages;
                 }
             }
-        } else if (message.type == MessageType.IMAGE) {
+        } else if (message.type == MessageType.IMAGE
+                || message.type == MessageType.GAME
+                || message.type == MessageType.VOICE) {
             if (!message.isCached) {
                 message.localFilePath = localCacheFile.get(message.key);
             }
@@ -515,7 +517,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                if (!message.isCached) {
+                if (message.isCached) {
+                    addMessage(message);
+                    localCacheFile.put(message.key, message.localFilePath);
+                } else {
                     sendNotification(conversation, message.message, message.type);
                 }
             }
@@ -545,6 +550,11 @@ public class ChatPresenterImpl implements ChatPresenter {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
                 }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
             }
         }, params);
     }
@@ -892,11 +902,14 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeConversationColorUseCase.dispose();
         observeConversationBackgroundUseCase.dispose();
         observeNicknameConversationUseCase.dispose();
-        sendTextMessageUseCase.dispose();
+
+//        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();
 //        sendAudioMessageUseCase.dispose();
-//        resendMessageUseCase.dispose();
+//        sendVideoMessageUseCase.dispose();
+//        sendGroupGameMessageUseCase.dispose();
+//        sendGroupImageMessageUseCase.dispose();
     }
 
     private void prepareMessageStatus(Message message) {

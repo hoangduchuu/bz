@@ -93,6 +93,16 @@ public class Utils {
         return byteArray;
     }
 
+    public static byte[] getImageData(Bitmap sourceBitmap, int reqWidth, int reqHeight) {
+        //Bitmap bitmap = Bitmap.createScaledBitmap(sourceBitmap, reqWidth, reqHeight, false);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        sourceBitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        byte[] byteArray = stream.toByteArray();
+        sourceBitmap.recycle();
+//        sourceBitmap.recycle();
+        return byteArray;
+    }
+
     private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         final int height = options.outHeight;
         final int width = options.outWidth;

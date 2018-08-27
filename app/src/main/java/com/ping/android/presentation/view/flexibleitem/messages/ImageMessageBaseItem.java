@@ -1,14 +1,17 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.DataSource;
@@ -23,6 +26,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -56,6 +60,14 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             imageView = itemView.findViewById(R.id.item_chat_image);
             loadingView = itemView.findViewById(R.id.loading_container);
             initGestureListener();
+            int radius = ResourceUtils.dpToPx(20);
+            imageView.setClipToOutline(true);
+            imageView.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
         }
 
         @Override
@@ -164,6 +176,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 ((GlideRequests) this.glide)
                         .load(item.message.localFilePath)
                         .placeholder(placeholder)
+                        .dontAnimate()
                         .messageImage(message.key, bitmapMark)
                         .into(imageView);
                 // should preload remote image
@@ -198,6 +211,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 request = ((GlideRequests) this.glide)
                         .load(new File(imageURL));
             }
+
             request.placeholder(placeholder)
                     .messageImage(message.key, bitmapMark)
                     .dontAnimate()

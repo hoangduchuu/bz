@@ -187,6 +187,22 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Observable<String> updateAudioUrl(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("audioUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<String> updateVideoUrl(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("videoUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
     public Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("messages/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
@@ -327,6 +343,14 @@ public class MessageRepositoryImpl implements MessageRepository {
                     return messages;
                 })
                 .toObservable();
+    }
+
+    @Override
+    public void updateLocalMessageStatus(@NotNull String key, int status) {
+        SQLite.update(MessageEntity.class)
+                .set(MessageEntity_Table.messageStatusCode.eq(status))
+                .where(MessageEntity_Table.key.eq(key))
+                .execute();
     }
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
