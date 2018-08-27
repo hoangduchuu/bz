@@ -50,6 +50,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                             List<Message> messages = new ArrayList<>();
                             for (MessageEntity entity : messageEntities) {
                                 Message message = messageMapper.transform(entity, user);
+                                message.messageStatusCode = entity.messageStatusCode;
                                 message.isMask = entity.isMask;
                                 User sender = getUser(message.senderId, conversation);
                                 if (sender != null) {
@@ -85,7 +86,9 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                         }
                                         messages.add(message);
+
                                         entity.isMask = message.isMask;
+                                        entity.messageStatusCode = message.messageStatusCode;
                                         availableEntities.add(entity);
                                     }
                                     messageRepository.deleteCacheMessages(conversation.key);

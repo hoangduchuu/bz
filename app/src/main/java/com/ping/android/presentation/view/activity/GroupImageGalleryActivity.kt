@@ -53,9 +53,9 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
         postponeEnterTransition()
-        intent.extras.let {
-            conversationId = it.getString(CONVERSATION_ID)
-            messages = it.getParcelableArrayList(IMAGES_EXTRA)
+        intent.extras?.let {
+            conversationId = it.getString(CONVERSATION_ID)!!
+            messages = it.getParcelableArrayList(IMAGES_EXTRA)!!
             currentPosition = it.getInt(POSITION_EXTRA)
             isGroupImage = it.getBoolean(IS_GROUP_IMAGE_EXTRA)
         }
@@ -188,7 +188,7 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
                 // At this stage, the method will simply return the fragment at the
                 // position and will not create a new one.
                 val currentFragment = viewpager.adapter?.instantiateItem(viewpager, currentPosition) as? androidx.fragment.app.Fragment
-                if (currentFragment?.view != null && names != null && sharedElements != null) {
+                if (currentFragment?.view != null && names != null && sharedElements != null && names.size > 0) {
                     sharedElements[names[0]] = currentFragment.view!!.findViewById(R.id.image_detail)
                 }
             }

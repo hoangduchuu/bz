@@ -1215,6 +1215,14 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
+    override fun connectivityChanged(availableNow: Boolean) {
+        if (availableNow) {
+            messagesAdapter.lastMessage?.let {
+                presenter.getUpdatedMessages(it.timestamp)
+            }
+        }
+    }
+
     companion object {
         const val CAMERA_REQUEST_CODE = 12345
         const val REQUEST_CODE_MEDIA_PICKER = 1111

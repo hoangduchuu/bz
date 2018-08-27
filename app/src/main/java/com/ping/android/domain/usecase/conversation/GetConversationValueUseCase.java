@@ -41,7 +41,7 @@ public class GetConversationValueUseCase extends UseCase<Conversation, String> {
     @Override
     public Observable<Conversation> buildUseCaseObservable(String s) {
         return userManager.getCurrentUser()
-                .flatMap(user -> conversationRepository.getConversation(user, s)
+                .flatMap(user -> conversationRepository.getConversation(user.key, s)
                         .flatMap(conversation -> {
                             conversation.currentColor = conversation.getColor(user.key);
                             conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key);

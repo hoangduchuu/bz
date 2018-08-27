@@ -1,22 +1,15 @@
 package com.ping.android.presentation.view.adapter.delegate
 
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import androidx.core.util.Pair
-import androidx.recyclerview.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.util.Pair
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
-import com.bumptech.glide.signature.ObjectKey
-import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequests
 import com.bzzzchat.extensions.inflate
 import com.google.firebase.storage.FirebaseStorage
@@ -24,7 +17,7 @@ import com.ping.android.R
 import com.ping.android.model.ImageMessage
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
-import com.ping.android.utils.BitmapEncode
+import kotlinx.android.synthetic.main.fragment_image.view.*
 import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class FirebaseMessageDelegateAdapter(val glide: RequestManager, val listener: FirebaseMessageListener) : ViewTypeDelegateAdapter {
@@ -58,21 +51,23 @@ class FirebaseMessageDelegateAdapter(val glide: RequestManager, val listener: Fi
             if (TextUtils.isEmpty(url) || !url.startsWith("gs://")) {
                 return
             }
+            itemView.loading_indicator.visibility = View.VISIBLE
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             val listener = object : RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                     listener.onLoaded(adapterPosition)
+                    itemView.loading_indicator.visibility = View.GONE
                     return false
                 }
 
                 override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    itemView.loading_indicator.visibility = View.GONE
                     listener.onLoaded(adapterPosition)
                     return false
                 }
             }
             (this.glide as GlideRequests)
                     .load(gsReference)
-                    .placeholder(R.drawable.img_loading_image)
                     .error(R.drawable.img_loading_image)
                     .messageImage(item.message.key, item.message.isMask)
                     .override(100)

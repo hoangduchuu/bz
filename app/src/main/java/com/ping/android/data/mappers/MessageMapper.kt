@@ -36,6 +36,8 @@ class MessageMapper @Inject constructor() {
         message.messageCallType = MessageCallType.from(entity.callType)
         message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_DAY).toLong()
         message.status = entity.status ?: HashMap()
+        message.messageStatusCode = entity.messageStatusCode
+        message.localFilePath = entity.fileUrl
 
         prepareMessageStatus(message, currentUser)
         message.isMask = CommonMethod.getBooleanFrom(entity.markStatuses, currentUser.key)
@@ -83,6 +85,7 @@ class MessageMapper @Inject constructor() {
         message.voiceType = wrapper.getIntValue("voiceType", 0)
         message.callType = wrapper.getIntValue("callType", 0)
         message.callDuration = wrapper.getIntValue("callDuration", 0).toDouble()
+        message.childCount = wrapper.getIntValue("childCount", 0)
         message.status = HashMap()
         val status = dataSnapshot.child("status").value as? Map<String, Any>
         status?.let {

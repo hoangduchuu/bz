@@ -1,29 +1,36 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
+
 import androidx.core.util.Pair;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.bzzzchat.configuration.GlideRequest;
 import com.bzzzchat.configuration.GlideRequests;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -42,15 +49,25 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
+        private FrameLayout content;
         private ImageView imageView;
         private boolean isUpdated;
         private View loadingView;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+            content = itemView.findViewById(R.id.content);
             imageView = itemView.findViewById(R.id.item_chat_image);
             loadingView = itemView.findViewById(R.id.loading_container);
             initGestureListener();
+            int radius = ResourceUtils.dpToPx(20);
+            imageView.setClipToOutline(true);
+            imageView.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
         }
 
         @Override
@@ -105,7 +122,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         @Override
         public View getSlideView() {
-            return imageView;
+            return content;
         }
 
         private void handleImagePress(boolean isPuzzled) {
@@ -151,17 +168,19 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private void setImageMessage(Message message) {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
-            Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+            //Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+            if (!isUpdated) {
+                loadingView.setVisibility(View.VISIBLE);
+            }
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
                 ((GlideRequests) this.glide)
                         .load(item.message.localFilePath)
-                        .placeholder(placeholder)
+//                        .placeholder(placeholder)
+                        .dontAnimate()
                         .messageImage(message.key, bitmapMark)
-                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                        //.transition(DrawableTransitionOptions.withCrossFade())
                         .into(imageView);
                 // should preload remote image
-                if (!TextUtils.isEmpty(message.mediaUrl)) {
+                if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
                     StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
                     ((GlideRequests) this.glide).load(gsReference)
                             .messageImage(message.key, bitmapMark)
@@ -172,8 +191,8 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             }
 
             String imageURL = message.mediaUrl;
-            if (TextUtils.isEmpty(imageURL) || !imageURL.startsWith("gs://")) {
-                imageView.setImageResource(R.drawable.img_loading_image);
+            if (TextUtils.isEmpty(imageURL)) {
+                imageView.setImageResource(0);
                 return;
             }
             if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_FAIL) {
@@ -181,16 +200,21 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 loadingView.setVisibility(View.GONE);
                 return;
             }
-            loadingView.setVisibility(View.VISIBLE);
 
-            if (isUpdated) {
-                placeholder = imageView.getDrawable();
+            GlideRequest<Drawable> request = null;
+            if (imageURL.startsWith("gs://")) {
+                StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
+                request = ((GlideRequests) this.glide)
+                        .load(gsReference);
+            } else {
+                request = ((GlideRequests) this.glide)
+                        .load(new File(imageURL));
             }
-            StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
-            ((GlideRequests) this.glide)
-                    .load(gsReference)
-                    .placeholder(placeholder)
+
+            request
+//                    .placeholder(placeholder)
                     .messageImage(message.key, bitmapMark)
+                    .dontAnimate()
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

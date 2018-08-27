@@ -11,6 +11,7 @@ import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,20 +80,30 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<MessageEntity> sendMessage(String conversationId, MessageEntity message) {
-        DatabaseReference reference = database.getReference("messages").child(conversationId).child(message.key);
-        return RxFirebaseDatabase.setValue(reference, message.toMap())
-                .map(reference1 -> message)
+    public Observable<MessageEntity> sendMessage(Conversation conversation, MessageEntity message) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s", conversation.key, message.key), message.toMap());
+        for (String toUser : conversation.memberIDs.keySet()) {
+            if (!message.isReadable(toUser)) continue;
+            updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME
+                    || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
+                updateValue.put(String.format("media/%s/%s", toUser, conversation.key), conversation.toMap());
+            }
+        }
+        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+                .map(aBoolean -> message)
                 .toObservable();
     }
 
     @Override
-    public Observable<Conversation> getConversation(User user, String conversationID) {
+    public Observable<Conversation> getConversation(String userKey, String conversationID) {
         Query query = database.getReference("conversations")
-                .child(user.key).child(conversationID);
+                .child(userKey).child(conversationID);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .map(dataSnapshot -> mapper.transform(dataSnapshot, user))
+                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey))
                 .toObservable();
     }
 

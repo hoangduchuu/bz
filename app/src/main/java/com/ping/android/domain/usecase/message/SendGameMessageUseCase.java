@@ -17,7 +17,6 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.Utils;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -61,27 +60,24 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
-                .setGameType(params.gameType);
-        builder.setCacheImage(params.filePath);
+                .setGameType(params.gameType)
+                .setFileUrl(params.filePath);
         MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
-                .zipWith(Observable.just(cachedMessage), (s, message) -> {
-                    message.key = s;
-                    builder.setMessageKey(s);
-                    return message;
-                })
-                .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
-                        .map(message1 -> {
-                            message1.isCached = true;
-                            message1.localFilePath = params.filePath;
-                            message1.currentUserId = params.currentUser.key;
-                            message1.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
-                            return message1;
-                        }))
-                .concatWith(sendMessage(params, builder));
+                .flatMap(messageKey -> {
+                    cachedMessage.key = messageKey;
+                    builder.setMessageKey(messageKey);
+                    Message temp = messageMapper.transform(cachedMessage, params.currentUser);
+                    temp.isCached = true;
+                    temp.localFilePath = params.filePath;
+                    temp.currentUserId = params.currentUser.key;
+                    return Observable.just(temp)
+                            .concatWith(sendMessageUseCase.buildUseCaseObservable(builder.build())
+                                    .flatMap(message -> uploadImages(params, builder)));
+                });
     }
 
-    private Observable<Message> sendMessage(Params params, SendMessageUseCase.Params.Builder builder) {
+    private Observable<Message> uploadImages(Params params, SendMessageUseCase.Params.Builder builder) {
         return this.uploadImage(params.conversation.key, params.filePath)
                 .observeOn(Schedulers.io())
                 .map(s -> {

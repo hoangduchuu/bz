@@ -74,23 +74,20 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                             message.senderProfile = sender.profile;
                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                         }
-                        if (data.getType() == ChildData.Type.CHILD_CHANGED) {
-                            if (message.type == MessageType.GAME) {
-                                // Update status of game if not update
-                                if (!TextUtils.isEmpty(message.mediaUrl)
-                                        && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
-                                    messageRepository.updateMessageStatus(params.conversation.key,
-                                            message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
-                                            .subscribe();
-                                }
-                            }
-                            //updateReadStatus(message, params.conversation, status);
-                        } else if (data.getType() == ChildData.Type.CHILD_ADDED) {
-                            //updateReadStatus(message, params.conversation, status);
-                        }
+//                        if (message.type == MessageType.GAME) {
+//                            // Update status of game if not update
+//                            if (!TextUtils.isEmpty(message.mediaUrl)
+//                                    && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
+//                                messageRepository.updateMessageStatus(params.conversation.key,
+//                                        message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
+//                                        .subscribe();
+//                            }
+//                        }
+                        //updateReadStatus(message, params.conversation, status);
 
                         MessageEntity entity = childData.getData();
                         entity.isMask = message.isMask;
+                        entity.messageStatusCode = message.messageStatusCode;
                         messageRepository.saveMessage(entity);
 
                         return Observable.just(data);
@@ -101,17 +98,18 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
 
     /**
      * Update message status to Read
+     *
      * @param message
      * @param conversation
-     * @param status message status of current opponentUser. -1 if not exists on message's status
+     * @param status       message status of current opponentUser. -1 if not exists on message's status
      */
     private void updateReadStatus(Message message, Conversation conversation, int status) {
         if (!message.senderId.equals(currentUser.key)) {
             if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
                 //for (String userId : conversation.memberIDs.keySet()) {
-                    messageRepository.updateMessageStatus(conversation.key, message.key,
-                            currentUser.key, Constant.MESSAGE_STATUS_READ)
-                            .subscribe();
+                messageRepository.updateMessageStatus(conversation.key, message.key,
+                        currentUser.key, Constant.MESSAGE_STATUS_READ)
+                        .subscribe();
                 //}
             }
         }

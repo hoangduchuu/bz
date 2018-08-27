@@ -13,6 +13,7 @@ import android.renderscript.ScriptIntrinsicBlur;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
@@ -361,7 +362,7 @@ public class UiUtils {
     }
 
     public static @Nullable
-    Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) throws Throwable {
+    Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) {
         Bitmap bitmap = null;
         MediaMetadataRetriever mediaMetadataRetriever = null;
         try {

@@ -19,6 +19,8 @@ import com.raizlabs.android.dbflow.rx2.language.RXSQLite;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +187,22 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Observable<String> updateAudioUrl(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("audioUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<String> updateVideoUrl(String conversationKey, String messageKey, String filePath) {
+        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("videoUrl");
+        return RxFirebaseDatabase.setValue(reference, filePath)
+                .map(databaseReference -> filePath)
+                .toObservable();
+    }
+
+    @Override
     public Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data) {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("messages/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
@@ -291,6 +309,48 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .where(MessageEntity_Table.key.eq(message))
                 .execute();
 
+    }
+
+    @Override
+    public Observable<List<MessageEntity>> getErrorMessages() {
+        return RXSQLite.rx(
+                SQLite.select()
+                        .from(MessageEntity.class)
+                        .where(MessageEntity_Table.messageStatusCode.eq(Constant.MESSAGE_STATUS_ERROR))
+        )
+                .queryList()
+                .toObservable();
+    }
+
+    @Override
+    public Observable<List<MessageEntity>> getUpdatedMessages(@NotNull String conversationId, double timestamp) {
+        DatabaseReference reference = database.getReference("messages").child(conversationId);
+        reference.keepSynced(true);
+        Query query = reference
+                .orderByChild("timestamp")
+                .startAt(timestamp);
+        return RxFirebaseDatabase.getInstance(query)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> {
+                    List<MessageEntity> messages = new ArrayList<>();
+                    if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            if (!child.exists()) continue;
+                            MessageEntity message = messageMapper.transform(child);
+                            messages.add(message);
+                        }
+                    }
+                    return messages;
+                })
+                .toObservable();
+    }
+
+    @Override
+    public void updateLocalMessageStatus(@NotNull String key, int status) {
+        SQLite.update(MessageEntity.class)
+                .set(MessageEntity_Table.messageStatusCode.eq(status))
+                .where(MessageEntity_Table.key.eq(key))
+                .execute();
     }
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {

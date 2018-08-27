@@ -60,6 +60,7 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
 
                     MessageEntity entity = childData.getData();
                     entity.isMask = message.isMask;
+                    entity.messageStatusCode = message.messageStatusCode;
                     messageRepository.saveMessage(entity);
 
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);

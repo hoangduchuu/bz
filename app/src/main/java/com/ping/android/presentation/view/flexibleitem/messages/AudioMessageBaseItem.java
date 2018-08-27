@@ -29,6 +29,7 @@ import com.ping.android.utils.FileHelperKt;
 import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.Locale;
@@ -221,7 +222,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             }
             if (mMediaPlayer == null) {
                 showLoading();
-                String audioFile = getSuitableAudioFile(item.message.mediaUrl);
+                String audioFile = getSuitableAudioFile(item.message.localFilePath);
                 initMediaPlayer(audioFile, mediaPlayer -> {
                     if (mediaPlayer == null) {
                         showError();
@@ -272,14 +273,24 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private void setAudioSrc(Message message) {
-            String audioUrl = message.mediaUrl;
-            if (TextUtils.isEmpty(audioUrl)) {
-                //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
-                // FIXME: should think about message send first then uploading file
-                showError();
-                return;
+            String audioLocalPath = "";
+            if (!TextUtils.isEmpty(message.localFilePath)) {
+                audioLocalPath = message.localFilePath;
+            } else {
+                String audioUrl = message.mediaUrl;
+                if (TextUtils.isEmpty(audioUrl)) {
+                    //itemView.findViewById(R.id.item_chat_audio).setVisibility(View.GONE);
+                    // FIXME: should think about message send first then uploading file
+                    showError();
+                    return;
+                }
+                if (audioUrl.startsWith("gs://")) {
+                    audioLocalPath = getLocalFilePath(audioUrl);
+                } else {
+                    // This is cache url in case of no internet connection
+                    audioLocalPath = audioUrl;
+                }
             }
-            final String audioLocalPath = getLocalFilePath(audioUrl);
             if (audioLocalPath.endsWith("m4a")) {
                 showError();
                 return;
@@ -288,6 +299,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             String imageLocalFolder = audioLocal.getParent();
             CommonMethod.createFolder(imageLocalFolder);
             VoiceType voiceType = VoiceType.from(message.voiceType);
+            item.message.localFilePath = audioLocalPath;
             if (audioLocal.exists()) {
                 if (voiceType != VoiceType.DEFAULT && message.isMask) {
                     prepareAudioMask(audioLocal);
@@ -295,9 +307,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     initPlayer(AudioStatus.UNKNOWN);
                 }
             } else {
-                Log.d("audioUrl = " + audioUrl);
                 try {
-                    StorageReference audioReference = storage.getReferenceFromUrl(audioUrl);
+                    StorageReference audioReference = storage.getReferenceFromUrl(message.mediaUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
                         // Prepare audio file
                         if (voiceType != VoiceType.DEFAULT && message.isMask) {
@@ -322,7 +333,8 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private String getSuitableAudioFile(String audioUrl) {
-            File localFile = new File(getLocalFilePath(audioUrl));
+            if (TextUtils.isEmpty(audioUrl)) return "";
+            File localFile = new File(audioUrl);
             VoiceType voiceType = VoiceType.from(item.message.voiceType);
             if (voiceType != VoiceType.DEFAULT && item.message.isMask) {
                 String transformFileName = voiceType.toString() + localFile.getName();
@@ -333,6 +345,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
         }
 
         private void prepareAudioMask(File audioLocal) {
+            item.message.localFilePath = audioLocal.getAbsolutePath();
             VoiceType voiceType = VoiceType.from(item.message.voiceType);
             if (voiceType != VoiceType.DEFAULT) {
                 String transformFileName = voiceType.toString() + audioLocal.getName();
@@ -367,7 +380,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 showPlay(false);
                 seekBar.setVisibility(View.GONE);
                 if (status == AudioStatus.UNKNOWN) {
-                    totalTime = getTotalTime(getSuitableAudioFile(item.message.mediaUrl));
+                    totalTime = getTotalTime(getSuitableAudioFile(item.message.localFilePath));
                     ((AudioMessageBaseItem) item).setAudioDuration(totalTime);
                     audioStatus = AudioStatus.INITIALIZED;
                     ((AudioMessageBaseItem) item).setAudioStatus(audioStatus);

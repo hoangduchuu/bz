@@ -2,10 +2,14 @@ package com.ping.android.domain.repository;
 
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.model.Message;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -30,6 +34,10 @@ public interface MessageRepository {
 
     Observable<String> updateImage(String conversationKey, String messageKey, String s);
 
+    Observable<String> updateAudioUrl(String conversationKey, String messageKey, String s);
+
+    Observable<String> updateVideoUrl(String conversationKey, String messageKey, String filePath);
+
     Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data);
 
     Observable<MessageEntity> sendMediaMessage(String conversationId, MessageEntity message);
@@ -51,4 +59,11 @@ public interface MessageRepository {
     void saveMessages(List<MessageEntity> entities);
 
     void updateLocalMaskStatus(String message, boolean isMask);
+
+    Observable<List<MessageEntity>> getErrorMessages();
+
+    Observable<List<MessageEntity>> getUpdatedMessages(@NotNull String conversationId, double timestamp);
+
+    void updateLocalMessageStatus(@NotNull String key, int status);
+
 }

@@ -21,6 +21,7 @@ import com.ping.android.domain.usecase.conversation.UpdateMaskOutputConversation
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
+import com.ping.android.domain.usecase.message.GetUpdatedMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveLastMessageUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageChangeUseCase;
@@ -82,6 +83,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveGroupValueUseCase observeGroupValueUseCase;
     @Inject
     GetLastMessagesUseCase getLastMessagesUseCase;
+    @Inject
+    GetUpdatedMessagesUseCase getUpdatedMessagesUseCase;
     @Inject
     LoadMoreMessagesUseCase loadMoreMessagesUseCase;
     @Inject
@@ -271,7 +274,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
-                checkMessageError(messageChildData.getData());
+//                checkMessageError(messageChildData.getData());
                 addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:
@@ -355,7 +358,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                     item.message.childMessages = message.childMessages;
                 }
             }
-        } else if (message.type == MessageType.IMAGE) {
+        } else if (message.type == MessageType.IMAGE
+                || message.type == MessageType.GAME
+                || message.type == MessageType.VOICE) {
             if (!message.isCached) {
                 message.localFilePath = localCacheFile.get(message.key);
             }
@@ -512,7 +517,10 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                if (!message.isCached) {
+                if (message.isCached) {
+                    addMessage(message);
+                    localCacheFile.put(message.key, message.localFilePath);
+                } else {
                     sendNotification(conversation, message.message, message.type);
                 }
             }
@@ -542,6 +550,11 @@ public class ChatPresenterImpl implements ChatPresenter {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
                 }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
             }
         }, params);
     }
@@ -646,6 +659,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
                 //updateLastMessages(output.messages, output.canLoadMore);
                 for (Message message : output.messages) {
+                    prepareMessageStatus(message);
                     addMessage(message);
                 }
                 observeMessageUpdate();
@@ -833,6 +847,19 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
     }
 
+    @Override
+    public void getUpdatedMessages(double timestamp) {
+        getUpdatedMessagesUseCase.execute(new DefaultObserver<List<? extends Message>>() {
+                                              @Override
+                                              public void onNext(List<? extends Message> messages) {
+                                                  for (Message message : messages) {
+                                                      addMessage(message);
+                                                  }
+                                              }
+                                          },
+                new GetUpdatedMessagesUseCase.Params(conversation, timestamp, currentUser));
+    }
+
     private void sendNotification(Conversation conversation, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, message, messageType));
@@ -875,11 +902,14 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeConversationColorUseCase.dispose();
         observeConversationBackgroundUseCase.dispose();
         observeNicknameConversationUseCase.dispose();
+
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();
 //        sendAudioMessageUseCase.dispose();
-//        resendMessageUseCase.dispose();
+//        sendVideoMessageUseCase.dispose();
+//        sendGroupGameMessageUseCase.dispose();
+//        sendGroupImageMessageUseCase.dispose();
     }
 
     private void prepareMessageStatus(Message message) {
