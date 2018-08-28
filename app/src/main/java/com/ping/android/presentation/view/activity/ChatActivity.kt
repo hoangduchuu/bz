@@ -99,7 +99,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
         val dialog = BottomSheetDialog(this)
         dialog.setContentView(view)
-        dialog.setOnDismissListener { dialogInterface -> setButtonsState(0) }
+        dialog.setOnDismissListener { resetButtonState() }
         view.findViewById<View>(R.id.puzzle_game).setOnClickListener(this)
         view.findViewById<View>(R.id.memory_game).setOnClickListener(this)
         view.findViewById<View>(R.id.tic_tac_toe_game).setOnClickListener(this)
@@ -231,7 +231,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         shakeEventManager.register()
         keyboardHeightProvider.setKeyboardHeightObserver(this)
         badgeHelper.read(conversationId)
-        setButtonsState(0)
+        resetButtonState()
+        hideAllBottomViews()
         isScreenVisible = true
     }
 
@@ -275,24 +276,42 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             R.id.chat_back -> onExitChat()
             R.id.chat_camera_btn -> {
                 setButtonsState(viewId)
+                shouldHideBottomView = true
+                KeyboardHelpers.hideSoftInputKeyboard(this)
+                hideAllBottomViews()
                 onSendCamera()
             }
             R.id.chat_image_btn -> {
                 setButtonsState(viewId)
+                hideEmojiView()
+                hideVoiceRecordView()
+                shouldHideBottomView = false
+                KeyboardHelpers.hideSoftInputKeyboard(this)
                 handleImageButtonPress()
             }
             R.id.chat_game_btn -> {
                 setButtonsState(viewId)
+                shouldHideBottomView = true
+                KeyboardHelpers.hideSoftInputKeyboard(this)
+                hideAllBottomViews()
                 onGameClicked()
             }
             R.id.btn_send -> if (btnSend!!.isSelected) {
                 onSentMessage(originalText)
             } else {
                 setButtonsState(viewId)
+                hideEmojiView()
+                hideMediaPickerView()
+                shouldHideBottomView = false
+                KeyboardHelpers.hideSoftInputKeyboard(this)
                 handleRecordVoice()
             }
             R.id.chat_emoji_btn -> {
                 setButtonsState(viewId)
+                hideMediaPickerView()
+                hideVoiceRecordView()
+                shouldHideBottomView = false
+                KeyboardHelpers.hideSoftInputKeyboard(this)
                 handleEmojiPressed()
             }
             R.id.tgMarkOut -> onChangeTypingMark()
@@ -352,20 +371,28 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun hideGameSelection() {
         chatGameMenu.hide()
-        setButtonsState(0)
+        resetButtonState()
     }
 
     private fun setButtonsState(selectedViewId: Int) {
-        if (selectedViewId != R.id.chat_emoji_btn) {
-            hideEmojiView()
-        }
-        if (selectedViewId != R.id.chat_image_btn) {
-            hideMediaPickerView()
-        }
         for (viewId in actionButtons!!) {
             val imageButton = findViewById<ImageButton>(viewId)
             imageButton.isSelected = viewId == selectedViewId
         }
+    }
+
+    private fun resetButtonState() {
+        for (viewId in actionButtons!!) {
+            val imageButton = findViewById<ImageButton>(viewId)
+            imageButton.isSelected = false
+        }
+    }
+
+    private fun hideAllBottomViews() {
+        hideEmojiView()
+        hideMediaPickerView()
+        hideVoiceRecordView()
+        hideBottomView()
     }
 
     override fun onLongPress(message: MessageBaseItem<*>, allowCopy: Boolean) {
@@ -513,9 +540,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         (recycleChatView!!.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         recycleChatView!!.setOnTouchListener { view, motionEvent ->
             KeyboardHelpers.hideSoftInputKeyboard(this@ChatActivity)
-            setButtonsState(0)
-            //hideVoiceRecordView()
-            //hideMediaPickerView()
+            resetButtonState()
+            hideAllBottomViews()
             false
         }
 
@@ -756,7 +782,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         edMessage!!.addTextChangedListener(textWatcher)
         edMessage!!.setOnTouchListener { view, motionEvent ->
-            setButtonsState(0)
+            resetButtonState()
+            hideEmojiView()
+            hideMediaPickerView()
+            hideVoiceRecordView()
             false
         }
         edMessage!!.setOnFocusChangeListener { v, hasFocus ->
@@ -892,8 +921,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun onSendCamera() {
         // Should check permission here
-        setButtonsState(0)
-        hideBottomView()
         val intent = Intent(this, VideoRecorderActivity::class.java)
         val extras = Bundle()
         val outputPath = externalCacheDir.toString() + File.separator + "conversations" + File.separator + conversationId
@@ -1177,11 +1204,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun handleRecordVoice() {
-        shouldHideBottomView = false
-        KeyboardHelpers.hideSoftInputKeyboard(this)
-        setButtonsState(0)
-        hideEmojiView()
-        hideMediaPickerView()
         val disposable = permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
                 .subscribe { isGranted ->
                     if (isGranted) {
