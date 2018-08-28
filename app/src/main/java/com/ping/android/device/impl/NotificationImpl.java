@@ -14,7 +14,9 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.Person;
 import androidx.core.app.RemoteInput;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
@@ -42,7 +44,7 @@ import static com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY;
  */
 
 public class NotificationImpl implements com.ping.android.device.Notification {
-    private static final String MY_DISPLAY_NAME = "";
+    private static final String MY_DISPLAY_NAME = "Tuan";
     public static final int ONGOING_NOTIFICATION_ID = 1111;
     public static final int MESSAGE_NOTIFICATION_ID = 2222;
     private NotificationManager notificationManager;
@@ -158,22 +160,22 @@ public class NotificationImpl implements com.ping.android.device.Notification {
     @Override
     public void showMessageNotification(User user, String message, String conversationId, String senderProfile) {
         boolean soundNotification = user.settings.notification;
-        NotificationMessage notificationMessage = new NotificationMessage(message, System.currentTimeMillis(), "Tuan");
+        NotificationMessage notificationMessage = new NotificationMessage(message, System.currentTimeMillis(), "");
         notificationMessageRepository.addMessage(conversationId, notificationMessage);
         List<NotificationMessage> messages = notificationMessageRepository.getMessages(conversationId);
         updateMessagingStyleNotification(messages, conversationId, user, senderProfile);
 
-//        int notificationId = getID();
-//        // 3. Build notification
-//        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, "message");
-//        // Create pending intent, mention the Activity which needs to be
-//        Intent intent = new Intent(context, SplashActivity.class);
-//        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-//        //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
-//        PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
-//                intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        // https://willowtreeapps.com/ideas/mobile-notifications-part-2-some-useful-android-notifications
-//        // https://stackoverflow.com/questions/14671453/catch-on-swipe-to-dismiss-event
+        /*int notificationId = conversationId.hashCode();
+        // 3. Build notification
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, "message");
+        // Create pending intent, mention the Activity which needs to be
+        Intent intent = new Intent(context, SplashActivity.class);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
+        //intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // https://willowtreeapps.com/ideas/mobile-notifications-part-2-some-useful-android-notifications
+        // https://stackoverflow.com/questions/14671453/catch-on-swipe-to-dismiss-event
 //        if (!groupNotification) {
 //            android.app.Notification notification0 = new NotificationCompat.Builder(context, "message")
 //                    .setGroup("messages")
@@ -194,87 +196,87 @@ public class NotificationImpl implements com.ping.android.device.Notification {
 //                    .setDefaults(android.app.Notification.DEFAULT_SOUND)
 //                    .build();
 //            groupNotification = true;
-//            notificationManager.notify(getID(), notification0);
+//            notificationManager.notify(notificationId, notification0);
 //        }
-//        notificationBuilder
-//                .setContentText(message)
-//                .setContentIntent(contentIntent)
-//                // FIXME I want to group all message in conversation to a group but it seems not working
-//                .setGroup("messages");
-//                //setShowWhen(true).
-//                //setWhen(0).
-//                //.setAutoCancel(true);
-//        if (ActivityLifecycle.getInstance().isForeground() && !soundNotification) {
-//            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
-//        } else {
-//            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_ALL);
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
-//        } else {
-//            notificationBuilder
-//                    .setPriority(android.app.Notification.PRIORITY_HIGH);
-//        }
-//        //do not show double BZZZ, will change if use title for other meaning
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-//            notificationBuilder
-//                    .setContentTitle(context.getResources().getString(R.string.app_name));
-//        } else {
-//            // 1. Build label
-//            String replyLabel = getString(R.string.notif_action_reply);
-//            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
-//                    .setLabel(replyLabel)
-//                    .build();
-//
-//
-//            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, notificationId, conversationId);
-//            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, notificationId, intent1,
-//                    PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//            // 2. Build action
-//            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-//                    android.R.drawable.ic_menu_send, replyLabel, replyPendingIntent)
-//                    .addRemoteInput(remoteInput)
-//                    .setAllowGeneratedReplies(true)
-//                    .build();
-//            notificationBuilder.addAction(replyAction);
-//
-//        }
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            NotificationChannel channel =
-//                    notificationManager.getNotificationChannel("message");
-//            if (channel == null) {
-//                channel = new NotificationChannel("message", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
-//                channel.enableLights(true);
-//                channel.setLightColor(Color.GREEN);
-//                channel.enableVibration(true);
-//                channel.setShowBadge(true);
-//                notificationManager.createNotificationChannel(channel);
-//            }
-//            //builder.setChannelId("missed_call");
-//        }
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            Handler handler = new Handler(Looper.getMainLooper());
-//            handler.post(() -> prepareProfileImage(context, senderProfile, (error, data) -> {
-//                if (error != null) {
-//                    notificationBuilder.
-//                            setSmallIcon(R.drawable.ic_notification).
-//                            setColor(context.getResources().getColor(R.color.colorAccent)).
-//                            setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
-//                } else {
-//                    notificationBuilder.
-//                            setSmallIcon(R.drawable.ic_notification).
-//                            setColor(context.getResources().getColor(R.color.colorAccent)).
-//                            setLargeIcon((Bitmap) data[0]);
-//                }
-//                notificationManager.notify(notificationId, notificationBuilder.build());
-//            }));
-//        } else {
-//            notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
-//            notificationManager.notify(notificationId, notificationBuilder.build());
-//        }
+        notificationBuilder
+                .setContentText(message)
+                .setContentIntent(contentIntent)
+                // FIXME I want to group all message in conversation to a group but it seems not working
+                .setGroup("messages");
+                //setShowWhen(true).
+                //setWhen(0).
+                //.setAutoCancel(true);
+        if (ActivityLifecycle.getInstance().isForeground() && !soundNotification) {
+            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
+        } else {
+            notificationBuilder.setDefaults(android.app.Notification.DEFAULT_ALL);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationBuilder.setPriority(NotificationManager.IMPORTANCE_HIGH);
+        } else {
+            notificationBuilder
+                    .setPriority(android.app.Notification.PRIORITY_HIGH);
+        }
+        //do not show double BZZZ, will change if use title for other meaning
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            notificationBuilder
+                    .setContentTitle(context.getResources().getString(R.string.app_name));
+        } else {
+            // 1. Build label
+            String replyLabel = "Reply";//getString(R.string.notif_action_reply);
+            RemoteInput remoteInput = new RemoteInput.Builder(KEY_REPLY)
+                    .setLabel(replyLabel)
+                    .build();
+
+
+            Intent intent1 = NotificationBroadcastReceiver.getReplyMessageIntent(context, notificationId, conversationId);
+            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context, notificationId, intent1,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            // 2. Build action
+            NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
+                    android.R.drawable.ic_menu_send, replyLabel, replyPendingIntent)
+                    .addRemoteInput(remoteInput)
+                    .setAllowGeneratedReplies(true)
+                    .build();
+            notificationBuilder.addAction(replyAction);
+
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel =
+                    notificationManager.getNotificationChannel("message");
+            if (channel == null) {
+                channel = new NotificationChannel("message", "Messages", NotificationManager.IMPORTANCE_DEFAULT);
+                channel.enableLights(true);
+                channel.setLightColor(Color.GREEN);
+                channel.enableVibration(true);
+                channel.setShowBadge(true);
+                notificationManager.createNotificationChannel(channel);
+            }
+            //builder.setChannelId("missed_call");
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> prepareProfileImage(context, senderProfile, (error, data) -> {
+                if (error != null) {
+                    notificationBuilder.
+                            setSmallIcon(R.drawable.ic_notification).
+                            setColor(context.getResources().getColor(R.color.colorAccent)).
+                            setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+                } else {
+                    notificationBuilder.
+                            setSmallIcon(R.drawable.ic_notification).
+                            setColor(context.getResources().getColor(R.color.colorAccent)).
+                            setLargeIcon((Bitmap) data[0]);
+                }
+                notificationManager.notify(notificationId, notificationBuilder.build());
+            }));
+        } else {
+            notificationBuilder.setSmallIcon(R.mipmap.ic_launcher);
+            notificationManager.notify(notificationId, notificationBuilder.build());
+        }*/
     }
 
     @Override
@@ -299,7 +301,11 @@ public class NotificationImpl implements com.ping.android.device.Notification {
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.MessagingStyle messagingStyle = buildMessageList(messages, user.key);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "messages")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
+                //.setContentTitle("2 new messages with Tu")
+                //.setContentText("This is text message")
+                //.setLargeIcon()
+                //.setContentTitle("Messages")
                 .setStyle(messagingStyle)
                 .setContentIntent(contentIntent)
                 .setSmallIcon(R.drawable.ic_notification);
@@ -377,14 +383,15 @@ public class NotificationImpl implements com.ping.android.device.Notification {
 
     private NotificationCompat.MessagingStyle buildMessageList(List<NotificationMessage> messages, String userId) {
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle(MY_DISPLAY_NAME);
+                new NotificationCompat.MessagingStyle(new Person.Builder().setName(MY_DISPLAY_NAME).build());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             messagingStyle.setConversationTitle(context.getString(R.string.app_name)).setGroupConversation(true);
         }
         for (NotificationMessage message : messages) {
             String sender = message.getSenderId().equals(userId) ? null : message.getSenderId();
-            messagingStyle.addMessage(message.getMessage(), message.getTimestamp(), "");
+            messagingStyle.addMessage(message.getMessage(), message.getTimestamp(), new Person.Builder().setName("").build());
         }
+        messagingStyle.setGroupConversation(true);
         return messagingStyle;
     }
 

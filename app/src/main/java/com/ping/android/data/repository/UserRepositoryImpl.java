@@ -7,9 +7,12 @@ import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.CallEntityMapper;
@@ -24,6 +27,8 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 
 /**
@@ -389,6 +394,35 @@ public class UserRepositoryImpl implements UserRepository {
                             return result;
                         })
                 ).toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> increaseBadgeNumber(String userId, String key) {
+        return Observable.create(emitter -> {
+            final DatabaseReference userBadgesRef = database.getReference("users").child(userId).child("badges").child(key);
+            userBadgesRef.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    Long badge = (Long) mutableData.getValue();
+                    int result = 0;
+                    if (badge != null) {
+                        result = badge.intValue();
+                    }
+                    result++;
+                    mutableData.setValue(result);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                    if (databaseError != null) {
+                        emitter.onError(databaseError.toException());
+                    } else {
+                        emitter.onNext(true);
+                    }
+                }
+            });
+        });
     }
 
     @Override

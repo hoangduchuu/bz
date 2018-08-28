@@ -252,6 +252,9 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private void updateMessageCount(int messageCount) {
         updateBadge(0, messageCount);
+        if (messageCount == 0) {
+            badgeHelper.resetConversationCount();
+        }
     }
 
     private void updateMissedCallCount(int count) {
@@ -318,7 +321,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         new AlertDialog.Builder(this)
                 .setTitle("NOTICE")
                 .setMessage(message)
-                .setCancelable(true)
+                .setCancelable(false)
                 .setPositiveButton("Yes", (dialog, whichButton) -> {
                     startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
                     presenter.turnOffMappingConfirmation();

@@ -106,7 +106,8 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 profile = "";
                                             }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, profile, body, params.conversation.key, user, integer);
+                                                    sender.key, profile, body, params.conversation.key, user, integer)
+                                                    .flatMap(aBoolean -> userRepository.increaseBadgeNumber(user.key, params.conversation.key));
                                         });
                             })
                             .take(validUsers.size());

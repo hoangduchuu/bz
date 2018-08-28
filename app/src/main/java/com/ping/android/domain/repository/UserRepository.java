@@ -56,6 +56,8 @@ public interface UserRepository {
 
     Observable<Integer> readBadgeNumbers(String userId);
 
+    Observable<Boolean> increaseBadgeNumber(String userId, String key);
+
     Observable<Boolean> turnOffMappingConfirmation(String key);
 
     Observable<Boolean> updatePhoneNumber(String userKey, String s);

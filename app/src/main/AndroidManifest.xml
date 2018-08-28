@@ -59,6 +59,10 @@
             android:name="com.quickblox.messages.QB_ENVIRONMENT"
             android:value="PRODUCTION" />
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="messages"/>
+
         <receiver
             android:name=".service.NotificationBroadcastReceiver"
             android:enabled="true"
@@ -106,7 +110,6 @@
             android:name=".presentation.view.activity.MainActivity"
             android:label="Message"
             android:launchMode="singleTask"
-            android:parentActivityName=".presentation.view.activity.SplashActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize" />

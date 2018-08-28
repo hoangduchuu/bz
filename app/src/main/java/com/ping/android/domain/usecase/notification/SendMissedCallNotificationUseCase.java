@@ -51,7 +51,8 @@ public class SendMissedCallNotificationUseCase extends UseCase<Boolean, SendMiss
                                             profile = "";
                                         }
                                         return notificationRepository
-                                                .sendMissedCallNotificationToUser(user.key, profile, messageData, params.quickBloxId, params.isVideo, integer);
+                                                .sendMissedCallNotificationToUser(user.key, profile, messageData, params.quickBloxId, params.isVideo, integer)
+                                                .flatMap(aBoolean -> userRepository.increaseBadgeNumber(params.opponentUserId, "missed_call"));
                                     }));
                 });
     }

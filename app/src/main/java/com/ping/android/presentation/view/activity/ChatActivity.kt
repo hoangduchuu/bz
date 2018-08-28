@@ -947,6 +947,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     override fun updateConversation(conv: Conversation) {
+        this.initialized = true
         this.originalConversation = conv
         if (conv.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
             btVideoCall!!.visibility = View.GONE
@@ -984,7 +985,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 //                mLinearLayoutManager!!.stackFromEnd = true
 //            }
 //        }
-        messagesAdapter.updateData(messages)
+        recycleChatView?.post {
+            messagesAdapter.updateData(messages)
+        }
         if (!canLoadMore) {
             swipeRefreshLayout!!.isEnabled = false
         }
@@ -1014,9 +1017,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     override fun updateMessage(item: MessageBaseItem<*>, headerItem: MessageHeaderItem, higherHeaderItem: MessageHeaderItem?, added: Boolean) {
-        messagesAdapter.handleNewMessage(item, headerItem, higherHeaderItem, added)
-        if (isScrollToTop) {
-            recycleChatView!!.scrollToPosition(messagesAdapter.itemCount - 1)
+        recycleChatView?.post {
+            messagesAdapter.handleNewMessage(item, headerItem, higherHeaderItem, added)
+            if (isScrollToTop) {
+                recycleChatView!!.scrollToPosition(messagesAdapter.itemCount - 1)
+            }
         }
     }
 
@@ -1049,8 +1054,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     override fun refreshMessages() {
-        if (messagesAdapter.itemCount > 0) {
-            messagesAdapter.notifyDataSetChanged()
+        recycleChatView?.post {
+            if (messagesAdapter.itemCount > 0) {
+                messagesAdapter.notifyDataSetChanged()
+            }
         }
     }
 
@@ -1243,10 +1250,14 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     // endregion
 
+    private var initialized = false
+
     override fun connectivityChanged(availableNow: Boolean) {
-        if (availableNow) {
-            messagesAdapter.lastMessage?.let {
-                presenter.getUpdatedMessages(it.timestamp)
+        if (availableNow && initialized) {
+            recycleChatView?.post {
+                messagesAdapter.lastMessage?.let {
+                    presenter.getUpdatedMessages(it.timestamp)
+                }
             }
         }
     }

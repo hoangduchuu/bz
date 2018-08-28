@@ -99,4 +99,8 @@ public class BadgeHelper {
         }
         return gson;
     }
+
+    public void resetConversationCount() {
+        setBadgeCounts(new HashMap<>());
+    }
 }

@@ -394,7 +394,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
             notifyItemInserted(headerIndex);
             if (headerIndex > 0) {
                 // Refresh last item in previous section
-                notifyItemInserted(headerIndex - 1);
+                notifyItemChanged(headerIndex - 1);
             }
         }
         if (added) {
