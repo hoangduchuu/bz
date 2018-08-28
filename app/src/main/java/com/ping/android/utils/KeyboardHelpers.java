@@ -20,7 +20,7 @@ public class KeyboardHelpers {
     public static void hideSoftInputKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
         if (view != null) {
-            view.clearFocus();
+            //view.clearFocus();
             InputMethodManager methodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             methodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }

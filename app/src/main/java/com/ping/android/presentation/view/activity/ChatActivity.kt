@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.activity
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -45,10 +46,7 @@ import com.ping.android.model.enums.GameType
 import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.presenters.ChatPresenter
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter
-import com.ping.android.presentation.view.custom.KeyboardHeightObserver
-import com.ping.android.presentation.view.custom.KeyboardHeightProvider
-import com.ping.android.presentation.view.custom.VoiceRecordView
-import com.ping.android.presentation.view.custom.VoiceRecordViewListener
+import com.ping.android.presentation.view.custom.*
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
 import com.ping.android.presentation.view.custom.media.MediaPickerPopup
 import com.ping.android.presentation.view.custom.media.MediaPickerView
@@ -61,7 +59,6 @@ import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
-import com.vanniktech.emoji.EmojiPopup
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
@@ -156,8 +153,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var selectPosition = 0
 
     private var isScrollToTop = false
-    private var emojiPopup: EmojiPopup? = null
-    private var mediaPickerPopup: MediaPickerPopup? = null
+    private var emojiContainerView: EmojiContainerView? = null
 
     private var selectedMessage: MessageBaseItem<*>? = null
     private val badgeHelper: BadgeHelper by lazy { BadgeHelper(this) }
@@ -274,22 +270,34 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun onClick(view: View) {
         val viewId = view.id
-        setButtonsState(viewId)
         when (viewId) {
             R.id.chat_header_center, R.id.chat_person_name -> onOpenProfile()
             R.id.chat_back -> onExitChat()
-            R.id.chat_camera_btn -> onSendCamera()
-            R.id.chat_image_btn -> handleImageButtonPress()
-            R.id.chat_game_btn -> onGameClicked()
+            R.id.chat_camera_btn -> {
+                setButtonsState(viewId)
+                onSendCamera()
+            }
+            R.id.chat_image_btn -> {
+                setButtonsState(viewId)
+                handleImageButtonPress()
+            }
+            R.id.chat_game_btn -> {
+                setButtonsState(viewId)
+                onGameClicked()
+            }
             R.id.btn_send -> if (btnSend!!.isSelected) {
                 onSentMessage(originalText)
             } else {
+                setButtonsState(viewId)
                 handleRecordVoice()
+            }
+            R.id.chat_emoji_btn -> {
+                setButtonsState(viewId)
+                handleEmojiPressed()
             }
             R.id.tgMarkOut -> onChangeTypingMark()
             R.id.chat_voice_call -> onVoiceCall()
             R.id.chat_video_call -> onVideoCall()
-            R.id.chat_emoji_btn -> handleEmojiPressed()
             R.id.btn_copy -> onCopySelectedMessageText()
             R.id.btn_delete -> onDeleteSelectedMessage()
             R.id.btn_delete_messages -> onDeleteSelectedMessages()
@@ -348,8 +356,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun setButtonsState(selectedViewId: Int) {
-        if (emojiPopup != null && emojiPopup!!.isShowing && selectedViewId != R.id.chat_emoji_btn) {
-            emojiPopup!!.dismiss()
+        if (selectedViewId != R.id.chat_emoji_btn) {
+            hideEmojiView()
         }
         if (selectedViewId != R.id.chat_image_btn) {
             hideMediaPickerView()
@@ -518,49 +526,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
         edMessage = findViewById(R.id.chat_message_tv)
         btEmoji.setOnClickListener(this)
-    }
-
-    private fun hideVoiceRecordView() {
-        //hideBottomView()
-        layoutVoice?.let {
-            if (it.visibility == View.VISIBLE) {
-                it.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun hideMediaPickerView() {
-        layoutMediaPicker?.let {
-            if (it.visibility == View.VISIBLE) {
-                it.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun setupMediaPickerView() {
-        if (layoutMediaPicker == null) {
-            findViewById<View>(R.id.stub_media_picker).visibility = View.VISIBLE
-            layoutMediaPicker = findViewById(R.id.chat_media_picker)
-            layoutMediaPicker?.initProvider(this)
-            layoutMediaPicker?.listener = object : MediaPickerListener {
-                override fun openGridMediaPicker() {
-                    handleGridMediaPickerPress()
-                }
-
-                override fun sendImage(item: PhotoItem) {
-                    if (selectedGame != GameType.UNKNOWN) {
-                        presenter.sendGameMessage(item.imagePath, selectedGame, tgMarkOut.isSelected)
-                    } else {
-                        presenter.sendImageMessage(item.imagePath, item.thumbnailPath, tgMarkOut.isSelected)
-                    }
-                }
-            }
-        }
-        layoutMediaPicker?.layoutParams?.let {
-            it.height = this.currentBottomHeight
-        }
-        layoutMediaPicker?.visibility = View.VISIBLE
-        layoutMediaPicker?.refreshData()
     }
 
     private fun initView() {
@@ -796,7 +761,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         edMessage!!.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
-                if (emojiPopup != null) emojiPopup!!.dismiss()
+                //if (emojiPopup != null) emojiPopup!!.dismiss()
                 //hideVoiceRecordView()
                 hideMediaPickerView()
                 KeyboardHelpers.showKeyboard(this, edMessage)
@@ -888,19 +853,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         toggleEditMode(false)
     }
 
-    private fun handleEmojiPressed() {
-        if (emojiPopup == null) {
-            emojiPopup = EmojiPopup.Builder
-                    .fromRootView(keyboardHeightProvider.contentView)
-                    .build(edMessage!!)
-        }
-        hideVoiceRecordView()
-        hideMediaPickerView()
-        if (!emojiPopup!!.isShowing) {
-            emojiPopup!!.toggle()
-        }
-    }
-
     private fun onChangeTypingMark() {
         tgMarkOut.isSelected = !tgMarkOut.isSelected
         presenter.updateMaskOutput(tgMarkOut.isSelected)
@@ -940,6 +892,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun onSendCamera() {
         // Should check permission here
+        setButtonsState(0)
+        hideBottomView()
         val intent = Intent(this, VideoRecorderActivity::class.java)
         val extras = Bundle()
         val outputPath = externalCacheDir.toString() + File.separator + "conversations" + File.separator + conversationId
@@ -965,49 +919,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
-    private fun openMediaPicker() {
-        permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .subscribe { isGranted ->
-                    if (isGranted) {
-                        setupMediaPickerView()
-                        shouldHideBottomView = false
-                        KeyboardHelpers.hideSoftInputKeyboard(this)
-                        hideVoiceRecordView()
-                        showBottomView()
-                    }
-                }
-    }
-
     private fun onGameClicked() {
         chatGameMenu.show()
-    }
-
-    private fun handleRecordVoice() {
-        shouldHideBottomView = false
-        KeyboardHelpers.hideSoftInputKeyboard(this)
-        setButtonsState(0)
-        val disposable = permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
-                .subscribe { isGranted ->
-                    if (isGranted) {
-                        if (layoutVoice == null) {
-                            findViewById<View>(R.id.stub_import_voice).visibility = View.VISIBLE
-                            layoutVoice = findViewById(R.id.chat_layout_voice)
-                            layoutVoice?.setConversationId(originalConversation!!.key)
-                            val listener = object : VoiceRecordViewListener {
-                                override fun sendVoice(outputFile: String, selectedVoice: VoiceType) {
-                                    presenter.sendAudioMessage(outputFile, selectedVoice)
-                                }
-                            }
-                            layoutVoice?.setListener(listener)
-                        }
-                        layoutVoice?.layoutParams?.let {
-                            it.height = this.currentBottomHeight
-                        }
-                        layoutVoice?.visibility = View.VISIBLE
-                        layoutVoice?.prepare()
-                        showBottomView()
-                    }
-                }
     }
 
     private fun onVoiceCall() {
@@ -1179,6 +1092,113 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private var shouldHideBottomView: Boolean = true
 
+    // region bottom views
+
+    private fun hideVoiceRecordView() {
+        //hideBottomView()
+        layoutVoice?.let {
+            if (it.visibility == View.VISIBLE) {
+                it.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun hideMediaPickerView() {
+        layoutMediaPicker?.let {
+            if (it.visibility == View.VISIBLE) {
+                it.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun hideEmojiView() {
+        emojiContainerView?.dismiss()
+    }
+
+    private fun setupMediaPickerView() {
+        if (layoutMediaPicker == null) {
+            findViewById<View>(R.id.stub_media_picker).visibility = View.VISIBLE
+            layoutMediaPicker = findViewById(R.id.chat_media_picker)
+            layoutMediaPicker?.initProvider(this)
+            layoutMediaPicker?.listener = object : MediaPickerListener {
+                override fun openGridMediaPicker() {
+                    handleGridMediaPickerPress()
+                }
+
+                override fun sendImage(item: PhotoItem) {
+                    if (selectedGame != GameType.UNKNOWN) {
+                        presenter.sendGameMessage(item.imagePath, selectedGame, tgMarkOut.isSelected)
+                    } else {
+                        presenter.sendImageMessage(item.imagePath, item.thumbnailPath, tgMarkOut.isSelected)
+                    }
+                }
+            }
+        }
+        layoutMediaPicker?.layoutParams?.let {
+            it.height = this.currentBottomHeight
+        }
+        layoutMediaPicker?.visibility = View.VISIBLE
+        layoutMediaPicker?.refreshData()
+    }
+
+    private fun handleEmojiPressed() {
+        if (emojiContainerView == null) {
+            emojiContainerView = EmojiContainerView()
+            emojiContainerView?.init(this, container, edMessage!!)
+            bottom_view_container.addView(emojiContainerView!!.emojiView)
+        }
+        emojiContainerView?.show(currentBottomHeight)
+        hideVoiceRecordView()
+        hideMediaPickerView()
+        shouldHideBottomView = false
+        KeyboardHelpers.hideSoftInputKeyboard(this)
+        showBottomView()
+    }
+
+    private fun openMediaPicker() {
+        shouldHideBottomView = false
+        KeyboardHelpers.hideSoftInputKeyboard(this)
+        hideVoiceRecordView()
+        hideEmojiView()
+        permissionsChecker.check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe { isGranted ->
+                    if (isGranted) {
+                        setupMediaPickerView()
+                        showBottomView()
+                    }
+                }
+    }
+
+    private fun handleRecordVoice() {
+        shouldHideBottomView = false
+        KeyboardHelpers.hideSoftInputKeyboard(this)
+        setButtonsState(0)
+        hideEmojiView()
+        hideMediaPickerView()
+        val disposable = permissionsChecker.check(Manifest.permission.RECORD_AUDIO)
+                .subscribe { isGranted ->
+                    if (isGranted) {
+                        if (layoutVoice == null) {
+                            findViewById<View>(R.id.stub_import_voice).visibility = View.VISIBLE
+                            layoutVoice = findViewById(R.id.chat_layout_voice)
+                            layoutVoice?.setConversationId(originalConversation!!.key)
+                            val listener = object : VoiceRecordViewListener {
+                                override fun sendVoice(outputFile: String, selectedVoice: VoiceType) {
+                                    presenter.sendAudioMessage(outputFile, selectedVoice)
+                                }
+                            }
+                            layoutVoice?.setListener(listener)
+                        }
+                        layoutVoice?.layoutParams?.let {
+                            it.height = this.currentBottomHeight
+                        }
+                        layoutVoice?.visibility = View.VISIBLE
+                        layoutVoice?.prepare()
+                        showBottomView()
+                    }
+                }
+    }
+
     override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
         Log.d("Keyboard height $height")
         if (height > 0) {
@@ -1197,11 +1217,17 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun showBottomView() {
         bottom_view_container.post {
-            beginDelayedTransition(bottom_view_container, TransitionSet()
-                    .addTransition(ChangeBounds()))
+//            beginDelayedTransition(bottom_view_container, TransitionSet()
+//                    .addTransition(ChangeBounds())
+//                    .addTransition(Slide(Gravity.BOTTOM)))
             val params = bottom_view_container.layoutParams
-            params.height = currentBottomHeight
-            bottom_view_container.layoutParams = params
+            val animator = ValueAnimator.ofInt(params.height, currentBottomHeight)
+            animator.duration = 300
+            animator.addUpdateListener {
+                params.height = it.animatedValue as Int
+                bottom_view_container.layoutParams = params
+            }
+            animator.start()
         }
     }
 
@@ -1214,6 +1240,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             shouldHideBottomView = true
         }
     }
+
+    // endregion
 
     override fun connectivityChanged(availableNow: Boolean) {
         if (availableNow) {
