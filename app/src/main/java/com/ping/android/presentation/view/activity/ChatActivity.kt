@@ -8,14 +8,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import androidx.transition.Slide
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.app.SharedElementCallback
-import androidx.core.content.ContextCompat
-import androidx.core.util.Pair
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -23,6 +15,14 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.app.SharedElementCallback
+import androidx.core.content.ContextCompat
+import androidx.core.util.Pair
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.transition.Slide
+import androidx.transition.TransitionManager
 import androidx.transition.TransitionManager.beginDelayedTransition
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.cleanarchitecture.BasePresenter
@@ -33,6 +33,7 @@ import com.bzzzchat.videorecorder.view.PhotoItem
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity
 import com.bzzzchat.videorecorder.view.withDelay
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.device.impl.ShakeEventManager
@@ -54,19 +55,18 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
-import com.ping.android.utils.bus.events.BadgeCountUpdateEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
+import kotlinx.android.synthetic.main.view_chat_top.*
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.collections.HashMap
 
 class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener, KeyboardHeightObserver {
     private val TAG = "Ping: " + this.javaClass.simpleName
@@ -75,11 +75,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var backgroundImage: ImageView? = null
     private var recycleChatView: androidx.recyclerview.widget.RecyclerView? = null
     private var mLinearLayoutManager: androidx.recyclerview.widget.LinearLayoutManager? = null
-    private var topLayoutContainer: ViewGroup? = null
-    private var topLayoutChat: ViewGroup? = null
-    private var topLayoutEditMode: ViewGroup? = null
-    private var bottomLayoutChat: ViewGroup? = null
-    private var bottomMenuEditMode: ViewGroup? = null
     private var layoutVoice: VoiceRecordView? = null
     private var layoutMediaPicker: MediaPickerView? = null
     private var swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout? = null
@@ -255,6 +250,18 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
+    override fun onBackPressed() {
+        if (isEditMode) {
+            toggleEditMode(!isEditMode)
+            return
+        }
+        if (bottom_view_container.layoutParams.height > 100) {
+            hideBottomView()
+            return
+        }
+        super.onBackPressed()
+    }
+
     override fun getPresenter(): BasePresenter? {
         return presenter
     }
@@ -347,16 +354,17 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
         val slide = Slide(Gravity.BOTTOM)
         slide.duration = 300
-        //TransitionManager.beginDelayedTransition(bottomLayoutContainer!!, slide)
-        bottomMenuEditMode!!.visibility = if (b) View.VISIBLE else View.GONE
-        bottomLayoutChat!!.visibility = if (b) View.GONE else View.VISIBLE
+        TransitionManager.beginDelayedTransition(chat_bottom_layout, slide)
+        bottom_menu_edit_mode.visibility = if (b) View.VISIBLE else View.GONE
+        chat_bottom_input.visibility = if (b) View.GONE else View.VISIBLE
         slide.slideEdge = Gravity.TOP
-        beginDelayedTransition(topLayoutContainer!!, slide)
-        topLayoutEditMode!!.visibility = if (b) View.VISIBLE else View.GONE
-        topLayoutChat!!.visibility = if (b) View.GONE else View.VISIBLE
+        beginDelayedTransition(top_layout_container!!, slide)
+        top_menu_edit_mode.visibility = if (b) View.VISIBLE else View.GONE
+        top_chat_layout.visibility = if (b) View.GONE else View.VISIBLE
 
         //TransitionManager.beginDelayedTransition(cha/t);
         messagesAdapter.updateEditMode(b)
+
     }
 
     private fun hideGameSelection() {
@@ -499,14 +507,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         btnMask = findViewById(R.id.chat_mask)
         btnUnmask = findViewById(R.id.chat_unmask)
         btnDelete = findViewById(R.id.btn_delete_messages)
-        //        btEdit = findViewById(R.id.chat_video_call);
-        //        btCancelEdit = findViewById(R.id.chat_cancel_edit);
-        //layoutText = findViewById(R.id.chat_layout_text);
-        topLayoutContainer = findViewById(R.id.top_layout_container)
-        topLayoutChat = findViewById(R.id.top_chat_layout)
-        topLayoutEditMode = findViewById(R.id.top_menu_edit_mode)
-        bottomLayoutChat = findViewById(R.id.bottom_layout_chat)
-        bottomMenuEditMode = findViewById(R.id.bottom_menu_edit_mode)
 
         tvNewMsgCount = findViewById(R.id.chat_new_message_count)
         val btEmoji = findViewById<ImageButton>(R.id.chat_emoji_btn)
@@ -1238,9 +1238,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun showBottomView() {
         bottom_view_container.post {
-//            beginDelayedTransition(bottom_view_container, TransitionSet()
-//                    .addTransition(ChangeBounds())
-//                    .addTransition(Slide(Gravity.BOTTOM)))
             val params = bottom_view_container.layoutParams
             val animator = ValueAnimator.ofInt(params.height, currentBottomHeight)
             animator.duration = 300
@@ -1256,8 +1253,13 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         //beginDelayedTransition(bottom_view_container)
         bottom_view_container.post {
             val params = bottom_view_container.layoutParams
-            params.height = 1
-            bottom_view_container.layoutParams = params
+            val animator = ValueAnimator.ofInt(params.height, 1)
+            animator.duration = 300
+            animator.addUpdateListener {
+                params.height = it.animatedValue as Int
+                bottom_view_container.layoutParams = params
+            }
+            animator.start()
             shouldHideBottomView = true
         }
     }

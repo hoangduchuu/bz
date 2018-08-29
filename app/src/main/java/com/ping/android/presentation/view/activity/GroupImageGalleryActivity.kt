@@ -21,6 +21,7 @@ import com.ping.android.model.Message
 import com.ping.android.model.enums.Color
 import com.ping.android.presentation.presenters.GroupImageGalleryPresenter
 import com.ping.android.presentation.view.adapter.ImagePagerAdapter
+import com.ping.android.presentation.view.custom.ParallaxPageTransformer
 import com.ping.android.utils.PermissionsChecker
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
@@ -99,6 +100,9 @@ class GroupImageGalleryActivity : CoreActivity(), GroupImageGalleryPresenter.Vie
         adapter = ImagePagerAdapter(supportFragmentManager, messages)
         viewpager.adapter = adapter
         viewpager.currentItem = currentPosition
+        val transformer = ParallaxPageTransformer()
+                .addViewToParallax(ParallaxPageTransformer.ParallaxTransformInformation(R.id.image_detail, 2.0f, 2.0f))
+        viewpager.setPageTransformer(true, transformer)
         onMessageSelected(messages[currentPosition])
         updateTitle(currentPosition)
 

@@ -73,15 +73,50 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <include
+    <FrameLayout
         android:id="@+id/chat_bottom_layout"
-        layout="@layout/view_chat_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/bottom_view_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible" />
+    >
+
+        <include
+            android:id="@+id/chat_bottom_input"
+            layout="@layout/view_chat_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:visibility="visible" />
+
+        <RelativeLayout
+            android:id="@+id/bottom_menu_edit_mode"
+            style="@style/BottomMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/main_background_gray"
+            android:paddingStart="@dimen/default_padding"
+            android:paddingTop="5dp"
+            android:paddingEnd="@dimen/default_padding"
+            android:paddingBottom="5dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible">
+
+            <Button
+                android:id="@+id/chat_mask"
+                style="@style/ActionButton"
+                android:text="@string/chat_mask_all" />
+
+            <Button
+                android:id="@+id/chat_unmask"
+                style="@style/ActionButton"
+                android:layout_alignParentEnd="true"
+                android:text="@string/chat_unmask_all" />
+        </RelativeLayout>
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/bottom_view_container"
@@ -106,34 +141,6 @@
             android:inflatedId="@+id/chat_media_picker"
             android:layout="@layout/view_chat_bottom_media_picker" />
     </FrameLayout>
-
-    <RelativeLayout
-        android:id="@+id/bottom_menu_edit_mode"
-        style="@style/BottomMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/main_background_gray"
-        android:paddingStart="@dimen/default_padding"
-        android:paddingTop="5dp"
-        android:paddingEnd="@dimen/default_padding"
-        android:paddingBottom="5dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible">
-
-        <Button
-            android:id="@+id/chat_mask"
-            style="@style/ActionButton"
-            android:text="@string/chat_mask_all" />
-
-        <Button
-            android:id="@+id/chat_unmask"
-            style="@style/ActionButton"
-            android:layout_alignParentEnd="true"
-            android:text="@string/chat_unmask_all" />
-    </RelativeLayout>
 
     <!--<include layout="@layout/view_media_picker" />-->
     <include layout="@layout/notify_network_main" />
