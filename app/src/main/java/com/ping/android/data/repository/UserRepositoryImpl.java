@@ -19,6 +19,8 @@ import com.ping.android.data.mappers.CallEntityMapper;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -231,6 +233,20 @@ public class UserRepositoryImpl implements UserRepository {
                 .onErrorResumeNext(emailSingle)
                 .onErrorResumeNext(phoneSingle)
                 .toObservable();
+    }
+
+    @Override
+    public Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey) {
+        DatabaseReference databaseReference = database.getReference("users")
+                .child(userKey).child("badges");
+        return RxFirebaseDatabase.getInstance(databaseReference)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return (Map<String, Integer>) dataSnapshot.getValue();
+                    }
+                    return new HashMap<>();
+                });
     }
 
     @Override

@@ -36,6 +36,7 @@ public class User implements Parcelable {
     public Setting settings;
     public Map<String, Boolean> blocks = new HashMap<>();
     public Map<String, Boolean> blockBys = new HashMap<>();
+    public Map<String, Integer> badges = new HashMap<>();
 
     /**
      * Map contains devices that opponentUser logged in, if count bigger than 0, it means users is online
@@ -64,6 +65,7 @@ public class User implements Parcelable {
         this.loginStatus = wrapper.getBooleanValue("loginStatus");
         this.showMappingConfirm = wrapper.getBooleanValue("show_mapping_confirm");
         this.mappings = (Map<String, String>) wrapper.getMapValue("mappings");
+        this.badges = wrapper.getMapValue("badges");
         this.settings = new Setting(dataSnapshot.child("settings"));
         this.blocks = (Map<String, Boolean>) wrapper.getMapValue("blocks");
         if (blocks == null) blocks = new HashMap<>();

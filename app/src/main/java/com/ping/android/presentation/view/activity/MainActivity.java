@@ -1,6 +1,5 @@
 package com.ping.android.presentation.view.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -29,9 +28,9 @@ import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.KeyboardHelpers;
-import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -45,6 +44,7 @@ import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class MainActivity extends CoreActivity implements HasSupportFragmentInjector, MainPresenter.View {
 
@@ -53,10 +53,11 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
-    private BadgeHelper badgeHelper;
 
     @Inject
     public MainPresenter presenter;
+    @Inject
+    public BusProvider busProvider;
     @Inject
     DispatchingAndroidInjector<Fragment> fragmentInjector;
 
@@ -72,7 +73,6 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         setContentView(R.layout.activity_main);
 
         init();
-        observeBadgeNumber();
     }
 
     @Override
@@ -113,7 +113,6 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private void init() {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        badgeHelper = new BadgeHelper(this);
         viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
@@ -121,6 +120,16 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
         onChangeTab();
+
+        registerEvent(busProvider.getEvents()
+                .subscribe(o -> {
+                    if (o instanceof BadgeCountUpdateEvent) {
+                        updateMissedCallCount(((BadgeCountUpdateEvent) o).missedCallCount);
+                        updateMessageCount(((BadgeCountUpdateEvent) o).messageCount);
+
+                        ShortcutBadger.applyCount(this, ((BadgeCountUpdateEvent) o).totalBadgeCount());
+                    }
+                }));
     }
 
     public void onEditMode(Boolean isEditMode) {
@@ -133,22 +142,6 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
                 tabLayout.setVisibility(View.VISIBLE);
             }
         }, 10);
-    }
-
-    private void observeBadgeNumber() {
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
-        updateMessageCount(messageCount);
-        listener = (prefs, key) -> {
-            if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
-                int messageCount1 = prefs.getInt(key, 0);
-                updateMessageCount(messageCount1);
-            } else if (key.equals(Constant.PREFS_KEY_MISSED_CALL_COUNT)) {
-                int count = prefs.getInt(key, 0);
-                updateMissedCallCount(count);
-            }
-        };
-        prefs.registerOnSharedPreferenceChangeListener(listener);
     }
 
     private void setupTabIcons() {
@@ -182,13 +175,8 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
             tabLayout.getTabAt(i).getCustomView().findViewById(R.id.tab_item_icon).setSelected(i == selected);
         }
-        int messageCount1 = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
-        updateMessageCount(messageCount1);
         if (selected == 1) {
             resetMissedCall();
-        } else {
-            int count = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-            updateMissedCallCount(count);
         }
     }
 
@@ -198,12 +186,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private void resetMissedCall() {
         // Reset missed count
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-        editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
-        editor.apply();
         presenter.removeMissedCallsBadge();
-        badgeHelper.clearMissedCall();
     }
 
     public void callAdded(Call call) {
@@ -252,9 +235,6 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     private void updateMessageCount(int messageCount) {
         updateBadge(0, messageCount);
-        if (messageCount == 0) {
-            badgeHelper.resetConversationCount();
-        }
     }
 
     private void updateMissedCallCount(int count) {

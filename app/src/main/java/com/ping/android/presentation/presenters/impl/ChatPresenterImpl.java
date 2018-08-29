@@ -184,6 +184,18 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(User user) {
                 currentUser = user;
+                if (currentUser.badges != null) {
+                    Map<String, Integer> stringMap = new HashMap<>(currentUser.badges);
+                    stringMap.remove("refreshMock");
+                    stringMap.remove("missed_call");
+                    int messageCount = 0;
+                    Number count = 0;
+                    for (String key : stringMap.keySet()) {
+                        count = stringMap.get(key);
+                        messageCount += count.intValue();
+                    }
+                    view.updateUnreadMessageCount(messageCount);
+                }
             }
         }, null);
     }

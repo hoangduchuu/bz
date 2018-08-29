@@ -100,5 +100,7 @@ public interface ChatPresenter extends BasePresenter {
         void hideRefreshView();
 
         void refreshMessages();
+
+        void updateUnreadMessageCount(int count);
     }
 }

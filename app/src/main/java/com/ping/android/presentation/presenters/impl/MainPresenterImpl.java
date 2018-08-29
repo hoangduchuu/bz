@@ -9,15 +9,19 @@ import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.SyncMessageUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
+import com.ping.android.domain.usecase.user.ObserveBadgeCountUseCase;
 import com.ping.android.domain.usecase.user.TurnOffMappingConfirmationUseCase;
 import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -45,6 +49,10 @@ public class MainPresenterImpl implements MainPresenter {
     GetConversationValueUseCase getConversationValueUseCase;
     @Inject
     SyncMessageUseCase syncMessageUseCase;
+    @Inject
+    ObserveBadgeCountUseCase observeBadgeCountUseCase;
+    @Inject
+    BusProvider busProvider;
     private User currentUser;
     private boolean isInit = false;
 
@@ -75,16 +83,47 @@ public class MainPresenterImpl implements MainPresenter {
             if (!currentUser.showMappingConfirm) {
                 randomizeTransphabet(UsersUtils.randomizeEmoji());
                 view.showMappingConfirm();
-           }
+            }
             isInit = true;
+            observeBadgeCount();
         }
     }
 
     @Override
     public void destroy() {
+        observeBadgeCountUseCase.dispose();
         observeCurrentUserUseCase.dispose();
         observeFriendsStatusUseCase.dispose();
         syncMessageUseCase.dispose();
+    }
+
+    @Override
+    public void observeBadgeCount() {
+        observeBadgeCountUseCase.execute(new DefaultObserver<Map<String, ? extends Integer>>() {
+            @Override
+            public void onNext(Map<String, ? extends Integer> stringMap) {
+                if (stringMap.containsKey("refreshMock")) {
+                    stringMap.remove("refreshMock");
+                }
+                Number missedCall = 0;
+                if (stringMap.containsKey("missed_call")) {
+                    missedCall = stringMap.get("missed_call");
+                }
+                stringMap.remove("missed_call");
+                int messageCount = 0;
+                Number count = 0;
+                for (String key : stringMap.keySet()) {
+                    count = stringMap.get(key);
+                    messageCount += count.intValue();
+                }
+                busProvider.post(new BadgeCountUpdateEvent(new HashMap<>(stringMap), messageCount, missedCall.intValue()));
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, new Object());
     }
 
     @Override

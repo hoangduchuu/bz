@@ -29,16 +29,15 @@ import com.ping.android.model.User
 import com.ping.android.presentation.view.activity.ChatActivity
 import com.ping.android.presentation.view.activity.SplashActivity
 import com.ping.android.utils.ActivityLifecycle
-import com.ping.android.utils.BadgeHelper
 import com.ping.android.utils.Log
 import com.ping.android.utils.SharedPrefsHelper
 import com.quickblox.messages.services.fcm.QBFcmPushListenerService
+import me.leolin.shortcutbadger.ShortcutBadger
 import org.json.JSONException
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 class FbMessagingService: QBFcmPushListenerService() {
-    private lateinit var badgeHelper: BadgeHelper
     private var mNotificationId: Int = 0
     private var mConversationId: String? = null
     @Inject
@@ -51,7 +50,6 @@ class FbMessagingService: QBFcmPushListenerService() {
 
     override fun onCreate() {
         super.onCreate()
-        badgeHelper = BadgeHelper(this)
         (applicationContext as App).component.inject(this)
     }
 
@@ -67,46 +65,50 @@ class FbMessagingService: QBFcmPushListenerService() {
 
             val conversationId = data["conversationId"] as? String ?: ""
             val senderProfile = data["senderProfile"] as? String ?: ""
+            val badgeCount = data["badge_count"] as? Int
+            ShortcutBadger.applyCount(this, badgeCount ?: 0)
             Log.d("new message: $message$conversationId$notificationType")
-            if (TextUtils.equals(notificationType, "missed_call")) {
-                var isVideo = 0
-                try {
-                    isVideo = Integer.parseInt(data["isVideo"] as String)
-                } catch (e: NumberFormatException) {
-                    e.printStackTrace()
-                }
-
-                val senderId = data["senderId"] as String
-                this.badgeHelper.increaseMissedCall()
-                showMissedCallNotificationUseCase
-                        .execute(DefaultObserver(),
-                                ShowMissedCallNotificationUseCase.Params(
-                                        senderId,
-                                        senderProfile,
-                                        message,
-                                        isVideo == 1
-                                ))
-            } else if (TextUtils.equals(notificationType, "incoming_message")) {
-                if (!needDisplayNotification(conversationId)) {
-                    return
-                }
-                this.badgeHelper.increaseBadgeCount(conversationId)
-                showIncomingMessageNotificationUseCase.execute(DefaultObserver(),
-                        ShowIncomingMessageNotificationUseCase.Params(message, conversationId, senderProfile))
-            } else if (TextUtils.equals(notificationType, "game_status")) {
-                if (!needDisplayNotification(conversationId)) {
-                    return
-                }
-                getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
-                    override fun onNext(user: User) {
-                        try {
-                            postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
-                        }
-
+            when {
+                TextUtils.equals(notificationType, "missed_call") -> {
+                    var isVideo = 0
+                    try {
+                        isVideo = Integer.parseInt(data["isVideo"] as String)
+                    } catch (e: NumberFormatException) {
+                        e.printStackTrace()
                     }
-                }, null)
+
+                    val senderId = data["senderId"] as String
+                    showMissedCallNotificationUseCase
+                            .execute(DefaultObserver(),
+                                    ShowMissedCallNotificationUseCase.Params(
+                                            senderId,
+                                            senderProfile,
+                                            message,
+                                            isVideo == 1
+                                    ))
+                }
+                TextUtils.equals(notificationType, "incoming_message") -> {
+                    if (!needDisplayNotification(conversationId)) {
+                        return
+                    }
+                    showIncomingMessageNotificationUseCase.execute(DefaultObserver(),
+                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, senderProfile))
+                }
+                TextUtils.equals(notificationType, "game_status") -> {
+                    if (!needDisplayNotification(conversationId)) {
+                        return
+                    }
+                    getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
+                        override fun onNext(user: User) {
+                            try {
+                                postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+
+                        }
+                    }, null)
+                }
             }
         }
     }

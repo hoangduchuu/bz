@@ -10,7 +10,6 @@ import android.os.Handler
 import android.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import androidx.transition.Slide
-import androidx.transition.TransitionManager
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
@@ -24,12 +23,12 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.transition.ChangeBounds
 import androidx.transition.TransitionManager.beginDelayedTransition
-import androidx.transition.TransitionSet
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.configuration.GlideApp
+import com.bzzzchat.extensions.dp
+import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity
@@ -48,7 +47,6 @@ import com.ping.android.presentation.presenters.ChatPresenter
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter
 import com.ping.android.presentation.view.custom.*
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
-import com.ping.android.presentation.view.custom.media.MediaPickerPopup
 import com.ping.android.presentation.view.custom.media.MediaPickerView
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
 import com.ping.android.presentation.view.flexibleitem.messages.GroupImageMessageBaseItem
@@ -56,6 +54,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.vanniktech.emoji.EmojiEditText
@@ -67,6 +66,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener, KeyboardHeightObserver {
     private val TAG = "Ping: " + this.javaClass.simpleName
@@ -125,14 +125,15 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         PreferenceManager.getDefaultSharedPreferences(this)
     }
 
-    private val listener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
-        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
-                val messageCount = prefs.getInt(key, 0)
-                updateMessageCount(messageCount)
-            }
-        }
-    }
+//    private val listener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
+//        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+//            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
+//                val messageCount = prefs.getInt(key, 0)
+//                updateMessageCount(messageCount)
+//            }
+//        }
+//    }
+
     private var textWatcher: TextWatcher? = null
 
     private val shakeEventManager: ShakeEventManager by lazy {
@@ -156,9 +157,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var emojiContainerView: EmojiContainerView? = null
 
     private var selectedMessage: MessageBaseItem<*>? = null
-    private val badgeHelper: BadgeHelper by lazy { BadgeHelper(this) }
     private val keyboardHeightProvider: KeyboardHeightProvider by lazy { KeyboardHeightProvider(this) }
-    private var currentBottomHeight: Int = SharedPrefsHelper.getInstance().get("keyboardHeight", 200)
+    private var currentBottomHeight: Int = SharedPrefsHelper.getInstance().get("keyboardHeight", 250.px)
     @Inject
     lateinit var presenter: ChatPresenter
     @Inject
@@ -219,18 +219,10 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0)
-        updateMessageCount(messageCount)
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-    }
-
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
         keyboardHeightProvider.setKeyboardHeightObserver(this)
-        badgeHelper.read(conversationId)
         resetButtonState()
         hideAllBottomViews()
         isScreenVisible = true
@@ -242,8 +234,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             isTyping = false
             updateConversationTyping(false)
         }
-
-        prefs.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
     override fun onPause() {
@@ -783,6 +773,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         edMessage!!.addTextChangedListener(textWatcher)
         edMessage!!.setOnTouchListener { view, motionEvent ->
             resetButtonState()
+            KeyboardHelpers.showKeyboard(this, edMessage)
+            shouldHideBottomView = true
             hideEmojiView()
             hideMediaPickerView()
             hideVoiceRecordView()
@@ -790,20 +782,20 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         edMessage!!.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
-                //if (emojiPopup != null) emojiPopup!!.dismiss()
-                //hideVoiceRecordView()
+                hideVoiceRecordView()
                 hideMediaPickerView()
+                hideEmojiView()
                 KeyboardHelpers.showKeyboard(this, edMessage)
             }
         }
     }
 
-    private fun updateMessageCount(messageCount: Int) {
-        if (messageCount == 0) {
+    override fun updateUnreadMessageCount(count: Int) {
+        if (count == 0) {
             tvNewMsgCount!!.visibility = View.GONE
         } else {
             tvNewMsgCount!!.visibility = View.VISIBLE
-            tvNewMsgCount!!.text = messageCount.toString()
+            tvNewMsgCount!!.text = count.toString()
         }
     }
 
@@ -1229,7 +1221,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     override fun onKeyboardHeightChanged(height: Int, orientation: Int) {
-        Log.d("Keyboard height $height")
+        Log.d("Keyboard height $height, ${height.dp}")
         if (height > 0) {
             this.currentBottomHeight = height
             SharedPrefsHelper.getInstance().save("keyboardHeight", height)

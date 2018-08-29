@@ -6,6 +6,8 @@ import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.User;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -79,4 +81,6 @@ public interface UserRepository {
     Observable<User> loginByEmail(String email, String password);
 
     Observable<User> checkValidUser(String userName);
+
+    Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey);
 }

@@ -61,6 +61,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("senderId", senderId);
         object.addProperty("senderProfile", senderProfileImage);
         object.addProperty("isVideo", isVideo ? 1 : 0);
+        object.addProperty("badge_count", badgeNumber + 1);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(quickBloxId);
@@ -72,7 +73,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
     @Override
     public Observable<Boolean> sendMessageNotification(String senderId, String senderProfileImage, String body,
-                                                       String conversationId,
+                                                       String conversationId, int messageType,
                                                        User user, int badgeNumber) {
         JsonObject object = new JsonObject();
         object.addProperty("data", body);
@@ -91,8 +92,9 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 //        object.addProperty("gameUrl", message.gameUrl);
         object.addProperty("senderId", senderId);
         object.addProperty("senderProfile", senderProfileImage);
-//        object.addProperty("messageType", message.messageType);
+        object.addProperty("messageType", messageType);
         object.addProperty("ios_badge", badgeNumber + 1);
+        object.addProperty("badge_count", badgeNumber + 1);
 
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
@@ -120,6 +122,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("senderId", senderId);
         object.addProperty("messageType", Constant.MSG_TYPE_GAME);
         object.addProperty("ios_badge", badgeNumber + 1);
+        object.addProperty("badge_count", badgeNumber + 1);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(opponentQbId);

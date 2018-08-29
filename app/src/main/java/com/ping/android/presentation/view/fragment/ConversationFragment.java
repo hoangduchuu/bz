@@ -33,6 +33,7 @@ import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.MessageAdapter;
 import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.utils.configs.Constant;
 
@@ -120,6 +121,13 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         presenter.getConversations();
         // Load data
         //observeMessages();
+        registerEvent(busProvider.getEvents()
+                .subscribe(o -> {
+                    if (o instanceof BadgeCountUpdateEvent) {
+                        Map<String, Integer> badgesCount = ((BadgeCountUpdateEvent) o).conversationBadgeMap;
+                        adapter.updateBadgesCount(badgesCount);
+                    }
+                }));
     }
 
     private void bindViews(View view) {
@@ -297,8 +305,8 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void updateUnreadNumber() {
-        int unread = adapter.unreadNum();
-        prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
+        //int unread = adapter.unreadNum();
+        //prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
     }
 
     @Override

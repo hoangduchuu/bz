@@ -11,6 +11,8 @@ import java.util.Map;
  */
 
 public interface MainPresenter extends BasePresenter {
+    void observeBadgeCount();
+    
     void removeMissedCallsBadge();
 
     void onNetworkAvailable();

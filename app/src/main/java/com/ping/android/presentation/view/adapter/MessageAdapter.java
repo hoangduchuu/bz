@@ -1,16 +1,18 @@
 package com.ping.android.presentation.view.adapter;
 
 import android.graphics.Typeface;
+
+import androidx.annotation.NonNull;
 import androidx.transition.TransitionManager;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -42,6 +44,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private ConversationItemListener listener;
     private Map<String, String> mappings = new HashMap<>();
+    private Map<String, Integer> badgesCount = new HashMap<>();
 
     public MessageAdapter() {
         isEditMode = false;
@@ -79,6 +82,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
         holder.bindData(model, mappings, selectConversations.contains(model));
+        Number count = badgesCount.get(model.key);
+        holder.updateUnreadCount(count != null ? count.intValue() : 0);
         holder.setClickListener(conversation -> {
             boolean status = selectConversations.contains(conversation);
             if (status) {
@@ -97,16 +102,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemCount() {
         return displayConversations.size();
-    }
-
-    public int unreadNum() {
-        int unread = 0;
-        for (Conversation conversation : originalConversations.values()) {
-            if (!conversation.isRead) {
-                unread++;
-            }
-        }
-        return unread;
     }
 
     public void updateConversation(Conversation conversation, boolean ignoreWhenDuplicate) {
@@ -270,9 +265,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyDataSetChanged();
     }
 
+    public void updateBadgesCount(@NonNull Map<String, Integer> badgesCount) {
+        this.badgesCount = badgesCount;
+        notifyDataSetChanged();
+    }
+
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
-        TextView tvSender, tvMessage, tvTime;
+        TextView tvSender, tvMessage, tvTime, unreadCount;
         RadioButton rbSelect;
         Conversation conversation;
         private ConversationItemListener listener;
@@ -285,6 +285,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             tvMessage = itemView.findViewById(R.id.message_item_message);
             tvTime = itemView.findViewById(R.id.message_item_time);
             rbSelect = itemView.findViewById(R.id.message_item_select);
+            unreadCount = itemView.findViewById(R.id.unread_message_count);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
             this.listener = listener;
@@ -419,6 +420,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 });
             }
             UiUtils.displayProfileAvatar(ivProfileImage, model.conversationAvatarUrl);
+        }
+
+        public void updateUnreadCount(int unreadMessageCount) {
+            if (unreadMessageCount == 0) {
+                unreadCount.setVisibility(View.GONE);
+            } else {
+                unreadCount.setVisibility(View.VISIBLE);
+                unreadCount.setText(unreadMessageCount + "");
+            }
         }
     }
 

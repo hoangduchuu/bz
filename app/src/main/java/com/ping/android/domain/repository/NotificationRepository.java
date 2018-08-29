@@ -15,7 +15,7 @@ public interface NotificationRepository {
                                                          int quickBloxId, boolean isVideo, int badgeNumber);
 
     Observable<Boolean> sendMessageNotification(String senderId, String senderProfile,
-                                                String body, String conversationId,
+                                                String body, String conversationId, int messageType,
                                                 User user, int badgeNumber);
 
     Observable<Boolean> sendGameStatusNotificationToSender(String senderId, String displayName,
