@@ -65,7 +65,7 @@ class FbMessagingService: QBFcmPushListenerService() {
 
             val conversationId = data["conversationId"] as? String ?: ""
             val senderProfile = data["senderProfile"] as? String ?: ""
-            val badgeCount = data["badge_count"] as? Int
+            val badgeCount = (data["badge_count"] as? String)?.toIntOrNull()
             ShortcutBadger.applyCount(this, badgeCount ?: 0)
             Log.d("new message: $message$conversationId$notificationType")
             when {

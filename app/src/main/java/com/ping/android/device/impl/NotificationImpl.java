@@ -322,8 +322,8 @@ public class NotificationImpl implements com.ping.android.device.Notification {
         }
         //do not show double BZZZ, will change if use title for other meaning
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            builder
-                    .setContentTitle(context.getResources().getString(R.string.app_name));
+//            builder
+//                    .setContentTitle(context.getResources().getString(R.string.app_name));
         } else {
             // 1. Build label
             String replyLabel = context.getResources().getString(R.string.notif_action_reply);
@@ -382,14 +382,15 @@ public class NotificationImpl implements com.ping.android.device.Notification {
     }
 
     private NotificationCompat.MessagingStyle buildMessageList(List<NotificationMessage> messages, String userId) {
+        String appName = context.getResources().getString(R.string.app_name);
         NotificationCompat.MessagingStyle messagingStyle =
-                new NotificationCompat.MessagingStyle(new Person.Builder().setName(MY_DISPLAY_NAME).build());
+                new NotificationCompat.MessagingStyle(new Person.Builder().setName(appName).build());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             messagingStyle.setConversationTitle(context.getString(R.string.app_name)).setGroupConversation(true);
         }
         for (NotificationMessage message : messages) {
-            String sender = message.getSenderId().equals(userId) ? null : message.getSenderId();
-            messagingStyle.addMessage(message.getMessage(), message.getTimestamp(), new Person.Builder().setName("").build());
+            messagingStyle.addMessage(message.getDisplayMessage(), message.getTimestamp(),
+                    new Person.Builder().setName(message.getSenderName()).build());
         }
         messagingStyle.setGroupConversation(true);
         return messagingStyle;
