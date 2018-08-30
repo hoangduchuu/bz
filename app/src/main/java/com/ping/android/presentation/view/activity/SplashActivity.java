@@ -22,10 +22,6 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!isTaskRoot()) {
-            finish();
-            return;
-        }
         setContentView(R.layout.activity_loading);
         AndroidInjection.inject(this);
         presenter.create();
@@ -33,6 +29,10 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
         if (!TextUtils.isEmpty(conversationId)) {
             presenter.handleNewConversation(conversationId);
         } else {
+            if (!isTaskRoot()) {
+                finish();
+                return;
+            }
             initialize();
         }
     }

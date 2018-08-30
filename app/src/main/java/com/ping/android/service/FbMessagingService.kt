@@ -22,6 +22,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.App
 import com.ping.android.R
 import com.ping.android.domain.usecase.GetCurrentUserUseCase
+import com.ping.android.domain.usecase.RemoveUserBadgeUseCase
 import com.ping.android.domain.usecase.notification.ShowIncomingMessageNotificationUseCase
 import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUseCase
 import com.ping.android.model.Callback
@@ -46,6 +47,8 @@ class FbMessagingService: QBFcmPushListenerService() {
     internal lateinit var showMissedCallNotificationUseCase: ShowMissedCallNotificationUseCase
     @Inject
     internal lateinit var showIncomingMessageNotificationUseCase: ShowIncomingMessageNotificationUseCase
+    @Inject
+    internal lateinit var removeUserBadgeUseCase: RemoveUserBadgeUseCase
 
 
     override fun onCreate() {
@@ -89,6 +92,7 @@ class FbMessagingService: QBFcmPushListenerService() {
                 }
                 TextUtils.equals(notificationType, "incoming_message") -> {
                     if (!needDisplayNotification(conversationId)) {
+                        removeUserBadgeUseCase.execute(DefaultObserver(), conversationId)
                         return
                     }
                     showIncomingMessageNotificationUseCase.execute(DefaultObserver(),

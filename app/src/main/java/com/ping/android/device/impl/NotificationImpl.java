@@ -130,7 +130,7 @@ public class NotificationImpl implements com.ping.android.device.Notification {
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
                 channel.enableVibration(true);
-                channel.setShowBadge(true);
+                channel.setShowBadge(false);
                 notificationManager.createNotificationChannel(channel);
             }
             //builder.setChannelId("missed_call");
@@ -354,7 +354,7 @@ public class NotificationImpl implements com.ping.android.device.Notification {
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
                 channel.enableVibration(true);
-                channel.setShowBadge(true);
+                channel.setShowBadge(false);
                 notificationManager.createNotificationChannel(channel);
             }
             //builder.setChannelId("missed_call");
