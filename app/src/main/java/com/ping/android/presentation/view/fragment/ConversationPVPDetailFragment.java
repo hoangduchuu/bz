@@ -213,7 +213,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
     }
 
     private void onBlock() {
-        showLoading();
         presenter.toggleBlockUser(swBlock.isChecked());
     }
 

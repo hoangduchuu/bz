@@ -165,7 +165,6 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void onBlock() {
-        showLoading();
         presenter.toggleBlockUser(swUserBlock.isChecked());
     }
 
