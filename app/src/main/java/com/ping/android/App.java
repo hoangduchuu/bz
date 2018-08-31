@@ -1,11 +1,16 @@
 package com.ping.android;
 
 import android.app.Activity;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
@@ -14,6 +19,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
@@ -41,6 +47,17 @@ public class App extends CoreApp implements HasActivityInjector {
         ActivityLifecycle.init(this);
         FirebaseApp.initializeApp(getApplicationContext());
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseMessaging.getInstance().subscribeToTopic("news")
+                .addOnCompleteListener(task -> {
+                    String msg = "Subscribe successfully";
+                    if (!task.isSuccessful()) {
+                        msg = "Subscribe unsuccessfully";
+                    }
+                    Log.d(TAG, msg);
+                    if (BuildConfig.DEBUG) {
+                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                    }
+                });
         // Set up Crashlytics, disabled for debug builds
         Crashlytics crashlyticsKit = new Crashlytics.Builder()
                 .core(new CrashlyticsCore.Builder()

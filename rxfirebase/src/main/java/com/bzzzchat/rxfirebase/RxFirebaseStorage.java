@@ -1,12 +1,8 @@
 package com.bzzzchat.rxfirebase;
 
 import android.net.Uri;
-import androidx.annotation.NonNull;
 
 import com.bzzzchat.rxfirebase.storage.UploadTaskSingleOnSubscribe;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -14,8 +10,6 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 
 import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
 
 /**
  * Created by tuanluong on 2/1/18.
