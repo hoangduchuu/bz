@@ -28,7 +28,7 @@ public class BzzzGlideExtension {
     @NonNull
     public static RequestOptions profileImage(RequestOptions options) {
         return options
-                .override(128)
+                .override(256)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.ic_avatar_gray)
                 .error(R.drawable.ic_avatar_gray)

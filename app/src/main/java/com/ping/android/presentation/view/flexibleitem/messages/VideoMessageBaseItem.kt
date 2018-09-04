@@ -106,7 +106,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         }
 
         private fun downloadVideoFile(videoUrl: String, file: File) {
-            if (!file.parentFile.exists()) {
+            if (!file.exists() || !file.parentFile.exists()) {
                 file.parentFile.mkdirs()
             }
             val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(videoUrl)

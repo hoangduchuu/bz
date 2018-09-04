@@ -100,6 +100,10 @@ public class CallPresenterImpl implements CallPresenter,
             }, null);
         } else {
             opponentUser = intent.getParcelableExtra(CallActivity.EXTRA_OPPONENT_USER);
+            if (opponentUser == null) {
+                view.finishCall();
+                return;
+            }
             initCallInfoUseCase.execute(new DefaultObserver<InitCallInfoUseCase.Output>() {
                 @Override
                 public void onNext(InitCallInfoUseCase.Output output) {

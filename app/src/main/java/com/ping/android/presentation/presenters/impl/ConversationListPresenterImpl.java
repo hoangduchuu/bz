@@ -132,5 +132,7 @@ public class ConversationListPresenterImpl implements ConversationListPresenter 
         view = null;
         observeConversationsUseCase.dispose();
         loadMoreConversationUseCase.dispose();
+        deleteConversationsUseCase.dispose();
+        observeMappingsUseCase.dispose();
     }
 }

@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,8 @@ public class AuthenticateUseCase extends UseCase<User, AuthenticateUseCase.Param
     SearchRepository searchRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    InitializeUserUseCase initializeUserUseCase;
 
     @Inject
     public AuthenticateUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -28,7 +31,9 @@ public class AuthenticateUseCase extends UseCase<User, AuthenticateUseCase.Param
     @Override
     public Observable<User> buildUseCaseObservable(Params params) {
         return userRepository.checkValidUser(params.userName)
-                .flatMap(user -> userRepository.loginByEmail(user.email, params.password));
+                .flatMap(user -> userRepository.loginByEmail(user.email, params.password)
+                        .flatMap(user1 -> initializeUserUseCase.buildUseCaseObservable(null)
+                                .map(aBoolean -> user)));
     }
 
     public static class Params {

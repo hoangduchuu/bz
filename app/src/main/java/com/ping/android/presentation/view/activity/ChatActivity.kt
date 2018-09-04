@@ -13,7 +13,6 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
@@ -665,78 +664,65 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         presenter.loadMoreMessage(lastMessage.timestamp)
     }
+    private var messageBeforeChange = ""
 
     private fun initTextWatcher() {
         if (textWatcher != null) return
         textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
+            override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
+                messageBeforeChange = charSequence.toString()
+            }
 
             override fun onTextChanged(charSequence: CharSequence, start: Int, before: Int, count: Int) {
                 updateSendButtonStatus(!TextUtils.isEmpty(charSequence.toString()))
                 if (!tgMarkOut.isSelected) {
                     return
                 }
+                val isAppending = count > 0
+                val isAppendingEnd = isAppending && (start + count == charSequence.length)
+                val isAppendingStart = isAppending && start == 0
 
-                var newOriginalText = ""
-                val displayText = charSequence.toString()
-                if (TextUtils.equals(displayText, userManager.encodeMessage(originalText))) {
-                    return
-                }
-
-                var encodedStart: String? = ""
-                var encodedEnd = ""
-                var originalStart = ""
-                var originalEnd = ""
-                var displayStart = ""
-                var originalStartIdx = 0
-                val displayTextLength = displayText.length
-                var startFound = false
-                var endFound = false
-
-                for (index in 0 until originalText.length) {
-                    encodedStart = encodedStart!! + userManager.encodeMessage(originalText.substring(index, index + 1))!!
-
-                    if (displayTextLength >= encodedStart.length) {
-                        displayStart = displayText.substring(0, encodedStart.length)
-                    }
-                    if (TextUtils.equals(displayStart, encodedStart)) {
-                        startFound = true
-                        originalStartIdx = index + 1
-                        originalStart += originalText.substring(index, index + 1)
+                if (isAppending) {
+                    val newCharacter = charSequence.subSequence(start, start + count)
+                    if (isAppendingEnd) {
+                        originalText += newCharacter
+                        val newMessageEncoded = userManager.encodeMessage(originalText)
+                        selectPosition = newMessageEncoded.length
+                    } else if (isAppendingStart) {
+                        originalText = "$newCharacter$originalText"
+                        val newCharacterEncoded = userManager.encodeMessage(newCharacter.toString())
+                        selectPosition = newCharacterEncoded.length - 1
                     } else {
-                        break
+                        val newSubSequence = charSequence.dropLast(charSequence.length - start).toString()
+                        val stringBuffer = StringBuffer()
+                        val size = originalText.toCharArray().size
+                        for (i in 0 until size) {
+                            val cha = originalText[i]
+                            stringBuffer.append(userManager.encodeMessage(cha.toString()))
+                            if (!newSubSequence.contains(stringBuffer.toString(), false)) {
+                                originalText = originalText.substring(0, i) + newCharacter + originalText.substring(i, originalText.length)
+                                break
+                            } else {
+                                selectPosition = stringBuffer.length
+                            }
+                        }
                     }
-                }
-                encodedStart = userManager.encodeMessage(originalStart)
-
-                if (displayTextLength > encodedStart!!.length) {
-                    for (index in originalText.length - 1 downTo originalStartIdx) {
-                        encodedEnd = userManager.encodeMessage(originalText.substring(index, index + 1))!! + encodedEnd
-                        if (TextUtils.equals(displayText.substring(displayTextLength - encodedEnd.length), encodedEnd)) {
-                            endFound = true
-                            originalEnd = originalText.substring(index, index + 1) + originalEnd
-                        } else {
+                } else {
+                    // Deleting
+                    val newSubSequence = charSequence.dropLast(charSequence.length - start).toString()
+                    val stringBuffer = StringBuffer()
+                    val size = originalText.toCharArray().size
+                    for (i in 0 until size) {
+                        val cha = originalText[i]
+                        stringBuffer.append(userManager.encodeMessage(cha.toString()))
+                        if (!newSubSequence.contains(stringBuffer.toString(), false)) {
+                            originalText = originalText.substring(0, i) + originalText.substring(i + 1, originalText.length)
                             break
+                        } else {
+                            selectPosition = stringBuffer.length
                         }
                     }
                 }
-                newOriginalText = originalStart
-                val middleStartIdx = if (startFound) encodedStart.length else 0
-                val middleEndIdx = if (endFound)
-                    displayText.lastIndexOf(
-                            userManager.encodeMessage(originalEnd)!!)
-                else
-                    displayTextLength
-                val originalMiddle = if (middleEndIdx > middleStartIdx) displayText.substring(middleStartIdx, middleEndIdx) else ""
-                val encodedMiddle = userManager.encodeMessage(originalMiddle)
-                newOriginalText = newOriginalText + originalMiddle + originalEnd
-
-
-                selectPosition = if (endFound)
-                    encodedStart.length + encodedMiddle!!.length
-                else
-                    encodedStart.length + encodedMiddle!!.length + encodedEnd.length
-                originalText = newOriginalText
             }
 
             override fun afterTextChanged(editable: Editable) {
@@ -762,8 +748,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
                 edMessage!!.removeTextChangedListener(textWatcher)
                 edMessage!!.setText(encodeText)
-                if (selectPosition > 0 && selectPosition <= encodeText!!.length) {
-                    edMessage!!.setSelection(selectPosition)
+                if (selectPosition > 0 && selectPosition + 1 <= encodeText!!.length) {
+                    edMessage!!.setSelection(selectPosition + 1)
                 } else {
                     edMessage!!.setSelection(encodeText!!.length)
                 }

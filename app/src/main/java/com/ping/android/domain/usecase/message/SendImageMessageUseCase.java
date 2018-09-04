@@ -49,7 +49,6 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     MessageRepository messageRepository;
     @Inject
     MessageMapper messageMapper;
-    // builder;
 
     @Inject
     public SendImageMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {

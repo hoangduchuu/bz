@@ -77,7 +77,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
             getPresenter().destroy();
         }
         if (showLoading.get()) {
-            throw new IllegalStateException("Loading still showing");
+            //throw new IllegalStateException("Loading still showing");
+            hideLoading();
         }
         //disposables.dispose();
         disposables.clear();
