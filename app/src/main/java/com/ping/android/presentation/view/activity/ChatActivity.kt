@@ -293,7 +293,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
                 onGameClicked()
             }
             R.id.btn_send -> if (btnSend!!.isSelected) {
-                onSentMessage(originalText)
+                onSendMessage(originalText)
             } else {
                 setButtonsState(viewId)
                 hideEmojiView()
@@ -888,12 +888,13 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         edMessage!!.addTextChangedListener(textWatcher)
     }
 
-    private fun onSentMessage(text: String) {
+    private fun onSendMessage(text: String) {
         if (TextUtils.isEmpty(text)) {
             Toast.makeText(applicationContext, "Please input message", Toast.LENGTH_SHORT).show()
             return
         }
-        edMessage!!.text = null
+        originalText = ""
+        edMessage?.text?.clear()
         presenter.sendTextMessage(text, tgMarkOut.isSelected)
     }
 

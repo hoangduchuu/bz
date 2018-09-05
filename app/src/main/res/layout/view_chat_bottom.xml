@@ -31,7 +31,7 @@
         android:layout_weight="1"
         android:background="@null"
         android:hint="@string/hint_bzzz"
-        android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
+        android:inputType="textCapSentences|textFilter|textMultiLine|textAutoCorrect"
         android:maxLines="5"
         android:scrollHorizontally="false"
         android:textIsSelectable="true"

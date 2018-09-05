@@ -72,7 +72,6 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (getPresenter() != null) {
             getPresenter().destroy();
         }
@@ -82,6 +81,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         }
         //disposables.dispose();
         disposables.clear();
+        super.onDestroy();
     }
 
     @Override
