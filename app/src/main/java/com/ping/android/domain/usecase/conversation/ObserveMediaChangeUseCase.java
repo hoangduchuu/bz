@@ -59,7 +59,7 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
 
                             User sender = getUser(message.senderId, conversation);
                             if (sender != null) {
-                                message.senderProfile = sender.profile;
+                                message.senderProfile = sender.profileImage();
                                 message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                             }
                             message.currentUserId = user.key;

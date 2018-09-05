@@ -95,7 +95,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
 
     private Observable<String> uploadImage(String conversationKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        String fileName = new File(filePath).getName();
+        String fileName = System.currentTimeMillis() + new File(filePath).getName();
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512));
     }
 

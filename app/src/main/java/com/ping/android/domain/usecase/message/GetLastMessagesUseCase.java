@@ -54,7 +54,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                 message.isMask = entity.isMask;
                                 User sender = getUser(message.senderId, conversation);
                                 if (sender != null) {
-                                    message.senderProfile = sender.profile;
+                                    message.senderProfile = sender.profileImage();
                                     message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                 }
                                 messages.add(message);
@@ -82,7 +82,7 @@ public class GetLastMessagesUseCase extends UseCase<GetLastMessagesUseCase.Outpu
                                         }
                                         User sender = getUser(message.senderId, conversation);
                                         if (sender != null) {
-                                            message.senderProfile = sender.profile;
+                                            message.senderProfile = sender.profileImage();
                                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                                         }
                                         messages.add(message);

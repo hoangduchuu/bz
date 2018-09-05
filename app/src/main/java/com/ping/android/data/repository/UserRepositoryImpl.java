@@ -106,6 +106,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Observable<User> getUser(String userId) {
         DatabaseReference userReference = database.getReference("users").child(userId);
+        userReference.keepSynced(true);
         return RxFirebaseDatabase.getInstance(userReference)
                 .onSingleValueEvent()
                 .map(User::new)
@@ -361,7 +362,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean) {
-        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("private_profile");
+        DatabaseReference reference = database.getReference("users").child(key).child("settings").child("profile_picture");
         return RxFirebaseDatabase.setValue(reference, aBoolean)
                 .map(databaseReference -> true)
                 .toObservable();

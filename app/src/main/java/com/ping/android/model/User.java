@@ -164,6 +164,13 @@ public class User implements Parcelable {
         return !TextUtils.isEmpty(firstName) ? firstName : pingID;
     }
 
+    public String profileImage() {
+        if (settings != null && !settings.private_profile) {
+            return profile;
+        }
+        return "";
+    }
+
     @Override
     public int describeContents() {
         return 0;

@@ -71,7 +71,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
                     } else {
                         User sender = params.conversation.getUser(message.senderId);
                         if (sender != null) {
-                            message.senderProfile = sender.profile;
+                            message.senderProfile = sender.profileImage();
                             message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                         }
 //                        if (message.type == MessageType.GAME) {

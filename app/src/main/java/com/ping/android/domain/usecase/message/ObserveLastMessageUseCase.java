@@ -67,7 +67,7 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
                     updateReadStatus(message, params.conversation, status);*/
                     User sender = params.conversation.getUser(message.senderId);
                     if (sender != null) {
-                        message.senderProfile = sender.profile;
+                        message.senderProfile = sender.profileImage();
                         message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
                     }
                     return Observable.just(data);

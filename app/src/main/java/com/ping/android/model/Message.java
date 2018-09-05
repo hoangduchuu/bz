@@ -25,7 +25,6 @@ public class Message implements Parcelable {
     public List<Message> childMessages;
     public String parentKey;
     // Local variable, don't store on Firebase
-    public User sender;
     public String senderProfile;
     public String localFilePath;
     public boolean isCached;

@@ -103,14 +103,14 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
 
     private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        String fileName = new File(filePath).getName();
+        String fileName = System.currentTimeMillis() + new File(filePath).getName();
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512))
                 .flatMap(s -> messageRepository.updateImage(conversationKey, messageKey, s));
     }
 
     private Observable<String> uploadThumbnail(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        String fileName = "thumb_" + new File(filePath).getName();
+        String fileName = "thumb_" + System.currentTimeMillis() + new File(filePath).getName();
         return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128))
                 .flatMap(s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s));
     }

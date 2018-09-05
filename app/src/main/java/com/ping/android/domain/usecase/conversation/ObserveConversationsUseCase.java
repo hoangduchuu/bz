@@ -66,7 +66,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                             for (User user : users) {
                                                 if (!user.key.equals(currentUser.key)) {
                                                     conversation.opponentUser = user;
-                                                    conversation.conversationAvatarUrl = user.profile;
+                                                    conversation.conversationAvatarUrl = user.settings.private_profile ? "" : user.profile;
                                                     String nickName = conversation.nickNames.get(user.key);
                                                     conversation.conversationName = TextUtils.isEmpty(nickName) ? user.getDisplayName() : nickName;
                                                     List<String> filterTextList = new ArrayList<>();

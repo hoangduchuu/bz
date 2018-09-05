@@ -36,8 +36,8 @@ class GetUpdatedMessagesUseCase @Inject constructor(
                         }
                         val sender = getUser(message.senderId, params.conversation)
                         if (sender != null) {
-                            message.senderProfile = sender!!.profile
-                            message.senderName = if (TextUtils.isEmpty(sender!!.nickName)) sender!!.getDisplayName() else sender!!.nickName
+                            message.senderProfile = sender.profileImage()
+                            message.senderName = if (TextUtils.isEmpty(sender.nickName)) sender.getDisplayName() else sender.nickName
                         }
                         messages.add(message)
                     }
