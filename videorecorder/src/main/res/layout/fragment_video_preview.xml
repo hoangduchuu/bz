@@ -10,13 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:use_controller="false"
-        app:controller_layout_id="@layout/custom_playback_control_minimal"/>
-        <!--app:controller_layout_id="@layout/custom_playback_control_minimal"-->
-        <!--app:default_artwork="@drawable/loading"-->
-        <!--app:fastforward_increment="@integer/exoplayer_playback_fastforward_increment_ms"-->
-        <!--app:rewind_increment="@integer/exoplayer_playback_rewind_increment_ms"-->
-        <!--app:show_timeout="@integer/exoplayer_show_control_timeout_ms"-->
-        <!--app:use_artwork="true" />-->
+        app:controller_layout_id="@layout/custom_playback_control_minimal" />
 
     <ImageView
         android:id="@+id/btnBack"
@@ -29,7 +23,8 @@
         android:id="@+id/btnSend"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_margin="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="70dp"
         android:elevation="3dp"
         android:src="@drawable/ic_send"
         app:layout_constraintBottom_toBottomOf="parent"

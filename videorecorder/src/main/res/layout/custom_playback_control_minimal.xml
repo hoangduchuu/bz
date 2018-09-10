@@ -16,85 +16,83 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="bottom"
-    android:background="@color/playbackControlBackground"
-    android:orientation="vertical">
+    android:background="@drawable/rectangle"
+    android:backgroundTint="#75f2f2f2"
+    android:layout_margin="10dp"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <FrameLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="4dp"
-        android:orientation="horizontal">
-
-        <!--<ImageButton-->
-            <!--android:id="@id/exo_prev"-->
-            <!--android:layout_width="100dp"-->
-            <!--android:layout_height="100dp"-->
-            <!--android:layout_gravity="center"-->
-            <!--style="@style/ExoMediaButton.Previous" />-->
+        android:orientation="horizontal"
+        android:padding="5dp">
 
         <ImageButton
             android:id="@id/exo_play"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center"
-            android:tint="@color/playTint"
-            style="@style/ExoMediaButton.Play" />
+            android:padding="5dp"
+            android:tint="@color/colorPrimary"
+            style="@style/ExoMediaButton.Play"
+            android:background="@drawable/bg_record"/>
 
         <ImageButton
             android:id="@id/exo_pause"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center"
-            android:tint="@color/pauseTint"
-            style="@style/ExoMediaButton.Pause" />
+            android:padding="5dp"
+            android:tint="@color/colorPrimary"
+            style="@style/ExoMediaButton.Pause"
+            android:background="@drawable/bg_record"/>
 
-        <!--<ImageButton-->
-            <!--android:id="@id/exo_next"-->
-            <!--android:layout_width="100dp"-->
-            <!--android:layout_height="100dp"-->
-            <!--android:layout_gravity="center"-->
-            <!--style="@style/ExoMediaButton.Next" />-->
-
-    </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginEnd="10dp"
+        android:layout_gravity="center_vertical"
         android:gravity="center_vertical"
         android:orientation="horizontal">
-
-        <TextView
-            android:id="@id/exo_position"
-            android:fontFamily="monospace"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:includeFontPadding="false"
-            android:textColor="@color/playerControlText" />
 
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="26dp" />
+            android:layout_height="16dp"
+            app:bar_height="2dp"
+            app:ad_marker_width="0dp"
+            app:ad_marker_color="@color/playTint"
+            app:unplayed_color="#f2f2f2"
+            app:buffered_color="#f2f2f2"
+            app:played_color="@color/colorPrimary"
+            app:scrubber_disabled_size="0dp"
+            app:scrubber_enabled_size="0dp"
+            />
 
         <TextView
-            android:id="@id/exo_duration"
-            android:fontFamily="monospace"
+            android:id="@id/exo_position"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textStyle="bold"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:includeFontPadding="false"
-            android:textColor="@color/playerControlText" />
+            android:textColor="@color/colorPrimary" />
+
+        <!--<TextView-->
+            <!--android:id="@id/exo_duration"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="14sp"-->
+            <!--android:paddingLeft="4dp"-->
+            <!--android:paddingRight="4dp"-->
+            <!--android:includeFontPadding="false"-->
+            <!--android:textColor="@color/colorPrimary" />-->
 
     </LinearLayout>
 

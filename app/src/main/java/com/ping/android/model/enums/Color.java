@@ -39,7 +39,7 @@ public enum Color {
             case COLOR_9:
                 return R.color.color_9;
             default:
-                return R.color.orange;
+                return R.color.colorPrimary;
         }
     }
 
@@ -65,7 +65,7 @@ public enum Color {
             case COLOR_9:
                 return R.color.color_9;
             default:
-                return R.color.orange;
+                return R.color.colorPrimary;
         }
     }
 

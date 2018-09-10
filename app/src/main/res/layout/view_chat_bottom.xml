@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/main_background_gray"
+    android:elevation="10dp"
     tools:background="@color/color_1">
 
     <ImageButton

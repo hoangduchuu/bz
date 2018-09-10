@@ -72,7 +72,7 @@ class VideoPreviewFragment : Fragment() {
         btnBack.setOnClickListener { activity.onBackPressed() }
         if (isPreview) {
             btnSend.visibility = View.VISIBLE
-            videoPlayer.useController = false
+            videoPlayer.useController = true
             btnSend.setOnClickListener {
                 (activity as VideoRecorderActivity).onVideoSelected(videoPath!!)
             }

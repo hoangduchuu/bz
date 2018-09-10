@@ -246,7 +246,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">45dp</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:background">#fbb040</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <style name="MenuIconLeft">
@@ -348,7 +348,7 @@
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingStart">@dimen/default_padding</item>
         <item name="android:paddingEnd">@dimen/default_padding</item>
-        <item name="android:background">#fbb040</item>
+        <item name="android:background">@color/colorPrimary</item>
     </style>
 
     <style name="SearchView">

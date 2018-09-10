@@ -114,6 +114,7 @@
                 android:layout_gravity="center_vertical"
                 android:scaleType="center"
                 android:src="@drawable/ic_add_circle"
+                android:tint="@color/colorAccent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/edtTo" />
@@ -186,6 +187,7 @@
                 style="@style/ActionButton"
                 android:padding="10dp"
                 android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
                 android:text="Send" />
 
         </LinearLayout>

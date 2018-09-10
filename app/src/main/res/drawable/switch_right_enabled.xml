@@ -9,5 +9,5 @@
     <corners
         android:bottomRightRadius="@dimen/toggle_radius"
         android:topRightRadius="@dimen/toggle_radius" />
-    <solid android:color="@color/orange_dark" />
+    <solid android:color="@color/black" />
 </shape>
