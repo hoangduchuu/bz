@@ -57,7 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_name" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/login_next"
         style="@style/LoginButton"
         android:layout_width="match_parent"
@@ -65,10 +65,12 @@
         android:layout_marginBottom="60dp"
         android:layout_marginTop="30dp"
         android:text="@string/registration_login"
+        android:backgroundTint="@color/orange"
         app:layout_constraintBottom_toTopOf="@+id/topCropImageView"
         app:layout_constraintTop_toBottomOf="@+id/login_password"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:cornerRadius="10dp"
         tools:layout_editor_absoluteX="38dp" />
 
     <TextView

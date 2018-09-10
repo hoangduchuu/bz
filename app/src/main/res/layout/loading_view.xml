@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        app:SpinKit_Color="@color/colorAccent" />
+        app:SpinKit_Color="@color/orange" />
     <!--<com.airbnb.lottie.LottieAnimationView-->
     <!--android:id="@+id/animation_view"-->
     <!--android:layout_width="wrap_content"-->

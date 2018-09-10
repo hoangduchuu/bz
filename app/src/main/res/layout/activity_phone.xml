@@ -72,7 +72,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/country_container" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/phone_register"
         style="@style/LoginButton"
         android:layout_width="match_parent"
@@ -80,6 +80,8 @@
         android:layout_marginBottom="60dp"
         android:layout_marginTop="30dp"
         android:text="@string/phone_registration"
+        android:backgroundTint="@color/orange"
+        app:cornerRadius="10dp"
         app:layout_constraintBottom_toTopOf="@+id/topCropImageView"
         app:layout_constraintTop_toBottomOf="@+id/phone_number"
         app:layout_constraintStart_toStartOf="parent"
