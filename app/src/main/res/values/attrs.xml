@@ -18,6 +18,7 @@
     </declare-styleable>
 
     <attr name="backgroundTheme" format="reference" />
+    <attr name="backgroundChat" format="color" />
 
     <declare-styleable name="MaxHeightRecyclerView">
         <attr name="maxViewHeight" format="dimension|reference" />

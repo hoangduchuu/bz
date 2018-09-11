@@ -39,6 +39,7 @@
 
     <color name="main_background_gray">#f7f8f9</color>
     <color name="main_background_white">#FFF</color>
+    <color name="main_background_dark">#323232</color>
 
     <color name="colorPrimary">#1a1a1a</color>
     <color name="colorAccent">#1a1a1a</color>
