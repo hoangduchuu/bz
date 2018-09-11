@@ -48,7 +48,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_contact);
         AndroidInjection.inject(this);
-        searchUserPresenter.create();
         bindViews();
         init();
     }
@@ -84,6 +83,8 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         adapter = new AddContactAdapter(new ArrayList<>(), this);
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
+
+        searchUserPresenter.create();
     }
 
     @Override

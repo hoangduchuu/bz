@@ -1047,6 +1047,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         if (isDestroyed) return
         val storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(s)
+        recycleChatView?.background = null
         GlideApp.with(this)
                 .asBitmap()
                 .load(storageReference)

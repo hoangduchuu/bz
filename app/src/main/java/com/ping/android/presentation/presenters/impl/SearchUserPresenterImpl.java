@@ -3,18 +3,24 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.entity.ChildData;
+import com.ping.android.domain.usecase.ObserveFriendsChildEventUseCase;
 import com.ping.android.domain.usecase.SearchUsersUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
+import com.ping.android.utils.bus.Variable;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 
 /**
@@ -25,13 +31,21 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
     @Inject
     public SearchUsersUseCase searchUsersUseCase;
     @Inject
+    ObserveFriendsChildEventUseCase observeFriendsChildEventUseCase;
+    @Inject
     public SearchUserPresenter.View view;
 
+    private Variable<String> friendValue;
+    private List<User> friends;
     private PublishSubject<String> querySubject;
+    private String searchTerm = "";
+    private CompositeDisposable disposables = new CompositeDisposable();
 
     @Inject
     public SearchUserPresenterImpl() {
         querySubject = PublishSubject.create();
+        friends = new ArrayList<>();
+        friendValue = new Variable<>("");
     }
 
     private void buildSearchUsers(Observable<String> query) {
@@ -66,8 +80,9 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
 
     @Override
     public void searchUsers(String text) {
+        searchTerm = text;
         if (TextUtils.isEmpty(text)) {
-            view.displaySearchResult(new ArrayList<>());
+            view.displaySearchResult(friends);
         } else {
             view.hideNoResults();
             view.showSearching();
@@ -78,6 +93,36 @@ public class SearchUserPresenterImpl implements SearchUserPresenter {
     @Override
     public void create() {
         buildSearchUsers(querySubject.share());
+        friendValue.asObservable()
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DefaultObserver<String>() {
+                    @Override
+                    public void onNext(String value) {
+                        if (TextUtils.isEmpty(searchTerm)) {
+                            view.hideNoResults();
+                            view.displaySearchResult(friends);
+                        }
+                    }
+                });
+        observeFriendsChildEventUseCase.execute(new DefaultObserver<ChildData<User>>() {
+            @Override
+            public void onNext(ChildData<User> userChildData) {
+                switch (userChildData.getType()) {
+                    case CHILD_ADDED:
+                        friends.add(userChildData.getData());
+                        friendValue.set(userChildData.getData().key);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, null);
     }
 
     @Override

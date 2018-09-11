@@ -128,11 +128,7 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
         registerEvent(RxTextView.textChangeEvents(edtTo)
                 .subscribe({ textViewTextChangeEvent ->
                     val text = textViewTextChangeEvent.text().toString()
-                    if (TextUtils.isEmpty(text)) {
-                        adapter.updateData(ArrayList())
-                    } else {
-                        searchPresenter.searchUsers(text)
-                    }
+                    searchPresenter.searchUsers(text)
                 }, { throwable -> throwable.printStackTrace() }))
 
         registerEvent(RxTextView

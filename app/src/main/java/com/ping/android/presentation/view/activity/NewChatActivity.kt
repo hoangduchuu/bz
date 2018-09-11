@@ -80,8 +80,6 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_chat)
         AndroidInjection.inject(this)
-        presenter.create()
-        searchUserPresenter.create()
         isAddMember = intent.getBooleanExtra("ADD_MEMBER", false)
         bindViews()
         init()
@@ -131,13 +129,12 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         registerEvent(RxTextView.textChangeEvents(edtTo!!)
                 .subscribe({ textViewTextChangeEvent ->
                     val text = textViewTextChangeEvent.text().toString()
-                    if (TextUtils.isEmpty(text)) {
-                        adapter!!.updateData(ArrayList())
-                    } else {
-                        searchUserPresenter.searchUsers(text)
-                    }
+                    searchUserPresenter.searchUsers(text)
                 }, { throwable -> throwable.printStackTrace() }))
         checkReadySend()
+
+        presenter.create()
+        searchUserPresenter.create()
     }
 
     private fun removeContact(contact: User) {
@@ -172,7 +169,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
                     .placeholder(R.drawable.ic_avatar_gray)
                     .error(R.drawable.ic_avatar_gray)
                     .profileImage()
-                    .into(object: SimpleTarget<Drawable>() {
+                    .into(object : SimpleTarget<Drawable>() {
                         override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                             chip.chipIcon = resource
                         }
@@ -298,7 +295,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     }
 
     override fun displaySearchResult(users: List<User>) {
-        adapter!!.updateData(ArrayList(users))
+        adapter.updateData(ArrayList(users))
     }
 
     override fun moveToChatScreen(conversationId: String) {
