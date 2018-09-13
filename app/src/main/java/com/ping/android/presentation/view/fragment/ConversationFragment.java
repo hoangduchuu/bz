@@ -369,6 +369,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     public void hideConnecting() {
         if (getActivity() instanceof CoreActivity) {
             ((CoreActivity) getActivity()).connectivityChanged(NetworkStatus.CONNECTED);
+            ((MainActivity) getActivity()).disallowDispatchTouch();
         }
     }
 
