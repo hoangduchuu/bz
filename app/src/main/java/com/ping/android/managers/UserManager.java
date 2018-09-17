@@ -3,10 +3,15 @@ package com.ping.android.managers;
 import android.text.TextUtils;
 
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.ConversationUpdateEvent;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +32,15 @@ public class UserManager {
 
     @Inject
     UserRepository userRepository;
+    @Inject
+    BusProvider busProvider;
 
     private User user;
     private Map<String, Boolean> friends;
     // Currently, users will be cached for later use.
     // Should improve by invalidate user after a certain of time
     private Map<String, User> cachedUsers = new HashMap<>();
+    private Map<String, Conversation> conversationMap = new HashMap<>();
 
     @Inject
     public UserManager() { }
@@ -125,5 +133,21 @@ public class UserManager {
             }
         }
         return messageBuffer.toString();
+    }
+
+    public void setIndividualConversation(Conversation conversation) {
+        conversationMap.put(conversation.key, conversation);
+    }
+
+    @NotNull
+    public void userUpdated(@NotNull User opponentUser) {
+        String conversationID = user.key.compareTo(opponentUser.key) > 0 ? user.key + opponentUser.key : opponentUser.key + user.key;
+        Conversation conversation = conversationMap.get(conversationID);
+        if (conversation != null) {
+            // Should update this conversation
+            conversation.conversationAvatarUrl = opponentUser.settings.private_profile ? "" : opponentUser.profile;
+            busProvider.post(new ConversationUpdateEvent(conversation));
+            setCachedUser(opponentUser);
+        }
     }
 }

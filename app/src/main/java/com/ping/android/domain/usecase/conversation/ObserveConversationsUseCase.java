@@ -76,6 +76,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                     break;
                                                 }
                                             }
+                                            userManager.setIndividualConversation(conversation);
                                         } else {
                                             conversation.filterText = conversation.conversationName;
                                         }

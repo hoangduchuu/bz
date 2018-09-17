@@ -82,7 +82,9 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                     filterTextList.add(nickName);
                                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                                     return conversation;
-                                                                });
+                                                                })
+                                                                .doOnNext(con -> userManager.setIndividualConversation(conversation))
+                                                                ;
                                                     }
                                                 }
                                             } else {

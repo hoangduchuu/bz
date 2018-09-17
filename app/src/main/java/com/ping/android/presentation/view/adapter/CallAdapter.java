@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.ping.android.R;
 import com.ping.android.model.Call;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.DateUtils;
@@ -231,6 +232,20 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         this.originalCalls.addAll(calls);
         this.displayCalls.addAll(calls);
         notifyItemRangeInserted(size, calls.size());
+    }
+
+    public void updateConversationAvatar(Conversation conversation) {
+        for (Call call : originalCalls) {
+            if (conversation.key.equals(call.conversationId)) {
+                call.opponentUser.profile = conversation.conversationAvatarUrl;
+            }
+        }
+        for (Call call : displayCalls) {
+            if (conversation.key.equals(call.conversationId)) {
+                call.opponentUser.profile = conversation.conversationAvatarUrl;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     public interface ClickListener {

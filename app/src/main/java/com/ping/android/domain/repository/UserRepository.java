@@ -83,4 +83,6 @@ public interface UserRepository {
     Observable<User> checkValidUser(String userName);
 
     Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey);
+
+    Observable<User> observeUsersChanged();
 }

@@ -251,6 +251,20 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Observable<User> observeUsersChanged() {
+        DatabaseReference databaseReference = database.getReference("users");
+        return RxFirebaseDatabase.getInstance(databaseReference)
+                .onChildEvent()
+                .flatMap(childEvent -> {
+                    if (childEvent.type != ChildEvent.Type.CHILD_CHANGED) {
+                        return Observable.empty();
+                    }
+                    User user = new User(childEvent.dataSnapshot);
+                    return Observable.just(user);
+                });
+    }
+
+    @Override
     public Observable<Boolean> updateQuickbloxId(int qbId) {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();

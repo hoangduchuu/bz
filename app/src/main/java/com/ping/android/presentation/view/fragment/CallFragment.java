@@ -25,6 +25,7 @@ import com.ping.android.presentation.view.adapter.CallAdapter;
 import com.ping.android.presentation.view.custom.CustomSwitch;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
+import com.ping.android.utils.bus.events.ConversationUpdateEvent;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
@@ -278,6 +279,9 @@ public class CallFragment extends BaseFragment implements View.OnClickListener, 
                     if (object instanceof ConversationChangeEvent) {
                         adapter.updateNickNames(((ConversationChangeEvent) object).conversationId,
                                 ((ConversationChangeEvent) object).nickName);
+                    }
+                    if (object instanceof ConversationUpdateEvent) {
+                        adapter.updateConversationAvatar(((ConversationUpdateEvent) object).getConversation());
                     }
                 }));
     }

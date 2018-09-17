@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.LoginQuickBloxUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveFriendsStatusUseCase;
+import com.ping.android.domain.usecase.ObserveUsersChangedUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
 import com.ping.android.domain.usecase.SyncMessageUseCase;
 import com.ping.android.domain.usecase.conversation.GetConversationValueUseCase;
@@ -52,6 +53,8 @@ public class MainPresenterImpl implements MainPresenter {
     @Inject
     ObserveBadgeCountUseCase observeBadgeCountUseCase;
     @Inject
+    ObserveUsersChangedUseCase observeUsersChangedUseCase;
+    @Inject
     BusProvider busProvider;
     private User currentUser;
     private boolean isInit = false;
@@ -72,6 +75,7 @@ public class MainPresenterImpl implements MainPresenter {
         }, null);
         observeFriendsStatusUseCase.execute(new DefaultObserver<>(), null);
         syncMessageUseCase.execute(new DefaultObserver<>(), null);
+        observeUsersChangedUseCase.execute(new DefaultObserver<>(), null);
     }
 
     private void handleUserUpdate(User user) {
@@ -95,6 +99,7 @@ public class MainPresenterImpl implements MainPresenter {
         observeCurrentUserUseCase.dispose();
         observeFriendsStatusUseCase.dispose();
         syncMessageUseCase.dispose();
+        observeUsersChangedUseCase.dispose();
     }
 
     @Override
