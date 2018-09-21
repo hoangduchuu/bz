@@ -15,6 +15,7 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 2/1/18.
@@ -82,6 +83,28 @@ public class StorageRepositoryImpl implements StorageRepository {
     public Observable<Boolean> downloadFile(@NotNull String url, @NotNull String saveFile) {
         return RxFirebaseStorage.downloadFile(url, saveFile)
                 .toObservable();
+    }
+
+    @NotNull
+    @Override
+    public Observable<String> uploadStickerFile(@NotNull String filePath) {
+        File file = new File(filePath);
+        String fileName = file.getName();
+        String stickerStoragePath = "stickers" + File.separator + fileName;
+        StorageReference photoRef = storage.getReference().child(stickerStoragePath);
+        return exists(photoRef)
+                .onErrorResumeNext(RxFirebaseStorage.getInstance(photoRef)
+                        .putFile(Uri.fromFile(file))
+                        .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath()))
+                .toObservable();
+    }
+
+    private Single<String> exists(StorageReference storageReference) {
+        return Single.create(emitter -> {
+            storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                emitter.onSuccess(getStorageRoot() + "/" + uri.toString());
+            }).addOnFailureListener(emitter::onError);
+        });
     }
 
     private String getStorageRoot(){

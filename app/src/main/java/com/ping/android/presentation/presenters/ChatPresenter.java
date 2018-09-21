@@ -14,6 +14,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderIte
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +66,8 @@ public interface ChatPresenter extends BasePresenter {
     void updateMaskChildMessages(List<Message> messages, boolean maskStatus);
 
     void getUpdatedMessages(double timestamp);
+
+    void sendSticker(@NotNull File file, boolean isMask);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);

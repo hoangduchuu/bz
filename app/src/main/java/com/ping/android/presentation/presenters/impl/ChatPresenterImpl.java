@@ -32,6 +32,7 @@ import com.ping.android.domain.usecase.message.SendGroupGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGroupImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendStickerMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
@@ -55,6 +56,7 @@ import com.ping.android.utils.configs.Constant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,6 +93,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendImageMessageUseCase sendImageMessageUseCase;
+    @Inject
+    SendStickerMessageUseCase sendStickerMessageUseCase;
     @Inject
     SendGroupImageMessageUseCase sendGroupImageMessageUseCase;
     @Inject
@@ -870,6 +874,26 @@ public class ChatPresenterImpl implements ChatPresenter {
                                               }
                                           },
                 new GetUpdatedMessagesUseCase.Params(conversation, timestamp, currentUser));
+    }
+
+    @Override
+    public void sendSticker(@NotNull File file, boolean isMask) {
+        SendStickerMessageUseCase.Params params = new SendStickerMessageUseCase.Params(
+                file.getAbsolutePath(), conversation, currentUser, isMask
+        );
+        sendStickerMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (message.isCached) {
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    localCacheFile.put(message.key, message.localFilePath);
+                    addMessage(message);
+                } else {
+                    sendNotification(conversation, message.message, MessageType.STICKER);
+                }
+            }
+        }, params);
+
     }
 
     private void sendNotification(Conversation conversation, String message, MessageType messageType) {

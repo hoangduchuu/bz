@@ -379,6 +379,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 case VIDEO:
                     message = "[Video]";
                     break;
+                case STICKER:
+                    message = "[Sticker]";
+                    break;
                 case CALL:
                     if (model.isFromMe()) {
                         message = String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),

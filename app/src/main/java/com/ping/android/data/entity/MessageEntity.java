@@ -116,6 +116,24 @@ public class MessageEntity extends BaseModel {
         return message;
     }
 
+    public static MessageEntity createStickerMessage(String photoUrl, String senderId,
+                                                   String senderName, double timestamp, Map<String, Integer> status,
+                                                   Map<String, Boolean> markStatuses,
+                                                   Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+        MessageEntity message = new MessageEntity();
+        message.photoUrl = photoUrl;
+        message.thumbUrl = "";
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_STICKER;
+        message.readAllowed = readAllowed;
+        return message;
+    }
+
     public static MessageEntity createAudioMessage(String audioUrl, String senderId, String senderName, double timestamp,
                                                    Map<String, Integer> status, Map<String, Boolean> markStatuses,
                                                    Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed, int voiceType) {

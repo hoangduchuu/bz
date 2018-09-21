@@ -28,6 +28,8 @@ import com.ping.android.presentation.view.flexibleitem.messages.groupimage.Group
 import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.sticker.StickerMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.sticker.StickerMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
@@ -91,6 +93,13 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     baseItem = new GroupImageMessageRightItem(message);
                 } else {
                     baseItem = new GroupImageMessageMessageLeftItem(message);
+                }
+                break;
+            case STICKER:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new StickerMessageRightItem(message);
+                } else {
+                    baseItem = new StickerMessageLeftItem(message);
                 }
                 break;
             default:

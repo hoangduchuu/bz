@@ -98,6 +98,9 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case GAME_GROUP:
                                                     body = userName + ": sent (" + params.message + ") games." ;
                                                     break;
+                                                case STICKER:
+                                                    body = userName + ": sent a sticker.";
+                                                    break;
                                                 default:
                                                     break;
                                             }

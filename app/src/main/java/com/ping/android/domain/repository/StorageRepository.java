@@ -19,4 +19,7 @@ public interface StorageRepository {
 
     @NotNull
     Observable<Boolean> downloadFile(@NotNull String url, @NotNull String saveFile);
+
+    @NotNull
+    Observable<String> uploadStickerFile(@NotNull String file);
 }

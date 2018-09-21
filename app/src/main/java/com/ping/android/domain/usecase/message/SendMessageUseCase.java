@@ -256,6 +256,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     case IMAGE_GROUP:
                         message = buildGroupImageMessage(currentUser);
                         break;
+                    case STICKER:
+                        message = buildStickerMessage(currentUser, fileUrl);
                 }
                 message.key = messageKey;
                 message.fileUrl = fileUrl;
@@ -265,6 +267,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 params.user = currentUser;
                 params.filePath = fileUrl;
                 return params;
+            }
+
+            private MessageEntity buildStickerMessage(User currentUser, String stickerUrl) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return MessageEntity.createStickerMessage(stickerUrl, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getImageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 
             private MessageEntity buildGroupImageMessage(User currentUser) {

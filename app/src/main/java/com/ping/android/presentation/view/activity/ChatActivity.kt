@@ -5,9 +5,11 @@ import android.animation.ValueAnimator
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
+import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -17,6 +19,7 @@ import android.widget.*
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.core.util.Pair
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -56,6 +59,7 @@ import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
+import com.ping.android.utils.extensions.simpleName
 import com.vanniktech.emoji.EmojiEditText
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -83,7 +87,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var btnMask: Button? = null
     private var btnUnmask: Button? = null
     private var btnDelete: Button? = null
-    private var edMessage: EmojiEditText? = null
+    private lateinit var edMessage: EmojiGifEditText
     private var tvChatName: TextView? = null
     private var tvNewMsgCount: TextView? = null
     private var btnSend: ImageView? = null
@@ -540,6 +544,19 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         tvChatName!!.transitionName = conversationTransionName
 
         edMessage = findViewById(R.id.chat_message_tv)
+        edMessage.listener = object: MediaSelectionListener {
+            override fun onMediaSelected(uri: Uri) {
+                val file = File(externalCacheDir.absoluteFile, uri.simpleName(this@ChatActivity))
+                Utils.saveFile(this@ChatActivity, file, uri)
+                val mimeType = contentResolver.getType(uri)
+                //if (mimeType == "image/png") {
+                    // TODO send sticker
+                    presenter.sendSticker(file, tgMarkOut.isSelected)
+                //} else if (mimeType == "image/gif") {
+                    // TODO send gif
+                //}
+            }
+        }
         btEmoji.setOnClickListener(this)
     }
 

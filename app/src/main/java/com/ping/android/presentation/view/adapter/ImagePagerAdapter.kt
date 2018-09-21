@@ -1,9 +1,5 @@
 package com.ping.android.presentation.view.adapter
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.PagerAdapter
 import com.ping.android.model.Message
 import com.ping.android.presentation.view.fragment.ImageFragment
 

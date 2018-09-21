@@ -21,7 +21,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/chat_message_tv"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.vanniktech.emoji.EmojiEditText
+    <com.ping.android.presentation.view.custom.EmojiGifEditText
         android:id="@+id/chat_message_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="">
         <requestFocus />
-    </com.vanniktech.emoji.EmojiEditText>
+    </com.ping.android.presentation.view.custom.EmojiGifEditText>
 
     <ImageButton
         android:id="@+id/chat_emoji_btn"
