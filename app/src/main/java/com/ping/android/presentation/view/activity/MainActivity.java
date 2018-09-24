@@ -68,8 +68,8 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         AndroidInjection.inject(this);
+        super.onCreate(savedInstanceState);
         presenter.create();
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(ChatActivity.CONVERSATION_ID)) {

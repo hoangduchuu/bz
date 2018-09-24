@@ -22,11 +22,11 @@ class EmojiGifEditText : EmojiEditText {
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     var listener: MediaSelectionListener? = null
-    val availableMimeType = arrayOf("image/gif", "image/png", "image/jpeg")
+    private val availableMimeTypes = arrayOf("image/*", "image/png", "image/gif", "image/jpeg")
 
     override fun onCreateInputConnection(editorInfo: EditorInfo): InputConnection {
         val ic = super.onCreateInputConnection(editorInfo)
-        EditorInfoCompat.setContentMimeTypes(editorInfo, arrayOf("image/gif", "image/png"))
+        EditorInfoCompat.setContentMimeTypes(editorInfo, availableMimeTypes)
         val callback = InputConnectionCompat.OnCommitContentListener { inputContentInfo, flags, opts ->
             // read and display inputContentInfo asynchronously
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1 && (flags and InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION !== 0)) {
@@ -36,9 +36,6 @@ class EmojiGifEditText : EmojiEditText {
                     return@OnCommitContentListener false // return false if failed
                 }
 
-            }
-            for (mimeType in availableMimeType) {
-                //inputContentInfo.description.mim()
             }
 
             listener?.onMediaSelected(inputContentInfo.contentUri)

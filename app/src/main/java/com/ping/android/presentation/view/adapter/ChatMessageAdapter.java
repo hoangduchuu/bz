@@ -1,10 +1,12 @@
 package com.ping.android.presentation.view.adapter;
 
 import android.media.MediaPlayer;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -50,6 +52,8 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public static MediaPlayer audioPlayerInstance = null;
     public static AudioMessageBaseItem currentPlayingMessage = null;
+
+    private Object lock = new Object();
 
     public ChatMessageAdapter(RequestManager glide) {
         super();
@@ -221,15 +225,17 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         if (typingItem == null) {
             typingItem = new TypingItem();
         }
-        int index = items.indexOf(typingItem);
-        if (index >= 0 && index < items.size()) {
-            if (index == items.size() - 1) {
-                return;
-            } else {
-                remove(index);
+        synchronized (lock) {
+            int index = items.indexOf(typingItem);
+            if (index >= 0 && index < items.size()) {
+                if (index == items.size() - 1) {
+                    return;
+                } else {
+                    remove(index);
+                }
             }
+            add(typingItem);
         }
-        add(typingItem);
     }
 
     private void remove(int index) {
@@ -239,10 +245,12 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public void hideTypingItem() {
         if (typingItem == null) return;
-        int index = this.items.indexOf(typingItem);
-        if (index >= 0 && index < getItemCount()) {
-            this.items.remove(index);
-            notifyItemRemoved(index);
+        synchronized (lock) {
+            int index = this.items.indexOf(typingItem);
+            if (index >= 0 && index < getItemCount()) {
+                this.items.remove(index);
+                notifyItemRemoved(index);
+            }
         }
     }
 
@@ -382,34 +390,36 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     }
 
     public void handleNewMessage(MessageBaseItem item, MessageHeaderItem headerItem, MessageHeaderItem higherHeaderItem, boolean added) {
-        int headerIndex = this.items.indexOf(headerItem);
-        if (headerIndex < 0) {
-            if (higherHeaderItem != null) {
-                headerIndex = this.items.indexOf(higherHeaderItem);
-            }
+        synchronized (lock) {
+            int headerIndex = this.items.indexOf(headerItem);
             if (headerIndex < 0) {
-                headerIndex = this.items.size();
+                if (higherHeaderItem != null) {
+                    headerIndex = this.items.indexOf(higherHeaderItem);
+                }
+                if (headerIndex < 0) {
+                    headerIndex = this.items.size();
+                }
+                this.items.add(headerIndex, headerItem);
+                notifyItemInserted(headerIndex);
+                if (headerIndex > 0) {
+                    // Refresh last item in previous section
+                    notifyItemChanged(headerIndex - 1);
+                }
             }
-            this.items.add(headerIndex, headerItem);
-            notifyItemInserted(headerIndex);
-            if (headerIndex > 0) {
-                // Refresh last item in previous section
-                notifyItemChanged(headerIndex - 1);
-            }
-        }
-        if (added) {
-            int childIndex = headerItem.findChildIndex(item);
-            int finalIndex = headerIndex + childIndex + 1;
-            this.items.add(finalIndex, item);
-            notifyItemInserted(finalIndex);
-            if (finalIndex == getItemCount() - 1 && finalIndex > 0) {
-                notifyItemChanged(finalIndex - 1);
-            }
-        } else {
-            int index = this.items.indexOf(item);
-            if (index > 0) {
-                this.items.set(index, item);
-                notifyItemChanged(index);
+            if (added) {
+                int childIndex = headerItem.findChildIndex(item);
+                int finalIndex = headerIndex + childIndex + 1;
+                this.items.add(finalIndex, item);
+                notifyItemInserted(finalIndex);
+                if (finalIndex == getItemCount() - 1 && finalIndex > 0) {
+                    notifyItemChanged(finalIndex - 1);
+                }
+            } else {
+                int index = this.items.indexOf(item);
+                if (index > 0) {
+                    this.items.set(index, item);
+                    notifyItemChanged(index);
+                }
             }
         }
     }
