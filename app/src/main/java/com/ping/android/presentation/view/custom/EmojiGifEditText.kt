@@ -1,7 +1,7 @@
 package com.ping.android.presentation.view.custom
 
+import android.content.ClipDescription
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
@@ -9,11 +9,10 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.vanniktech.emoji.EmojiEditText
 
 interface MediaSelectionListener {
-    fun onMediaSelected(uri: Uri)
+    fun onMediaSelected(uri: Uri, description: ClipDescription)
 }
 
 class EmojiGifEditText : EmojiEditText {
@@ -38,7 +37,7 @@ class EmojiGifEditText : EmojiEditText {
 
             }
 
-            listener?.onMediaSelected(inputContentInfo.contentUri)
+            listener?.onMediaSelected(inputContentInfo.contentUri, inputContentInfo.description)
             // call inputContentInfo.releasePermission() as needed.
             inputContentInfo.releasePermission()
             true  // return true if succeeded

@@ -9,17 +9,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
-import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.*
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.util.Pair
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -60,7 +59,6 @@ import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.extensions.simpleName
-import com.vanniktech.emoji.EmojiEditText
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
@@ -545,16 +543,21 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
         edMessage = findViewById(R.id.chat_message_tv)
         edMessage.listener = object: MediaSelectionListener {
-            override fun onMediaSelected(uri: Uri) {
-                val file = File(externalCacheDir.absoluteFile, uri.simpleName(this@ChatActivity))
-                Utils.saveFile(this@ChatActivity, file, uri)
-                val mimeType = contentResolver.getType(uri)
-                //if (mimeType == "image/png") {
-                    // TODO send sticker
-                    presenter.sendSticker(file, tgMarkOut.isSelected)
-                //} else if (mimeType == "image/gif") {
-                    // TODO send gif
-                //}
+            override fun onMediaSelected(uri: Uri, description: ClipDescription) {
+                var fileName = uri.lastPathSegment
+                val fileExtension = MimeTypeMap.getSingleton()
+                        .getExtensionFromMimeType(description.getMimeType(0))
+                if (uri.authority == "com.google.android.inputmethod.latin.inputcontent") {
+                    uri.getQueryParameter("fileName")?.let {
+                        fileName = it.split("/").last() + "." + fileExtension
+                    }
+                }
+                if (TextUtils.isEmpty(fileName)) {
+                    fileName = "${System.currentTimeMillis()}.$fileExtension"
+                }
+                val file = File(externalCacheDir.absoluteFile, fileName)
+                Utils.writeToFileFromContentUri(this@ChatActivity, file, uri)
+                presenter.sendSticker(file, tgMarkOut.isSelected)
             }
         }
         btEmoji.setOnClickListener(this)

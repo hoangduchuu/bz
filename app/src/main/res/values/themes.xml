@@ -33,6 +33,7 @@
     <style name="AppTheme.Theme6" parent="@style/AppTheme.NoActionBar">
         <item name="backgroundTheme">@style/BackgroundTintStyle6</item>
         <item name="colorAccent">@color/color_6</item>
+        <item name="backgroundChat">@color/main_background_white</item>
     </style>
 
     <style name="AppTheme.Theme7" parent="@style/AppTheme.NoActionBar">

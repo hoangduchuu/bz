@@ -11,6 +11,7 @@ import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.ping.android.R;
 
@@ -264,5 +265,33 @@ public class Utils {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * A simple helper method that writes to a file from a content provider uri
+     *
+     * @param file the file to write to/overwrite
+     * @param uri  the content provider uri
+     * @return whether the operation was successful or not
+     */
+    public static boolean writeToFileFromContentUri(Context context, File file, Uri uri) {
+        if (file == null || uri == null) return false;
+        try {
+            InputStream stream = context.getContentResolver().openInputStream(uri);
+            OutputStream output = new FileOutputStream(file);
+            if (stream == null) return false;
+            byte[] buffer = new byte[4 * 1024];
+            int read;
+            while ((read = stream.read(buffer)) != -1) output.write(buffer, 0, read);
+            output.flush();
+            output.close();
+            stream.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
