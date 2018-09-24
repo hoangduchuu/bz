@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
 
-    implementation 'androidx.appcompat:appcompat:1.0.0-rc01'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation "com.quickblox:quickblox-android-sdk-chat:$rootProject.qbSdkVersion"
     implementation "com.quickblox:quickblox-android-sdk-extensions:$rootProject.qbSdkVersion"
     implementation "io.reactivex.rxjava2:rxjava:${libraries.rx_java}"
