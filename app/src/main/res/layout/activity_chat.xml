@@ -144,5 +144,10 @@
     </FrameLayout>
 
     <!--<include layout="@layout/view_media_picker" />-->
-    <include layout="@layout/notify_network_main" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        layout="@layout/notify_network_main"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="45dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
