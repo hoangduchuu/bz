@@ -72,7 +72,7 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
                             return sendTextMessageUseCase.buildUseCaseObservable(messageParams)
                                     .flatMap(message -> {
                                         SendMessageNotificationUseCase.Params notificationParams =
-                                                new SendMessageNotificationUseCase.Params(conversation, message.message, message.type);
+                                                new SendMessageNotificationUseCase.Params(conversation, message.key, message.message, message.type);
                                         return sendMessageNotificationUseCase.buildUseCaseObservable(notificationParams);
                                     });
                         })

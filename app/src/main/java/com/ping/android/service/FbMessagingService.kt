@@ -69,7 +69,6 @@ class FbMessagingService: QBFcmPushListenerService() {
             val conversationId = data["conversationId"] as? String ?: ""
             val senderProfile = data["senderProfile"] as? String ?: ""
             val badgeCount = (data["badge_count"] as? String)?.toIntOrNull()
-            ShortcutBadger.applyCount(this, badgeCount ?: 0)
             Log.d("new message: $message$conversationId$notificationType")
             when {
                 TextUtils.equals(notificationType, "missed_call") -> {
@@ -79,7 +78,7 @@ class FbMessagingService: QBFcmPushListenerService() {
                     } catch (e: NumberFormatException) {
                         e.printStackTrace()
                     }
-
+                    ShortcutBadger.applyCount(this, badgeCount ?: 0)
                     val senderId = data["senderId"] as String
                     showMissedCallNotificationUseCase
                             .execute(DefaultObserver(),
@@ -91,12 +90,20 @@ class FbMessagingService: QBFcmPushListenerService() {
                                     ))
                 }
                 TextUtils.equals(notificationType, "incoming_message") -> {
-                    if (!needDisplayNotification(conversationId)) {
-                        removeUserBadgeUseCase.execute(DefaultObserver(), conversationId)
-                        return
+//                    if (!needDisplayNotification(conversationId)) {
+//                        removeUserBadgeUseCase.execute(DefaultObserver(), conversationId)
+//                        return
+//                    }
+                    val messageId = data["messageId"] as? String ?: ""
+                    val observer = object : DefaultObserver<Boolean>() {
+                        override fun onNext(t: Boolean) {
+                            if (t) {
+                                ShortcutBadger.applyCount(this@FbMessagingService, badgeCount ?: 0)
+                            }
+                        }
                     }
-                    showIncomingMessageNotificationUseCase.execute(DefaultObserver(),
-                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, senderProfile))
+                    showIncomingMessageNotificationUseCase.execute(observer,
+                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, messageId, senderProfile))
                 }
                 TextUtils.equals(notificationType, "game_status") -> {
                     if (!needDisplayNotification(conversationId)) {

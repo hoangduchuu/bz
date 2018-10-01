@@ -150,4 +150,12 @@ public class UserManager {
             setCachedUser(opponentUser);
         }
     }
+
+    public Map<String, Integer> updateBadge(@NotNull String key, int value) {
+        if (user.badges == null) {
+            user.badges = new HashMap<>();
+        }
+        user.badges.put(key, value);
+        return user.badges;
+    }
 }

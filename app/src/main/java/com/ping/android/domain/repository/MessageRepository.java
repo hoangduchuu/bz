@@ -66,4 +66,5 @@ public interface MessageRepository {
 
     void updateLocalMessageStatus(@NotNull String key, int status);
 
+    Observable<Integer> getMessageStatus(String conversationId, String message, String userId);
 }

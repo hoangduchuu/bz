@@ -5,6 +5,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread
 import com.bzzzchat.cleanarchitecture.ThreadExecutor
 import com.bzzzchat.cleanarchitecture.UseCase
 import com.ping.android.data.entity.MessageEntity
+import com.ping.android.data.mappers.MessageMapper
 import com.ping.android.domain.repository.CommonRepository
 import com.ping.android.domain.repository.ConversationRepository
 import com.ping.android.domain.repository.MessageRepository
@@ -35,6 +36,8 @@ class SyncMessageUseCase @Inject constructor(
     lateinit var getConversationValueUseCase: GetConversationValueUseCase
     @Inject
     lateinit var sendMessageNotificationUseCase: SendMessageNotificationUseCase
+    @Inject
+    lateinit var messageMapper: MessageMapper
 
     override fun buildUseCaseObservable(params: Void?): Observable<Boolean> {
         return commonRepository.observeConnectionState()
@@ -81,7 +84,7 @@ class SyncMessageUseCase @Inject constructor(
                             messageRepository.updateLocalMessageStatus(message.key, Constant.MESSAGE_STATUS_DELIVERED)
                             getConversationValueUseCase.buildUseCaseObservable(message.conversationId)
                                     .flatMap { conversation ->
-                                        sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, message.message, MessageType.TEXT))
+                                        sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, message.key, message.message, MessageType.TEXT))
                                     }
                         }
                 )
@@ -115,7 +118,7 @@ class SyncMessageUseCase @Inject constructor(
                                         .flatMap {
                                             getConversationValueUseCase.buildUseCaseObservable(message.conversationId)
                                                     .flatMap { conversation ->
-                                                        sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, "${message.childMessages.size}", MessageType.IMAGE_GROUP))
+                                                        sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, message.key, "${message.childMessages.size}", MessageType.IMAGE_GROUP))
                                                     }
                                         }
                             }
@@ -149,7 +152,7 @@ class SyncMessageUseCase @Inject constructor(
                                                         messageRepository.updateLocalMessageStatus(message.key, Constant.MESSAGE_STATUS_DELIVERED)
                                                         getConversationValueUseCase.buildUseCaseObservable(message.conversationId)
                                                                 .flatMap { conversation ->
-                                                                    sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, "", MessageType.from(message.messageType)))
+                                                                    sendMessageNotificationUseCase.buildUseCaseObservable(SendMessageNotificationUseCase.Params(conversation, message.key, "", MessageType.from(message.messageType)))
                                                                 }
                                                     }
                                         }
@@ -191,7 +194,7 @@ class SyncMessageUseCase @Inject constructor(
                                             getConversationValueUseCase.buildUseCaseObservable(message.conversationId)
                                                     .flatMap { conversation ->
                                                         sendMessageNotificationUseCase.buildUseCaseObservable(
-                                                                SendMessageNotificationUseCase.Params(conversation, "", MessageType.from(message.messageType)))
+                                                                SendMessageNotificationUseCase.Params(conversation, message.key, "", MessageType.from(message.messageType)))
                                                     }
                                         }
                             }

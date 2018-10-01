@@ -17,6 +17,7 @@ import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.CallEntityMapper;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.model.Badge;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -247,6 +248,20 @@ public class UserRepositoryImpl implements UserRepository {
                         return (Map<String, Integer>) dataSnapshot.getValue();
                     }
                     return new HashMap<>();
+                });
+    }
+
+    @Override
+    public Observable<ChildData<Badge>> observeBadgeCountChildEvent(@NotNull String userKey) {
+        DatabaseReference databaseReference = database.getReference("users")
+                .child(userKey).child("badges");
+        return RxFirebaseDatabase.getInstance(databaseReference)
+                .onChildEvent()
+                .map(childEvent -> {
+                    DataSnapshot dataSnapshot = childEvent.dataSnapshot;
+                    Badge badge = new Badge(dataSnapshot.getKey(), dataSnapshot.getValue(Integer.class));
+                    ChildData<Badge> childData = new ChildData(badge, childEvent.type);
+                    return childData;
                 });
     }
 

@@ -9,6 +9,7 @@ import com.ping.android.domain.repository.NotificationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
@@ -76,7 +77,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case TEXT:
                                                     String messageText = params.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                                                        messageText = CommonMethod.encodeMessage(params.message, user.mappings);
+                                                        messageText = CommonMethod.encodeMessage(messageText, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
@@ -109,7 +110,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 profile = "";
                                             }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, profile, body, params.conversation.key, params.messageType.ordinal(), user, integer)
+                                                    sender.key, profile, body, params.conversation.key, params.messageId, params.messageType.ordinal(), user, integer)
                                                     .flatMap(aBoolean -> userRepository.increaseBadgeNumber(user.key, params.conversation.key));
                                         });
                             })
@@ -132,12 +133,13 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
 
     public static class Params {
         private Conversation conversation;
-        //private Message message;
         private MessageType messageType;
+        private String messageId;
         private String message;
 
-        public Params(Conversation conversation, String message, MessageType messageType) {
+        public Params(Conversation conversation, String messageId, String message, MessageType messageType) {
             this.conversation = conversation;
+            this.messageId = messageId;
             this.message = message;
             this.messageType = messageType;
         }

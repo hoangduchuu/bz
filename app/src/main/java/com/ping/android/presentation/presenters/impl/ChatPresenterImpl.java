@@ -188,18 +188,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(User user) {
                 currentUser = user;
-                if (currentUser.badges != null) {
-                    Map<String, Integer> stringMap = new HashMap<>(currentUser.badges);
-                    stringMap.remove("refreshMock");
-                    stringMap.remove("missed_call");
-                    int messageCount = 0;
-                    Number count = 0;
-                    for (String key : stringMap.keySet()) {
-                        count = stringMap.get(key);
-                        messageCount += count.intValue();
-                    }
-                    view.updateUnreadMessageCount(messageCount);
-                }
+                updateUnreadMessageCount();
             }
         }, null);
     }
@@ -402,7 +391,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
-                sendNotification(conversation, message1.message, MessageType.TEXT);
+                sendNotification(conversation, message1.key, message1.message, MessageType.TEXT);
             }
 
             @Override
@@ -430,7 +419,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message.message, MessageType.IMAGE);
+                    sendNotification(conversation, message.key, message.message, MessageType.IMAGE);
                 }
             }
 
@@ -453,7 +442,8 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (!message.isCached) {
-                    sendNotification(conversation, "" + items.size(), MessageType.IMAGE_GROUP);
+                    message.message = "" + items.size();
+                    sendNotification(conversation, message.key, message.message, MessageType.IMAGE_GROUP);
                 }
                 if (message.childMessages != null) {
                     for (Message child : message.childMessages) {
@@ -487,7 +477,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 if (message.isCached) {
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message.message, MessageType.GAME);
+                    sendNotification(conversation, message.key, message.message, MessageType.GAME);
                 }
             }
 
@@ -516,7 +506,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
             @Override
             public void onComplete() {
-                sendNotification(conversation, "" + params.items.size(), MessageType.GAME_GROUP);
+                //sendNotification(conversation, "" + params.items.size(), MessageType.GAME_GROUP);
             }
         }, params);
     }
@@ -537,7 +527,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                     addMessage(message);
                     localCacheFile.put(message.key, message.localFilePath);
                 } else {
-                    sendNotification(conversation, message.message, message.type);
+                    sendNotification(conversation, message.key, message.message, message.type);
                 }
             }
 
@@ -561,7 +551,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Message message) {
                 super.onNext(message);
                 if (!message.isCached) {
-                    sendNotification(conversation, message.message, MessageType.VIDEO);
+                    sendNotification(conversation, message.key, message.message, MessageType.VIDEO);
                 } else {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
@@ -787,6 +777,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         this.conversation = conversation;
         view.updateConversation(conversation);
+        updateUnreadMessageCount();
         observeConversationUpdate();
         updateConversationReadStatus();
         //observeMessageUpdate();
@@ -889,16 +880,16 @@ public class ChatPresenterImpl implements ChatPresenter {
                     localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message.message, MessageType.STICKER);
+                    sendNotification(conversation, message.key, message.message, MessageType.STICKER);
                 }
             }
         }, params);
 
     }
 
-    private void sendNotification(Conversation conversation, String message, MessageType messageType) {
+    private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
-                new SendMessageNotificationUseCase.Params(conversation, message, messageType));
+                new SendMessageNotificationUseCase.Params(conversation, messageId, message, messageType));
     }
 
     private void checkMessageError(Message message) {
@@ -918,6 +909,24 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         return true;
+    }
+
+    private void updateUnreadMessageCount() {
+        if (currentUser.badges != null) {
+            Map<String, Integer> stringMap = new HashMap<>(currentUser.badges);
+            stringMap.remove("refreshMock");
+            stringMap.remove("missed_call");
+            int messageCount = 0;
+            Number count = 0;
+            for (String key : stringMap.keySet()) {
+                if (conversation != null && key.equals(conversation.key)) {
+                    continue;
+                }
+                count = stringMap.get(key);
+                messageCount += count.intValue();
+            }
+            view.updateUnreadMessageCount(messageCount);
+        }
     }
 
 

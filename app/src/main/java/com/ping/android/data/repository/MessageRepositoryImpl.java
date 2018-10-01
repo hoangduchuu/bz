@@ -353,6 +353,22 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .execute();
     }
 
+    @Override
+    public Observable<Integer> getMessageStatus(String conversationId, String messageId, String userId) {
+        DatabaseReference reference = database.getReference("messages")
+                .child(conversationId)
+                .child(messageId)
+                .child("status").child(userId);
+        return RxFirebaseDatabase.getInstance(reference)
+                .onValueEvent()
+                .map(dataSnapshot -> {
+                    if (dataSnapshot.exists()) {
+                        return dataSnapshot.getValue(Integer.class);
+                    }
+                    return -1;
+                });
+    }
+
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
