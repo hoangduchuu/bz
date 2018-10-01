@@ -1,5 +1,6 @@
 package com.ping.android.presentation.presenters.impl;
 
+import android.app.Activity;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
@@ -16,6 +17,8 @@ import com.ping.android.domain.usecase.user.UpdateUserTransphabetUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.MainPresenter;
+import com.ping.android.presentation.view.activity.ChatActivity;
+import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
@@ -117,6 +120,12 @@ public class MainPresenterImpl implements MainPresenter {
                 stringMap.remove("missed_call");
                 int messageCount = 0;
                 Number count = 0;
+                String currentChat = "";
+                Activity activity = ActivityLifecycle.getInstance().getForegroundActivity();
+                if (activity instanceof ChatActivity) {
+                    currentChat = ((ChatActivity)activity).getConversationId();
+                }
+                stringMap.remove(currentChat);
                 for (String key : stringMap.keySet()) {
                     count = stringMap.get(key);
                     messageCount += count.intValue();

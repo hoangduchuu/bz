@@ -4,6 +4,7 @@ import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.model.Badge;
 import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +43,6 @@ public interface UserRepository {
 
     Observable<User> getUserByQuickBloxId(Integer qbId);
 
-    Observable<Boolean> removeUserBadge(String userId, String key);
-
     Observable<ChildEvent> observeBlockedContacts(String key);
 
     Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean);
@@ -58,7 +57,13 @@ public interface UserRepository {
 
     Observable<Integer> readBadgeNumbers(String userId);
 
+    Observable<Boolean> removeUserBadge(String userId, String key);
+
     Observable<Boolean> increaseBadgeNumber(String userId, String key);
+
+    Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey);
+
+    Observable<ChildData<Badge>> observeBadgeCountChildEvent(@NotNull String userKey);
 
     Observable<Boolean> turnOffMappingConfirmation(String key);
 
@@ -81,8 +86,6 @@ public interface UserRepository {
     Observable<User> loginByEmail(String email, String password);
 
     Observable<User> checkValidUser(String userName);
-
-    Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey);
 
     Observable<User> observeUsersChanged();
 }
