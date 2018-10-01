@@ -103,6 +103,18 @@
             </com.ping.android.presentation.view.custom.SettingItem>
 
             <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_face_training"
+                style="@style/ItemSetting"
+                android:layout_marginTop="@dimen/setting_item_separate"
+                app:leftIcon="@drawable/ic_profile_transphabet"
+                app:showDivider="false"
+                app:titleText="Face training">
+
+                <ImageView
+                    style="@style/ItemSettingIconRight" />
+            </com.ping.android.presentation.view.custom.SettingItem>
+
+            <com.ping.android.presentation.view.custom.SettingItem
                 style="@style/ItemSetting"
                 android:layout_marginTop="@dimen/setting_item_separate"
                 app:leftIcon="@drawable/ic_profile_notification"

@@ -229,7 +229,8 @@ dependencies {
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
     implementation "com.google.dagger:dagger-android:${libraries.dagger}"
-    implementation "com.google.dagger:dagger-android-support:${libraries.dagger}" // if you use the support libraries
+    implementation "com.google.dagger:dagger-android-support:${libraries.dagger}"
+    // if you use the support libraries
     kapt "com.google.dagger:dagger-android-processor:${libraries.dagger}"
 
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
@@ -243,11 +244,11 @@ dependencies {
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 
-//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.2'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.1-1.4.2', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.1-1.4.2', classifier: 'android-x86'
 
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
 

@@ -3,6 +3,8 @@ package com.ping.android.presentation.view.custom
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import com.ping.android.R
 import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
@@ -28,7 +30,7 @@ class EmojiContainerView {
         variantPopup = EmojiVariantPopup(rootView, clickListener)
         recentEmoji = RecentEmojiManager(context)
         variantEmoji = VariantEmojiManager(context)
-        emojiView = EmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji)
+        emojiView = EmojiView(context, clickListener, longClickListener, recentEmoji, variantEmoji, 0, 0, 0)
         emojiView.setOnEmojiBackspaceClickListener { v ->
             editInterface?.backspace()
         }

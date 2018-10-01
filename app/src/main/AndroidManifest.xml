@@ -58,10 +58,9 @@
         <meta-data
             android:name="com.quickblox.messages.QB_ENVIRONMENT"
             android:value="PRODUCTION" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="messages"/>
+            android:value="messages" />
 
         <receiver
             android:name=".service.NotificationBroadcastReceiver"
@@ -77,11 +76,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity
             android:name=".presentation.view.activity.BeforeLoginActivity"
@@ -242,6 +241,13 @@
         <activity
             android:name=".presentation.view.activity.GroupImageGalleryActivity"
             android:theme="@style/AppTheme.NoActionBar.Transparent1" />
+        <activity android:name=".presentation.view.activity.FaceTrainingActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
