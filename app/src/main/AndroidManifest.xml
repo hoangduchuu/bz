@@ -241,7 +241,7 @@
         <activity
             android:name=".presentation.view.activity.GroupImageGalleryActivity"
             android:theme="@style/AppTheme.NoActionBar.Transparent1" />
-        <activity android:name=".presentation.view.activity.FaceTrainingActivity">
+        <activity android:name="com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

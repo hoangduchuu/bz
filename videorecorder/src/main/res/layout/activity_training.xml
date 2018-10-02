@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:fitsSystemWindows="false">
+
+    <com.bzzzchat.videorecorder.view.facerecognization.others.CameraSourcePreview
+        android:id="@+id/preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.bzzzchat.videorecorder.view.facerecognization.others.GraphicOverlay
+            android:id="@+id/faceOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.bzzzchat.videorecorder.view.facerecognization.others.CameraSourcePreview>
+
+    <ImageView
+        android:id="@+id/ivAutoFocus"
+        android:contentDescription="@null"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/btn_autofocus"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:layout_gravity="center"
+            android:text="1/10"/>
+    </LinearLayout>
+
+    <com.bzzzchat.videorecorder.view.custom.CustomRecordButton
+        android:id="@+id/btn_takepicture"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:elevation="10dp"
+        app:fillColor="#60ffffff"
+        app:bzzzProgress="0"
+        app:progressBarThickness="4dp"
+        app:progressbarColor="@color/colorAccent" />
+</RelativeLayout>

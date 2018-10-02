@@ -32,6 +32,7 @@ dependencies {
     implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.2'
     implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-arm'
     implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-x86'
+    implementation 'com.google.firebase:firebase-ml-vision:17.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'

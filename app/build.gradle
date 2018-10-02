@@ -173,6 +173,8 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:${libraries.firebase_messaging}"
     implementation "com.google.firebase:firebase-database:${libraries.firebase_database}"
     implementation "com.google.firebase:firebase-storage:${libraries.firebase_storage}"
+    implementation 'com.google.firebase:firebase-ml-vision:17.0.0'
+    
     implementation('com.firebaseui:firebase-ui-storage:4.0.1') {
         exclude group: 'com.android.support'
         exclude group: 'com.github.bumptech.glide'
