@@ -103,10 +103,23 @@
             </com.ping.android.presentation.view.custom.SettingItem>
 
             <com.ping.android.presentation.view.custom.SettingItem
-                android:id="@+id/profile_face_training"
                 style="@style/ItemSetting"
                 android:layout_marginTop="@dimen/setting_item_separate"
-                app:leftIcon="@drawable/ic_profile_transphabet"
+                app:leftIcon="@drawable/ic_profile_hide_profile"
+                app:titleText="Face ID mask/unmask">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/profile_faceid"
+                    style="@style/ItemSettingIconRight.Toggle"
+                    app:track="@drawable/ic_switch_track_red"
+                    tools:checked="true" />
+            </com.ping.android.presentation.view.custom.SettingItem>
+
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_face_training"
+                style="@style/ItemSetting"
+                android:visibility="gone"
+                app:leftIcon="@drawable/ic_profile_hide_profile"
                 app:showDivider="false"
                 app:titleText="Face training">
 

@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -244,14 +245,18 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                             if (faces.size() > 0) {
                                                 FirebaseVisionFace face = faces.get(0);
                                                 Rect rect = face.getBoundingBox();
-//                                                int smallestDimension = rect.width() > rect.height() ? rect.height() : rect.width();
-//                                                int x = rect.left + rect.centerX() - (smallestDimension / 2);
-//                                                if (x < 0) x = 0;
-//                                                int y = rect.top + rect.centerY() - (smallestDimension / 2);
-//                                                if (y < 0) y = 0;
-//                                                Bitmap faceBitmap = Bitmap.createBitmap(finalPicture, x, y, smallestDimension, smallestDimension);
-                                                Bitmap faceBitmap = Bitmap.createBitmap(finalPicture, rect.left, rect.top, rect.width(), rect.height());
-                                                int finalWidth = 128;
+                                                int smallestDimension = rect.width() > rect.height() ? rect.height() : rect.width();
+//                                                Rect sourceRect = new Rect(rect.left + (rect.width() - smallestDimension) / 2,
+//                                                        rect.top + (rect.height() - smallestDimension) / 2,
+//                                                        smallestDimension,
+//                                                        smallestDimension);
+                                                Rect sourceRect = rect;
+                                                Rect destRect = new Rect(0, 0, smallestDimension, smallestDimension);
+                                                //Bitmap faceBitmap = Bitmap.createBitmap(finalPicture, rect.left, rect.top, rect.width(), rect.height());
+                                                Bitmap faceBitmap = Bitmap.createBitmap(smallestDimension, smallestDimension, Bitmap.Config.ARGB_8888);
+                                                Canvas canvas = new Canvas(faceBitmap);
+                                                canvas.drawBitmap(finalPicture, sourceRect, destRect, null);
+                                                int finalWidth = Configs.INSTANCE.getModelDimension();
                                                 faceBitmap = Bitmap.createScaledBitmap(faceBitmap, finalWidth, finalWidth, true);
                                                 FileOutputStream out = null;
                                                 try {

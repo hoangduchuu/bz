@@ -18,6 +18,8 @@ public class SharedPrefsHelper {
     private static final String QB_USER_FULL_NAME = "qb_user_full_name";
     private static final String QB_USER_TAGS = "qb_user_tags";
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
+
+    private static final String FACE_ID_KEY = "FACE_ID_KEY";
     private static String deviceId = null;
 
     private static SharedPrefsHelper instance;
@@ -143,6 +145,14 @@ public class SharedPrefsHelper {
             }
         }
         return deviceId;
+    }
+
+    public void setFaceIdEnable(boolean isEnable) {
+        save(FACE_ID_KEY, isEnable);
+    }
+
+    public boolean isFaceIdEnable() {
+        return get(FACE_ID_KEY, false);
     }
 
     private SharedPreferences.Editor getEditor() {

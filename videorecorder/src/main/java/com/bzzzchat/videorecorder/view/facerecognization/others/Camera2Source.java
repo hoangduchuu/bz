@@ -685,7 +685,7 @@ public class Camera2Source {
                 mPreviewRequestBuilder.setTag("FOCUS_TAG"); //we'll capture this later for resuming the preview!
                 //Then we ask for a single request (not repeating!)
                 mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
-            } catch(CameraAccessException ex) {
+            } catch(Exception ex) {
                 Log.d("ASD", "AUTO FOCUS EXCEPTION: "+ex);
             }
         }

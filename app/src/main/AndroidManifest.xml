@@ -76,11 +76,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".presentation.view.activity.BeforeLoginActivity"
@@ -202,9 +202,31 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Fullscreen" />
 
+        <activity
+            android:name=".presentation.view.activity.ConversationDetailActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".presentation.view.activity.NicknameActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".presentation.view.activity.GalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".presentation.view.activity.GridMediaPickerActivity" />
+        <activity
+            android:name=".presentation.view.activity.GroupImageGalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar.Transparent1" />
+        <activity android:name="com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity">
+
+        </activity>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="6adab05c8d640a679fc4d84fbd8f8047827b4d1c" />
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="face" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -225,29 +247,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/video_provider_paths" />
         </provider>
-
-        <activity
-            android:name=".presentation.view.activity.ConversationDetailActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity
-            android:name=".presentation.view.activity.NicknameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".presentation.view.activity.GalleryActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".presentation.view.activity.GridMediaPickerActivity" />
-        <activity
-            android:name=".presentation.view.activity.GroupImageGalleryActivity"
-            android:theme="@style/AppTheme.NoActionBar.Transparent1" />
-        <activity android:name="com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

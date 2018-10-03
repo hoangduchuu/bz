@@ -33,6 +33,7 @@ import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.PhotoItem
 import com.bzzzchat.videorecorder.view.VideoPlayerActivity
 import com.bzzzchat.videorecorder.view.VideoRecorderActivity
+import com.bzzzchat.videorecorder.view.facerecognization.HiddenCamera
 import com.bzzzchat.videorecorder.view.withDelay
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
@@ -132,6 +133,26 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private var textWatcher: TextWatcher? = null
 
+    private val hiddenCamera: HiddenCamera by lazy {
+        HiddenCamera(this)
+    }
+    private val motionDetector: MotionDetector by lazy {
+        val callback = object: MotionCallback {
+            override fun onExtraInfo(extraInfo: ExtraInfo) {
+
+            }
+
+            override fun onTable() {
+
+            }
+
+            override fun pickedUp() {
+
+            }
+
+        }
+        MotionDetector(this, callback)
+    }
     private val shakeEventManager: ShakeEventManager by lazy {
         ShakeEventManager(this)
     }
@@ -218,6 +239,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
+        hiddenCamera.onResume()
         keyboardHeightProvider.setKeyboardHeightObserver(this)
         resetButtonState()
         hideAllBottomViews()
@@ -234,6 +256,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun onPause() {
         super.onPause()
+        hiddenCamera.onPause()
         shakeEventManager.unregister()
         keyboardHeightProvider.setKeyboardHeightObserver(null)
         isTyping = false
@@ -244,6 +267,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     override fun onDestroy() {
         super.onDestroy()
+        hiddenCamera.onDestroy()
         keyboardHeightProvider.close()
         messagesAdapter.destroy()
         if (layoutVoice != null) {
@@ -654,6 +678,8 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         container.post {
             keyboardHeightProvider.start()
         }
+
+        hiddenCamera.initWithActivity(this)
     }
 
     private fun handleShakePhone() {

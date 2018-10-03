@@ -6,12 +6,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
+
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity;
 import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
@@ -23,6 +26,7 @@ import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
@@ -42,6 +46,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private ImageView profileImage;
     private TextView tvName;
     private SwitchCompat rbNotification, rbShowProfile;
+    private SwitchCompat faceId;
+    private View faceTrainingItem;
 
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
@@ -77,6 +83,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         profileImage = view.findViewById(R.id.profile_image);
         rbNotification = view.findViewById(R.id.profile_notification);
         rbShowProfile = view.findViewById(R.id.profile_show_profile);
+        faceId = view.findViewById(R.id.profile_faceid);
+        faceTrainingItem = view.findViewById(R.id.profile_face_training);
 
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_phone_detail).setOnClickListener(this);
@@ -89,6 +97,16 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         view.findViewById(R.id.profile_image).setOnClickListener(this);
         view.findViewById(R.id.profile_notification).setOnClickListener(this);
         view.findViewById(R.id.profile_show_profile).setOnClickListener(this);
+        view.findViewById(R.id.profile_face_training).setOnClickListener(this);
+        faceId.setOnClickListener(this);
+
+        faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdEnable());
+        if (!SharedPrefsHelper.getInstance().isFaceIdEnable()) {
+            faceTrainingItem.setVisibility(View.GONE);
+        } else {
+            faceTrainingItem.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void bindData() {
@@ -136,7 +154,28 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             case R.id.profile_show_profile:
                 onShowProfileClick();
                 break;
+            case R.id.profile_face_training:
+                onTrainingFace();
+                break;
+            case R.id.profile_faceid:
+                onSelectFaceId();
+                break;
         }
+    }
+
+    private void onSelectFaceId() {
+        SharedPrefsHelper.getInstance().setFaceIdEnable(faceId.isChecked());
+        TransitionManager.beginDelayedTransition((ViewGroup) getView());
+        if (!faceId.isChecked()) {
+            faceTrainingItem.setVisibility(View.GONE);
+        } else {
+            faceTrainingItem.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void onTrainingFace() {
+        Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
+        startActivity(intent);
     }
 
     @Override
