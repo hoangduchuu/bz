@@ -209,6 +209,7 @@ public class Camera2Source {
     private Rect sensorArraySize;
     private boolean isMeteringAreaAFSupported = false;
     private boolean swappedDimensions = false;
+    private byte[] lastFrameData;
 
     private CameraManager manager = null;
 
@@ -930,7 +931,7 @@ public class Camera2Source {
 
             // For still image captures, we use the largest available size.
             Size largest = getBestAspectPictureSize(map.getOutputSizes(ImageFormat.JPEG));
-            mImageReaderStill = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, /*maxImages*/20);
+            mImageReaderStill = ImageReader.newInstance(largest.getWidth(), largest.getHeight(), ImageFormat.JPEG, /*maxImages*/5);
             mImageReaderStill.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
 
             sensorArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
@@ -1341,12 +1342,16 @@ public class Camera2Source {
                         return;
                     }
 
+                    byte[] bytes = quarterNV21(mPendingFrameData, mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                    //Bitmap bitmap = Utils.getProcessedImage(bytes, mPreviewSize.getWidth(), mPreviewSize.getHeight(), 0f);
                     outputFrame = new Frame.Builder()
-                            .setImageData(ByteBuffer.wrap(quarterNV21(mPendingFrameData, mPreviewSize.getWidth(), mPreviewSize.getHeight())), mPreviewSize.getWidth()/4, mPreviewSize.getHeight()/4, ImageFormat.NV21)
+                            .setImageData(ByteBuffer.wrap(bytes), mPreviewSize.getWidth()/4, mPreviewSize.getHeight()/4, ImageFormat.NV21)
+                            //.setImageData(ByteBuffer.wrap(mPendingFrameData), mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.NV21)
                             .setId(mPendingFrameId)
                             .setTimestampMillis(mPendingTimeMillis)
                             .setRotation(getDetectorOrientation(mSensorOrientation))
                             .build();
+                    lastFrameData = mPendingFrameData;
 
                     // We need to clear mPendingFrameData to ensure that this buffer isn't
                     // recycled back to the camera before we are done using that data.
@@ -1445,4 +1450,8 @@ public class Camera2Source {
         }
 
     };
+
+    public byte[] getLastFrameData() {
+        return lastFrameData;
+    }
 }

@@ -20,6 +20,7 @@ public class SharedPrefsHelper {
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 
     private static final String FACE_ID_KEY = "FACE_ID_KEY";
+    private static final String FACE_ID_COMPLETE_TRAINING = "FACE_ID_COMPLETE_TRAINING";
     private static String deviceId = null;
 
     private static SharedPrefsHelper instance;
@@ -153,6 +154,14 @@ public class SharedPrefsHelper {
 
     public boolean isFaceIdEnable() {
         return get(FACE_ID_KEY, false);
+    }
+
+    public void setFaceIdCompleteTraining(boolean isEnable) {
+        save(FACE_ID_COMPLETE_TRAINING, isEnable);
+    }
+
+    public boolean isFaceIdCompleteTraining() {
+        return get(FACE_ID_COMPLETE_TRAINING, false);
     }
 
     private SharedPreferences.Editor getEditor() {

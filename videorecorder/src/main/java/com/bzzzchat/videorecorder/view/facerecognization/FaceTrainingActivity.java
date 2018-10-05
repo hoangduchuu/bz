@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -26,7 +25,6 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,7 +46,6 @@ import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
@@ -60,7 +57,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -103,7 +99,6 @@ public class FaceTrainingActivity extends AppCompatActivity {
     // ANY ATTEMPT TO START CAMERA2 ON API < 21 WILL CRASH.
     private boolean useCamera2 = false;
     private int index = 1;
-    private File trainingFolder;
     private int requiredImages = 10;
 
     @Override
@@ -112,14 +107,6 @@ public class FaceTrainingActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_training);
         context = getApplicationContext();
-        // FIXME: for testing, use external storage
-        //trainingFolder = new File(getFilesDir(), "training");
-        trainingFolder = new File(Environment.getExternalStorageDirectory(), "training");
-        trainingFolder.delete();
-        if (!trainingFolder.exists()) {
-            trainingFolder.mkdirs();
-        }
-
         takePictureButton = findViewById(R.id.btn_takepicture);
         mPreview = (CameraSourcePreview) findViewById(R.id.preview);
         mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
@@ -162,6 +149,7 @@ public class FaceTrainingActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        setResult(Activity.RESULT_OK);
                         finish();
                     }
                 })
@@ -236,6 +224,7 @@ public class FaceTrainingActivity extends AppCompatActivity {
             FirebaseVisionFaceDetector detector = FirebaseVision.getInstance()
                     .getVisionFaceDetector(options);
             final Bitmap finalPicture = picture;
+            image.close();
             Task<List<FirebaseVisionFace>> result =
                     detector.detectInImage(visionImage)
                             .addOnSuccessListener(
@@ -258,10 +247,11 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                                 canvas.drawBitmap(finalPicture, sourceRect, destRect, null);
                                                 int finalWidth = Configs.INSTANCE.getModelDimension();
                                                 faceBitmap = Bitmap.createScaledBitmap(faceBitmap, finalWidth, finalWidth, true);
+                                                //faceBitmap = Utils.toGrayscale(faceBitmap);
                                                 FileOutputStream out = null;
                                                 try {
-                                                    String fileName = "user_" + index +  ".png";
-                                                    out = new FileOutputStream(new File(trainingFolder, fileName));
+                                                    String fileName = "1-user_" + index +  ".png";
+                                                    out = new FileOutputStream(new File(FaceRecognition.getInstance().getTrainingFolder(), fileName));
                                                     faceBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out);
                                                     showProgress(index);
                                                 } catch (Exception e) {
@@ -281,6 +271,8 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                                         takePictureButton.setEnabled(true);
                                                     }
                                                 });
+                                            } else {
+                                                takePictureButton.setEnabled(true);
                                             }
                                         }
                                     })
@@ -289,6 +281,7 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             e.printStackTrace();
+                                            takePictureButton.setEnabled(true);
                                         }
                                     });
         }

@@ -30,11 +30,9 @@ import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.dp
 import com.bzzzchat.extensions.px
-import com.bzzzchat.videorecorder.view.PhotoItem
-import com.bzzzchat.videorecorder.view.VideoPlayerActivity
-import com.bzzzchat.videorecorder.view.VideoRecorderActivity
+import com.bzzzchat.videorecorder.view.*
 import com.bzzzchat.videorecorder.view.facerecognization.HiddenCamera
-import com.bzzzchat.videorecorder.view.withDelay
+import com.bzzzchat.videorecorder.view.facerecognization.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
@@ -134,7 +132,14 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     private var textWatcher: TextWatcher? = null
 
     private val hiddenCamera: HiddenCamera by lazy {
-        HiddenCamera(this)
+        HiddenCamera(this, object: RecognitionCallback {
+            override fun onRecognitionSuccess() {
+                showToast("Recognized user")
+                presenter.userRecognized()
+                // FIXME: for now, update directly in adapter
+                messagesAdapter.userRecognized()
+            }
+        })
     }
     private val motionDetector: MotionDetector by lazy {
         val callback = object: MotionCallback {
@@ -679,7 +684,9 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
             keyboardHeightProvider.start()
         }
 
-        hiddenCamera.initWithActivity(this)
+        if (SharedPrefsHelper.getInstance().isFaceIdEnable) {
+            hiddenCamera.initWithActivity(this)
+        }
     }
 
     private fun handleShakePhone() {

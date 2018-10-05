@@ -3,8 +3,11 @@ package com.ping.android.presentation.view.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
+import com.bzzzchat.videorecorder.view.facerecognization.FaceRecognition;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -32,11 +35,13 @@ import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
 import com.ping.android.utils.KeyboardHelpers;
+import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.bus.BusProvider;
 import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +83,9 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         setContentView(R.layout.activity_main);
 
         init();
+        if (SharedPrefsHelper.getInstance().isFaceIdEnable() && SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+            FaceRecognition.getInstance().trainModel();
+        }
     }
 
     @Override

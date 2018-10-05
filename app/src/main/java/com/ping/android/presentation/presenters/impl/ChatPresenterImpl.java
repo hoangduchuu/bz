@@ -142,6 +142,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
+
+    private boolean isUserRecognized = false;
     /**
      * Collections that contains new message update when chat screen come background
      */
@@ -352,6 +354,9 @@ public class ChatPresenterImpl implements ChatPresenter {
             higherHeaderItem = entry.getValue();
         }
         MessageBaseItem item = null;
+        if (isUserRecognized) {
+            message.isMask = false;
+        }
         if (message.type == MessageType.IMAGE_GROUP) {
             if (!message.isCached) {
                 for (Message child: message.childMessages) {
@@ -370,6 +375,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 message.localFilePath = localCacheFile.get(message.key);
             }
         }
+
         if (item == null) {
             message.opponentUser = conversation.opponentUser;
             item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
@@ -885,6 +891,13 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }, params);
 
+    }
+
+    @Override
+    public void userRecognized() {
+        isUserRecognized = true;
+
+        // TODO should refresh chat screen
     }
 
     private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {

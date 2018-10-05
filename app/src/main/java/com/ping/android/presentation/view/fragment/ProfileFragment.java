@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bzzzchat.videorecorder.view.facerecognization.FaceRecognition;
 import com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity;
 import com.ping.android.R;
 import com.ping.android.model.User;
@@ -23,6 +25,7 @@ import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
+import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
@@ -47,7 +50,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private TextView tvName;
     private SwitchCompat rbNotification, rbShowProfile;
     private SwitchCompat faceId;
-    private View faceTrainingItem;
+    private SettingItem faceTrainingItem;
 
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
@@ -104,7 +107,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         if (!SharedPrefsHelper.getInstance().isFaceIdEnable()) {
             faceTrainingItem.setVisibility(View.GONE);
         } else {
-            faceTrainingItem.setVisibility(View.VISIBLE);
+            showFaceTrainingItem();
         }
 
     }
@@ -168,14 +171,30 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceId.isChecked()) {
             faceTrainingItem.setVisibility(View.GONE);
+            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+            FaceRecognition.getInstance().releaseResource();
         } else {
-            faceTrainingItem.setVisibility(View.VISIBLE);
+            showFaceTrainingItem();
+        }
+    }
+
+    private void showFaceTrainingItem() {
+        faceTrainingItem.setVisibility(View.VISIBLE);
+        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+            faceTrainingItem.setTitle("Delete trained data");
+        } else {
+            faceTrainingItem.setTitle("Face training");
         }
     }
 
     private void onTrainingFace() {
-        Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
-        startActivity(intent);
+        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+            showFaceTrainingItem();
+        } else {
+            Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
+            startActivityForResult(intent, 1111);
+        }
     }
 
     @Override
@@ -271,6 +290,13 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (imagePickerHelper != null) {
             imagePickerHelper.onActivityResult(requestCode, resultCode, data);
+        }
+        if (requestCode == 1111) {
+            if (resultCode == Activity.RESULT_OK) {
+                SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(true);
+                showFaceTrainingItem();
+                FaceRecognition.getInstance().trainModel();
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
