@@ -61,6 +61,7 @@ import com.ping.android.utils.configs.Constant
 import com.ping.android.utils.extensions.simpleName
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
+import kotlinx.android.synthetic.main.activity_chat.view.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
 import kotlinx.android.synthetic.main.view_chat_top.*
 import java.io.File
@@ -1177,11 +1178,11 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private fun handleEmojiPressed() {
         if (emojiContainerView == null) {
-            emojiContainerView = EmojiContainerView()
-            emojiContainerView?.init(this, container, edMessage!!)
-            bottom_view_container.addView(emojiContainerView!!.emojiView)
+            emojiContainerView = EmojiContainerView(this)
+            emojiContainerView?.show(currentBottomHeight,container,edMessage)
+            bottom_view_container.addView(emojiContainerView)
         }
-        emojiContainerView?.show(currentBottomHeight)
+        emojiContainerView?.show(currentBottomHeight, container, edMessage)
         hideVoiceRecordView()
         hideMediaPickerView()
         shouldHideBottomView = false
