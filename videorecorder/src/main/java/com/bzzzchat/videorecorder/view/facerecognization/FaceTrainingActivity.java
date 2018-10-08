@@ -108,10 +108,13 @@ public class FaceTrainingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_training);
         context = getApplicationContext();
         takePictureButton = findViewById(R.id.btn_takepicture);
-        mPreview = (CameraSourcePreview) findViewById(R.id.preview);
-        mGraphicOverlay = (GraphicOverlay) findViewById(R.id.faceOverlay);
-        ivAutoFocus = (ImageView) findViewById(R.id.ivAutoFocus);
+        mPreview = findViewById(R.id.preview);
+        mGraphicOverlay = findViewById(R.id.faceOverlay);
+        ivAutoFocus = findViewById(R.id.ivAutoFocus);
         progress = findViewById(R.id.progress);
+
+        File trainingFolder = new File(FaceRecognition.getInstance().getTrainingFolder());
+        trainingFolder.delete();
 
         if(checkGooglePlayAvailability()) {
             requestPermissionThenOpenCamera();
@@ -234,19 +237,20 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                             if (faces.size() > 0) {
                                                 FirebaseVisionFace face = faces.get(0);
                                                 Rect rect = face.getBoundingBox();
-                                                int smallestDimension = rect.width() > rect.height() ? rect.height() : rect.width();
+                                                int largestDimension = rect.width() > rect.height() ? rect.width() : rect.height();
 //                                                Rect sourceRect = new Rect(rect.left + (rect.width() - smallestDimension) / 2,
 //                                                        rect.top + (rect.height() - smallestDimension) / 2,
 //                                                        smallestDimension,
 //                                                        smallestDimension);
                                                 Rect sourceRect = rect;
-                                                Rect destRect = new Rect(0, 0, smallestDimension, smallestDimension);
+                                                Rect destRect = new Rect(0, 0, largestDimension, largestDimension);
                                                 //Bitmap faceBitmap = Bitmap.createBitmap(finalPicture, rect.left, rect.top, rect.width(), rect.height());
-                                                Bitmap faceBitmap = Bitmap.createBitmap(smallestDimension, smallestDimension, Bitmap.Config.ARGB_8888);
+                                                Bitmap faceBitmap = Bitmap.createBitmap(largestDimension, largestDimension, Bitmap.Config.ARGB_8888);
                                                 Canvas canvas = new Canvas(faceBitmap);
                                                 canvas.drawBitmap(finalPicture, sourceRect, destRect, null);
                                                 int finalWidth = Configs.INSTANCE.getModelDimension();
                                                 faceBitmap = Bitmap.createScaledBitmap(faceBitmap, finalWidth, finalWidth, true);
+                                                faceBitmap = Utils.convertTo565(faceBitmap);
                                                 //faceBitmap = Utils.toGrayscale(faceBitmap);
                                                 FileOutputStream out = null;
                                                 try {

@@ -206,4 +206,27 @@ public class Utils {
         }
 
     }
+
+    public static Bitmap convertTo565(final Bitmap origin) {
+
+        if (origin == null) {
+
+            return null;
+        }
+
+        Bitmap bitmap = origin;
+
+        if (bitmap.getConfig() != Bitmap.Config.RGB_565) {
+
+            bitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
+        }
+
+        if ((bitmap.getWidth() & 0x1) != 0) {
+
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth() & ~0x1,
+                    bitmap.getHeight());
+        }
+
+        return bitmap;
+    }
 }

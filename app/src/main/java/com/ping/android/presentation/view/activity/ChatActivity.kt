@@ -116,19 +116,6 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         dialog
     }
 
-    private val prefs: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(this)
-    }
-
-//    private val listener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
-//        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-//            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
-//                val messageCount = prefs.getInt(key, 0)
-//                updateMessageCount(messageCount)
-//            }
-//        }
-//    }
-
     private var textWatcher: TextWatcher? = null
 
     private val hiddenCamera: HiddenCamera by lazy {
@@ -685,7 +672,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
 
         if (SharedPrefsHelper.getInstance().isFaceIdEnable) {
-            hiddenCamera.initWithActivity(this)
+            //hiddenCamera.initWithActivity(this)
         }
     }
 

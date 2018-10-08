@@ -37,8 +37,8 @@ interface RecognitionCallback {
 
 class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private val TAG = "HiddenCamera"
-    private val confidenceThreshold = 60
-    private val minConfidenceThreshold = 50
+    private val confidenceThreshold = 30
+    private val minConfidenceThreshold = 20
     private lateinit var cameraPreview: CameraSourcePreview
     private lateinit var previewFaceDetector: FaceDetector
     private lateinit var myDetector: MyFaceDetector
@@ -113,13 +113,14 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                     if (faces.size > 0) {
                         val face = faces[0]
                         val rect = face.boundingBox
-                        val smallestDimension = if (rect.width() > rect.height()) rect.height() else rect.width()
-                        val destRect = Rect(0, 0, smallestDimension, smallestDimension)
-                        var faceBitmap = Bitmap.createBitmap(smallestDimension, smallestDimension, Bitmap.Config.ARGB_8888)
+                        val largestDimension = if (rect.width() > rect.height()) rect.width() else rect.height()
+                        val destRect = Rect(0, 0, largestDimension, largestDimension)
+                        var faceBitmap = Bitmap.createBitmap(largestDimension, largestDimension, Bitmap.Config.ARGB_8888)
                         val canvas = Canvas(faceBitmap)
                         canvas.drawBitmap(finalPicture, rect, destRect, null)
                         val finalWidth = Configs.modelDimension
                         faceBitmap = Bitmap.createScaledBitmap(faceBitmap, finalWidth, finalWidth, true)
+                        faceBitmap = Utils.convertTo565(faceBitmap)
                         //faceBitmap = Utils.toGrayscale(faceBitmap)
                         var out: FileOutputStream? = null
                         try {

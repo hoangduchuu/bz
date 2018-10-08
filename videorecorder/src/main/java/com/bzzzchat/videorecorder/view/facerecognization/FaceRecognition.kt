@@ -8,7 +8,7 @@ import org.bytedeco.javacpp.DoublePointer
 import org.bytedeco.javacpp.IntPointer
 import org.bytedeco.javacpp.opencv_core.*
 import org.bytedeco.javacpp.opencv_face
-import org.bytedeco.javacpp.opencv_face.*
+import org.bytedeco.javacpp.opencv_face.LBPHFaceRecognizer
 import org.bytedeco.javacpp.opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE
 import org.bytedeco.javacpp.opencv_imgcodecs.imread
 import java.io.File
@@ -28,7 +28,6 @@ class FaceRecognition {
 
     fun getTrainingFolder(): String {
         val trainingFolder = File(Environment.getExternalStorageDirectory(), "training")
-        trainingFolder.delete()
         if (!trainingFolder.exists()) {
             trainingFolder.mkdirs()
         }
