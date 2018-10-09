@@ -49,7 +49,7 @@ class FaceRecognition {
 
 //        FaceRecognizer faceRecognizer = FisherFaceRecognizer.create();
 //        faceRecognizer = EigenFaceRecognizer.create()
-        faceRecognizer = LBPHFaceRecognizer.create(1, 8, 8, 8, threshold)
+        faceRecognizer = LBPHFaceRecognizer.create(2, 8, 8, 8, threshold)
         faceRecognizer?.train(images, labels)
     }
 

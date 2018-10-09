@@ -6,15 +6,15 @@
     android:orientation="horizontal"
     android:fitsSystemWindows="false">
 
-    <com.bzzzchat.videorecorder.view.facerecognization.others.CameraSourcePreview
+    <com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePreview
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.bzzzchat.videorecorder.view.facerecognization.others.GraphicOverlay
+        <com.bzzzchat.videorecorder.view.facerecognition.others.GraphicOverlay
             android:id="@+id/faceOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-    </com.bzzzchat.videorecorder.view.facerecognization.others.CameraSourcePreview>
+    </com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePreview>
 
     <ImageView
         android:id="@+id/ivAutoFocus"

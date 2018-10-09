@@ -15,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bzzzchat.videorecorder.view.facerecognization.FaceRecognition;
-import com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity;
+import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
+import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity;
 import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
@@ -194,6 +194,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         } else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
             startActivityForResult(intent, 1111);
+//            Intent intent = new Intent(getContext(), AddPersonPreviewActivity.class);
+//            intent.putExtra("Name", "admin");
+//            intent.putExtra("Method", AddPersonPreviewActivity.TIME);
+//            intent.putExtra("Folder", "Training");
+//            startActivity(intent);
         }
     }
 

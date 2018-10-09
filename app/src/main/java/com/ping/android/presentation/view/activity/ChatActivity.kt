@@ -8,7 +8,6 @@ import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -31,8 +30,8 @@ import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.dp
 import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.*
-import com.bzzzchat.videorecorder.view.facerecognization.HiddenCamera
-import com.bzzzchat.videorecorder.view.facerecognization.RecognitionCallback
+import com.bzzzchat.videorecorder.view.facerecognition.HiddenCamera
+import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
@@ -57,7 +56,6 @@ import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
-import com.ping.android.utils.extensions.simpleName
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
@@ -672,7 +670,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
 
         if (SharedPrefsHelper.getInstance().isFaceIdEnable) {
-            //hiddenCamera.initWithActivity(this)
+            hiddenCamera.initWithActivity(this)
         }
     }
 

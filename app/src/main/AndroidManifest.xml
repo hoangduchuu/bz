@@ -217,9 +217,11 @@
         <activity
             android:name=".presentation.view.activity.GroupImageGalleryActivity"
             android:theme="@style/AppTheme.NoActionBar.Transparent1" />
-        <activity android:name="com.bzzzchat.videorecorder.view.facerecognization.FaceTrainingActivity">
+        <activity android:name="com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity">
 
         </activity>
+
+        <activity android:name="ch.zhaw.facerecognitionlibrary.activity.AddPersonPreviewActivity" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

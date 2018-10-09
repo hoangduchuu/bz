@@ -31,6 +31,12 @@ ext {
     anko_version = "0.10.4"
 }
 
+repositories {
+    maven {
+        url  "http://dl.bintray.com/qualeams/Android-Face-Recognition-Deep-Learning-Library"
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':configuration')
