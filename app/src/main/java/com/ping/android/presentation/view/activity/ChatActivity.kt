@@ -58,10 +58,8 @@ import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.configs.Constant
-import com.ping.android.utils.extensions.simpleName
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
-import kotlinx.android.synthetic.main.activity_chat.view.*
 import kotlinx.android.synthetic.main.view_chat_bottom.*
 import kotlinx.android.synthetic.main.view_chat_top.*
 import java.io.File
@@ -70,7 +68,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener, KeyboardHeightObserver {
+class ChatActivity : CoreActivity(),
+        ChatPresenter.View,
+        View.OnClickListener,
+        ChatMessageAdapter.ChatMessageListener,
+        KeyboardHeightObserver, StickerEmmiter, GiftEmmiter {
     private val TAG = "Ping: " + this.javaClass.simpleName
 
     //Views UI
@@ -543,7 +545,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         tvChatName!!.transitionName = conversationTransionName
 
         edMessage = findViewById(R.id.chat_message_tv)
-        edMessage.listener = object: MediaSelectionListener {
+        edMessage.listener = object : MediaSelectionListener {
             override fun onMediaSelected(uri: Uri, description: ClipDescription) {
                 var fileName = uri.lastPathSegment
                 val fileExtension = MimeTypeMap.getSingleton()
@@ -685,6 +687,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         presenter.loadMoreMessage(lastMessage.timestamp)
     }
+
     private var messageBeforeChange = ""
 
     private fun initTextWatcher() {
@@ -1177,17 +1180,21 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun handleEmojiPressed() {
+
         if (emojiContainerView == null) {
             emojiContainerView = EmojiContainerView(this)
-            emojiContainerView?.show(currentBottomHeight,container,edMessage)
+            registerEmmiter()
+            emojiContainerView?.show(currentBottomHeight, container, edMessage)
             bottom_view_container.addView(emojiContainerView)
         }
+        registerEmmiter()
         emojiContainerView?.show(currentBottomHeight, container, edMessage)
         hideVoiceRecordView()
         hideMediaPickerView()
         shouldHideBottomView = false
         KeyboardHelpers.hideSoftInputKeyboard(this)
         showBottomView()
+
     }
 
     private fun openMediaPicker() {
@@ -1273,6 +1280,32 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
+    /**
+     * callback while sticker selected
+     */
+    override fun onStickerSelected(resourceId: Int) {
+        // send sticker
+        Log.e("$TAG Emmiter sticker $resourceId")
+        Toaster.shortToast("$TAG Emmited sticker position $resourceId")
+    }
+
+    /**
+     * callback while Gift  selected
+     */
+    override fun onGiftSelected(gifId: String) {
+        // send gif
+        Log.e("$TAG Emmited giftid $gifId")
+        presenter.sendImageMessage(gifId, gifId, false)
+
+    }
+
+    /**
+     * register emiter to hold data from  EmojiContainerView.kt
+     */
+    private fun registerEmmiter() {
+        emojiContainerView?.setGifsEmmiter(this)
+        emojiContainerView?.setStickerEmmiter(this)
+    }
     // endregion
 
     private var initialized = false

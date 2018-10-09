@@ -8,14 +8,25 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bzzzchat.configuration.GlideApp
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
+import com.ping.android.presentation.view.adapter.StickerAdapter
 import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
+import kotlinx.android.synthetic.main.activity_new_chat.view.*
 import kotlinx.android.synthetic.main.view_emo.view.*
+
+interface StickerEmmiter {
+    fun onStickerSelected(resourceID: Int)
+}
+
+interface GiftEmmiter {
+    fun onGiftSelected(gifId: String)
+}
 
 class EmojiContainerView : LinearLayout {
     lateinit var recentEmoji: RecentEmoji
@@ -24,6 +35,10 @@ class EmojiContainerView : LinearLayout {
     lateinit var emojiView: EmojiView
     private lateinit var edMessage: EmojiGifEditText
     lateinit var mContext: Context
+    private var stickerEmmiter: StickerEmmiter? = null
+    private var giftEmmiter: GiftEmmiter? = null
+    private lateinit var adapter: StickerAdapter
+    private lateinit var container: ConstraintLayout
 
 
     var viewList = ArrayList<TextView>()
@@ -34,12 +49,14 @@ class EmojiContainerView : LinearLayout {
     }
 
     lateinit var cloneView2: ImageView
-    lateinit var cloneView3: ImageView
+    //    lateinit var cloneView3: ImageView
+    lateinit var rvStickers: RecyclerView
+
     private fun initView() {
         inflate(R.layout.view_emo, true)
-        bte1.setOnClickListener { t -> show1(t) }
-        bte2.setOnClickListener { t -> show2(t) }
-        bte3.setOnClickListener { t -> show3(t!!) }
+        bte1.setOnClickListener { t -> showStickerSection(t) }
+        bte2.setOnClickListener { t -> showGiftSection(t) }
+        bte3.setOnClickListener { t -> showEmojSection(t) }
 
         viewList.add(bte1)
         viewList.add(bte2)
@@ -60,36 +77,41 @@ class EmojiContainerView : LinearLayout {
     }
 
     fun show(currentHeight: Int, container: ConstraintLayout, edMessage: EmojiGifEditText) {
+        this.container = container
+        this.edMessage = edMessage
         setSelectedColor(bte1)
-        init1(context, container, edMessage)
+
         root_container.visibility = View.VISIBLE
         root_container.layoutParams.let {
             it.height = currentHeight
         }
         clearAllView()
-        emo_content.addView(emojiView)
+        initStickers()
+
+
     }
 
-    private fun show1(view: View) {
+    private fun showEmojSection(view: View) {
         setSelectedColor(view)
         clearAllView()
-        emo_content.addView(emojiView)
+        initEmoj(context, container, edMessage)
+
+
     }
 
-    private fun show2(v: View) {
+    private fun showGiftSection(v: View) {
         setSelectedColor(v)
         clearAllView()
-        init2()
+        initGifts()
     }
 
-    private fun show3(v: View) {
-        v.setBackgroundColor(android.graphics.Color.RED)
+    private fun showStickerSection(v: View) {
         setSelectedColor(v)
         clearAllView()
-        init3()
+        initStickers()
     }
 
-    private fun init1(context: Context, rootView: ViewGroup, editInterface: EmojiEditTextInterface?) {
+    private fun initEmoj(context: Context, rootView: ViewGroup, editInterface: EmojiEditTextInterface?) {
         val clickListener = OnEmojiClickListener { imageView, emoji ->
             editInterface?.input(emoji)
 
@@ -108,25 +130,55 @@ class EmojiContainerView : LinearLayout {
         emojiView.setOnEmojiBackspaceClickListener { v ->
             editInterface?.backspace()
         }
+        emo_content.addView(emojiView)
     }
 
-    private fun init2() {
+    private fun initGifts() {
         cloneView2 = ImageView(context)
         cloneView2.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         cloneView2.setImageResource(R.mipmap.ic_launcher)
+
+        cloneView2.setOnClickListener { giftEmmiter?.onGiftSelected("https://i-thethao.vnecdn.net/2018/10/09/anhtop-1539054818-9688-1539054825_r_140x84.jpg") }
+
         emo_content.addView(cloneView2)
     }
 
-    private fun init3() {
-        cloneView3 = ImageView(context)
-        cloneView3.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        GlideApp.with(this)
-                .asBitmap()
-                .load("https://i-thethao.vnecdn.net/2018/10/09/anhtop-1539054818-9688-1539054825_r_140x84.jpg")
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(cloneView3)
-        emo_content.addView(cloneView3)
+    private fun initStickers() {
+
+        // fake
+        val stickerItems = ArrayList<Int>()
+        for (i in 1..4) {
+            stickerItems.add(R.drawable.ic_avatar_color)
+            stickerItems.add(R.drawable.ic_add)
+            stickerItems.add(R.drawable.ic_add_filled)
+            stickerItems.add(R.drawable.ic_arrow_up)
+            stickerItems.add(R.drawable.ic_arrow_right)
+            stickerItems.add(R.drawable.ic_arrow_up)
+            stickerItems.add(R.drawable.ic_block_outline)
+            stickerItems.add(R.drawable.ic_error_outline)
+            stickerItems.add(R.drawable.ic_error_outline)
+        }
+        adapter = StickerAdapter(stickerItems, context, stickerEmmiter!!)
+
+
+        rvStickers = RecyclerView(context)
+        rvStickers.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+
+
+        rvStickers.layoutManager = LinearLayoutManager(context)
+        rvStickers.layoutManager = GridLayoutManager(context, 3)
+        rvStickers.adapter = adapter
+        adapter.setEmmiter(stickerEmmiter!!)
+        emo_content.addView(rvStickers)
+
+    }
+
+    public fun setStickerEmmiter(emmiter: StickerEmmiter) {
+        this.stickerEmmiter = emmiter
+    }
+
+    public fun setGifsEmmiter(emmiter: GiftEmmiter) {
+        this.giftEmmiter = emmiter
     }
 
     private fun clearAllView() {
