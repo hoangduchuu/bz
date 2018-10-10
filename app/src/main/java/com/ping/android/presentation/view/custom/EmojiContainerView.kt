@@ -13,11 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
-import com.ping.android.presentation.view.adapter.StickerAdapter
+import com.ping.android.presentation.view.adapter.sticker.StickerAdapter
 import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
-import kotlinx.android.synthetic.main.activity_new_chat.view.*
 import kotlinx.android.synthetic.main.view_emo.view.*
 
 interface StickerEmmiter {
@@ -86,7 +85,7 @@ class EmojiContainerView : LinearLayout {
             it.height = currentHeight
         }
         clearAllView()
-        initStickers()
+        initStickers2()
 
 
     }
@@ -108,7 +107,14 @@ class EmojiContainerView : LinearLayout {
     private fun showStickerSection(v: View) {
         setSelectedColor(v)
         clearAllView()
-        initStickers()
+        initStickers2()
+    }
+    lateinit var stickerView: StickerView
+
+    private fun initStickers2() {
+        stickerView = StickerView(context)
+
+        emo_content.addView(stickerView)
     }
 
     private fun initEmoj(context: Context, rootView: ViewGroup, editInterface: EmojiEditTextInterface?) {
@@ -158,7 +164,7 @@ class EmojiContainerView : LinearLayout {
             stickerItems.add(R.drawable.ic_error_outline)
             stickerItems.add(R.drawable.ic_error_outline)
         }
-        adapter = StickerAdapter(stickerItems, context, stickerEmmiter!!)
+        adapter = StickerAdapter(stickerItems, context)
 
 
         rvStickers = RecyclerView(context)
@@ -168,7 +174,7 @@ class EmojiContainerView : LinearLayout {
         rvStickers.layoutManager = LinearLayoutManager(context)
         rvStickers.layoutManager = GridLayoutManager(context, 3)
         rvStickers.adapter = adapter
-        adapter.setEmmiter(stickerEmmiter!!)
+//        adapter.setEmmiter(stickerEmmiter!!)
         emo_content.addView(rvStickers)
 
     }

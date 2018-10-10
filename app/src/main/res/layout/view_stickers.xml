@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+<androidx.recyclerview.widget.RecyclerView
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:id="@+id/rvStickerCategory"
+    android:layout_height="50dp">
+
+</androidx.recyclerview.widget.RecyclerView>
+    <LinearLayout
+        android:id="@+id/sticker_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="50dp"
+        android:orientation="vertical">
+
+
+    </LinearLayout>
+
+
+</LinearLayout>
