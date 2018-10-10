@@ -2,14 +2,15 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/ivSticker"
-	android:layout_width="100dp"
-	android:layout_height="100dp"
+	android:layout_width="70dp"
+	android:layout_height="70dp"
 	android:contentDescription="no"
 	android:orientation="vertical"
-	android:paddingLeft="10dp"
+	android:padding="5dp"
+
 	android:scaleType="centerCrop"
 	
-	android:src="@color/red"
+
 	tools:src="@drawable/ic_add_circle">
 
 

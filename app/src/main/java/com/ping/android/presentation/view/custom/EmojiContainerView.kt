@@ -8,26 +8,25 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
-import com.ping.android.presentation.view.adapter.sticker.StickerAdapter
 import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
 
 interface StickerEmmiter {
-    fun onStickerSelected(resourceID: Int)
+    fun onStickerSelected(stickerPath: String)
 }
 
 interface GiftEmmiter {
     fun onGiftSelected(gifId: String)
 }
 
-class EmojiContainerView : LinearLayout {
+class EmojiContainerView : LinearLayout, StickerEmmiter {
+
+
     lateinit var recentEmoji: RecentEmoji
     lateinit var variantEmoji: VariantEmoji
     lateinit var variantPopup: EmojiVariantPopup
@@ -36,7 +35,6 @@ class EmojiContainerView : LinearLayout {
     lateinit var mContext: Context
     private var stickerEmmiter: StickerEmmiter? = null
     private var giftEmmiter: GiftEmmiter? = null
-    private lateinit var adapter: StickerAdapter
     private lateinit var container: ConstraintLayout
 
 
@@ -75,7 +73,8 @@ class EmojiContainerView : LinearLayout {
         root_container.visibility = View.INVISIBLE
     }
 
-    fun show(currentHeight: Int, container: ConstraintLayout, edMessage: EmojiGifEditText) {
+    fun show(currentHeight: Int, container: ConstraintLayout, edMessage: EmojiGifEditText, stickerEmmiter: StickerEmmiter) {
+        this.stickerEmmiter = stickerEmmiter
         this.container = container
         this.edMessage = edMessage
         setSelectedColor(bte1)
@@ -109,14 +108,16 @@ class EmojiContainerView : LinearLayout {
         clearAllView()
         initStickers2()
     }
+
     lateinit var stickerView: StickerView
 
     private fun initStickers2() {
         stickerView = StickerView(context)
-
+        registerEmmiteroStickerView()
         emo_content.addView(stickerView)
-    }
 
+    }
+    
     private fun initEmoj(context: Context, rootView: ViewGroup, editInterface: EmojiEditTextInterface?) {
         val clickListener = OnEmojiClickListener { imageView, emoji ->
             editInterface?.input(emoji)
@@ -149,35 +150,6 @@ class EmojiContainerView : LinearLayout {
         emo_content.addView(cloneView2)
     }
 
-    private fun initStickers() {
-
-        // fake
-        val stickerItems = ArrayList<Int>()
-        for (i in 1..4) {
-            stickerItems.add(R.drawable.ic_avatar_color)
-            stickerItems.add(R.drawable.ic_add)
-            stickerItems.add(R.drawable.ic_add_filled)
-            stickerItems.add(R.drawable.ic_arrow_up)
-            stickerItems.add(R.drawable.ic_arrow_right)
-            stickerItems.add(R.drawable.ic_arrow_up)
-            stickerItems.add(R.drawable.ic_block_outline)
-            stickerItems.add(R.drawable.ic_error_outline)
-            stickerItems.add(R.drawable.ic_error_outline)
-        }
-        adapter = StickerAdapter(stickerItems, context)
-
-
-        rvStickers = RecyclerView(context)
-        rvStickers.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
-
-        rvStickers.layoutManager = LinearLayoutManager(context)
-        rvStickers.layoutManager = GridLayoutManager(context, 3)
-        rvStickers.adapter = adapter
-//        adapter.setEmmiter(stickerEmmiter!!)
-        emo_content.addView(rvStickers)
-
-    }
 
     public fun setStickerEmmiter(emmiter: StickerEmmiter) {
         this.stickerEmmiter = emmiter
@@ -198,4 +170,19 @@ class EmojiContainerView : LinearLayout {
             else viewList[i].background = context.getDrawable(R.drawable.background_button_emo_selected)
         }
     }
+
+    /**
+     *   callback to ChatActivity
+     */
+    override fun onStickerSelected(stickerPath: String) {
+        stickerEmmiter?.onStickerSelected(stickerPath)
+    }
+
+    /**
+     * register listener to stickerView
+     */
+    private fun registerEmmiteroStickerView() {
+        stickerView.setEmmitter(this)
+    }
+
 }

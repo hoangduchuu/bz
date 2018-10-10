@@ -1184,11 +1184,11 @@ class ChatActivity : CoreActivity(),
         if (emojiContainerView == null) {
             emojiContainerView = EmojiContainerView(this)
             registerEmmiter()
-            emojiContainerView?.show(currentBottomHeight, container, edMessage)
+            emojiContainerView?.show(currentBottomHeight, container, edMessage,this)
             bottom_view_container.addView(emojiContainerView)
         }
         registerEmmiter()
-        emojiContainerView?.show(currentBottomHeight, container, edMessage)
+        emojiContainerView?.show(currentBottomHeight, container, edMessage,this)
         hideVoiceRecordView()
         hideMediaPickerView()
         shouldHideBottomView = false
@@ -1283,10 +1283,11 @@ class ChatActivity : CoreActivity(),
     /**
      * callback while sticker selected
      */
-    override fun onStickerSelected(resourceId: Int) {
+    override fun onStickerSelected(stickerPath: String) {
         // send sticker
-        Log.e("$TAG Emmiter sticker $resourceId")
-        Toaster.shortToast("$TAG Emmited sticker position $resourceId")
+        Toaster.shortToast("$TAG Emmited sticker position $stickerPath")
+        presenter.sendSticker(stickerPath,stickerPath)
+
     }
 
     /**
@@ -1294,7 +1295,6 @@ class ChatActivity : CoreActivity(),
      */
     override fun onGiftSelected(gifId: String) {
         // send gif
-        Log.e("$TAG Emmited giftid $gifId")
         presenter.sendImageMessage(gifId, gifId, false)
 
     }
@@ -1305,6 +1305,11 @@ class ChatActivity : CoreActivity(),
     private fun registerEmmiter() {
         emojiContainerView?.setGifsEmmiter(this)
         emojiContainerView?.setStickerEmmiter(this)
+
+
+
+
+//        presenter.sendImageMessage()
     }
     // endregion
 

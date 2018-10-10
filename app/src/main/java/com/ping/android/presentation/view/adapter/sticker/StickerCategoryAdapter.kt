@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ping.android.R
+import com.ping.android.utils.Log
 import kotlinx.android.synthetic.main.item_sticker.view.*
 
 /**
@@ -21,11 +22,12 @@ class StickerCategoryAdapter(val stickers: ArrayList<Int>, val context: Context)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-//        setEmmiter()
+//        setListener()
         holder.ivSticker.setImageDrawable(context.getDrawable(stickers[position]))
 
+        Log.e("Compare: $position and ${holder.layoutPosition}")
 
-//        holder.ivSticker.setOnClickListener { stickerEmmiter.onStickerSelected(position) }
+
     }
 
 
@@ -34,9 +36,5 @@ class StickerCategoryAdapter(val stickers: ArrayList<Int>, val context: Context)
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivSticker = view.ivSticker
     }
-
-//    public fun setEmmiter(emmiter: StickerEmmiter) {
-//        this.stickerEmmiter = emmiter
-//    }
 
 }

@@ -69,6 +69,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendSticker(@NotNull File file, boolean isMask);
 
+    void sendSticker(String category, String fileName);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

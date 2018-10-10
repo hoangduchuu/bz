@@ -887,6 +887,31 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     }
 
+    @Override
+    public void sendSticker(String category, String fileName) {
+        if (!beAbleToSendMessage()) return;
+//        String url = category + "_" + fileName;
+        String url = category.replace("/","_");
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.STICKER)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.TEXT);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
     private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, messageId, message, messageType));
