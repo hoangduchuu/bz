@@ -245,7 +245,10 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                                 Bitmap faceBitmap = Utils.getFaceFromBitmap(finalPicture, face);
                                                 String fileName = "1-user_" + index +  ".png";
                                                 File file = new File(FaceRecognition.getInstance().getTrainingFolder(), fileName);
-                                                Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.getAbsolutePath());
+                                                //Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.getAbsolutePath());
+                                                Utils.saveBitmap(faceBitmap, file.getAbsolutePath());
+                                                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
+                                                Utils.smooth(file.getAbsolutePath());
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {

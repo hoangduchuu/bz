@@ -27,12 +27,13 @@ import com.bzzzchat.videorecorder.view.facerecognition.Configs;
 import com.google.android.gms.common.images.Size;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
+import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_imgproc;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,6 +42,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+
+import static com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark.LEFT_EYE;
+import static com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark.RIGHT_EYE;
+import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
+import static org.bytedeco.javacpp.opencv_imgcodecs.*;
 
 public class Utils {
 
@@ -258,16 +265,16 @@ public class Utils {
 
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
         Rect rect = face.getBoundingBox();
-        int smallestDimension = rect.width() > rect.height() ? rect.height() : rect.width();
+        int largestDimension = rect.width() > rect.height() ? rect.width() : rect.height();
         int diff = Math.abs(rect.width() - rect.height()) / 4;
-        Rect sourceRect = new Rect(rect.centerX() - smallestDimension / 2 - diff,
-                rect.centerY() - smallestDimension / 2 - diff,
-                rect.centerX() + smallestDimension / 2 + diff,
-                rect.centerY() + smallestDimension / 2 + diff);
-        //Rect sourceRect = new Rect();
-        Rect destRect = new Rect(0, 0, smallestDimension, smallestDimension);
+        Rect sourceRect = new Rect(rect.centerX() - largestDimension / 2 - diff,
+                rect.centerY() - largestDimension / 2 - diff,
+                rect.centerX() + largestDimension / 2 + diff,
+                rect.centerY() + largestDimension / 2 + diff);
+        //Rect sourceRect = new Rect(rect.left, rect.bottom - smallestDimension, rect.right, rect.bottom);
+        Rect destRect = new Rect(0, 0, largestDimension, largestDimension);
         //Bitmap faceBitmap = Bitmap.createBitmap(finalPicture, rect.left, rect.top, rect.width(), rect.height());
-        Bitmap faceBitmap = Bitmap.createBitmap(smallestDimension, smallestDimension, Bitmap.Config.ARGB_8888);
+        Bitmap faceBitmap = Bitmap.createBitmap(largestDimension, largestDimension, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(faceBitmap);
         canvas.drawBitmap(bitmap, sourceRect, destRect, null);
         int finalWidth = Configs.modelDimension;
@@ -294,5 +301,120 @@ public class Utils {
 
     public static void preProcessBitmap(Bitmap faceBitmap) {
 
+    }
+
+    public static void smooth(String filename) {
+        opencv_core.Mat image = imread(filename);
+        if (image != null) {
+            opencv_imgproc.GaussianBlur(image, image, new opencv_core.Size(3, 3), 0.0);
+            imwrite(filename, image);
+        }
+    }
+
+    public static void saveBitmap(Bitmap source, String filePath) {
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(filePath);
+            source.compress(Bitmap.CompressFormat.PNG, 95, out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     *  \brief Automatic brightness and contrast optimization with optional histogram clipping
+     *  \param [in]src Input image GRAY or BGR or BGRA
+     *  \param [out]dst Destination image
+     *  \param clipHistPercent cut wings of histogram at given percent tipical=>1, 0=>Disabled
+     *  \note In case of BGRA image, we won't touch the transparency
+     */
+    public static opencv_core.Mat brightnessAndContrastAuto(String filePath)
+    {
+        opencv_core.Mat source = imread(filePath, CV_LOAD_IMAGE_GRAYSCALE);
+        double[] minVal = new double[2], maxVal = new double[2];
+        minMaxLoc(source, minVal, maxVal, null, null, null);
+//        CV_Assert(clipHistPercent >= 0);
+//        CV_Assert((src.type() == CV_8UC1) || (src.type() == CV_8UC3) || (src.type() == CV_8UC4));
+
+        int histSize = 256;
+        float alpha, beta;
+        double minGray = minVal[0], maxGray = maxVal[0];
+
+
+//        int l_bins = 20;
+//        int hist_size[] = {l_bins};
+//
+//        float v_ranges[] = {0, 100};
+//        float ranges[][] = {v_ranges};
+//
+//        //to calculate grayscale histogram
+//        opencv_core.Mat gray;
+//        if (src.type() == CV_8UC1) gray = src;
+//        else if (src.type() == CV_8UC3) cvtColor(src, gray, CV_BGR2GRAY);
+//        else if (src.type() == CV_8UC4) cvtColor(src, gray, CV_BGRA2GRAY);
+//        opencv_core.CvHistogram histogram = opencv_core.CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
+//
+//        if (clipHistPercent == 0) {
+//            // keep full available range
+//            minMaxLoc(gray, minGray, maxGray);
+//        }  else  {
+//            opencv_core.Mat hist; //the grayscale histogram
+//
+//            float range[] = { 0, 256 };
+//            histo
+//        const float* histRange = { range };
+//            bool uniform = true;
+//            bool accumulate = false;
+//            calcHist(&gray, 1, 0, cv::Mat (), hist, 1, &histSize, &histRange, uniform, accumulate);
+//
+//            // calculate cumulative distribution from the histogram
+//            std::vector<float> accumulator(histSize);
+//            accumulator[0] = hist.at<float>(0);
+//            for (int i = 1; i < histSize; i++)
+//            {
+//                accumulator[i] = accumulator[i - 1] + hist.at<float>(i);
+//            }
+//
+//            // locate points that cuts at required value
+//            float max = accumulator.back();
+//            clipHistPercent *= (max / 100.0); //make percent as absolute
+//            clipHistPercent /= 2.0; // left and right wings
+//            // locate left cut
+//            minGray = 0;
+//            while (accumulator[minGray] < clipHistPercent)
+//                minGray++;
+//
+//            // locate right cut
+//            maxGray = histSize - 1;
+//            while (accumulator[maxGray] >= (max - clipHistPercent))
+//                maxGray--;
+//        }
+
+        // current range
+        float inputRange = (float) (maxGray - minGray);
+
+        alpha = (histSize - 1) / inputRange;   // alpha expands current range to histsize range
+        beta = (float) (-minGray * alpha);             // beta shifts current range so that minGray will go to 0
+
+        // Apply brightness and contrast normalization
+        // convertTo operates with saurate_cast
+        opencv_core.Mat dst = new opencv_core.Mat();
+        source.convertTo(dst, -1, alpha, beta);
+        imwrite(filePath, dst);
+        // restore alpha channel from source
+//        if (dst.type() == CV_8UC4)
+//        {
+//            int from_to[] = { 3, 3};
+//            cv::mixChannels(&src, 4, &dst,1, from_to, 1);
+//        }
+        return dst;
     }
 }

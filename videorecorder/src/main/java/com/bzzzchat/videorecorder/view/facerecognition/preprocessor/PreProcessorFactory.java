@@ -55,7 +55,7 @@ public class PreProcessorFactory {
         try {
             preProcessorRecognition
                     .applyGrayScale()
-                    .applyGamma(0.2)
+                    //.applyGamma(0.2)
                     .applyHistogramm();
         } catch (NullPointerException e){
             Log.d("getProcessedImage", "No face detected");

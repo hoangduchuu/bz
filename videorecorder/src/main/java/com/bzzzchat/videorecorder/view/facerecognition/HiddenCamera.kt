@@ -117,7 +117,10 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                         val faceBitmap = Utils.getFaceFromBitmap(finalPicture, face)
                         val fileName = "user.png"
                         val file = File(Environment.getExternalStorageDirectory(), fileName)
-                        Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.absolutePath)
+                        //Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.absolutePath)
+                        Utils.saveBitmap(faceBitmap, file.absolutePath)
+//                        Utils.brightnessAndContrastAuto(file.absolutePath)
+                        Utils.smooth(file.absolutePath)
                         processFaceRecognition(file.absolutePath)
                     }
                     isProcessingImage.set(false)

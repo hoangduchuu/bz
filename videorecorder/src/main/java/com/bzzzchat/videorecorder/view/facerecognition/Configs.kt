@@ -1,5 +1,5 @@
 package com.bzzzchat.videorecorder.view.facerecognition
 
 object Configs {
-    const val modelDimension = 160
+    const val modelDimension = 512
 }

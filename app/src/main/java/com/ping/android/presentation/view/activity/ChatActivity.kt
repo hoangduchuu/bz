@@ -116,10 +116,13 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
 
     private var textWatcher: TextWatcher? = null
 
+    private var toast: Toast? = null
+
     private val hiddenCamera: HiddenCamera by lazy {
         HiddenCamera(this, object: RecognitionCallback {
             override fun onRecognitionSuccess() {
-                showToast("Recognized user")
+                toast?.cancel()
+                toast = showToast("Recognized user")
                 presenter.userRecognized()
                 // FIXME: for now, update directly in adapter
                 messagesAdapter.userRecognized()

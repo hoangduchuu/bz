@@ -2,6 +2,7 @@ package com.bzzzchat.videorecorder.view.facerecognition
 
 import android.os.Environment
 import android.util.Log
+import com.bzzzchat.videorecorder.view.facerecognition.others.Utils
 import com.bzzzchat.videorecorder.view.model.FaceData
 import org.bytedeco.javacpp.BytePointer
 import org.bytedeco.javacpp.DoublePointer
@@ -53,7 +54,8 @@ class FaceRecognition {
             val labelsBuf: IntBuffer = labels.createBuffer()
 
             for ((counter, image) in imageFiles.withIndex()) {
-                val img = imread(image.absolutePath, CV_LOAD_IMAGE_GRAYSCALE)
+                //val img = imread(image.absolutePath, CV_LOAD_IMAGE_GRAYSCALE)
+                val img = Utils.brightnessAndContrastAuto(image.absolutePath)
                 //val processImage: org.opencv.core.Mat = org.opencv.core.Mat()
 
                 val label = Integer.parseInt(image.name.split("\\-".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0])

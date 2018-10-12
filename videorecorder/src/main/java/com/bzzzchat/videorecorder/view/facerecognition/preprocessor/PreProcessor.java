@@ -63,7 +63,7 @@ public class PreProcessor {
 
     public void setAngle(int angle) {
         this.angle = angle;
-        for (Mat img : images){
+        for (Mat img : images) {
         }
     }
 
