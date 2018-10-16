@@ -34,6 +34,7 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
 
     private var isUserScrolling = false
     private var isListGoingUp = true
+    private var isAutoScroll = false
 
     constructor(context: Context) : super(context) {
         mContext = context
@@ -114,15 +115,17 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
         rvStickers.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                Log.e("addOnScrollListener onscrooled")
+                Log.e("addOnScrollListener onscrooled $dx --- $dy")
                 isUserScrolling = false
                 isListGoingUp = false
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                Log.e("addOnScrollListener onScrollStateChanged")
-
+                Log.e("addOnScrollListener onScrollStateChanged $newState")
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    isAutoScroll = false
+                }
             }
         })
     }
@@ -150,7 +153,8 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
         if (isUserScrolling) {
             return
         }
-        isListGoingUp = true
+
+        isAutoScroll = true
         when (p0?.position) {
             0 -> rvStickers.smoothScrollToPosition(0)
             1 -> rvStickers.smoothScrollToPosition(34) // do
@@ -170,8 +174,8 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
 
 
     override fun onScroll(postion: Int) {
-        if (isListGoingUp ){return}
-        isUserScrolling = true
+        if (isAutoScroll ){return}
+            isUserScrolling = true
         val positionView = (rvStickers.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
         Log.e("compare : $positionView vs $postion")
