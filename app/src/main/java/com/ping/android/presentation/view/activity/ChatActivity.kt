@@ -1283,7 +1283,7 @@ class ChatActivity : CoreActivity(),
     /**
      * callback while sticker selected
      */
-    override fun onStickerSelected(stickerPath: String) {
+    override fun onStickerSelected(stickerPath: String, position: Int) {
         // send sticker
         presenter.sendSticker(stickerPath)
 

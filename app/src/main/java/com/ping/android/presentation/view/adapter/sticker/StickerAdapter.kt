@@ -39,7 +39,7 @@ class StickerAdapter(val stickers: ArrayList<Int>,
         }
         scrollListener.onScroll(position)
         holder.ivSticker.setOnClickListener {
-            stickerEmmiter.onStickerSelected(stickerLists[position])
+            stickerEmmiter.onStickerSelected(stickerLists[position], position)
 
         }
 

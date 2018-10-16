@@ -17,7 +17,7 @@ import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
 
 interface StickerEmmiter {
-    fun onStickerSelected(stickerPath: String)
+    fun onStickerSelected(stickerPath: String, position:Int)
 }
 
 interface GiftEmmiter {
@@ -174,8 +174,8 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     /**
      *   callback to ChatActivity
      */
-    override fun onStickerSelected(stickerPath: String) {
-        stickerEmmiter?.onStickerSelected(stickerPath)
+    override fun onStickerSelected(stickerPath: String, position: Int) {
+        stickerEmmiter?.onStickerSelected(stickerPath, position)
     }
 
     /**

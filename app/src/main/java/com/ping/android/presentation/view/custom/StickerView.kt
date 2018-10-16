@@ -207,8 +207,8 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
     /**
      * callback to EmojContainerView
      */
-    override fun onStickerSelected(stickerPath: String) {
-        stickerEmmiter?.onStickerSelected(stickerPath)
+    override fun onStickerSelected(stickerPath: String, position: Int) {
+        stickerEmmiter?.onStickerSelected(stickerPath,position)
     }
 
     fun setEmmitter(emmiter: StickerEmmiter) {
