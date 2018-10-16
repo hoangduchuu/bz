@@ -1285,8 +1285,7 @@ class ChatActivity : CoreActivity(),
      */
     override fun onStickerSelected(stickerPath: String) {
         // send sticker
-        Toaster.shortToast("$TAG Emmited sticker position $stickerPath")
-        presenter.sendSticker(stickerPath,stickerPath)
+        presenter.sendSticker(stickerPath)
 
     }
 

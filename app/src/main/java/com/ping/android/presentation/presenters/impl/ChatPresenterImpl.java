@@ -888,10 +888,9 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void sendSticker(String category, String fileName) {
+    public void sendSticker(String stickerPath) {
         if (!beAbleToSendMessage()) return;
-//        String url = category + "_" + fileName;
-        String url = category.replace("/","_");
+        String url = stickerPath.replace("/","_");
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.STICKER)
                 .setConversation(conversation)
