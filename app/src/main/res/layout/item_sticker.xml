@@ -6,8 +6,7 @@
 	android:layout_height="70dp"
 	android:contentDescription="no"
 	android:orientation="vertical"
-	android:padding="5dp"
-
+android:layout_margin="10dp"
 	android:scaleType="centerCrop"
 	
 

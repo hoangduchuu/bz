@@ -41,9 +41,16 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
         this.initView()
     }
 
+    lateinit var listBtn: ArrayList<ImageView>
+
     public fun initView() {
         inflate(R.layout.view_stickers, true)
         showSticker1(null)
+        var l = listOf(b1, b2, b3, b4, b5, b6, b7, b8)
+
+
+        listBtn = ArrayList<ImageView>()
+        listBtn.addAll(l)
     }
 
     lateinit var cloneView2: ImageView
@@ -124,6 +131,9 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
                 }
             }
         })
+
+        setupIconScroll()
+
     }
 
 
@@ -170,45 +180,131 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
 
 
     override fun onScroll(postion: Int) {
-        if (isAutoScroll ){return}
-            isUserScrolling = true
+        if (isAutoScroll) {
+            return
+        }
+        isUserScrolling = true
         val positionView = (rvStickers.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-
-
-        if (positionView <=20){
+resetState(null)
+        if (positionView <= 20) {
             tabStk.post { tabStk.getTabAt(0)?.select() }
+            b1.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView in 22..46){
+        if (positionView in 22..46) {
             tabStk.post { tabStk.getTabAt(1)?.select() }
+            b2.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
+
         }
-        if (positionView in 47..70){
+        if (positionView in 47..70) {
             tabStk.post { tabStk.getTabAt(2)?.select() }
+            b3.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView in 71..95){
+        if (positionView in 71..95) {
             tabStk.post { tabStk.getTabAt(3)?.select() }
+            b4.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView in 96..119){
+        if (positionView in 96..119) {
             tabStk.post { tabStk.getTabAt(4)?.select() }
+            b5.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView in 120..143){
+        if (positionView in 120..143) {
             tabStk.post { tabStk.getTabAt(5)?.select() }
+            b6.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView in 144..170){
+        if (positionView in 144..170) {
             tabStk.post { tabStk.getTabAt(6)?.select() }
+            b7.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
-        if (positionView >171){
+        if (positionView > 171) {
             tabStk.post { tabStk.getTabAt(7)?.select() }
+            b8.background = context.getDrawable(R.drawable.background_emo_cate_selected)
+
         }
 
 
+    }
 
+    private fun setupIconScroll() {
+        b1.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(0)
+            resetState(b1)
+
+        }
+        b2.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(34)
+            resetState(b2)
+
+        }
+        b3.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(58)
+            resetState(b3)
+
+        }
+        b4.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(82)
+            resetState(b4)
+
+        }
+        b5.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(106)
+            resetState(b5)
+
+        }
+        b6.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(130)
+            resetState(b6)
+        }
+        b7.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(154)
+            resetState(b7)
+
+        }
+        b8.setOnClickListener {
+            isAutoScroll = true
+            rvStickers.smoothScrollToPosition(187)
+            resetState(b8)
+        }
+    }
+
+
+    private fun resetState(v:ImageView?) {
+        if (v == null && isAutoScroll){
+            for (i in listBtn.indices) {
+                listBtn[i].background = (context.getDrawable(R.drawable.background_emo_cate_normal))
+            }
+            return
+        }else{
+            for (i in listBtn.indices) {
+                if (v?.id == listBtn[i].id){
+                    listBtn[i].background = (context.getDrawable(R.drawable.background_emo_cate_selected))
+
+                }else{
+                    listBtn[i].background = (context.getDrawable(R.drawable.background_emo_cate_normal))
+
+                }
+            }
+        }
     }
 
     /**
      * callback to EmojContainerView
      */
     override fun onStickerSelected(stickerPath: String, position: Int) {
-        stickerEmmiter?.onStickerSelected(stickerPath,position)
+        stickerEmmiter?.onStickerSelected(stickerPath, position)
     }
 
     fun setEmmitter(emmiter: StickerEmmiter) {
