@@ -2,11 +2,11 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/ivSticker"
-	android:layout_width="70dp"
-	android:layout_height="70dp"
+	android:layout_width="65dp"
+	android:layout_height="65dp"
 	android:contentDescription="no"
 	android:orientation="vertical"
-android:layout_margin="10dp"
+android:layout_margin="5dp"
 	android:scaleType="centerCrop"
 	
 

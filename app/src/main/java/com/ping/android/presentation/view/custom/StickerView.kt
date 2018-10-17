@@ -43,7 +43,7 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
 
     lateinit var listBtn: ArrayList<ImageView>
 
-    public fun initView() {
+    private fun initView() {
         inflate(R.layout.view_stickers, true)
         showSticker1(null)
         var l = listOf(b1, b2, b3, b4, b5, b6, b7, b8)
@@ -185,7 +185,7 @@ class StickerView : LinearLayout, TabLayout.OnTabSelectedListener, ScrollListene
         }
         isUserScrolling = true
         val positionView = (rvStickers.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-resetState(null)
+        resetState(null)
         if (positionView <= 20) {
             tabStk.post { tabStk.getTabAt(0)?.select() }
             b1.background = context.getDrawable(R.drawable.background_emo_cate_selected)

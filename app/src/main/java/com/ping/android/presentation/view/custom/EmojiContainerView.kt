@@ -1,6 +1,7 @@
 package com.ping.android.presentation.view.custom
 
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,9 @@ import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
+import android.R.attr.data
+import android.util.TypedValue
+
 
 interface StickerEmmiter {
     fun onStickerSelected(stickerPath: String, position:Int)
@@ -163,11 +167,31 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
         emo_content.removeAllViews()
     }
 
+    private fun fetchAccentColor(): Int {
+        val typedValue = TypedValue()
+
+        val a = mContext.obtainStyledAttributes(typedValue.data, intArrayOf(R.attr.colorAccent))
+        val color = a.getColor(0, 0)
+
+        a.recycle()
+
+        return color
+    }
+
     private fun setSelectedColor(view: View) {
         view.layoutParams
         for (i in 0 until viewList.size) {
-            if (view.id != viewList[i].id) viewList[i].background = context.getDrawable(R.drawable.background_button_emo_)
-            else viewList[i].background = context.getDrawable(R.drawable.background_button_emo_selected)
+            if (view.id != viewList[i].id) {
+                viewList[i].background = context.getDrawable(R.drawable.background_button_emo_)
+                viewList[i].setTextColor(fetchAccentColor())
+
+            }
+            else {
+                viewList[i].background = context.getDrawable(R.drawable.background_button_emo_selected)
+                                viewList[i].setTextColor(Color.WHITE)
+
+
+            }
         }
     }
 
