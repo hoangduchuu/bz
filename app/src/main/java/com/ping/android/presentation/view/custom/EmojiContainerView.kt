@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.RecyclerView
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
 import com.vanniktech.emoji.*
@@ -17,6 +16,7 @@ import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
 import android.util.TypedValue
+import com.ping.android.presentation.view.custom.newSticker.ParentStickerView
 
 
 interface StickerEmmiter {

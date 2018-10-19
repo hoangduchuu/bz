@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ping.android.R
-import com.ping.android.presentation.view.custom.ScrollListener
+import com.ping.android.presentation.view.custom.newSticker.ScrollListener
 import com.ping.android.presentation.view.custom.StickerEmmiter
 import kotlinx.android.synthetic.main.item_sticker.view.*
 import java.io.InputStream

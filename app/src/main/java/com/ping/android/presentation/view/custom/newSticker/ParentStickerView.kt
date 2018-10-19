@@ -1,12 +1,10 @@
-package com.ping.android.presentation.view.custom
+package com.ping.android.presentation.view.custom.newSticker
 
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
-import com.ping.android.presentation.view.custom.newSticker.StickerPagerAdapter
-import com.ping.android.presentation.view.custom.newSticker.StickerData
 import kotlinx.android.synthetic.main.view_stickers.view.*
 
 import kotlin.collections.ArrayList

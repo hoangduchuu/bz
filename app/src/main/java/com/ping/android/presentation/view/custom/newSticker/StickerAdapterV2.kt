@@ -15,7 +15,7 @@ import java.io.InputStream
 class StickerAdapterV2(val context: Context,
                        var stickerPathUrlArrays: ArrayList<String>) : RecyclerView.Adapter<StickerAdapterV2.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_sticker_huu, parent, false))
+        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_sticker, parent, false))
     }
 
     override fun getItemCount(): Int {
