@@ -1,120 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabStk"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
+        app:tabMode="scrollable"
 
-        app:tabMode="scrollable">
-
-    </com.google.android.material.tabs.TabLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStickers"
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </androidx.recyclerview.widget.RecyclerView>
-
-    <LinearLayout
+    </com.google.android.material.tabs.TabLayout>
+    <androidx.viewpager.widget.ViewPager
+        android:layout_below="@id/tabs"
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        />
 
-        <ImageView
-            android:id="@+id/b1"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/background_emo_cate_normal"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_1" />
-
-        <ImageView
-            android:id="@+id/b2"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_2" />
-
-        <ImageView
-            android:id="@+id/b3"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_3" />
-
-        <ImageView
-            android:id="@+id/b4"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_4" />
-
-        <ImageView
-            android:id="@+id/b5"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_5" />
-
-        <ImageView
-            android:id="@+id/b6"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_6" />
-
-        <ImageView
-            android:id="@+id/b7"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_7" />
-
-        <ImageView
-            android:id="@+id/b8"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/xselector"
-
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="3dp"
-            android:src="@drawable/emo_cat_8" />
-
-
-    </LinearLayout>
-
-
-</LinearLayout>
+</RelativeLayout>

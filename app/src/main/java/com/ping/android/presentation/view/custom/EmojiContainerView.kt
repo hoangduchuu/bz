@@ -16,7 +16,6 @@ import com.vanniktech.emoji.*
 import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
-import android.R.attr.data
 import android.util.TypedValue
 
 
@@ -45,13 +44,13 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     var viewList = ArrayList<TextView>()
 
     constructor(context: Context) : super(context) {
-        this.initView()
         mContext = context
+        this.initView()
+
     }
 
     lateinit var cloneView2: ImageView
     //    lateinit var cloneView3: ImageView
-    lateinit var rvStickers: RecyclerView
 
     private fun initView() {
         inflate(R.layout.view_emo, true)
@@ -113,12 +112,11 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
         initStickers2()
     }
 
-    lateinit var stickerView: StickerView
+    lateinit var parentStickerView: ParentStickerView
 
     private fun initStickers2() {
-        stickerView = StickerView(context)
-        registerEmmiteroStickerView()
-        emo_content.addView(stickerView)
+        parentStickerView = ParentStickerView(context)
+        emo_content.addView(parentStickerView)
 
     }
     
@@ -203,10 +201,8 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     }
 
     /**
-     * register listener to stickerView
+     * register listener to parentStickerView
      */
-    private fun registerEmmiteroStickerView() {
-        stickerView.setEmmitter(this)
-    }
+
 
 }
