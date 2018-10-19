@@ -1,10 +1,10 @@
 package com.ping.android.presentation.view.custom.newSticker
 
 import android.content.Context
-import android.util.AttributeSet
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
+import com.ping.android.utils.bus.BusProvider
 import kotlinx.android.synthetic.main.view_stickers.view.*
 
 import kotlin.collections.ArrayList
@@ -17,22 +17,23 @@ interface ScrollListener {
 class ParentStickerView : LinearLayout{
 
     lateinit var mContext: Context
+    lateinit var busProvider: BusProvider
 
-    constructor(context: Context) : super(context) {
+    constructor(context: Context,busProvider: BusProvider) : super(context) {
         mContext = context
-
-        this.initView()
+        this.busProvider = busProvider
+        this.initView(busProvider)
     }
 
 
-    private fun initView() {
+    private fun initView(busProvider: BusProvider) {
         inflate(R.layout.view_stickers, true)
 
         val viewPager = view_pager
 
         val data = getCategories()
 
-        val adapter = StickerPagerAdapter(mContext, data)
+        val adapter = StickerPagerAdapter(mContext, data,busProvider)
         viewPager.offscreenPageLimit = 0;
 
         viewPager.adapter = adapter
@@ -66,12 +67,5 @@ class ParentStickerView : LinearLayout{
         return StickerData(folderName)
     }
 
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        this.initView()
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        this.initView()
-    }
 
 }

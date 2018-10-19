@@ -57,6 +57,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderIte
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
+import com.ping.android.utils.bus.events.StickerTapEvent
 import com.ping.android.utils.configs.Constant
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -631,6 +632,9 @@ class ChatActivity : CoreActivity(),
                     if (o is GroupImagePositionEvent) {
                         this.groupImagePositionEvent = o
                     }
+                    if (o is StickerTapEvent){
+                        sendSticker(o.path)
+                    }
                 })
 
         setExitSharedElementCallback(object : SharedElementCallback() {
@@ -657,6 +661,11 @@ class ChatActivity : CoreActivity(),
         container.post {
             keyboardHeightProvider.start()
         }
+    }
+
+    private fun sendSticker(path: String?) {
+        presenter.sendSticker(path)
+
     }
 
     private fun handleShakePhone() {
@@ -1184,11 +1193,11 @@ class ChatActivity : CoreActivity(),
         if (emojiContainerView == null) {
             emojiContainerView = EmojiContainerView(this)
             registerEmmiter()
-            emojiContainerView?.show(currentBottomHeight, container, edMessage,this)
+            emojiContainerView?.show(currentBottomHeight, container, edMessage,this,busProvider)
             bottom_view_container.addView(emojiContainerView)
         }
         registerEmmiter()
-        emojiContainerView?.show(currentBottomHeight, container, edMessage,this)
+        emojiContainerView?.show(currentBottomHeight, container, edMessage, this, busProvider)
         hideVoiceRecordView()
         hideMediaPickerView()
         shouldHideBottomView = false

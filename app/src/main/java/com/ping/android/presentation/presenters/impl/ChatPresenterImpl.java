@@ -890,7 +890,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void sendSticker(String stickerPath) {
         if (!beAbleToSendMessage()) return;
-        String url = stickerPath.replace("/","_");
+        String url = stickerPath.replace("stickers/","").replace("/","_");
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.STICKER)
                 .setConversation(conversation)

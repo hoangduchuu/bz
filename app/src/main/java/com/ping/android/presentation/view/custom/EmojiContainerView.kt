@@ -17,6 +17,7 @@ import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
 import android.util.TypedValue
 import com.ping.android.presentation.view.custom.newSticker.ParentStickerView
+import com.ping.android.utils.bus.BusProvider
 
 
 interface StickerEmmiter {
@@ -39,6 +40,7 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     private var stickerEmmiter: StickerEmmiter? = null
     private var giftEmmiter: GiftEmmiter? = null
     private lateinit var container: ConstraintLayout
+    private lateinit var busProvider:BusProvider
 
 
     var viewList = ArrayList<TextView>()
@@ -76,10 +78,11 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
         root_container.visibility = View.INVISIBLE
     }
 
-    fun show(currentHeight: Int, container: ConstraintLayout, edMessage: EmojiGifEditText, stickerEmmiter: StickerEmmiter) {
+    fun show(currentHeight: Int, container: ConstraintLayout, edMessage: EmojiGifEditText, stickerEmmiter: StickerEmmiter, busProvider: BusProvider) {
         this.stickerEmmiter = stickerEmmiter
         this.container = container
         this.edMessage = edMessage
+        this.busProvider = busProvider
         setSelectedColor(bte1)
 
         root_container.visibility = View.VISIBLE
@@ -87,7 +90,7 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
             it.height = currentHeight
         }
         clearAllView()
-        initStickers2()
+        initStickers2(busProvider)
 
 
     }
@@ -109,13 +112,13 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     private fun showStickerSection(v: View) {
         setSelectedColor(v)
         clearAllView()
-        initStickers2()
+        initStickers2(busProvider)
     }
 
     lateinit var parentStickerView: ParentStickerView
 
-    private fun initStickers2() {
-        parentStickerView = ParentStickerView(context)
+    private fun initStickers2(busProvider: BusProvider) {
+        parentStickerView = ParentStickerView(context,busProvider)
         emo_content.addView(parentStickerView)
 
     }

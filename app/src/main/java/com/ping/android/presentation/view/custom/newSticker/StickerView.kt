@@ -3,45 +3,47 @@ package com.ping.android.presentation.view.custom.newSticker
 import android.content.Context
 
 
-
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import com.bzzzchat.extensions.inflate
 
 
-
 import com.ping.android.R
-import kotlinx.android.synthetic.main.view_list_sticker.view.*
+import com.ping.android.utils.Log
+import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.StickerTapEvent
 
 
-class StickerView : LinearLayout {
+class StickerView : LinearLayout, StickerClickListener {
 
 
-    lateinit var mContext: Context
-    lateinit var categoryPath: String
-
+    var mContext: Context
+    var categoryPath: String
+    lateinit var event: StickerTapEvent
+    var busProvider: BusProvider
     var urlList = ArrayList<String>()
 
-    constructor(context: Context, categoryPath: String, pagePosition: Int) : super(context) {
+    constructor(context: Context, categoryPath: String, pagePosition: Int, busProvider: BusProvider) : super(context) {
         mContext = context
-
+        this.busProvider = busProvider
         this.categoryPath = categoryPath
         urlList = getListUrlStickerFactory(categoryPath, pagePosition)
-        this.initView(pagePosition)
+        this.initView(pagePosition, busProvider)
 
     }
 
 
-    private fun initView(pagePosition: Int) {
+    private fun initView(pagePosition: Int, busProvider: BusProvider) {
 
         inflate(R.layout.view_list_sticker, true)
         val rvStickers: RecyclerView = this.findViewById(R.id.listStickers)
         rvStickers.layoutManager = GridLayoutManager(mContext, 5, RecyclerView.VERTICAL, false) as RecyclerView.LayoutManager?
         val stickerAdapter = StickerAdapterV2(mContext, urlList)
         rvStickers.adapter = stickerAdapter;
+        event = StickerTapEvent()
+        stickerAdapter.setListener(this)
 
     }
 
@@ -69,6 +71,12 @@ class StickerView : LinearLayout {
     }
 
     private fun getListUrlStickerHistory(): ArrayList<String> {
-        return arrayListOf("","","")
+        return arrayListOf("", "", "")
+    }
+
+    override fun onClick(path: String) {
+        event.path = path
+        busProvider.post(event)
+
     }
 }

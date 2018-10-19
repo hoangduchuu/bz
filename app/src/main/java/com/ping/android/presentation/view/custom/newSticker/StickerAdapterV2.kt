@@ -14,6 +14,8 @@ import java.io.InputStream
 
 class StickerAdapterV2(val context: Context,
                        var stickerPathUrlArrays: ArrayList<String>) : RecyclerView.Adapter<StickerAdapterV2.ViewHolder>() {
+
+   lateinit var mlistenner: StickerClickListener
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_sticker, parent, false))
     }
@@ -33,9 +35,13 @@ class StickerAdapterV2(val context: Context,
 
         }
         holder.ivSticker.setOnClickListener {
-
+mlistenner.onClick(stickerPathUrlArrays[position])
         }
 
+    }
+
+    fun setListener(listener: StickerClickListener) {
+        mlistenner = listener
     }
 
 
