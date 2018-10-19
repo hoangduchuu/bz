@@ -37,11 +37,16 @@ class ParentStickerView : LinearLayout{
 
         viewPager.adapter = adapter
 
-        for (index in data.categoryList.indices) {
-            tabs.addTab(tabs.newTab().setText(data.categoryList[index]))
 
-        }
         tabs.setupWithViewPager(viewPager)
+
+
+        /**
+         * setUp tabicon
+         */
+        for (i in data.categoryList.indices){
+            tabs.getTabAt(i)?.customView = StickerTabIcon(mContext,data,i)
+        }
     }
 
     private fun getCategories(): StickerData {

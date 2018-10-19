@@ -28,6 +28,7 @@ class StickerPagerAdapter(private val mContext: Context, var data: StickerData) 
 
     override fun getPageTitle(position: Int): CharSequence? {
         return data.categoryList[position]
+//        return ""
     }
 
 }
