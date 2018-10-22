@@ -106,6 +106,9 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         }
 
         private fun downloadVideoFile(videoUrl: String, file: File) {
+            if (TextUtils.isEmpty(videoUrl) || !videoUrl.startsWith("gs://")) {
+                return
+            }
             if (!file.exists() || !file.parentFile.exists()) {
                 if (!CommonMethod.createFolder(file.parent)) {
                     return
