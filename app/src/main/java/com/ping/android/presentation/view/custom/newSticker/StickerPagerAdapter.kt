@@ -7,9 +7,9 @@ import androidx.viewpager.widget.PagerAdapter
 import com.ping.android.utils.bus.BusProvider
 
 class StickerPagerAdapter(private val mContext: Context, var data: StickerData, val busProvider: BusProvider) : PagerAdapter() {
-
+lateinit var stickerView :StickerView
     override fun instantiateItem(collection: ViewGroup, position: Int): Any {
-        val stickerView = StickerView(mContext,data.categoryList[position], position,busProvider)
+         stickerView = StickerView(mContext,data.categoryList[position], position,busProvider)
         collection.addView(stickerView)
         return stickerView
     }
@@ -30,6 +30,10 @@ class StickerPagerAdapter(private val mContext: Context, var data: StickerData, 
     override fun getPageTitle(position: Int): CharSequence? {
         return data.categoryList[position]
 //        return ""
+    }
+
+    fun reloadRecent() {
+        stickerView.reloadRecent()
     }
 
 }

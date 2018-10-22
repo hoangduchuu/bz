@@ -10,15 +10,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bzzzchat.extensions.inflate
 
 
+
 import com.ping.android.R
+import com.ping.android.data.entity.MessageEntity_Table
 import com.ping.android.utils.Log
+
 import com.ping.android.utils.bus.BusProvider
 import com.ping.android.utils.bus.events.StickerTapEvent
+import com.raizlabs.android.dbflow.sql.language.SQLite
+import java.util.*
+
 
 
 class StickerView : LinearLayout, StickerClickListener {
-
-
     var mContext: Context
     var categoryPath: String
     lateinit var event: StickerTapEvent
@@ -35,8 +39,8 @@ class StickerView : LinearLayout, StickerClickListener {
     }
 
 
-    private fun initView(pagePosition: Int, busProvider: BusProvider) {
 
+    private fun initView(pagePosition: Int, busProvider: BusProvider) {
         inflate(R.layout.view_list_sticker, true)
         val rvStickers: RecyclerView = this.findViewById(R.id.listStickers)
         rvStickers.layoutManager = GridLayoutManager(mContext, 5, RecyclerView.VERTICAL, false) as RecyclerView.LayoutManager?
@@ -71,12 +75,36 @@ class StickerView : LinearLayout, StickerClickListener {
     }
 
     private fun getListUrlStickerHistory(): ArrayList<String> {
-        return arrayListOf("", "", "")
+        var list = ArrayList<String>()
+
+        val postLists = getPosts()
+        for (i in postLists.indices){
+            list.add(postLists[i].path)
+        }
+
+        return list
+
     }
+    val model = Item()
 
     override fun onClick(path: String) {
         event.path = path
         busProvider.post(event)
+        model.path = "$path"
+        model.time = Calendar.getInstance().timeInMillis
+        model.save()
+    }
 
+    private fun getPosts(): List<Item> {
+
+        return SQLite.select()
+                .from(Item::class.java)
+                .where()
+                .orderBy(Item_Table.time,false)
+                .queryList()
+    }
+
+    fun reloadRecent() {
+        getListUrlStickerHistory()
     }
 }
