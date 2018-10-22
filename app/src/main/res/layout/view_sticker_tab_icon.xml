@@ -2,11 +2,11 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_width="50dp"
+    android:layout_width="30dp"
     android:scaleType="fitCenter"
     android:paddingBottom="4dp"
     android:id="@+id/ivTabicon"
     tools:src="@drawable/ic_add"
-    android:layout_height="50dp">
+    android:layout_height="30dp">
 
 </ImageView>
