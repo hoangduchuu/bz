@@ -9,9 +9,9 @@ import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration
 @Database(name = AppDatabase.NAME, version = AppDatabase.VERSION)
 object AppDatabase {
     const val NAME = "BZZZ"
-    const val VERSION = 2
+    const val VERSION = 4
 
-    @Migration(version = 2, database = AppDatabase::class)
+    @Migration(version = VERSION, database = AppDatabase::class)
     class Migration2(table: Class<MessageEntity>): AlterTableMigration<MessageEntity>(table) {
         override fun onPreMigrate() {
             addColumn(SQLiteType.INTEGER, "messageStatusCode")

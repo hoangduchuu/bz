@@ -22,9 +22,11 @@ import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.model.Message
 import com.ping.android.model.enums.MessageType
+import com.ping.android.utils.Log
 import com.ping.android.utils.ResourceUtils
 import com.ping.android.utils.configs.Constant
 import java.io.File
+import java.io.InputStream
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -97,11 +99,11 @@ abstract class StickerMessageBaseItem(message: Message) : MessageBaseItem<Sticke
                 (this.glide as GlideRequests).asGif().load(File(url))
             }
             request.into(object : ImageViewTarget<GifDrawable>(imageView) {
-                        override fun setResource(resource: GifDrawable?) {
-                            loadingView.visibility = View.GONE
-                            imageView?.setImageDrawable(resource)
-                        }
-                    })
+                override fun setResource(resource: GifDrawable?) {
+                    loadingView.visibility = View.GONE
+                    imageView?.setImageDrawable(resource)
+                }
+            })
         }
 
         private fun setImageMessage(message: Message) {
@@ -121,6 +123,32 @@ abstract class StickerMessageBaseItem(message: Message) : MessageBaseItem<Sticke
                             .preload()
                 }
                 //loadingView.visibility = View.GONE
+            }
+
+            /**
+             * load sticker from assert if type sticker and have MeduaUrl
+             *
+             */
+                // should preload remote image
+                if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.endsWith(".png")) {
+
+                    try {
+                        val context = itemView.context
+                        val path = "stickers/${message.mediaUrl}"
+                        val stickerPath = path.replace("_", "/")
+
+                        val img: InputStream = context.getAssets().open(stickerPath)
+//
+                        val d: Drawable = Drawable.createFromStream(img, null)
+                        imageView.setImageDrawable(d)
+
+                    } catch (e: Exception) {
+
+                    }
+
+
+                loadingView.visibility = View.GONE
+                return
             }
 
             if (TextUtils.isEmpty(url)) {
