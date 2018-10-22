@@ -57,13 +57,21 @@ class ParentStickerView : LinearLayout{
          * the history categori
          */
         folderName.add("histories")
-
-        val res = resources //if you are in an activity
-        val am = res.assets
-        val folders = am.list("stickers/")
-        for (i in folders.indices) {
-            folderName.add("${folders[i]}")
-        }
+        folderName.add("biscuit")
+        folderName.add("doraemon")
+        folderName.add("helloKitty")
+        folderName.add("meep")
+        folderName.add("pikachu")
+        folderName.add("pusheen")
+        folderName.add("snoopyAtWork")
+        folderName.add("xMyMelody")
+//
+//        val res = resources //if you are in an activity
+//        val am = res.assets
+//        val folders = am.list("stickers/")
+//        for (i in folders.indices) {
+//            folderName.add("${folders[i]}")
+//        }
         return StickerData(folderName)
     }
 
