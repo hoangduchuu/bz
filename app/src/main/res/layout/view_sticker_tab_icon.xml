@@ -4,7 +4,6 @@
     android:orientation="vertical"
     android:layout_width="30dp"
     android:scaleType="fitCenter"
-    android:paddingBottom="4dp"
     android:id="@+id/ivTabicon"
     tools:src="@drawable/ic_add"
     android:layout_height="30dp">
