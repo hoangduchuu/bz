@@ -901,7 +901,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
-                sendNotification(conversation, message1.key, message1.message, MessageType.TEXT);
+                sendNotification(conversation, message1.key, message1.message, MessageType.STICKER);
             }
 
             @Override
