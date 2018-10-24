@@ -6,10 +6,16 @@
     android:layout_height="wrap_content">
     <com.google.android.material.tabs.TabLayout
         app:tabMode="scrollable"
-
+        app:tabIndicatorHeight="0dp"
+        app:tabGravity="center"
+        app:tabPaddingBottom="0dp"
+        app:tabPaddingEnd="0dp"
+        app:tabPaddingStart="0dp"
+        app:tabPaddingTop="0dp"
         android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="30dp">
+        android:clipToPadding="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
     </com.google.android.material.tabs.TabLayout>
     <View

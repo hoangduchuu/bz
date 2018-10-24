@@ -183,13 +183,34 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
         view.layoutParams
         for (i in 0 until viewList.size) {
             if (view.id != viewList[i].id) {
-                viewList[i].background = context.getDrawable(R.drawable.background_button_emo_)
+
+                if (i == 0) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_letf)
+                }
+                if (i == 2) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_right)
+                }
+                if (i == 1) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_)
+
+                }
+
                 viewList[i].setTextColor(fetchAccentColor())
 
-            }
-            else {
-                viewList[i].background = context.getDrawable(R.drawable.background_button_emo_selected)
-                                viewList[i].setTextColor(Color.WHITE)
+            } else {
+                if (view.id == bte1.id) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_letf_selected)
+
+                }
+                if (view.id == bte3.id) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_right_selected)
+
+                }
+                if (view.id == bte2.id) {
+                    viewList[i].background = context.getDrawable(R.drawable.background_button_emo_selected)
+
+                }
+                viewList[i].setTextColor(Color.WHITE)
 
 
             }
