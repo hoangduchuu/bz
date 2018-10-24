@@ -100,7 +100,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                     body = userName + ": sent (" + params.message + ") games." ;
                                                     break;
                                                 case STICKER:
-                                                    body = userName + ": sent a sticker.";
+                                                    body = userName + ": [Sticker]";
                                                     break;
                                                 default:
                                                     break;
