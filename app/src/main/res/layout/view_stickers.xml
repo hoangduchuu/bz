@@ -12,6 +12,8 @@
         app:tabPaddingEnd="0dp"
         app:tabPaddingStart="0dp"
         app:tabPaddingTop="0dp"
+        android:paddingStart="@dimen/padding_left_right_emoj_box"
+        android:paddingLeft="@dimen/padding_left_right_emoj_box"
         android:id="@+id/tabs"
         android:clipToPadding="true"
         android:layout_width="wrap_content"
@@ -19,12 +21,15 @@
 
     </com.google.android.material.tabs.TabLayout>
     <View
+        android:visibility="gone"
         android:id="@+id/_line"
         android:layout_below="@id/tabs"
         android:background="#38666470"
         android:layout_width="match_parent"
         android:layout_height="1dp"/>
     <androidx.viewpager.widget.ViewPager
+        android:paddingStart="@dimen/padding_left_right_emoj_box"
+        android:paddingLeft="@dimen/padding_left_right_emoj_box"
         android:layout_below="@id/_line"
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
