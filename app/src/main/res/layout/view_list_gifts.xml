@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:background="@color/red"
+	android:minHeight="199dp"
+	android:minWidth="199dp"
+	android:layout_height="wrap_content">
+	
+	<androidx.recyclerview.widget.RecyclerView
+		android:id="@+id/listGifs"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+	</androidx.recyclerview.widget.RecyclerView>
+
+</LinearLayout>
