@@ -51,6 +51,7 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -902,6 +903,30 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message1) {
                 sendNotification(conversation, message1.key, message1.message, MessageType.STICKER);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+
+    @Override
+    public void sendGifs(String url) {
+        if (!beAbleToSendMessage()) return;
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.GIF)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.GIF);
             }
 
             @Override

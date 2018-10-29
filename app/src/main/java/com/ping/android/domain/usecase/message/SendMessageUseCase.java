@@ -258,6 +258,11 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                         break;
                     case STICKER:
                         message = buildStickerMessage(currentUser, fileUrl);
+                        break;
+                    case GIF:
+                        message = buildGifMessage(currentUser, fileUrl);
+                        break;
+                    default:break;
                 }
                 message.key = messageKey;
                 message.fileUrl = fileUrl;
@@ -273,6 +278,12 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return MessageEntity.createStickerMessage(stickerUrl, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getImageMaskStatuses(), getMessageDeleteStatuses(), allowance);
+            }
+            private MessageEntity buildGifMessage(User currentUser, String stickerUrl) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return MessageEntity.createGifMessage(stickerUrl, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getImageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 

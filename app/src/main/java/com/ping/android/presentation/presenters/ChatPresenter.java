@@ -71,6 +71,8 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendSticker(String stickerPath);
 
+    void sendGifs(String gifUrl);
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 

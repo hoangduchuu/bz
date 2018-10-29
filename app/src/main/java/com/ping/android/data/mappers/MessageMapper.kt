@@ -23,6 +23,7 @@ class MessageMapper @Inject constructor() {
             Constant.MSG_TYPE_VOICE -> entity.audioUrl
             Constant.MSG_TYPE_VIDEO -> entity.videoUrl
             Constant.MSG_TYPE_STICKER -> entity.photoUrl
+            Constant.MSG_TYPE_GIFS -> entity.photoUrl
             else -> entity.photoUrl
         }
         message.thumbUrl = entity.thumbUrl ?: ""
