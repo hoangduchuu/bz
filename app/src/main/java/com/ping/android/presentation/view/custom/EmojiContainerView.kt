@@ -16,6 +16,7 @@ import com.vanniktech.emoji.listeners.OnEmojiClickListener
 import com.vanniktech.emoji.listeners.OnEmojiLongClickListener
 import kotlinx.android.synthetic.main.view_emo.view.*
 import android.util.TypedValue
+import com.ping.android.presentation.view.custom.gifs.GiftView
 import com.ping.android.presentation.view.custom.newSticker.ParentStickerView
 import com.ping.android.utils.bus.BusProvider
 
@@ -41,6 +42,7 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     private var giftEmmiter: GiftEmmiter? = null
     private lateinit var container: ConstraintLayout
     private lateinit var busProvider:BusProvider
+    private lateinit var gifsView:GiftView
 
 
     var viewList = ArrayList<TextView>()
@@ -146,13 +148,8 @@ class EmojiContainerView : LinearLayout, StickerEmmiter {
     }
 
     private fun initGifts() {
-        cloneView2 = ImageView(context)
-        cloneView2.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        cloneView2.setImageResource(R.mipmap.ic_launcher)
-
-        cloneView2.setOnClickListener { giftEmmiter?.onGiftSelected("https://i-thethao.vnecdn.net/2018/10/09/anhtop-1539054818-9688-1539054825_r_140x84.jpg") }
-
-        emo_content.addView(cloneView2)
+        gifsView = GiftView(context,busProvider)
+        emo_content.addView(gifsView)
     }
 
 

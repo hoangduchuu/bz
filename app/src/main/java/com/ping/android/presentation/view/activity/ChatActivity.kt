@@ -56,6 +56,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.GifTapEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.StickerTapEvent
 import com.ping.android.utils.configs.Constant
@@ -635,6 +636,9 @@ class ChatActivity : CoreActivity(),
                     if (o is StickerTapEvent){
                         sendSticker(o.path)
                     }
+                    if (o is GifTapEvent){
+                       sendGifs(o.gifUrl)
+                    }
                 })
 
         setExitSharedElementCallback(object : SharedElementCallback() {
@@ -663,9 +667,20 @@ class ChatActivity : CoreActivity(),
         }
     }
 
+    /**
+     * Send Sticker Message
+     */
     private fun sendSticker(path: String?) {
         presenter.sendSticker(path)
 
+    }
+
+    /**
+     * send Gif Message
+     */
+
+    private fun sendGifs(url : String){
+        presenter.sendGifs(url)
     }
 
     private fun handleShakePhone() {

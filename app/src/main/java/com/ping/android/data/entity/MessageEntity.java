@@ -117,6 +117,24 @@ public class MessageEntity extends BaseModel {
     }
 
     public static MessageEntity createStickerMessage(String photoUrl, String senderId,
+                                                     String senderName, double timestamp, Map<String, Integer> status,
+                                                     Map<String, Boolean> markStatuses,
+                                                     Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
+        MessageEntity message = new MessageEntity();
+        message.photoUrl = photoUrl;
+        message.thumbUrl = "";
+        message.senderId = senderId;
+        message.senderName = senderName;
+        message.timestamp = timestamp;
+        message.status = status;
+        message.markStatuses = markStatuses;
+        message.deleteStatuses = deleteStatuses;
+        message.messageType = Constant.MSG_TYPE_STICKER;
+        message.readAllowed = readAllowed;
+        return message;
+    }
+
+    public static MessageEntity createGifMessage(String photoUrl, String senderId,
                                                    String senderName, double timestamp, Map<String, Integer> status,
                                                    Map<String, Boolean> markStatuses,
                                                    Map<String, Boolean> deleteStatuses, Map<String, Boolean> readAllowed) {
@@ -129,7 +147,7 @@ public class MessageEntity extends BaseModel {
         message.status = status;
         message.markStatuses = markStatuses;
         message.deleteStatuses = deleteStatuses;
-        message.messageType = Constant.MSG_TYPE_STICKER;
+        message.messageType = Constant.MSG_TYPE_GIFS;
         message.readAllowed = readAllowed;
         return message;
     }
