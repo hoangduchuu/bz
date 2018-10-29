@@ -31,21 +31,25 @@ class GifDataList {
             "  http://123emoji.com/wp-content/uploads/2016/05/200-79.gif",
             " http://123emoji.com/wp-content/uploads/2016/05/200_s-26-1.gif",
             "http://123emoji.com/wp-content/uploads/2016/05/200-69.gif",
-            "http://123emoji.com/wp-content/uploads/2016/05/200_s-33.gif",
             " http://123emoji.com/wp-content/uploads/2016/05/200-65.gif",
             " http://123emoji.com/wp-content/uploads/2016/05/200-72-1.gif",
-            " http://123emoji.com/wp-content/uploads/2016/05/200-76.gif",
-            " http://123emoji.com/wp-content/uploads/2016/05/200-67.gif",
-            " http://123emoji.com/wp-content/uploads/2016/05/200-68.gif",
-            " http://123emoji.com/wp-content/uploads/2016/04/200_s-1-4.gif",
-            " http://123emoji.com/wp-content/uploads/2016/04/200-2-1.gif",
-            " http://123emoji.com/wp-content/uploads/2016/04/200_s-5-3.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-76.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-67.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-68.gif",
+            "http://123emoji.com/wp-content/uploads/2016/04/200-2-1.gif",
             "http://123emoji.com/wp-content/uploads/2016/04/200-8.gif",
             "http://123emoji.com/wp-content/uploads/2016/04/200-7-1.gif",
             "http://123emoji.com/wp-content/uploads/2016/04/200-3-1.gif",
             "http://123emoji.com/wp-content/uploads/2016/04/200-1-2.gif",
-            "http://123emoji.com/wp-content/uploads/2016/04/200_s-5.gif",
-            "http://123emoji.com/wp-content/uploads/2016/04/songoku-gif.gif"
+            "http://123emoji.com/wp-content/uploads/2016/04/songoku-gif.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-64.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-75.gif",
+            "http://123emoji.com/wp-content/uploads/2016/05/200-77.gif",
+            "http://123emoji.com/wp-content/uploads/2016/04/200-51.gif",
+            "http://123emoji.com/wp-content/uploads/2016/04/200-40.gif",
+            "http://123emoji.com/wp-content/uploads/2016/04/200-52.gif",
+            "http://123emoji.com/wp-content/uploads/2016/04/200-52.gif"
+
 
             )
         }
