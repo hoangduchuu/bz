@@ -102,6 +102,9 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 case STICKER:
                                                     body = userName + ": [Sticker]";
                                                     break;
+                                                case GIF:
+                                                    body = userName + ": [GIF]";
+                                                    break;
                                                 default:
                                                     break;
                                             }
