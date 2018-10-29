@@ -24,6 +24,8 @@ import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessa
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.gif.GifMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.gif.GifMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
@@ -35,6 +37,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessage
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageRightItem;
 import com.ping.android.utils.DateUtils;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
@@ -100,6 +103,13 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     baseItem = new StickerMessageRightItem(message);
                 } else {
                     baseItem = new StickerMessageLeftItem(message);
+                }
+                break;
+            case GIF:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new GifMessageRightItem(message);
+                } else {
+                    baseItem = new GifMessageLeftItem(message);
                 }
                 break;
             default:
