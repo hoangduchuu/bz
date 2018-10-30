@@ -570,9 +570,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onComplete() {
                 super.onComplete();
-                if (mMessage == null || mMessage.key == null || mMessage.message == null){
-                    return;
-                }
                 sendNotification(conversation, mMessage.key, mMessage.message, MessageType.VIDEO);
 
             }
