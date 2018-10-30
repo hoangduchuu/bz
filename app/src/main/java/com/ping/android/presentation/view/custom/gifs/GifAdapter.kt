@@ -2,10 +2,12 @@ package com.ping.android.presentation.view.custom.gifs
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -34,12 +36,18 @@ class GifAdapter(val context: Context,
     @SuppressLint("CheckResult")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
+        val circularProgressDrawable = CircularProgressDrawable(context)
+        circularProgressDrawable.strokeWidth = 10f
+        circularProgressDrawable.centerRadius = 50f
+        circularProgressDrawable.setColorSchemeColors(fetchAccentColor())
+        circularProgressDrawable.start()
+
         val url = listUrlGifs[position].replace("http", "https").replace(" ","")
         GlideApp.with(context)
                 .asGif()
                 .load(url)
                 .transition(DrawableTransitionOptions.withCrossFade())
-                .placeholder(R.drawable.img_loading_image)
+                .placeholder(circularProgressDrawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .override(400, 400)
                 .error(R.drawable.ic_error_outline)
@@ -59,6 +67,16 @@ public fun setEmmiter(e: GifsEmmiter){
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivGifs = view.ivGif
     }
+//helper
+private fun fetchAccentColor(): Int {
+    val typedValue = TypedValue()
 
+    val a = context.obtainStyledAttributes(typedValue.data, intArrayOf(R.attr.colorAccent))
+    val color = a.getColor(0, 0)
+
+    a.recycle()
+
+    return color
+}
 
 }
