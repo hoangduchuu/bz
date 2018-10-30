@@ -46,6 +46,7 @@
             android:id="@+id/sticker"
             android:layout_width="180dp"
             android:layout_height="wrap_content"
+            android:background="@color/gray_color_20"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter" />
 

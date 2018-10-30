@@ -2,12 +2,14 @@ package com.ping.android.presentation.view.flexibleitem.messages
 
 import android.graphics.Outline
 import android.text.TextUtils
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bzzzchat.configuration.GlideApp
@@ -82,17 +84,33 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
 
 
         private fun setImageMessage(message: Message) {
+            val circularProgressDrawable = CircularProgressDrawable(itemView.context)
+            circularProgressDrawable.strokeWidth = 10f
+            circularProgressDrawable.centerRadius = 50f
+            circularProgressDrawable.setColorSchemeColors(fetchAccentColor())
+            circularProgressDrawable.start()
             loadingView.visibility = View.GONE
             GlideApp.with(itemView.context)
                     .asGif()
                     .load(message.mediaUrl)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .placeholder(R.drawable.img_loading_image)
+                    .placeholder(circularProgressDrawable)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .override(400, 400)
                     .error(R.drawable.ic_error_outline)
                     .fitCenter()
                     .into(imageView!!)
+        }
+
+        private fun fetchAccentColor(): Int {
+            val typedValue = TypedValue()
+
+            val a = itemView.context.obtainStyledAttributes(typedValue.data, intArrayOf(R.attr.colorAccent))
+            val color = a.getColor(0, 0)
+
+            a.recycle()
+
+            return color
         }
     }
 }
