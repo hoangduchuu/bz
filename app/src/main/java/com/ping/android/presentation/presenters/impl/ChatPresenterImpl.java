@@ -72,7 +72,6 @@ import javax.inject.Inject;
  */
 
 public class ChatPresenterImpl implements ChatPresenter {
-    private Message mMessage;
     @Inject
     ChatPresenter.View view;
     @Inject
@@ -552,10 +551,8 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 super.onNext(message);
-                mMessage = message;
                 if (!message.isCached) {
-                    // move to onComplete
-//                    sendNotification(conversation, message.key, message.message, MessageType.VIDEO);
+                    sendNotification(conversation, message.key, message.message, MessageType.VIDEO);
                 } else {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
@@ -565,13 +562,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
-            }
-
-            @Override
-            public void onComplete() {
-                super.onComplete();
-                sendNotification(conversation, mMessage.key, mMessage.message, MessageType.VIDEO);
-
             }
         }, params);
     }
