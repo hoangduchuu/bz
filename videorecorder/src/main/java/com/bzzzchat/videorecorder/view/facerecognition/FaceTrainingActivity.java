@@ -37,7 +37,6 @@ import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePrevie
 import com.bzzzchat.videorecorder.view.facerecognition.others.FaceGraphic;
 import com.bzzzchat.videorecorder.view.facerecognition.others.GraphicOverlay;
 import com.bzzzchat.videorecorder.view.facerecognition.others.Utils;
-import com.bzzzchat.videorecorder.view.facerecognition.preprocessor.PreProcessorFactory;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -102,8 +101,6 @@ public class FaceTrainingActivity extends AppCompatActivity {
     private int index = 1;
     private int requiredImages = 10;
 
-    PreProcessorFactory preProcessorFactory;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +113,6 @@ public class FaceTrainingActivity extends AppCompatActivity {
         ivAutoFocus = findViewById(R.id.ivAutoFocus);
         progress = findViewById(R.id.progress);
 
-        preProcessorFactory = new PreProcessorFactory(this);
         File trainingFolder = new File(FaceRecognition.getInstance().getTrainingFolder());
         trainingFolder.delete();
 
@@ -248,7 +244,7 @@ public class FaceTrainingActivity extends AppCompatActivity {
                                                 //Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.getAbsolutePath());
                                                 Utils.saveBitmap(faceBitmap, file.getAbsolutePath());
                                                 //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
-                                                Utils.smooth(file.getAbsolutePath());
+                                                //Utils.smooth(file.getAbsolutePath());
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {

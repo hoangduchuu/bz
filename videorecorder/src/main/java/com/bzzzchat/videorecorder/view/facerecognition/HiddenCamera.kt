@@ -120,7 +120,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                         //Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.absolutePath)
                         Utils.saveBitmap(faceBitmap, file.absolutePath)
 //                        Utils.brightnessAndContrastAuto(file.absolutePath)
-                        Utils.smooth(file.absolutePath)
+//                        Utils.smooth(file.absolutePath)
                         processFaceRecognition(file.absolutePath)
                     }
                     isProcessingImage.set(false)

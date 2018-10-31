@@ -33,7 +33,7 @@ public class PreProcessorFactory {
     private List<Mat> images;
 
     static {
-        new OpenCVNativeLoader().init();
+        //new OpenCVNativeLoader().init();
     }
 
     public PreProcessorFactory(Context context) {
