@@ -1,42 +1,39 @@
 package com.ping.android.presentation.view.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.app.AlertDialog;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.MainModule;
-import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
 import com.ping.android.model.enums.Color;
+import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.MainPresenter;
 import com.ping.android.presentation.view.fragment.CallFragment;
 import com.ping.android.presentation.view.fragment.ContactFragment;
 import com.ping.android.presentation.view.fragment.ConversationFragment;
 import com.ping.android.presentation.view.fragment.GroupFragment;
 import com.ping.android.presentation.view.fragment.ProfileFragment;
-import com.ping.android.utils.BadgeHelper;
 import com.ping.android.utils.KeyboardHelpers;
-import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -46,23 +43,33 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-public class MainActivity extends CoreActivity implements HasComponent<MainComponent>,MainPresenter.View {
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+import me.leolin.shortcutbadger.ShortcutBadger;
+
+public class MainActivity extends CoreActivity implements HasSupportFragmentInjector, MainPresenter.View {
 
     SharedPreferences prefs;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
-    private BadgeHelper badgeHelper;
 
     @Inject
     public MainPresenter presenter;
-    private MainComponent component;
+    @Inject
+    public BusProvider busProvider;
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
+
+    private boolean dispatchTouch = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
         presenter.create();
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(ChatActivity.CONVERSATION_ID)) {
@@ -71,13 +78,12 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         setContentView(R.layout.activity_main);
 
         init();
-        observeBadgeNumber();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        startCallService(this);
+        //startCallService(this);
     }
 
     @Override
@@ -99,6 +105,14 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (dispatchTouch) {
+            return true;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     public void connectivityChanged(boolean availableNow) {
         if (availableNow) {
             presenter.onNetworkAvailable();
@@ -110,9 +124,12 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         return presenter;
     }
 
+    public void disallowDispatchTouch() {
+        new Handler().postDelayed(() -> dispatchTouch = false, 1000);
+    }
+
     private void init() {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        badgeHelper = new BadgeHelper(this);
         viewPager = findViewById(R.id.viewpager);
         setupViewPager(viewPager);
 
@@ -120,6 +137,16 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
         onChangeTab();
+
+        registerEvent(busProvider.getEvents()
+                .subscribe(o -> {
+                    if (o instanceof BadgeCountUpdateEvent) {
+                        updateMissedCallCount(((BadgeCountUpdateEvent) o).missedCallCount);
+                        updateMessageCount(((BadgeCountUpdateEvent) o).messageCount);
+
+                        ShortcutBadger.applyCount(this, ((BadgeCountUpdateEvent) o).totalBadgeCount());
+                    }
+                }));
     }
 
     public void onEditMode(Boolean isEditMode) {
@@ -132,22 +159,6 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
                 tabLayout.setVisibility(View.VISIBLE);
             }
         }, 10);
-    }
-
-    private void observeBadgeNumber() {
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        int messageCount = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
-        updateMessageCount(messageCount);
-        listener = (prefs, key) -> {
-            if (key.equals(Constant.PREFS_KEY_MESSAGE_COUNT)) {
-                int messageCount1 = prefs.getInt(key, 0);
-                updateMessageCount(messageCount1);
-            } else if (key.equals(Constant.PREFS_KEY_MISSED_CALL_COUNT)) {
-                int count = prefs.getInt(key, 0);
-                updateMissedCallCount(count);
-            }
-        };
-        prefs.registerOnSharedPreferenceChangeListener(listener);
     }
 
     private void setupTabIcons() {
@@ -179,16 +190,10 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     private void invalidateTabs(int selected) {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setCustomView(null);
-            tabLayout.getTabAt(i).setCustomView(getTabIcon(i, i == selected));
+            tabLayout.getTabAt(i).getCustomView().findViewById(R.id.tab_item_icon).setSelected(i == selected);
         }
-        int messageCount1 = prefs.getInt(Constant.PREFS_KEY_MESSAGE_COUNT, 0);
-        updateMessageCount(messageCount1);
         if (selected == 1) {
             resetMissedCall();
-        } else {
-            int count = prefs.getInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-            updateMissedCallCount(count);
         }
     }
 
@@ -198,12 +203,7 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     private void resetMissedCall() {
         // Reset missed count
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(Constant.PREFS_KEY_MISSED_CALL_COUNT, 0);
-        editor.putLong(Constant.PREFS_KEY_MISSED_CALL_TIMESTAMP, System.currentTimeMillis());
-        editor.apply();
         presenter.removeMissedCallsBadge();
-        badgeHelper.clearMissedCall();
     }
 
     public void callAdded(Call call) {
@@ -222,40 +222,30 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
 
     private View getTabIcon(int position, boolean selected) {
         int iconID = 0;
-        int colorID = selected ? R.color.orange : R.color.black_transparent_50;
-        String title = "Messages";
         View v;
         switch (position) {
             case 0:
-                iconID = selected ? R.drawable.ic_home_message_selected : R.drawable.ic_home_message;
-                title = "Messages";
+                iconID = R.drawable.ic_home_message_selector;
                 break;
             case 1:
-                iconID = selected ? R.drawable.ic_home_call_selected : R.drawable.ic_home_call;
-                title = "Calls";
+                iconID = R.drawable.ic_home_call_selector;
                 break;
             case 2:
-                iconID = selected ? R.drawable.ic_home_group_selected : R.drawable.ic_home_group;
-                title = "Groups";
+                iconID = R.drawable.ic_home_group_selector;
                 break;
             case 3:
-                iconID = selected ? R.drawable.ic_home_friend_selected : R.drawable.ic_home_friend;
-                title = "Contacts";
+                iconID = R.drawable.ic_home_friend_selector;
                 break;
             case 4:
-                iconID = selected ? R.drawable.ic_home_profile_selected : R.drawable.ic_home_profile;
-                title = "Profile";
+                iconID = R.drawable.ic_home_profile_selector;
                 break;
         }
 
         ImageView iconView;
-        TextView titleView;
         v = LayoutInflater.from(this).inflate(R.layout.tab_layout_message, null);
         iconView = v.findViewById(R.id.tab_item_icon);
         iconView.setImageResource(iconID);
-        titleView = v.findViewById(R.id.tab_item_title);
-        titleView.setText(title);
-        titleView.setTextColor(getResources().getColor(colorID));
+        iconView.setSelected(selected);
 
         return v;
     }
@@ -318,40 +308,23 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
     }
 
     @Override
-    public MainComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideMainComponent(new MainModule(this));
-        }
-        return component;
-    }
-
-    @Override
     public void openPhoneRequireView() {
         startActivity(new Intent(MainActivity.this, PhoneActivity.class));
     }
 
     @Override
     public void showMappingConfirm() {
-        new AlertDialog.Builder(MainActivity.this)
+        String message = "Your Transphabet was randomized using Emoji. Do you want to manually make changes to it?";
+        new AlertDialog.Builder(this)
                 .setTitle("NOTICE")
-                .setMessage("Mask your messages by replacing the Alphabet with your own characters. Do you want to manually make changes to the Alphabet?")
+                .setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
-                        presenter.turnOffMappingConfirmation();
-                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
-                    }
+                .setPositiveButton("Yes", (dialog, whichButton) -> {
+                    startActivity(new Intent(MainActivity.this, TransphabetActivity.class));
+                    presenter.turnOffMappingConfirmation();
                 })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Map<String, String> mappings = UsersUtils.randomizeTransphabet();
-                        presenter.randomizeTransphabet(mappings);
-                        presenter.turnOffMappingConfirmation();
-                        //ServiceManager.getInstance().updateShowMappingConfirm(true);
-                    }
+                .setNegativeButton("No", (dialog, which) -> {
+                    presenter.turnOffMappingConfirmation();
                 }).show();
     }
 
@@ -367,6 +340,11 @@ public class MainActivity extends CoreActivity implements HasComponent<MainCompo
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, color.getCode());
         startActivity(intent);
+    }
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

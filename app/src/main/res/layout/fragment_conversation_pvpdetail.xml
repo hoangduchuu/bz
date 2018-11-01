@@ -102,9 +102,9 @@
                 app:leftIcon="@drawable/ic_block"
                 app:showDivider="false"
                 app:leftIconTint="?colorAccent"
-                app:title="@string/conversation_detail_block">
+                app:titleText="@string/conversation_detail_block">
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/user_profile_block"
                     style="@style/ItemSettingIconRight.Toggle" />
 

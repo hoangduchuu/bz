@@ -11,3 +11,11 @@ import android.view.ViewGroup
 fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
 }
+
+fun View.toggleVisibility() {
+    visibility = if (visibility == View.GONE) {
+        View.VISIBLE
+    } else {
+        View.GONE
+    }
+}

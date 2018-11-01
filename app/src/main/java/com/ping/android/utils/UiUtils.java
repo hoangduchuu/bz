@@ -6,37 +6,37 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DimenRes;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntRange;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import android.text.TextUtils;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.signature.ObjectKey;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.bumptech.glide.signature.ObjectKey;
 import com.bzzzchat.configuration.GlideApp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.CoreApp;
 import com.ping.android.R;
-import com.ping.android.model.User;
 import com.ping.android.model.Callback;
-import com.quickblox.core.helper.FileHelper;
+import com.ping.android.model.User;
 
 import org.jivesoftware.smack.util.StringUtils;
 
@@ -119,12 +119,7 @@ public class UiUtils {
             StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.profile);
             GlideApp.with(imageView.getContext())
                     .load(gsReference)
-                    .placeholder(placeholder)
-                    .error(placeholder)
-                    .override(200, 200)
-                    .apply(RequestOptions.circleCropTransform())
-                    .signature(new ObjectKey(user.profile))
-                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+                    .profileImage()
                     .into(imageView);
         } else {
             imageView.setImageResource(placeholder);
@@ -194,7 +189,7 @@ public class UiUtils {
                 .error(R.drawable.ic_avatar_gray)
                 .override(100, 100)
                 .apply(RequestOptions.circleCropTransform())
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
     }
 
@@ -214,7 +209,7 @@ public class UiUtils {
                 .into(imageView);
     }
 
-    public static void displayProfileAvatar(ImageView imageView, String firebaseUrl, Callback callback) {
+    public static void displayProfileAvatar(Fragment fragment, ImageView imageView, String firebaseUrl, Callback callback) {
         if (TextUtils.isEmpty(firebaseUrl)) {
             imageView.setImageResource(IMG_DEFAULT);
             if (callback != null) {
@@ -223,7 +218,7 @@ public class UiUtils {
             return;
         }
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(firebaseUrl);
-        GlideApp.with(imageView.getContext())
+        GlideApp.with(fragment)
                 .load(gsReference)
                 .apply(RequestOptions.circleCropTransform())
                 .override(100, 100)
@@ -246,7 +241,7 @@ public class UiUtils {
     }
 
     public static void loadImageFromFile(ImageView imageView, String filePath, String messageKey, boolean bitmapMark) {
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
         GlideApp.with(imageView.getContext())
                 .load(filePath)
@@ -272,7 +267,7 @@ public class UiUtils {
                 callback.complete(new Error());
             }
         };
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         GlideApp.with(imageView.getContext())
                 .asBitmap()
                 .load(filePath)
@@ -293,7 +288,7 @@ public class UiUtils {
         }
 
         StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded"));
+        ObjectKey key = new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded"));
         GlideApp.with(imageView.getContext())
                 .load(gsReference)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -306,7 +301,6 @@ public class UiUtils {
     }
 
     public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Callback callback) {
-
         if (TextUtils.isEmpty(imageUrl)) {
             return null;
         }
@@ -330,12 +324,45 @@ public class UiUtils {
                 .placeholder(R.drawable.img_loading_bottom)
                 .override(512)
                 .transform(new BitmapEncode(bitmapMark))
-                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark? "encoded":"decoded")))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
                 .into(target);
         return target;
     }
 
-    public static @Nullable Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) throws Throwable {
+    public static SimpleTarget<Bitmap> loadImage(ImageView imageView, String imageUrl, String messageKey, boolean bitmapMark, Drawable placeholder, Callback callback) {
+        if (TextUtils.isEmpty(imageUrl)) {
+            return null;
+        }
+        if (placeholder == null) {
+            placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+        }
+        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
+        SimpleTarget<Bitmap> target = new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                Log.d("Image loaded " + imageUrl);
+                callback.complete(null, resource);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                callback.complete(new Error());
+            }
+        };
+        GlideApp.with(imageView.getContext())
+                .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .load(gsReference)
+                .placeholder(placeholder)
+                .override(512)
+                .transform(new BitmapEncode(bitmapMark))
+                .signature(new ObjectKey(String.format("%s%s", messageKey, bitmapMark ? "encoded" : "decoded")))
+                .into(target);
+        return target;
+    }
+
+    public static @Nullable
+    Bitmap retrieveVideoFrameFromVideo(Context context, String videoPath) {
         Bitmap bitmap = null;
         MediaMetadataRetriever mediaMetadataRetriever = null;
         try {
@@ -361,23 +388,43 @@ public class UiUtils {
         imm.hideSoftInputFromWindow(activity.getWindow().getDecorView().getWindowToken(), 0);
     }
 
-    public static void setUpHideSoftKeyboard(final Activity activity, final View view) {
-        if (view == null) return;
-        //Set up touch listener for non-text box views to hide keyboard.
-        if (!(view instanceof EditText)) {
-            view.setOnTouchListener(new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    hideSoftKeyboard(activity);
-                    return false;
-                }
-            });
-        }
+    public static Bitmap blurBitmap(Context context, Bitmap bitmap) {
 
-        if (view instanceof ViewGroup) { //If a layout container, iterate over children and seed recursion.
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                View innerView = ((ViewGroup) view).getChildAt(i);
-                setUpHideSoftKeyboard(activity, innerView);
-            }
-        }
+        //Let's create an empty bitmap with the same size of the bitmap we want to blur
+        Bitmap outBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+
+        //Instantiate a new Renderscript
+        RenderScript rs = RenderScript.create(context.getApplicationContext());
+
+        //Create an Intrinsic Blur Script using the Renderscript
+        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+
+        //Create the Allocations (in/out) with the Renderscript and the in/out bitmaps
+        Allocation allIn = Allocation.createFromBitmap(rs, bitmap);
+        Allocation allOut = Allocation.createFromBitmap(rs, outBitmap);
+
+        //Set the radius of the blur
+        blurScript.setRadius(25.f);
+
+        //Perform the Renderscript
+        blurScript.setInput(allIn);
+        blurScript.forEach(allOut);
+
+        //Copy the final bitmap created by the out Allocation to the outBitmap
+        allOut.copyTo(outBitmap);
+
+        //recycle the original bitmap
+        bitmap.recycle();
+
+        //After finishing everything, we destroy the Renderscript.
+        rs.destroy();
+
+        return outBitmap;
+    }
+
+    public static String getFileName(String filePath) {
+        String[] components = filePath.split("/");
+        if (components.length <= 0) return "";
+        return components[components.length - 1];
     }
 }

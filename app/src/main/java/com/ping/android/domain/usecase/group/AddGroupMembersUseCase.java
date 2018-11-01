@@ -4,8 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
-import com.ping.android.domain.repository.GroupRepository;
-import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
@@ -28,7 +27,7 @@ public class AddGroupMembersUseCase extends UseCase<List<User>, AddGroupMembersU
     @Inject
     CommonRepository commonRepository;
     @Inject
-    UserRepository userRepository;
+    UserManager userManager;
 
     @Inject
     public AddGroupMembersUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -66,7 +65,7 @@ public class AddGroupMembersUseCase extends UseCase<List<User>, AddGroupMembersU
             updateValue.put(String.format("conversations/%s/%s", userId, conversation.key), conversation.toMap());
         }
         return commonRepository.updateBatchData(updateValue)
-                .flatMap(aBoolean -> userRepository.getUserList(group.memberIDs));
+                .flatMap(aBoolean -> userManager.getUserList(group.memberIDs));
     }
 
     public static class Params {

@@ -1,17 +1,11 @@
 package com.ping.android.utils;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
-
-import com.quickblox.videochat.webrtc.AppRTCAudioManager;
-
-import java.io.IOException;
-import java.util.stream.Stream;
 
 
 /**

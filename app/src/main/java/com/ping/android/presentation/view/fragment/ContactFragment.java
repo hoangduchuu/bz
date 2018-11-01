@@ -2,10 +2,10 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +13,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.ping.android.presentation.view.activity.AddContactActivity;
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.contact.ContactComponent;
-import com.ping.android.dagger.loggedin.main.contact.ContactModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ContactPresenter;
+import com.ping.android.presentation.view.activity.AddContactActivity;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.ContactAdapter;
 import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 public class ContactFragment extends BaseFragment
         implements View.OnClickListener, ContactAdapter.ClickListener, ContactPresenter.View {
@@ -37,12 +36,11 @@ public class ContactFragment extends BaseFragment
 
     @Inject
     ContactPresenter presenter;
-    ContactComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        component().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -140,14 +138,6 @@ public class ContactFragment extends BaseFragment
         }
         Intent intent = new Intent(getActivity(), AddContactActivity.class);
         startActivity(intent);
-    }
-
-    private ContactComponent component() {
-        if (component == null) {
-            component = getComponent(MainComponent.class)
-                    .provideContactComponent(new ContactModule(this));
-        }
-        return component;
     }
 
     @Override

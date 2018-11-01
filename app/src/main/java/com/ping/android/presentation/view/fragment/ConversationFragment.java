@@ -3,12 +3,13 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,6 @@ import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.conversation.ConversationComponent;
-import com.ping.android.dagger.loggedin.main.conversation.ConversationModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.enums.NetworkStatus;
@@ -35,6 +33,7 @@ import com.ping.android.presentation.view.activity.NewChatActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
 import com.ping.android.presentation.view.adapter.MessageAdapter;
 import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.bus.events.ConversationChangeEvent;
 import com.ping.android.utils.configs.Constant;
 
@@ -43,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 public class ConversationFragment extends BaseFragment implements View.OnClickListener,
         MessageAdapter.ConversationItemListener, ConversationListPresenter.View {
@@ -57,6 +58,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
     private boolean isEditMode;
+    //private boolean isScrollToTop = false;
 
     private SharedPreferences prefs;
 
@@ -64,12 +66,11 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     ConversationListPresenter presenter;
     @Inject
     BusProvider busProvider;
-    ConversationComponent component;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        component().inject(this);
+        AndroidSupportInjection.inject(this);
         presenter.create();
         listenTransphabetChanged();
     }
@@ -120,6 +121,13 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         presenter.getConversations();
         // Load data
         //observeMessages();
+        registerEvent(busProvider.getEvents()
+                .subscribe(o -> {
+                    if (o instanceof BadgeCountUpdateEvent) {
+                        Map<String, Integer> badgesCount = ((BadgeCountUpdateEvent) o).conversationBadgeMap;
+                        adapter.updateBadgesCount(badgesCount);
+                    }
+                }));
     }
 
     private void bindViews(View view) {
@@ -206,7 +214,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void scrollToTop() {
-        listChat.scrollToPosition(0);
+        listChat.post(() -> listChat.scrollToPosition(0));
     }
 
     private void onNewChat() {
@@ -240,8 +248,10 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         ArrayList<Conversation> readConversations = new ArrayList<>(adapter.getSelectConversation());
         presenter.deleteConversations(readConversations);
         adapter.cleanSelectConversation();
-        isEditMode = false;
-        updateEditMode();
+        new Handler().postDelayed(() -> {
+            isEditMode = false;
+            updateEditMode();
+        }, 500);
     }
 
     @Override
@@ -276,19 +286,17 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
 
     @Override
     public void onOpenChatScreen(Conversation conversation, Pair<View, String>... sharedElements) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("CONVERSATION", conversation);
+        //Bundle bundle = new Bundle();
+        //bundle.putParcelable("CONVERSATION", conversation);
         Intent intent = new Intent(getContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, conversation.conversationName);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_TRANSITION_NAME, sharedElements[0].second);
-        intent.putExtras(bundle);
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(),
-                sharedElements
-        );
-        startActivity(intent, options.toBundle());
+        //intent.putExtras(bundle);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(getActivity(),
+                    android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent);
     }
 
     @Override
@@ -297,29 +305,22 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     }
 
     private void updateUnreadNumber() {
-        int unread = adapter.unreadNum();
-        prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
-    }
-
-    public ConversationComponent component() {
-        if (component == null) {
-            component = getComponent(MainComponent.class).provideConversationComponent(new ConversationModule(this));
-        }
-        return component;
+        //int unread = adapter.unreadNum();
+        //prefs.edit().putInt(Constant.PREFS_KEY_MESSAGE_COUNT, unread).apply();
     }
 
     @Override
     public void addConversation(Conversation conversation) {
         adapter.updateConversation(conversation, true);
         updateUnreadNumber();
-        //scrollToTop();
+        scrollToTop();
     }
 
     @Override
     public void updateConversation(Conversation conversation) {
         adapter.updateConversation(conversation, false);
         updateUnreadNumber();
-        //scrollToTop();
+        scrollToTop();
     }
 
     @Override
@@ -368,6 +369,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     public void hideConnecting() {
         if (getActivity() instanceof CoreActivity) {
             ((CoreActivity) getActivity()).connectivityChanged(NetworkStatus.CONNECTED);
+            ((MainActivity) getActivity()).disallowDispatchTouch();
         }
     }
 

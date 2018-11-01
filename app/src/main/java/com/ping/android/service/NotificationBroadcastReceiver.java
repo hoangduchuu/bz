@@ -4,16 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.RemoteInput;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.RemoteInput;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.Toast;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.App;
-import com.ping.android.R;
 import com.ping.android.device.impl.NotificationImpl;
 import com.ping.android.domain.usecase.CallbackUseCase;
 import com.ping.android.domain.usecase.notification.ReplyMessageFromNotificationUseCase;
@@ -102,13 +100,13 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
     private void updateNotification(Context context, int notifyId) {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
+        notificationManager.cancel(notifyId);
+        /*NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "message")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentText(context.getString(R.string.notif_content_sent))
                 .setTimeoutAfter(60000); // Dismiss after 1min
 
-        notificationManager.notify(notifyId, builder.build());
+        notificationManager.notify(notifyId, builder.build());*/
     }
 
     public CharSequence getReplyMessage(Intent intent) {

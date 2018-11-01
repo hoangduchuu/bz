@@ -41,6 +41,7 @@ public class IncomingCallPresenterImpl implements IncomingCallPresenter, CallAct
 
     @Override
     public void destroy() {
+        view = null;
         callPresenter.removeCallStateCallback(this);
     }
 

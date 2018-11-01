@@ -1,6 +1,6 @@
 package com.ping.android.model.enums
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.ping.android.R
 
 enum class MessageCallType(val code: Int) {

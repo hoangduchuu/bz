@@ -4,7 +4,6 @@ import com.bzzz.rxquickblox.RxJava2PerformProcessor;
 import com.google.gson.JsonObject;
 import com.ping.android.BuildConfig;
 import com.ping.android.domain.repository.NotificationRepository;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.core.server.Performer;
@@ -62,6 +61,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("senderId", senderId);
         object.addProperty("senderProfile", senderProfileImage);
         object.addProperty("isVideo", isVideo ? 1 : 0);
+        object.addProperty("badge_count", badgeNumber + 1);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(quickBloxId);
@@ -73,7 +73,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 
     @Override
     public Observable<Boolean> sendMessageNotification(String senderId, String senderProfileImage, String body,
-                                                       String conversationId, Message message,
+                                                       String conversationId, String messageId, int messageType,
                                                        User user, int badgeNumber) {
         JsonObject object = new JsonObject();
         object.addProperty("data", body);
@@ -82,18 +82,13 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_content_available", 1);
         object.addProperty("ios_category", "incoming_message");
         object.addProperty("notificationType", "incoming_message");
-        object.addProperty("timestamp", message.timestamp);
-        object.addProperty("originMessage", message.message);
-        object.addProperty("senderName", message.senderName);
+        object.addProperty("messageId",messageId);
         object.addProperty("conversationId", conversationId);
-        object.addProperty("photoUrl", message.photoUrl);
-        object.addProperty("thumbUrl", message.thumbUrl);
-        object.addProperty("audioUrl", message.audioUrl);
-        object.addProperty("gameUrl", message.gameUrl);
         object.addProperty("senderId", senderId);
         object.addProperty("senderProfile", senderProfileImage);
-        object.addProperty("messageType", message.messageType);
+        object.addProperty("messageType", messageType);
         object.addProperty("ios_badge", badgeNumber + 1);
+        object.addProperty("badge_count", badgeNumber + 1);
 
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
@@ -121,6 +116,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("senderId", senderId);
         object.addProperty("messageType", Constant.MSG_TYPE_GAME);
         object.addProperty("ios_badge", badgeNumber + 1);
+        object.addProperty("badge_count", badgeNumber + 1);
         QBEvent event = new QBEvent();
         event.setNotificationType(QBNotificationType.PUSH);
         event.addUserIds(opponentQbId);

@@ -3,9 +3,11 @@ package com.ping.android.domain.repository;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.entity.CallEntity;
-import com.ping.android.model.Call;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.model.Badge;
 import com.ping.android.model.User;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -41,8 +43,6 @@ public interface UserRepository {
 
     Observable<User> getUserByQuickBloxId(Integer qbId);
 
-    Observable<Boolean> removeUserBadge(String userId, String key);
-
     Observable<ChildEvent> observeBlockedContacts(String key);
 
     Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean);
@@ -57,13 +57,19 @@ public interface UserRepository {
 
     Observable<Integer> readBadgeNumbers(String userId);
 
+    Observable<Boolean> removeUserBadge(String userId, String key);
+
+    Observable<Boolean> increaseBadgeNumber(String userId, String key);
+
+    Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey);
+
+    Observable<ChildData<Badge>> observeBadgeCountChildEvent(@NotNull String userKey);
+
     Observable<Boolean> turnOffMappingConfirmation(String key);
 
     Observable<Boolean> updatePhoneNumber(String userKey, String s);
 
     Observable<Map<String, String>> observeMappings(String key);
-
-    Observable<List<User>> getUserList(Map<String, Boolean> userIds);
 
     Observable<ChildEvent> observeFriendsChildEvent(String userId);
 
@@ -76,4 +82,10 @@ public interface UserRepository {
     Observable<List<CallEntity>> loadMoreCalls(String key, Double params);
 
     Observable<Boolean> addCallHistory(CallEntity entity);
+
+    Observable<User> loginByEmail(String email, String password);
+
+    Observable<User> checkValidUser(String userName);
+
+    Observable<User> observeUsersChanged();
 }

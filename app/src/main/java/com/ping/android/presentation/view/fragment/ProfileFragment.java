@@ -1,43 +1,39 @@
 package com.ping.android.presentation.view.fragment;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SwitchCompat;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.ping.android.presentation.view.activity.BeforeLoginActivity;
+import com.ping.android.R;
+import com.ping.android.model.User;
+import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
-import com.ping.android.R;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.profile.ProfileComponent;
-import com.ping.android.dagger.loggedin.main.profile.ProfileModule;
-import com.ping.android.model.User;
-import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
 
 import javax.inject.Inject;
 
+import dagger.android.support.AndroidSupportInjection;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class ProfileFragment extends BaseFragment implements View.OnClickListener, ProfilePresenter.View {
@@ -53,12 +49,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Inject
     ProfilePresenter presenter;
-    ProfileComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -290,13 +285,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void uploadProfile() {
         presenter.uploadUserProfile(profileFilePath);
-    }
-
-    public ProfileComponent getComponent() {
-        if (component == null) {
-            component = getComponent(MainComponent.class).provideProfileComponent(new ProfileModule(this));
-        }
-        return component;
     }
 
     @Override

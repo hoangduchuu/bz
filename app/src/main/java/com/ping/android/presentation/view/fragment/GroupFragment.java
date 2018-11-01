@@ -2,11 +2,10 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +14,10 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bzzzchat.configuration.GlideApp;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.main.MainComponent;
-import com.ping.android.dagger.loggedin.main.group.GroupComponent;
-import com.ping.android.dagger.loggedin.main.group.GroupModule;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.presenters.GroupPresenter;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
@@ -32,7 +30,9 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.ClickListener, GroupPresenter.View {
+import dagger.android.support.AndroidSupportInjection;
+
+public class GroupFragment extends BaseFragment implements View.OnClickListener, GroupAdapter.GroupListener, GroupPresenter.View {
     private RelativeLayout bottomMenu;
     private RecyclerView listGroup;
     private LinearLayoutManager linearLayoutManager;
@@ -44,12 +44,11 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
 
     @Inject
     GroupPresenter presenter;
-    private GroupComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         presenter.create();
         init();
         loadData = true;
@@ -116,7 +115,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     private void init() {
-        adapter = new GroupAdapter(this);
+        adapter = new GroupAdapter(GlideApp.with(this), this);
     }
 
     private void bindData() {
@@ -194,12 +193,7 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
 
     @Override
     public void onSendMessage(Group group) {
-        if (TextUtils.isEmpty(group.conversationID)) {
-            presenter.createConversation(group);
-        } else {
-            moveToChatScreen(group.conversationID);
-        }
-
+        presenter.handleGroupPress(group);
     }
 
     @Override
@@ -219,14 +213,6 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     @Override
     public void onSelect(ArrayList<Group> groups) {
         updateEditMode();
-    }
-
-    public GroupComponent getComponent() {
-        if (component == null) {
-            component = getComponent(MainComponent.class)
-                    .provideGroupComponent(new GroupModule(this));
-        }
-        return component;
     }
 
     private void scrollToTop() {
@@ -250,9 +236,14 @@ public class GroupFragment extends BaseFragment implements View.OnClickListener,
     }
 
     @Override
-    public void moveToChatScreen(String conversationId) {
+    public void moveToChatScreen(Conversation conversation) {
         Intent intent = new Intent(getContext(), ChatActivity.class);
-        intent.putExtra(ChatActivity.CONVERSATION_ID, conversationId);
-        getContext().startActivity(intent);
+        intent.putExtra(ChatActivity.CONVERSATION_ID, conversation.key);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_NAME, conversation.conversationName);
+        intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, conversation.currentColor.getCode());
+        //intent.putExtras(bundle);
+        Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(getActivity(),
+                android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
+        startActivity(intent, bundle);
     }
 }

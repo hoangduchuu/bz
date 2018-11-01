@@ -2,23 +2,19 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.pvp.ConversationDetailPVPModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationPVPDetailPresenter;
@@ -32,6 +28,8 @@ import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,7 +55,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
     Navigator navigator;
     @Inject
     ConversationPVPDetailPresenter presenter;
-    ConversationDetailPVPComponent component;
 
     public static ConversationPVPDetailFragment newInstance(Bundle extras) {
         ConversationPVPDetailFragment fragment = new ConversationPVPDetailFragment();
@@ -68,7 +65,7 @@ public class ConversationPVPDetailFragment extends BaseFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
         }
@@ -216,7 +213,6 @@ public class ConversationPVPDetailFragment extends BaseFragment
     }
 
     private void onBlock() {
-        showLoading();
         presenter.toggleBlockUser(swBlock.isChecked());
     }
 
@@ -279,13 +275,5 @@ public class ConversationPVPDetailFragment extends BaseFragment
         Intent intent = new Intent(getContext(), GalleryActivity.class);
         intent.putExtra("conversation", conversation);
         startActivity(intent);
-    }
-
-    public ConversationDetailPVPComponent getComponent() {
-        if (component == null) {
-            component = getComponent(ConversationDetailComponent.class)
-                    .provideConversationDetailPVPComponent(new ConversationDetailPVPModule(this));
-        }
-        return component;
     }
 }

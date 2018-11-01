@@ -5,14 +5,16 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -33,7 +35,8 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     UserRepository userRepository;
     @Inject
     UserManager userManager;
-
+    @Inject
+    MessageMapper messageMapper;
     User currentUser;
 
     @Inject
@@ -46,56 +49,48 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
         currentUser = params.user;
         return messageRepository.observeMessageUpdate(params.conversation.key)
-                .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists()) {
-                        Message message = Message.from(childEvent.dataSnapshot);
-                        message.currentUserId = currentUser.key;
-                        message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
-                        return new ChildData<>(message, childEvent.type);
-                    } else {
-                        throw new NullPointerException();
-                    }
-                })
                 .flatMap(childData -> {
                     if (childData.getType() != ChildData.Type.CHILD_CHANGED) {
                         return Observable.empty();
                     }
-                    Message message = childData.getData();
-                    boolean isReadable = message.isReadable(currentUser.key);
+                    Message message = messageMapper.transform(childData.getData(), currentUser);
+                    ChildData<Message> data = new ChildData<>(message, childData.getType());
+                    boolean isReadable = childData.getData().isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
                     if (isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
                     boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, currentUser.key);
                     if (isDeleted) {
-                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
-                            childData.setType(ChildData.Type.CHILD_REMOVED);
-                            return Observable.just(childData);
+                        if (data.getType() == ChildData.Type.CHILD_CHANGED) {
+                            data.setType(ChildData.Type.CHILD_REMOVED);
+                            return Observable.just(data);
                         } else {
                             return Observable.empty();
                         }
                     } else {
-                        int status = CommonMethod.getIntFrom(message.status, currentUser.key);
-                        if (childData.getType() == ChildData.Type.CHILD_CHANGED) {
-                            if (message.messageType == Constant.MSG_TYPE_GAME) {
-                                // Update status of game if not update
-                                if (!TextUtils.isEmpty(message.gameUrl)
-                                        && !message.gameUrl.equals("PPhtotoMessageIdentifier")
-                                        && status == Constant.MESSAGE_STATUS_ERROR) {
-                                    messageRepository.updateMessageStatus(params.conversation.key,
-                                            message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
-                                            .subscribe();
-                                }
-                            }
-                            //updateReadStatus(message, params.conversation, status);
-                        } else if (childData.getType() == ChildData.Type.CHILD_ADDED) {
-                            //updateReadStatus(message, params.conversation, status);
+                        User sender = params.conversation.getUser(message.senderId);
+                        if (sender != null) {
+                            message.senderProfile = sender.profileImage();
+                            message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
                         }
-                        return getUser(childData.getData().senderId)
-                                .map(user -> {
-                                    childData.getData().sender = user;
-                                    return childData;
-                                });
+//                        if (message.type == MessageType.GAME) {
+//                            // Update status of game if not update
+//                            if (!TextUtils.isEmpty(message.mediaUrl)
+//                                    && message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
+//                                messageRepository.updateMessageStatus(params.conversation.key,
+//                                        message.key, currentUser.key, Constant.MESSAGE_STATUS_DELIVERED)
+//                                        .subscribe();
+//                            }
+//                        }
+                        //updateReadStatus(message, params.conversation, status);
+
+                        MessageEntity entity = childData.getData();
+                        entity.isMask = message.isMask;
+                        entity.messageStatusCode = message.messageStatusCode;
+                        messageRepository.saveMessage(entity);
+
+                        return Observable.just(data);
                     }
                 })
                 .onErrorResumeNext(Observable.empty());
@@ -103,28 +98,21 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
 
     /**
      * Update message status to Read
+     *
      * @param message
      * @param conversation
-     * @param status message status of current opponentUser. -1 if not exists on message's status
+     * @param status       message status of current opponentUser. -1 if not exists on message's status
      */
     private void updateReadStatus(Message message, Conversation conversation, int status) {
         if (!message.senderId.equals(currentUser.key)) {
             if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
                 //for (String userId : conversation.memberIDs.keySet()) {
-                    messageRepository.updateMessageStatus(conversation.key, message.key,
-                            currentUser.key, Constant.MESSAGE_STATUS_READ)
-                            .subscribe();
+                messageRepository.updateMessageStatus(conversation.key, message.key,
+                        currentUser.key, Constant.MESSAGE_STATUS_READ)
+                        .subscribe();
                 //}
             }
         }
-    }
-
-    private Observable<User> getUser(String userId) {
-        User user = userManager.getCacheUser(userId);
-        if (user != null) {
-            return Observable.just(user);
-        }
-        return userRepository.getUser(userId);
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {

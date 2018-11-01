@@ -9,28 +9,32 @@ import com.ping.android.model.User;
  */
 
 public interface UserDetailPresenter extends BasePresenter {
-    void sendMessageToUser(User user);
+    void init(String otherUserId);
+
+    void sendMessageToUser();
 
     void observeFriendStatus(String friendId);
 
-    void toggleBlockUser(String userId, boolean checked);
+    void toggleBlockUser(boolean checked);
 
-    void deleteContact(String key);
+    void deleteContact();
 
-    void addContact(String key);
+    void addContact();
 
-    void handleVoiceCallPress(User otherUser);
+    void handleVoiceCallPress();
 
-    void handleVideoCallPress(User otherUser);
+    void handleVideoCallPress();
 
     interface View extends BaseView {
 
-        void toggleBlockUser(User user);
+        void toggleBlockUser(boolean isBlocked);
 
         void openConversation(String s);
 
         void updateFriendStatus(boolean isFriend);
 
         void openCallScreen(User currentUser, User otherUser, boolean isVideoCall);
+
+        void updateUI(User otherUser);
     }
 }

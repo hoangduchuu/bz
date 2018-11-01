@@ -93,6 +93,9 @@ public class NewChatPresenterImpl implements NewChatPresenter {
 
     @Override
     public void destroy() {
+        view = null;
+        getCurrentUserUseCase.dispose();
+        createGroupUseCase.dispose();
         createPVPConversationUseCase.dispose();
     }
 }

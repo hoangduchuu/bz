@@ -1,5 +1,7 @@
 package com.ping.android.domain.repository;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.reactivex.Observable;
 
 /**
@@ -11,5 +13,13 @@ public interface StorageRepository {
 
     Observable<String> uploadFile(String key, String filePath);
 
+    Observable<String> uploadFile(String key, String fileName, byte[] bytes);
+
     Observable<String> uploadUserProfileImage(String userId, String filePath);
+
+    @NotNull
+    Observable<Boolean> downloadFile(@NotNull String url, @NotNull String saveFile);
+
+    @NotNull
+    Observable<String> uploadStickerFile(@NotNull String file);
 }

@@ -4,7 +4,7 @@ import com.ping.android.data.entity.CallEntity
 import com.ping.android.model.Call
 import com.ping.android.model.User
 import com.ping.android.utils.configs.Constant
-import java.util.HashMap
+import java.util.*
 import javax.inject.Inject
 
 class CallMapper @Inject constructor() {

@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -23,7 +23,7 @@
                 style="@style/TextTitle"
                 android:text="NEW GROUP" />
 
-            <Button
+            <TextView
                 android:id="@+id/new_group_save"
                 style="@style/ActionButton.TopMenu"
                 android:layout_alignParentEnd="true"
@@ -52,28 +52,59 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/default_padding"
                 android:background="@null"
+                android:textColorHint="@color/text_input_hint"
                 android:hint="Name this group" />
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
-                style="@style/AppTextAppearance"
+                android:id="@+id/txt_to"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/default_padding"
-                android:text="To: " />
+                android:layout_marginStart="@dimen/default_padding"
+                android:layout_marginTop="15dp"
+                android:paddingEnd="10dp"
+                android:text="To:"
+                android:textSize="@dimen/text_size_medium"
+                app:layout_constraintEnd_toStartOf="@+id/edtTo"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <com.ping.android.presentation.view.custom.ChipsEditText
-                android:id="@+id/edt_to"
+            <com.ping.android.presentation.view.custom.MaxHeightScrollView
+                android:id="@+id/recipientsContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@null" />
+                android:paddingTop="10dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@id/new_group_select_contact"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/txt_to"
+                app:layout_constraintTop_toTopOf="parent"
+                app:maxScrollViewHeight="100dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"></com.google.android.material.chip.ChipGroup>
+            </com.ping.android.presentation.view.custom.MaxHeightScrollView>
+
+            <EditText
+                android:id="@+id/edtTo"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:background="@null"
+                android:hint="@string/hint_username"
+                android:textColorHint="@color/text_input_hint"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/new_group_select_contact"
+                app:layout_constraintStart_toEndOf="@+id/txt_to"
+                app:layout_constraintTop_toBottomOf="@id/recipientsContainer" />
 
             <ImageView
                 android:id="@+id/new_group_select_contact"
@@ -82,9 +113,14 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_vertical"
                 android:scaleType="center"
-                android:src="@drawable/ic_add_circle" />
+                android:src="@drawable/ic_add_circle"
+                android:tint="@color/colorAccent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/edtTo" />
 
-        </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View style="@style/horizontal_divider" />
 
@@ -94,21 +130,22 @@
             android:layout_weight="1"
             android:background="@color/main_background_white">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/chat_list_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbars="none" />
 
-            <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/avi"
-                style="@style/AVLoadingIndicatorView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.github.ybq.android.spinkit.SpinKitView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.Small.ThreeBounce"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:layout_centerHorizontal="true"
                 android:visibility="gone"
-                app:indicatorColor="@color/colorAccent"
-                app:indicatorName="BallPulseIndicator" />
+                app:SpinKit_Color="@color/colorAccent" />
 
             <LinearLayout
                 android:id="@+id/no_results"
@@ -141,12 +178,16 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
+                android:textColorHint="@color/text_input_hint"
                 android:hint="New Message"
                 android:inputType="textNoSuggestions" />
 
-            <Button
+            <TextView
                 android:id="@+id/new_group_send_message_btn"
                 style="@style/ActionButton"
+                android:padding="10dp"
+                android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
                 android:text="Send" />
 
         </LinearLayout>
@@ -155,4 +196,4 @@
 
     <include layout="@layout/notify_network_other" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

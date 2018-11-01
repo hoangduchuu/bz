@@ -48,12 +48,13 @@ public class SendGameStatusNotificationUseCase extends UseCase<Boolean, SendGame
                     if (nickNames.containsKey(sender.key)) {
                         senderName = nickNames.get(sender.key);
                     }
-                    String body = senderName + (params.passed ? " passed a game you sent.": " failed to complete a game you sent.");
+                    String body = senderName + (params.passed ? " passed a game you sent." : " failed to complete a game you sent.");
                     final String userName = senderName;
                     return userRepository.readBadgeNumbers(params.opponentUser.key)
-                                        .flatMap(integer -> notificationRepository
-                                                .sendGameStatusNotificationToSender(sender.key, userName, params.opponentUser.quickBloxID,
-                                                        params.conversation.key, body, integer));
+                            .flatMap(integer -> notificationRepository
+                                    .sendGameStatusNotificationToSender(sender.key, userName, params.opponentUser.quickBloxID,
+                                            params.conversation.key, body, integer)
+                                    .flatMap(aBoolean -> userRepository.increaseBadgeNumber(params.opponentUser.key, params.conversation.key)));
                 });
     }
 

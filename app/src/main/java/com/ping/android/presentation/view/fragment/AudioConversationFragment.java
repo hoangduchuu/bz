@@ -2,27 +2,25 @@ package com.ping.android.presentation.view.fragment;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.call.CallComponent;
-import com.ping.android.dagger.loggedin.call.audio.AudioCallComponent;
-import com.ping.android.dagger.loggedin.call.audio.AudioCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AudioCallPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.users.model.QBUser;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 public class AudioConversationFragment extends BaseConversationFragment
         implements CallActivity.OnChangeDynamicToggle, AudioCallPresenter.View {
@@ -35,7 +33,6 @@ public class AudioConversationFragment extends BaseConversationFragment
 
     @Inject
     AudioCallPresenter presenter;
-    AudioCallComponent component;
 
     public static AudioConversationFragment newInstance() {
         AudioConversationFragment fragment = new AudioConversationFragment();
@@ -45,7 +42,7 @@ public class AudioConversationFragment extends BaseConversationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -145,13 +142,6 @@ public class AudioConversationFragment extends BaseConversationFragment
             audioSwitchToggleButton.setChecked(true);
         }
 
-    }
-
-    public AudioCallComponent getComponent() {
-        if (component == null) {
-            component = getComponent(CallComponent.class).provideAudioCallComponent(new AudioCallModule(this));
-        }
-        return component;
     }
 
     @Override

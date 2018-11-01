@@ -1,20 +1,16 @@
 package com.ping.android.utils;
 
 import android.app.Activity;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.View;
 
 import com.ping.android.presentation.view.fragment.BaseFragment;
 
-import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import static android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
+import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 
 /**
  * Helper class for navigating between fragments
@@ -130,6 +126,16 @@ public class Navigator {
                 .commit();
     }
 
+    public void openFragment(BaseFragment fragment, Map<String, View> map) {
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        transaction.add(containerId, fragment);
+        transaction.setReorderingAllowed(true);
+        for (String key : map.keySet()) {
+            transaction.addSharedElement(map.get(key), key);
+        }
+        transaction.addToBackStack(fragment.getClass().getName())
+                .commit();
+    }
     /**
      * Navigates back by popping teh back stack. If there is no more items left we finish the current activity.
      *

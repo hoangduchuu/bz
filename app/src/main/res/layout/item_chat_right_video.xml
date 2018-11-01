@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
@@ -43,6 +43,23 @@
             android:src="@drawable/ic_play_arrow"
             android:layout_centerInParent="true"
             android:background="@drawable/background_circle_gray_dark"/>
+        <RelativeLayout
+            android:id="@+id/loading_container"
+            android:layout_centerInParent="true"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:background="@drawable/round_corner"
+            android:backgroundTint="@color/main_background_gray">
+            <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/spin_kit"
+                android:visibility="visible"
+                style="@style/SpinKitView.FadingCircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_centerInParent="true"
+                app:SpinKit_Color="@color/colorAccent" />
+        </RelativeLayout>
     </RelativeLayout>
 
     <TextView
@@ -69,4 +86,4 @@
         app:layout_constraintEnd_toEndOf="@+id/container"
         app:layout_constraintTop_toBottomOf="@+id/container"
         tools:text="Delivered" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

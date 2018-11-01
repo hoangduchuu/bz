@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 
 /**
@@ -11,7 +12,7 @@ import com.ping.android.model.Group;
 public interface GroupPresenter extends BasePresenter {
     void getGroups();
 
-    void createConversation(Group group);
+    void handleGroupPress(Group group);
 
     interface View extends BaseView {
         void addGroup(Group group);
@@ -20,6 +21,6 @@ public interface GroupPresenter extends BasePresenter {
 
         void deleteGroup(Group data);
 
-        void moveToChatScreen(String conversationId);
+        void moveToChatScreen(Conversation conversation);
     }
 }

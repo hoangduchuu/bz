@@ -4,7 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
-import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +23,8 @@ import io.reactivex.Observable;
 public class UpdateConversationUseCase extends UseCase<Boolean, UpdateConversationUseCase.Params> {
     @Inject
     CommonRepository commonRepository;
+    @Inject
+    UserManager userManager;
 
     @Inject
     public UpdateConversationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -32,12 +34,12 @@ public class UpdateConversationUseCase extends UseCase<Boolean, UpdateConversati
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
-        Map<String, Object> updateData = new HashMap<>();
-        for (String toUserId : params.conversation.memberIDs.keySet()) {
-            if (!params.readAllowance.containsKey(toUserId)) continue;
-            updateData.put(String.format("conversations/%s/%s", toUserId, params.conversation.key), params.conversation.toMap());
-        }
-        return commonRepository.updateBatchData(updateData);
+        return userManager.getCurrentUser()
+                .flatMap(user -> {
+                    Map<String, Object> updateData = new HashMap<>();
+                    updateData.put(String.format("conversations/%s/%s", user.key, params.conversation.key), params.conversation.toMap());
+                    return commonRepository.updateBatchData(updateData);
+                });
     }
 
     public static class Params {

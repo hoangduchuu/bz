@@ -5,17 +5,17 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.mapper.CallMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Call;
-import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -35,6 +35,8 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
     @Inject
     UserManager userManager;
 
+    private Map<String, String> cachedNicknames = new HashMap<>();
+
     @Inject
     public GetCallsUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
@@ -53,8 +55,8 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
                                 return Observable.fromArray(calls.toArray(callsArray))
                                         .flatMap(call -> {
                                             String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
-                                            return getUser(opponentUserId)
-                                                    .zipWith(conversationRepository.getConversationNickName(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
+                                            return userManager.getUser(opponentUserId)
+                                                    .zipWith(getNickname(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
                                                         call.opponentUser = user;
                                                         call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
                                                         return call;
@@ -68,11 +70,11 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
 
     }
 
-    private Observable<User> getUser(String userId) {
-        User user = userManager.getCacheUser(userId);
-        if (user != null) {
-            return Observable.just(user);
+    private Observable<String> getNickname(String userId, String conversationId, String opponentUserId) {
+        if (cachedNicknames.containsKey(conversationId)) {
+            return Observable.just(cachedNicknames.get(conversationId));
         }
-        return userRepository.getUser(userId);
+        return conversationRepository.getConversationNickName(userId, conversationId, opponentUserId)
+                .doOnNext(s -> cachedNicknames.put(conversationId, s));
     }
 }

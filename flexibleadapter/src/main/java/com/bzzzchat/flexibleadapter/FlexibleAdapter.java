@@ -1,7 +1,7 @@
 package com.bzzzchat.flexibleadapter;
 
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.collection.SparseArrayCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import com.bzzzchat.flexibleadapter.baseitems.LoadingItem;

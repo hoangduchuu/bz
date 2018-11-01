@@ -1,16 +1,18 @@
 package com.ping.android.presentation.view.adapter;
 
 import android.graphics.Typeface;
-import android.support.transition.TransitionManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.transition.TransitionManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -18,13 +20,11 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +44,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private ConversationItemListener listener;
     private Map<String, String> mappings = new HashMap<>();
+    private Map<String, Integer> badgesCount = new HashMap<>();
 
     public MessageAdapter() {
         isEditMode = false;
@@ -81,6 +82,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         boundsViewHolder.add(holder);
         Conversation model = displayConversations.get(position);
         holder.bindData(model, mappings, selectConversations.contains(model));
+        Number count = badgesCount.get(model.key);
+        holder.updateUnreadCount(count != null ? count.intValue() : 0);
         holder.setClickListener(conversation -> {
             boolean status = selectConversations.contains(conversation);
             if (status) {
@@ -99,16 +102,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemCount() {
         return displayConversations.size();
-    }
-
-    public int unreadNum() {
-        int unread = 0;
-        for (Conversation conversation : originalConversations.values()) {
-            if (!conversation.isRead) {
-                unread++;
-            }
-        }
-        return unread;
     }
 
     public void updateConversation(Conversation conversation, boolean ignoreWhenDuplicate) {
@@ -272,10 +265,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         notifyDataSetChanged();
     }
 
+    public void updateBadgesCount(@NonNull Map<String, Integer> badgesCount) {
+        this.badgesCount = badgesCount;
+        notifyDataSetChanged();
+    }
+
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
-        LinearLayout messageItem;
-        TextView tvSender, tvMessage, tvTime;
+        TextView tvSender, tvMessage, tvTime, unreadCount;
         RadioButton rbSelect;
         Conversation conversation;
         private ConversationItemListener listener;
@@ -283,12 +280,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
-            messageItem = (LinearLayout) itemView;
             ivProfileImage = itemView.findViewById(R.id.message_item_profile);
             tvSender = itemView.findViewById(R.id.message_item_sender);
             tvMessage = itemView.findViewById(R.id.message_item_message);
             tvTime = itemView.findViewById(R.id.message_item_time);
             rbSelect = itemView.findViewById(R.id.message_item_select);
+            unreadCount = itemView.findViewById(R.id.unread_message_count);
             rbSelect.setOnClickListener(this);
             itemView.setOnClickListener(this);
             this.listener = listener;
@@ -382,6 +379,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 case VIDEO:
                     message = "[Video]";
                     break;
+                case STICKER:
+                    message = "[Sticker]";
+                    break;
                 case CALL:
                     if (model.isFromMe()) {
                         message = String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),
@@ -390,6 +390,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                         message = String.format(itemView.getContext().getString(model.messageCallType.descriptionToMe()),
                                 model.conversationName);
                     }
+                    break;
+                case IMAGE_GROUP:
+                    message = "[Pictures]";
+                    break;
+                case GIF:
+                    message = "[GIFs]";
                     break;
             }
 
@@ -420,6 +426,15 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 });
             }
             UiUtils.displayProfileAvatar(ivProfileImage, model.conversationAvatarUrl);
+        }
+
+        public void updateUnreadCount(int unreadMessageCount) {
+            if (unreadMessageCount == 0) {
+                unreadCount.setVisibility(View.GONE);
+            } else {
+                unreadCount.setVisibility(View.VISIBLE);
+                unreadCount.setText(unreadMessageCount + "");
+            }
         }
     }
 

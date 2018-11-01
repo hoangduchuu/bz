@@ -10,7 +10,6 @@ import com.ping.android.App;
 import com.ping.android.R;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
-import com.ping.android.utils.CommonMethod;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -71,8 +70,7 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
 
         private void setTextMessage(Message message) {
             String messageText = message.message;
-            boolean shouldMaskMessage = CommonMethod.getBooleanFrom(message.markStatuses, message.currentUserId);
-            if (shouldMaskMessage) {
+            if (message.isMask) {
                 messageText = userManager.encodeMessage(message.message);
             }
             txtMessage.setText(messageText);

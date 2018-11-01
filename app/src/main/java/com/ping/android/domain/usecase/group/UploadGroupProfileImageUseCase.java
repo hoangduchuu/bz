@@ -1,7 +1,5 @@
 package com.ping.android.domain.usecase.group;
 
-import android.net.Uri;
-
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -10,7 +8,6 @@ import com.ping.android.domain.repository.StorageRepository;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

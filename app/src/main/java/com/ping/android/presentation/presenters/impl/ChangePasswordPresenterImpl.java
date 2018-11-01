@@ -32,6 +32,7 @@ public class ChangePasswordPresenterImpl implements ChangePasswordPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeCurrentUserUseCase.dispose();
     }
 }

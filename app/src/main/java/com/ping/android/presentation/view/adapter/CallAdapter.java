@@ -1,8 +1,8 @@
 package com.ping.android.presentation.view.adapter;
 
-import android.support.transition.TransitionManager;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.RecyclerView;
+import androidx.transition.TransitionManager;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +13,12 @@ import android.widget.TextView;
 
 import com.ping.android.R;
 import com.ping.android.model.Call;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -232,6 +234,20 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
         notifyItemRangeInserted(size, calls.size());
     }
 
+    public void updateConversationAvatar(Conversation conversation) {
+        for (Call call : originalCalls) {
+            if (conversation.key.equals(call.conversationId)) {
+                call.opponentUser.profile = conversation.conversationAvatarUrl;
+            }
+        }
+        for (Call call : displayCalls) {
+            if (conversation.key.equals(call.conversationId)) {
+                call.opponentUser.profile = conversation.conversationAvatarUrl;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public interface ClickListener {
         void onReCall(Call call, Boolean isVideoCall);
 
@@ -345,8 +361,8 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                 setInfoColor(Constant.CALL_STATUS_MISS);
             }
 
-            String time = CommonMethod.convertTimestampToTime(call.timestamp);
-            tvInfo.setText(info + time);
+            String time = info + DateUtils.convertTimestampToTime(call.timestamp);
+            tvInfo.setText(time);
             tvName.setText(call.opponentName);
             setEditMode(isEditMode);
             setSelect(selectCalls.contains(call));

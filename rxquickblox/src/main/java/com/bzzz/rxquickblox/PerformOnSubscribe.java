@@ -52,7 +52,6 @@ public class PerformOnSubscribe<T> implements FlowableOnSubscribe<T> {
             this.originalPerformer.performAsync(new QBEntityCallback<T>() {
                 @Override
                 public void onSuccess(T t, Bundle bundle) {
-                    Lo.g(TAG + ":sucess result");
                     emitter.onNext(t);
                     emitter.onComplete();
                 }

@@ -56,7 +56,7 @@
                 style="@style/ItemSetting"
                 android:layout_marginTop="10dp"
                 app:leftIcon="@drawable/ic_profile_username"
-                app:title="@string/profile_username">
+                app:titleText="@string/profile_username">
 
                 <TextView
                     android:id="@+id/profile_name"
@@ -71,7 +71,7 @@
                 android:id="@+id/profile_phone_detail"
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_phonenumber"
-                app:title="@string/profile_phonenumber">
+                app:titleText="@string/profile_phonenumber">
 
                 <ImageView
                     style="@style/ItemSettingIconRight" />
@@ -82,7 +82,7 @@
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_password"
                 app:showDivider="false"
-                app:title="@string/profile_change_password">
+                app:titleText="@string/profile_change_password">
 
                 <ImageView
                     style="@style/ItemSettingIconRight"
@@ -96,7 +96,7 @@
                 android:layout_marginTop="@dimen/setting_item_separate"
                 app:leftIcon="@drawable/ic_profile_transphabet"
                 app:showDivider="false"
-                app:title="@string/profile_transphabet">
+                app:titleText="@string/profile_transphabet">
 
                 <ImageView
                     style="@style/ItemSettingIconRight" />
@@ -106,9 +106,9 @@
                 style="@style/ItemSetting"
                 android:layout_marginTop="@dimen/setting_item_separate"
                 app:leftIcon="@drawable/ic_profile_notification"
-                app:title="@string/profile_notifications">
+                app:titleText="@string/profile_notifications">
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/profile_notification"
                     style="@style/ItemSettingIconRight.Toggle"
                     app:track="@drawable/ic_switch_track_red" />
@@ -117,9 +117,9 @@
             <com.ping.android.presentation.view.custom.SettingItem
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_hide_profile"
-                app:title="@string/profile_hide_profile">
+                app:titleText="@string/profile_hide_profile">
 
-                <android.support.v7.widget.SwitchCompat
+                <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/profile_show_profile"
                     style="@style/ItemSettingIconRight.Toggle"
                     app:track="@drawable/ic_switch_track_red"
@@ -131,7 +131,7 @@
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_block_list"
                 app:showDivider="false"
-                app:title="@string/profile_block_list">
+                app:titleText="@string/profile_block_list">
 
                 <ImageView style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
@@ -141,7 +141,7 @@
                 style="@style/ItemSetting"
                 android:layout_marginTop="@dimen/setting_item_separate"
                 app:leftIcon="@drawable/ic_profile_privacy"
-                app:title="@string/profile_privacy_terms">
+                app:titleText="@string/profile_privacy_terms">
 
                 <ImageView style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
@@ -150,7 +150,7 @@
                 android:id="@+id/profile_help"
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_help"
-                app:title="@string/profile_privacy_help">
+                app:titleText="@string/profile_privacy_help">
 
                 <ImageView style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
@@ -160,7 +160,7 @@
                 style="@style/ItemSetting"
                 app:leftIcon="@drawable/ic_profile_signout"
                 app:showDivider="false"
-                app:title="@string/profile_signout"
+                app:titleText="@string/profile_signout"
                 app:titleColor="@color/blue" />
         </LinearLayout>
     </ScrollView>

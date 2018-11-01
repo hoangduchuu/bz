@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_layout_chat"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/main_background_gray"
+    android:elevation="10dp"
     tools:background="@color/color_1">
 
     <ImageButton
-        android:id="@+id/chat_tgl_outcoming"
+        android:id="@+id/tgMarkOut"
         style="?attr/backgroundTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,25 +21,28 @@
         app:layout_constraintBottom_toBottomOf="@+id/chat_message_tv"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.vanniktech.emoji.EmojiEditText
+    <com.ping.android.presentation.view.custom.EmojiGifEditText
         android:id="@+id/chat_message_tv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:background="@null"
         android:hint="@string/hint_bzzz"
-        android:inputType="textCapSentences|textFilter|textNoSuggestions|textMultiLine|textAutoComplete|textAutoCorrect"
+        android:inputType="textCapSentences|textFilter|textMultiLine|textAutoCorrect"
         android:maxLines="5"
         android:scrollHorizontally="false"
+        android:textIsSelectable="true"
         android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toStartOf="@+id/btn_send"
-        app:layout_constraintStart_toEndOf="@+id/chat_tgl_outcoming"
+        app:layout_constraintStart_toEndOf="@+id/tgMarkOut"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="" />
+        tools:text="">
+        <requestFocus />
+    </com.ping.android.presentation.view.custom.EmojiGifEditText>
 
     <ImageButton
         android:id="@+id/chat_emoji_btn"
@@ -46,14 +50,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="4dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
         android:background="@drawable/button_ripple"
         android:focusable="true"
         android:minHeight="36dp"
-        android:paddingEnd="5dp"
         android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:scaleType="center"
         android:src="@drawable/chat_emoji_selector"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -69,8 +73,8 @@
         android:background="@drawable/button_ripple"
         android:focusable="true"
         android:minHeight="36dp"
-        android:paddingEnd="5dp"
         android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:scaleType="center"
         android:src="@drawable/chat_camera_selector"
         app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
@@ -87,8 +91,8 @@
         android:background="@drawable/button_ripple"
         android:focusable="true"
         android:minHeight="36dp"
-        android:paddingEnd="5dp"
         android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:scaleType="center"
         android:src="@drawable/chat_picture_selector"
         app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
@@ -106,8 +110,8 @@
         android:background="@drawable/button_ripple"
         android:focusable="true"
         android:minHeight="36dp"
-        android:paddingEnd="5dp"
         android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         android:scaleType="center"
         android:src="@drawable/chat_game_selector"
         app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
@@ -131,4 +135,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

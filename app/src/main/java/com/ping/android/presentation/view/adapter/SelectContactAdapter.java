@@ -1,7 +1,6 @@
 package com.ping.android.presentation.view.adapter;
 
-import android.content.Context;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,13 +22,11 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
     private ClickListener mClickListener;
     private ArrayList<User> originalContacts;
     private ArrayList<User> displayContacts;
-    private Context mContext;
 
-    public SelectContactAdapter(Context context, ArrayList<User> mContacts, ClickListener clickListener) {
+    public SelectContactAdapter(ArrayList<User> mContacts, ClickListener clickListener) {
         this.originalContacts = mContacts;
         this.displayContacts = (ArrayList<User>) mContacts.clone();
         selectPingIDs = new ArrayList<>();
-        mContext = context;
         mClickListener = clickListener;
     }
 
@@ -43,6 +40,14 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
         originalContacts.add(contact);
         displayContacts.add(contact);
         notifyItemInserted(displayContacts.size() - 1);
+    }
+
+    public void toggleSelect(User contact, boolean isSelect) {
+        if (isSelect) {
+            selectPingIDs.add(contact.pingID);
+        } else {
+            selectPingIDs.remove(contact.pingID);
+        }
     }
 
     public void filter(String text) {
@@ -94,7 +99,7 @@ public class SelectContactAdapter extends RecyclerView.Adapter<SelectContactAdap
             holder.rbSelect.setChecked(false);
         }
 
-        UiUtils.displayProfileImage(mContext, holder.ivProfileImage, contact);
+        UiUtils.displayProfileImage(holder.ivProfileImage.getContext(), holder.ivProfileImage, contact);
     }
 
     private void toggleSelect(ViewHolder holder) {

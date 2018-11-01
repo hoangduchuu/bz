@@ -3,31 +3,26 @@ package com.ping.android.presentation.view.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupComponent;
-import com.ping.android.dagger.loggedin.conversationdetail.group.ConversationDetailGroupModule;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
@@ -38,16 +33,18 @@ import com.ping.android.presentation.view.activity.NicknameActivity;
 import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.adapter.ColorAdapter;
 import com.ping.android.presentation.view.adapter.GroupProfileAdapter;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -77,7 +74,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
     ConversationGroupDetailPresenter presenter;
     @Inject
     Navigator navigator;
-    private ConversationDetailGroupComponent component;
     private String profileImageKey;
     private boolean isFirstLoad = true;
 
@@ -90,7 +86,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
             profileImageKey = getArguments().getString(EXTRA_IMAGE_KEY);
@@ -283,7 +279,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private void bindData(Conversation conversation) {
         groupName.setText(conversation.conversationName);
         if (getActivity() != null) {
-            UiUtils.displayProfileAvatar(groupProfile, conversation.conversationAvatarUrl,
+            UiUtils.displayProfileAvatar(this, groupProfile, conversation.conversationAvatarUrl,
                     (error, data) -> {
                         if (isFirstLoad) {
                             isFirstLoad = false;
@@ -294,14 +290,6 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
         adapter.initContact(conversation.members);
         adapter.updateNickNames(conversation.nickNames);
-    }
-
-    public ConversationDetailGroupComponent getComponent() {
-        if (component == null) {
-            component = getComponent(ConversationDetailComponent.class)
-                    .provideConversationDetailGroupComponent(new ConversationDetailGroupModule(this));
-        }
-        return component;
     }
 
     @Override

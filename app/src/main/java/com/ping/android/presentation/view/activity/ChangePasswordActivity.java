@@ -1,7 +1,7 @@
 package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
@@ -15,13 +15,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.changepassword.ChangePasswordComponent;
-import com.ping.android.dagger.loggedin.changepassword.ChangePasswordModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ChangePasswordPresenter;
 import com.ping.android.utils.CommonMethod;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class ChangePasswordActivity extends CoreActivity implements View.OnClickListener, ChangePasswordPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
@@ -34,12 +34,12 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
 
     @Inject
     ChangePasswordPresenter presenter;
-    ChangePasswordComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
+        AndroidInjection.inject(this);
         bindViews();
         init();
     }
@@ -136,14 +136,6 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
                     }
                 })
                 .addOnFailureListener(e -> hideLoading());
-    }
-
-    public ChangePasswordComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideChangePasswordComponent(new ChangePasswordModule(this));
-        }
-        return component;
     }
 
     @Override

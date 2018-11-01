@@ -5,12 +5,11 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
@@ -60,14 +59,14 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                 ChildData<Conversation> childData = new ChildData<>(conversation, ChildData.Type.CHILD_REMOVED);
                                 return Observable.just(childData);
                             }
-                            return userRepository.getUserList(conversation.memberIDs)
+                            return userManager.getUserList(conversation.memberIDs)
                                     .map(users -> {
                                         conversation.members = users;
                                         if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                             for (User user : users) {
                                                 if (!user.key.equals(currentUser.key)) {
                                                     conversation.opponentUser = user;
-                                                    conversation.conversationAvatarUrl = user.profile;
+                                                    conversation.conversationAvatarUrl = user.settings.private_profile ? "" : user.profile;
                                                     String nickName = conversation.nickNames.get(user.key);
                                                     conversation.conversationName = TextUtils.isEmpty(nickName) ? user.getDisplayName() : nickName;
                                                     List<String> filterTextList = new ArrayList<>();
@@ -77,6 +76,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                     break;
                                                 }
                                             }
+                                            userManager.setIndividualConversation(conversation);
                                         } else {
                                             conversation.filterText = conversation.conversationName;
                                         }

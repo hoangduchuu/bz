@@ -1,9 +1,9 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
-import android.support.annotation.CallSuper;
-import android.support.transition.TransitionManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
+import androidx.annotation.CallSuper;
+import androidx.transition.TransitionManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,10 +12,11 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestManager;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
 import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
 import com.ping.android.presentation.view.custom.revealable.RevealStyle;
 import com.ping.android.presentation.view.custom.revealable.RevealableViewHolder;
@@ -23,22 +24,29 @@ import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessa
 import com.ping.android.presentation.view.flexibleitem.messages.audio.AudioMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.call.CallMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.gif.GifMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.gif.GifMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.groupimage.GroupImageMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.image.ImageMessageRightItem;
+import com.ping.android.presentation.view.flexibleitem.messages.sticker.StickerMessageLeftItem;
+import com.ping.android.presentation.view.flexibleitem.messages.sticker.StickerMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.text.TextMessageRightItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageLeftItem;
 import com.ping.android.presentation.view.flexibleitem.messages.video.VideoMessageRightItem;
-import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DateUtils;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.UiUtils;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +54,6 @@ import java.util.Map;
  */
 
 public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> implements FlexibleItem<VH> {
-    //private Map<String, String> nickNames = new HashMap<>();
     public Message message;
     public int conversationType;
     protected boolean isEditMode = false;
@@ -78,11 +85,31 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 }
                 break;
             case CALL:
-//            case MISSED_CALL:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new CallMessageRightItem(message);
                 } else {
                     baseItem = new CallMessageLeftItem(message);
+                }
+                break;
+            case IMAGE_GROUP:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new GroupImageMessageRightItem(message);
+                } else {
+                    baseItem = new GroupImageMessageMessageLeftItem(message);
+                }
+                break;
+            case STICKER:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new StickerMessageRightItem(message);
+                } else {
+                    baseItem = new StickerMessageLeftItem(message);
+                }
+                break;
+            case GIF:
+                if (message.senderId.equals(currentUserID)) {
+                    baseItem = new GifMessageRightItem(message);
+                } else {
+                    baseItem = new GifMessageLeftItem(message);
                 }
                 break;
             default:
@@ -106,10 +133,6 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         holder.bindData(this, lastItem);
     }
 
-//    public void setNickNames(Map<String, String> nickNames) {
-//        this.nickNames = nickNames;
-//    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof MessageBaseItem) {
@@ -132,8 +155,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public boolean lastItem;
         private float mInitialTranslateX = ResourceUtils.dpToPx(80);
 
-        protected @Nullable
-        MessageListener messageListener;
+        @Nullable
+        protected MessageListener messageListener;
+        protected RequestManager glide;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
@@ -161,7 +185,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         public void bindData(MessageBaseItem item, boolean lastItem) {
             this.item = item;
             this.lastItem = lastItem;
-            this.maskStatus = CommonMethod.getBooleanFrom(item.message.markStatuses, item.message.currentUserId);
+            this.maskStatus = item.message.isMask;
             rbSelection.setVisibility(item.isEditMode ? View.VISIBLE : View.GONE);
             rbSelection.setChecked(item.isSelected);
             rbSelection.setSelected(item.isSelected);
@@ -280,9 +304,11 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     tvMessageInfo.setVisibility(View.GONE);
                 } else {
                     tvMessageInfo.setVisibility(View.VISIBLE);
-                    String nickName = (String) nickNames.get(message.senderId);
-                    String senderName = message.sender != null ? message.sender.getDisplayName() : message.senderName;
-                    tvMessageInfo.setText((TextUtils.isEmpty(nickName) ? senderName : nickName));
+                    if (nickNames.containsKey(message.senderId)) {
+                        tvMessageInfo.setText(nickNames.get(message.senderId));
+                    } else {
+                        tvMessageInfo.setText(message.senderName);
+                    }
                 }
             }
         }
@@ -292,12 +318,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
             if (message.showExtraInfo) {
                 senderProfileImage.setVisibility(View.VISIBLE);
-                User sender = message.sender;
-                if (sender != null) {
-                    UiUtils.displayProfileImage(itemView.getContext(), senderProfileImage, sender);
-                } else {
-                    senderProfileImage.setImageResource(R.drawable.ic_avatar_gray);
-                }
+                UiUtils.displayProfileAvatar(senderProfileImage, message.senderProfile, R.drawable.ic_avatar_gray);
             } else {
                 senderProfileImage.setVisibility(View.INVISIBLE);
             }
@@ -305,18 +326,17 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         private void handleProfileImagePress() {
             if (messageListener != null) {
-                if (item.message.sender != null) {
-                    String imageName = "imageProfile" + getAdapterPosition();
-                    Pair imagePair = Pair.create(senderProfileImage, imageName);
-                    messageListener.handleProfileImagePress(item.message.sender, imagePair);
-                }
+                String imageName = "imageProfile" + getAdapterPosition();
+                Pair imagePair = Pair.create(senderProfileImage, imageName);
+                messageListener.onProfileImagePress(item.message.senderId, imagePair);
             }
         }
 
         private void setMessageStatus(Message message, boolean lastItem) {
             if (tvStatus == null) return;
             String messageStatus = message.messageStatus;
-            if ((lastItem || message.messageType == Constant.MSG_TYPE_GAME) && !TextUtils.isEmpty(messageStatus)) {
+            if ((lastItem || message.type == MessageType.GAME || message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR)
+                    && !TextUtils.isEmpty(messageStatus)) {
                 tvStatus.setText(messageStatus);
                 tvStatus.setVisibility(View.VISIBLE);
                 if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR) {
@@ -327,6 +347,10 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                 return;
             }
             tvStatus.setVisibility(View.GONE);
+        }
+
+        public void setGlide(RequestManager glide) {
+            this.glide = glide;
         }
     }
 
@@ -340,13 +364,13 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
     public interface MessageListener {
 
-        void handleProfileImagePress(User user, Pair<View, String>... sharedElements);
+        void onProfileImagePress(String senderId, Pair<View, String>... sharedElements);
 
-        void updateMessageMask(Message message, boolean markStatus, boolean lastItem);
+        void updateMessageMask(Message message, boolean maskStatus, boolean lastItem);
 
         void onLongPress(MessageBaseItem messageItem);
 
-        void openImage(String messageKey, String imageUrl, String localImage, boolean isPuzzled, Pair<View, String>... sharedElements);
+        void openImage(Message message, boolean isPuzzled, Pair<View, String>... sharedElements);
 
         void openGameMessage(Message message);
 
@@ -361,5 +385,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         void openVideo(@NotNull String videoUrl);
 
         void onCall(boolean isVideo);
+
+        void onGroupImageItemPress(GroupImageMessageBaseItem.ViewHolder viewHolder, @NotNull List<Message> data, int position, Pair<View, String>... sharedElements);
+
+        void updateChildMessageMask(Message message, boolean maskStatus);
     }
 }

@@ -5,7 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.FileProvider
+import androidx.core.content.FileProvider
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -72,7 +72,7 @@ class VideoPreviewFragment : Fragment() {
         btnBack.setOnClickListener { activity.onBackPressed() }
         if (isPreview) {
             btnSend.visibility = View.VISIBLE
-            videoPlayer.useController = false
+            videoPlayer.useController = true
             btnSend.setOnClickListener {
                 (activity as VideoRecorderActivity).onVideoSelected(videoPath!!)
             }

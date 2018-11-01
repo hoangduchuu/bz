@@ -11,9 +11,9 @@
         style="@style/ItemSetting"
         app:leftIcon="@drawable/ic_conversation_notification"
         app:leftIconTint="?colorAccent"
-        app:title="@string/conversation_detail_notifications">
+        app:titleText="@string/conversation_detail_notifications">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_notification"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>
@@ -22,9 +22,9 @@
         style="@style/ItemSetting"
         app:leftIcon="@drawable/ic_conversation_mask_message"
         app:leftIconTint="?colorAccent"
-        app:title="@string/conversation_detail_mask_message">
+        app:titleText="@string/conversation_detail_mask_message">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_mask"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>
@@ -34,9 +34,9 @@
         app:leftIcon="@drawable/ic_conversation_mask_image"
         app:leftIconTint="?colorAccent"
         app:showDivider="false"
-        app:title="@string/conversation_detail_puzzule_image">
+        app:titleText="@string/conversation_detail_puzzule_image">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/user_profile_puzzle"
             style="@style/ItemSettingIconRight.Toggle" />
     </com.ping.android.presentation.view.custom.SettingItem>
@@ -47,7 +47,7 @@
         android:layout_marginTop="30dp"
         app:leftIconTint="?colorAccent"
         app:leftIcon="@drawable/ic_conversation_nickname"
-        app:title="@string/conversation_detail_nickname">
+        app:titleText="@string/conversation_detail_nickname">
 
         <ImageView
             style="@style/ItemSettingIconRight" />
@@ -58,7 +58,7 @@
         style="@style/ItemSetting"
         app:leftIconTint="?colorAccent"
         app:leftIcon="@drawable/ic_conversation_color_lens"
-        app:title="@string/conversation_detail_colors">
+        app:titleText="@string/conversation_detail_colors">
 
         <ImageView
             style="@style/ItemSettingIconRight" />
@@ -69,7 +69,7 @@
         style="@style/ItemSetting"
         app:leftIconTint="?colorAccent"
         app:leftIcon="@drawable/ic_conversation_background"
-        app:title="@string/conversation_detail_background">
+        app:titleText="@string/conversation_detail_background">
 
         <ImageView
             style="@style/ItemSettingIconRight" />
@@ -81,7 +81,7 @@
         app:leftIconTint="?colorAccent"
         app:leftIcon="@drawable/ic_conversation_media"
         app:showDivider="false"
-        app:title="@string/conversation_detail_media">
+        app:titleText="@string/conversation_detail_media">
 
         <ImageView
             style="@style/ItemSettingIconRight" />

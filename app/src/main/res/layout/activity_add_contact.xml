@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -36,21 +36,22 @@
             android:layout_height="0dp"
             android:layout_weight="1">
 
-            <android.support.v7.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/add_contact_list_view"
                 style="@style/RecyclerView"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/item_add_contact"/>
 
-            <com.wang.avi.AVLoadingIndicatorView
-                android:id="@+id/avi"
-                style="@style/AVLoadingIndicatorView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
+            <com.github.ybq.android.spinkit.SpinKitView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.Small.ThreeBounce"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:visibility="gone"
-                app:indicatorColor="@color/colorAccent"
-                app:indicatorName="BallPulseIndicator" />
+                android:layout_centerHorizontal="true"
+                app:SpinKit_Color="@color/colorAccent" />
 
             <LinearLayout
                 android:id="@+id/no_results"
@@ -76,6 +77,6 @@
 
     <include layout="@layout/notify_network_other" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

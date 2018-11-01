@@ -11,8 +11,6 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.game.GameComponent;
-import com.ping.android.dagger.loggedin.game.GameModule;
 import com.ping.android.presentation.presenters.GamePresenter;
 import com.ping.android.utils.UiUtils;
 
@@ -25,6 +23,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class GameMemoryActivity extends BaseGameActivity implements View.OnClickListener, GamePresenter.View {
     private static final int GAME_STEPS = 6;
@@ -42,20 +42,12 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
 
     @Inject
     GamePresenter presenter;
-    GameComponent component;
-
-    public GameComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideGameComponent(new GameModule(this));
-        }
-        return component;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_memory);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         initResources(getIntent());
 
         showStartGameDialog();

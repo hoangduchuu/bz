@@ -3,8 +3,8 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
-import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
+import com.ping.android.domain.usecase.conversation.ToggleMaskIncomingUseCase;
 import com.ping.android.domain.usecase.conversation.TogglePuzzlePictureUseCase;
 import com.ping.android.domain.usecase.conversation.UpdateConversationColorUseCase;
 import com.ping.android.domain.usecase.group.AddGroupMembersUseCase;
@@ -268,7 +268,9 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     @Override
     public void destroy() {
+        view = null;
         observeCurrentUserUseCase.dispose();
+        observeGroupValueUseCase.dispose();
         observeConversationUpdateUseCase.dispose();
         addGroupMembersUseCase.dispose();
         leaveGroupUseCase.dispose();
@@ -277,5 +279,6 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         togglePuzzlePictureUseCase.dispose();
         uploadGroupProfileImageUseCase.dispose();
         updateGroupNameUseCase.dispose();
+        updateConversationColorUseCase.dispose();
     }
 }

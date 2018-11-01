@@ -4,7 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
-import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -26,6 +26,8 @@ import io.reactivex.Observable;
 public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversation>> {
     @Inject
     CommonRepository commonRepository;
+    @Inject
+    MessageRepository messageRepository;
     @Inject
     UserRepository userRepository;
     @Inject
@@ -56,7 +58,12 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                             updateValue.put(String.format("conversations/%s/%s/themes/%s", userId, conversation.key, user.key), null);
                         }
                     }
-                    return commonRepository.updateBatchData(updateValue);
+                    return commonRepository.updateBatchData(updateValue)
+                            .doOnNext(aBoolean -> {
+                                for (Conversation conversation : conversations) {
+                                    messageRepository.deleteCacheMessages(conversation.key);
+                                }
+                            });
                 });
     }
 }

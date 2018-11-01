@@ -1,8 +1,8 @@
 package com.ping.android.presentation.view.adapter.delegate
 
 import android.content.res.ColorStateList
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
@@ -32,13 +32,13 @@ data class VoiceTypeItem(
 }
 
 class VoiceTypeDelegateAdapter(var clickListener: (item: VoiceTypeItem) -> Unit): ViewTypeDelegateAdapter {
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent, clickListener)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindItem(item as VoiceTypeItem)
     }
 
-    class ViewHolder(parent: ViewGroup, clickListener: (item: VoiceTypeItem) -> Unit): RecyclerView.ViewHolder(parent.inflate(R.layout.item_voice_type)) {
+    class ViewHolder(parent: ViewGroup, clickListener: (item: VoiceTypeItem) -> Unit): androidx.recyclerview.widget.RecyclerView.ViewHolder(parent.inflate(R.layout.item_voice_type)) {
         private lateinit var voiceTypeItem: VoiceTypeItem
 
         init {

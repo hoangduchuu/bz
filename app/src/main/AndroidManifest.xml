@@ -24,20 +24,20 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name="com.ping.android.App"
+        android:name=".App"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar">
+        android:theme="@style/AppTheme.NoActionBar"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <!-- </service> -->
         <service
-            android:name="com.ping.android.service.CallService"
+            android:name=".service.CallService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="false" />
-
         <service android:name=".service.FbMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -58,8 +58,13 @@
         <meta-data
             android:name="com.quickblox.messages.QB_ENVIRONMENT"
             android:value="PRODUCTION" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="messages"/>
+
         <receiver
-            android:name="com.ping.android.service.NotificationBroadcastReceiver"
+            android:name=".service.NotificationBroadcastReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
@@ -86,15 +91,16 @@
         <activity
             android:name=".presentation.view.activity.LoginActivity"
             android:label="Log"
+            android:noHistory="true"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Dark"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".presentation.view.activity.RegistrationActivity"
             android:label="Registration"
             android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
-            android:theme="@style/AppTheme.Dark" />
+            android:theme="@style/AppTheme.Dark"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
         <activity
             android:name=".presentation.view.activity.PhoneActivity"
             android:label="Registration"
@@ -106,7 +112,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName=".presentation.view.activity.SplashActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan|adjustResize" />
         <activity
             android:name=".presentation.view.activity.ChatActivity"
@@ -114,7 +119,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
         <activity
             android:name=".presentation.view.activity.NewChatActivity"
             android:label="Chat"
@@ -132,37 +137,24 @@
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".presentation.view.activity.PuzzleActivity"
-            android:label="PuzzleActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".presentation.view.activity.GameActivity"
+            android:name=".presentation.view.activity.GamePuzzleActivity"
             android:label="GameActivity"
+            android:noHistory="true"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.ChangePasswordActivity"
-            android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.Dark"
-            android:windowSoftInputMode="adjustPan"/>
-        <activity
-            android:name=".presentation.view.activity.ForgotPasswordActivity"
-            android:label="GameActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Dark" />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".presentation.view.activity.CallActivity"
             android:configChanges="orientation|screenSize"
-            android:label="GameActivity"
             android:launchMode="singleTop"
             android:screenOrientation="fullUser"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.PermissionsActivity"
-            android:label="GameActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -200,9 +192,11 @@
             android:theme="@style/Base.Theme.AppCompat" /> <!-- optional (needed if default theme has no action bar) -->
         <activity
             android:name=".presentation.view.activity.GameMemoryActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name=".presentation.view.activity.GameTicTacToeActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.Fullscreen" />
         <activity
             android:name="com.bzzzchat.videorecorder.view.VideoRecorderActivity"
@@ -214,7 +208,7 @@
             android:value="6adab05c8d640a679fc4d84fbd8f8047827b4d1c" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -222,7 +216,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
         <provider
             android:name="com.bzzzchat.videorecorder.util.VideoRecordFileProvider"
             android:authorities="${applicationId}.videorecorder.provider"
@@ -245,6 +238,10 @@
         <activity
             android:name=".presentation.view.activity.GalleryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".presentation.view.activity.GridMediaPickerActivity" />
+        <activity
+            android:name=".presentation.view.activity.GroupImageGalleryActivity"
+            android:theme="@style/AppTheme.NoActionBar.Transparent1" />
     </application>
 
 </manifest>

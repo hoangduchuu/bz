@@ -1,6 +1,6 @@
 package com.bzzzchat.rxfirebase.database;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/ItemChat"
@@ -21,7 +21,7 @@
         android:layout_height="@dimen/user_profile_icon_chat_width"
         android:layout_marginStart="8dp"
         android:src="@drawable/ic_avatar_gray"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintBottom_toBottomOf="@+id/content"
         app:layout_constraintStart_toEndOf="@+id/item_chat_select" />
 
     <TextView
@@ -29,28 +29,47 @@
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/item_chat_image"
+        app:layout_constraintStart_toStartOf="@+id/content"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="10:20 AM"
         tools:visibility="gone" />
 
-    <com.joooonho.SelectableRoundedImageView
-        android:id="@+id/item_chat_image"
+    <FrameLayout
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"
         android:layout_marginStart="8dp"
-        android:src="@drawable/img_loading_image"
-        app:sriv_left_bottom_corner_radius="10dip"
-        app:sriv_left_top_corner_radius="10dip"
-        app:sriv_right_bottom_corner_radius="10dip"
-        app:sriv_right_top_corner_radius="10dip"
         app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_info"
-        tools:src="@drawable/img_loading_bottom" />
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
+
+        <ImageView
+            android:id="@+id/item_chat_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:maxWidth="200dp"
+            android:maxHeight="200dp"
+            android:minWidth="100dp"
+            android:minHeight="100dp"
+            android:scaleType="centerCrop" />
+
+        <RelativeLayout
+            android:id="@+id/loading_container"
+            android:layout_width="120dp"
+            android:layout_height="180dp"
+            android:background="@drawable/round_corner"
+            android:backgroundTint="@color/main_background_gray">
+
+            <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.FadingCircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                app:SpinKit_Color="@color/colorAccent" />
+        </RelativeLayout>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/item_chat_status"
@@ -59,8 +78,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/item_chat_image"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintStart_toStartOf="@+id/content"
+        app:layout_constraintTop_toBottomOf="@+id/content"
         tools:text="Delivered" />
 
     <TextView
@@ -68,13 +87,13 @@
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:gravity="end"
         android:translationX="80dp"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintBottom_toBottomOf="@+id/content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_chat_image"
+        app:layout_constraintTop_toTopOf="@+id/content"
         tools:text="12:00 AM" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

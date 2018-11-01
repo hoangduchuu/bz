@@ -1,34 +1,38 @@
 package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
+import androidx.fragment.app.Fragment;
 
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
 import com.ping.android.presentation.view.fragment.ConversationPVPDetailFragment;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
+import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
 
-public class ConversationDetailActivity extends CoreActivity implements HasComponent<ConversationDetailComponent> {
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+
+public class ConversationDetailActivity extends CoreActivity implements HasSupportFragmentInjector {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
     public static final String CONVERSATION_TYPE_KEY = "CONVERSATION_TYPE_KEY";
     public static final String EXTRA_IMAGE_KEY = "EXTRA_IMAGE_KEY";
 
     @Inject
     Navigator navigator;
-
-    ConversationDetailComponent component;
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             if (bundle.containsKey(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
@@ -69,10 +73,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasCompo
     }
 
     @Override
-    public ConversationDetailComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideConversationDetailComponent();
-        }
-        return component;
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
     }
 }

@@ -2,59 +2,53 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.transition.Slide;
-import android.support.transition.TransitionManager;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Gravity;
+import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.ping.android.App;
 import com.ping.android.R;
 import com.ping.android.dagger.ApplicationComponent;
-import com.ping.android.dagger.loggedin.LoggedInComponent;
-import com.ping.android.dagger.loggedout.LoggedOutComponent;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
 import com.ping.android.service.CallService;
-import com.ping.android.utils.SharedPrefsHelper;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.NetworkConnectionChecker;
+import com.ping.android.utils.SharedPrefsHelper;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 public abstract class CoreActivity extends AppCompatActivity implements NetworkConnectionChecker.OnConnectivityChangedListener {
-
-    private NetworkConnectionChecker networkConnectionChecker;
-    protected Map<DatabaseReference, Object> databaseReferences = new HashMap<>();
-    // Disposable for UI events
     private CompositeDisposable disposables;
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
+    private AtomicBoolean showLoading = new AtomicBoolean(false);
+
+    @Inject
+    NetworkConnectionChecker networkConnectionChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         disposables = new CompositeDisposable();
         initWiFiManagerListener();
-        NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
-        updateNetworkStatus(networkStatus);
+        //NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
+        //updateNetworkStatus(networkStatus);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         NetworkStatus networkStatus = networkConnectionChecker.getNetworkStatus();
-        updateNetworkStatus(networkStatus);
+        if (networkStatus != this.networkStatus) {
+            updateNetworkStatus(networkStatus);
+        }
     }
 
     @Override
@@ -64,6 +58,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
             getPresenter().resume();
         }
         networkConnectionChecker.registerListener(this);
+
     }
 
     @Override
@@ -77,19 +72,16 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (getPresenter() != null) {
             getPresenter().destroy();
         }
-        disposables.dispose();
-        for (DatabaseReference reference : databaseReferences.keySet()) {
-            Object listener = databaseReferences.get(reference);
-            if (listener instanceof ChildEventListener) {
-                reference.removeEventListener((ChildEventListener) listener);
-            } else if (listener instanceof ValueEventListener) {
-                reference.removeEventListener((ValueEventListener) listener);
-            }
+        if (showLoading.get()) {
+            //throw new IllegalStateException("Loading still showing");
+            hideLoading();
         }
+        //disposables.dispose();
+        disposables.clear();
+        super.onDestroy();
     }
 
     @Override
@@ -105,16 +97,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         return null;
     }
 
-    protected ApplicationComponent getApplicationComponent() {
+    public ApplicationComponent getApplicationComponent() {
         return ((App) getApplication()).getComponent();
-    }
-
-    protected LoggedInComponent getLoggedInComponent() {
-        return ((App) getApplication()).getLoggedInComponent();
-    }
-
-    protected LoggedOutComponent getLoggedOutComponent() {
-        return ((App) getApplication()).getLoggedOutComponent();
     }
 
     protected void registerEvent(Disposable disposable) {
@@ -128,6 +112,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     private void updateNetworkStatus(NetworkStatus networkStatus) {
         this.networkStatus = networkStatus;
+        if (networkStatus == NetworkStatus.CONNECTED) {
+            connectivityChanged(true);
+        }
         LinearLayout notifyNetworkLayout = findViewById(R.id.notify_network_layout);
         TextView notifyNetworkText = findViewById(R.id.notify_network_text);
 
@@ -135,17 +122,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
         switch (networkStatus) {
             case CONNECTED:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.GONE);
                 break;
             case CONNECTING:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout);
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout);
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_connecting);
                 notifyNetworkText.setText(getString(R.string.msg_network_connecting));
                 break;
             case NOT_CONNECT:
-                TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
+                //TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
                 notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
                 notifyNetworkText.setText(getString(R.string.no_internet_connection));
@@ -154,7 +141,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     }
 
     private void initWiFiManagerListener() {
-        networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        if (networkConnectionChecker == null) {
+            networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        }
     }
 
     protected void exit() {
@@ -164,16 +153,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     DialogFragment loadingDialog;
 
     public void showLoading() {
-        if (loadingDialog != null) {
-            loadingDialog.dismiss();
-        }
+        if (showLoading.get() || isFinishing() || isDestroyed()) return;
+        showLoading.set(true);
         loadingDialog = new LoadingDialog();
         loadingDialog.show(getSupportFragmentManager(), "LOADING");
     }
 
     public void hideLoading() {
+        showLoading.set(false);
         if (loadingDialog != null) {
             loadingDialog.dismissAllowingStateLoss();
+            loadingDialog = null;
         }
     }
 

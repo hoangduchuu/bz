@@ -5,20 +5,20 @@ import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.device.Notification;
-import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
-import com.ping.android.domain.usecase.notification.SendStartCallNotificationUseCase;
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.domain.usecase.AddCallHistoryUseCase;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.GetUserByKeyUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.call.InitCallInfoUseCase;
+import com.ping.android.domain.usecase.notification.SendMissedCallNotificationUseCase;
+import com.ping.android.domain.usecase.notification.SendStartCallNotificationUseCase;
 import com.ping.android.model.Call;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.CallPresenter;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.service.CallServiceHandler;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.Log;
+import com.ping.android.utils.configs.Constant;
 import com.quickblox.videochat.webrtc.BaseSession;
 import com.quickblox.videochat.webrtc.QBRTCCameraVideoCapturer;
 import com.quickblox.videochat.webrtc.QBRTCSession;
@@ -100,6 +100,10 @@ public class CallPresenterImpl implements CallPresenter,
             }, null);
         } else {
             opponentUser = intent.getParcelableExtra(CallActivity.EXTRA_OPPONENT_USER);
+            if (opponentUser == null) {
+                view.finishCall();
+                return;
+            }
             initCallInfoUseCase.execute(new DefaultObserver<InitCallInfoUseCase.Output>() {
                 @Override
                 public void onNext(InitCallInfoUseCase.Output output) {
@@ -259,6 +263,7 @@ public class CallPresenterImpl implements CallPresenter,
 
     @Override
     public void destroy() {
+        view = null;
         callService.removeSessionCallbacks();
         //observeCurrentUserUseCase.dispose();
         if (this.currentSession != null) {

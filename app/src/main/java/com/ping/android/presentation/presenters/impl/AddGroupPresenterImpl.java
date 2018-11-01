@@ -9,7 +9,6 @@ import com.ping.android.presentation.presenters.AddGroupPresenter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -70,5 +69,13 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
     public void handlePickerPress() {
         view.initProfileImagePath(currentUser.key);
         view.openPicker();
+    }
+
+    @Override
+    public void destroy() {
+        view = null;
+        uploadGroupProfileImageUseCase.dispose();
+        createGroupUseCase.dispose();
+        getCurrentUserUseCase.dispose();
     }
 }

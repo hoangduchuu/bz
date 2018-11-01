@@ -21,8 +21,8 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
-import android.support.annotation.RequiresApi
-import android.support.v4.media.AudioAttributesCompat
+import androidx.annotation.RequiresApi
+import androidx.media.AudioAttributesCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
 import org.jetbrains.anko.AnkoLogger
@@ -33,7 +33,7 @@ import org.jetbrains.anko.warn
  * audio focus using [AudioFocusRequest] on Oreo+ devices, and an
  * [AudioManager.OnAudioFocusChangeListener] on previous versions.
  */
-class AudioFocusWrapper(private val audioAttributes: AudioAttributesCompat,
+class AudioFocusWrapper(private val audioAttributes: androidx.media.AudioAttributesCompat,
                         private val audioManager: AudioManager,
                         private val player: SimpleExoPlayer) : ExoPlayer by player, AnkoLogger {
     private var shouldPlayWhenReady = false

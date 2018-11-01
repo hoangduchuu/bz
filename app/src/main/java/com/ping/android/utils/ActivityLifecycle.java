@@ -4,12 +4,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.*;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks {
     private static final long CHECK_DELAY = 500;

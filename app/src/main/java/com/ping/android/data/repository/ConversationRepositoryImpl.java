@@ -6,13 +6,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
-
-import org.jetbrains.annotations.NotNull;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,20 +80,30 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     }
 
     @Override
-    public Observable<Message> sendMessage(String conversationId, Message message) {
-        DatabaseReference reference = database.getReference("messages").child(conversationId).child(message.key);
-        return RxFirebaseDatabase.setValue(reference, message.toMap())
-                .map(reference1 -> message)
+    public Observable<MessageEntity> sendMessage(Conversation conversation, MessageEntity message) {
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s", conversation.key, message.key), message.toMap());
+        for (String toUser : conversation.memberIDs.keySet()) {
+            if (!message.isReadable(toUser)) continue;
+            updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType == Constant.MSG_TYPE_IMAGE
+                    || message.messageType == Constant.MSG_TYPE_GAME
+                    || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
+                updateValue.put(String.format("media/%s/%s", toUser, conversation.key), conversation.toMap());
+            }
+        }
+        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+                .map(aBoolean -> message)
                 .toObservable();
     }
 
     @Override
-    public Observable<Conversation> getConversation(User user, String conversationID) {
+    public Observable<Conversation> getConversation(String userKey, String conversationID) {
         Query query = database.getReference("conversations")
-                .child(user.key).child(conversationID);
+                .child(userKey).child(conversationID);
         return RxFirebaseDatabase.getInstance(query)
                 .onSingleValueEvent()
-                .map(dataSnapshot -> mapper.transform(dataSnapshot, user))
+                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey))
                 .toObservable();
     }
 
@@ -146,7 +155,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(Integer.class);
                     }
-                    return 0;
+                    return -1;
                 });
     }
 
@@ -202,5 +211,12 @@ public class ConversationRepositoryImpl implements ConversationRepository {
 //                .map(reference -> true)
 //                .toObservable();
         return null;
+    }
+
+    @Override
+    public Observable<Boolean> updateConversation(String userId, String conversationId, Map<String, Object> values) {
+        DatabaseReference reference = database.getReference(CHILD_CONVERSATION).child(userId).child(conversationId);
+        return RxFirebaseDatabase.updateBatchData(reference, values)
+                .toObservable();
     }
 }

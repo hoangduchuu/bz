@@ -73,7 +73,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                         return getUser(userId)
                                                                 .map(user1 -> {
                                                                     conversation.opponentUser = user1;
-                                                                    conversation.conversationAvatarUrl = user1.profile;
+                                                                    conversation.conversationAvatarUrl = user1.settings.private_profile ? "" : user1.profile;
                                                                     String nickName = conversation.nickNames.get(user1.key);
                                                                     String conversationName = TextUtils.isEmpty(nickName) ? user1.getDisplayName() : nickName;
                                                                     conversation.conversationName = conversationName;
@@ -82,7 +82,9 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                     filterTextList.add(nickName);
                                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                                     return conversation;
-                                                                });
+                                                                })
+                                                                .doOnNext(con -> userManager.setIndividualConversation(conversation))
+                                                                ;
                                                     }
                                                 }
                                             } else {

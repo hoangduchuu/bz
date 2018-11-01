@@ -2,6 +2,7 @@ package com.ping.android.presentation.presenters;
 
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
+import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
@@ -11,6 +12,9 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +33,11 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus);
 
+    void sendImagesMessage(List<PhotoItem> items, boolean markStatus);
+
     void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus);
+
+    void sendGameMessages(@NotNull List<PhotoItem> items, GameType gameType, boolean isMask);
 
     void sendAudioMessage(String audioUrl, VoiceType voiceType);
 
@@ -41,7 +49,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void deleteMessages(List<Message> messages);
 
-    void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask);
+    void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask, boolean updateChild);
 
     void updateConversationReadStatus();
 
@@ -54,6 +62,16 @@ public interface ChatPresenter extends BasePresenter {
     void initThemeColor(Color currentColor);
 
     void updateMaskOutput(boolean checked);
+
+    void updateMaskChildMessages(List<Message> messages, boolean maskStatus);
+
+    void getUpdatedMessages(double timestamp);
+
+    void sendSticker(@NotNull File file, boolean isMask);
+
+    void sendSticker(String stickerPath);
+
+    void sendGifs(String gifUrl);
 
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
@@ -70,6 +88,8 @@ public interface ChatPresenter extends BasePresenter {
 
         void updateLastMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
 
+        void appendHistoryMessages(List<MessageHeaderItem> messages, boolean canLoadMore);
+
         void updateNickNames(Map<String, String> nickNames);
 
         void toggleTyping(boolean b);
@@ -78,7 +98,7 @@ public interface ChatPresenter extends BasePresenter {
 
         void openCallScreen(User currentUser, User opponentUser, boolean isVideoCall);
 
-        void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, boolean added);
+        void updateMessage(MessageBaseItem item, MessageHeaderItem headerItem, MessageHeaderItem higherHeaderItem, boolean added);
 
         void changeTheme(Color from);
 
@@ -87,5 +107,7 @@ public interface ChatPresenter extends BasePresenter {
         void hideRefreshView();
 
         void refreshMessages();
+
+        void updateUnreadMessageCount(int count);
     }
 }

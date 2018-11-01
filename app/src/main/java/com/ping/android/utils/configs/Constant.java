@@ -1,6 +1,6 @@
 package com.ping.android.utils.configs;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -22,6 +22,9 @@ public class Constant {
     public static final int MSG_TYPE_GAME = 4;
     public static final int MSG_TYPE_VIDEO = 5;
     public static final int MSG_TYPE_CALL = 6;
+    public static final int MSG_TYPE_IMAGE_GROUP = 7;
+    public static final int MSG_TYPE_STICKER = 8;
+    public static final int MSG_TYPE_GIFS = 9;
 
     public static final int MSG_TYPE_TYPING = 10;
     public static final int MSG_TYPE_PADDING = 11;
@@ -50,8 +53,6 @@ public class Constant {
     public static final int IMAGE_LIMIT_WIDTH = 512;
     public static final int GAME_LIMIT_TIME = 30000;
 
-    public static final String IMAGE_PREFIX = "PPhtotoMessageIdentifier";
-
     //public static final String URL_STORAGE_REFERENCE = "gs://ping-android-dev.appspot.com";
 
     public static final String PREFS_NAME = "PingPrefsFile";
@@ -70,13 +71,6 @@ public class Constant {
     public enum TYPE_FRIEND {
         NON_FRIEND,
         IS_FRIEND
-    }
-
-    public enum MESSAGE_TYPE {
-        TEXT,
-        IMAGE,
-        VOICE,
-        GAME
     }
 
     public static String URL_TERMS_OF_SERVICE = "http://www.bzzz.chat/terms-of-service/";

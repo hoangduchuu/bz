@@ -5,8 +5,11 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.StorageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.model.Conversation;
@@ -14,15 +17,18 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by tuanluong on 2/28/18.
@@ -39,7 +45,10 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     ConversationRepository conversationRepository;
     @Inject
     SendMessageUseCase sendMessageUseCase;
-    SendMessageUseCase.Params.Builder builder;
+    @Inject
+    MessageRepository messageRepository;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public SendImageMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -49,59 +58,61 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
     @NotNull
     @Override
     public Observable<Message> buildUseCaseObservable(Params params) {
-        builder = new SendMessageUseCase.Params.Builder()
+        SendMessageUseCase.Params.Builder builder = new SendMessageUseCase.Params.Builder()
                 .setMessageType(params.messageType)
                 .setConversation(params.conversation)
                 .setMarkStatus(params.markStatus)
                 .setCurrentUser(params.currentUser)
-                .setGameType(params.gameType);
-        builder.setCacheImage(params.filePath);
-        builder.setFileUrl("PPhtotoMessageIdentifier");
-        Message cachedMessage = builder.build().getMessage();
-        cachedMessage.isCached = true;
-        cachedMessage.localFilePath = params.filePath;
+                .setGameType(params.gameType)
+                .setFileUrl(params.filePath)
+                .setThumbUrl(params.thumbFilePath);
+        MessageEntity cachedMessage = builder.build().getMessage();
         return conversationRepository.getMessageKey(params.conversation.key)
-                .zipWith(Observable.just(cachedMessage), (s, message) -> {
-                    message.key = s;
-                    builder.setMessageKey(s);
-                    return message;
-                })
-                .flatMap(message -> sendMessageUseCase.buildUseCaseObservable(builder.build())
-                        .map(message1 -> {
-                            message1.isCached = true;
-                            message1.localFilePath = params.filePath;
-                            message1.currentUserId = params.currentUser.key;
-                            return message1;
-                        }))
-                .concatWith(sendMessage(params));
-    }
-
-    private Observable<Message> sendMessage(Params params) {
-        return this.uploadImage(params.conversation.key, params.filePath)
-                .map(s -> {
-                    // FIXME: Use same image for thumbnail
-                    builder.setFileUrl(s);
-                    builder.setThumbUrl(s);
-                    return builder.build();
-                })
-//                .zipWith(uploadImage(params.conversation.key, params.thumbFilePath), (s, s2) -> {
-//                    builder.setFileUrl(s);
-//                    builder.setThumbUrl(s2);
-//                    return builder.build();
-//                })
-                .flatMap(params1 -> {
-                    Message message = params1.getMessage();
-                    Map<String, Object> updateValue = new HashMap<>();
-                    updateValue.put(String.format("messages/%s/%s/photoUrl", params1.getConversation().key, message.key), message.photoUrl);
-                    updateValue.put(String.format("messages/%s/%s/thumbUrl", params1.getConversation().key, message.key), message.thumbUrl);
-                    updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
-                    return commonRepository.updateBatchData(updateValue).map(aBoolean -> message);
+                .flatMap(messageKey -> {
+                    cachedMessage.key = messageKey;
+                    builder.setMessageKey(messageKey);
+                    Message temp = messageMapper.transform(cachedMessage, params.currentUser);
+                    temp.isCached = true;
+                    temp.localFilePath = params.filePath;
+                    temp.currentUserId = params.currentUser.key;
+                    return Observable.just(temp)
+                            .concatWith(sendMessageUseCase.buildUseCaseObservable(builder.build())
+                                    .flatMap(msg -> uploadImages(cachedMessage, params.conversation.key, cachedMessage.key, params.filePath)
+                                            .flatMap(message1 -> {
+                                                Map<String, Object> updateValue = new HashMap<>();
+                                                updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
+                                                updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
+                                                updateValue.put(String.format("media/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
+                                                updateValue.put(String.format("media/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
+                                                return commonRepository.updateBatchData(updateValue)
+                                                        .map(aBoolean -> messageMapper.transform(message1, params.currentUser));
+                                            }))
+                            );
                 });
     }
 
-    private Observable<String> uploadImage(String conversationKey, String filePath) {
+    private Observable<MessageEntity> uploadImages(MessageEntity message, String conversationId, String messageId, String filePath) {
+        return this.uploadThumbnail(conversationId, messageId, filePath)
+                .zipWith(uploadImage(conversationId, messageId, filePath), (s, s2) -> {
+                    message.thumbUrl = s;
+                    message.photoUrl = s2;
+                    return message;
+                })
+                .observeOn(Schedulers.io());
+    }
+
+    private Observable<String> uploadImage(String conversationKey, String messageKey, String filePath) {
         if (TextUtils.isEmpty(filePath)) return Observable.just("");
-        return storageRepository.uploadFile(conversationKey, filePath);
+        String fileName = System.currentTimeMillis() + new File(filePath).getName();
+        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 512, 512))
+                .flatMap(s -> messageRepository.updateImage(conversationKey, messageKey, s));
+    }
+
+    private Observable<String> uploadThumbnail(String conversationKey, String messageKey, String filePath) {
+        if (TextUtils.isEmpty(filePath)) return Observable.just("");
+        String fileName = "thumb_" + System.currentTimeMillis() + new File(filePath).getName();
+        return storageRepository.uploadFile(conversationKey, fileName, Utils.getImageData(filePath, 128, 128))
+                .flatMap(s -> messageRepository.updateThumbnailImage(conversationKey, messageKey, s));
     }
 
     public static class Params {

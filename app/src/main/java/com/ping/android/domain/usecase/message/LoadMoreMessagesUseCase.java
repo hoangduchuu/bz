@@ -3,7 +3,8 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.google.firebase.database.DataSnapshot;
+import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -33,6 +34,8 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
     UserRepository userRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public LoadMoreMessagesUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -50,40 +53,39 @@ public class LoadMoreMessagesUseCase extends UseCase<LoadMoreMessagesUseCase.Out
         }
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.loadMoreMessages(params.conversation.key, params.endTimestamp)
-                        .map(dataSnapshot -> {
-                            if (dataSnapshot.getChildrenCount() > 0) {
+                        .map(entities -> {
+                            if (entities.size() > 0) {
                                 double lastTimestamp = Double.MAX_VALUE;
                                 List<Message> messages = new ArrayList<>();
-                                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                                    Message message = Message.from(child);
+                                for (MessageEntity entity : entities) {
+                                    Message message = messageMapper.transform(entity, user);
                                     if (lastTimestamp > message.timestamp) {
                                         lastTimestamp = message.timestamp;
                                     }
-                                    message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
-                                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
+                                    boolean isDeleted = CommonMethod.getBooleanFrom(entity.deleteStatuses, user.key);
                                     if (isDeleted) {
                                         continue;
                                     }
 
-                                    if (message.readAllowed != null && message.readAllowed.size() > 0
-                                            && !message.readAllowed.containsKey(user.key))
+                                    if (!entity.isReadable(user.key))
                                         continue;
 
                                     if (message.timestamp < params.conversation.deleteTimestamp) {
                                         continue;
                                     }
-
-                                    message.sender = getUser(message.senderId, params.conversation);
-                                    message.currentUserId = user.key;
                                     messages.add(message);
                                 }
                                 Output output = new Output();
                                 output.messages = messages;
-                                output.canLoadMore = dataSnapshot.getChildrenCount() >= Constant.LOAD_MORE_MESSAGE_AMOUNT
+                                output.canLoadMore = entities.size() >= Constant.LOAD_MORE_MESSAGE_AMOUNT
                                         && lastTimestamp > params.conversation.deleteTimestamp;
                                 return output;
+                            } else {
+                                Output output = new Output();
+                                output.messages = new ArrayList<>();
+                                output.canLoadMore = false;
+                                return output;
                             }
-                            throw new NullPointerException();
                         })
                 );
     }

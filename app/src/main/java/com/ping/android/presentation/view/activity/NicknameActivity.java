@@ -1,28 +1,28 @@
 package com.ping.android.presentation.view.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.nickname.NicknameComponent;
-import com.ping.android.dagger.loggedin.nickname.NicknameModule;
-import com.ping.android.presentation.presenters.NicknamePresenter;
-import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Nickname;
 import com.ping.android.model.User;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.presentation.presenters.NicknamePresenter;
+import com.ping.android.presentation.view.adapter.NicknameAdapter;
 import com.ping.android.utils.ThemeUtils;
+import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class NicknameActivity extends CoreActivity implements NicknameAdapter.NickNameListener, NicknamePresenter.View {
     public static final String CONVERSATION_KEY = "CONVERSATION_KEY";
@@ -34,7 +34,6 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
 
     @Inject
     NicknamePresenter presenter;
-    NicknameComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nickname);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         initView();
         presenter.init(conversation);
     }
@@ -104,15 +103,7 @@ public class NicknameActivity extends CoreActivity implements NicknameAdapter.Ni
 
     private void onNicknameSet(Nickname nickname, String s) {
         nickname.nickName = s;
-        showLoading();
         presenter.updateNickName(nickname);
-    }
-
-    public NicknameComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideNickNameComponent(new NicknameModule(this));
-        }
-        return component;
     }
 
     @Override

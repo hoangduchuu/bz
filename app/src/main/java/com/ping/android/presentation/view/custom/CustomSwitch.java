@@ -8,13 +8,10 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-
-import org.w3c.dom.Text;
 
 public class CustomSwitch extends LinearLayout {
 
@@ -53,10 +50,10 @@ public class CustomSwitch extends LinearLayout {
         initialize();
 
         TypedArray styleAttrs = getContext().obtainStyledAttributes(
-                attrs, R.styleable.CustomSwitch);
+                attrs, R.styleable.MyCustomSwitch);
 
-        String leftSwitch = styleAttrs.getString(R.styleable.CustomSwitch_leftSwitch);
-        String rightSwitch = styleAttrs.getString(R.styleable.CustomSwitch_rightSwitch);
+        String leftSwitch = styleAttrs.getString(R.styleable.MyCustomSwitch_leftSwitchText);
+        String rightSwitch = styleAttrs.getString(R.styleable.MyCustomSwitch_rightSwitchText);
         setSwitches(leftSwitch, rightSwitch);
         toggleSwitch();
         invalidate();

@@ -11,37 +11,34 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.RemoteInput
+import androidx.core.app.NotificationCompat
 import android.text.TextUtils
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.bzzzchat.cleanarchitecture.DefaultObserver
 import com.bzzzchat.configuration.GlideApp
-import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.App
 import com.ping.android.R
 import com.ping.android.domain.usecase.GetCurrentUserUseCase
+import com.ping.android.domain.usecase.RemoveUserBadgeUseCase
 import com.ping.android.domain.usecase.notification.ShowIncomingMessageNotificationUseCase
 import com.ping.android.domain.usecase.notification.ShowMissedCallNotificationUseCase
 import com.ping.android.model.Callback
 import com.ping.android.model.User
 import com.ping.android.presentation.view.activity.ChatActivity
 import com.ping.android.presentation.view.activity.SplashActivity
-import com.ping.android.service.NotificationBroadcastReceiver.KEY_REPLY
 import com.ping.android.utils.ActivityLifecycle
-import com.ping.android.utils.BadgeHelper
 import com.ping.android.utils.Log
 import com.ping.android.utils.SharedPrefsHelper
 import com.quickblox.messages.services.fcm.QBFcmPushListenerService
+import me.leolin.shortcutbadger.ShortcutBadger
 import org.json.JSONException
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 class FbMessagingService: QBFcmPushListenerService() {
-    private lateinit var badgeHelper: BadgeHelper
     private var mNotificationId: Int = 0
     private var mConversationId: String? = null
     @Inject
@@ -50,11 +47,12 @@ class FbMessagingService: QBFcmPushListenerService() {
     internal lateinit var showMissedCallNotificationUseCase: ShowMissedCallNotificationUseCase
     @Inject
     internal lateinit var showIncomingMessageNotificationUseCase: ShowIncomingMessageNotificationUseCase
+    @Inject
+    internal lateinit var removeUserBadgeUseCase: RemoveUserBadgeUseCase
 
 
     override fun onCreate() {
         super.onCreate()
-        badgeHelper = BadgeHelper(this)
         (applicationContext as App).component.inject(this)
     }
 
@@ -70,46 +68,58 @@ class FbMessagingService: QBFcmPushListenerService() {
 
             val conversationId = data["conversationId"] as? String ?: ""
             val senderProfile = data["senderProfile"] as? String ?: ""
+            val badgeCount = (data["badge_count"] as? String)?.toIntOrNull()
             Log.d("new message: $message$conversationId$notificationType")
-            if (TextUtils.equals(notificationType, "missed_call")) {
-                var isVideo = 0
-                try {
-                    isVideo = Integer.parseInt(data["isVideo"] as String)
-                } catch (e: NumberFormatException) {
-                    e.printStackTrace()
-                }
-
-                val senderId = data["senderId"] as String
-                this.badgeHelper.increaseMissedCall()
-                showMissedCallNotificationUseCase
-                        .execute(DefaultObserver(),
-                                ShowMissedCallNotificationUseCase.Params(
-                                        senderId,
-                                        senderProfile,
-                                        message,
-                                        isVideo == 1
-                                ))
-            } else if (TextUtils.equals(notificationType, "incoming_message")) {
-                if (!needDisplayNotification(conversationId)) {
-                    return
-                }
-                this.badgeHelper.increaseBadgeCount(conversationId)
-                showIncomingMessageNotificationUseCase.execute(DefaultObserver(),
-                        ShowIncomingMessageNotificationUseCase.Params(message, conversationId, senderProfile))
-            } else if (TextUtils.equals(notificationType, "game_status")) {
-                if (!needDisplayNotification(conversationId)) {
-                    return
-                }
-                getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
-                    override fun onNext(user: User) {
-                        try {
-                            postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
-                        }
-
+            when {
+                TextUtils.equals(notificationType, "missed_call") -> {
+                    var isVideo = 0
+                    try {
+                        isVideo = Integer.parseInt(data["isVideo"] as String)
+                    } catch (e: NumberFormatException) {
+                        e.printStackTrace()
                     }
-                }, null)
+                    ShortcutBadger.applyCount(this, badgeCount ?: 0)
+                    val senderId = data["senderId"] as String
+                    showMissedCallNotificationUseCase
+                            .execute(DefaultObserver(),
+                                    ShowMissedCallNotificationUseCase.Params(
+                                            senderId,
+                                            senderProfile,
+                                            message,
+                                            isVideo == 1
+                                    ))
+                }
+                TextUtils.equals(notificationType, "incoming_message") -> {
+//                    if (!needDisplayNotification(conversationId)) {
+//                        removeUserBadgeUseCase.execute(DefaultObserver(), conversationId)
+//                        return
+//                    }
+                    val messageId = data["messageId"] as? String ?: ""
+                    val observer = object : DefaultObserver<Boolean>() {
+                        override fun onNext(t: Boolean) {
+                            if (t) {
+                                ShortcutBadger.applyCount(this@FbMessagingService, badgeCount ?: 0)
+                            }
+                        }
+                    }
+                    showIncomingMessageNotificationUseCase.execute(observer,
+                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, messageId, senderProfile))
+                }
+                TextUtils.equals(notificationType, "game_status") -> {
+                    if (!needDisplayNotification(conversationId)) {
+                        return
+                    }
+                    getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
+                        override fun onNext(user: User) {
+                            try {
+                                postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+
+                        }
+                    }, null)
+                }
             }
         }
     }

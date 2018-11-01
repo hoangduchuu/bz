@@ -2,8 +2,11 @@ package com.ping.android.dagger.loggedin.newgroup;
 
 import com.ping.android.dagger.scopes.PerActivity;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
+import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.presenters.impl.AddGroupPresenterImpl;
+import com.ping.android.presentation.view.activity.AddGroupActivity;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,22 +15,16 @@ import dagger.Provides;
  */
 
 @Module
-public class NewGroupModule {
-    public AddGroupPresenter.View view;
+public abstract class NewGroupModule {
+    @Binds
+    public abstract AddGroupPresenter.View provideView(AddGroupActivity activity);
 
-    public NewGroupModule(AddGroupPresenter.View view) {
-        this.view = view;
-    }
-
-    @Provides
-    @PerActivity
-    public AddGroupPresenter.View provideView() {
-        return view;
-    }
+    @Binds
+    public abstract SearchUserPresenter.View provideSearchView(AddGroupActivity addGroupActivity);
 
     @Provides
     @PerActivity
-    public AddGroupPresenter provideAddGroupPresenter(AddGroupPresenterImpl presenter) {
+    public static AddGroupPresenter provideAddGroupPresenter(AddGroupPresenterImpl presenter) {
         return presenter;
     }
 }

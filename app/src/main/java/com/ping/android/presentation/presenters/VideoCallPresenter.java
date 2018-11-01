@@ -5,7 +5,6 @@ import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.model.User;
 import com.quickblox.users.model.QBUser;
 import com.quickblox.videochat.webrtc.BaseSession;
-import com.quickblox.videochat.webrtc.QBRTCSession;
 import com.quickblox.videochat.webrtc.view.QBRTCVideoTrack;
 
 import org.webrtc.CameraVideoCapturer;

@@ -3,7 +3,9 @@ package com.ping.android.dagger.loggedin.main.contact;
 import com.ping.android.dagger.scopes.PerFragment;
 import com.ping.android.presentation.presenters.ContactPresenter;
 import com.ping.android.presentation.presenters.impl.ContactPresenterImpl;
+import com.ping.android.presentation.view.fragment.ContactFragment;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
@@ -12,22 +14,13 @@ import dagger.Provides;
  */
 
 @Module
-public class ContactModule {
-    private final ContactPresenter.View view;
-
-    public ContactModule(ContactPresenter.View view) {
-        this.view = view;
-    }
+public abstract class ContactModule {
+    @Binds
+    public abstract ContactPresenter.View provideView(ContactFragment fragment);
 
     @Provides
     @PerFragment
-    public ContactPresenter.View provideView() {
-        return view;
-    }
-
-    @Provides
-    @PerFragment
-    public ContactPresenter provideContactPresenter(ContactPresenterImpl presenter) {
+    public static ContactPresenter provideContactPresenter(ContactPresenterImpl presenter) {
         return presenter;
     }
 }

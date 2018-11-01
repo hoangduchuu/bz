@@ -1,9 +1,9 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.ping.android.activity.com.ping.android.presentation.view.activity.PrivacyAndTermActivity">
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/contentRoot"
@@ -35,45 +35,34 @@
             android:orientation="vertical"
             android:paddingLeft="@dimen/default_padding">
 
-            <LinearLayout
+            <com.ping.android.presentation.view.custom.SettingItem
                 android:id="@+id/v_data_privacy"
                 style="@style/ItemSetting"
-                android:paddingLeft="@dimen/default_padding">
-
-                <TextView
-                    style="@style/ItemSettingText"
-                    android:text="@string/data_privacy" />
+                app:titleText="@string/data_privacy">
 
                 <ImageView style="@style/ItemSettingIconRight" />
-            </LinearLayout>
+            </com.ping.android.presentation.view.custom.SettingItem>
 
-            <View
-                style="@style/horizontal_divider"
-                android:layout_marginLeft="@dimen/default_padding" />
-
-            <LinearLayout
+            <com.ping.android.presentation.view.custom.SettingItem
                 android:id="@+id/v_terms_of_service"
-                style="@style/ItemSetting">
-
-                <TextView
-                    style="@style/ItemSettingText"
-                    android:text="@string/terms_of_service" />
+                style="@style/ItemSetting"
+                app:showDivider="false"
+                app:titleText="@string/terms_of_service">
 
                 <ImageView style="@style/ItemSettingIconRight" />
-            </LinearLayout>
-
-
+            </com.ping.android.presentation.view.custom.SettingItem>
 
         </LinearLayout>
+
         <TextView
             android:id="@+id/tv_copyright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="©2017 ver 1.0.0"
             android:textColor="@color/text_color_grey"
-            android:textSize="@dimen/text_size_small" />
+            android:textSize="@dimen/text_size_small"
+            tools:text="©2017 ver 1.0.0" />
 
 
     </LinearLayout>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

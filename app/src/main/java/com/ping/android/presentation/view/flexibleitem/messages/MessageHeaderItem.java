@@ -1,6 +1,6 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,17 +16,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHolder> {
     private TreeMap<Double, MessageBaseItem> childItemTreeMap;
     private List<MessageBaseItem> childItems;
-    private List<MessageBaseItem> newItems;
+    private TreeMap<Double, MessageBaseItem> newItems;
+    private long key = 0;
 
     public MessageHeaderItem() {
         childItemTreeMap = new TreeMap<>();
         childItems = new ArrayList<>();
-        newItems = new ArrayList<>();
+        newItems = new TreeMap<>();
+    }
+
+    public void setKey(long key) {
+        this.key = key;
+    }
+
+    public long getKey() {
+        return key;
     }
 
     @Override
@@ -54,7 +64,8 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
 
     public boolean addChildItem(MessageBaseItem item) {
         boolean isAdded = true;
-        if (childItemTreeMap.get(item.message.timestamp) != null) {
+        MessageBaseItem currentMessage = childItemTreeMap.get(item.message.timestamp);
+        if (currentMessage != null) {
             isAdded = false;
         }
         childItemTreeMap.put(item.message.timestamp, item);
@@ -64,7 +75,9 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     }
 
     public void addNewItem(MessageBaseItem item) {
-        newItems.add(item);
+        //prepareMessage(item);
+        childItemTreeMap.remove(item.message.timestamp);
+        newItems.put(item.message.timestamp, item);
     }
 
     public int removeMessage(MessageBaseItem data) {
@@ -79,7 +92,7 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     }
 
     public List<MessageBaseItem> getNewItems() {
-        return newItems;
+        return new ArrayList<>(newItems.values());
     }
 
     public int findChildIndex(MessageBaseItem item) {
@@ -88,9 +101,9 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     }
 
     private void prepareMessage(MessageBaseItem item) {
-        int newAddedIndex = findChildIndex(item);
-        if (newAddedIndex > 0 && newAddedIndex < childItems.size()) {
-            MessageBaseItem previousMessage = childItems.get(newAddedIndex - 1);
+        Map.Entry<Double, MessageBaseItem> entry = childItemTreeMap.lowerEntry(item.message.timestamp);
+        if (entry != null) {
+            MessageBaseItem previousMessage = entry.getValue();
             item.message.showExtraInfo = !item.message.senderId.equals(previousMessage.message.senderId);
         }
     }
@@ -100,10 +113,12 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
     }
 
     public void processNewItems() {
-        for (MessageBaseItem item : newItems) {
-            addChildItem(item);
+        childItemTreeMap.putAll(newItems);
+        for (MessageBaseItem item: newItems.values()) {
+            prepareMessage(item);
         }
-        newItems = new ArrayList<>();
+        childItems = new ArrayList<>(childItemTreeMap.values());
+        newItems.clear();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -117,5 +132,10 @@ public class MessageHeaderItem implements FlexibleItem<MessageHeaderItem.ViewHol
         public void bindData(Date date) {
             tvDate.setText(DateUtils.toHeaderString(date));
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof MessageHeaderItem && ((MessageHeaderItem) obj).key == key;
     }
 }

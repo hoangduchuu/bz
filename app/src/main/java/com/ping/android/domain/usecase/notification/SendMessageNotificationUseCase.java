@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.notification;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -9,8 +11,8 @@ import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,10 +48,14 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                     String senderName = sender.getDisplayName();
                     Map<String, String> nickNames = params.conversation.nickNames;
                     if (nickNames.containsKey(sender.key)) {
-                        senderName = nickNames.get(sender.key);
+                        String nickname = nickNames.get(sender.key);
+                        if (!TextUtils.isEmpty(nickname)) {
+                            senderName = nickname;
+                        }
                     }
                     if (params.conversation.group != null) {
-                        senderName = String.format("%s to %s", senderName, params.conversation.group.groupName);
+                        String groupName = params.conversation.group.groupName;
+                        senderName = String.format("%s to %s", senderName, groupName);
                     }
                     ArrayList<User> validUsers = new ArrayList<>();
                     for (User user : params.conversation.members) {
@@ -67,25 +73,37 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                             //get incoming mask of target opponentUser
                                             boolean incomingMask = CommonMethod.getBooleanFrom(params.conversation.maskMessages, user.key);
                                             String body = "";
-                                            switch (params.message.messageType) {
-                                                case Constant.MSG_TYPE_TEXT:
-                                                    String messageText = params.message.message;
+                                            switch (params.messageType) {
+                                                case TEXT:
+                                                    String messageText = params.message;
                                                     if (incomingMask && user.mappings != null && user.mappings.size() > 0) {
-                                                        messageText = CommonMethod.encodeMessage(params.message.message, user.mappings);
+                                                        messageText = CommonMethod.encodeMessage(messageText, user.mappings);
                                                     }
                                                     body = String.format("%s: %s", userName, messageText);
                                                     break;
-                                                case Constant.MSG_TYPE_VOICE:
+                                                case VOICE:
                                                     body = userName + ": sent a voice message.";
                                                     break;
-                                                case Constant.MSG_TYPE_IMAGE:
+                                                case IMAGE:
                                                     body = userName + ": sent a picture message.";
                                                     break;
-                                                case Constant.MSG_TYPE_GAME:
+                                                case GAME:
                                                     body = userName + ": sent a game.";
                                                     break;
-                                                case Constant.MSG_TYPE_VIDEO:
+                                                case VIDEO:
                                                     body = userName + ": sent a video message.";
+                                                    break;
+                                                case IMAGE_GROUP:
+                                                    body = userName + ": sent (" + params.message + ") pictures.";
+                                                    break;
+                                                case GAME_GROUP:
+                                                    body = userName + ": sent (" + params.message + ") games." ;
+                                                    break;
+                                                case STICKER:
+                                                    body = userName + ": [Sticker]";
+                                                    break;
+                                                case GIF:
+                                                    body = userName + ": [GIF]";
                                                     break;
                                                 default:
                                                     break;
@@ -95,8 +113,8 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                 profile = "";
                                             }
                                             return notificationRepository.sendMessageNotification(
-                                                    sender.key, profile, body, params.conversation.key,
-                                                    params.message, user, integer);
+                                                    sender.key, profile, body, params.conversation.key, params.messageId, params.messageType.ordinal(), user, integer)
+                                                    .flatMap(aBoolean -> userRepository.increaseBadgeNumber(user.key, params.conversation.key));
                                         });
                             })
                             .take(validUsers.size());
@@ -118,11 +136,15 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
 
     public static class Params {
         private Conversation conversation;
-        private Message message;
+        private MessageType messageType;
+        private String messageId;
+        private String message;
 
-        public Params(Conversation conversation, Message message) {
+        public Params(Conversation conversation, String messageId, String message, MessageType messageType) {
             this.conversation = conversation;
+            this.messageId = messageId;
             this.message = message;
+            this.messageType = messageType;
         }
     }
 }

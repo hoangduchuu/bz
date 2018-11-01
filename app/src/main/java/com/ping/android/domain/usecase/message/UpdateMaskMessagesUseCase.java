@@ -4,10 +4,11 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
-import com.ping.android.utils.configs.Constant;
+import com.ping.android.model.enums.MessageType;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
     @Inject
     CommonRepository commonRepository;
     @Inject
+    MessageRepository messageRepository;
+    @Inject
     UserManager userManager;
 
     @Inject
@@ -46,6 +49,7 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
                     for (String message : params.messageKeys) {
                         updateValue.put(String.format("messages/%s/%s/markStatuses/%s", params.conversationId,
                                 message, user.key), params.isMask);
+                        messageRepository.updateLocalMaskStatus(message, params.isMask);
                     }
                     for (String message : params.mediaMessages) {
                         updateValue.put(String.format("media/%s/%s/markStatuses/%s", params.conversationId, message, user.key),
@@ -74,8 +78,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
 
         public void setMessage(Message message) {
             this.messageKeys.add(message.key);
-            if (message.messageType == Constant.MSG_TYPE_IMAGE
-                    || message.messageType == Constant.MSG_TYPE_GAME) {
+            if (message.type == MessageType.IMAGE
+                    || message.type == MessageType.GAME) {
                 this.mediaMessages = new ArrayList<>();
                 this.mediaMessages.add(message.key);
             }

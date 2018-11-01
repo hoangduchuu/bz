@@ -1,22 +1,36 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
-import android.support.v4.util.Pair;
+
+import androidx.core.util.Pair;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.bzzzchat.configuration.GlideRequest;
+import com.bzzzchat.configuration.GlideRequests;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Message;
-import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
+import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.configs.Constant;
-import com.ping.android.utils.UiUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 /**
  * Created by tuanluong on 3/2/18.
@@ -35,14 +49,25 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
     }
 
     public static class ViewHolder extends MessageBaseItem.ViewHolder {
+        private FrameLayout content;
         private ImageView imageView;
         private boolean isUpdated;
+        private View loadingView;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+            content = itemView.findViewById(R.id.content);
             imageView = itemView.findViewById(R.id.item_chat_image);
-
+            loadingView = itemView.findViewById(R.id.loading_container);
             initGestureListener();
+            int radius = ResourceUtils.dpToPx(20);
+            imageView.setClipToOutline(true);
+            imageView.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
+                }
+            });
         }
 
         @Override
@@ -55,7 +80,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.isEditMode) {
                 return;
             }
-            if (item.message.messageType == Constant.MSG_TYPE_GAME) {
+            if (item.message.type == MessageType.GAME) {
                 if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_PASS
                         && !item.message.isFromMe()) {
                     return;
@@ -72,11 +97,11 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (item.isEditMode) {
                 return;
             }
-            switch (item.message.messageType) {
-                case Constant.MSG_TYPE_IMAGE:
+            switch (item.message.type) {
+                case IMAGE:
                     handleImagePress(maskStatus);
                     break;
-                case Constant.MSG_TYPE_GAME:
+                case GAME:
                     handleGamePress(maskStatus);
                     break;
             }
@@ -97,90 +122,113 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         @Override
         public View getSlideView() {
-            return imageView;
+            return content;
         }
 
         private void handleImagePress(boolean isPuzzled) {
             if (TextUtils.isEmpty(item.message.localFilePath)) {
-                String photoUrl = !TextUtils.isEmpty(item.message.photoUrl)
-                        ? item.message.photoUrl : item.message.thumbUrl;
-                if (TextUtils.isEmpty(photoUrl) || photoUrl.startsWith("PPhtotoMessageIdentifier"))
+                String photoUrl = !TextUtils.isEmpty(item.message.mediaUrl)
+                        ? item.message.mediaUrl : item.message.thumbUrl;
+                if (TextUtils.isEmpty(photoUrl))
                     return;
-                viewImage(photoUrl, "", isPuzzled);
+                viewImage(isPuzzled);
             } else {
-                viewImage("", item.message.localFilePath, isPuzzled);
+                viewImage(isPuzzled);
             }
         }
 
         private void handleGamePress(boolean isPuzzled) {
-            if (!TextUtils.isEmpty(item.message.gameUrl) && item.message.gameUrl.startsWith("PPhtotoMessageIdentifier")) {
-                return;
-            }
-            if (TextUtils.isEmpty(item.message.gameUrl)) {
+            if (TextUtils.isEmpty(item.message.mediaUrl)) {
                 return;
             }
             // Only play game for player
-            int status = CommonMethod.getIntFrom(item.message.status, item.message.currentUserId);
             //int status = ServiceManager.getInstance().getCurrentStatus(item.message.status);
             if (!item.message.currentUserId.equals(item.message.senderId)) {
-                if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                if (item.message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_PASS) {
                     // Game pass, just unpuzzle image
-                    viewImage(item.message.gameUrl, "", isPuzzled);
-                } else if (status != Constant.MESSAGE_STATUS_GAME_FAIL) {
+                    viewImage(isPuzzled);
+                } else if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_FAIL) {
                     if (messageListener != null) {
                         messageListener.openGameMessage(item.message);
                     }
                 }
             } else {
                 // Show image for current User
-                viewImage(item.message.gameUrl, "", isPuzzled);
+                viewImage(isPuzzled);
             }
         }
 
-        private void viewImage(String imageUrl, String localUrl, boolean isPuzzled) {
+        private void viewImage(boolean isPuzzled) {
             Pair imagePair = Pair.create(imageView, item.message.key);
             if (messageListener != null) {
-                messageListener.openImage(item.message.key, imageUrl, localUrl, isPuzzled, imagePair);
+                messageListener.openImage(item.message, isPuzzled, imagePair);
             }
         }
 
         private void setImageMessage(Message message) {
             boolean bitmapMark = maskStatus;
             if (imageView == null) return;
+            //Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
+            if (!isUpdated) {
+                loadingView.setVisibility(View.VISIBLE);
+            }
             if (!TextUtils.isEmpty(item.message.localFilePath)) {
-                UiUtils.loadImageFromFile(imageView, item.message.localFilePath, message.key, maskStatus);
+                ((GlideRequests) this.glide)
+                        .load(item.message.localFilePath)
+//                        .placeholder(placeholder)
+                        .dontAnimate()
+                        .messageImage(message.key, bitmapMark)
+                        .into(imageView);
+                // should preload remote image
+                if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
+                    StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
+                    ((GlideRequests) this.glide).load(gsReference)
+                            .messageImage(message.key, bitmapMark)
+                            .preload();
+                }
+                loadingView.setVisibility(View.GONE);
                 return;
             }
 
-            String imageURL = message.photoUrl;
-            if (item.message.messageType == Constant.MSG_TYPE_GAME) {
-                imageURL = message.gameUrl;
-            }
-            if (TextUtils.isEmpty(imageURL) || imageURL.startsWith("PPhtotoMessageIdentifier")) {
-                imageView.setImageResource(R.drawable.img_loading_image);
+            String imageURL = message.mediaUrl;
+            if (TextUtils.isEmpty(imageURL)) {
+                imageView.setImageResource(0);
                 return;
             }
-            int status = CommonMethod.getIntFrom(message.status, message.currentUserId);
-            //int status = ServiceManager.getInstance().getCurrentStatus(message.status);
-            if (!TextUtils.isEmpty(message.gameUrl) && !message.currentUserId.equals(message.senderId)) {
-                if (status == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                    imageView.setImageResource(R.drawable.img_game_over);
-                    return;
-                } else if (status != Constant.MESSAGE_STATUS_GAME_PASS) {
-                    bitmapMark = true;
-                }
-            }
-            String url = imageURL;
-            if (imageURL.startsWith(Constant.IMAGE_PREFIX)) {
-                url = imageURL.substring(Constant.IMAGE_PREFIX.length());
-                UiUtils.loadImageFromFile(imageView, url, message.key, bitmapMark);
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_FAIL) {
+                imageView.setImageResource(R.drawable.img_game_over);
+                loadingView.setVisibility(View.GONE);
                 return;
             }
-            Drawable placeholder = null;
-            if (isUpdated) {
-                placeholder = imageView.getDrawable();
+
+            GlideRequest<Drawable> request = null;
+            if (imageURL.startsWith("gs://")) {
+                StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
+                request = ((GlideRequests) this.glide)
+                        .load(gsReference);
+            } else {
+                request = ((GlideRequests) this.glide)
+                        .load(new File(imageURL));
             }
-            UiUtils.loadImage(imageView, url, message.key, bitmapMark, placeholder);
+
+            request
+//                    .placeholder(placeholder)
+                    .messageImage(message.key, bitmapMark)
+                    .dontAnimate()
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            loadingView.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            loadingView.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .into(imageView);
         }
     }
 }

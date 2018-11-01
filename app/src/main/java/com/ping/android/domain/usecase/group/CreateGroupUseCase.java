@@ -18,7 +18,6 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.util.HashMap;
 import java.util.List;

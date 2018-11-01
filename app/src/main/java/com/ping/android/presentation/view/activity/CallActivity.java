@@ -7,16 +7,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.bzzzchat.cleanarchitecture.scopes.HasComponent;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.call.CallComponent;
-import com.ping.android.dagger.loggedin.call.CallModule;
 import com.ping.android.data.db.QbUsersDbManager;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.NetworkStatus;
@@ -54,11 +50,16 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+
 /**
  * QuickBlox team
  */
 public class CallActivity extends CoreActivity implements CallPresenter.View,
-        NetworkConnectionChecker.OnConnectivityChangedListener, HasComponent<CallComponent> {
+        NetworkConnectionChecker.OnConnectivityChangedListener, HasSupportFragmentInjector {
     private static final int ACTIVITY_REQUEST_CODE = 100;
     public static final String INCOME_CALL_FRAGMENT = "income_call_fragment";
     private static final String TAG = CallActivity.class.getSimpleName();
@@ -73,7 +74,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     private ConnectionListener connectionListener;
     private SharedPreferences sharedPref;
     private AppRTCAudioManager audioManager;
-    private NetworkConnectionChecker networkConnectionChecker;
+    @Inject
+    NetworkConnectionChecker networkConnectionChecker;
     private QbUsersDbManager dbManager;
     private ArrayList<CurrentCallStateCallback> currentCallStateCallbackList = new ArrayList<>();
     private boolean callStarted;
@@ -88,7 +90,8 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
 
     @Inject
     CallPresenter presenter;
-    CallComponent component;
+    @Inject
+    DispatchingAndroidInjector<Fragment> fragmentInjector;
 
     public static void start(Context context, User currentUser, User otherUser, Boolean isVideoCall) {
         int userQBID = otherUser.quickBloxID;
@@ -161,7 +164,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
         super.onCreate(savedInstanceState);
         startCallService(this);
         setContentView(R.layout.activity_call);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         navigator = new Navigator();
         navigator.init(getSupportFragmentManager(), R.id.fragment_container);
         initFields();
@@ -170,7 +173,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        checker = new PermissionsChecker(getApplicationContext());
+        checker = PermissionsChecker.from(this);
 
         initWiFiManagerListener();
         initAudioSettings();
@@ -340,7 +343,7 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
     }
 
     private void initWiFiManagerListener() {
-        networkConnectionChecker = new NetworkConnectionChecker(getApplication());
+        //networkConnectionChecker = new NetworkConnectionChecker(getApplication());
     }
 
     public void hangUpCurrentSession() {
@@ -518,6 +521,11 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
         }
     }
 
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return fragmentInjector;
+    }
+
     public interface OnChangeDynamicToggle {
         void enableDynamicToggle(boolean plugged, boolean wasEarpiece);
     }
@@ -550,13 +558,5 @@ public class CallActivity extends CoreActivity implements CallPresenter.View,
                 hangUpAfterLongReconnection();
             }
         }
-    }
-
-    @Override
-    public CallComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideCallComponent(new CallModule(this));
-        }
-        return component;
     }
 }

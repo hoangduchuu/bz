@@ -1,6 +1,7 @@
 package com.ping.android.dagger;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.bzzzchat.cleanarchitecture.JobExecutor;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
@@ -10,7 +11,7 @@ import com.ping.android.device.Device;
 import com.ping.android.device.Notification;
 import com.ping.android.device.impl.DeviceImpl;
 import com.ping.android.device.impl.NotificationImpl;
-import com.ping.android.managers.UserManager;
+import com.ping.android.domain.repository.NotificationMessageRepository;
 import com.ping.android.service.CallServiceHandler;
 import com.ping.android.service.CallServiceHandlerImpl;
 
@@ -33,7 +34,19 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
+    public Notification provideNotification(NotificationMessageRepository notificationMessageRepository) {
+        return new NotificationImpl(application, notificationMessageRepository);
+    }
+
+    @Provides
+    @Singleton
     public Application provideApplication() {
+        return application;
+    }
+
+    @Provides
+    @Singleton
+    public Context provideContext() {
         return application;
     }
 
@@ -57,13 +70,13 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    public Notification provideNotification() {
-        return new NotificationImpl(application);
-    }
-
-    @Provides
-    @Singleton
     public CallServiceHandler provideCallServiceHandler(CallServiceHandlerImpl handler) {
         return handler;
     }
+
+//    @Provides
+//    @Singleton
+//    public ImageStorage provideImageStorgate(Application application) {
+//        return new ImageStorageImpl(application);
+//    }
 }

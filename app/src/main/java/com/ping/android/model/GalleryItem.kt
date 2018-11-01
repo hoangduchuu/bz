@@ -38,4 +38,17 @@ data class ImageMessage(var message: Message) : ViewType {
     override fun getViewType(): Int {
         return AdapterConstants.IMAGE
     }
+
+    override fun equals(other: Any?): Boolean {
+        val otherMessage = other as? ImageMessage
+        return if (otherMessage != null) {
+            message.key == otherMessage.message.key
+        } else {
+            false
+        }
+    }
+
+    override fun hashCode(): Int {
+        return "com.ping.android.model.ImageMessage".hashCode()
+    }
 }

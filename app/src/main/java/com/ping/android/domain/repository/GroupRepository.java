@@ -4,7 +4,6 @@ import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.model.Group;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 
 /**
  * Created by tuanluong on 1/28/18.

@@ -3,8 +3,8 @@ package com.ping.android.presentation.view.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,9 +12,6 @@ import android.widget.ImageView;
 
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.R;
-import com.ping.android.dagger.loggedin.selectcontact.SelectContactComponent;
-import com.ping.android.dagger.loggedin.selectcontact.SelectContactModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SelectContactPresenter;
 import com.ping.android.presentation.view.adapter.SelectContactAdapter;
@@ -24,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class SelectContactActivity extends CoreActivity implements View.OnClickListener, SelectContactPresenter.View {
     public static final String SELECTED_USERS_KEY = "SELECTED_USERS";
@@ -41,13 +40,12 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
 
     @Inject
     SelectContactPresenter presenter;
-    SelectContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_contact);
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         selectedId = getIntent().getStringExtra("SELECTED_ID");
         selectedUsers = getIntent().getParcelableArrayListExtra(SELECTED_USERS_KEY);
         if (selectedUsers == null) {
@@ -73,24 +71,19 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = findViewById(R.id.select_contact_search_view);
         //CommonMethod.UpdateSearchViewLayout(searchView);
-        registerEvent(RxTextView.textChanges(searchView)
-                .subscribe(charSequence -> adapter.filter(charSequence.toString())));
     }
 
     private void init() {
         mContacts = new ArrayList<>();
         // TODO SelectContactAdapter
-        adapter = new SelectContactAdapter(this, mContacts, new SelectContactAdapter.ClickListener() {
-            @Override
-            public void onSelect(User contact, Boolean isSelected) {
-                if (isSelected) {
-                    selectedUsers.add(contact);
-                } else {
-                    for (User user : selectedUsers) {
-                        if (user.key.equals(contact.key)) {
-                            selectedUsers.remove(user);
-                            break;
-                        }
+        adapter = new SelectContactAdapter(mContacts, (contact, isSelected) -> {
+            if (isSelected) {
+                selectedUsers.add(contact);
+            } else {
+                for (User user : selectedUsers) {
+                    if (user.key.equals(contact.key)) {
+                        selectedUsers.remove(user);
+                        break;
                     }
                 }
             }
@@ -98,6 +91,10 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         adapter.setSelectPingIDs(getSelectedPingId());
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
+        registerEvent(
+                RxTextView.textChanges(searchView)
+                        .subscribe(charSequence -> adapter.filter(charSequence.toString()))
+        );
     }
 
     private List<String> getSelectedPingId() {
@@ -137,13 +134,6 @@ public class SelectContactActivity extends CoreActivity implements View.OnClickL
         returnIntent.putParcelableArrayListExtra(SELECTED_USERS_KEY, selectedUsers);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
-    }
-
-    public SelectContactComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideSelectContactComponent(new SelectContactModule(this));
-        }
-        return component;
     }
 
     @Override

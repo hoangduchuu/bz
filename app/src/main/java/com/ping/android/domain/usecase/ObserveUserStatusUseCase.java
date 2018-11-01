@@ -37,7 +37,7 @@ public class ObserveUserStatusUseCase extends UseCase<Boolean, String> {
                         if (devices != null) {
                             for (String key : devices.keySet()) {
                                 double timestamp = devices.get(key);
-                                if (System.currentTimeMillis() - timestamp * 1000 < 3600000 * 24) {
+                                if ((System.currentTimeMillis() - (timestamp * 1000)) < 3600000 * 24) {
                                     isOnline = true;
                                 }
                             }

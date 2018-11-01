@@ -3,9 +3,9 @@ package com.ping.android.domain.usecase;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Group;
 
@@ -40,7 +40,7 @@ public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroup
                         .flatMap(childEvent -> {
                             Group group = Group.from(childEvent.dataSnapshot);
                             if (params.initUsers) {
-                                return userRepository.getUserList(group.memberIDs)
+                                return userManager.getUserList(group.memberIDs)
                                         .map(users -> {
                                             group.members = users;
                                             return new ChildData<>(group, childEvent.type);

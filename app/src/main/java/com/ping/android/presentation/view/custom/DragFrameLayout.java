@@ -17,9 +17,9 @@
 package com.ping.android.presentation.view.custom;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.ViewDragHelper;
+import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
+import androidx.customview.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -252,6 +252,11 @@ public class DragFrameLayout extends FrameLayout {
      */
     public void addDragView(View dragView) {
         mDragViews.add(dragView);
+    }
+
+    public void releaseResources() {
+        mDragViews.clear();
+        mDragFrameLayoutController = null;
     }
 
     /**

@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.ping.android.R;
 import com.ping.android.utils.PermissionsChecker;
@@ -34,7 +34,7 @@ public class PermissionsActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_permissions);
 
-        checker = new PermissionsChecker(this);
+        checker = PermissionsChecker.from(this);
         checkPermissions();
         //requiresCheck = true;
     }

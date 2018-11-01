@@ -2,23 +2,21 @@ package com.ping.android.presentation.view.fragment;
 
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.R;
 import com.ping.android.data.db.QbUsersDbManager;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.utils.configs.Consts;
-import com.ping.android.utils.RingtonePlayer;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.users.model.QBUser;
 

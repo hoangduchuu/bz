@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.NotificationMessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
@@ -34,6 +35,8 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
+    @Inject
+    NotificationMessageRepository notificationMessageRepository;
 
     @Inject
     public ReplyMessageFromNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -44,8 +47,8 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
         return userManager.getCurrentUser()
-                .flatMap(user -> conversationRepository.getConversation(user, params.conversationId)
-                        .flatMap(conversation -> userRepository.getUserList(conversation.memberIDs)
+                .flatMap(user -> conversationRepository.getConversation(user.key, params.conversationId)
+                        .flatMap(conversation -> userManager.getUserList(conversation.memberIDs)
                                 .map(users -> {
                                     conversation.members = users;
                                     if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
@@ -69,10 +72,11 @@ public class ReplyMessageFromNotificationUseCase extends UseCase<Boolean, ReplyM
                             return sendTextMessageUseCase.buildUseCaseObservable(messageParams)
                                     .flatMap(message -> {
                                         SendMessageNotificationUseCase.Params notificationParams =
-                                                new SendMessageNotificationUseCase.Params(conversation, message);
+                                                new SendMessageNotificationUseCase.Params(conversation, message.key, message.message, message.type);
                                         return sendMessageNotificationUseCase.buildUseCaseObservable(notificationParams);
                                     });
                         })
+                        .doOnNext(aBoolean -> notificationMessageRepository.clearMessages(params.conversationId))
                 );
     }
 

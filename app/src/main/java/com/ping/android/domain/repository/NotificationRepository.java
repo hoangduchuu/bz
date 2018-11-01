@@ -1,6 +1,5 @@
 package com.ping.android.domain.repository;
 
-import com.ping.android.model.Message;
 import com.ping.android.model.User;
 
 import io.reactivex.Observable;
@@ -16,7 +15,7 @@ public interface NotificationRepository {
                                                          int quickBloxId, boolean isVideo, int badgeNumber);
 
     Observable<Boolean> sendMessageNotification(String senderId, String senderProfile,
-                                                String body, String conversationId, Message message,
+                                                String body, String conversationId, String messageId, int messageType,
                                                 User user, int badgeNumber);
 
     Observable<Boolean> sendGameStatusNotificationToSender(String senderId, String displayName,

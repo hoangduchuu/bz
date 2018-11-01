@@ -3,7 +3,8 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.bzzzchat.videorecorder.view.PhotoItem;
+import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -20,20 +21,24 @@ import com.ping.android.domain.usecase.conversation.UpdateMaskOutputConversation
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.message.DeleteMessagesUseCase;
 import com.ping.android.domain.usecase.message.GetLastMessagesUseCase;
+import com.ping.android.domain.usecase.message.GetUpdatedMessagesUseCase;
 import com.ping.android.domain.usecase.message.LoadMoreMessagesUseCase;
 import com.ping.android.domain.usecase.message.ObserveLastMessageUseCase;
 import com.ping.android.domain.usecase.message.ObserveMessageChangeUseCase;
 import com.ping.android.domain.usecase.message.ResendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendAudioMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGameMessageUseCase;
+import com.ping.android.domain.usecase.message.SendGroupGameMessageUseCase;
+import com.ping.android.domain.usecase.message.SendGroupImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendStickerMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
+import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -46,11 +51,13 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,13 +87,21 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Inject
     GetLastMessagesUseCase getLastMessagesUseCase;
     @Inject
+    GetUpdatedMessagesUseCase getUpdatedMessagesUseCase;
+    @Inject
     LoadMoreMessagesUseCase loadMoreMessagesUseCase;
     @Inject
     SendTextMessageUseCase sendTextMessageUseCase;
     @Inject
     SendImageMessageUseCase sendImageMessageUseCase;
     @Inject
+    SendStickerMessageUseCase sendStickerMessageUseCase;
+    @Inject
+    SendGroupImageMessageUseCase sendGroupImageMessageUseCase;
+    @Inject
     SendGameMessageUseCase sendGameMessageUseCase;
+    @Inject
+    SendGroupGameMessageUseCase sendGroupGameMessageUseCase;
     @Inject
     SendAudioMessageUseCase sendAudioMessageUseCase;
     @Inject
@@ -99,6 +114,8 @@ public class ChatPresenterImpl implements ChatPresenter {
     DeleteMessagesUseCase deleteMessagesUseCase;
     @Inject
     UpdateMaskMessagesUseCase updateMaskMessagesUseCase;
+    @Inject
+    UpdateMaskChildMessagesUseCase updateMaskChildMessagesUseCase;
     @Inject
     UpdateMaskOutputConversationUseCase updateMaskOutputConversationUseCase;
     @Inject
@@ -132,6 +149,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     private List<ChildData<Message>> messagesInBackground;
     private AtomicBoolean isInBackground;
     private TreeMap<Long, MessageHeaderItem> headerItemMap;
+    private Map<String, String> localCacheFile;
 
     User currentUser;
     private Color currentColor;
@@ -141,6 +159,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         isInBackground = new AtomicBoolean(false);
         messagesInBackground = new ArrayList<>();
         headerItemMap = new TreeMap<>();
+        localCacheFile = new HashMap<>();
     }
 
     @Override
@@ -170,6 +189,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(User user) {
                 currentUser = user;
+                updateUnreadMessageCount();
             }
         }, null);
     }
@@ -224,7 +244,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         loadMoreMessagesUseCase.execute(new DefaultObserver<LoadMoreMessagesUseCase.Output>() {
             @Override
             public void onNext(LoadMoreMessagesUseCase.Output output) {
-                updateLastMessages(output.messages, output.canLoadMore);
+                appendHistoryMessages(output.messages, output.canLoadMore);
                 view.hideRefreshView();
             }
 
@@ -236,11 +256,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         }, new LoadMoreMessagesUseCase.Params(conversation, endTimestamp));
     }
 
-    private void updateReadStatus(Message message, int status) {
+    private void updateReadStatus(Message message) {
         if (!message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_SENT || status == -1) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_SENT) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
-                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.messageType));
+                        new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.type));
             }
         }
     }
@@ -250,14 +270,17 @@ public class ChatPresenterImpl implements ChatPresenter {
             messagesInBackground.add(messageChildData);
             return;
         }
-        int status = CommonMethod.getIntFrom(messageChildData.getData().status, currentUser.key);
-        updateReadStatus(messageChildData.getData(), status);
+        updateReadStatus(messageChildData.getData());
         updateConversationReadStatus();
         prepareMessageStatus(messageChildData.getData());
+        String senderNickname = conversation.nickNames.get(messageChildData.getData().senderId);
+        if (!TextUtils.isEmpty(senderNickname)){
+            messageChildData.getData().senderName = senderNickname;
+        }
         switch (messageChildData.getType()) {
             case CHILD_ADDED:
                 // Check error message
-                checkMessageError(messageChildData.getData());
+//                checkMessageError(messageChildData.getData());
                 addMessage(messageChildData.getData());
                 break;
             case CHILD_REMOVED:
@@ -275,6 +298,27 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
     }
 
+    private void appendHistoryMessages(List<Message> messages, boolean canLoadMore) {
+        MessageHeaderItem headerItem;
+        for (Message message : messages) {
+            prepareMessageStatus(message);
+            message.opponentUser = conversation.opponentUser;
+            headerItem = headerItemMap.get(message.days);
+            if (headerItem == null) {
+                headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
+                headerItemMap.put(message.days, headerItem);
+            }
+
+            MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+            headerItem.addNewItem(item);
+            //messageBaseItems.add(item);
+        }
+        //headerItemMap = CommonMethod.sortByKeys(headerItemMap);
+        List<MessageHeaderItem> headerItems = new ArrayList<>(headerItemMap.values());
+        view.appendHistoryMessages(headerItems, canLoadMore);
+    }
+
     private void updateLastMessages(List<Message> messages, boolean canLoadMore) {
         MessageHeaderItem headerItem;
         for (Message message : messages) {
@@ -283,6 +327,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             headerItem = headerItemMap.get(message.days);
             if (headerItem == null) {
                 headerItem = new MessageHeaderItem();
+                headerItem.setKey(message.days);
                 headerItemMap.put(message.days, headerItem);
             }
 
@@ -299,12 +344,39 @@ public class ChatPresenterImpl implements ChatPresenter {
         MessageHeaderItem headerItem = headerItemMap.get(message.days);
         if (headerItem == null) {
             headerItem = new MessageHeaderItem();
+            headerItem.setKey(message.days);
             headerItemMap.put(message.days, headerItem);
         }
-        message.opponentUser = conversation.opponentUser;
-        MessageBaseItem item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+        Map.Entry<Long, MessageHeaderItem> entry = headerItemMap.higherEntry(message.days);
+        MessageHeaderItem higherHeaderItem = null;
+        if (entry != null) {
+            higherHeaderItem = entry.getValue();
+        }
+        MessageBaseItem item = null;
+        if (message.type == MessageType.IMAGE_GROUP) {
+            if (!message.isCached) {
+                for (Message child: message.childMessages) {
+                    child.localFilePath = localCacheFile.get(child.key);
+                }
+            } else {
+                item = headerItem.getChildItem(message);
+                if (item != null) {
+                    item.message.childMessages = message.childMessages;
+                }
+            }
+        } else if (message.type == MessageType.IMAGE
+                || message.type == MessageType.GAME
+                || message.type == MessageType.VOICE) {
+            if (!message.isCached) {
+                message.localFilePath = localCacheFile.get(message.key);
+            }
+        }
+        if (item == null) {
+            message.opponentUser = conversation.opponentUser;
+            item = MessageBaseItem.from(message, currentUser.key, conversation.conversationType);
+        }
         boolean added = headerItem.addChildItem(item);
-        view.updateMessage(item, headerItem, added);
+        view.updateMessage(item, headerItem, higherHeaderItem, added);
     }
 
     @Override
@@ -320,7 +392,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
-                sendNotification(conversation, message1);
+                sendNotification(conversation, message1.key, message1.message, MessageType.TEXT);
             }
 
             @Override
@@ -345,10 +417,43 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Message message) {
                 if (message.isCached) {
                     message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.key, message.message, MessageType.IMAGE);
                 }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendImagesMessage(List<PhotoItem> items, boolean markStatus) {
+        if (!beAbleToSendMessage()) return;
+        SendGroupImageMessageUseCase.Params params = new SendGroupImageMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.markStatus = markStatus;
+        params.items = items;
+        sendGroupImageMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (!message.isCached) {
+                    message.message = "" + items.size();
+                    sendNotification(conversation, message.key, message.message, MessageType.IMAGE_GROUP);
+                }
+                if (message.childMessages != null) {
+                    for (Message child : message.childMessages) {
+                        localCacheFile.put(child.key, child.localFilePath);
+                    }
+                }
+                // Add trick here to keep cache data
+                message.isCached = true;
+                addMessage(message);
             }
 
             @Override
@@ -367,21 +472,42 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.filePath = gameUrl;
         params.gameType = gameType;
         params.markStatus = markStatus;
-        params.messageType = MessageType.GAME;
         sendGameMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
                     addMessage(message);
                 } else {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.key, message.message, MessageType.GAME);
                 }
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    @Override
+    public void sendGameMessages(@NotNull List<PhotoItem> items, GameType gameType, boolean isMask) {
+        SendGroupGameMessageUseCase.Params params = new SendGroupGameMessageUseCase.Params();
+        params.conversation = conversation;
+        params.currentUser = currentUser;
+        params.gameType = gameType;
+        params.markStatus = isMask;
+        params.items = items;
+        sendGroupGameMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (message.isCached) {
+                    addMessage(message);
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                //sendNotification(conversation, "" + params.items.size(), MessageType.GAME_GROUP);
             }
         }, params);
     }
@@ -398,8 +524,11 @@ public class ChatPresenterImpl implements ChatPresenter {
         sendAudioMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message) {
-                if (!message.isCached) {
-                    sendNotification(conversation, message);
+                if (message.isCached) {
+                    addMessage(message);
+                    localCacheFile.put(message.key, message.localFilePath);
+                } else {
+                    sendNotification(conversation, message.key, message.message, message.type);
                 }
             }
 
@@ -423,11 +552,16 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onNext(Message message) {
                 super.onNext(message);
                 if (!message.isCached) {
-                    sendNotification(conversation, message);
+                    sendNotification(conversation, message.key, message.message, MessageType.VIDEO);
                 } else {
                     ChildData<Message> childData = new ChildData<>(message, ChildData.Type.CHILD_CHANGED);
                     handleMessageData(childData);
                 }
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
             }
         }, params);
     }
@@ -443,16 +577,19 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     /**
      * Update conversation with last message. This method will be called when user delete message in conversation.
+     *
      * @param lastMessage Last message in conversation. Null if there is no message in conversation
      */
     @Override
     public void updateConversationLastMessage(@Nullable Message lastMessage) {
+        Map<String, Boolean> maskStatus = new HashMap<>();
+        maskStatus.put(currentUser.key, lastMessage != null && lastMessage.isMask);
         Conversation conversation = new Conversation(this.conversation.conversationType,
-                lastMessage != null ? lastMessage.messageType : Constant.MSG_TYPE_TEXT,
+                lastMessage != null ? lastMessage.type.ordinal() : Constant.MSG_TYPE_TEXT,
                 lastMessage != null ? lastMessage.callType : 0,
                 lastMessage != null ? lastMessage.message : "",
                 this.conversation.groupID, this.currentUser.key, this.conversation.memberIDs,
-                lastMessage != null ? lastMessage.markStatuses : new HashMap<>(),
+                maskStatus,
                 this.conversation.readStatuses,
                 lastMessage != null ? lastMessage.timestamp : System.currentTimeMillis() / 1000L,
                 this.conversation);
@@ -486,7 +623,7 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     @Override
-    public void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask) {
+    public void updateMaskMessages(List<Message> messages, boolean isLastMessage, boolean isMask, boolean updateChild) {
         UpdateMaskMessagesUseCase.Params params = new UpdateMaskMessagesUseCase.Params();
         params.conversationId = conversation.key;
         params.isLastMessage = isLastMessage;
@@ -503,13 +640,36 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.hideLoading();
             }
         }, params);
+
+        // Update child messages if possible
+        if (updateChild) {
+            List<Message> childToUpdate = new ArrayList<>();
+            for (Message message : messages) {
+                if (message.type == MessageType.IMAGE_GROUP) {
+                    if (message.childMessages != null) {
+                        childToUpdate.addAll(message.childMessages);
+                    }
+                }
+            }
+            updateMaskChildMessages(childToUpdate, isMask);
+        }
     }
 
     private void getLastMessages(Conversation conversation) {
         getLastMessagesUseCase.execute(new DefaultObserver<GetLastMessagesUseCase.Output>() {
             @Override
             public void onNext(GetLastMessagesUseCase.Output output) {
-                updateLastMessages(output.messages, output.canLoadMore);
+                view.hideLoading();
+                if (output.isCached) {
+                    //Collections.reverse(output.messages);
+                    updateLastMessages(output.messages, output.canLoadMore);
+                    return;
+                }
+                //updateLastMessages(output.messages, output.canLoadMore);
+                for (Message message : output.messages) {
+                    prepareMessageStatus(message);
+                    addMessage(message);
+                }
                 observeMessageUpdate();
                 observeTypingEvent();
             }
@@ -520,6 +680,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.updateLastMessages(new ArrayList<>(), false);
                 observeMessageUpdate();
                 observeTypingEvent();
+                view.hideLoading();
             }
         }, conversation);
     }
@@ -618,7 +779,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
         this.conversation = conversation;
         view.updateConversation(conversation);
-        view.hideLoading();
+        updateUnreadMessageCount();
         observeConversationUpdate();
         updateConversationReadStatus();
         //observeMessageUpdate();
@@ -686,15 +847,104 @@ public class ChatPresenterImpl implements ChatPresenter {
         updateMaskOutputConversationUseCase.execute(new DefaultObserver<>(), params);
     }
 
-    private void sendNotification(Conversation conversation, Message message) {
+    @Override
+    public void updateMaskChildMessages(List<Message> messages, boolean maskStatus) {
+        UpdateMaskChildMessagesUseCase.Params params = new UpdateMaskChildMessagesUseCase.Params();
+        params.conversationId = conversation.key;
+        params.isMask = maskStatus;
+        params.messages = messages;
+        updateMaskChildMessagesUseCase.execute(new DefaultObserver<>(), params);
+    }
+
+    @Override
+    public void getUpdatedMessages(double timestamp) {
+        getUpdatedMessagesUseCase.execute(new DefaultObserver<List<? extends Message>>() {
+                                              @Override
+                                              public void onNext(List<? extends Message> messages) {
+                                                  for (Message message : messages) {
+                                                      addMessage(message);
+                                                  }
+                                              }
+                                          },
+                new GetUpdatedMessagesUseCase.Params(conversation, timestamp, currentUser));
+    }
+
+    @Override
+    public void sendSticker(@NotNull File file, boolean isMask) {
+        SendStickerMessageUseCase.Params params = new SendStickerMessageUseCase.Params(
+                file.getAbsolutePath(), conversation, currentUser, isMask
+        );
+        sendStickerMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message) {
+                if (message.isCached) {
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    localCacheFile.put(message.key, message.localFilePath);
+                    addMessage(message);
+                } else {
+                    sendNotification(conversation, message.key, message.message, MessageType.STICKER);
+                }
+            }
+        }, params);
+
+    }
+
+    @Override
+    public void sendSticker(String stickerPath) {
+        if (!beAbleToSendMessage()) return;
+        String url = stickerPath.replace("stickers/","").replace("/","_");
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.STICKER)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.STICKER);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+
+    @Override
+    public void sendGifs(String url) {
+        if (!beAbleToSendMessage()) return;
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.GIF)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.GIF);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+    private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
-                new SendMessageNotificationUseCase.Params(conversation, message));
+                new SendMessageNotificationUseCase.Params(conversation, messageId, message, messageType));
     }
 
     private void checkMessageError(Message message) {
-        int status = CommonMethod.getCurrentStatus(currentUser.key, message.status);
         if (message.senderId.equals(currentUser.key)) {
-            if (status == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
                 resendMessage(message);
             }
         }
@@ -711,9 +961,28 @@ public class ChatPresenterImpl implements ChatPresenter {
         return true;
     }
 
+    private void updateUnreadMessageCount() {
+        if (currentUser.badges != null) {
+            Map<String, Integer> stringMap = new HashMap<>(currentUser.badges);
+            stringMap.remove("refreshMock");
+            stringMap.remove("missed_call");
+            int messageCount = 0;
+            Number count = 0;
+            for (String key : stringMap.keySet()) {
+                if (conversation != null && key.equals(conversation.key)) {
+                    continue;
+                }
+                count = stringMap.get(key);
+                messageCount += count.intValue();
+            }
+            view.updateUnreadMessageCount(messageCount);
+        }
+    }
+
 
     @Override
     public void destroy() {
+        view = null;
         observeCurrentUserUseCase.dispose();
         getConversationValueUseCase.dispose();
         observeLastMessageUseCase.dispose();
@@ -728,30 +997,21 @@ public class ChatPresenterImpl implements ChatPresenter {
         observeConversationColorUseCase.dispose();
         observeConversationBackgroundUseCase.dispose();
         observeNicknameConversationUseCase.dispose();
+
 //        sendTextMessageUseCase.dispose();
 //        sendImageMessageUseCase.dispose();
 //        sendGameMessageUseCase.dispose();
 //        sendAudioMessageUseCase.dispose();
-//        resendMessageUseCase.dispose();
+//        sendVideoMessageUseCase.dispose();
+//        sendGroupGameMessageUseCase.dispose();
+//        sendGroupImageMessageUseCase.dispose();
     }
 
     private void prepareMessageStatus(Message message) {
-        int status = Constant.MESSAGE_STATUS_SENT;
-        for (String userId : conversation.memberIDs.keySet()) {
-            status = CommonMethod.getIntFrom(message.status, userId);
-            if (status == Constant.MESSAGE_STATUS_READ) {
-                break;
-            }
-        }
-        if (status != Constant.MESSAGE_STATUS_READ) {
-            status = CommonMethod.getIntFrom(message.status, currentUser.key);
-            if (status == -1) {
-                status = Constant.MESSAGE_STATUS_SENT;
-            }
-        }
+        int status = message.messageStatusCode;
         String messageStatus = "";
         if (TextUtils.equals(message.senderId, currentUser.key)) {
-            if (message.messageType != Constant.MSG_TYPE_GAME) {
+            if (message.type != MessageType.GAME) {
                 switch (status) {
                     case Constant.MESSAGE_STATUS_SENT:
                         messageStatus = "";
@@ -825,11 +1085,10 @@ public class ChatPresenterImpl implements ChatPresenter {
                 }
             }
         } else {
-            if (message.messageType == Constant.MSG_TYPE_GAME) {
+            if (message.type == MessageType.GAME) {
                 messageStatus = "Game";
             }
         }
         message.messageStatus = messageStatus;
-        message.messageStatusCode = status;
     }
 }

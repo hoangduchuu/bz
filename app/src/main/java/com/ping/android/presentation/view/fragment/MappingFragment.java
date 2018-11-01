@@ -4,10 +4,11 @@ package com.ping.android.presentation.view.fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.view.ContextThemeWrapper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,19 +19,17 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
-import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingComponent;
-import com.ping.android.dagger.loggedin.transphabet.manualmapping.ManualMappingModule;
 import com.ping.android.model.Mapping;
 import com.ping.android.presentation.presenters.ManualMappingPresenter;
 
 import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -46,7 +45,6 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
 
     @Inject
     ManualMappingPresenter presenter;
-    ManualMappingComponent component;
 
     public static MappingFragment newInstance() {
         return new MappingFragment();
@@ -55,7 +53,7 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -69,15 +67,22 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
         rootView = localInflater.inflate(R.layout.fragment_mapping, container, false);
         bindViews(rootView);
-        presenter.create();
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        presenter.create();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.mapping_back:
-                getActivity().onBackPressed();
+                if (getActivity() != null){
+                    getActivity().onBackPressed();
+                }
                 break;
             case R.id.mapping_reset:
                 resetMapping();
@@ -114,9 +119,10 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void updateMapping(List<Mapping> mappings) {
+        if (getActivity() == null || getActivity().isFinishing()) return;
         for (Mapping mapping : mappings) {
             int resId = getResources().getIdentifier("mapping_" +
-                    mapping.mapKey.toLowerCase(), "id", getContext().getPackageName());
+                    mapping.mapKey.toLowerCase(), "id", getActivity().getPackageName());
             ViewGroup mappingItem = rootView.findViewById(resId);
             mappingItem.setOnClickListener(this);
 
@@ -193,13 +199,5 @@ public class MappingFragment extends BaseFragment implements View.OnClickListene
         userInput.setSelection(0, mapping.mapValue.length());
         // show it
         alertDialog.show();
-    }
-
-    public ManualMappingComponent getComponent() {
-        if (component == null) {
-            component = getComponent(TransphabetComponent.class)
-                    .provideManualMappingComponent(new ManualMappingModule(this));
-        }
-        return component;
     }
 }

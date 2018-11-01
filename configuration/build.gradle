@@ -3,17 +3,17 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
 
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -26,18 +26,20 @@ android {
 
 }
 
+def libraries = rootProject.ext.libraries
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
 
-    implementation('com.github.bumptech.glide:glide:4.6.1') {
+    implementation("com.github.bumptech.glide:glide:${libraries.glide}") {
         transitive = true
     }
-    kapt 'com.github.bumptech.glide:compiler:4.6.1'
+    kapt "com.github.bumptech.glide:compiler:${libraries.glide}"
 
     implementation('com.firebaseui:firebase-ui-storage:4.0.1') {
         exclude group: 'com.android.support'

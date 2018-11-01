@@ -1,6 +1,6 @@
 package com.ping.android.data.entity
 
-import java.util.HashMap
+import java.util.*
 
 class CallEntity {
     var key: String = ""

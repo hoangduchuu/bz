@@ -3,16 +3,13 @@ package com.ping.android.presentation.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
-import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundComponent
-import com.ping.android.dagger.loggedin.conversationdetail.ConversationDetailComponent
-import com.ping.android.dagger.loggedin.conversationdetail.background.BackgroundModule
 import com.ping.android.model.*
 import com.ping.android.presentation.presenters.BackgroundPresenter
 import com.ping.android.presentation.view.adapter.AdapterConstants
@@ -23,8 +20,8 @@ import com.ping.android.presentation.view.adapter.delegate.CameraItemDelegateAda
 import com.ping.android.presentation.view.adapter.delegate.FirebaseBackgroundDelegateAdapter
 import com.ping.android.presentation.view.adapter.delegate.GalleryItemDelegateAdapter
 import com.ping.android.presentation.view.custom.GridItemDecoration
-import com.ping.android.utils.DataProvider
 import com.ping.android.utils.ImagePickerHelper
+import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_background.*
 import javax.inject.Inject
 
@@ -32,13 +29,8 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
     @Inject
     lateinit var presenter: BackgroundPresenter
 
-    val component: BackgroundComponent by lazy {
-        getComponent(ConversationDetailComponent::class.java)
-                .provideBackgroundComponent(BackgroundModule(this))
-    }
-
     private val galleryList by lazy {
-        gallery_list.layoutManager = GridLayoutManager(context, 3)
+        gallery_list.layoutManager = androidx.recyclerview.widget.GridLayoutManager(context, 3)
         gallery_list
     }
 
@@ -47,7 +39,7 @@ class BackgroundFragment : BaseFragment(), BackgroundPresenter.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        component.inject(this)
+        AndroidSupportInjection.inject(this)
         arguments.let {
             val conversation: Conversation? = it?.getParcelable("conversation")
             if (conversation != null) {

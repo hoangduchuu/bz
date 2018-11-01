@@ -2,18 +2,14 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.SwitchCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.userdetail.UserDetailComponent;
-import com.ping.android.dagger.loggedin.userdetail.UserDetailModule;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
@@ -22,6 +18,8 @@ import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
 import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 
 public class UserDetailActivity extends CoreActivity implements View.OnClickListener, UserDetailPresenter.View {
     public static final String EXTRA_USER = "EXTRA_USER";
@@ -34,12 +32,11 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     private SwitchCompat swUserBlock;
     private ViewGroup layoutSaveContact, layoutDeleteContact;
 
-    private String userID;
-    private User user;
+    //private String userID;
+    //private User user;
 
     @Inject
     UserDetailPresenter presenter;
-    UserDetailComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,19 +49,19 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
             }
         }
-        getComponent().inject(this);
+        AndroidInjection.inject(this);
         presenter.create();
         setContentView(R.layout.activity_user_detail);
         bindViews();
-        userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
-        user = getIntent().getParcelableExtra(EXTRA_USER);
+        String userID = getIntent().getStringExtra(Constant.START_ACTIVITY_USER_ID);
+        //user = getIntent().getParcelableExtra(EXTRA_USER);
         String imageName = getIntent().getStringExtra(EXTRA_USER_IMAGE);
         ivAvatar.setTransitionName(imageName);
         String userName = getIntent().getStringExtra(EXTRA_USER_NAME);
         tvDisplayName.setTransitionName(userName);
         //ViewCompat.setTransitionName(ivAvatar, imageName);
+        presenter.init(userID);
         presenter.observeFriendStatus(userID);
-        bindData();
     }
 
     @Override
@@ -110,11 +107,11 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     }
 
     private void addContact() {
-        presenter.addContact(user.key);
+        presenter.addContact();
     }
 
     private void deleteContact() {
-        presenter.deleteContact(user.key);
+        presenter.deleteContact();
     }
 
     private void bindViews() {
@@ -136,7 +133,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
         findViewById(R.id.user_detail_back).setOnClickListener(this);
     }
 
-    private void bindData() {
+    private void bindData(User user) {
         tvDisplayName.setText(user.getDisplayName());
         userName.setText(user.pingID);
 
@@ -148,7 +145,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.sendMessageToUser(user);
+        presenter.sendMessageToUser();
     }
 
     private void onVoiceCall() {
@@ -156,7 +153,7 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.handleVoiceCallPress(user);
+        presenter.handleVoiceCallPress();
     }
 
     private void onVideoCall() {
@@ -164,28 +161,20 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
             Toast.makeText(this, "Please check network connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        presenter.handleVideoCallPress(user);
+        presenter.handleVideoCallPress();
     }
 
     private void onBlock() {
-        showLoading();
-        presenter.toggleBlockUser(user.key, swUserBlock.isChecked());
+        presenter.toggleBlockUser(swUserBlock.isChecked());
     }
 
     private void onBack() {
         supportFinishAfterTransition();
     }
 
-    public UserDetailComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent().provideUserDetailComponent(new UserDetailModule(this));
-        }
-        return component;
-    }
-
     @Override
-    public void toggleBlockUser(User user) {
-        swUserBlock.setChecked(user.blocks.containsKey(userID));
+    public void toggleBlockUser(boolean isBlocked) {
+        swUserBlock.setChecked(isBlocked);
     }
 
     @Override
@@ -209,5 +198,10 @@ public class UserDetailActivity extends CoreActivity implements View.OnClickList
     @Override
     public void openCallScreen(User currentUser, User otherUser, boolean isVideoCall) {
         CallActivity.start(this, currentUser, otherUser, isVideoCall);
+    }
+
+    @Override
+    public void updateUI(User otherUser) {
+        bindData(otherUser);
     }
 }

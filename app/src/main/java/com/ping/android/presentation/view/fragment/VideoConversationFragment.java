@@ -2,7 +2,6 @@ package com.ping.android.presentation.view.fragment;
 
 import android.animation.ValueAnimator;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
@@ -22,9 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ToggleButton;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.call.CallComponent;
-import com.ping.android.dagger.loggedin.call.video.VideoCallComponent;
-import com.ping.android.dagger.loggedin.call.video.VideoCallModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.VideoCallPresenter;
 import com.ping.android.presentation.view.adapter.OpponentsFromCallAdapter;
@@ -49,6 +45,8 @@ import java.util.TimerTask;
 
 import javax.inject.Inject;
 
+import dagger.android.support.AndroidSupportInjection;
+
 
 /**
  * QuickBlox team
@@ -68,6 +66,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
     private ToggleButton cameraToggle;
     private ImageView firstOpponentAvatarImageView;
     private LinearLayout controlsLayout;
+    private DragFrameLayout dragLayout;
 
     private QBRTCSurfaceView remoteFullScreenVideoView;
     private QBRTCSurfaceView localVideoView;
@@ -84,7 +83,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
 
     @Inject
     VideoCallPresenter presenter;
-    VideoCallComponent component;
     private LinearLayout outgoingViewContainer;
     private boolean shouldToggleControlsVisibility = false;
 
@@ -160,7 +158,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setHasOptionsMenu(true);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -174,7 +172,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         localVideoView = view.findViewById(R.id.local_video_view);
         localVideoView.setZOrderMediaOverlay(true);
 
-        DragFrameLayout dragLayout = view.findViewById(R.id.drag_layout);
+        dragLayout = view.findViewById(R.id.drag_layout);
         dragLayout.setDragFrameController(captured -> {
         });
         dragLayout.addDragView(localVideoView);
@@ -264,6 +262,7 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         super.onDestroyView();
         Log.d(TAG, "onDestroyView");
         presenter.destroy();
+        dragLayout.releaseResources();
         removeVideoTrackRenderers();
         releaseViews();
     }
@@ -493,12 +492,6 @@ public class VideoConversationFragment extends BaseConversationFragment implemen
         ENABLED_FROM_USER
     }
 
-    public VideoCallComponent getComponent() {
-        if (component == null) {
-            component = getComponent(CallComponent.class).provideVideoCallComponent(new VideoCallModule(this));
-        }
-        return component;
-    }
 }
 
 

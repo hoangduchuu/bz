@@ -45,7 +45,8 @@
         android:id="@+id/contact_send_message"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/ic_message" />
+        android:src="@drawable/ic_message"
+        android:tint="@color/colorPrimary"/>
 
     <ToggleButton
         android:id="@+id/contact_add_friend"

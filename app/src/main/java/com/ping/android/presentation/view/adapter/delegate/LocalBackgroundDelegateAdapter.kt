@@ -1,23 +1,23 @@
 package com.ping.android.presentation.view.adapter.delegate
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.ViewGroup
+import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
 import com.ping.android.model.LocalBackgroundItem
 import com.ping.android.presentation.view.adapter.ViewType
 import com.ping.android.presentation.view.adapter.ViewTypeDelegateAdapter
-import com.bzzzchat.configuration.GlideApp
-import kotlinx.android.synthetic.main.item_gallery_image.view.*;
+import kotlinx.android.synthetic.main.item_gallery_image.view.*
 
 class LocalBackgroundDelegateAdapter: ViewTypeDelegateAdapter {
-    override fun createViewHolder(parent: ViewGroup): RecyclerView.ViewHolder = ViewHolder(parent)
+    override fun createViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder = ViewHolder(parent)
 
-    override fun bindViewHolder(holder: RecyclerView.ViewHolder, item: ViewType) {
+    override fun bindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, item: ViewType) {
         (holder as ViewHolder).bindData(item as LocalBackgroundItem)
     }
 
-    class ViewHolder(parent: ViewGroup): RecyclerView.ViewHolder(
+    class ViewHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder(
             parent.inflate(R.layout.item_gallery_image)
     ) {
         fun bindData(item: LocalBackgroundItem) {

@@ -10,6 +10,8 @@
     <color name="text_input_login">#666666</color>
     <color name="text_input_login_hint">#666666</color>
 
+    <color name="text_input_hint">#666666</color>
+
     <color name="random_color_1">#ff9500</color>
     <color name="random_color_2">#007aff</color>
     <color name="random_color_3">#ff0091</color>
@@ -29,6 +31,7 @@
     <color name="red">#FF0000</color>
     <color name="green">#45D100</color>
     <color name="white_green">#A9FF80</color>
+    <color name="white_transparent_50">#80ffffff</color>
 
     <color name="black_transparent_50">#50000000</color>
     <color name="grey_transparent_50">#50606060</color>
@@ -36,12 +39,14 @@
 
     <color name="main_background_gray">#f7f8f9</color>
     <color name="main_background_white">#FFF</color>
+    <color name="main_background_dark">#323232</color>
 
-    <color name="colorPrimary">@color/orange_dark</color>
-    <color name="colorAccent">@color/orange</color>
-    <color name="colorPrimaryDark">@color/orange</color>
+    <color name="colorPrimary">#1a1a1a</color>
+    <color name="colorAccent">#1a1a1a</color>
+    <color name="colorPrimaryDark">#1a1a1a</color>
     <color name="colorPrimaryBlack">#58595B</color>
 
+    <color name="bg_search">#000000</color>
     <color name="bg_top_bar">#F9F9F9</color>
     <color name="bg_tab_bar">#FFFFFF</color>
     <color name="color_grey">#d3d3d3</color>
@@ -92,8 +97,9 @@
     <color name="color_9">#8e8e93</color>
     <color name="color_accent_9">#5c5c60</color>
     <color name="blue">#007AFF</color>
+    <color name="trans_100">#00007aff</color>
 
     <array name="av_colors" tools:override="true">
-        <item>#FBB040</item>
+        <item>@color/colorAccent</item>
     </array>
 </resources>

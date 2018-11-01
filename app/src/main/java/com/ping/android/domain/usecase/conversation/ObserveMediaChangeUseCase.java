@@ -5,13 +5,14 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.configs.Constant;
 
@@ -28,6 +29,8 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
     MessageRepository messageRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     @Inject
     public ObserveMediaChangeUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -39,39 +42,33 @@ public class ObserveMediaChangeUseCase extends UseCase<Message, Conversation> {
     public Observable<Message> buildUseCaseObservable(Conversation conversation) {
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.observeMediaUpdate(conversation.key)
-                        .flatMap(childEvent -> {
-                            if (childEvent.type == ChildEvent.Type.CHILD_CHANGED) {
-                                Message message = Message.from(childEvent.dataSnapshot);
-                                message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, user.key);
-                                boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, user.key);
-                                if (isDeleted || TextUtils.isEmpty(message.senderId)) {
-                                    return Observable.empty();
-                                }
-
-                                if (message.readAllowed != null && message.readAllowed.size() > 0
-                                        && !message.readAllowed.containsKey(user.key))
-                                    return Observable.empty();
-
-                                if (message.timestamp < conversation.deleteTimestamp) {
-                                    return Observable.empty();
-                                }
-
-                                message.sender = getUser(message.senderId, conversation);
-                                message.currentUserId = user.key;
-                                String nickName = conversation.nickNames.get(message.senderId);
-                                if (!TextUtils.isEmpty(nickName)) {
-                                    message.senderName = nickName;
-                                }
-                                int status = CommonMethod.getIntFrom(message.status, user.key);
-                                if (message.messageType == Constant.MSG_TYPE_GAME && !TextUtils.equals(message.senderId, user.key)) {
-                                    if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
-                                        return Observable.just(message);
-                                    }
-                                }
-                                return Observable.just(message);
-                            } else {
+                        .flatMap(childData -> {
+                            if (childData.getData() == null) return Observable.empty();
+                            Message message = messageMapper.transform(childData.getData(), user);
+                            boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, user.key);
+                            if (isDeleted || TextUtils.isEmpty(message.senderId)) {
                                 return Observable.empty();
                             }
+
+                            if (!childData.getData().isReadable(user.key))
+                                return Observable.empty();
+
+                            if (message.timestamp < conversation.deleteTimestamp) {
+                                return Observable.empty();
+                            }
+
+                            User sender = getUser(message.senderId, conversation);
+                            if (sender != null) {
+                                message.senderProfile = sender.profileImage();
+                                message.senderName = TextUtils.isEmpty(sender.nickName) ? sender.getDisplayName() : sender.nickName;
+                            }
+                            message.currentUserId = user.key;
+                            if (message.type == MessageType.GAME && !TextUtils.equals(message.senderId, user.key)) {
+                                if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_PASS) {
+                                    return Observable.just(message);
+                                }
+                            }
+                            return Observable.just(message);
                         }));
     }
 

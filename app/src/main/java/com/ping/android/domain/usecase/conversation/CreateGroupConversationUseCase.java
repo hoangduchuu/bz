@@ -5,7 +5,6 @@ import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
-import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
@@ -24,7 +23,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 2/24/18.
  */
 
-public class CreateGroupConversationUseCase extends UseCase<String, Group> {
+public class CreateGroupConversationUseCase extends UseCase<Conversation, Group> {
     @Inject
     UserRepository userRepository;
     @Inject
@@ -41,7 +40,7 @@ public class CreateGroupConversationUseCase extends UseCase<String, Group> {
 
     @NotNull
     @Override
-    public Observable<String> buildUseCaseObservable(Group group) {
+    public Observable<Conversation> buildUseCaseObservable(Group group) {
         return userManager.getCurrentUser()
                 .zipWith(conversationRepository.getKey(), (user, s) -> {
                     Conversation conversation = Conversation.createNewGroupConversation(user.key, group);
@@ -56,7 +55,7 @@ public class CreateGroupConversationUseCase extends UseCase<String, Group> {
                         updateValue.put(String.format("groups/%s/%s/conversationID", userKey, conversation.groupID), conversation.key);
                     }
                     return commonRepository.updateBatchData(updateValue)
-                            .map(aBoolean -> conversation.key);
+                            .map(aBoolean -> conversation);
                 });
     }
 }

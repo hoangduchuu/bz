@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/relativeLayout"
@@ -13,24 +13,45 @@
         android:layout_marginStart="8dp"
         android:background="@null"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintBottom_toBottomOf="@+id/content"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.joooonho.SelectableRoundedImageView
-        android:id="@+id/item_chat_image"
+    <FrameLayout
+        android:id="@+id/content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxWidth="200dp"
-        android:maxHeight="200dp"
-        android:adjustViewBounds="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/img_loading_image"
+        android:layout_marginStart="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:sriv_left_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_left_top_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_right_bottom_corner_radius="@dimen/chat_bg_corner_radius"
-        app:sriv_right_top_corner_radius="@dimen/chat_bg_corner_radius" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/item_chat_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="200dp"
+            android:maxHeight="200dp"
+            android:minWidth="100dp"
+            android:minHeight="100dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY" />
+
+        <RelativeLayout
+            android:id="@+id/loading_container"
+            android:layout_width="120dp"
+            android:layout_height="180dp"
+            android:background="@drawable/round_corner"
+            android:backgroundTint="@color/main_background_gray">
+
+            <com.github.ybq.android.spinkit.SpinKitView
+                android:id="@+id/spin_kit"
+                style="@style/SpinKitView.FadingCircle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_centerInParent="true"
+                app:SpinKit_Color="@color/colorAccent" />
+        </RelativeLayout>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/revealable_view"
@@ -42,9 +63,9 @@
         android:layout_marginTop="8dp"
         android:gravity="end"
         android:translationX="80dp"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintBottom_toBottomOf="@+id/content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_chat_image"
+        app:layout_constraintTop_toTopOf="@+id/content"
         tools:text="12:00 AM" />
 
     <TextView
@@ -53,7 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/item_chat_image"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_image"
+        app:layout_constraintEnd_toEndOf="@+id/content"
+        app:layout_constraintTop_toBottomOf="@+id/content"
         tools:text="Delivered" />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

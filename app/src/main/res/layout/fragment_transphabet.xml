@@ -45,7 +45,7 @@
         <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_generate_random"
             style="@style/ItemSetting"
-            app:title="@string/generate_random">
+            app:titleText="@string/generate_random">
 
             <ImageView style="@style/ItemSettingIconRight" />
         </com.ping.android.presentation.view.custom.SettingItem>
@@ -53,7 +53,7 @@
         <com.ping.android.presentation.view.custom.SettingItem
             android:id="@+id/v_selective_languages"
             style="@style/ItemSetting"
-            app:title="@string/setting_selective_languages">
+            app:titleText="@string/setting_selective_languages">
 
             <ImageView style="@style/ItemSettingIconRight" />
         </com.ping.android.presentation.view.custom.SettingItem>
@@ -62,7 +62,7 @@
             android:id="@+id/v_selective_emojis"
             style="@style/ItemSetting"
             app:showDivider="false"
-            app:title="@string/setting_selective_emojis">
+            app:titleText="@string/setting_selective_emojis">
 
             <ImageView style="@style/ItemSettingIconRight" />
         </com.ping.android.presentation.view.custom.SettingItem>
@@ -80,7 +80,7 @@
             android:id="@+id/v_manual_setup"
             style="@style/ItemSetting"
             app:showDivider="false"
-            app:title="@string/setting_manual_set_up">
+            app:titleText="@string/setting_manual_set_up">
 
             <ImageView style="@style/ItemSettingIconRight" />
         </com.ping.android.presentation.view.custom.SettingItem>

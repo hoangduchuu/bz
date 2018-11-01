@@ -3,10 +3,11 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.AddContactUseCase;
 import com.ping.android.domain.usecase.DeleteFriendUseCase;
+import com.ping.android.domain.usecase.GetUserByKeyUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveSpecificFriendStatusUseCase;
-import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
+import com.ping.android.domain.usecase.user.ToggleBlockUserUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.UserDetailPresenter;
 
@@ -22,6 +23,8 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
     @Inject
     UserDetailPresenter.View view;
     @Inject
+    GetUserByKeyUseCase getUserByKeyUseCase;
+    @Inject
     ObserveCurrentUserUseCase observeCurrentUserUseCase;
     @Inject
     ObserveSpecificFriendStatusUseCase observeFriendsStatusUseCase;
@@ -34,6 +37,8 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
     @Inject
     AddContactUseCase addContactUseCase;
     private User currentUser;
+    private User otherUser;
+    private String userID;
 
     @Inject
     public UserDetailPresenterImpl() {}
@@ -44,7 +49,7 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
             @Override
             public void onNext(User user) {
                 currentUser = user;
-                view.toggleBlockUser(user);
+                view.toggleBlockUser(user.blocks.containsKey(userID));
             }
 
             @Override
@@ -65,10 +70,34 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
     }
 
     @Override
-    public void sendMessageToUser(User user) {
+    public void init(String otherUserId) {
+        this.userID = otherUserId;
+        observeCurrentUserUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                currentUser = user;
+                view.toggleBlockUser(user.blocks.containsKey(userID));
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                super.onError(exception);
+            }
+        }, null);
+        getUserByKeyUseCase.execute(new DefaultObserver<User>() {
+            @Override
+            public void onNext(User user) {
+                otherUser = user;
+                view.updateUI(otherUser);
+            }
+        }, otherUserId);
+    }
+
+    @Override
+    public void sendMessageToUser() {
         CreatePVPConversationUseCase.Params params = new CreatePVPConversationUseCase.Params();
         params.message = "";
-        params.toUser = user;
+        params.toUser = otherUser;
         createPVPConversationUseCase.execute(new DefaultObserver<String>() {
             @Override
             public void onNext(String s) {
@@ -93,7 +122,7 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
     }
 
     @Override
-    public void toggleBlockUser(String userId, boolean checked) {
+    public void toggleBlockUser(boolean checked) {
         view.showLoading();
         toggleBlockUserUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -105,11 +134,11 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, new ToggleBlockUserUseCase.Params(userId, checked));
+        }, new ToggleBlockUserUseCase.Params(otherUser.key, checked));
     }
 
     @Override
-    public void deleteContact(String key) {
+    public void deleteContact() {
         view.showLoading();
         deleteFriendUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -122,11 +151,11 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, key);
+        }, otherUser.key);
     }
 
     @Override
-    public void addContact(String key) {
+    public void addContact() {
         view.showLoading();
         addContactUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -138,16 +167,16 @@ public class UserDetailPresenterImpl implements UserDetailPresenter {
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, key);
+        }, otherUser.key);
     }
 
     @Override
-    public void handleVoiceCallPress(User otherUser) {
+    public void handleVoiceCallPress() {
         view.openCallScreen(currentUser, otherUser, false);
     }
 
     @Override
-    public void handleVideoCallPress(User otherUser) {
+    public void handleVideoCallPress() {
         view.openCallScreen(currentUser, otherUser, true);
     }
 }

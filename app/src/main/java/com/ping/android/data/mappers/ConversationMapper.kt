@@ -18,7 +18,22 @@ class ConversationMapper @Inject constructor() {
         conversation.currentColor = conversation.getColor(user.key)
         val maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, user.key)
         val maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, user.key)
-        conversation.isMask = maskStatus || maskMessage
+        conversation.isMask = maskStatus// || maskMessage
+        conversation.type = MessageType.from(conversation.messageType)
+        conversation.messageCallType = MessageCallType.from(conversation.callType)
+        return conversation
+    }
+
+    fun transform(dataSnapshot: DataSnapshot, userKey: String): Conversation {
+        val conversation = dataSnapshot.getValue(Conversation::class.java)!!
+        conversation.key = dataSnapshot.key
+        conversation.currentUserId = userKey
+        conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, userKey)
+        conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, userKey)
+        conversation.currentColor = conversation.getColor(userKey)
+        val maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, userKey)
+        val maskMessage = CommonMethod.getBooleanFrom(conversation.maskMessages, userKey)
+        conversation.isMask = maskStatus// || maskMessage
         conversation.type = MessageType.from(conversation.messageType)
         conversation.messageCallType = MessageCallType.from(conversation.callType)
         return conversation

@@ -3,29 +3,21 @@ package com.ping.android.dagger.loggedin.conversationdetail.background;
 import com.ping.android.dagger.scopes.PerFragment;
 import com.ping.android.presentation.presenters.BackgroundPresenter;
 import com.ping.android.presentation.presenters.BackgroundPresenterImpl;
+import com.ping.android.presentation.view.fragment.BackgroundFragment;
 
-import javax.inject.Inject;
-
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class BackgroundModule {
-    private BackgroundPresenter.View view;
+public abstract class BackgroundModule {
 
-    public BackgroundModule(BackgroundPresenter.View view) {
-        this.view = view;
-    }
+    @Binds
+    public abstract BackgroundPresenter.View provideView(BackgroundFragment fragment);
 
     @Provides
     @PerFragment
-    public BackgroundPresenter.View provideView() {
-        return view;
-    }
-
-    @Provides
-    @PerFragment
-    public BackgroundPresenter providePresenter(BackgroundPresenterImpl presenter) {
+    public static BackgroundPresenter providePresenter(BackgroundPresenterImpl presenter) {
         return presenter;
     }
 }

@@ -1,7 +1,7 @@
 package com.ping.android.model.enums;
 
-import android.support.annotation.ColorRes;
-import android.support.annotation.StyleRes;
+import androidx.annotation.ColorRes;
+import androidx.annotation.StyleRes;
 
 import com.ping.android.R;
 
@@ -39,7 +39,7 @@ public enum Color {
             case COLOR_9:
                 return R.color.color_9;
             default:
-                return R.color.orange;
+                return R.color.colorPrimary;
         }
     }
 
@@ -65,7 +65,7 @@ public enum Color {
             case COLOR_9:
                 return R.color.color_9;
             default:
-                return R.color.orange;
+                return R.color.colorPrimary;
         }
     }
 

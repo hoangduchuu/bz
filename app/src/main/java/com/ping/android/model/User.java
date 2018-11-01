@@ -8,13 +8,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.gson.Gson;
-import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.configs.Constant;
 import com.ping.android.utils.DataProvider;
+import com.ping.android.utils.DataSnapshotWrapper;
+import com.ping.android.utils.configs.Constant;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +36,7 @@ public class User implements Parcelable {
     public Setting settings;
     public Map<String, Boolean> blocks = new HashMap<>();
     public Map<String, Boolean> blockBys = new HashMap<>();
+    public Map<String, Integer> badges = new HashMap<>();
 
     /**
      * Map contains devices that opponentUser logged in, if count bigger than 0, it means users is online
@@ -52,24 +52,25 @@ public class User implements Parcelable {
 
     public User(DataSnapshot dataSnapshot) {
         this.key = dataSnapshot.getKey();
-        this.firstName = CommonMethod.getStringOf(dataSnapshot.child("first_name").getValue());
-        this.lastName = CommonMethod.getStringOf(dataSnapshot.child("last_name").getValue());
-        this.pingID = CommonMethod.getStringOf(dataSnapshot.child("ping_id").getValue());
-        this.quickBloxID = CommonMethod.getIntOf(dataSnapshot.child("quickBloxID").getValue());
-        this.email = CommonMethod.getStringOf(dataSnapshot.child("email").getValue());
-        this.password = CommonMethod.getStringOf(dataSnapshot.child("password").getValue());
-        this.phone = CommonMethod.getStringOf(dataSnapshot.child("phone").getValue());
-        this.profile = CommonMethod.getStringOf(dataSnapshot.child("profile").getValue());
-        this.loginStatus = CommonMethod.getBooleanOf(dataSnapshot.child("loginStatus").getValue());
-        this.showMappingConfirm = CommonMethod.getBooleanOf(dataSnapshot.child("show_mapping_confirm").getValue());
-        this.mappings = (Map<String, String>) dataSnapshot.child("mappings").getValue();
+        DataSnapshotWrapper wrapper = new DataSnapshotWrapper(dataSnapshot);
+
+        this.firstName = wrapper.getStringValue("first_name");
+        this.lastName = wrapper.getStringValue("last_name");
+        this.pingID = wrapper.getStringValue("ping_id");
+        this.quickBloxID = wrapper.getIntValue("quickBloxID");
+        this.email = wrapper.getStringValue("email");
+        this.password = wrapper.getStringValue("password");
+        this.phone = wrapper.getStringValue("phone");
+        this.profile = wrapper.getStringValue("profile");
+        this.loginStatus = wrapper.getBooleanValue("loginStatus");
+        this.showMappingConfirm = wrapper.getBooleanValue("show_mapping_confirm");
+        this.mappings = (Map<String, String>) wrapper.getMapValue("mappings");
+        this.badges = wrapper.getMapValue("badges");
         this.settings = new Setting(dataSnapshot.child("settings"));
-//        this.friends = (Map<String, Boolean>) dataSnapshot.child("friends").getValue();
-//        if (friends == null) friends = new HashMap<>();
-        this.blocks = (Map<String, Boolean>) dataSnapshot.child("blocks").getValue();
+        this.blocks = (Map<String, Boolean>) wrapper.getMapValue("blocks");
         if (blocks == null) blocks = new HashMap<>();
-        this.blockBys = (Map<String, Boolean>) dataSnapshot.child("blockBys").getValue();
-        this.devices = dataSnapshot.hasChild("devices") ? (Map<String, Double>) dataSnapshot.child("devices").getValue() : new HashMap<>();
+        this.blockBys = (Map<String, Boolean>) wrapper.getMapValue("blockBys");
+        this.devices = wrapper.getMapValue("devices");
         if (this.blockBys == null) this.blockBys = new HashMap<>();
         if (this.mappings == null) {
             this.mappings = DataProvider.getDefaultMapping();
@@ -77,9 +78,6 @@ public class User implements Parcelable {
         if (this.settings == null) {
             this.settings = Setting.defaultSetting();
         }
-//        if (this.friends == null) {
-//            this.friends = new HashMap();
-//        }
         if (this.blocks == null) {
             this.blocks = new HashMap();
         }
@@ -164,6 +162,13 @@ public class User implements Parcelable {
 
     public String getFirstName() {
         return !TextUtils.isEmpty(firstName) ? firstName : pingID;
+    }
+
+    public String profileImage() {
+        if (settings != null && !settings.private_profile) {
+            return profile;
+        }
+        return "";
     }
 
     @Override

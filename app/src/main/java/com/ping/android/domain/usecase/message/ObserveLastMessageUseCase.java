@@ -3,10 +3,11 @@ package com.ping.android.domain.usecase.message;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.entity.MessageEntity;
+import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
-import com.ping.android.data.entity.ChildData;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
@@ -31,6 +32,8 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
     UserRepository userRepository;
     @Inject
     UserManager userManager;
+    @Inject
+    MessageMapper messageMapper;
 
     User currentUser;
 
@@ -44,33 +47,30 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
     public Observable<ChildData<Message>> buildUseCaseObservable(Params params) {
         currentUser = params.user;
         return messageRepository.observeLastMessage(params.conversation.key)
-                .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists() && childEvent.type == ChildEvent.Type.CHILD_ADDED) {
-                        Message message = Message.from(childEvent.dataSnapshot);
-                        message.currentUserId = currentUser.key;
-                        message.isMask = CommonMethod.getBooleanFrom(message.markStatuses, currentUser.key);
-                        return new ChildData<>(message, childEvent.type);
-                    } else {
-                        return new ChildData<Message>(null, childEvent.type);
-                    }
-                })
-                //.onErrorResumeNext(Observable.empty())
                 .flatMap(childData -> {
                     if (childData.getType() != ChildData.Type.CHILD_ADDED) return Observable.empty();
-                    Message message = childData.getData();
-                    boolean isReadable = message.isReadable(currentUser.key);
+                    Message message = messageMapper.transform(childData.getData(), currentUser);
+                    ChildData<Message> data = new ChildData<>(message, childData.getType());
+                    boolean isReadable = childData.getData().isReadable(currentUser.key);
                     boolean isOldMessage = message.timestamp < getLastDeleteTimeStamp(params.conversation);
-                    boolean isDeleted = CommonMethod.getBooleanFrom(message.deleteStatuses, currentUser.key);
+                    boolean isDeleted = CommonMethod.getBooleanFrom(childData.getData().deleteStatuses, currentUser.key);
                     if (isDeleted || isOldMessage || !isReadable) {
                         return Observable.empty();
                     }
+
+                    MessageEntity entity = childData.getData();
+                    entity.isMask = message.isMask;
+                    entity.messageStatusCode = message.messageStatusCode;
+                    messageRepository.saveMessage(entity);
+
                     /*int status = CommonMethod.getIntFrom(message.status, currentUser.key);
                     updateReadStatus(message, params.conversation, status);*/
-                    return getUser(childData.getData().senderId)
-                            .map(user -> {
-                                childData.getData().sender = user;
-                                return childData;
-                            });
+                    User sender = params.conversation.getUser(message.senderId);
+                    if (sender != null) {
+                        message.senderProfile = sender.profileImage();
+                        message.senderName = sender.nickName.isEmpty() ? sender.getDisplayName() : sender.nickName;
+                    }
+                    return Observable.just(data);
                 });
     }
 

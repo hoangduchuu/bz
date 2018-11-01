@@ -2,10 +2,10 @@ package com.ping.android.presentation.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,15 +15,11 @@ import android.widget.Toast;
 import com.bzzzchat.cleanarchitecture.UIThread;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.SearchUserModule;
-import com.ping.android.dagger.loggedin.addcontact.AddContactComponent;
-import com.ping.android.dagger.loggedin.addcontact.AddContactModule;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddContactPresenter;
 import com.ping.android.presentation.presenters.SearchUserPresenter;
 import com.ping.android.presentation.view.adapter.AddContactAdapter;
 import com.ping.android.utils.configs.Constant;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +27,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import dagger.android.AndroidInjection;
+
 public class AddContactActivity extends CoreActivity implements AddContactAdapter.ClickListener, View.OnClickListener, SearchUserPresenter.View, AddContactPresenter.View {
     private RecyclerView rvListContact;
     private LinearLayoutManager mLinearLayoutManager;
     private EditText searchView;
     private ImageView btBack;
-    private AVLoadingIndicatorView avi;
-
+    private View loading;
     private AddContactAdapter adapter;
     private LinearLayout noResultsView;
 
@@ -45,14 +42,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
     public SearchUserPresenter searchUserPresenter;
     @Inject
     public AddContactPresenter presenter;
-    private AddContactComponent component;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_contact);
-        getComponent().inject(this);
-        searchUserPresenter.create();
+        AndroidInjection.inject(this);
         bindViews();
         init();
     }
@@ -77,8 +72,7 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         mLinearLayoutManager.setStackFromEnd(false);
         searchView = findViewById(R.id.add_contact_search_view);
         noResultsView = findViewById(R.id.no_results);
-        avi = findViewById(R.id.avi);
-
+        loading = findViewById(R.id.spin_kit);
         registerEvent(RxTextView.textChanges(searchView)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .observeOn(new UIThread().getScheduler())
@@ -89,6 +83,8 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         adapter = new AddContactAdapter(new ArrayList<>(), this);
         rvListContact.setAdapter(adapter);
         rvListContact.setLayoutManager(mLinearLayoutManager);
+
+        searchUserPresenter.create();
     }
 
     @Override
@@ -133,14 +129,6 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
         finish();
     }
 
-    public AddContactComponent getComponent() {
-        if (component == null) {
-            component = getLoggedInComponent()
-                    .provideAddContactComponent(new AddContactModule(this), new SearchUserModule(this));
-        }
-        return component;
-    }
-
     @Override
     public void displaySearchResult(List<User> users) {
         adapter.updateData(new ArrayList<>(users));
@@ -160,18 +148,12 @@ public class AddContactActivity extends CoreActivity implements AddContactAdapte
 
     @Override
     public void showSearching() {
-        avi.post(() -> {
-            avi.setVisibility(View.VISIBLE);
-            avi.show();
-        });
+        loading.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideSearching() {
-        avi.post(() -> {
-            avi.hide();
-            avi.setVisibility(View.GONE);
-        });
+        loading.setVisibility(View.GONE);
     }
 
     @Override

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:fitsSystemWindows="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.ping.android.presentation.view.activity.GroupImageGalleryActivity">
+
+        <com.ping.android.presentation.view.custom.ExtendedViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RelativeLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="@color/black"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/btn_back"
+                style="@style/BackButton" />
+
+            <TextView
+                android:id="@+id/txtTitle"
+                style="@style/TextTitle"
+                android:text="1 of 3" />
+
+            <ImageButton
+                android:id="@+id/btnDownload"
+                style="@style/ActionButton.TopMenu"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/chat_video_call"
+                android:paddingEnd="@dimen/default_padding"
+                android:paddingStart="0dp"
+                android:src="@drawable/ic_file_download"
+                android:tint="@color/white" />
+        </RelativeLayout>
+
+        <ToggleButton
+            android:id="@+id/togglePuzzle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@color/black"
+            android:textColor="@color/white"
+            android:textOff="Puzzle"
+            android:textOn="UnPuzzle"
+            android:textSize="20sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -4,13 +4,12 @@ import android.app.Application;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.domain.usecase.call.LoginChatServiceUseCase;
 import com.ping.android.domain.usecase.call.LogoutChatServiceUseCase;
+import com.ping.android.presentation.view.activity.CallActivity;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.SettingsUtil;
 import com.ping.android.utils.SharedPrefsHelper;
-import com.quickblox.chat.QBChat;
 import com.quickblox.chat.QBChatService;
 import com.quickblox.chat.QBWebRTCSignaling;
 import com.quickblox.users.model.QBUser;
@@ -53,7 +52,7 @@ public class CallServiceHandlerImpl implements CallServiceHandler, QBRTCClientSe
     public void create() {
         Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
         String pingId = SharedPrefsHelper.getInstance().get("pingId");
-        if (qbId > 0 && !TextUtils.isEmpty(pingId)) {
+        if (qbId != null && qbId > 0 && !TextUtils.isEmpty(pingId)) {
             loginUser(qbId, pingId);
         }
     }

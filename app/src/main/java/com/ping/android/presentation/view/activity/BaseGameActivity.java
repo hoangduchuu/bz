@@ -1,21 +1,22 @@
 package com.ping.android.presentation.view.activity;
 
-import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.CallSuper;
-import android.support.annotation.IntDef;
+import androidx.annotation.CallSuper;
+import androidx.annotation.IntDef;
 import android.widget.ImageView;
 
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.User;
+import com.ping.android.model.Message;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.GamePresenter;
-import com.ping.android.utils.TicTacToeGame;
 import com.ping.android.utils.configs.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BaseGameActivity extends CoreActivity {
     private static final int GAME_INIT = 0;
@@ -26,8 +27,8 @@ public abstract class BaseGameActivity extends CoreActivity {
     protected ImageView imageView;
     protected String conversationID, messageID;
     protected String imageURL;
+    protected Message message;
     protected Conversation conversation;
-    protected User sender;
     protected Handler handler = new Handler(Looper.getMainLooper());
     protected Color currentColor = Color.DEFAULT;
     @GameStatus protected int status = GAME_INIT;
@@ -38,8 +39,8 @@ public abstract class BaseGameActivity extends CoreActivity {
         conversationID = getIntent().getStringExtra(ChatActivity.CONVERSATION_ID);
         messageID = getIntent().getStringExtra("MESSAGE_ID");
         imageURL = getIntent().getStringExtra("IMAGE_URL");
+        message = getIntent().getParcelableExtra("MESSAGE");
         conversation = getIntent().getParcelableExtra("CONVERSATION");
-        sender = getIntent().getParcelableExtra("SENDER");
         if (getIntent().hasExtra(ChatActivity.EXTRA_CONVERSATION_COLOR)) {
             int color = getIntent().getIntExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, 0);
             currentColor = Color.from(color);
@@ -57,20 +58,14 @@ public abstract class BaseGameActivity extends CoreActivity {
         sendNotification(true);
 
         updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    Intent intent = new Intent(this, PuzzleActivity.class);
-                    intent.putExtra(ChatActivity.CONVERSATION_ID, conversationID);
-                    intent.putExtra("MESSAGE_ID", messageID);
-                    intent.putExtra("IMAGE_URL", imageURL);
-                    intent.putExtra("PUZZLE_STATUS", false);
-                    intent.putExtra(ChatActivity.EXTRA_CONVERSATION_COLOR, currentColor.getCode());
-                    ActivityOptions options = ActivityOptions
-                            .makeSceneTransitionAnimation(this, imageView, messageID);
-                    startActivity(intent, options.toBundle());
-                    //finishAfterTransition();
-                    handler.postDelayed(() -> finish(), 2000);
+                    List<Message> messages = new ArrayList<>();
+                    messages.add(message);
+                    GroupImageGalleryActivity.start(this, conversationID, messages, 0, false, null);
+                    finishAfterTransition();
                 })
                 .setMessage("Congratulations! You won.")
                 .setTitle(gameTitle());
@@ -107,7 +102,11 @@ public abstract class BaseGameActivity extends CoreActivity {
 
     private void updateMessageStatus(int status) {
         if (getPresenter() instanceof GamePresenter) {
-            ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, Constant.MSG_TYPE_GAME, status);
+            ((GamePresenter) getPresenter()).updateMessageStatus(conversationID, messageID, status);
+            if (status == Constant.MESSAGE_STATUS_GAME_PASS) {
+                message.isMask = false;
+                ((GamePresenter) getPresenter()).updateMessageMask(conversationID, messageID, false);
+            }
         }
     }
 

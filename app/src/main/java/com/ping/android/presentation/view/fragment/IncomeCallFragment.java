@@ -5,7 +5,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,9 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.call.CallComponent;
-import com.ping.android.dagger.loggedin.call.incoming.IncomingCallComponent;
-import com.ping.android.dagger.loggedin.call.incoming.IncomingCallModule;
 import com.ping.android.presentation.presenters.IncomingCallPresenter;
 import com.ping.android.utils.UiUtils;
 import com.quickblox.videochat.webrtc.QBRTCTypes;
@@ -26,6 +23,8 @@ import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * QuickBlox team
@@ -45,13 +44,12 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
 
     @Inject
     IncomingCallPresenter presenter;
-    IncomingCallComponent component;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setRetainInstance(true);
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -147,14 +145,6 @@ public class IncomeCallFragment extends BaseFragment implements Serializable, Vi
     private void disableButtons() {
         takeButton.setEnabled(false);
         rejectButton.setEnabled(false);
-    }
-
-    public IncomingCallComponent getComponent() {
-        if (component == null) {
-            component = getComponent(CallComponent.class)
-                    .provideIncomingCallComponent(new IncomingCallModule(this));
-        }
-        return component;
     }
 
     @Override

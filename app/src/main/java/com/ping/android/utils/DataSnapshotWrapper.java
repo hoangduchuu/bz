@@ -21,11 +21,8 @@ public class DataSnapshotWrapper {
     }
 
     public String getStringValue(String name, String defaultValue) {
-        Object object = getObject(name);
-        if (object != null) {
-            return object.toString();
-        }
-        return defaultValue;
+        Object value = getObject(name);
+        return value != null ? value.toString() : defaultValue;
     }
 
     public int getIntValue(String name) {
@@ -33,11 +30,8 @@ public class DataSnapshotWrapper {
     }
 
     public int getIntValue(String name, int defaultValue) {
-        Object object = getObject(name);
-        if (object != null) {
-            return Integer.parseInt(object.toString());
-        }
-        return defaultValue;
+        Integer value = snapshot.child(name).getValue(Integer.class);
+        return value != null ? value : defaultValue;
     }
 
     public double getDoubleValue(String name) {
@@ -45,9 +39,21 @@ public class DataSnapshotWrapper {
     }
 
     public double getDoubleValue(String name, double defaultValue) {
-        Object object = getObject(name);
-        if (object != null) {
-            return Double.parseDouble(object.toString());
+        if (isValid(name)) {
+            Double value = snapshot.child(name).getValue(Double.class);
+            return value != null ? value : defaultValue;
+        }
+        return defaultValue;
+    }
+
+    public boolean getBooleanValue(String name) {
+        return getBooleanValue(name, false);
+    }
+
+    public boolean getBooleanValue(String name, boolean defaultValue) {
+        if (isValid(name)) {
+            Boolean value = snapshot.child(name).getValue(Boolean.class);
+            return value != null ? value : defaultValue;
         }
         return defaultValue;
     }
@@ -60,7 +66,11 @@ public class DataSnapshotWrapper {
         return new HashMap();
     }
 
-    private Object getObject(String name) {
+    public Object getObject(String name) {
         return snapshot.child(name).getValue();
+    }
+
+    private boolean isValid(String name) {
+        return snapshot.hasChild(name);
     }
 }

@@ -31,6 +31,9 @@
 -keep class com.wang.avi.** { *; }
 -keep class com.wang.avi.indicators.** { *; }
 
+# DbFlow
+-keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+
 # OkHttp
 -dontwarn okhttp3.**
 -dontwarn okio.**

@@ -6,11 +6,12 @@ import android.media.MediaPlayer
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.support.v7.widget.LinearLayoutManager
-import android.transition.Fade
-import android.transition.TransitionManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.AttributeSet
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.view.ViewConfiguration
 import android.widget.LinearLayout
 import com.bzzzchat.extensions.inflate
 import com.cleveroad.audiovisualization.GLAudioVisualizationView
@@ -93,7 +94,6 @@ class VoiceRecordView : LinearLayout {
 
         recordView.addView(View(context))
         btnRecord.setOnTouchListener(TouchListener())
-
         btnSend.setOnClickListener {
             hideInstruction()
             stopAudio()
@@ -113,13 +113,13 @@ class VoiceRecordView : LinearLayout {
 
     private fun initVoiceTypeView() {
         voiceTypeAdapter = FlexibleAdapterV2()
-        voiceTypeAdapter.registerItemType(1, VoiceTypeDelegateAdapter({
+        voiceTypeAdapter.registerItemType(1, VoiceTypeDelegateAdapter {
             voiceTypes.map { item ->
                 item.isSelected = it.voiceType == item.voiceType
             }
             voiceTypeAdapter.updateItems(voiceTypes)
             handleMaskSelected(it.voiceType)
-        }))
+        })
         voiceTypes = ArrayList()
         voiceTypes.add(VoiceTypeItem(VoiceType.DEFAULT, true))
 //        voiceTypes.add(VoiceTypeItem(VoiceType.TELEPHONE, false))
@@ -129,7 +129,7 @@ class VoiceRecordView : LinearLayout {
         voiceTypes.add(VoiceTypeItem(VoiceType.MALE, false))
         voiceTypes.add(VoiceTypeItem(VoiceType.FEMALE, false))
         voiceTypeAdapter.addItems(voiceTypes)
-        listVoiceType.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        listVoiceType.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
         listVoiceType.adapter = voiceTypeAdapter
     }
 
@@ -275,7 +275,7 @@ class VoiceRecordView : LinearLayout {
 
         audioRecorder.startRecord()
         showInstruction(context.getString(R.string.voice_record_instruction_slide_up_down))
-        btnRecord.elevation = 10.0f
+        //btnRecord.elevation = 10.0f
         // Start timer
         lengthInMillis = 0
         updateTimer()

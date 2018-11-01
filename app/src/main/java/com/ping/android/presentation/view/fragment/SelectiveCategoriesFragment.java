@@ -2,23 +2,20 @@ package com.ping.android.presentation.view.fragment;
 
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ping.android.R;
-import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetModule;
+import com.ping.android.model.Transphabet;
 import com.ping.android.presentation.presenters.TransphabetPresenter;
 import com.ping.android.presentation.view.adapter.TransphabetCategoryAdapter;
-import com.ping.android.dagger.loggedin.transphabet.TransphabetComponent;
-import com.ping.android.dagger.loggedin.transphabet.selection.TransphabetSelectionComponent;
-import com.ping.android.model.Transphabet;
 import com.ping.android.utils.DataProvider;
 import com.ping.android.utils.UsersUtils;
 import com.ping.android.utils.bus.BusProvider;
@@ -28,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,7 +41,6 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
     BusProvider busProvider;
     @Inject
     TransphabetPresenter presenter;
-    TransphabetSelectionComponent component;
 
     public static SelectiveCategoriesFragment newInstance(boolean isEmoji) {
         Bundle bundle = new Bundle();
@@ -55,7 +53,7 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getComponent().inject(this);
+        AndroidSupportInjection.inject(this);
         if (getArguments() != null) {
             isEmoji = getArguments().getBoolean(SELECTIVE_CATEGORY_KEY);
         }
@@ -110,13 +108,5 @@ public class SelectiveCategoriesFragment extends BaseFragment implements View.On
                     getActivity().onBackPressed();
                 })
                 .setNegativeButton(android.R.string.cancel, null).show();
-    }
-
-    public TransphabetSelectionComponent getComponent() {
-        if (component == null) {
-            component = getComponent(TransphabetComponent.class)
-                    .provideTransphabetSelectionComponent(new TransphabetModule(this));
-        }
-        return component;
     }
 }

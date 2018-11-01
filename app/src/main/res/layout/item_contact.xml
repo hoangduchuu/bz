@@ -46,7 +46,8 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:background="@null"
-        android:src="@drawable/ic_message_transparent" />
+        android:src="@drawable/ic_message_transparent"
+        android:tint="@color/colorPrimary"/>
 
     <ImageView
         android:id="@+id/friend_call_voice"

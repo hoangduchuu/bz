@@ -93,8 +93,17 @@
     <dimen name="badge_font_size">8sp</dimen>
     <dimen name="badge_font_size_small">6sp</dimen>
     <dimen name="grid_item_padding">5dp</dimen>
+    <dimen name="grid_item_padding_small">1dp</dimen>
     <dimen name="login_padding">35dp</dimen>
     <dimen name="login_checkbox_padding">32dp</dimen>
     <dimen name="login_button_padding">38dp</dimen>
+
+
+    <!--sticker-->
+    <dimen name="padding_sticker_box">0dp</dimen>
+    <dimen name="padding_sticker_box_text">0dp</dimen>
+    <dimen name="padding_emoji_box">5dp</dimen>
+    <dimen name="padding_left_right_emoj_box">12dp</dimen>
+
 
 </resources>

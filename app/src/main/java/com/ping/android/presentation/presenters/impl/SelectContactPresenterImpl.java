@@ -1,8 +1,8 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.usecase.ObserveFriendsChildEventUseCase;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.domain.usecase.ObserveFriendsChildEventUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.SelectContactPresenter;
 
@@ -40,6 +40,7 @@ public class SelectContactPresenterImpl implements SelectContactPresenter {
 
     @Override
     public void destroy() {
+        view = null;
         observeFriendsChildEventUseCase.dispose();
     }
 }
