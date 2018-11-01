@@ -12,6 +12,7 @@ import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATIO
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.media.CamcorderProfile
 import android.media.ImageReader
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -543,16 +544,18 @@ class Camera2VideoFragment : Fragment(),
         }
         val realRotation = (surfaceRotation + sensorOrientation + 270) % 360
         mediaRecorder?.apply {
-            setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+            setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setOutputFile(nextVideoAbsolutePath)
+            setVideoEncodingBitRate(10000000)
             setOrientationHint(realRotation)
-            setVideoEncodingBitRate(getVideoBitRate(videoSize))
             setVideoFrameRate(30)
             setVideoSize(videoSize.width, videoSize.height)
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+
+
             prepare()
         }
     }
@@ -694,10 +697,8 @@ class Camera2VideoFragment : Fragment(),
      * @return The video size
      */
     private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
-        //it.width == it.height * 4 / 3 &&
-                it.width <= 720
-        //it.width <= 640
-    } ?: choices[choices.size - 1]
+        it.width == it.height * 4 / 3 && it.width <= 1080 } ?: choices[choices.size - 1]
+
 
     /**
      * Given [choices] of [Size]s supported by a camera, chooses the smallest one whose
@@ -721,9 +722,7 @@ class Camera2VideoFragment : Fragment(),
         val w = aspectRatio.width
         val h = aspectRatio.height
         val bigEnough = choices.filter {
-            //it.height == it.width * h / w &&
-                    it.width >= width && it.height >= height
-        }
+            it.height == it.width * h / w && it.width >= width && it.height >= height }
 
         // Pick the smallest of those, assuming we found any
         return if (bigEnough.isNotEmpty()) {
