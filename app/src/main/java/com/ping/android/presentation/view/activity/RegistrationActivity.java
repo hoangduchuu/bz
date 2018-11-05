@@ -28,9 +28,13 @@ import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
+import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -110,7 +114,7 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 bottomLayout.setVisibility(View.GONE);
             }
         });
-
+setUpRemoveUnderLineIfSelectedEditext();
     }
 
     private void init() {
@@ -318,5 +322,17 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
         startActivity(intent, bundle);
         finish();
+    }
+
+    private void setUpRemoveUnderLineIfSelectedEditext() {
+        List<EditText> editTextList = new ArrayList<>();
+        editTextList.add(txtFirstName);
+        editTextList.add(txtLastName);
+        editTextList.add(txtPingId);
+        editTextList.add(txtEmail);
+        editTextList.add(txtPassword);
+        editTextList.add(txtRetypePassword);
+        BzzzViewUtils.INSTANCE.removeUnderLineEditTextIfSelected(editTextList);
+
     }
 }
