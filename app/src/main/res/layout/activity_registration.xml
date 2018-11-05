@@ -121,30 +121,51 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/registration_ping_id" />
 
-            <EditText
-                android:id="@+id/registration_password"
-                style="@style/InputTextStyle"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/registration_password_inputlayout"
                 android:layout_width="0dp"
+                app:passwordToggleTint="@color/eye_pwd_tint_color"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/login_padding"
-                android:layout_marginStart="@dimen/login_padding"
-                android:layout_marginTop="10dp"
-                android:hint="@string/registration_password"
                 android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_email" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_email" >
+                <EditText
+                    android:inputType="textPassword"
+                    android:hint="@string/registration_password"
+                    android:id="@+id/registration_password"
+                    android:layout_marginEnd="@dimen/login_padding"
+                    android:layout_marginStart="@dimen/login_padding"
+                    android:layout_marginTop="10dp"
+                    style="@style/InputTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/registration_retype_password"
-                style="@style/InputTextStyle"
-                android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/registration_retype_password_inputlayout"
+                app:passwordToggleTint="@color/eye_pwd_tint_color"
+                app:hintEnabled="false"
+                app:passwordToggleEnabled="true"
                 android:layout_height="wrap_content"
-                android:hint="@string/registration_confirm_password"
                 android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_password" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_password_inputlayout"
+                android:layout_width="0dp">
+                <EditText
+                    android:inputType="textPassword"
+                    android:hint="@string/registration_confirm_password"
+                    android:id="@+id/registration_retype_password"
+                    android:layout_marginEnd="@dimen/login_padding"
+                    android:layout_marginStart="@dimen/login_padding"
+                    android:layout_marginTop="10dp"
+                    style="@style/InputTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
                 android:id="@+id/registration_terms"
@@ -154,7 +175,7 @@
                 android:layout_marginTop="3dp"
                 android:buttonTint="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password_inputlayout" />
 
             <TextView
                 android:id="@+id/tv_register_agree_term_of_service"
