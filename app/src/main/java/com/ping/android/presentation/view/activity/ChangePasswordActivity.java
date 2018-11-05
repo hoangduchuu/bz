@@ -17,7 +17,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ChangePasswordPresenter;
+import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -31,6 +35,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     private FirebaseAuth auth;
     private EditText etPassword, etNewPassword, etConfirmPassword;
     private User currentUser;
+    private List<EditText> editTextList;
 
     @Inject
     ChangePasswordPresenter presenter;
@@ -67,6 +72,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
         etPassword = findViewById(R.id.txt_password);
         etNewPassword = findViewById(R.id.txt_new_password);
         etConfirmPassword = findViewById(R.id.txt_confirm_password);
+        setUpRemoveUnderLineIfSelectedEditext();
     }
 
     private void init() {
@@ -141,5 +147,16 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     @Override
     public void onUserUpdated(User currentUser) {
         this.currentUser = currentUser;
+    }
+
+
+
+    private void setUpRemoveUnderLineIfSelectedEditext() {
+        editTextList = new ArrayList<>();
+        editTextList.add(etPassword);
+        editTextList.add(etNewPassword);
+        editTextList.add(etConfirmPassword);
+        BzzzViewUtils.INSTANCE.removeUnderLineEditTextIfSelected(editTextList);
+
     }
 }
