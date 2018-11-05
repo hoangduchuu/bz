@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="90dp"
     android:layout_height="90dp"
+    android:background="@color/main_background_gray"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
