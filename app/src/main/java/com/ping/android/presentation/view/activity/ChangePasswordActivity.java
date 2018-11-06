@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,6 +37,9 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     private EditText etPassword, etNewPassword, etConfirmPassword;
     private User currentUser;
     private List<EditText> editTextList;
+    private TextInputLayout tl_confirm, tl_newPwd, tl_currentPwd;
+
+
 
     @Inject
     ChangePasswordPresenter presenter;
@@ -72,7 +76,13 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
         etPassword = findViewById(R.id.txt_password);
         etNewPassword = findViewById(R.id.txt_new_password);
         etConfirmPassword = findViewById(R.id.txt_confirm_password);
-        setUpRemoveUnderLineIfSelectedEditext();
+
+        tl_currentPwd = findViewById(R.id.tl_current);
+        tl_newPwd = findViewById(R.id.tl_new);
+        tl_confirm = findViewById(R.id.tl_confirm_mail);
+
+        setUpRemoveUnderLineIfSelectedEditextAndEyeBall();
+
     }
 
     private void init() {
@@ -150,13 +160,20 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
     }
 
 
+    ArrayList<TextInputLayout> tiloList = new ArrayList<>();
 
-    private void setUpRemoveUnderLineIfSelectedEditext() {
+    private void setUpRemoveUnderLineIfSelectedEditextAndEyeBall() {
         editTextList = new ArrayList<>();
+        tiloList.add(tl_currentPwd);
+        tiloList.add(tl_newPwd);
+        tiloList.add(tl_confirm);
         editTextList.add(etPassword);
         editTextList.add(etNewPassword);
         editTextList.add(etConfirmPassword);
-        BzzzViewUtils.INSTANCE.removeUnderLineEditTextIfSelected(editTextList);
+        BzzzViewUtils.INSTANCE.removeUnderLineAndEyeIconEditTextIfSelected(tiloList,editTextList);
+        BzzzViewUtils.INSTANCE.showEyeBallWhenTextbox(tiloList,editTextList);
 
     }
+
+
 }
