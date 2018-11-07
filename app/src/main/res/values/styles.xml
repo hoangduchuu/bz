@@ -104,7 +104,7 @@
 
     <style name="InputTextStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:layout_marginTop">10dp</item>
@@ -117,6 +117,10 @@
         <item name="android:maxLines">1</item>
         <item name="android:singleLine">true</item>
         <item name="theme">@style/EditTextStyle</item>
+        <item name="android:theme">@style/EditTextStyle</item>
+        <item name="android:background">@drawable/text_box_underline_selector</item>
+
+
     </style>
 
     <style name="EditTextStyle">
@@ -548,5 +552,13 @@
         <item name="android:layout_marginBottom">2dp</item>
         <item name="android:padding">5dp</item>
         <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <!--FOR EDITEXT UNDERLINE-->
+    <style name="MyEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="colorControlActivated">@color/green</item>
+    </style>
+    <style name="BzzzEditextStyle">
+        <item name="editTextStyle">@style/MyEditTextStyle</item>
     </style>
 </resources>

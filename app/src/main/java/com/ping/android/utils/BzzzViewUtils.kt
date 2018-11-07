@@ -17,16 +17,16 @@ object BzzzViewUtils {
     fun removeUnderLineEditTextIfSelected(editTexts: List<EditText>) {
         val drawable = editTexts[0].background
 
-        for (i in editTexts.indices) {
-            editTexts[i].onFocusChangeListener = View.OnFocusChangeListener { v, forcusing ->
-                if (forcusing) {
-                    setBackgroundWithAnimation(editTexts[i], null)
-
-                } else {
-                    setBackgroundWithAnimation(editTexts[i], drawable)
-                }
-            }
-        }
+//        for (i in editTexts.indices) {
+//            editTexts[i].onFocusChangeListener = View.OnFocusChangeListener { v, forcusing ->
+//                if (forcusing) {
+//                    setBackgroundWithAnimation(editTexts[i], null)
+//
+//                } else {
+//                    setBackgroundWithAnimation(editTexts[i], drawable)
+//                }
+//            }
+//        }
 
     }
     fun removeUnderLineAndEyeIconEditTextIfSelected(parentEditexts: List<com.google.android.material.textfield.TextInputLayout>, editTexts: List<EditText>) {
