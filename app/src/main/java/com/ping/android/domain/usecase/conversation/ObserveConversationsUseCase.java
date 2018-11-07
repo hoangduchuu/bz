@@ -77,13 +77,26 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                 }
                                             }
                                             userManager.setIndividualConversation(conversation);
+                                            conversation.senderName = getSenderNameFromSenderId(conversation);
+
                                         } else {
+                                            conversation.senderName = getSenderNameFromSenderId(conversation);
                                             conversation.filterText = conversation.conversationName;
                                         }
                                         ChildData<Conversation> childData = new ChildData<>(conversation, childEvent.type);
                                         return childData;
                                     });
                         }));
+    }
+
+    private  String getSenderNameFromSenderId(Conversation conversation) {
+        for (int i =0; i <= conversation.members.size();i++){
+            if (conversation.senderId.equals(conversation.members.get(i).key)){
+                return conversation.members.get(i).firstName;
+            }
+        }
+        return "can not get senderName";
+
     }
 
 }

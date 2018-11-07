@@ -359,6 +359,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.tvSender.setText(model.conversationName);
             this.tvTime.setText(getDisplayTime(model.timesstamps));
             String message = "";
+
             switch (model.type) {
                 case TEXT:
                     if (model.isMask) {
@@ -368,19 +369,19 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     }
                     break;
                 case IMAGE:
-                    message = "[Picture]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Picture]";
                     break;
                 case VOICE:
-                    message = "[Voice]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Voice]";
                     break;
                 case GAME:
-                    message = "[Game]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Game]";
                     break;
                 case VIDEO:
-                    message = "[Video]";
+                    message =getLastedSenderNameIfNeeded(conversation)+ "[Video]";
                     break;
                 case STICKER:
-                    message = "[Sticker]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Sticker]";
                     break;
                 case CALL:
                     if (model.isFromMe()) {
@@ -392,10 +393,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     }
                     break;
                 case IMAGE_GROUP:
-                    message = "[Pictures]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Pictures]";
                     break;
                 case GIF:
-                    message = "[GIFs]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[GIFs]";
                     break;
             }
 
@@ -451,4 +452,28 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         void onSelect(Conversation conversation);
     }
+
+
+    // HUU
+    private static String getLastedSenderNameIfNeeded(Conversation conversation){
+        if (conversation.groupID ==null || conversation.groupID.isEmpty()){
+            return "ME";
+        }else {
+            if (conversation.senderId.equals(conversation.currentUserId)){
+               return "You: ";
+            }else {
+              return conversation.senderName;
+            }
+        }
+    }
+
+//    private static String getSenderNameFromSenderId(Conversation conversation) {
+//        for (int i =0; i <= conversation.members.size();i++){
+//            if (conversation.senderId.equals(conversation.members.get(i).key)){
+//                return conversation.members.get(i).firstName;
+//            }
+//        }
+//        return "can not get senderName";
+//
+//    }
 }
