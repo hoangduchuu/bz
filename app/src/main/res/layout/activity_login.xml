@@ -32,7 +32,6 @@
         android:id="@+id/login_name"
         style="@style/InputTextStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:hint="@string/login_hint_username"
         android:inputType="textEmailAddress"
         android:drawableStart="@drawable/ic_login_email"
@@ -61,7 +60,6 @@
             style="@style/InputTextStyle"
             android:layout_width="match_parent"
             android:hint="@string/login_hint_password"
-            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:drawableStart="@drawable/ic_login_password"
             android:inputType="textPassword" />
