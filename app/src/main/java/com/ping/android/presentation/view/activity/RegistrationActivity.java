@@ -122,6 +122,26 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         });
         setUpRemoveUnderLineIfSelectedEditext();
         setUpShowEyeBallIfSelectedEditext();
+        fixSize();
+    }
+
+    private void fixSize() {
+//        txtRetypePassword.setWidth(txtEmail.getWidth());
+//        txtRetypePassword.setHeight(txtEmail.getHeight());
+        Log.e("HUUHOANG with height ngoai" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+
+//
+        txtPassword.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("HUUHOANG with height" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+
+                txtPassword.setWidth(txtEmail.getWidth());
+                txtPassword.setHeight(txtEmail.getHeight());
+
+            }
+        },1000);
+
     }
 
     private void init() {
