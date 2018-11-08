@@ -28,7 +28,6 @@ public class Conversation implements Parcelable {
     public String conversationAvatarUrl;
     public int messageType;
     public int callType;
-    public String senderName;
     @PropertyName("lastMessage")
     public String message;
     public String groupID;
@@ -60,6 +59,7 @@ public class Conversation implements Parcelable {
     public List<User> members = new ArrayList<>();
     public Group group;
     public User opponentUser;
+    public String senderName;
 
     protected Conversation(Parcel in) {
         key = in.readString();
