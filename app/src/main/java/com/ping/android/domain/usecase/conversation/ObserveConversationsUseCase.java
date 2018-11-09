@@ -66,6 +66,7 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                             for (User user : users) {
                                                 if (!user.key.equals(currentUser.key)) {
                                                     conversation.opponentUser = user;
+                                                    conversation.senderName = user.firstName;
                                                     conversation.conversationAvatarUrl = user.settings.private_profile ? "" : user.profile;
                                                     String nickName = conversation.nickNames.get(user.key);
                                                     conversation.conversationName = TextUtils.isEmpty(nickName) ? user.getDisplayName() : nickName;
@@ -75,9 +76,24 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                     break;
                                                 }
+                                                else {
+                                                    conversation.senderName = currentUser.firstName;
+                                                }
                                             }
                                             userManager.setIndividualConversation(conversation);
                                         } else {
+                                            if (conversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
+                                                for (User user : users) {
+                                                    if (!user.key.equals(currentUser.key)) {
+                                                        conversation.senderName = user.firstName;
+                                                        break;
+                                                    }
+                                                    else {
+                                                        conversation.senderName = currentUser.firstName;
+                                                    }
+                                                }
+                                                userManager.setIndividualConversation(conversation);
+                                            }
                                             conversation.filterText = conversation.conversationName;
                                         }
                                         ChildData<Conversation> childData = new ChildData<>(conversation, childEvent.type);

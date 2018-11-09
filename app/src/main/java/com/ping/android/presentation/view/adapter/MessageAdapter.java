@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import io.fabric.sdk.android.Logger;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
@@ -359,43 +361,44 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             this.tvSender.setText(model.conversationName);
             this.tvTime.setText(getDisplayTime(model.timesstamps));
             String message = "";
+
             switch (model.type) {
                 case TEXT:
                     if (model.isMask) {
-                        message = CommonMethod.encodeMessage(model.message, mappings);
+                        message = getLastedSenderNameIfNeeded(conversation)+ CommonMethod.encodeMessage(model.message, mappings);
                     } else {
-                        message = model.message;
+                        message = getLastedSenderNameIfNeeded(conversation)+ model.message;
                     }
                     break;
                 case IMAGE:
-                    message = "[Picture]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Picture]";
                     break;
                 case VOICE:
-                    message = "[Voice]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Voice]";
                     break;
                 case GAME:
-                    message = "[Game]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Game]";
                     break;
                 case VIDEO:
-                    message = "[Video]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Video]";
                     break;
                 case STICKER:
-                    message = "[Sticker]";
+                    message = getLastedSenderNameIfNeeded(conversation)+"[Sticker]";
                     break;
                 case CALL:
                     if (model.isFromMe()) {
-                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),
+                        message = getLastedSenderNameIfNeeded(conversation)+ String.format(itemView.getContext().getString(model.messageCallType.descriptionFromMe()),
                                 model.conversationName);
                     } else {
-                        message = String.format(itemView.getContext().getString(model.messageCallType.descriptionToMe()),
+                        message = getLastedSenderNameIfNeeded(conversation)+ String.format(itemView.getContext().getString(model.messageCallType.descriptionToMe()),
                                 model.conversationName);
                     }
                     break;
                 case IMAGE_GROUP:
-                    message = "[Pictures]";
+                    message = getLastedSenderNameIfNeeded(conversation)+ "[Pictures]";
                     break;
                 case GIF:
-                    message = "[GIFs]";
+                    message = getLastedSenderNameIfNeeded(conversation)+ "[GIFs]";
                     break;
             }
 
@@ -451,4 +454,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         void onSelect(Conversation conversation);
     }
+
+    private static String getLastedSenderNameIfNeeded(Conversation conversation){
+        if (conversation.conversationType != Constant.CONVERSATION_TYPE_GROUP){
+            return "";
+        }else {
+            if (conversation.senderId.equals(conversation.currentUserId)){
+                return "You: ";
+            }else {
+                return conversation.senderName + ": ";
+            }
+        }
+    }
+
 }
