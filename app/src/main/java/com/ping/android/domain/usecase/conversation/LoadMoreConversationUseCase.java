@@ -107,6 +107,12 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                     }
                                                 }
                                                 conversation.filterText = conversation.conversationName;
+                                                return getUser(conversation.senderId)
+                                                        .map(user1 -> {
+                                                            conversation.senderName = user1.firstName;
+                                                            return conversation;
+                                                        });
+
                                             }
                                             return Observable.just(conversation);
                                         })
