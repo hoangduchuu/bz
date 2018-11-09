@@ -92,19 +92,13 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                     }
                                                 }
                                             } else {
-                                                for (String userId : conversation.memberIDs.keySet()) {
-                                                    if (!currenetUser.key.equals(userId)) {
-                                                        return getUser(userId)
-                                                                .map(user1 -> {
-                                                                    conversation.senderName = user1.firstName;
-                                                                    return conversation;
-                                                                });
-                                                    }
-                                                    else {
-                                                        conversation.senderName = currenetUser.firstName;
-                                                    }
-                                                }
                                                 conversation.filterText = conversation.conversationName;
+                                                return getUser(conversation.senderId)
+                                                        .map(user1 -> {
+                                                            conversation.senderName = user1.firstName;
+                                                            return conversation;
+                                                        });
+
                                             }
                                             return Observable.just(conversation);
                                         })

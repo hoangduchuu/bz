@@ -75,24 +75,18 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                     filterTextList.add(nickName);
                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                     break;
-                                                }
-                                                else {
+                                                } else {
                                                     conversation.senderName = currentUser.firstName;
                                                 }
                                             }
                                             userManager.setIndividualConversation(conversation);
                                         } else {
-                                            if (conversation.conversationType == Constant.CONVERSATION_TYPE_GROUP) {
-                                                for (User user : users) {
-                                                    if (!user.key.equals(currentUser.key)) {
-                                                        conversation.senderName = user.firstName;
-                                                        break;
-                                                    }
-                                                    else {
-                                                        conversation.senderName = currentUser.firstName;
-                                                    }
+                                            for (User user : users) {
+                                                if (user.key.equals(conversation.senderId)) {
+                                                    conversation.senderName = user.firstName;
+                                                    break;
                                                 }
-                                                userManager.setIndividualConversation(conversation);
+
                                             }
                                             conversation.filterText = conversation.conversationName;
                                         }
