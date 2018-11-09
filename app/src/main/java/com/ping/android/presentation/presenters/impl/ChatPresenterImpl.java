@@ -51,6 +51,7 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -582,6 +583,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     /**
      * Update conversation with last message. This method will be called when user delete message in conversation.
+     *
      * @param lastMessage Last message in conversation. Null if there is no message in conversation
      */
     @Override
@@ -896,8 +898,53 @@ public class ChatPresenterImpl implements ChatPresenter {
     @Override
     public void userRecognized() {
         isUserRecognized = true;
-
         // TODO should refresh chat screen
+    }
+    public void sendSticker(String stickerPath) {
+        if (!beAbleToSendMessage()) return;
+        String url = stickerPath.replace("stickers/","").replace("/","_");
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.STICKER)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.STICKER);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
+    }
+
+
+    @Override
+    public void sendGifs(String url) {
+        if (!beAbleToSendMessage()) return;
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.GIF)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setFileUrl(url)
+                .setMarkStatus(false)
+                .build();
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                sendNotification(conversation, message1.key, message1.message, MessageType.GIF);
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
     }
 
     private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {

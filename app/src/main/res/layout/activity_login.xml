@@ -32,30 +32,38 @@
         android:id="@+id/login_name"
         style="@style/InputTextStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:hint="@string/login_hint_username"
         android:inputType="textEmailAddress"
         android:drawableStart="@drawable/ic_login_email"
-        app:layout_constraintBottom_toTopOf="@+id/login_password"
+        app:layout_constraintBottom_toTopOf="@+id/login_password_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topCropImageView" />
 
-    <EditText
-        android:id="@+id/login_password"
-        style="@style/InputTextStyle"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/login_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:hint="@string/login_hint_password"
         android:drawableStart="@drawable/ic_login_password"
         android:inputType="textPassword"
+        app:passwordToggleDrawable="@drawable/password_toggle_drawable"
+        app:passwordToggleTint="@color/eye_pwd_tint_color"
+        app:hintEnabled="false"
         app:layout_constraintBottom_toTopOf="@+id/login_next"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_name" />
+        app:layout_constraintTop_toBottomOf="@+id/login_name">
+        <EditText
+            android:id="@+id/login_password"
+            style="@style/InputTextStyle"
+            android:layout_width="match_parent"
+            android:hint="@string/login_hint_password"
+            android:layout_marginTop="10dp"
+            android:drawableStart="@drawable/ic_login_password"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/login_next"
@@ -67,7 +75,7 @@
         android:text="@string/registration_login"
         android:backgroundTint="@color/orange"
         app:layout_constraintBottom_toTopOf="@+id/topCropImageView"
-        app:layout_constraintTop_toBottomOf="@+id/login_password"
+        app:layout_constraintTop_toBottomOf="@+id/login_password_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         tools:layout_editor_absoluteX="38dp" />

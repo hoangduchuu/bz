@@ -54,7 +54,9 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.events.GifTapEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
+import com.ping.android.utils.bus.events.StickerTapEvent
 import com.ping.android.utils.configs.Constant
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -66,7 +68,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, ChatMessageAdapter.ChatMessageListener, KeyboardHeightObserver {
+class ChatActivity : CoreActivity(),
+        ChatPresenter.View,
+        View.OnClickListener,
+        ChatMessageAdapter.ChatMessageListener,
+        KeyboardHeightObserver, StickerEmmiter, GiftEmmiter {
     private val TAG = "Ping: " + this.javaClass.simpleName
 
     //Views UI
@@ -559,7 +565,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         tvChatName!!.transitionName = conversationTransionName
 
         edMessage = findViewById(R.id.chat_message_tv)
-        edMessage.listener = object: MediaSelectionListener {
+        edMessage.listener = object : MediaSelectionListener {
             override fun onMediaSelected(uri: Uri, description: ClipDescription) {
                 var fileName = uri.lastPathSegment
                 val fileExtension = MimeTypeMap.getSingleton()
@@ -645,6 +651,12 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
                     if (o is GroupImagePositionEvent) {
                         this.groupImagePositionEvent = o
                     }
+                    if (o is StickerTapEvent){
+                        sendSticker(o.path)
+                    }
+                    if (o is GifTapEvent){
+                       sendGifs(o.gifUrl)
+                    }
                 })
 
         setExitSharedElementCallback(object : SharedElementCallback() {
@@ -677,6 +689,22 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
+    /**
+     * Send Sticker Message
+     */
+    private fun sendSticker(path: String?) {
+        presenter.sendSticker(path)
+
+    }
+
+    /**
+     * send Gif Message
+     */
+
+    private fun sendGifs(url : String){
+        presenter.sendGifs(url)
+    }
+
     private fun handleShakePhone() {
         // Find visible items
         Log.d("handleShakePhone")
@@ -705,6 +733,7 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
         presenter.loadMoreMessage(lastMessage.timestamp)
     }
+
     private var messageBeforeChange = ""
 
     private fun initTextWatcher() {
@@ -1197,17 +1226,21 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
     }
 
     private fun handleEmojiPressed() {
+
         if (emojiContainerView == null) {
-            emojiContainerView = EmojiContainerView()
-            emojiContainerView?.init(this, container, edMessage!!)
-            bottom_view_container.addView(emojiContainerView!!.emojiView)
+            emojiContainerView = EmojiContainerView(this)
+            registerEmmiter()
+            emojiContainerView?.show(currentBottomHeight, container, edMessage,this,busProvider)
+            bottom_view_container.addView(emojiContainerView)
         }
-        emojiContainerView?.show(currentBottomHeight)
+        registerEmmiter()
+        emojiContainerView?.show(currentBottomHeight, container, edMessage, this, busProvider)
         hideVoiceRecordView()
         hideMediaPickerView()
         shouldHideBottomView = false
         KeyboardHelpers.hideSoftInputKeyboard(this)
         showBottomView()
+
     }
 
     private fun openMediaPicker() {
@@ -1293,6 +1326,36 @@ class ChatActivity : CoreActivity(), ChatPresenter.View, View.OnClickListener, C
         }
     }
 
+    /**
+     * callback while sticker selected
+     */
+    override fun onStickerSelected(stickerPath: String, position: Int) {
+        // send sticker
+        presenter.sendSticker(stickerPath)
+
+    }
+
+    /**
+     * callback while Gift  selected
+     */
+    override fun onGiftSelected(gifId: String) {
+        // send gif
+        presenter.sendImageMessage(gifId, gifId, false)
+
+    }
+
+    /**
+     * register emiter to hold data from  EmojiContainerView.kt
+     */
+    private fun registerEmmiter() {
+        emojiContainerView?.setGifsEmmiter(this)
+        emojiContainerView?.setStickerEmmiter(this)
+
+
+
+
+//        presenter.sendImageMessage()
+    }
     // endregion
 
     private var initialized = false

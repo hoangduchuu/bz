@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,9 +29,13 @@ import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
+import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -43,6 +48,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
+
+    private TextInputLayout tilPwd, tilRePwd;
 
     @Inject
     public RegistrationPresenter presenter;
@@ -100,7 +107,10 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.tv_login).setOnClickListener(this);
         findViewById(R.id.tv_forgot_password).setOnClickListener(this);
-        
+
+        tilPwd = findViewById(R.id.registration_password_inputlayout);
+        tilRePwd = findViewById(R.id.registration_retype_password_inputlayout);
+
         container.setListener(visible -> {
             if (!visible) {
                 // Should hide bottom layout
@@ -110,6 +120,27 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 bottomLayout.setVisibility(View.GONE);
             }
         });
+        setUpRemoveUnderLineIfSelectedEditext();
+        setUpShowEyeBallIfSelectedEditext();
+        fixSize();
+    }
+
+    private void fixSize() {
+//        txtRetypePassword.setWidth(txtEmail.getWidth());
+//        txtRetypePassword.setHeight(txtEmail.getHeight());
+        Log.e("HUUHOANG with height ngoai" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+
+//
+        txtPassword.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.e("HUUHOANG with height" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+
+                txtPassword.setWidth(txtEmail.getWidth());
+                txtPassword.setHeight(txtEmail.getHeight());
+
+            }
+        },1000);
 
     }
 
@@ -318,5 +349,28 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
                 android.R.anim.fade_in, android.R.anim.fade_out).toBundle();
         startActivity(intent, bundle);
         finish();
+    }
+
+    private void setUpRemoveUnderLineIfSelectedEditext() {
+        List<EditText> editTextList = new ArrayList<>();
+        editTextList.add(txtFirstName);
+        editTextList.add(txtLastName);
+        editTextList.add(txtPingId);
+        editTextList.add(txtEmail);
+        editTextList.add(txtPassword);
+        editTextList.add(txtRetypePassword);
+        BzzzViewUtils.INSTANCE.removeUnderLineEditTextIfSelected(editTextList);
+
+    }
+
+    private void setUpShowEyeBallIfSelectedEditext() {
+        List<EditText> editTextList = new ArrayList<>();
+        List<TextInputLayout> til = new ArrayList<>();
+        editTextList.add(txtPassword);
+        editTextList.add(txtRetypePassword);
+        til.add(tilPwd);
+        til.add(tilRePwd);
+        BzzzViewUtils.INSTANCE.showEyeBallWhenTextbox(til,editTextList);
+
     }
 }

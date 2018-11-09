@@ -28,6 +28,7 @@ public class Conversation implements Parcelable {
     public String conversationAvatarUrl;
     public int messageType;
     public int callType;
+    public String senderName;
     @PropertyName("lastMessage")
     public String message;
     public String groupID;

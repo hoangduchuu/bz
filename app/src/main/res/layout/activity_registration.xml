@@ -66,8 +66,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:transitionName="bzzz"
                 android:src="@drawable/ic_avatar_orange"
+                android:transitionName="bzzz"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -77,7 +77,6 @@
                 android:id="@+id/registration_first_name"
                 style="@style/InputTextStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:hint="First Name"
                 android:inputType="textCapWords"
@@ -89,7 +88,6 @@
                 android:id="@+id/registration_last_name"
                 style="@style/InputTextStyle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="Last Name"
                 android:inputType="textCapWords"
@@ -101,7 +99,6 @@
                 android:id="@+id/registration_ping_id"
                 style="@style/InputTextStyle"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="Username"
                 android:inputType=""
@@ -113,7 +110,6 @@
                 android:id="@+id/registration_email"
                 style="@style/InputTextStyle"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="@string/registration_email"
                 android:inputType="textEmailAddress"
@@ -121,30 +117,51 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/registration_ping_id" />
 
-            <EditText
-                android:id="@+id/registration_password"
-                style="@style/InputTextStyle"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/registration_password_inputlayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/login_padding"
-                android:layout_marginStart="@dimen/login_padding"
-                android:layout_marginTop="10dp"
-                android:hint="@string/registration_password"
                 android:inputType="textPassword"
+                app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_email" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_email"
+                app:passwordToggleDrawable="@drawable/password_toggle_drawable"
+                app:passwordToggleTint="@color/eye_pwd_tint_color">
 
-            <EditText
-                android:id="@+id/registration_retype_password"
-                style="@style/InputTextStyle"
+                <EditText
+                    android:id="@+id/registration_password"
+                    style="@style/InputTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_marginStart="@dimen/login_padding"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="@dimen/login_padding"
+                    android:hint="@string/registration_password"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/registration_retype_password_inputlayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="@string/registration_confirm_password"
                 android:inputType="textPassword"
+                app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_password" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_password_inputlayout"
+                app:passwordToggleDrawable="@drawable/password_toggle_drawable"
+                app:passwordToggleTint="@color/eye_pwd_tint_color">
+
+                <EditText
+                    android:id="@+id/registration_retype_password"
+                    style="@style/InputTextStyle"
+                    android:layout_width="match_parent"
+                    android:layout_marginStart="@dimen/login_padding"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="@dimen/login_padding"
+                    android:hint="@string/registration_confirm_password"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <CheckBox
                 android:id="@+id/registration_terms"
@@ -154,7 +171,7 @@
                 android:layout_marginTop="3dp"
                 android:buttonTint="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password_inputlayout" />
 
             <TextView
                 android:id="@+id/tv_register_agree_term_of_service"
@@ -172,8 +189,8 @@
                 style="@style/LoginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/registration_register"
                 android:backgroundTint="@color/orange"
+                android:text="@string/registration_register"
                 app:layout_constraintTop_toBottomOf="@+id/registration_terms" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

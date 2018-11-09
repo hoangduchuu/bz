@@ -154,6 +154,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                         .load(message.localFilePath)
                         .messageImage(message.key, message.isMask)
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .placeholder(R.drawable.rounded_item_img_group_msg)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .listener(object: RequestListener<Drawable> {
                             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -182,6 +183,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                     .load(gsReference)
                     .messageImage(message.key, message.isMask)
                     .transition(DrawableTransitionOptions.withCrossFade())
+                    .placeholder(R.drawable.rounded_item_img_group_msg)
                     .override(128)
                     .listener(object: RequestListener<Drawable> {
                         override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {

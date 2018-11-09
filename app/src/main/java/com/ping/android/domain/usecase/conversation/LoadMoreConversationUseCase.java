@@ -46,18 +46,18 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
     @Override
     public Observable<Output> buildUseCaseObservable(Double params) {
         return userManager.getCurrentUser()
-                .flatMap(user -> conversationRepository.loadMoreConversation(user.key, params)
+                .flatMap(currenetUser -> conversationRepository.loadMoreConversation(currenetUser.key, params)
                         .flatMap(dataSnapshot -> {
                             List<Conversation> conversations = new ArrayList<>();
                             double lastTimestamp = Double.MAX_VALUE;
                             if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
-                                    Conversation conversation = mapper.transform(child, user);
+                                    Conversation conversation = mapper.transform(child, currenetUser);
                                     if (lastTimestamp > conversation.timesstamps) {
                                         lastTimestamp = conversation.timesstamps;
                                     }
-                                    if (!conversation.memberIDs.containsKey(user.key)
+                                    if (!conversation.memberIDs.containsKey(currenetUser.key)
                                             || !conversation.isValid()) continue;
                                     conversations.add(conversation);
                                 }
@@ -65,28 +65,46 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                             if (conversations.size() > 0) {
                                 double finalLastTimestamp = lastTimestamp;
                                 return Observable.fromArray(conversations.toArray())
-                                        .flatMap(object -> {
-                                            Conversation conversation = (Conversation) object;
+                                        .flatMap(conversationObject -> {
+                                            Conversation conversation = (Conversation) conversationObject;
                                             if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                                 for (String userId : conversation.memberIDs.keySet()) {
-                                                    if (!user.key.equals(userId)) {
+                                                    if (!currenetUser.key.equals(userId)) {
                                                         return getUser(userId)
                                                                 .map(user1 -> {
+                                                                    conversation.senderName = user1.firstName;
                                                                     conversation.opponentUser = user1;
                                                                     conversation.conversationAvatarUrl = user1.settings.private_profile ? "" : user1.profile;
                                                                     String nickName = conversation.nickNames.get(user1.key);
                                                                     String conversationName = TextUtils.isEmpty(nickName) ? user1.getDisplayName() : nickName;
                                                                     conversation.conversationName = conversationName;
                                                                     List<String> filterTextList = new ArrayList<>();
-                                                                    filterTextList.add(user.getDisplayName());
+                                                                    filterTextList.add(currenetUser.getDisplayName());
                                                                     filterTextList.add(nickName);
                                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                                     return conversation;
                                                                 })
                                                                 .doOnNext(con -> userManager.setIndividualConversation(conversation));
                                                     }
+                                                    else {
+                                                        conversation.senderName = currenetUser.firstName;
+                                                    }
                                                 }
                                             } else {
+                                                for (String userId : conversation.memberIDs.keySet()) {
+                                                    if (!currenetUser.key.equals(userId)) {
+                                                        return getUser(userId)
+                                                                .map(user1 -> {
+                                                                    conversation.senderName = user1.firstName;
+                                                                    return conversation;
+                                                                })
+                                                                .doOnNext(con -> userManager.setIndividualConversation(conversation))
+                                                                ;
+                                                    }
+                                                    else {
+                                                        conversation.senderName = currenetUser.firstName;
+                                                    }
+                                                }
                                                 conversation.filterText = conversation.conversationName;
                                             }
                                             return Observable.just(conversation);

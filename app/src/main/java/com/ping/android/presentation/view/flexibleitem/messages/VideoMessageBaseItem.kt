@@ -35,6 +35,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         private var imgPlay: ImageView = itemView.findViewById(R.id.imgPlay)
         private var isVideoReady = false
         private var videoFile: File? = null
+        private lateinit var loadingView:View
 
         init {
             initGestureListener()
@@ -44,6 +45,9 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
             isVideoReady = false
             super.bindData(item, lastItem)
             imgPlay.visibility = View.GONE
+            loadingView = itemView.findViewById(R.id.loading_container)
+            loadingView.visibility = View.VISIBLE
+
             val videoItem = item as VideoMessageBaseItem
             val cacheVideo = File(getLocalFilePath(videoItem.message))
             if (cacheVideo.exists()) {
@@ -93,6 +97,8 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                         }
             }
             isVideoReady = true
+            loadingView.visibility = View.GONE
+
             this.videoFile = videoFile
         }
 

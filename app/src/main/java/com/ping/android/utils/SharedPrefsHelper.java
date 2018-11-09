@@ -7,6 +7,7 @@ import com.ping.android.CoreApp;
 import com.quickblox.core.helper.StringifyArrayList;
 import com.quickblox.users.model.QBUser;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class SharedPrefsHelper {
@@ -19,9 +20,11 @@ public class SharedPrefsHelper {
     private static final String QB_USER_TAGS = "qb_user_tags";
     private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 
+    private static final String STICKER_LIST = "STICKER_LIST";
     private static final String FACE_ID_KEY = "FACE_ID_KEY";
     private static final String FACE_ID_COMPLETE_TRAINING = "FACE_ID_COMPLETE_TRAINING";
     private static String deviceId = null;
+
 
     private static SharedPrefsHelper instance;
 
@@ -166,5 +169,9 @@ public class SharedPrefsHelper {
 
     private SharedPreferences.Editor getEditor() {
         return sharedPreferences.edit();
+    }
+
+    private void saveStickerList(String collectionAsJson){
+        save(STICKER_LIST,collectionAsJson);
     }
 }
