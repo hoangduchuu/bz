@@ -457,8 +457,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     private static String getLastedSenderNameIfNeeded(Conversation conversation){
         if (conversation.conversationType != Constant.CONVERSATION_TYPE_GROUP){
-            return "";
-        }else {
+            if (conversation.senderId.equals(conversation.currentUserId)){
+                return "You: ";
+            }else {
+                return "";
+            }
+        }
+        else {
             if (conversation.senderId.equals(conversation.currentUserId)){
                 return "You: ";
             }else {
