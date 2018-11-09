@@ -31,9 +31,9 @@ ext {
 }
 
 repositories {
-    maven {
-        url "http://dl.bintray.com/qualeams/Android-Face-Recognition-Deep-Learning-Library"
-    }
+//    maven {
+//        url "http://dl.bintray.com/qualeams/Android-Face-Recognition-Deep-Learning-Library"
+//    }
 }
 
 dependencies {
@@ -65,10 +65,10 @@ dependencies {
     // Anko
     implementation "org.jetbrains.anko:anko:$anko_version"
 
-    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.2'
-//    implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.4.2'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-arm'
-    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.2'
+////    implementation group: 'org.bytedeco', name: 'javacv-platform', version: '1.4.2'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-x86'
 //    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
 //    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
 

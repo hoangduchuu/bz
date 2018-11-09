@@ -64,13 +64,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class FaceTrainingActivity extends AppCompatActivity {
-    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 90);
-        ORIENTATIONS.append(Surface.ROTATION_90, 0);
-        ORIENTATIONS.append(Surface.ROTATION_180, 270);
-        ORIENTATIONS.append(Surface.ROTATION_270, 180);
-    }
 
     private static final String TAG = "Ezequiel Adrian Camera";
     private Context context;
@@ -208,23 +201,22 @@ public class FaceTrainingActivity extends AppCompatActivity {
         @Override
         public void onPictureTaken(Image image) {
             Log.d(TAG, "Taken picture is here!");
-            FirebaseVisionFaceDetectorOptions options =
-                    new FirebaseVisionFaceDetectorOptions.Builder()
-                            .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
-                    .setMinFaceSize(0.2f)
-                    .build();
-            FaceDetector faceDetector = new FaceDetector.Builder(context).setMode(FaceDetector.ACCURATE_MODE)
+            FaceDetector faceDetector = new FaceDetector.Builder(context).setMode(FaceDetector.FAST_MODE)
+                    .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                    .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                    .setTrackingEnabled(false)
                     .setProminentFaceOnly(true)
+                    .setMinFaceSize(0.5f)
                     .build();
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            Frame frame = new Frame.Builder().setImageData(buffer, image.getWidth(), image.getHeight(), image.getFormat()).build();
+            Bitmap capturedBitmap = Utils.getBitmapFromImage(image);
+            image.close();
             int rotation = 0;
             try {
-                rotation = getRotationCompensation(mCamera2Source.getCameraId(), that, context); } catch (CameraAccessException e) {
+                rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
                 e.printStackTrace();
             }
-            final Bitmap finalPicture = rotateImage(frame.getBitmap(), rotation);
 
+            final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
             SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
 
             if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
@@ -236,78 +228,23 @@ public class FaceTrainingActivity extends AppCompatActivity {
                     }
                 });
             }else{
-                Face face = detectedFaces.get(0);
+                Face face = detectedFaces.valueAt(0);
                 Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
-                
+                String fileName = "1-user_" + index +  ".png";
+                File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
+                Utils.saveBitmap(bitmap, file.getAbsolutePath());
+                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
+                //Utils.smooth(file.getAbsolutePath());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        that.showDoneTraining();
+                    }
+                });
+
             }
-            ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-            byte[] bytes = new byte[buffer.capacity()];
-            buffer.get(bytes);
-            Bitmap picture = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
-            double ratio = (double) picture.getWidth() / picture.getHeight();
-                        int newWidth = 512;
-            int newHeight = (int) (newWidth / ratio);
-            picture = Bitmap.createScaledBitmap(picture, newWidth, newHeight, true);
-
-            final Bitmap finalPicture = rotateImage(picture, rotation);
-            FirebaseVisionImage visionImage = FirebaseVisionImage.fromBitmap(finalPicture);
-            FirebaseVisionFaceDetector detector = FirebaseVision.getInstance()
-                    .getVisionFaceDetector(options);
-            image.close();
-            runOnUiThread(new Runnable() {
-              @Override
-              public void run() {
-                  takePictureButton.setEnabled(true); }
-            });
-            Task<List<FirebaseVisionFace>> result =
-                    detector.detectInImage(visionImage)
-                            .addOnSuccessListener(
-                                    new OnSuccessListener<List<FirebaseVisionFace>>() {
-                                        @Override
-                                        public void onSuccess(List<FirebaseVisionFace> faces) {
-                                            if (faces.size() > 0) {
-                                                FirebaseVisionFace face = faces.get(0);
-                                                Bitmap faceBitmap = Utils.getFaceFromBitmap(finalPicture, face);
-                                                String fileName = "1-user_" + index +  ".png";
-                                                File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
-                                                Utils.saveBitmap(faceBitmap, file.getAbsolutePath());
-                                                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
-                                                //Utils.smooth(file.getAbsolutePath());
-                                                runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        that.showDoneTraining();
-
-//                                                        showProgress(index);
-                                                        takePictureButton.setEnabled(true);
-
-                                                    }
-                                                });
-                                            } else {
-                                                takePictureButton.setEnabled(true);
-                                            }
-                                        }
-                                    })
-                            .addOnFailureListener(
-                                    new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            e.printStackTrace();
-                                            takePictureButton.setEnabled(true);
-                                        }
-                                    });
-
-
         }
     };
-
-    private static Bitmap rotateImage(Bitmap img, int degree) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degree);
-        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
-        img.recycle();
-        return rotatedImg;
-    }
 
     private String getFrontFacingCameraId(CameraManager cManager) {
         try {
@@ -356,29 +293,6 @@ public class FaceTrainingActivity extends AppCompatActivity {
         }
     }
 
-    private int getRotationCompensation(String cameraId, Activity activity, Context context)
-            throws CameraAccessException {
-        // Get the device's current rotation relative to its "native" orientation.
-        // Then, from the ORIENTATIONS table, look up the angle the image must be
-        // rotated to compensate for the device's rotation.
-        int deviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        int rotationCompensation = ORIENTATIONS.get(deviceRotation);
-
-        // On most devices, the sensor orientation is 90 degrees, but for some
-        // devices it is 270 degrees. For devices with a sensor orientation of
-        // 270, rotate the image an additional 180 ((270 + 270) % 360) degrees.
-        CameraManager cameraManager = (CameraManager) context.getSystemService(CAMERA_SERVICE);
-        int sensorOrientation = cameraManager
-                .getCameraCharacteristics(cameraId)
-                .get(CameraCharacteristics.SENSOR_ORIENTATION);
-        rotationCompensation = (rotationCompensation + sensorOrientation + 270) % 360;
-
-        // Return the corresponding FirebaseVisionImageMetadata rotation value.
-
-        return rotationCompensation;
-    }
-
-
     private void createCameraSourceFront() {
         previewFaceDetector = new FaceDetector.Builder(context)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
@@ -421,8 +335,8 @@ public class FaceTrainingActivity extends AppCompatActivity {
 
     private void createCameraSourceBack() {
         previewFaceDetector = new FaceDetector.Builder(context)
-                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+//                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
                 .setMode(FaceDetector.FAST_MODE)
                 .setProminentFaceOnly(true)
                 .setTrackingEnabled(true)

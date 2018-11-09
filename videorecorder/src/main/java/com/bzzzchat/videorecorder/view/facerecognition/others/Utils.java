@@ -4,6 +4,7 @@ package com.bzzzchat.videorecorder.view.facerecognition.others;
  * Created by Ezequiel Adrian on 24/02/2017.
  */
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,9 +19,15 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.FaceDetector;
+import android.media.Image;
 import android.util.DisplayMetrics;
+import android.util.SparseIntArray;
 import android.view.Display;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import com.bzzzchat.videorecorder.view.facerecognition.Configs;
@@ -30,10 +37,10 @@ import com.google.android.gms.vision.face.Face;
 import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
-
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_imgproc;
-import org.opencv.core.Mat;
+//
+//import org.bytedeco.javacpp.opencv_core;
+//import org.bytedeco.javacpp.opencv_imgproc;
+//import org.opencv.core.Mat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,16 +48,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-
-import static com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark.LEFT_EYE;
-import static com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark.RIGHT_EYE;
-import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgproc.*;
-import static org.bytedeco.javacpp.opencv_imgcodecs.*;
 
 public class Utils {
 
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
     public static int dpToPx(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
@@ -146,6 +156,38 @@ public class Utils {
         Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
         return crop(rotatedBitmap, face);
+    }
+
+    public static Bitmap rotateImage(Bitmap img, int degree, float height) {
+        Matrix matrix = new Matrix();
+        float scale = img.getWidth() > img.getHeight()? height/img.getWidth() : height/img.getHeight();
+        matrix.postScale(scale, scale);
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(),img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
+
+    public static int getRotationCompensation(String cameraId, Activity activity)
+            throws CameraAccessException {
+        // Get the device's current rotation relative to its "native" orientation.
+        // Then, from the ORIENTATIONS table, look up the angle the image must be
+        // rotated to compensate for the device's rotation.
+        int deviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
+        int rotationCompensation = ORIENTATIONS.get(deviceRotation);
+
+        // On most devices, the sensor orientation is 90 degrees, but for some
+        // devices it is 270 degrees. For devices with a sensor orientation of
+        // 270, rotate the image an additional 180 ((270 + 270) % 360) degrees.
+        CameraManager cameraManager = (CameraManager) activity.getSystemService(activity.CAMERA_SERVICE);
+        int sensorOrientation = cameraManager
+                .getCameraCharacteristics(cameraId)
+                .get(CameraCharacteristics.SENSOR_ORIENTATION);
+        rotationCompensation = (rotationCompensation + sensorOrientation + 270) % 360;
+
+        // Return the corresponding FirebaseVisionImageMetadata rotation value.
+
+        return rotationCompensation;
     }
 
     public static Bitmap getProcessedImage(byte[] bytes, int width, int height, float rotationAngle) {
@@ -263,6 +305,13 @@ public class Utils {
         }
     }
 
+    public static Bitmap getBitmapFromImage(Image image){
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+    }
+
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
         Rect rect = face.getBoundingBox();
         return getFaceFromBitmap(bitmap, rect);
@@ -294,33 +343,33 @@ public class Utils {
         return faceBitmap;
     }
 
-    public static String saveMatToImage(Mat mat, String path){
-        Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-        org.opencv.android.Utils.matToBitmap(mat, bitmap);
-        File file = new File(path);
-        try {
-            FileOutputStream os = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-            os.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return path;
-    }
+//    public static String saveMatToImage(Mat mat, String path){
+//        Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+//        org.opencv.android.Utils.matToBitmap(mat, bitmap);
+//        File file = new File(path);
+//        try {
+//            FileOutputStream os = new FileOutputStream(file);
+//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
+//            os.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return path;
+//    }
 
     public static void preProcessBitmap(Bitmap faceBitmap) {
 
     }
 
-    public static void smooth(String filename) {
-        opencv_core.Mat image = imread(filename);
-        if (image != null) {
-            opencv_imgproc.GaussianBlur(image, image, new opencv_core.Size(3, 3), 0.0);
-            imwrite(filename, image);
-        }
-    }
+//    public static void smooth(String filename) {
+//        opencv_core.Mat image = imread(filename);
+//        if (image != null) {
+//            opencv_imgproc.GaussianBlur(image, image, new opencv_core.Size(3, 3), 0.0);
+//            imwrite(filename, image);
+//        }
+//    }
 
     public static void saveBitmap(Bitmap source, String filePath) {
         FileOutputStream out = null;
@@ -340,24 +389,24 @@ public class Utils {
         }
     }
 
-    /**
-     *  \brief Automatic brightness and contrast optimization with optional histogram clipping
-     *  \param [in]src Input image GRAY or BGR or BGRA
-     *  \param [out]dst Destination image
-     *  \param clipHistPercent cut wings of histogram at given percent tipical=>1, 0=>Disabled
-     *  \note In case of BGRA image, we won't touch the transparency
-     */
-    public static opencv_core.Mat brightnessAndContrastAuto(String filePath)
-    {
-        opencv_core.Mat source = imread(filePath, CV_LOAD_IMAGE_GRAYSCALE);
-        double[] minVal = new double[2], maxVal = new double[2];
-        minMaxLoc(source, minVal, maxVal, null, null, null);
-//        CV_Assert(clipHistPercent >= 0);
-//        CV_Assert((src.type() == CV_8UC1) || (src.type() == CV_8UC3) || (src.type() == CV_8UC4));
-
-        int histSize = 256;
-        float alpha, beta;
-        double minGray = minVal[0], maxGray = maxVal[0];
+//    /**
+//     *  \brief Automatic brightness and contrast optimization with optional histogram clipping
+//     *  \param [in]src Input image GRAY or BGR or BGRA
+//     *  \param [out]dst Destination image
+//     *  \param clipHistPercent cut wings of histogram at given percent tipical=>1, 0=>Disabled
+//     *  \note In case of BGRA image, we won't touch the transparency
+//     */
+//    public static opencv_core.Mat brightnessAndContrastAuto(String filePath)
+//    {
+//        opencv_core.Mat source = imread(filePath, CV_LOAD_IMAGE_GRAYSCALE);
+//        double[] minVal = new double[2], maxVal = new double[2];
+//        minMaxLoc(source, minVal, maxVal, null, null, null);
+////        CV_Assert(clipHistPercent >= 0);
+////        CV_Assert((src.type() == CV_8UC1) || (src.type() == CV_8UC3) || (src.type() == CV_8UC4));
+//
+//        int histSize = 256;
+//        float alpha, beta;
+//        double minGray = minVal[0], maxGray = maxVal[0];
 
 
 //        int l_bins = 20;
@@ -410,22 +459,22 @@ public class Utils {
 //        }
 
         // current range
-        float inputRange = (float) (maxGray - minGray);
-
-        alpha = (histSize - 1) / inputRange;   // alpha expands current range to histsize range
-        beta = (float) (-minGray * alpha);             // beta shifts current range so that minGray will go to 0
-
-        // Apply brightness and contrast normalization
-        // convertTo operates with saurate_cast
-        opencv_core.Mat dst = new opencv_core.Mat();
-        source.convertTo(dst, -1, alpha, beta);
-        imwrite(filePath, dst);
-        // restore alpha channel from source
-//        if (dst.type() == CV_8UC4)
-//        {
-//            int from_to[] = { 3, 3};
-//            cv::mixChannels(&src, 4, &dst,1, from_to, 1);
-//        }
-        return dst;
-    }
+//        float inputRange = (float) (maxGray - minGray);
+//
+//        alpha = (histSize - 1) / inputRange;   // alpha expands current range to histsize range
+//        beta = (float) (-minGray * alpha);             // beta shifts current range so that minGray will go to 0
+//
+//        // Apply brightness and contrast normalization
+//        // convertTo operates with saurate_cast
+//        opencv_core.Mat dst = new opencv_core.Mat();
+//        source.convertTo(dst, -1, alpha, beta);
+//        imwrite(filePath, dst);
+//        // restore alpha channel from source
+////        if (dst.type() == CV_8UC4)
+////        {
+////            int from_to[] = { 3, 3};
+////            cv::mixChannels(&src, 4, &dst,1, from_to, 1);
+////        }
+//        return dst;
+//    }
 }

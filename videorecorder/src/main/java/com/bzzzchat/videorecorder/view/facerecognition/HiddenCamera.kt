@@ -3,6 +3,8 @@ package com.bzzzchat.videorecorder.view.facerecognition
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.hardware.camera2.CameraAccessException
+import android.media.Image
 import android.os.Environment
 import android.util.Log
 import android.util.SparseArray
@@ -15,7 +17,7 @@ import com.bzzzchat.videorecorder.view.facerecognition.others.Camera2Source
 import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePreview
 import com.bzzzchat.videorecorder.view.facerecognition.others.GraphicOverlay
 import com.bzzzchat.videorecorder.view.facerecognition.others.Utils
-import com.bzzzchat.videorecorder.view.facerecognition.preprocessor.PreProcessorFactory
+//import com.bzzzchat.videorecorder.view.facerecognition.preprocessor.PreProcessorFactory
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.MultiProcessor
@@ -45,7 +47,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private lateinit var myDetector: MyFaceDetector
     private lateinit var mCamera2Source: Camera2Source
     private lateinit var visionDetector: FirebaseVisionFaceDetector
-    private val preProcessorFactory = PreProcessorFactory(context)
+//    private val preProcessorFactory = PreProcessorFactory(context)
 
     private var wasActivityResumed = false
     private var isProcessingImage = AtomicBoolean(false)
@@ -95,6 +97,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
     internal val camera2SourceShutterCallback = Camera2Source.ShutterCallback { Log.d(TAG, "Shutter Callback for CAMERA2") }
 
+    val that = this
     internal val camera2SourcePictureCallback = Camera2Source.PictureCallback { image ->
         Log.d(TAG, "Taken picture is here!")
         if (isProcessingImage.get()) {
@@ -106,14 +109,14 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         val bytes = ByteArray(buffer.capacity())
         buffer.get(bytes)
         var picture = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
-        val ratio = picture.width.toDouble() / picture.height
-        val newWidth = 1024
-        val newHeight = (newWidth / ratio).toInt()
-        picture = Bitmap.createScaledBitmap(picture, newWidth, newHeight, true)
-        picture = rotateImage(picture, 270)
-
-        val visionImage = FirebaseVisionImage.fromBitmap(picture)
-        val finalPicture = picture
+        var rotation = 0
+        try {
+            rotation = Utils.getRotationCompensation(mCamera2Source.cameraId, context as Activity)
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+        val finalPicture = Utils.rotateImage(picture, rotation, 384f)
+        val visionImage = FirebaseVisionImage.fromBitmap(finalPicture)
         image.close()
         visionDetector.detectInImage(visionImage)
                 .addOnSuccessListener { faces ->
@@ -160,6 +163,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                     if (isProcessingImage.get()) {
                         return faces
                     }
+//                    camera2SourcePictureCallback.onPictureTaken()
                     mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback)
                 }
             }
@@ -184,8 +188,8 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         // TODO need a plan to upgrade to mlkit
 
         previewFaceDetector = FaceDetector.Builder(context)
-                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
-                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
+                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                .setLandmarkType(FaceDetector.NO_LANDMARKS)
                 .setMode(FaceDetector.ACCURATE_MODE)
                 .setProminentFaceOnly(true)
                 //.setTrackingEnabled(true)

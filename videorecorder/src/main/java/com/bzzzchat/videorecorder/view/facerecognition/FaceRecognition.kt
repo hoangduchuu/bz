@@ -8,13 +8,11 @@ import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import kotlin.concurrent.thread
 import java.nio.ByteOrder.nativeOrder
-import android.R.attr.order
 import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.FaceDetector
-import org.opencv.core.Mat
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.io.IOException
@@ -22,6 +20,8 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.pow
+import android.widget.Toast
+
 
 enum class FaceRecognitionResult {
     SUCCESS, FAILED
@@ -45,9 +45,10 @@ class FaceRecognition private constructor(context: Context) {
     private var referenceOutput: Array<ByteArray>? = null
 
     private var tflite: Interpreter? = null
-
+    private var context: Context
     init {
         initInterpreter(context)
+        this.context = context
     }
     fun getTrainingFolder(): String {
         val trainingFolder = File(Environment.getExternalStorageDirectory(), "training")
@@ -146,6 +147,8 @@ class FaceRecognition private constructor(context: Context) {
                 result += (refi-outi).pow(2)
             }
             result = Math.sqrt(result)
+            Toast.makeText(context, "Confidence: ${result}",
+                    Toast.LENGTH_LONG).show()
 
             Log.d(TAG, "Confidence: ${result}")
             if (result < 0.5) {

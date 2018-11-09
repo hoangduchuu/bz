@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 
 import com.bzzzchat.videorecorder.R;
 import com.google.android.gms.vision.face.Face;
@@ -101,9 +102,10 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
             return;
         }
 
-        facePosition = new PointF(translateX(face.getPosition().x), translateY(face.getPosition().y));
-        faceWidth = face.getWidth() * 4;
-        faceHeight = face.getHeight() * 4;
+        facePosition = new PointF(scaleX(face.getPosition().x), scaleY(face.getPosition().y));
+//        facePosition = face.getPosition();
+        faceWidth = scaleX(face.getWidth()) ;
+        faceHeight = scaleY(face.getHeight());
         faceCenter = new PointF(translateX(face.getPosition().x + faceWidth/8), translateY(face.getPosition().y + faceHeight/8));
         isSmilingProbability = face.getIsSmilingProbability();
         eyeRightOpenProbability = face.getIsRightEyeOpenProbability();
@@ -111,75 +113,79 @@ public class FaceGraphic extends GraphicOverlay.Graphic {
         eulerY = face.getEulerY();
         eulerZ = face.getEulerZ();
         //DO NOT SET TO NULL THE NON EXISTENT LANDMARKS. USE OLDER ONES INSTEAD.
-        for(Landmark landmark : face.getLandmarks()) {
-            switch (landmark.getType()) {
-                case Landmark.LEFT_EYE:
-                    leftEyePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.RIGHT_EYE:
-                    rightEyePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.NOSE_BASE:
-                    noseBasePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.LEFT_MOUTH:
-                    leftMouthCorner = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.RIGHT_MOUTH:
-                    rightMouthCorner = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.BOTTOM_MOUTH:
-                    mouthBase = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.LEFT_EAR:
-                    leftEar = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.RIGHT_EAR:
-                    rightEar = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.LEFT_EAR_TIP:
-                    leftEarTip = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.RIGHT_EAR_TIP:
-                    rightEarTip = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.LEFT_CHEEK:
-                    leftCheek = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-                case Landmark.RIGHT_CHEEK:
-                    rightCheek = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
-                    break;
-            }
-        }
+//        for(Landmark landmark : face.getLandmarks()) {
+//            switch (landmark.getType()) {
+//                case Landmark.LEFT_EYE:
+//                    leftEyePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.RIGHT_EYE:
+//                    rightEyePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.NOSE_BASE:
+//                    noseBasePos = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.LEFT_MOUTH:
+//                    leftMouthCorner = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.RIGHT_MOUTH:
+//                    rightMouthCorner = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.BOTTOM_MOUTH:
+//                    mouthBase = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.LEFT_EAR:
+//                    leftEar = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.RIGHT_EAR:
+//                    rightEar = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.LEFT_EAR_TIP:
+//                    leftEarTip = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.RIGHT_EAR_TIP:
+//                    rightEarTip = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.LEFT_CHEEK:
+//                    leftCheek = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//                case Landmark.RIGHT_CHEEK:
+//                    rightCheek = new PointF(translateX(landmark.getPosition().x), translateY(landmark.getPosition().y));
+//                    break;
+//            }
+//        }
 
         Paint mPaint = new Paint();
         mPaint.setColor(Color.WHITE);
         mPaint.setStrokeWidth(4);
-        if(faceCenter != null)
-            canvas.drawBitmap(marker, faceCenter.x, faceCenter.y, null);
-        if(noseBasePos != null)
-            canvas.drawBitmap(marker, noseBasePos.x, noseBasePos.y, null);
-        if(leftEyePos != null)
-            canvas.drawBitmap(marker, leftEyePos.x, leftEyePos.y, null);
-        if(rightEyePos != null)
-            canvas.drawBitmap(marker, rightEyePos.x, rightEyePos.y, null);
-        if(mouthBase != null)
-            canvas.drawBitmap(marker, mouthBase.x, mouthBase.y, null);
-        if(leftMouthCorner != null)
-            canvas.drawBitmap(marker, leftMouthCorner.x, leftMouthCorner.y, null);
-        if(rightMouthCorner != null)
-            canvas.drawBitmap(marker, rightMouthCorner.x, rightMouthCorner.y, null);
-        if(leftEar != null)
-            canvas.drawBitmap(marker, leftEar.x, leftEar.y, null);
-        if(rightEar != null)
-            canvas.drawBitmap(marker, rightEar.x, rightEar.y, null);
-        if(leftEarTip != null)
-            canvas.drawBitmap(marker, leftEarTip.x, leftEarTip.y, null);
-        if(rightEarTip != null)
-            canvas.drawBitmap(marker, rightEarTip.x, rightEarTip.y, null);
-        if(leftCheek != null)
-            canvas.drawBitmap(marker, leftCheek.x, leftCheek.y, null);
-        if(rightCheek != null)
-            canvas.drawBitmap(marker, rightCheek.x, rightCheek.y, null);
+        mPaint.setStyle(Paint.Style.STROKE);
+        Rect rect = new Rect((int)facePosition.x, (int)facePosition.y, (int)(facePosition.x + faceWidth),
+                (int)(facePosition.y + faceHeight));
+        canvas.drawRect(rect, mPaint);
+//        if(faceCenter != null)
+//            canvas.drawBitmap(marker, faceCenter.x, faceCenter.y, null);
+//        if(noseBasePos != null)
+//            canvas.drawBitmap(marker, noseBasePos.x, noseBasePos.y, null);
+//        if(leftEyePos != null)
+//            canvas.drawBitmap(marker, leftEyePos.x, leftEyePos.y, null);
+//        if(rightEyePos != null)
+//            canvas.drawBitmap(marker, rightEyePos.x, rightEyePos.y, null);
+//        if(mouthBase != null)
+//            canvas.drawBitmap(marker, mouthBase.x, mouthBase.y, null);
+//        if(leftMouthCorner != null)
+//            canvas.drawBitmap(marker, leftMouthCorner.x, leftMouthCorner.y, null);
+//        if(rightMouthCorner != null)
+//            canvas.drawBitmap(marker, rightMouthCorner.x, rightMouthCorner.y, null);
+//        if(leftEar != null)
+//            canvas.drawBitmap(marker, leftEar.x, leftEar.y, null);
+//        if(rightEar != null)
+//            canvas.drawBitmap(marker, rightEar.x, rightEar.y, null);
+//        if(leftEarTip != null)
+//            canvas.drawBitmap(marker, leftEarTip.x, leftEarTip.y, null);
+//        if(rightEarTip != null)
+//            canvas.drawBitmap(marker, rightEarTip.x, rightEarTip.y, null);
+//        if(leftCheek != null)
+//            canvas.drawBitmap(marker, leftCheek.x, leftCheek.y, null);
+//        if(rightCheek != null)
+//            canvas.drawBitmap(marker, rightCheek.x, rightCheek.y, null);
     }
 }
