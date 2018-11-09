@@ -80,7 +80,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
         init();
         if (SharedPrefsHelper.getInstance().isFaceIdEnable() && SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-            FaceRecognition.getInstance().trainModel();
+            FaceRecognition.Companion.getInstance(this).train();
         }
     }
 

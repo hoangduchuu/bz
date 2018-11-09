@@ -172,7 +172,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         if (!faceId.isChecked()) {
             faceTrainingItem.setVisibility(View.GONE);
             SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
-            FaceRecognition.getInstance().releaseResource();
+            FaceRecognition.Companion.getInstance(this.getContext()).removeTrainingData();
         } else {
             showFaceTrainingItem();
         }
@@ -300,7 +300,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             if (resultCode == Activity.RESULT_OK) {
                 SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(true);
                 showFaceTrainingItem();
-                FaceRecognition.getInstance().trainModel();
+                FaceRecognition.Companion.getInstance(this.getContext()).train();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

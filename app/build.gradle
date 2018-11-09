@@ -46,6 +46,10 @@ android {
             storePassword '123456'
         }
     }
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "lite"
+    }
     buildTypes {
         release {
             debuggable false
@@ -162,7 +166,7 @@ dependencies {
     // AUTH
 
     implementation "com.google.android.gms:play-services-gcm:16.0.0"
-    implementation "com.google.android.gms:play-services-base:16.0.1"
+    implementation("com.google.android.gms:play-services-basement:16.1.0")
 
     implementation "com.google.firebase:firebase-core:${libraries.firebase}"
     implementation "com.google.firebase:firebase-auth:${libraries.firebase_auth}"

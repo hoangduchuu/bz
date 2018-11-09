@@ -593,6 +593,11 @@ public class Camera2Source {
         }
     }
 
+    public String getCameraId() {
+        return mCameraId;
+    }
+
+
     public boolean isCamera2Native() {
         try {
             if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {return false;}

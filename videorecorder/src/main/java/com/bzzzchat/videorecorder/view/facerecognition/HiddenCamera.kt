@@ -62,21 +62,26 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     }
 
     private fun processFaceRecognition(path: String) {
-        val faceData = FaceRecognition.instance.faceRecognition(path)
-        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
-        if (faceData.label > 0) {
-            if (faceData.confidence < minConfidenceThreshold) {
-                // Recognize user
-                onRecognizedUser(path)
-            }
-            if (faceData.confidence < confidenceThreshold) {
-                if (confidenceCounter.incrementAndGet() >= counter) {
-                    onRecognizedUser(path)
-                }
-            }
-        } else {
-            confidenceCounter.set(0)
+        val result = FaceRecognition.getInstance(context).faceRecognition(path)
+//        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
+        if (result == FaceRecognitionResult.SUCCESS){
+            onRecognizedUser(path)
+        }else{
+            confidenceCounter.incrementAndGet()
         }
+//        if (faceData.label > 0) {
+//            if (faceData.confidence < minConfidenceThreshold) {
+//                // Recognize user
+//                onRecognizedUser(path)
+//            }
+//            if (faceData.confidence < confidenceThreshold) {
+//                if (confidenceCounter.incrementAndGet() >= counter) {
+//                    onRecognizedUser(path)
+//                }
+//            }
+//        } else {
+//            confidenceCounter.set(0)
+//        }
     }
 
     private fun onRecognizedUser(path: String) {
@@ -165,11 +170,11 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private fun setupFaceDetector() {
         createCameraSourceFront()
         val options = FirebaseVisionFaceDetectorOptions.Builder()
-                .setModeType(FirebaseVisionFaceDetectorOptions.ACCURATE_MODE)
-                .setLandmarkType(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
-                .setClassificationType(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+                .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
+                .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+                .setClassificationMode(FirebaseVisionFaceDetectorOptions.NO_CLASSIFICATIONS)
                 .setMinFaceSize(0.15f)
-                .setTrackingEnabled(true)
+                .enableTracking()
                 .build()
         visionDetector = FirebaseVision.getInstance()
                 .getVisionFaceDetector(options)
@@ -220,7 +225,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         when (view) {
             is LinearLayout -> {
                 val params = LinearLayout.LayoutParams(width, height)
-                (view as LinearLayout).addView(cameraPreview, params)
+                (view as LinearLayout).addView(cameraPreview, params!!)
             }
             is RelativeLayout -> {
                 val params = RelativeLayout.LayoutParams(width, height)

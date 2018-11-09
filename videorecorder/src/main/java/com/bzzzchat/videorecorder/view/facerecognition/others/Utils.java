@@ -265,6 +265,17 @@ public class Utils {
 
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
         Rect rect = face.getBoundingBox();
+        return getFaceFromBitmap(bitmap, rect);
+    }
+
+    public static Bitmap getFaceFromBitmap(Bitmap bitmap, Face face) {
+        PointF position = face.getPosition();
+        Rect rect = new Rect((int)position.x, (int)position.y, (int)(position.x + face.getWidth()),
+                (int)(position.y + face.getHeight()));
+        return getFaceFromBitmap(bitmap, rect);
+    }
+
+    public static Bitmap getFaceFromBitmap(Bitmap bitmap, Rect rect){
         int largestDimension = rect.width() > rect.height() ? rect.width() : rect.height();
         int diff = Math.abs(rect.width() - rect.height()) / 4;
         Rect sourceRect = new Rect(rect.centerX() - largestDimension / 2 - diff,
