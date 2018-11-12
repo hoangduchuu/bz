@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Handler;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +17,7 @@ import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
 import com.ping.android.service.CallService;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.SharedPrefsHelper;
 
@@ -29,6 +32,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     private CompositeDisposable disposables;
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
     private AtomicBoolean showLoading = new AtomicBoolean(false);
+    private Handler netWorkHandler = new Handler();
 
     @Inject
     NetworkConnectionChecker networkConnectionChecker;
@@ -134,8 +138,16 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
             case NOT_CONNECT:
                 //TransitionManager.beginDelayedTransition(notifyNetworkLayout, new Slide(Gravity.TOP));
                 notifyNetworkLayout.setVisibility(View.VISIBLE);
-                notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
-                notifyNetworkText.setText(getString(R.string.no_internet_connection));
+                notifyNetworkLayout.setBackgroundResource(R.color.bg_network_connecting);
+                notifyNetworkText.setText(getString(R.string.connecting));
+               netWorkHandler.postDelayed(new Runnable() {
+                   @Override
+                   public void run() {
+                       notifyNetworkLayout.setVisibility(View.VISIBLE);
+                       notifyNetworkLayout.setBackgroundResource(R.color.bg_network_noconnect);
+                       notifyNetworkText.setText(getString(R.string.no_internet_connection));
+                   }
+               },2000);
                 break;
         }
     }
