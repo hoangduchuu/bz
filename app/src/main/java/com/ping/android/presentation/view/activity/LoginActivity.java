@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputLayout;
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.LoginPresenter;
+import com.ping.android.utils.BzzzLeftDrawableClickHelper;
 import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
 
@@ -27,7 +28,7 @@ import dagger.android.AndroidInjection;
 public class LoginActivity extends CoreActivity implements View.OnClickListener, LoginPresenter.View {
     private final String TAG = "Ping: " + this.getClass().getSimpleName();
     private EditText inputName, inputPassword;
-    private TextInputLayout tilPwd;
+
 
 
     @Inject
@@ -72,7 +73,6 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         inputName = findViewById(R.id.login_name);
         inputPassword = findViewById(R.id.login_password);
 
-        tilPwd = findViewById(R.id.login_password_layout);
 
         setUpRemoveUnderLineIfSelectedEditext();
         setUpShowEyeBallIfSelectedEditext();
@@ -168,14 +168,16 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         editTextList.add(inputPassword);
         BzzzViewUtils.INSTANCE.removeUnderLineEditTextIfSelected(editTextList);
 
+
     }
 
     private void setUpShowEyeBallIfSelectedEditext() {
         List<EditText> editTextList = new ArrayList<>();
         List<TextInputLayout> til = new ArrayList<>();
         editTextList.add(inputPassword);
-        til.add(tilPwd);
-        BzzzViewUtils.INSTANCE.showEyeBallWhenTextbox(til,editTextList);
+//        BzzzViewUtils.INSTANCE.showEyeBallWhenTextbox(til,editTextList);
+        BzzzLeftDrawableClickHelper.showHideButton(this,inputPassword,true);
+        BzzzViewUtils.INSTANCE.showEyeBall(this,editTextList, true);
 
     }
 }

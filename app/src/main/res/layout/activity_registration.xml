@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.ping.android.presentation.view.custom.KeyboardAwaredView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,19 +20,19 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center_horizontal"
+        android:orientation="horizontal"
         android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:orientation="horizontal">
+        android:paddingBottom="15dp">
 
         <TextView
             android:id="@+id/tv_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/background_rectangle_border"
-            android:paddingBottom="3dp"
-            android:paddingEnd="20dp"
             android:paddingStart="20dp"
             android:paddingTop="0dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="3dp"
             android:text="@string/registration_login"
             android:textColor="@color/orange" />
 
@@ -39,12 +40,12 @@
             android:id="@+id/tv_forgot_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:background="@drawable/background_rectangle_border"
-            android:paddingBottom="3dp"
-            android:paddingEnd="15dp"
             android:paddingStart="15dp"
             android:paddingTop="0dp"
-            android:layout_marginStart="10dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="3dp"
             android:text="@string/registration_forgot_password"
             android:textColor="@color/orange" />
     </LinearLayout>
@@ -77,6 +78,7 @@
                 android:id="@+id/registration_first_name"
                 style="@style/InputTextStyle"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:hint="First Name"
                 android:inputType="textCapWords"
@@ -88,6 +90,7 @@
                 android:id="@+id/registration_last_name"
                 style="@style/InputTextStyle"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="Last Name"
                 android:inputType="textCapWords"
@@ -99,6 +102,7 @@
                 android:id="@+id/registration_ping_id"
                 style="@style/InputTextStyle"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="Username"
                 android:inputType=""
@@ -110,6 +114,7 @@
                 android:id="@+id/registration_email"
                 style="@style/InputTextStyle"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="@string/registration_email"
                 android:inputType="textEmailAddress"
@@ -117,51 +122,42 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/registration_ping_id" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/registration_password_inputlayout"
-                android:layout_width="0dp"
+            <RelativeLayout
+                android:id="@+id/registration_password_"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_email"
-                app:passwordToggleDrawable="@drawable/password_toggle_drawable"
-                app:passwordToggleTint="@color/eye_pwd_tint_color">
+                app:layout_constraintTop_toBottomOf="@+id/registration_email">
 
                 <EditText
                     android:id="@+id/registration_password"
                     style="@style/InputTextStyle"
                     android:layout_width="match_parent"
-                    android:layout_marginStart="@dimen/login_padding"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="@dimen/login_padding"
+                    android:layout_height="wrap_content"
                     android:hint="@string/registration_password"
                     android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+            </RelativeLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/registration_retype_password_inputlayout"
-                android:layout_width="0dp"
+            <RelativeLayout
+                android:id="@+id/registration_retype_password_"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_password_inputlayout"
-                app:passwordToggleDrawable="@drawable/password_toggle_drawable"
-                app:passwordToggleTint="@color/eye_pwd_tint_color">
+                app:layout_constraintTop_toBottomOf="@+id/registration_password_">
+
+
 
                 <EditText
                     android:id="@+id/registration_retype_password"
                     style="@style/InputTextStyle"
+                    android:inputType="textPassword"
                     android:layout_width="match_parent"
-                    android:layout_marginStart="@dimen/login_padding"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="@dimen/login_padding"
+                    android:layout_height="wrap_content"
                     android:hint="@string/registration_confirm_password"
-                    android:inputType="textPassword" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    />
+            </RelativeLayout>
 
             <CheckBox
                 android:id="@+id/registration_terms"
@@ -171,13 +167,14 @@
                 android:layout_marginTop="3dp"
                 android:buttonTint="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password_inputlayout" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password_" />
 
             <TextView
                 android:id="@+id/tv_register_agree_term_of_service"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/login_padding"
+                android:backgroundTint="@color/eye_pwd_tint_color"
                 android:text="@string/register_agree_term_of_service"
                 android:textColor="@color/white"
                 android:textSize="14sp"
@@ -195,6 +192,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
-    <include layout="@layout/notify_network_other"
+    <include
+        layout="@layout/notify_network_other"
         android:visibility="gone" />
 </com.ping.android.presentation.view.custom.KeyboardAwaredView>

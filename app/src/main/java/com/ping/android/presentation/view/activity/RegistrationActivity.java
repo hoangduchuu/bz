@@ -1,13 +1,22 @@
 package com.ping.android.presentation.view.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.appcompat.app.AlertDialog;
+
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -17,7 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +37,7 @@ import com.ping.android.R;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 import com.ping.android.presentation.view.custom.KeyboardAwaredView;
+import com.ping.android.utils.BzzzLeftDrawableClickHelper;
 import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
@@ -36,6 +45,7 @@ import com.ping.android.utils.configs.Constant;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -48,12 +58,14 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
+    String dName;
+    Drawable openDrawable;
 
-    private TextInputLayout tilPwd, tilRePwd;
 
     @Inject
     public RegistrationPresenter presenter;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +104,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         return presenter;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint("ClickableViewAccessibility")
     private void bindViews() {
         KeyboardAwaredView container = findViewById(R.id.container);
         bottomLayout = findViewById(R.id.bottom_layout);
@@ -107,9 +121,10 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         findViewById(R.id.registration_next).setOnClickListener(this);
         findViewById(R.id.tv_login).setOnClickListener(this);
         findViewById(R.id.tv_forgot_password).setOnClickListener(this);
+        dName = getResources().getResourceEntryName(R.drawable.ic_eye_closed);
+        openDrawable = getResources().getDrawable(R.drawable.ic_eye_open);
+        openDrawable.setTint(getColor(R.color.yellow));
 
-        tilPwd = findViewById(R.id.registration_password_inputlayout);
-        tilRePwd = findViewById(R.id.registration_retype_password_inputlayout);
 
         container.setListener(visible -> {
             if (!visible) {
@@ -122,26 +137,39 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         });
         setUpRemoveUnderLineIfSelectedEditext();
         setUpShowEyeBallIfSelectedEditext();
-        fixSize();
+        setupToogleInputTypeEditext();
     }
 
-    private void fixSize() {
-//        txtRetypePassword.setWidth(txtEmail.getWidth());
-//        txtRetypePassword.setHeight(txtEmail.getHeight());
-        Log.e("HUUHOANG with height ngoai" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+    @SuppressLint("ClickableViewAccessibility")
+    private void showHideButton(EditText txtRetypePassword) {
+        txtRetypePassword.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_LEFT = 0;
+            final int DRAWABLE_TOP = 1;
+            final int DRAWABLE_RIGHT = 2;
+            final int DRAWABLE_BOTTOM = 3;
 
-//
-        txtPassword.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.e("HUUHOANG with height" + txtEmail.getWidth()  + "-"+ txtEmail.getHeight());
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (txtRetypePassword.getCompoundDrawables()[DRAWABLE_RIGHT] == null) {
+                    return false;
+                }
+                if (event.getRawX() >= (txtRetypePassword.getRight() - txtRetypePassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    Drawable d = txtRetypePassword.getCompoundDrawables()[DRAWABLE_RIGHT];
+                    if (Objects.equals(dName, getResources().getResourceEntryName(R.drawable.ic_eye_closed))) {
+                        txtRetypePassword.setCompoundDrawablesWithIntrinsicBounds(null, null, openDrawable, null);
+                        dName = getResources().getResourceEntryName(R.drawable.ic_eye_open);
+                        txtRetypePassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    } else {
+                        txtRetypePassword.setCompoundDrawablesWithIntrinsicBounds(null, null, getDrawable(R.drawable.ic_eye_closed), null);
+                        txtRetypePassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
-                txtPassword.setWidth(txtEmail.getWidth());
-                txtPassword.setHeight(txtEmail.getHeight());
+                        dName = getResources().getResourceEntryName(R.drawable.ic_eye_closed);
 
+                    }
+                    return true;
+                }
             }
-        },1000);
-
+            return false;
+        });
     }
 
     private void init() {
@@ -365,12 +393,19 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 
     private void setUpShowEyeBallIfSelectedEditext() {
         List<EditText> editTextList = new ArrayList<>();
-        List<TextInputLayout> til = new ArrayList<>();
         editTextList.add(txtPassword);
         editTextList.add(txtRetypePassword);
-        til.add(tilPwd);
-        til.add(tilRePwd);
-        BzzzViewUtils.INSTANCE.showEyeBallWhenTextbox(til,editTextList);
+        BzzzViewUtils.INSTANCE.showEyeBall(this, editTextList,false);
 
     }
+
+    /**
+     * register editext need to toogle
+     */
+    private void setupToogleInputTypeEditext() {
+        BzzzLeftDrawableClickHelper.showHideButton(this,txtPassword,false);
+        BzzzLeftDrawableClickHelper.showHideButton(this,txtRetypePassword,false);
+//        showHideButton(txtRetypePassword);
+    }
+
 }
