@@ -25,6 +25,7 @@ import com.ping.android.presentation.presenters.AddGroupPresenter
 import com.ping.android.presentation.presenters.SearchUserPresenter
 import com.ping.android.presentation.view.adapter.SelectContactAdapter
 import com.ping.android.utils.ImagePickerHelper
+import com.ping.android.utils.Log
 import com.ping.android.utils.Toaster
 import com.ping.android.utils.UiUtils
 import com.ping.android.utils.configs.Constant
@@ -105,9 +106,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
 
         edMessage!!.setOnFocusChangeListener { view, b ->
             if (b) {
-                adapter!!.updateData(ArrayList())
+                adapter.updateData(ArrayList())
             }
         }
+
+        recycleChatView!!.setOnClickListener { checkReadySend() }
     }
 
     private fun init() {
@@ -162,6 +165,7 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
                 recipientsContainer.visibility = View.GONE
             }
         }
+        checkReadySend()
     }
 
     private fun addContact(contact: User) {
@@ -194,9 +198,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
             }
         }
         chipGroup.addView(chip)
+        checkReadySend()
         // Scroll to bottom
         recipientsContainer.visibility = View.VISIBLE
         recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -204,6 +210,7 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
             imagePickerHelper!!.onActivityResult(requestCode, resultCode, data)
         }
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
+            checkReadySend()
             if (resultCode == Activity.RESULT_OK) {
                 val contacts: ArrayList<User> = data!!.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY)
                 chipGroup.removeAllViews()
@@ -224,10 +231,12 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
     }
 
     private fun checkReadySend() {
-        val isEnabled = !(TextUtils.isEmpty(edMessage!!.text.toString().trim { it <= ' ' })
-                || selectedUsers.size <= 0
-                || TextUtils.isEmpty(etGroupName!!.text.toString().trim { it <= ' ' }))
-        new_group_send_message_btn.isEnabled = isEnabled
+        var isEnabled = selectedUsers.size >0 && !TextUtils.isEmpty(etGroupName?.text.toString().trim())
+//        (TextUtils.isEmpty(edMessage!!.text.toString().trim { it <= ' ' })
+//                || selectedUsers.size <= 0
+//                || TextUtils.isEmpty(etGroupName!!.text.toString().trim { it <= ' ' }))
+//        new_group_send_message_btn.isEnabled = isEnabled
+//        isEnabled = selectedUsers.size >0 && TextUtils.isEmpty(etGroupName?.text.toString().trim())
         btSave?.isEnabled = isEnabled
     }
 
