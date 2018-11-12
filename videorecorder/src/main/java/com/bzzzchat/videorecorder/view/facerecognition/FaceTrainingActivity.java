@@ -317,12 +317,12 @@ public class FaceTrainingActivity extends AppCompatActivity {
 
             //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
             //WE WILL USE CAMERA1.
-            if(mCamera2Source.isCamera2Native()) {
+//            if(mCamera2Source.isCamera2Native()) {
                 startCameraSource();
-            } else {
-                useCamera2 = false;
-                if(usingFrontCamera) createCameraSourceFront(); else createCameraSourceBack();
-            }
+//            } else {
+//                useCamera2 = false;
+//                if(usingFrontCamera) createCameraSourceFront(); else createCameraSourceBack();
+//            }
         } else {
             mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
                     .setFacing(CameraSource.CAMERA_FACING_FRONT)

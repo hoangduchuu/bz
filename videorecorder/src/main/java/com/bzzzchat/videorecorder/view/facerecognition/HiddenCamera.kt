@@ -209,9 +209,9 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                 .build()
         //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
         //WE WILL USE CAMERA1.
-        if (mCamera2Source.isCamera2Native) {
-            startCameraSource()
-        }
+//        if (mCamera2Source.isCamera2Native) {
+        startCameraSource()
+//        }
     }
 
     private fun startCameraSource() {
