@@ -35,6 +35,7 @@ import com.ping.android.model.User
 import com.ping.android.presentation.presenters.NewChatPresenter
 import com.ping.android.presentation.presenters.SearchUserPresenter
 import com.ping.android.presentation.view.adapter.SelectContactAdapter
+import com.ping.android.utils.Log
 import com.ping.android.utils.Toaster
 import com.ping.android.utils.configs.Constant
 
@@ -152,11 +153,13 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
                 edtTo.hint = "Username"
             }
         }
+        checkReadySend()
     }
 
     private fun addContact(contact: User) {
         if (selectedUsers.contains(contact)) return
         selectedUsers.add(contact)
+        checkReadySend()
         val chip = Chip(this)
         chip.text = contact.displayName
         //chip.setChipIcon();
@@ -225,7 +228,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     }
 
     private fun checkReadySend() {
-        btnSend.isEnabled = !(TextUtils.isEmpty(edMessage.text.toString().trim { it <= ' ' }) || selectedUsers.size <= 0)
+        btnDone?.isEnabled = !selectedUsers.isEmpty()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

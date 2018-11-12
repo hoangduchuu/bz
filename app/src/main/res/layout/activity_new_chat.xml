@@ -33,6 +33,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:text="DONE"
+                tools:visibility="visible"
                 android:visibility="gone" />
         </RelativeLayout>
 

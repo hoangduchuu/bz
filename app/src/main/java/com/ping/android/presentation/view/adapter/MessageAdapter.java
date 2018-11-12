@@ -365,9 +365,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             switch (model.type) {
                 case TEXT:
                     if (model.isMask) {
-                        message = getLastedSenderNameIfNeeded(conversation)+ CommonMethod.encodeMessage(model.message, mappings);
+                        message = getLastedSenderNameIfNeeded(conversation)+ CommonMethod.encodeMessage(getLastedMsg(conversation), mappings);
                     } else {
-                        message = getLastedSenderNameIfNeeded(conversation)+ model.message;
+                        message = getLastedSenderNameIfNeeded(conversation)+ getLastedMsg(conversation);
                     }
                     break;
                 case IMAGE:
@@ -455,21 +455,46 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         void onSelect(Conversation conversation);
     }
 
+    /**
+     *
+     * @param conversation
+     * @return the text need to display depend on chat type and user
+     * the rule in  ADR-335 ticket
+     */
     private static String getLastedSenderNameIfNeeded(Conversation conversation){
         if (conversation.conversationType != Constant.CONVERSATION_TYPE_GROUP){
             if (conversation.senderId.equals(conversation.currentUserId)){
+                if (conversation.message == null){
+                    return "";
+                }
                 return "You: ";
             }else {
                 return "";
             }
         }
-        else {
+        else { // group chat
             if (conversation.senderId.equals(conversation.currentUserId)){
+                if (conversation.message == null){
+                    return "";
+                }
                 return "You: ";
             }else {
+                if (conversation.message == null){
+                    return "";
+                }
                 return conversation.senderName + ": ";
             }
         }
+    }
+
+    /**
+     *  this function retuen empty string if the message is nul
+     */
+    private static String getLastedMsg(Conversation conversation){
+        if (conversation.message == null) {
+            return "";
+        }
+        return conversation.message;
     }
 
 }
