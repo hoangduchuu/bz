@@ -53,6 +53,7 @@
             android:id="@+id/ccp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:countryPreference="US,VN"
             android:layout_marginStart="20dp"
             app:contentColor="@color/text_input_login_hint"
             android:background="@android:color/transparent" />
