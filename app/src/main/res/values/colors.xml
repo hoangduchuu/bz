@@ -75,6 +75,7 @@
     <color name="bg_network_connecting">#4cd964</color>
     <color name="bg_network_noconnect">#666666</color>
     <color name="yellow">#f7dc2d</color>
+    <color name="yellow_eye">#fbb040</color>
 
     <color name="gray_color_20">#33666666</color>
     <color name="gray_color">#666666</color>

@@ -106,7 +106,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">@dimen/login_padding</item>
         <item name="android:layout_marginEnd">@dimen/login_padding</item>
@@ -124,14 +124,14 @@
     </style>
 
     <style name="EditTextStyle">
-        <item name="colorControlNormal">#666666</item>
-        <item name="colorControlActivated">#666666</item>
-        <item name="colorControlHighlight">#666666</item>
+        <!--<item name="colorControlNormal">#666666</item>-->
+        <!--<item name="colorControlActivated">#666666</item>-->
+        <!--<item name="colorControlHighlight">#666666</item>-->
     </style>
 
     <style name="InputUnderLineStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">0.75dp</item>
+        <item name="android:layout_height">0.1dp</item>
         <item name="android:background">@color/border_input_login</item>
     </style>
 

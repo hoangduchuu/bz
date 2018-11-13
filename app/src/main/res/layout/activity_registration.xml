@@ -113,51 +113,35 @@
             <EditText
                 android:id="@+id/registration_email"
                 style="@style/InputTextStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:hint="@string/registration_email"
                 android:inputType="textEmailAddress"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/registration_ping_id" />
 
-            <RelativeLayout
-                android:id="@+id/registration_password_"
-                android:layout_width="wrap_content"
+
+            <EditText
+                android:id="@+id/registration_password"
+                style="@style/InputTextStyle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/registration_password"
+                android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_email">
+                app:layout_constraintTop_toBottomOf="@+id/registration_email" />
 
-                <EditText
-                    android:id="@+id/registration_password"
-                    style="@style/InputTextStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/registration_password"
-                    android:inputType="textPassword" />
-            </RelativeLayout>
 
-            <RelativeLayout
-                android:id="@+id/registration_retype_password_"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/registration_retype_password"
+                style="@style/InputTextStyle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/registration_confirm_password"
+                android:inputType="textPassword"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_password_">
-
-
-
-                <EditText
-                    android:id="@+id/registration_retype_password"
-                    style="@style/InputTextStyle"
-                    android:inputType="textPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/registration_confirm_password"
-                    />
-            </RelativeLayout>
+                app:layout_constraintTop_toBottomOf="@+id/registration_password" />
 
             <CheckBox
                 android:id="@+id/registration_terms"
@@ -167,7 +151,7 @@
                 android:layout_marginTop="3dp"
                 android:buttonTint="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password_" />
+                app:layout_constraintTop_toBottomOf="@+id/registration_retype_password" />
 
             <TextView
                 android:id="@+id/tv_register_agree_term_of_service"

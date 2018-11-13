@@ -19,7 +19,7 @@ public class BzzzLeftDrawableClickHelper {
         Drawable eyeOpendDrawableRight, leftDrwablePassword;
         dName[0] =context. getResources().getResourceEntryName(R.drawable.ic_eye_closed);
         eyeOpendDrawableRight = context.getResources().getDrawable(R.drawable.ic_eye_open);
-        eyeOpendDrawableRight.setTint(context.getColor(R.color.yellow));
+        eyeOpendDrawableRight.setTint(context.getColor(R.color.yellow_eye));
 
         leftDrwablePassword = context.getResources().getDrawable(R.drawable.ic_login_password);
 
