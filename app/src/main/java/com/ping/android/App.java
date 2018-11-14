@@ -11,6 +11,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.Logger;
 import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.dagger.ApplicationModule;
 import com.ping.android.dagger.DaggerApplicationComponent;
@@ -75,6 +77,9 @@ public class App extends CoreApp implements HasActivityInjector {
         } else {
             // ffmpeg is not supported
         }
+
+        Logger.addLogAdapter(new AndroidLogAdapter());
+
     }
 
     public ApplicationComponent getComponent() {
