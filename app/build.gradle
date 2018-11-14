@@ -46,6 +46,10 @@ android {
             storePassword '123456'
         }
     }
+    aaptOptions {
+        noCompress "tflite"
+        noCompress "lite"
+    }
     buildTypes {
         release {
             debuggable false
@@ -142,9 +146,7 @@ dependencies {
     }
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
-    implementation(project(path: ':videorecorder')) {
-        exclude group: 'org.bytedeco'
-    }
+    implementation project(path: ':videorecorder')
     implementation(project(path: ':rxfirebase')) {
         exclude group: 'com.google.firebase'
     }
@@ -161,18 +163,17 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
     implementation 'androidx.core:core-ktx:1.0.0'
 
-    implementation 'com.android.support:support-v13:28.0.0'
-
     // AUTH
 
-    implementation "com.google.android.gms:play-services-gcm:15.0.1"
-    implementation "com.google.android.gms:play-services-base:15.0.1"
+    implementation "com.google.android.gms:play-services-gcm:16.0.0"
+    implementation("com.google.android.gms:play-services-basement:16.1.0")
 
     implementation "com.google.firebase:firebase-core:${libraries.firebase}"
     implementation "com.google.firebase:firebase-auth:${libraries.firebase_auth}"
     implementation "com.google.firebase:firebase-messaging:${libraries.firebase_messaging}"
     implementation "com.google.firebase:firebase-database:${libraries.firebase_database}"
     implementation "com.google.firebase:firebase-storage:${libraries.firebase_storage}"
+
     implementation('com.firebaseui:firebase-ui-storage:4.0.1') {
         exclude group: 'com.android.support'
         exclude group: 'com.github.bumptech.glide'
@@ -229,7 +230,8 @@ dependencies {
     implementation "com.google.dagger:dagger:${libraries.dagger}"
     kapt "com.google.dagger:dagger-compiler:${libraries.dagger}"
     implementation "com.google.dagger:dagger-android:${libraries.dagger}"
-    implementation "com.google.dagger:dagger-android-support:${libraries.dagger}" // if you use the support libraries
+    implementation "com.google.dagger:dagger-android-support:${libraries.dagger}"
+    // if you use the support libraries
     kapt "com.google.dagger:dagger-android-processor:${libraries.dagger}"
 
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
@@ -243,11 +245,11 @@ dependencies {
     implementation 'com.cleveroad:audiovisualization:1.0.0'
     implementation 'nl.bravobit:android-ffmpeg:1.1.2'
 
-//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.1'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-arm'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.1-1.4.1', classifier: 'android-x86'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-arm'
-//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '3.4.2-1.4.1', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco', name: 'javacv', version: '1.4.2'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.4.2-1.4.2', classifier: 'android-x86'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.1-1.4.2', classifier: 'android-arm'
+//    implementation group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '4.0.1-1.4.2', classifier: 'android-x86'
 
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.4'
 

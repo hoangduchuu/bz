@@ -69,6 +69,7 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendSticker(@NotNull File file, boolean isMask);
 
+    void userRecognized();
     void sendSticker(String stickerPath);
 
     void sendGifs(String gifUrl);

@@ -457,6 +457,15 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return messageBaseItems;
     }
 
+    public void userRecognized() {
+        for (FlexibleItem item: this.items) {
+            if (item instanceof MessageBaseItem) {
+                ((MessageBaseItem) item).message.isMask = false;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     public interface ChatMessageListener {
         void handleProfileImagePress(String senderId, Pair<View, String>... sharedElements);
 

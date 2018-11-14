@@ -23,7 +23,7 @@ class KeyboardHeightProvider
  * @param activity The parent activity_main
  */
 (
-        /** The root activity_main that uses this KeyboardHeightProvider  */
+        /** The root activity_face_training that uses this KeyboardHeightProvider  */
         private val activity: AppCompatActivity) : PopupWindow(activity) {
 
     /** The keyboard height observer  */
@@ -107,7 +107,7 @@ class KeyboardHeightProvider
     /**
      * Popup window itself is as big as the window of the Activity.
      * The keyboard can then be calculated by extracting the popup view bottom
-     * from the activity_main window height.
+     * from the activity_face_training window height.
      */
     private fun handleOnGlobalLayout() {
 

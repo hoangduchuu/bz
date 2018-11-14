@@ -153,6 +153,8 @@ class VideoRecorderActivity : Activity() {
  *
  * @param text The message to show
  */
-fun Activity.showToast(text: String) {
-    runOnUiThread { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
+fun Activity.showToast(text: String): Toast {
+    val toast = Toast.makeText(this, text, Toast.LENGTH_SHORT)
+    toast.show()
+    return toast
 }

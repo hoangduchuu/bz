@@ -8,7 +8,6 @@ import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
@@ -30,10 +29,9 @@ import com.bzzzchat.cleanarchitecture.BasePresenter
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.dp
 import com.bzzzchat.extensions.px
-import com.bzzzchat.videorecorder.view.PhotoItem
-import com.bzzzchat.videorecorder.view.VideoPlayerActivity
-import com.bzzzchat.videorecorder.view.VideoRecorderActivity
-import com.bzzzchat.videorecorder.view.withDelay
+import com.bzzzchat.videorecorder.view.*
+import com.bzzzchat.videorecorder.view.facerecognition.HiddenCamera
+import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
@@ -122,21 +120,38 @@ class ChatActivity : CoreActivity(),
         dialog
     }
 
-    private val prefs: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(this)
-    }
-
-//    private val listener: SharedPreferences.OnSharedPreferenceChangeListener by lazy {
-//        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-//            if (key == Constant.PREFS_KEY_MESSAGE_COUNT) {
-//                val messageCount = prefs.getInt(key, 0)
-//                updateMessageCount(messageCount)
-//            }
-//        }
-//    }
-
     private var textWatcher: TextWatcher? = null
 
+    private var toast: Toast? = null
+
+    private val hiddenCamera: HiddenCamera by lazy {
+        HiddenCamera(this, object: RecognitionCallback {
+            override fun onRecognitionSuccess() {
+                toast?.cancel()
+                toast = showToast("Recognized user")
+                presenter.userRecognized()
+                // FIXME: for now, update directly in adapter
+                messagesAdapter.userRecognized()
+            }
+        })
+    }
+    private val motionDetector: MotionDetector by lazy {
+        val callback = object: MotionCallback {
+            override fun onExtraInfo(extraInfo: ExtraInfo) {
+
+            }
+
+            override fun onTable() {
+
+            }
+
+            override fun pickedUp() {
+
+            }
+
+        }
+        MotionDetector(this, callback)
+    }
     private val shakeEventManager: ShakeEventManager by lazy {
         ShakeEventManager(this)
     }
@@ -223,6 +238,7 @@ class ChatActivity : CoreActivity(),
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
+        hiddenCamera.onResume()
         keyboardHeightProvider.setKeyboardHeightObserver(this)
         resetButtonState()
         hideAllBottomViews()
@@ -239,6 +255,7 @@ class ChatActivity : CoreActivity(),
 
     override fun onPause() {
         super.onPause()
+        hiddenCamera.onPause()
         shakeEventManager.unregister()
         keyboardHeightProvider.setKeyboardHeightObserver(null)
         isTyping = false
@@ -249,6 +266,7 @@ class ChatActivity : CoreActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
+        hiddenCamera.onDestroy()
         keyboardHeightProvider.close()
         messagesAdapter.destroy()
         if (layoutVoice != null) {
@@ -664,6 +682,10 @@ class ChatActivity : CoreActivity(),
         //}
         container.post {
             keyboardHeightProvider.start()
+        }
+
+        if (SharedPrefsHelper.getInstance().isFaceIdEnable) {
+            hiddenCamera.initWithActivity(this)
         }
     }
 
