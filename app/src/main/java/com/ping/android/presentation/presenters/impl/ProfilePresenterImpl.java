@@ -1,8 +1,11 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.LogoutUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
+import com.ping.android.domain.usecase.auth.AuthenticateUseCase;
+import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserNotificationSettingUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserPrivateProfileSettingUseCase;
 import com.ping.android.domain.usecase.user.UploadUserProfileImageUseCase;
@@ -33,6 +36,9 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
     @Inject
     public ProfilePresenterImpl() {}
+
+    @Inject
+    CheckPasswordUseCase checkPasswordUseCase;
 
     @Override
     public void create() {
@@ -110,6 +116,21 @@ public class ProfilePresenterImpl implements ProfilePresenter {
                 view.hideLoading();
             }
         }, profileFilePath);
+    }
+
+    @Override
+    public void checkPassword(String password) {
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.hideLoading();
+            }
+        }, password);
     }
 
     @Override

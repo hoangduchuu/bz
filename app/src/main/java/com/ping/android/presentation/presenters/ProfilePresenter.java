@@ -17,6 +17,8 @@ public interface ProfilePresenter extends BasePresenter {
 
     void uploadUserProfile(String profileFilePath);
 
+    void checkPassword(String password);
+
     interface View extends BaseView {
 
         void updateUser(User user);

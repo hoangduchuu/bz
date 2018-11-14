@@ -88,4 +88,6 @@ public interface UserRepository {
     Observable<User> checkValidUser(String userName);
 
     Observable<User> observeUsersChanged();
+
+    Observable<Boolean> checkPassword(String password);
 }
