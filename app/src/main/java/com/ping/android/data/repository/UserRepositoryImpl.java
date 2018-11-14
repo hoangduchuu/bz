@@ -26,6 +26,7 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.exeption.BzzzExeption;
 import com.ping.android.model.Badge;
 import com.ping.android.model.User;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -526,9 +527,11 @@ public class UserRepositoryImpl implements UserRepository {
                 auth.signInWithEmailAndPassword(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()),password)
                         .addOnSuccessListener(authResult -> {
                             emitter.onNext(true);
+                            emitter.onComplete();
                         }).addOnFailureListener(e -> {
                             emitter.onNext(false);
                             emitter.onError(new BzzzExeption(BzzzExeption.Companion.getUnknown(), e.getLocalizedMessage()));
+                            emitter.onComplete();
                         }).addOnCompleteListener(task -> {
                             emitter.onComplete();
                         });

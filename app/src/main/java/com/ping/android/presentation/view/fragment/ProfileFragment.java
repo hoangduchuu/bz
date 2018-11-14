@@ -13,8 +13,11 @@ import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
 import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity;
@@ -30,6 +33,7 @@ import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
@@ -191,10 +195,15 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onTrainingFaceClicked() {
-        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
-            showFaceTrainingItem();
-        } else {
+//        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+//            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+//            showFaceTrainingItem();
+//        }
+        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()){
+            showRequirePasswordForm();
+        }
+
+        else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
             startActivityForResult(intent, 1111);
 //            Intent intent = new Intent(getContext(), AddPersonPreviewActivity.class);
@@ -385,5 +394,32 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 .setPositiveButton(getString(R.string.profile_ok), (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
+    }
+
+    @Override
+    public void showRequirePasswordForm() {
+        View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_check_password, null);
+        EditText password = promptsView.findViewById(R.id.tvPassword);
+        AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                .setTitle("")
+                .setView(promptsView)
+                .setPositiveButton(getString(R.string.profile_send), (dialog12, which) -> {
+                         presenter.checkPassword(password.getText().toString().trim());
+                })
+                .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> dialog1.dismiss())
+                .create();
+        Objects.requireNonNull(dialog.getWindow()).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    @Override
+    public void handleConfirmPasswordError(String errorMsg) {
+        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void handleConfirmPasswordSuccess() {
+        Toast.makeText(getContext(), "handleConfirmPasswordSuccess", Toast.LENGTH_SHORT).show();
+
     }
 }

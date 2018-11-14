@@ -9,8 +9,10 @@ import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserNotificationSettingUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserPrivateProfileSettingUseCase;
 import com.ping.android.domain.usecase.user.UploadUserProfileImageUseCase;
+import com.ping.android.exeption.BzzzExeption;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +37,8 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     UploadUserProfileImageUseCase uploadUserProfileImageUseCase;
 
     @Inject
-    public ProfilePresenterImpl() {}
+    public ProfilePresenterImpl() {
+    }
 
     @Inject
     CheckPasswordUseCase checkPasswordUseCase;
@@ -120,15 +123,29 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
     @Override
     public void checkPassword(String password) {
+        view.showLoading();
         checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
+                if (aBoolean){
+                    view.handleConfirmPasswordSuccess();
+                }else {
+                    view.handleConfirmPasswordError("Confirm Password Failed");
+
+                }
                 view.hideLoading();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
+                view.handleConfirmPasswordError(exception.getLocalizedMessage());
                 view.hideLoading();
+
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
             }
         }, password);
     }

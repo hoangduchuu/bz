@@ -9,4 +9,8 @@
     <string name="profile_email">Email:</string>
     <string name="profile_primary">Primary:</string>
     <string name="profile_ok">OK</string>
+    <string name="profile_enter_your_password">Enter Your Password</string>
+    <string name="profile_enter_password">Enter Password</string>
+    <string name="profile_cancel">CANCEL</string>
+    <string name="profile_send">SEND</string>
 </resources>

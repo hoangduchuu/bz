@@ -26,5 +26,10 @@ public interface ProfilePresenter extends BasePresenter {
         void navigateToLogin();
 
         void showErrorLogoutFailed();
+
+        void showRequirePasswordForm();
+
+        void handleConfirmPasswordSuccess();
+        void handleConfirmPasswordError(String errorMsg);
     }
 }
