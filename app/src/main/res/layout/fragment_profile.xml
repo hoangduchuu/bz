@@ -118,10 +118,11 @@
             <com.ping.android.presentation.view.custom.SettingItem
                 android:id="@+id/profile_face_training"
                 style="@style/ItemSetting"
+                tools:visibility="visible"
                 android:visibility="gone"
                 app:leftIcon="@drawable/ic_profile_hide_profile"
                 app:showDivider="false"
-                app:titleText="Face training">
+                app:titleText="@string/profile_face_training">
 
                 <ImageView
                     style="@style/ItemSettingIconRight" />

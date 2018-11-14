@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,6 +38,7 @@ import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -56,6 +58,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
 
+    private Boolean isTrained = false;
     @Inject
     ProfilePresenter presenter;
 
@@ -158,7 +161,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 onShowProfileClick();
                 break;
             case R.id.profile_face_training:
-                onTrainingFace();
+                onTrainingFaceClicked();
                 break;
             case R.id.profile_faceid:
                 onSelectFaceId();
@@ -181,13 +184,13 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private void showFaceTrainingItem() {
         faceTrainingItem.setVisibility(View.VISIBLE);
         if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-            faceTrainingItem.setTitle("Delete trained data");
+            faceTrainingItem.setTitle(getString(R.string.profile_delete_face_trained));
         } else {
-            faceTrainingItem.setTitle("Face training");
+            faceTrainingItem.setTitle(getString(R.string.profile_face_training));
         }
     }
 
-    private void onTrainingFace() {
+    private void onTrainingFaceClicked() {
         if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
             SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
             showFaceTrainingItem();
@@ -209,23 +212,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onViewUsername() {
         LayoutInflater li = LayoutInflater.from(getContext());
-        View promptsView = li.inflate(R.layout.dialog_detail_username, null);
+        @SuppressLint("InflateParams") View promptsView = li.inflate(R.layout.dialog_detail_username, null);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
 
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(promptsView);
 
         final TextView nameTv = promptsView.findViewById(R.id.dialog_username_name);
-        nameTv.setText("Username: " + currentUser.pingID);
+        nameTv.setText(String.format("%s %s", getString(R.string.profile_user_name), currentUser.pingID));
 
         final TextView emailTv = promptsView.findViewById(R.id.dialog_username_email);
-        emailTv.setText("Email: " + currentUser.email);
+        emailTv.setText(String.format("%s %s", getString(R.string.profile_email), currentUser.email));
 
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(getString(R.string.profile_ok), null);
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -244,12 +247,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         alertDialogBuilder.setView(promptsView);
 
         final TextView phoneTv = promptsView.findViewById(R.id.dialog_phone_number);
-        phoneTv.setText("Primary: " + currentUser.phone);
+        phoneTv.setText(String.format("%s%s", getString(R.string.profile_primary), currentUser.phone));
 
         // set dialog message
         alertDialogBuilder
                 .setCancelable(false)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(getString(R.string.profile_ok), null);
 
         // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
@@ -316,7 +319,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onChangePwd() {
         if (!isNetworkAvailable()) {
-            Toaster.shortToast("Please check network connection.");
+            Toaster.shortToast(getString(R.string.profile_check_network));
             return;
         }
         startActivity(new Intent(getActivity(), ChangePasswordActivity.class));
@@ -324,10 +327,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void onChangeProfile(View view) {
         if (!isNetworkAvailable()) {
-            Toaster.shortToast("Please check network connection.");
+            Toaster.shortToast(getString(R.string.profile_check_network));
             return;
         }
-        profileFileFolder = getActivity().getExternalFilesDir(null).getAbsolutePath() + File.separator +
+        profileFileFolder = Objects.requireNonNull(getActivity().getExternalFilesDir(null)).getAbsolutePath() + File.separator +
                 "profile" + File.separator + currentUser.key;
         CommonMethod.createFolder(profileFileFolder);
         double timestamp = System.currentTimeMillis() / 1000d;
@@ -371,15 +374,15 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         UsersUtils.removeUserData(getContext());
         ShortcutBadger.applyCount(getActivity(), 0);
         startActivity(new Intent(getActivity(), RegistrationActivity.class));
-        getActivity().finish();
+        Objects.requireNonNull(getActivity()).finish();
     }
 
     @Override
     public void showErrorLogoutFailed() {
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setTitle("Logout Failed")
-                .setMessage("Please try again later!")
-                .setPositiveButton("OK", (dialog1, which) -> dialog1.dismiss())
+        AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                .setTitle(getString(R.string.profile_logout_falied))
+                .setMessage(getString(R.string.profile_try_again_later))
+                .setPositiveButton(getString(R.string.profile_ok), (dialog1, which) -> dialog1.dismiss())
                 .create();
         dialog.show();
     }
