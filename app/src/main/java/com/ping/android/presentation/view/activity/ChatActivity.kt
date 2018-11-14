@@ -93,6 +93,11 @@ class ChatActivity : CoreActivity(),
     private var tvNewMsgCount: TextView? = null
     private var btnSend: ImageView? = null
 
+    /**
+     * state of face recognize is enable or not
+     */
+    private var isEnabledFaceRecognize: Boolean = false
+
     private val chatGameMenu: BottomSheetDialog by lazy {
         // Bottom chat menu
         val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
@@ -238,7 +243,9 @@ class ChatActivity : CoreActivity(),
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
-        hiddenCamera.onResume()
+        if (isEnabledFaceRecognize) {
+            hiddenCamera.onResume()
+        }
         keyboardHeightProvider.setKeyboardHeightObserver(this)
         resetButtonState()
         hideAllBottomViews()
@@ -255,7 +262,9 @@ class ChatActivity : CoreActivity(),
 
     override fun onPause() {
         super.onPause()
-        hiddenCamera.onPause()
+        if (isEnabledFaceRecognize){
+            hiddenCamera.onPause()
+        }
         shakeEventManager.unregister()
         keyboardHeightProvider.setKeyboardHeightObserver(null)
         isTyping = false
@@ -266,7 +275,9 @@ class ChatActivity : CoreActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        hiddenCamera.onDestroy()
+        if (isEnabledFaceRecognize) {
+            hiddenCamera.onDestroy()
+        }
         keyboardHeightProvider.close()
         messagesAdapter.destroy()
         if (layoutVoice != null) {
@@ -684,7 +695,9 @@ class ChatActivity : CoreActivity(),
             keyboardHeightProvider.start()
         }
 
-        if (SharedPrefsHelper.getInstance().isFaceIdEnable) {
+        isEnabledFaceRecognize = SharedPrefsHelper.getInstance().isFaceIdEnable
+
+        if (isEnabledFaceRecognize) {
             hiddenCamera.initWithActivity(this)
         }
     }
