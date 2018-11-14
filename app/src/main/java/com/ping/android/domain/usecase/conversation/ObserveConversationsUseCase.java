@@ -13,6 +13,7 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -80,12 +81,19 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                                 }
                                             }
                                             userManager.setIndividualConversation(conversation);
-                                            conversation.senderName = getSenderNameFromSenderId(conversation);
+//                                            conversation.senderName = getSenderNameFromSenderId(conversation);
 
                                         } else {
                                             for (User user : users) {
                                                 if (user.key.equals(conversation.senderId)) {
-                                                    conversation.senderName = user.firstName;
+                                                    // huu adr 335
+                                                    String nick =conversation.nickNames.get(user.key);
+                                                    if (nick!=null && nick.length() >0){
+                                                        conversation.senderName = nick;
+                                                    }else {
+                                                        conversation.senderName = user.firstName;
+                                                    }
+
                                                     break;
                                                 }
 

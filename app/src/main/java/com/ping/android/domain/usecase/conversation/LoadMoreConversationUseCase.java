@@ -12,6 +12,7 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +97,14 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                     if (!currenetUser.key.equals(userId)) {
                                                         return getUser(userId)
                                                                 .map(user1 -> {
-                                                                    conversation.senderName = user1.firstName;
+                                                                    //HUU
+                                                                    String nick = conversation.nickNames.get(user1.key);
+                                                                    assert nick != null;
+                                                                    if (nick!=null && nick.length() >0){
+                                                                        conversation.senderName = nick;
+                                                                    }else {
+                                                                        conversation.senderName = user1.firstName;
+                                                                    }
                                                                     return conversation;
                                                                 })
                                                                 .doOnNext(con -> userManager.setIndividualConversation(conversation))
