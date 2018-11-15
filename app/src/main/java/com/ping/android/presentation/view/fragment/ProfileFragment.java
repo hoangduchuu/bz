@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
@@ -175,12 +176,40 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         SharedPrefsHelper.getInstance().setFaceIdEnable(faceId.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceId.isChecked()) {
-            faceTrainingItem.setVisibility(View.GONE);
-            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
-            FaceRecognition.Companion.getInstance(this.getContext()).removeTrainingData();
+            if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+                requireTurnOffFaceID();
+            } else {
+                hideFaceTrainingItem();
+            }
         } else {
             showFaceTrainingItem();
         }
+    }
+
+    private void requireTurnOffFaceID() {
+        View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_check_password, null);
+        EditText password = promptsView.findViewById(R.id.tvPassword);
+        AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
+                .setTitle("")
+                .setView(promptsView)
+                .setPositiveButton(getString(R.string.profile_send), (dialog12, which) -> {
+                    presenter.checkPasswordRequireTurnOffFaceId(password.getText().toString().trim());
+                })
+                .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> {
+                    dialog1.dismiss();
+                    faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdCompleteTraining());
+
+                })
+                .setCancelable(false)
+                .create();
+        Objects.requireNonNull(dialog.getWindow()).setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void hideFaceTrainingItem() {
+        faceTrainingItem.setVisibility(View.GONE);
+        SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+        FaceRecognition.Companion.getInstance(this.getContext()).removeTrainingData();
     }
 
     private void showFaceTrainingItem() {
@@ -199,11 +228,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 //            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
 //            showFaceTrainingItem();
 //        }
-        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()){
+        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
             showRequirePasswordForm();
-        }
-
-        else {
+        } else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
             startActivityForResult(intent, 1111);
 //            Intent intent = new Intent(getContext(), AddPersonPreviewActivity.class);
@@ -404,7 +431,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 .setTitle("")
                 .setView(promptsView)
                 .setPositiveButton(getString(R.string.profile_send), (dialog12, which) -> {
-                         presenter.checkPassword(password.getText().toString().trim());
+                    presenter.checkPassword(password.getText().toString().trim());
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> dialog1.dismiss())
                 .create();
@@ -414,12 +441,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleConfirmPasswordError(String errorMsg) {
-        showConfirmMessageDialog(getString(R.string.profile_disable_face_failed),errorMsg);
+        showConfirmMessageDialog(getString(R.string.profile_disable_face_failed), errorMsg);
     }
 
     @Override
     public void handleDeleteFaceIdSuccess() {
         SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
         showFaceTrainingItem();
+    }
+
+    @Override
+    public void handleRequireTurnOffFaceIDSError(String errorMsg) {
+        faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdCompleteTraining());
+        showConfirmMessageDialog(getString(R.string.profile_disable_face_failed), errorMsg);
+    }
+
+    @Override
+    public void handleRequireTurnOffFaceIDSuccess() {
+        hideFaceTrainingItem();
     }
 }

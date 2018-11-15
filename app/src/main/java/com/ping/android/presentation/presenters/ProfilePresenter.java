@@ -19,6 +19,8 @@ public interface ProfilePresenter extends BasePresenter {
 
     void checkPassword(String password);
 
+    void checkPasswordRequireTurnOffFaceId(String trim);
+
     interface View extends BaseView {
 
         void updateUser(User user);
@@ -31,5 +33,8 @@ public interface ProfilePresenter extends BasePresenter {
 
         void handleDeleteFaceIdSuccess();
         void handleConfirmPasswordError(String errorMsg);
+
+        void handleRequireTurnOffFaceIDSError(String errorMsg);
+        void handleRequireTurnOffFaceIDSuccess();
     }
 }

@@ -147,6 +147,35 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     }
 
     @Override
+    public void checkPasswordRequireTurnOffFaceId(String password) {
+        view.showLoading();
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                if (aBoolean){
+                    view.handleRequireTurnOffFaceIDSuccess();
+                }else {
+                    view.handleRequireTurnOffFaceIDSError("Confirm Password Failed");
+
+                }
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.handleRequireTurnOffFaceIDSError(exception.getLocalizedMessage());
+                view.hideLoading();
+
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+            }
+        }, password);
+    }
+
+    @Override
     public void destroy() {
         view = null;
         logoutUseCase.dispose();
