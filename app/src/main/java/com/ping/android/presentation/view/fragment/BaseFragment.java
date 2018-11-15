@@ -82,6 +82,13 @@ public class BaseFragment extends Fragment {
         }
     }
 
+    public void showConfirmMessageDialog(String title,String message){
+        Activity activity = getActivity();
+        if (activity instanceof CoreActivity) {
+            ((CoreActivity) activity).showConfirmMessageDialog(title,message);
+        }
+    }
+
     public boolean isNetworkAvailable() {
         Activity activity = getActivity();
         return activity instanceof CoreActivity && ((CoreActivity) activity).networkStatus == NetworkStatus.CONNECTED;

@@ -1,12 +1,16 @@
 package com.ping.android.presentation.view.activity;
 
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,7 +21,6 @@ import com.ping.android.dagger.ApplicationComponent;
 import com.ping.android.model.enums.NetworkStatus;
 import com.ping.android.presentation.view.fragment.LoadingDialog;
 import com.ping.android.service.CallService;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.NetworkConnectionChecker;
 import com.ping.android.utils.SharedPrefsHelper;
 
@@ -33,6 +36,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
     private AtomicBoolean showLoading = new AtomicBoolean(false);
     private Handler netWorkHandler = new Handler();
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
 
     @Inject
     NetworkConnectionChecker networkConnectionChecker;
@@ -183,5 +188,33 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         Integer qbId = SharedPrefsHelper.getInstance().get("quickbloxId");
         String pingId = SharedPrefsHelper.getInstance().get("pingId");
         CallService.start(context, qbId, pingId);
+    }
+
+    // HUU
+    /**
+     * show alert dialogBuilder
+     */
+    public void showConfirmMessageDialog(String title, String message){
+        if (dialogBuilder == null){
+            dialogBuilder = new AlertDialog.Builder(this);
+        }
+        dialogBuilder.setTitle(title).setMessage(message)
+                .setPositiveButton(getString(R.string.core_ok), (dialog, which) -> dialog.dismiss());
+        if (dialog == null){
+            dialog = dialogBuilder.create();
+        }
+        new Handler().postDelayed(() -> {
+            dialog.show();
+            makePositiveButtonCenter();
+        },200);
+    }
+
+    private void makePositiveButtonCenter() {
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        LinearLayout parent = (LinearLayout) positiveButton.getParent();
+        positiveButton.setLayoutParams(new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.MATCH_PARENT));
+        parent.setGravity(Gravity.CENTER_HORIZONTAL);
+        View leftSpacer = parent.getChildAt(1);
+        leftSpacer.setVisibility(View.GONE);
     }
 }
