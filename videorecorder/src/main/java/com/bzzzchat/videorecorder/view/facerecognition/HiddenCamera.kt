@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 interface RecognitionCallback {
     fun onRecognitionSuccess()
+    fun onRecognizingError()
 }
 
 class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
@@ -69,6 +70,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         if (result == FaceRecognitionResult.SUCCESS){
             onRecognizedUser(path)
         }else{
+            callback.onRecognizingError()
             confidenceCounter.incrementAndGet()
         }
 //        if (faceData.label > 0) {

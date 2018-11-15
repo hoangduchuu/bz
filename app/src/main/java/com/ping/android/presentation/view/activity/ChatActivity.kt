@@ -138,6 +138,9 @@ class ChatActivity : CoreActivity(),
                 // FIXME: for now, update directly in adapter
                 messagesAdapter.userRecognized()
             }
+            override fun onRecognizingError() {
+    
+            }
         })
     }
     private val motionDetector: MotionDetector by lazy {
