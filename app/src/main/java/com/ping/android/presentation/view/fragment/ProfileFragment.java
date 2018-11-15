@@ -17,7 +17,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
 import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity;
@@ -33,7 +32,6 @@ import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
@@ -189,8 +187,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         faceTrainingItem.setVisibility(View.VISIBLE);
         if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
             faceTrainingItem.setTitle(getString(R.string.profile_delete_face_trained));
+            faceTrainingItem.setTitleColor(getResources().getColor(R.color.button_end_call_pressed_color));
         } else {
-            faceTrainingItem.setTitle(getString(R.string.profile_face_training));
+            faceTrainingItem.setTitle(getString(R.string.profile_face_training_setup));
+            faceTrainingItem.setTitleColor(getResources().getColor(R.color.color_face_id));
         }
     }
 

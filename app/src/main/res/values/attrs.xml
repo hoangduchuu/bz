@@ -34,5 +34,7 @@
         <attr name="leftIconTint" format="reference" />
         <attr name="titleText" format="string|reference" />
         <attr name="titleColor" format="reference" />
+        <attr name="headerText" format="string|reference" />
+        <attr name="useHtml" format="boolean"/>
     </declare-styleable>
 </resources>

@@ -1,6 +1,8 @@
 package com.ping.android.presentation.view.custom
 
 import android.content.Context
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import android.util.AttributeSet
@@ -42,8 +44,17 @@ class SettingItem : ConstraintLayout {
                 val leftIconTintColor = typeArray.getColor(R.styleable.SettingItem_leftIconTint, ContextCompat.getColor(context, R.color.orange))
                 leftIcon.setColorFilter(leftIconTintColor, android.graphics.PorterDuff.Mode.SRC_IN)
             }
-            val title = typeArray.getString(R.styleable.SettingItem_titleText)
-            tv_title.text = title
+            val isUseHTML = typeArray.getBoolean(R.styleable.SettingItem_useHtml,false)
+            if (typeArray.hasValue(R.styleable.SettingItem_useHtml) || isUseHTML){
+                val title = typeArray.getString(R.styleable.SettingItem_titleText)
+                tv_title.setText(Html.fromHtml(title));
+                tv_title.setMovementMethod(LinkMovementMethod.getInstance());
+
+            }else{
+                val title = typeArray.getString(R.styleable.SettingItem_titleText)
+                tv_title.text = title
+            }
+
             val color = typeArray.getColor(R.styleable.SettingItem_titleColor, ContextCompat.getColor(context, R.color.black))
             tv_title.setTextColor(color)
             divider.visibility = if (showDivider) View.VISIBLE else View.GONE
@@ -53,6 +64,10 @@ class SettingItem : ConstraintLayout {
 
     fun setTitle(title: String) {
         tv_title.text = title
+    }
+
+    fun setTitleColor(colorInt: Int){
+        tv_title.setTextColor(colorInt)
     }
 
     fun setDividerVisibility(visible: Boolean) {

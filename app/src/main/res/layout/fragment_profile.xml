@@ -52,6 +52,34 @@
                 android:textSize="18sp" />
 
             <com.ping.android.presentation.view.custom.SettingItem
+                style="@style/ItemSetting"
+                android:layout_height="88dp"
+                android:layout_marginTop="@dimen/setting_item_separate"
+                app:leftIcon="@drawable/ic_face_id"
+                app:useHtml="true"
+                app:headerText="@string/profile_faceid_html_note"
+                app:titleText="@string/profile_faceid_html_note">
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/profile_faceid"
+                    style="@style/ItemSettingIconRight.Toggle"
+                    app:track="@drawable/ic_switch_track_tim"
+                    tools:checked="true" />
+            </com.ping.android.presentation.view.custom.SettingItem>
+
+            <com.ping.android.presentation.view.custom.SettingItem
+                android:id="@+id/profile_face_training"
+                style="@style/ItemSetting"
+                tools:visibility="visible"
+                android:visibility="gone"
+                app:leftIcon="@drawable/clone_blank_setting_icon_item"
+                app:showDivider="false"
+                app:titleText="@string/profile_face_training_setup">
+
+                <ImageView
+                    style="@style/ItemSettingIconRight" />
+            </com.ping.android.presentation.view.custom.SettingItem>
+
+            <com.ping.android.presentation.view.custom.SettingItem
                 android:id="@+id/profile_username_detail"
                 style="@style/ItemSetting"
                 android:layout_marginTop="10dp"
@@ -102,31 +130,7 @@
                     style="@style/ItemSettingIconRight" />
             </com.ping.android.presentation.view.custom.SettingItem>
 
-            <com.ping.android.presentation.view.custom.SettingItem
-                style="@style/ItemSetting"
-                android:layout_marginTop="@dimen/setting_item_separate"
-                app:leftIcon="@drawable/ic_profile_hide_profile"
-                app:titleText="Face ID mask/unmask">
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/profile_faceid"
-                    style="@style/ItemSettingIconRight.Toggle"
-                    app:track="@drawable/ic_switch_track_red"
-                    tools:checked="true" />
-            </com.ping.android.presentation.view.custom.SettingItem>
-
-            <com.ping.android.presentation.view.custom.SettingItem
-                android:id="@+id/profile_face_training"
-                style="@style/ItemSetting"
-                tools:visibility="visible"
-                android:visibility="gone"
-                app:leftIcon="@drawable/ic_profile_hide_profile"
-                app:showDivider="false"
-                app:titleText="@string/profile_face_training">
-
-                <ImageView
-                    style="@style/ItemSettingIconRight" />
-            </com.ping.android.presentation.view.custom.SettingItem>
 
             <com.ping.android.presentation.view.custom.SettingItem
                 style="@style/ItemSetting"
