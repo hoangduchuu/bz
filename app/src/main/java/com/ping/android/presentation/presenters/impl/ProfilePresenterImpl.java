@@ -1,18 +1,14 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
-import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.LogoutUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
-import com.ping.android.domain.usecase.auth.AuthenticateUseCase;
 import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserNotificationSettingUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserPrivateProfileSettingUseCase;
 import com.ping.android.domain.usecase.user.UploadUserProfileImageUseCase;
-import com.ping.android.exeption.BzzzExeption;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
-import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -128,7 +124,7 @@ public class ProfilePresenterImpl implements ProfilePresenter {
             @Override
             public void onNext(Boolean aBoolean) {
                 if (aBoolean){
-                    view.handleConfirmPasswordSuccess();
+                    view.handleDeleteFaceIdSuccess();
                 }else {
                     view.handleConfirmPasswordError("Confirm Password Failed");
 

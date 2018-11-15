@@ -29,7 +29,7 @@ public interface ProfilePresenter extends BasePresenter {
 
         void showRequirePasswordForm();
 
-        void handleConfirmPasswordSuccess();
+        void handleDeleteFaceIdSuccess();
         void handleConfirmPasswordError(String errorMsg);
     }
 }

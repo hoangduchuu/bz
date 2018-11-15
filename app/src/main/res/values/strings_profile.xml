@@ -13,4 +13,5 @@
     <string name="profile_enter_password">Enter Password</string>
     <string name="profile_cancel">CANCEL</string>
     <string name="profile_send">SEND</string>
+    <string name="profile_disable_face_failed">DISABLE FACE ID FAILED</string>
 </resources>

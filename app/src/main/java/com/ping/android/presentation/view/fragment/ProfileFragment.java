@@ -414,12 +414,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleConfirmPasswordError(String errorMsg) {
-        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+        showConfirmMessageDialog(getString(R.string.profile_disable_face_failed),errorMsg);
     }
 
     @Override
-    public void handleConfirmPasswordSuccess() {
-        Toast.makeText(getContext(), "handleConfirmPasswordSuccess", Toast.LENGTH_SHORT).show();
-
+    public void handleDeleteFaceIdSuccess() {
+        SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+        showFaceTrainingItem();
     }
 }
