@@ -150,4 +150,21 @@
         layout="@layout/notify_network_main"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="45dp" />
+
+    <com.ping.android.presentation.view.custom.facerecogloading.LoadingRecognizeView
+        android:layout_width="77dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="8dp"
+        android:id="@+id/pbFaceId"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/chat_bottom_layout"
+        app:layout_constraintEnd_toEndOf="@+id/swiperefresh"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.664">
+
+    </com.ping.android.presentation.view.custom.facerecogloading.LoadingRecognizeView>
 </androidx.constraintlayout.widget.ConstraintLayout>

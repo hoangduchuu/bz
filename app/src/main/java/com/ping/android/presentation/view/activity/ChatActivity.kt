@@ -46,6 +46,7 @@ import com.ping.android.model.enums.VoiceType
 import com.ping.android.presentation.presenters.ChatPresenter
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter
 import com.ping.android.presentation.view.custom.*
+import com.ping.android.presentation.view.custom.facerecogloading.LoadingRecognizeView
 import com.ping.android.presentation.view.custom.media.MediaPickerListener
 import com.ping.android.presentation.view.custom.media.MediaPickerView
 import com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
@@ -92,6 +93,7 @@ class ChatActivity : CoreActivity(),
     private var tvChatName: TextView? = null
     private var tvNewMsgCount: TextView? = null
     private var btnSend: ImageView? = null
+    private var progressFaceId : LoadingRecognizeView ? = null
 
     /**
      * state of face recognize is enable or not
@@ -133,13 +135,22 @@ class ChatActivity : CoreActivity(),
         HiddenCamera(this, object: RecognitionCallback {
             override fun onRecognitionSuccess() {
                 toast?.cancel()
-                toast = showToast("Recognized user")
                 presenter.userRecognized()
                 // FIXME: for now, update directly in adapter
                 messagesAdapter.userRecognized()
-            }
+
+                progressFaceId?.showSuccess()
+                val handler = Handler()
+                handler.postDelayed({
+                    progressFaceId?.visibility = View.GONE
+                }, 2000)            }
             override fun onRecognizingError() {
-    
+                progressFaceId?.showError()
+                val handler = Handler()
+                handler.postDelayed({
+                progressFaceId?.nextLoading()
+                }, 1000)
+
             }
         })
     }
@@ -601,6 +612,8 @@ class ChatActivity : CoreActivity(),
     }
 
     private fun initView() {
+        progressFaceId = findViewById(R.id.pbFaceId)
+
         val buttonIDs = intArrayOf(R.id.chat_camera_btn, R.id.chat_emoji_btn, R.id.chat_game_btn, R.id.chat_image_btn)
         actionButtons = ArrayList(buttonIDs.size)
         for (buttonId in buttonIDs) {
@@ -628,7 +641,9 @@ class ChatActivity : CoreActivity(),
                     if (!mLinearLayoutManager!!.stackFromEnd) return
                     setLinearStackFromEnd(false)
                 }
+
             }
+
         }
         mLinearLayoutManager?.stackFromEnd = true
         recycleChatView!!.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -700,8 +715,13 @@ class ChatActivity : CoreActivity(),
 
         isEnabledFaceRecognize = SharedPrefsHelper.getInstance().isFaceIdEnable
 
+        /**
+         * when user open chat screen, we check user have setup and enable FACE ID or not
+         */
         if (isEnabledFaceRecognize) {
             hiddenCamera.initWithActivity(this)
+            progressFaceId?.visibility =View.VISIBLE
+            progressFaceId?.showLoading()
         }
     }
 
