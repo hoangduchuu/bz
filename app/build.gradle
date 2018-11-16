@@ -266,6 +266,9 @@ dependencies {
     // support logger library
     implementation 'com.orhanobut:logger:2.2.0'
 
+    implementation 'com.wajahatkarim3.EasyFlipView:EasyFlipView:2.1.1'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
