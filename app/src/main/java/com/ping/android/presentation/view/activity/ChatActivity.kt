@@ -35,6 +35,8 @@ import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
+import com.ping.android.device.hiddenCameraEvent.HiddenCameraListener
+import com.ping.android.device.hiddenCameraEvent.PhoneDegreeManager
 import com.ping.android.device.impl.ShakeEventManager
 import com.ping.android.managers.UserManager
 import com.ping.android.model.Conversation
@@ -73,7 +75,8 @@ class ChatActivity : CoreActivity(),
         ChatPresenter.View,
         View.OnClickListener,
         ChatMessageAdapter.ChatMessageListener,
-        KeyboardHeightObserver, StickerEmmiter, GiftEmmiter {
+        KeyboardHeightObserver, StickerEmmiter, GiftEmmiter,
+        HiddenCameraListener{
     private val TAG = "Ping: " + this.javaClass.simpleName
 
     //Views UI
@@ -174,6 +177,10 @@ class ChatActivity : CoreActivity(),
     private val shakeEventManager: ShakeEventManager by lazy {
         ShakeEventManager(this)
     }
+
+    private val degreeEventManager: PhoneDegreeManager by lazy {
+        PhoneDegreeManager(this,this,busProvider,this)
+    }
     private val permissionsChecker: PermissionsChecker by lazy {
         PermissionsChecker.from(this)
     }
@@ -257,6 +264,7 @@ class ChatActivity : CoreActivity(),
     override fun onResume() {
         super.onResume()
         shakeEventManager.register()
+        degreeEventManager.register()
         if (isEnabledFaceRecognize) {
             hiddenCamera.onResume()
         }
@@ -280,6 +288,7 @@ class ChatActivity : CoreActivity(),
             hiddenCamera.onPause()
         }
         shakeEventManager.unregister()
+        degreeEventManager.unregister()
         keyboardHeightProvider.setKeyboardHeightObserver(null)
         isTyping = false
         messagesAdapter.pause()
@@ -671,6 +680,7 @@ class ChatActivity : CoreActivity(),
     }
 
     private fun init() {
+        degreeEventManager.setupSensor()
         registerEvent(shakeEventManager.getShakeEvent()
                 .debounce(700, TimeUnit.MILLISECONDS)
                 .subscribe { handleShakePhone() })
@@ -743,7 +753,7 @@ class ChatActivity : CoreActivity(),
 
     private fun handleShakePhone() {
         // Find visible items
-        Log.d("handleShakePhone")
+        Log.e("$TAG handleShakePhone")
         val firstVisible = mLinearLayoutManager!!.findFirstVisibleItemPosition()
         val lastVisible = mLinearLayoutManager!!.findLastVisibleItemPosition()
         val visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible)
@@ -1392,6 +1402,21 @@ class ChatActivity : CoreActivity(),
 
 //        presenter.sendImageMessage()
     }
+
+    /**
+     * callback Based on Phone'Degrees to start or stop camera
+     */
+    override fun handleStartCamera() {
+        BzLog.d("Handle Sstart camera")
+    }
+
+    /**
+     * callback Based on Phone'Degrees to start or stop camera
+     */
+    override fun handleStopCamera() {
+        BzLog.d("Handle stop camera")
+    }
+
     // endregion
 
     private var initialized = false
