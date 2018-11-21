@@ -26,17 +26,21 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
+import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.ShareprefEvent;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -69,7 +73,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidSupportInjection.inject(this);
+        registerOnFaceIDStatusChange();
     }
+
+    private void registerOnFaceIDStatusChange() {
+        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).registerListener(aBoolean -> {
+            if (aBoolean) {
+                faceTrainingItem.setVisibility(View.GONE);
+            } else {
+                showFaceTrainingItem();
+            }
+
+        });
+
+
+
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,6 +104,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onDestroyView() {
         super.onDestroyView();
         presenter.destroy();
+        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).unregister();
     }
 
     private void bindViews(View view) {

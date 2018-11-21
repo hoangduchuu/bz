@@ -32,7 +32,6 @@ import com.bzzzchat.extensions.dp
 import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.*
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition
-import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity
 import com.bzzzchat.videorecorder.view.facerecognition.HiddenCamera
 import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -60,6 +59,7 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
+import com.ping.android.utils.bus.LiveSharePrefs
 import com.ping.android.utils.bus.events.GifTapEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.StickerTapEvent
@@ -1503,7 +1503,7 @@ class ChatActivity : CoreActivity(),
     override fun showFaceDetectFailedAfter10s() {
         isPasswordDialogOpenning.set(true)
         disposableTimmer.clear()
-        runOnUiThread {
+
             val promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_faceid_falied, null)
             val btnTry = promptsView.findViewById<AppCompatButton>(R.id.btTryAgain)
             val btTurnOfFaceID = promptsView.findViewById<AppCompatButton>(R.id.btTurnOffFaceId)
@@ -1531,7 +1531,6 @@ class ChatActivity : CoreActivity(),
                 dialog.dismiss()
             }
 
-        }
 
     }
 
@@ -1544,6 +1543,8 @@ class ChatActivity : CoreActivity(),
         messagesAdapter.userRecognized()
         SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
         FaceRecognition.getInstance(this).removeTrainingData()
+
+        LiveSharePrefs.getInstance()?.changeFaceIDTrainingStatus(false)
 
     }
 

@@ -207,7 +207,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     @Override
     public Observable<Boolean> createConversation(Conversation conversation) {
 //        DatabaseReference groupReference = database.getReference("conversation");
-//        return RxFirebaseDatabase.setValue(groupReference, group.toMap())
+//        return RxFirebaseDatabase.changeFaceIDTrainingStatus(groupReference, group.toMap())
 //                .map(reference -> true)
 //                .toObservable();
         return null;
