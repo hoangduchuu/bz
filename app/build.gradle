@@ -37,6 +37,11 @@ android {
         versionCode readBuildCode()
         versionName readVersionName()
         multiDexEnabled true
+
+        //
+        buildConfigField 'int', 'DEGREES_TO_START_HIDDEN_CAMERA', '35'
+        buildConfigField 'long', 'TIME_PROCESS_FACE_ID', '10'
+
     }
     signingConfigs {
         config {

@@ -9,6 +9,7 @@ import android.hardware.SensorManager
 import android.util.Log
 import android.view.Surface
 import android.view.WindowManager
+import com.ping.android.BuildConfig
 import com.ping.android.utils.bus.BusProvider
 
 
@@ -57,7 +58,7 @@ class PhoneDegreeManager(var context: Context, var activity: Activity, var busPr
         val roll = orientation[1]
         val rollDeg = Math.round(Math.toDegrees(roll.toDouble())).toInt()
         val power = caculateDegrees(rollDeg)
-        if (power < 35) {
+        if (power < BuildConfig.DEGREES_TO_START_HIDDEN_CAMERA) {
             if (!isStart) {
                 listener.handleStartCamera()
                 isStart= true
