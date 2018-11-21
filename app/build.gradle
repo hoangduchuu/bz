@@ -27,7 +27,7 @@ android {
     // FIXME: When using this method, version code is increase 1 after generate apk
     //increaseVersionCode()
 
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
