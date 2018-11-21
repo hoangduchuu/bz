@@ -39,6 +39,7 @@ import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
+import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -51,7 +52,6 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -138,6 +138,11 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveConversationColorUseCase observeConversationColorUseCase;
     @Inject
     ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
+
+
+    @Inject
+    CheckPasswordUseCase checkPasswordUseCase;
+
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -1101,4 +1106,28 @@ public class ChatPresenterImpl implements ChatPresenter {
         }
         message.messageStatus = messageStatus;
     }
+
+
+    @Override
+    public void checkPassword(@NotNull String password) {
+        view.showLoading();
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.disableFaceID();
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.displayConfirmPasswordError(exception.getLocalizedMessage());
+                view.hideLoading();
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+                view.hideLoading();
+            }
+        }, password);    }
 }

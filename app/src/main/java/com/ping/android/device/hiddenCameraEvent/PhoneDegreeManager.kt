@@ -57,7 +57,7 @@ class PhoneDegreeManager(var context: Context, var activity: Activity, var busPr
         val roll = orientation[1]
         val rollDeg = Math.round(Math.toDegrees(roll.toDouble())).toInt()
         val power = caculateDegrees(rollDeg)
-        if (power < 40) {
+        if (power < 35) {
             if (!isStart) {
                 listener.handleStartCamera()
                 isStart= true

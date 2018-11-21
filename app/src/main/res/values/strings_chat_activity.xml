@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_act_disable_faceid_failed">DISABLE FACE ID FAILED</string>
+    <string name="chat_act_detect_faceid_failed">FACE ID DETECTION FAILED</string>
+    <string name="chat_act_turn_off_face_id">Turn Off Face ID</string>
+    <string name="chat_act_try_again">Try Again</string>
+    <string name="chat_act_unable_detect_Face_id">Unable to detect authorized user. Try again or turn off Face ID.
+</string>
+</resources>

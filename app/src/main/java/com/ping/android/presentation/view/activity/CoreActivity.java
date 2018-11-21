@@ -36,8 +36,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
     public NetworkStatus networkStatus = NetworkStatus.CONNECTING;
     private AtomicBoolean showLoading = new AtomicBoolean(false);
     private Handler netWorkHandler = new Handler();
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
+    AlertDialog.Builder dialogBuilder;
+    AlertDialog dialog;
 
     @Inject
     NetworkConnectionChecker networkConnectionChecker;
@@ -209,7 +209,7 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         },200);
     }
 
-    private void makePositiveButtonCenter() {
+    void makePositiveButtonCenter() {
         Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         LinearLayout parent = (LinearLayout) positiveButton.getParent();
         positiveButton.setLayoutParams(new android.widget.LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, android.widget.LinearLayout.LayoutParams.MATCH_PARENT));
