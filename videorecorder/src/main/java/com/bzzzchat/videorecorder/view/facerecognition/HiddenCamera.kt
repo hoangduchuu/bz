@@ -216,7 +216,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 //        }
     }
 
-    private fun startCameraSource() {
+    fun startCameraSource() {
         try {
             cameraPreview.start(mCamera2Source, GraphicOverlay(context))
         } catch (e: IOException) {
@@ -265,7 +265,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         }
     }
 
-    private fun stopCameraSource() {
+    fun stopCameraSource() {
         cameraPreview.stop()
     }
 }
