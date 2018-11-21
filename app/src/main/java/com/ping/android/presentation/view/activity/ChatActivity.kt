@@ -103,6 +103,17 @@ class ChatActivity : CoreActivity(),
      */
     private var isEnabledFaceRecognize: Boolean = false
 
+    /**
+     * state of user is Recognized or not
+     */
+    private var isFaceIdAuthenticated = AtomicBoolean(false)
+
+    /**
+     * state of Initialized hidden camera or not
+     *
+     */
+    private var isHiddenCameraInitialized = AtomicBoolean(false)
+
     private val chatGameMenu: BottomSheetDialog by lazy {
         // Bottom chat menu
         val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
@@ -137,23 +148,10 @@ class ChatActivity : CoreActivity(),
     private val hiddenCamera: HiddenCamera by lazy {
         HiddenCamera(this, object: RecognitionCallback {
             override fun onRecognitionSuccess() {
-                toast?.cancel()
-                presenter.userRecognized()
-                // FIXME: for now, update directly in adapter
-                messagesAdapter.userRecognized()
-
-                progressFaceId?.showSuccess()
-                val handler = Handler()
-                handler.postDelayed({
-                    progressFaceId?.visibility = View.GONE
-                }, 2000)            }
+             handleOnRecognitionSuccess()
+            }
             override fun onRecognizingError() {
-                progressFaceId?.showError()
-                val handler = Handler()
-                handler.postDelayed({
-                progressFaceId?.nextLoading()
-                }, 1000)
-
+            handleOnRecognitionError()
             }
         })
     }
@@ -265,7 +263,7 @@ class ChatActivity : CoreActivity(),
         super.onResume()
         shakeEventManager.register()
         degreeEventManager.register()
-        if (isEnabledFaceRecognize) {
+        if (isEnabledFaceRecognize && isHiddenCameraInitialized.get()) {
             hiddenCamera.onResume()
         }
         keyboardHeightProvider.setKeyboardHeightObserver(this)
@@ -284,7 +282,7 @@ class ChatActivity : CoreActivity(),
 
     override fun onPause() {
         super.onPause()
-        if (isEnabledFaceRecognize){
+        if (isEnabledFaceRecognize && isHiddenCameraInitialized.get()){
             hiddenCamera.onPause()
         }
         shakeEventManager.unregister()
@@ -298,7 +296,7 @@ class ChatActivity : CoreActivity(),
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isEnabledFaceRecognize) {
+        if (isEnabledFaceRecognize && isHiddenCameraInitialized.get()) {
             hiddenCamera.onDestroy()
         }
         keyboardHeightProvider.close()
@@ -728,11 +726,11 @@ class ChatActivity : CoreActivity(),
         /**
          * when user open chat screen, we check user have setup and enable FACE ID or not
          */
-        if (isEnabledFaceRecognize) {
-            hiddenCamera.initWithActivity(this)
-            progressFaceId?.visibility =View.VISIBLE
-            progressFaceId?.showLoading()
-        }
+//        if (isEnabledFaceRecognize) {
+//            hiddenCamera.initWithActivity(this)
+//            progressFaceId?.visibility =View.VISIBLE
+//            progressFaceId?.showLoading()
+//        }
     }
 
     /**
@@ -1403,20 +1401,62 @@ class ChatActivity : CoreActivity(),
 //        presenter.sendImageMessage()
     }
 
+    // region face id
     /**
+     * #FACEID
      * callback Based on Phone'Degrees to start or stop camera
      */
     override fun handleStartCamera() {
-        BzLog.d("Handle Sstart camera")
+        /**
+         * when user open chat screen, we check user have setup and enable FACE ID or not
+         */
+        if (isEnabledFaceRecognize && !isFaceIdAuthenticated.get()) {
+            hiddenCamera.initWithActivity(this)
+            isHiddenCameraInitialized.set(true)
+            progressFaceId?.visibility =View.VISIBLE
+            progressFaceId?.showLoading()
+        }
+
     }
 
     /**
+     * #FACEID
      * callback Based on Phone'Degrees to start or stop camera
      */
     override fun handleStopCamera() {
-        BzLog.d("Handle stop camera")
+        if (isEnabledFaceRecognize && isHiddenCameraInitialized.get()){
+            hiddenCamera.stopCameraSource()
+            progressFaceId?.visibility = View.GONE
+        }
     }
 
+    /**
+     * #FACEID
+     * handleOnRecognitionSuccess
+     */
+    private fun handleOnRecognitionSuccess(){
+        presenter.userRecognized()
+        // FIXME: for now, update directly in adapter
+        messagesAdapter.userRecognized()
+        isFaceIdAuthenticated.set(true)
+        progressFaceId?.showSuccess()
+        val handler = Handler()
+        handler.postDelayed({
+            progressFaceId?.visibility = View.GONE
+        }, 2000)
+    }
+
+    /**
+     * #FACEID
+     * handleOnRecognitionError
+     */
+    private fun handleOnRecognitionError(){
+        progressFaceId?.showError()
+        val handler = Handler()
+        handler.postDelayed({
+            progressFaceId?.nextLoading()
+        }, 2000)
+    }
     // endregion
 
     private var initialized = false
