@@ -227,7 +227,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private void hideFaceTrainingItem() {
         faceTrainingItem.setVisibility(View.GONE);
         SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
-        FaceRecognition.Companion.getInstance(this.getContext()).removeTrainingData();
     }
 
     private void showFaceTrainingItem() {
