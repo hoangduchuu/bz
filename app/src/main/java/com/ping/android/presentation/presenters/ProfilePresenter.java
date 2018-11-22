@@ -44,5 +44,7 @@ public interface ProfilePresenter extends BasePresenter {
         void showRequirePasswordFormBeforeTurnOffFaceData();
 
         void updateToggleIcon();
+
+        void hideSetupText();
     }
 }

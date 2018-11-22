@@ -464,6 +464,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void handleDeleteFaceIdSuccess() {
         faceIdStatusRepository.markFaceIdIsNotTrained();
         showFaceTrainingItem();
+        hideFaceTrainingItem();
     }
 
     @Override
@@ -485,5 +486,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
 
         faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
+    }
+
+    @Override
+    public void hideSetupText() {
+        faceTrainingItem.setVisibility(View.GONE);
     }
 }
