@@ -37,9 +37,11 @@ import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
+import com.ping.android.data.repository.FaceIdStatusRepository
 import com.ping.android.device.hiddenCameraEvent.HiddenCameraListener
 import com.ping.android.device.hiddenCameraEvent.PhoneDegreeManager
 import com.ping.android.device.impl.ShakeEventManager
+import com.ping.android.domain.repository.CommonRepository
 import com.ping.android.managers.UserManager
 import com.ping.android.model.Conversation
 import com.ping.android.model.Message
@@ -127,6 +129,11 @@ class ChatActivity : CoreActivity(),
      * CompositeDisposable of Timmer
      */
     private lateinit var disposableTimmer: CompositeDisposable
+
+
+    @Inject
+    lateinit var faceidRepository: FaceIdStatusRepository
+
     private val chatGameMenu: BottomSheetDialog by lazy {
         // Bottom chat menu
         val view = layoutInflater.inflate(R.layout.bottom_sheet_chat_game_menu, null)
@@ -734,7 +741,7 @@ class ChatActivity : CoreActivity(),
             keyboardHeightProvider.start()
         }
 
-        isEnabledFaceRecognize = SharedPrefsHelper.getInstance().isFaceIdCompleteTraining
+        isEnabledFaceRecognize = (faceidRepository.isFaceIdEnabled() && SharedPrefsHelper.getInstance().isFaceIdCompleteTraining)
 
         /**
          * when user open chat screen, we check user have setup and enable FACE ID or not
