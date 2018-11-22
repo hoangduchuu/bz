@@ -194,8 +194,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         SharedPrefsHelper.getInstance().setFaceIdEnable(faceId.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceId.isChecked()) {
-            if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-                requireTurnOffFaceID();
+            if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining() ) {
+                presenter.onRequestTurnOffFaceData();
             } else {
                 hideFaceTrainingItem();
             }
@@ -204,7 +204,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
-    private void requireTurnOffFaceID() {
+    @Override
+    public void showRequirePasswordFormBeforeTurnOffFaceData() {
         View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_check_password, null);
         EditText password = promptsView.findViewById(R.id.tvPassword);
         AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))

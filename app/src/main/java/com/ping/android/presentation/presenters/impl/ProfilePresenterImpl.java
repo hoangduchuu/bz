@@ -194,4 +194,9 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     public void onTrainingFaceTextClicked() {
         view.showRequirePasswordFormBeforeDeleteFaceData();
     }
+
+    @Override
+    public void onRequestTurnOffFaceData() {
+        view.showRequirePasswordFormBeforeTurnOffFaceData();
+    }
 }

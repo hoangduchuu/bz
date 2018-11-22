@@ -23,6 +23,8 @@ public interface ProfilePresenter extends BasePresenter {
 
     void onTrainingFaceTextClicked();
 
+    void onRequestTurnOffFaceData();
+
     interface View extends BaseView {
 
         void updateUser(User user);
@@ -38,5 +40,7 @@ public interface ProfilePresenter extends BasePresenter {
 
         void handleRequireTurnOffFaceIDSError(String errorMsg);
         void handleRequireTurnOffFaceIDSuccess();
+
+        void showRequirePasswordFormBeforeTurnOffFaceData();
     }
 }
