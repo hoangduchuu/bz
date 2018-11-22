@@ -118,7 +118,7 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     }
 
     @Override
-    public void checkPassword(String password) {
+    public void checkPasswordBeforeDeleteFaceData(String password) {
         view.showLoading();
         checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -147,7 +147,7 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     }
 
     @Override
-    public void checkPasswordRequireTurnOffFaceId(String password) {
+    public void checkPasswordBeforeTurnOffFaceData(String password) {
         view.showLoading();
         checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -183,5 +183,15 @@ public class ProfilePresenterImpl implements ProfilePresenter {
         toggleUserNotificationSettingUseCase.dispose();
         toggleUserPrivateProfileSettingUseCase.dispose();
         uploadUserProfileImageUseCase.dispose();
+    }
+
+
+
+    // huu
+
+
+    @Override
+    public void onTrainingFaceTextClicked() {
+        view.showRequirePasswordFormBeforeDeleteFaceData();
     }
 }

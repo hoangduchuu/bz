@@ -32,15 +32,12 @@ import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
-import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
-import com.ping.android.utils.bus.BusProvider;
-import com.ping.android.utils.bus.events.ShareprefEvent;
 import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
@@ -185,15 +182,15 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 onShowProfileClick();
                 break;
             case R.id.profile_face_training:
-                onTrainingFaceClicked();
+                onTrainingFaceTextClicked();
                 break;
             case R.id.profile_faceid:
-                onSelectFaceId();
+                onFaceIdToggleButtonClicked();
                 break;
         }
     }
 
-    private void onSelectFaceId() {
+    private void onFaceIdToggleButtonClicked() {
         SharedPrefsHelper.getInstance().setFaceIdEnable(faceId.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceId.isChecked()) {
@@ -214,7 +211,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 .setTitle("")
                 .setView(promptsView)
                 .setPositiveButton(getString(R.string.profile_send), (dialog12, which) -> {
-                    presenter.checkPasswordRequireTurnOffFaceId(password.getText().toString().trim());
+                    presenter.checkPasswordBeforeTurnOffFaceData(password.getText().toString().trim());
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> {
                     dialog1.dismiss();
@@ -244,21 +241,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
     }
 
-    private void onTrainingFaceClicked() {
-//        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-//            SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
-//            showFaceTrainingItem();
-//        }
+    private void onTrainingFaceTextClicked() {
         if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
-            showRequirePasswordForm();
+            presenter.onTrainingFaceTextClicked();
         } else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
             startActivityForResult(intent, 1111);
-//            Intent intent = new Intent(getContext(), AddPersonPreviewActivity.class);
-//            intent.putExtra("Name", "admin");
-//            intent.putExtra("Method", AddPersonPreviewActivity.TIME);
-//            intent.putExtra("Folder", "Training");
-//            startActivity(intent);
         }
     }
 
@@ -445,14 +433,14 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     @Override
-    public void showRequirePasswordForm() {
+    public void showRequirePasswordFormBeforeDeleteFaceData() {
         View promptsView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_check_password, null);
         EditText password = promptsView.findViewById(R.id.tvPassword);
         AlertDialog dialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                 .setTitle("")
                 .setView(promptsView)
                 .setPositiveButton(getString(R.string.profile_send), (dialog12, which) -> {
-                    presenter.checkPassword(password.getText().toString().trim());
+                    presenter.checkPasswordBeforeDeleteFaceData(password.getText().toString().trim());
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> dialog1.dismiss())
                 .create();
