@@ -130,12 +130,15 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
                 }
                 view.hideLoading();
+                view.updateToggleIcon();
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 view.handleConfirmPasswordError(exception.getLocalizedMessage());
                 view.hideLoading();
+                view.updateToggleIcon();
+
 
             }
 
@@ -159,12 +162,16 @@ public class ProfilePresenterImpl implements ProfilePresenter {
 
                 }
                 view.hideLoading();
+                view.updateToggleIcon();
+
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 view.handleRequireTurnOffFaceIDSError(exception.getLocalizedMessage());
                 view.hideLoading();
+                view.updateToggleIcon();
+
 
             }
 

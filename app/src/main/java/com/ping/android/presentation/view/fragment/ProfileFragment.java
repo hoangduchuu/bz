@@ -130,6 +130,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         view.findViewById(R.id.profile_show_profile).setOnClickListener(this);
         view.findViewById(R.id.profile_face_training).setOnClickListener(this);
         faceId.setOnClickListener(this);
+
+
+        /**
+         * set toggle icon in the first time
+         */
         faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
         if (!faceIdStatusRepository.isFaceIdEnabled()) {
             faceTrainingItem.setVisibility(View.GONE);
@@ -219,7 +224,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> {
                     dialog1.dismiss();
-                    faceId.setChecked(faceIdStatusRepository.isFaceIdCompleteTraining());
+                    faceId.setChecked(true);
 
                 })
                 .setCancelable(false)
@@ -463,7 +468,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleRequireTurnOffFaceIDSError(String errorMsg) {
-        faceId.setChecked(faceIdStatusRepository.isFaceIdCompleteTraining());
         showConfirmMessageDialog(getString(R.string.profile_disable_face_failed), errorMsg);
     }
 
@@ -471,5 +475,15 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void handleRequireTurnOffFaceIDSuccess() {
         faceIdStatusRepository.disableFaceId();
         hideFaceTrainingItem();
+    }
+
+    @Override
+    public void updateToggleIcon() {
+        if (!faceIdStatusRepository.isFaceIdCompleteTraining()){
+            faceId.setChecked(false);
+            return;
+        }
+
+        faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
     }
 }

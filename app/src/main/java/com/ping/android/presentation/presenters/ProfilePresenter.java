@@ -42,5 +42,7 @@ public interface ProfilePresenter extends BasePresenter {
         void handleRequireTurnOffFaceIDSuccess();
 
         void showRequirePasswordFormBeforeTurnOffFaceData();
+
+        void updateToggleIcon();
     }
 }
