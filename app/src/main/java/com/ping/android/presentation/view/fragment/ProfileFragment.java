@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
 import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity;
 import com.ping.android.R;
+import com.ping.android.data.repository.FaceIdStatusRepository;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
@@ -65,6 +66,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private Boolean isTrained = false;
     @Inject
     ProfilePresenter presenter;
+
+    @Inject
+    FaceIdStatusRepository faceIdStatusRepository;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,9 +130,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         view.findViewById(R.id.profile_show_profile).setOnClickListener(this);
         view.findViewById(R.id.profile_face_training).setOnClickListener(this);
         faceId.setOnClickListener(this);
-
-        faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdEnable());
-        if (!SharedPrefsHelper.getInstance().isFaceIdEnable()) {
+        faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
+        if (!faceIdStatusRepository.isFaceIdEnabled()) {
             faceTrainingItem.setVisibility(View.GONE);
         } else {
             showFaceTrainingItem();
@@ -191,10 +194,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onFaceIdToggleButtonClicked() {
-        SharedPrefsHelper.getInstance().setFaceIdEnable(faceId.isChecked());
+        faceIdStatusRepository.setFaceIdEnable(faceId.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceId.isChecked()) {
-            if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining() ) {
+            if (faceIdStatusRepository.isFaceIdCompleteTraining() ) {
                 presenter.onRequestTurnOffFaceData();
             } else {
                 hideFaceTrainingItem();
@@ -216,7 +219,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> {
                     dialog1.dismiss();
-                    faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdCompleteTraining());
+                    faceId.setChecked(faceIdStatusRepository.isFaceIdCompleteTraining());
 
                 })
                 .setCancelable(false)
@@ -227,12 +230,11 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void hideFaceTrainingItem() {
         faceTrainingItem.setVisibility(View.GONE);
-        SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
     }
 
     private void showFaceTrainingItem() {
         faceTrainingItem.setVisibility(View.VISIBLE);
-        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+        if (faceIdStatusRepository.isFaceIdCompleteTraining()) {
             faceTrainingItem.setTitle(getString(R.string.profile_delete_face_trained));
             faceTrainingItem.setTitleColor(getResources().getColor(R.color.button_end_call_pressed_color));
         } else {
@@ -242,7 +244,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onTrainingFaceTextClicked() {
-        if (SharedPrefsHelper.getInstance().isFaceIdCompleteTraining()) {
+        if (faceIdStatusRepository.isFaceIdCompleteTraining()) {
             presenter.onTrainingFaceTextClicked();
         } else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
@@ -346,7 +348,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
         if (requestCode == 1111) {
             if (resultCode == Activity.RESULT_OK) {
-                SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(true);
+                faceIdStatusRepository.markFaceIdIsTrainedSuccess();
                 showFaceTrainingItem();
                 FaceRecognition.Companion.getInstance(this.getContext()).train();
             }
@@ -455,18 +457,19 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleDeleteFaceIdSuccess() {
-        SharedPrefsHelper.getInstance().setFaceIdCompleteTraining(false);
+        faceIdStatusRepository.markFaceIdIsNotTrained();
         showFaceTrainingItem();
     }
 
     @Override
     public void handleRequireTurnOffFaceIDSError(String errorMsg) {
-        faceId.setChecked(SharedPrefsHelper.getInstance().isFaceIdCompleteTraining());
+        faceId.setChecked(faceIdStatusRepository.isFaceIdCompleteTraining());
         showConfirmMessageDialog(getString(R.string.profile_disable_face_failed), errorMsg);
     }
 
     @Override
     public void handleRequireTurnOffFaceIDSuccess() {
+        faceIdStatusRepository.disableFaceId();
         hideFaceTrainingItem();
     }
 }

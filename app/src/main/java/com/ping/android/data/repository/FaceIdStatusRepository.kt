@@ -8,7 +8,7 @@ class FaceIdStatusRepository @Inject constructor()  {
         return SharedPrefsHelper.getInstance().isFaceIdEnable
     }
 
-    fun isFaceIdAvailable():Boolean{
+    fun isFaceIdCompleteTraining():Boolean{
         return SharedPrefsHelper.getInstance().isFaceIdCompleteTraining
     }
 
@@ -25,5 +25,9 @@ class FaceIdStatusRepository @Inject constructor()  {
     }
     fun markFaceIdIsNotTrained(){
         SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
+    }
+
+    fun setFaceIdEnable(state : Boolean){
+        SharedPrefsHelper.getInstance().isFaceIdEnable = state
     }
 }
