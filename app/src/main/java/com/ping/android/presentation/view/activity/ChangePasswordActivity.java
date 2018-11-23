@@ -3,6 +3,7 @@ package com.ping.android.presentation.view.activity;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import com.ping.android.utils.CommonMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -172,5 +174,31 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
 
     }
 
+    /**
+     * Detect event when click outside the TextBox to hide the keyboard
+     * @param event is event of motion to detect
+     * @return just require from class, don't use
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        View view = getCurrentFocus();
+        boolean ret = super.dispatchTouchEvent(event);
+
+        if (view instanceof EditText) {
+            View w = getCurrentFocus();
+            int scrcoords[] = new int[2];
+            Objects.requireNonNull(w).getLocationOnScreen(scrcoords);
+            float x = event.getRawX() + w.getLeft() - scrcoords[0];
+            float y = event.getRawY() + w.getTop() - scrcoords[1];
+
+            if (event.getAction() == MotionEvent.ACTION_UP
+                    && (x < w.getLeft() || x >= w.getRight()
+                    || y < w.getTop() || y > w.getBottom())) {
+                hideKeyboard();
+            }
+            return ret;
+        }
+        return ret;
+    }
 
 }

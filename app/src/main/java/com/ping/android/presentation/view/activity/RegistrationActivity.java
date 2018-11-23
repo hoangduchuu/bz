@@ -408,4 +408,33 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
 //        showHideButton(txtRetypePassword);
     }
 
+
+
+    /**
+     * Detect event when click outside the TextBox to hide the keyboard
+     * @param event is event of motion to detect
+     * @return just require from class, don't use
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        View view = getCurrentFocus();
+        boolean ret = super.dispatchTouchEvent(event);
+
+        if (view instanceof EditText) {
+            View w = getCurrentFocus();
+            int scrcoords[] = new int[2];
+            Objects.requireNonNull(w).getLocationOnScreen(scrcoords);
+            float x = event.getRawX() + w.getLeft() - scrcoords[0];
+            float y = event.getRawY() + w.getTop() - scrcoords[1];
+
+            if (event.getAction() == MotionEvent.ACTION_UP
+                    && (x < w.getLeft() || x >= w.getRight()
+                    || y < w.getTop() || y > w.getBottom())) {
+                hideKeyboard();
+            }
+            return ret;
+        }
+        return ret;
+    }
+
 }
