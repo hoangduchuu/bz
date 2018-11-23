@@ -15,4 +15,5 @@
     <string name="profile_send">SEND</string>
     <string name="profile_disable_face_failed">DISABLE FACE ID FAILED</string>
     <string name="profile_faceid_html_note"><![CDATA[<p><b>Activate Face ID </b>  <br />Note: Activating Face ID allows only the authorized user access to protected contents.</p>]]></string>
+    <string name="profile_faceid_note">Activate Face ID \nNote: Activating Face ID allows only the authorized user access to protected contents</string>
 </resources>

@@ -57,8 +57,8 @@
                 android:layout_marginTop="@dimen/setting_item_separate"
                 app:leftIcon="@drawable/ic_face_id"
                 app:useHtml="true"
-                app:headerText="@string/profile_faceid_html_note"
-                app:titleText="@string/profile_faceid_html_note">
+                app:headerText="@string/profile_faceid_note"
+                app:titleText="@string/profile_faceid_note">
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/profile_faceid"
                     style="@style/ItemSettingIconRight.Toggle"
