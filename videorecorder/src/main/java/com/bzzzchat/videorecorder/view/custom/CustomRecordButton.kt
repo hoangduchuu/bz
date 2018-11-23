@@ -266,4 +266,12 @@ class CustomRecordButton(context: Context, attrs: AttributeSet) : View(context, 
     fun setListener(listener: RecordButtonListener) {
         this.listener = listener
     }
+
+    fun disableTouch(){
+        this.isEnabled = false
+    }
+
+    fun enableTouch(){
+        this.isEnabled = true
+    }
 }
