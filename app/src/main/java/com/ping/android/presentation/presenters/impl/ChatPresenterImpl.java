@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -222,6 +223,9 @@ public class ChatPresenterImpl implements ChatPresenter {
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
                 view.hideLoading();
+                if (exception instanceof TimeoutException){
+                    view.showTimeouNotification();
+                }
             }
 
             @Override

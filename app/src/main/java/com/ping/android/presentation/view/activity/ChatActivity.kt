@@ -1595,6 +1595,11 @@ class ChatActivity : CoreActivity(),
 
     // endregion
 
+    override fun showTimeouNotification() {
+        timeOutNotification.visibility = View.VISIBLE
+    }
+    // endregion
+
     private var initialized = false
 
     override fun connectivityChanged(availableNow: Boolean) {

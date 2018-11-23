@@ -125,6 +125,7 @@ public interface ChatPresenter extends BasePresenter {
 
         void displayConfirmPasswordError(String message);
 
+        void showTimeouNotification();
 
 
     }
