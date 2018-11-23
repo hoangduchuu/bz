@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -217,4 +218,17 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
         View leftSpacer = parent.getChildAt(1);
         leftSpacer.setVisibility(View.GONE);
     }
+
+    /**
+     * Hide keyboard immediately
+     */
+    void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view!=null){
+            Object imm = getSystemService(Context.INPUT_METHOD_SERVICE);
+            ((InputMethodManager) imm).hideSoftInputFromWindow(view.getWindowToken(),0);
+        }
+
+    }
+
 }
