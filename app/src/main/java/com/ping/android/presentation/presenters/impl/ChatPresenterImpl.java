@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.repository.FaceIdStatusRepository;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -52,6 +53,7 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +64,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -138,6 +141,11 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveConversationColorUseCase observeConversationColorUseCase;
     @Inject
     ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
+
+    @Inject
+    FaceIdStatusRepository faceIdStatusRepository;
+
+    // TODO need time to create Usecase to execute FaceIdStatusRepository in stead call directly repository over here!
 
 
     @Inject
@@ -1130,4 +1138,20 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.hideLoading();
             }
         }, password);    }
+
+
+    @Override
+    public void disableFaceID() {
+        // TODO HUU: create usecase instead
+        faceIdStatusRepository.disableFaceId();
+        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).disableFaceID();
+
+        //no remove data, if remove, we got crash?
+
+//
+//        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
+//        FaceRecognition.getInstance(this).removeTrainingData()
+//
+//        LiveSharePrefs.getInstance()?.changeFaceIDTrainingStatus(false)
+    }
 }

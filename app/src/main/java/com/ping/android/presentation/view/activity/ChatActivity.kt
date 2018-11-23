@@ -1548,10 +1548,7 @@ class ChatActivity : CoreActivity(),
 
     override fun disableFaceID() {
         messagesAdapter.userRecognized()
-        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
-        FaceRecognition.getInstance(this).removeTrainingData()
-
-        LiveSharePrefs.getInstance()?.changeFaceIDTrainingStatus(false)
+        presenter.disableFaceID()
 
     }
 

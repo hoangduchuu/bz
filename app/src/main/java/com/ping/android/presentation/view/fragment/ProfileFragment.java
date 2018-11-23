@@ -27,6 +27,7 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
@@ -79,11 +80,17 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     private void registerOnFaceIDStatusChange() {
         Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).registerListener(aBoolean -> {
-            if (aBoolean) {
-                faceTrainingItem.setVisibility(View.GONE);
-            } else {
-                showFaceTrainingItem();
-            }
+//            if (aBoolean) {
+//                faceTrainingItem.setVisibility(View.GONE);
+//            } else {
+//                showFaceTrainingItem();
+//            }
+
+            BzLog.INSTANCE.d(aBoolean.toString());
+            // update UI
+            hideFaceTrainingItem();
+            updateToggleIcon();
+//            showFaceTrainingItem();
 
         });
 

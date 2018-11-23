@@ -23,6 +23,11 @@ class LiveSharePrefs {
         subject.onNext(a)
     }
 
+    fun disableFaceID(){
+        SharedPrefsHelper.getInstance().isFaceIdEnable = false
+        subject.onNext(false)
+    }
+
     fun registerListener(cosunmer: Consumer<Boolean> ){
         var d = subject.subscribe(cosunmer)
         disposables.add(d)
