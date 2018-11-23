@@ -223,6 +223,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
                 view.hideLoading();
             }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+                view.hideLoading();
+            }
         }, conversationId);
     }
 
@@ -638,6 +644,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
                 view.hideLoading();
             }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+                view.hideLoading();
+            }
         }, params);
     }
 
@@ -699,6 +711,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.updateLastMessages(new ArrayList<>(), false);
                 observeMessageUpdate();
                 observeTypingEvent();
+                view.hideLoading();
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
                 view.hideLoading();
             }
         }, conversation);
