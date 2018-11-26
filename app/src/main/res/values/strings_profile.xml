@@ -3,7 +3,7 @@
     <string name="profile_check_network">Please check network connection.</string>
     <string name="profile_logout_falied">Logout Failed</string>
     <string name="profile_try_again_later">Please try again later!</string>
-    <string name="profile_delete_face_trained">Delete trained data</string>
+    <string name="profile_delete_face_trained">Delete Your Face ID</string>
     <string name="profile_face_training_setup">Setup Your Face ID</string>
     <string name="profile_user_name">Username:</string>
     <string name="profile_email">Email:</string>
@@ -15,5 +15,5 @@
     <string name="profile_send">SEND</string>
     <string name="profile_disable_face_failed">DISABLE FACE ID FAILED</string>
     <string name="profile_faceid_html_note"><![CDATA[<p><b>Activate Face ID </b>  <br />Note: Activating Face ID allows only the authorized user access to protected contents.</p>]]></string>
-    <string name="profile_faceid_note">Activate Face ID \nNote: Activating Face ID allows only the authorized user access to protected contents</string>
+    <string name="profile_faceid_note">Activate Face ID \nNote: Activating Face ID allows only the authorized user access to protected contents.</string>
 </resources>
