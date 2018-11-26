@@ -4,6 +4,9 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
+
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -31,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bzzzchat.videorecorder.R;
+import com.bzzzchat.videorecorder.view.ShowFaceFragment;
 import com.bzzzchat.videorecorder.view.custom.CustomRecordButton;
 import com.bzzzchat.videorecorder.view.facerecognition.others.Camera2Source;
 import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSource;
@@ -208,43 +212,57 @@ public class FaceTrainingActivity extends AppCompatActivity {
                     .setProminentFaceOnly(true)
                     .setMinFaceSize(0.5f)
                     .build();
-            Bitmap capturedBitmap = Utils.getBitmapFromImage(image);
+            Bitmap capturedBitmap = Utils.getBitmapFromImageAndScale(image);
             image.close();
-            int rotation = 0;
-            try {
-                rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
-                e.printStackTrace();
-            }
 
-            final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
-            SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
 
-            if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
-                //no FACE DETECTEd
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        takePictureButton.setEnabled(true);
-                    }
-                });
-            }else{
-                Face face = detectedFaces.valueAt(0);
-                Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
-                String fileName = "1-user_" + index +  ".png";
-                File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
-                Utils.saveBitmap(bitmap, file.getAbsolutePath());
-                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
-                //Utils.smooth(file.getAbsolutePath());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        that.showDoneTraining();
-                    }
-                });
 
-            }
+
+            // TODO confirm image
+            confirmImage(capturedBitmap);
+
+//            int rotation = 0;
+//            try {
+//                rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
+//                e.printStackTrace();
+//            }
+//
+//            final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
+//            SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
+//
+//            if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
+//                //no FACE DETECTEd
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        takePictureButton.setEnabled(true);
+//                    }
+//                });
+//            }else{
+//                Face face = detectedFaces.valueAt(0);
+//                Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
+//                String fileName = "1-user_" + index +  ".png";
+//                File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
+//                Utils.saveBitmap(bitmap, file.getAbsolutePath());
+//                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
+//                //Utils.smooth(file.getAbsolutePath());
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        that.showDoneTraining();
+//                    }
+//                });
+//
+//            }
         }
     };
+
+        private void confirmImage(Bitmap image) {
+            Fragment newFragment = new ShowFaceFragment().newInstance(image);
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.add(R.id.training_container, newFragment).commit();
+        }
+
 
     private String getFrontFacingCameraId(CameraManager cManager) {
         try {
