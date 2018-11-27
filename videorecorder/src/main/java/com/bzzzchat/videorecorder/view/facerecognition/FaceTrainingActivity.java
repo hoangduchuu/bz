@@ -34,9 +34,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.util.Util;
 import com.bzzzchat.videorecorder.R;
 import com.bzzzchat.videorecorder.view.ShowFaceFragment;
 import com.bzzzchat.videorecorder.view.ShowFaceFragmentListener;
+import com.bzzzchat.videorecorder.view.custom.ConfirmPictureButton;
 import com.bzzzchat.videorecorder.view.custom.CustomRecordButton;
 import com.bzzzchat.videorecorder.view.facerecognition.others.Camera2Source;
 import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSource;
@@ -57,6 +59,8 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
+
+import org.jetbrains.anko.ToastsKt;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -102,6 +106,12 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     private int index = 1;
     private int requiredImages = 10;
 
+
+    private ConfirmPictureButton confirmPictureButton;
+
+    FaceDetector mFaceDetector;
+    Bitmap mCapturedBitmap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +123,8 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         mGraphicOverlay = findViewById(R.id.faceOverlay);
         ivAutoFocus = findViewById(R.id.ivAutoFocus);
         progress = findViewById(R.id.progress);
+
+        confirmPictureButton = findViewById(R.id.btnConfirm);
 
         File trainingFolder = new File(FaceRecognition.Companion.getInstance(context).getTrainingFolder());
         trainingFolder.delete();
@@ -214,12 +226,13 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                     .setProminentFaceOnly(true)
                     .setMinFaceSize(0.5f)
                     .build();
-            Bitmap capturedBitmap = Utils.getBitmapFromImageAndScale(image);
+            Bitmap capturedBitmap = Utils.getBitmapFromImage(image);
             image.close();
-            
-            // TODO confirm image
-            confirmImage(capturedBitmap);
 
+            mFaceDetector = faceDetector;
+            mCapturedBitmap = capturedBitmap;
+            // TODO confirm image
+            confirmImage(Utils.scaleBitMap(capturedBitmap));
         }
     };
 
@@ -244,6 +257,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                 @Override
                 public void run() {
                     takePictureButton.setEnabled(true);
+                    Toast.makeText(context, "            //no FACE DETECTEd\n", Toast.LENGTH_SHORT).show();
                 }
             });
         }else{
@@ -610,6 +624,8 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     public void onBackToReCaptureButtonClicked() {
         confirmImage(null);
         takePictureButton.setEnabled(true);
+        confirmPictureButton.setVisibility(View.GONE);
+        takePictureButton.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -619,6 +635,17 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
      */
     @Override
     public void onFragmentOpening() {
-        Toast.makeText(context, "the fragment is opening", Toast.LENGTH_SHORT).show();
+        confirmPictureButton.setVisibility(View.VISIBLE);
+        takePictureButton.setVisibility(View.GONE);
+
+    }
+
+    /**
+     * the click handler
+     * @param view
+     */
+    public void onConfirmClicked(View view) {
+        Toast.makeText(getApplicationContext(), "onConfirmClicked", Toast.LENGTH_SHORT).show();
+        onUserConfirmedPicture(mFaceDetector,mCapturedBitmap);
     }
 }

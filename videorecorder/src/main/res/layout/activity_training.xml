@@ -52,4 +52,16 @@
         app:bzzzProgress="0"
         app:progressBarThickness="4dp"
         app:progressbarColor="@color/colorAccent" />
+
+    <com.bzzzchat.videorecorder.view.custom.ConfirmPictureButton
+        android:id="@+id/btnConfirm"
+        android:layout_width="80dp"
+        android:onClick="onConfirmClicked"
+        android:layout_height="80dp"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"
+        android:elevation="10dp"
+        />
 </RelativeLayout>

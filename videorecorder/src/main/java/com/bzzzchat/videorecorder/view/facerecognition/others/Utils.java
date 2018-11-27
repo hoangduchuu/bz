@@ -330,6 +330,22 @@ public class Utils {
         return getResizedBitmap(scaledBitmap,500);
     }
 
+
+    /**
+     * Scale the bitmap smaler, because ImageView if so slow if the bitmap size too large
+     * @param bitmapInputSource
+     * @return bitmap
+     */
+    public static Bitmap scaleBitMap(Bitmap bitmapInputSource){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(270);
+        matrix.postScale(-1,1);
+        Bitmap bitmap = Bitmap.createBitmap
+                (bitmapInputSource,0,0,bitmapInputSource.getWidth(),bitmapInputSource.getHeight(), matrix,true);
+        return getResizedBitmap(bitmap, 500);
+    }
+
+
     /**
      * helper for bitmap
      * @param
