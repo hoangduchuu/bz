@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">configuration</string>
+    <string name="no_face_detect">No Face Detected</string>
 </resources>

@@ -15,4 +15,5 @@
     <string name="switch_camera">SWITCH</string>
     <string name="record_video">VIDEO</string>
     <string name="stop_video">STOP</string>
+    <string name="no_face_detected">No Face Detected</string>
 </resources>

@@ -154,6 +154,21 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         dialog.show();
     }
 
+    private void showErrorTraining(String msg){
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("")
+                .setMessage(msg)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // handle on Ok CLick
+                        confirmImage(null); // recapture trigger
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+
     private void updateProgress(int index) {
         String progressStr = index + "/" + requiredImages;
         progress.setText(progressStr);
@@ -238,7 +253,10 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                 @Override
                 public void run() {
                     takePictureButton.setEnabled(true);
-                    Toast.makeText(context, "            //no FACE DETECTEd\n", Toast.LENGTH_SHORT).show();
+                    showErrorTraining(context.getString(R.string.no_face_detect));
+                    takePictureButton.setVisibility(View.VISIBLE);
+                    confirmPictureButton.setVisibility(View.GONE);
+
                 }
             });
         }else{
