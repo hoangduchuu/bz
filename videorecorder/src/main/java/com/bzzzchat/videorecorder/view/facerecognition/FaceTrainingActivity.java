@@ -12,10 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -25,9 +21,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -46,27 +40,14 @@ import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePrevie
 import com.bzzzchat.videorecorder.view.facerecognition.others.FaceGraphic;
 import com.bzzzchat.videorecorder.view.facerecognition.others.GraphicOverlay;
 import com.bzzzchat.videorecorder.view.facerecognition.others.Utils;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
-
-import org.jetbrains.anko.ToastsKt;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -645,7 +626,6 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
      * @param view
      */
     public void onConfirmClicked(View view) {
-        Toast.makeText(getApplicationContext(), "onConfirmClicked", Toast.LENGTH_SHORT).show();
         onUserConfirmedPicture(mFaceDetector,mCapturedBitmap);
     }
 }
