@@ -6,6 +6,7 @@ import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 
 import com.bzzzchat.videorecorder.R;
 import com.bzzzchat.videorecorder.view.ShowFaceFragment;
+import com.bzzzchat.videorecorder.view.ShowFaceFragmentListener;
 import com.bzzzchat.videorecorder.view.custom.CustomRecordButton;
 import com.bzzzchat.videorecorder.view.facerecognition.others.Camera2Source;
 import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSource;
@@ -67,7 +69,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class FaceTrainingActivity extends AppCompatActivity {
+public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceFragmentListener {
 
     private static final String TAG = "Ezequiel Adrian Camera";
     private Context context;
@@ -214,54 +216,83 @@ public class FaceTrainingActivity extends AppCompatActivity {
                     .build();
             Bitmap capturedBitmap = Utils.getBitmapFromImageAndScale(image);
             image.close();
-
-
-
-
+            
             // TODO confirm image
             confirmImage(capturedBitmap);
 
-//            int rotation = 0;
-//            try {
-//                rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
-//                e.printStackTrace();
-//            }
-//
-//            final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
-//            SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
-//
-//            if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
-//                //no FACE DETECTEd
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        takePictureButton.setEnabled(true);
-//                    }
-//                });
-//            }else{
-//                Face face = detectedFaces.valueAt(0);
-//                Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
-//                String fileName = "1-user_" + index +  ".png";
-//                File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
-//                Utils.saveBitmap(bitmap, file.getAbsolutePath());
-//                //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
-//                //Utils.smooth(file.getAbsolutePath());
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        that.showDoneTraining();
-//                    }
-//                });
-//
-//            }
         }
     };
 
-        private void confirmImage(Bitmap image) {
-            Fragment newFragment = new ShowFaceFragment().newInstance(image);
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.add(R.id.training_container, newFragment).commit();
+    /**
+     * call this function to execute FaceRecognition processing
+     * @param faceDetector
+     * @param capturedBitmap
+     */
+    private void onUserConfirmedPicture(FaceDetector faceDetector, Bitmap capturedBitmap) {
+        int rotation = 0;
+        try {
+            rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
+            e.printStackTrace();
         }
+
+        final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
+        SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
+
+        if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
+            //no FACE DETECTEd
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    takePictureButton.setEnabled(true);
+                }
+            });
+        }else{
+            Face face = detectedFaces.valueAt(0);
+            Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
+            String fileName = "1-user_" + index +  ".png";
+            File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
+            Utils.saveBitmap(bitmap, file.getAbsolutePath());
+            //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
+            //Utils.smooth(file.getAbsolutePath());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    that.showDoneTraining();
+                }
+            });
+
+        }
+    }
+
+    /**
+     * this function show the image, which user just capture to confirm before execute  onUserConfirmedPicture() function
+     * @param image
+     */
+    private void confirmImage(Bitmap image) {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+
+
+            FragmentManager fm = getFragmentManager();
+
+            ShowFaceFragment fragment = (ShowFaceFragment) fm.findFragmentByTag("tag");
+
+
+            if (fragment == null){
+                 fragment = new ShowFaceFragment().newInstance(image);
+                ft.add(R.id.training_container, fragment, "tag");
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+
+            }else {
+                ft.remove(fragment);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+            }
+
+            ft.commit();
+
+//            addOrRemoveFragment();
+        }
+
+
 
 
     private String getFrontFacingCameraId(CameraManager cManager) {
@@ -565,5 +596,29 @@ public class FaceTrainingActivity extends AppCompatActivity {
         if(previewFaceDetector != null) {
             previewFaceDetector.release();
         }
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if (fragment instanceof ShowFaceFragment){
+            ((ShowFaceFragment) fragment).setListener(this);
+        }
+    }
+
+    @Override
+    public void onBackToReCaptureButtonClicked() {
+        confirmImage(null);
+        takePictureButton.setEnabled(true);
+    }
+
+    /**
+     * the callback from user profile fragment when picture is showing.
+     * we show the confirmButton instead of record button
+     * 
+     */
+    @Override
+    public void onFragmentOpening() {
+        Toast.makeText(context, "the fragment is opening", Toast.LENGTH_SHORT).show();
     }
 }
