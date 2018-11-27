@@ -1,8 +1,10 @@
 package com.bzzzchat.videorecorder.view.facerecognition;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
+
 import androidx.appcompat.app.AlertDialog;
 
 import android.app.Fragment;
@@ -45,6 +47,7 @@ import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -110,17 +113,19 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         File trainingFolder = new File(FaceRecognition.Companion.getInstance(context).getTrainingFolder());
         trainingFolder.delete();
 
-        if(checkGooglePlayAvailability()) {
+        if (checkGooglePlayAvailability()) {
             requestPermissionThenOpenCamera();
 
             takePictureButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     takePictureButton.setEnabled(false);
-                    if(useCamera2) {
-                        if(mCamera2Source != null)mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback);
+                    if (useCamera2) {
+                        if (mCamera2Source != null)
+                            mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback);
                     } else {
-                        if(mCameraSource != null)mCameraSource.takePicture(cameraSourceShutterCallback, cameraSourcePictureCallback);
+                        if (mCameraSource != null)
+                            mCameraSource.takePicture(cameraSourceShutterCallback, cameraSourcePictureCallback);
                     }
                 }
             });
@@ -154,7 +159,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         dialog.show();
     }
 
-    private void showErrorTraining(String msg){
+    private void showErrorTraining(String msg) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("")
                 .setMessage(msg)
@@ -173,9 +178,14 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         String progressStr = index + "/" + requiredImages;
         progress.setText(progressStr);
     }
+
     private FaceTrainingActivity that = this;
-    final CameraSource.ShutterCallback cameraSourceShutterCallback = new CameraSource.ShutterCallback() {@Override
-    public void onShutter() {Log.d(TAG, "Shutter Callback!");}};
+    final CameraSource.ShutterCallback cameraSourceShutterCallback = new CameraSource.ShutterCallback() {
+        @Override
+        public void onShutter() {
+            Log.d(TAG, "Shutter Callback!");
+        }
+    };
     final CameraSource.PictureCallback cameraSourcePictureCallback = new CameraSource.PictureCallback() {
         @Override
         public void onPictureTaken(Bitmap picture) {
@@ -207,7 +217,9 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     final Camera2Source.ShutterCallback camera2SourceShutterCallback = new Camera2Source.ShutterCallback() {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
-        public void onShutter() {Log.d(TAG, "Shutter Callback for CAMERA2");}
+        public void onShutter() {
+            Log.d(TAG, "Shutter Callback for CAMERA2");
+        }
     };
 
     final Camera2Source.PictureCallback camera2SourcePictureCallback = new Camera2Source.PictureCallback() {
@@ -234,20 +246,22 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
 
     /**
      * call this function to execute FaceRecognition processing
+     *
      * @param faceDetector
      * @param capturedBitmap
      */
     private void onUserConfirmedPicture(FaceDetector faceDetector, Bitmap capturedBitmap) {
         int rotation = 0;
         try {
-            rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that); } catch (CameraAccessException e) {
+            rotation = Utils.getRotationCompensation(mCamera2Source.getCameraId(), that);
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
 
         final Bitmap finalPicture = Utils.rotateImage(capturedBitmap, rotation, 384f);
         SparseArray<Face> detectedFaces = faceDetector.detect(new Frame.Builder().setBitmap(finalPicture).build());
 
-        if (detectedFaces.size() == 0 || detectedFaces.size() > 1){
+        if (detectedFaces.size() == 0 || detectedFaces.size() > 1) {
             //no FACE DETECTEd
             runOnUiThread(new Runnable() {
                 @Override
@@ -259,10 +273,10 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
 
                 }
             });
-        }else{
+        } else {
             Face face = detectedFaces.valueAt(0);
             Bitmap bitmap = Utils.getFaceFromBitmap(finalPicture, face);
-            String fileName = "1-user_" + index +  ".png";
+            String fileName = "1-user_" + index + ".png";
             File file = new File(FaceRecognition.Companion.getInstance(that).getTrainingFolder(), fileName);
             Utils.saveBitmap(bitmap, file.getAbsolutePath());
             //Utils.brightnessAndContrastAuto(file.getAbsolutePath());
@@ -279,33 +293,36 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
 
     /**
      * this function show the image, which user just capture to confirm before execute  onUserConfirmedPicture() function
+     *
      * @param image
      */
+    @SuppressLint("ResourceType")
     private void confirmImage(Bitmap image) {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.animator.fragment_slide_left_enter,
+                R.animator.fragment_slide_left_exit,
+                R.animator.fragment_slide_right_enter,
+                R.animator.fragment_slide_right_exit);
+        FragmentManager fm = getFragmentManager();
+
+        ShowFaceFragment fragment = (ShowFaceFragment) fm.findFragmentByTag("tag");
 
 
-            FragmentManager fm = getFragmentManager();
+        if (fragment == null) {
+            fragment = new ShowFaceFragment().newInstance(image);
+            ft.add(R.id.training_container, fragment, "tag");
+//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
 
-            ShowFaceFragment fragment = (ShowFaceFragment) fm.findFragmentByTag("tag");
-
-
-            if (fragment == null){
-                 fragment = new ShowFaceFragment().newInstance(image);
-                ft.add(R.id.training_container, fragment, "tag");
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-
-            }else {
-                ft.remove(fragment);
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
-            }
-
-            ft.commit();
-
-//            addOrRemoveFragment();
+        } else {
+            ft.remove(fragment);
+//                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
         }
 
 
+        ft.commit();
+
+//            addOrRemoveFragment();
+    }
 
 
     private String getFrontFacingCameraId(CameraManager cManager) {
@@ -343,7 +360,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     }
 
     private void requestPermissionThenOpenCamera() {
-        if(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 useCamera2 = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
                 createCameraSourceFront();
@@ -364,13 +381,13 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                 .setTrackingEnabled(true)
                 .build();
 
-        if(previewFaceDetector.isOperational()) {
+        if (previewFaceDetector.isOperational()) {
             previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
         } else {
             Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
         }
 
-        if(useCamera2) {
+        if (useCamera2) {
             mCamera2Source = new Camera2Source.Builder(context, previewFaceDetector)
                     .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
                     .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
@@ -380,7 +397,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
             //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
             //WE WILL USE CAMERA1.
 //            if(mCamera2Source.isCamera2Native()) {
-                startCameraSource();
+            startCameraSource();
 //            } else {
 //                useCamera2 = false;
 //                if(usingFrontCamera) createCameraSourceFront(); else createCameraSourceBack();
@@ -404,13 +421,13 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                 .setTrackingEnabled(true)
                 .build();
 
-        if(previewFaceDetector.isOperational()) {
+        if (previewFaceDetector.isOperational()) {
             previewFaceDetector.setProcessor(new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory()).build());
         } else {
             Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show();
         }
 
-        if(useCamera2) {
+        if (useCamera2) {
             mCamera2Source = new Camera2Source.Builder(context, previewFaceDetector)
                     .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
                     .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
@@ -419,11 +436,12 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
 
             //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
             //WE WILL USE CAMERA1.
-            if(mCamera2Source.isCamera2Native()) {
+            if (mCamera2Source.isCamera2Native()) {
                 startCameraSource();
             } else {
                 useCamera2 = false;
-                if(usingFrontCamera) createCameraSourceFront(); else createCameraSourceBack();
+                if (usingFrontCamera) createCameraSourceFront();
+                else createCameraSourceBack();
             }
         } else {
             mCameraSource = new CameraSource.Builder(context, previewFaceDetector)
@@ -436,9 +454,10 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     }
 
     private void startCameraSource() {
-        if(useCamera2) {
-            if(mCamera2Source != null) {
-                try {mPreview.start(mCamera2Source, mGraphicOverlay);
+        if (useCamera2) {
+            if (mCamera2Source != null) {
+                try {
+                    mPreview.start(mCamera2Source, mGraphicOverlay);
                 } catch (IOException e) {
                     Log.e(TAG, "Unable to start camera source 2.", e);
                     mCamera2Source.release();
@@ -447,7 +466,8 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
             }
         } else {
             if (mCameraSource != null) {
-                try {mPreview.start(mCameraSource, mGraphicOverlay);
+                try {
+                    mPreview.start(mCameraSource, mGraphicOverlay);
                 } catch (IOException e) {
                     Log.e(TAG, "Unable to start camera source.", e);
                     mCameraSource.release();
@@ -520,20 +540,22 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         public boolean onTouch(View v, MotionEvent pEvent) {
             v.onTouchEvent(pEvent);
             if (pEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                int autoFocusX = (int) (pEvent.getX() - Utils.dpToPx(60)/2);
-                int autoFocusY = (int) (pEvent.getY() - Utils.dpToPx(60)/2);
+                int autoFocusX = (int) (pEvent.getX() - Utils.dpToPx(60) / 2);
+                int autoFocusY = (int) (pEvent.getY() - Utils.dpToPx(60) / 2);
                 ivAutoFocus.setTranslationX(autoFocusX);
                 ivAutoFocus.setTranslationY(autoFocusY);
                 ivAutoFocus.setVisibility(View.VISIBLE);
                 ivAutoFocus.bringToFront();
-                if(useCamera2) {
-                    if(mCamera2Source != null) {
+                if (useCamera2) {
+                    if (mCamera2Source != null) {
                         mCamera2Source.autoFocus(new Camera2Source.AutoFocusCallback() {
                             @Override
                             public void onAutoFocus(boolean success) {
                                 runOnUiThread(new Runnable() {
                                     @Override
-                                    public void run() {ivAutoFocus.setVisibility(View.GONE);}
+                                    public void run() {
+                                        ivAutoFocus.setVisibility(View.GONE);
+                                    }
                                 });
                             }
                         }, pEvent, v.getWidth(), v.getHeight());
@@ -541,13 +563,15 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                         ivAutoFocus.setVisibility(View.GONE);
                     }
                 } else {
-                    if(mCameraSource != null) {
+                    if (mCameraSource != null) {
                         mCameraSource.autoFocus(new CameraSource.AutoFocusCallback() {
                             @Override
                             public void onAutoFocus(boolean success) {
                                 runOnUiThread(new Runnable() {
                                     @Override
-                                    public void run() {ivAutoFocus.setVisibility(View.GONE);}
+                                    public void run() {
+                                        ivAutoFocus.setVisibility(View.GONE);
+                                    }
                                 });
                             }
                         });
@@ -570,8 +594,8 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
                 finish();
             }
         }
-        if(requestCode == REQUEST_STORAGE_PERMISSION) {
-            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 requestPermissionThenOpenCamera();
             } else {
                 Toast.makeText(FaceTrainingActivity.this, "STORAGE PERMISSION REQUIRED", Toast.LENGTH_LONG).show();
@@ -582,10 +606,10 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     @Override
     protected void onResume() {
         super.onResume();
-        if(wasActivityResumed)
+        if (wasActivityResumed)
             //If the CAMERA2 is paused then resumed, it won't start again unless creating the whole camera again.
-            if(useCamera2) {
-                if(usingFrontCamera) {
+            if (useCamera2) {
+                if (usingFrontCamera) {
                     createCameraSourceFront();
                 } else {
                     createCameraSourceBack();
@@ -606,7 +630,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     protected void onDestroy() {
         super.onDestroy();
         stopCameraSource();
-        if(previewFaceDetector != null) {
+        if (previewFaceDetector != null) {
             previewFaceDetector.release();
         }
     }
@@ -614,7 +638,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        if (fragment instanceof ShowFaceFragment){
+        if (fragment instanceof ShowFaceFragment) {
             ((ShowFaceFragment) fragment).setListener(this);
         }
     }
@@ -630,7 +654,6 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     /**
      * the callback from user profile fragment when picture is showing.
      * we show the confirmButton instead of record button
-     * 
      */
     @Override
     public void onFragmentOpening() {
@@ -641,9 +664,10 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
 
     /**
      * the click handler
+     *
      * @param view
      */
     public void onConfirmClicked(View view) {
-        onUserConfirmedPicture(mFaceDetector,mCapturedBitmap);
+        onUserConfirmedPicture(mFaceDetector, mCapturedBitmap);
     }
 }
