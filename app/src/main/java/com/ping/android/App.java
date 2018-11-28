@@ -61,11 +61,12 @@ public class App extends CoreApp implements HasActivityInjector {
                     }
                 });
         // Set up Crashlytics, disabled for debug builds
-        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder()
-                        .disabled(BuildConfig.DEBUG)
-                        .build())
-                .build();
+//        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+//                .core(new CrashlyticsCore.Builder()
+//                        .disabled(BuildConfig.DEBUG)
+//                        .build())
+//                .build();
+        Crashlytics crashlyticsKit = new Crashlytics();
 
         // Initialize Fabric with the debug-disabled crashlytics.
         Fabric.with(this, crashlyticsKit);
