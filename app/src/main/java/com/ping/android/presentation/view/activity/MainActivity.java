@@ -110,9 +110,9 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (dispatchTouch) {
-            return true;
-        }
+//        if (dispatchTouch) {
+//            return true;
+//        }
         return super.dispatchTouchEvent(ev);
     }
 

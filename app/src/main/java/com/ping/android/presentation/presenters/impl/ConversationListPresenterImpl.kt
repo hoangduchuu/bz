@@ -50,7 +50,7 @@ constructor() : ConversationListPresenter {
     }
 
     override fun getConversations() {
-        view?.showConnecting()
+//        view?.showConnecting()
         observeMappingsUseCase.execute(object : DefaultObserver<Map<String, String>>() {
             override fun onNext(mappings: Map<String, String>) {
                 view?.updateMappings(mappings)
@@ -64,13 +64,13 @@ constructor() : ConversationListPresenter {
                 canLoadMore = output.canLoadMore
                 lastTimestamp = output.lastTimestamp
                 observeConversations()
-                view?.hideConnecting()
+//                view?.hideConnecting()
             }
 
             override fun onError(exception: Throwable) {
                 exception.printStackTrace()
                 observeConversations()
-                view?.hideConnecting()
+//                view?.hideConnecting()
             }
         }, lastTimestamp)
     }
