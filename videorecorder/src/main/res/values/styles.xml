@@ -22,4 +22,17 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+
+    <style name="BackButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:tint">#FBB040</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:src">@drawable/ic_back</item>
+        <item name="android:background">@drawable/button_ripple</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:paddingRight">16dp</item>
+    </style>
 </resources>
