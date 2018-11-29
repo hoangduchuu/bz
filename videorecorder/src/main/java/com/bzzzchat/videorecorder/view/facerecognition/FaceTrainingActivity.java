@@ -146,7 +146,7 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     private void showDoneTraining() {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("")
-                .setMessage("Training completed!")
+                .setMessage(context.getString(R.string.confirm_training_complete))
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

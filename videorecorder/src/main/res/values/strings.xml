@@ -16,4 +16,5 @@
     <string name="record_video">VIDEO</string>
     <string name="stop_video">STOP</string>
     <string name="no_face_detected">No Face Detected</string>
+    <string name="confirm_training_complete">Confirmed picture for Face ID use.</string>
 </resources>
