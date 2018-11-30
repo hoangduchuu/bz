@@ -1,10 +1,17 @@
 package com.ping.android.data.repository;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
 import com.bzzzchat.rxfirebase.RxFirebaseAuth;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -17,8 +24,10 @@ import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.CallEntityMapper;
 import com.ping.android.domain.repository.UserRepository;
+import com.ping.android.exeption.BzzzExeption;
 import com.ping.android.model.Badge;
 import com.ping.android.model.User;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,9 +35,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -506,5 +517,32 @@ public class UserRepositoryImpl implements UserRepository {
         if (userId == null)
             return Observable.error(new NullPointerException("Current uuid is null"));
         return Observable.just(userId);
+    }
+
+    @Override
+    public Observable<Boolean> checkPassword(String password) {
+     return   Observable.create(emitter -> {
+            if (auth == null){
+                emitter.onError(new BzzzExeption(BzzzExeption.Companion.getUnknown(), " Can not get Current User"));
+            }else {
+                auth.signInWithEmailAndPassword(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()),password)
+                        .addOnSuccessListener(authResult -> {
+                            emitter.onNext(true);
+                            emitter.onComplete();
+                        }).addOnFailureListener(e -> {
+                            if (e instanceof FirebaseNetworkException){
+                                emitter.onNext(false);
+                                emitter.onError(new BzzzExeption(BzzzExeption.Companion.getFirebaseNetWorkExeption(), "Unable to turn off Face ID at this time due to no internet connection. \n Reconnect to internet and try again."));
+                                emitter.onComplete();
+                                return;
+                            }
+                            emitter.onNext(false);
+                            emitter.onError(new BzzzExeption(BzzzExeption.Companion.getUnknown(), e.getLocalizedMessage()));
+                            emitter.onComplete();
+                        }).addOnCompleteListener(task -> {
+                            emitter.onComplete();
+                        });
+            }
+        });
     }
 }

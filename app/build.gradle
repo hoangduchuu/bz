@@ -27,7 +27,7 @@ android {
     // FIXME: When using this method, version code is increase 1 after generate apk
     //increaseVersionCode()
 
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
@@ -37,6 +37,11 @@ android {
         versionCode readBuildCode()
         versionName readVersionName()
         multiDexEnabled true
+
+        //
+        buildConfigField 'int', 'DEGREES_TO_START_HIDDEN_CAMERA', '35'
+        buildConfigField 'long', 'TIME_PROCESS_FACE_ID', '10'
+
     }
     signingConfigs {
         config {
@@ -66,7 +71,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationIdSuffix ".debug"
             // Disable fabric build ID generation for debug builds
-            ext.enableCrashlytics = false
+            ext.enableCrashlytics = true
         }
     }
 //    flavorDimensions "version"
@@ -261,6 +266,12 @@ dependencies {
 //    Design support library
     implementation "com.android.support:design:28.0.0"
     implementation 'com.android.support:appcompat-v7:28.0.0'
+
+
+    // support logger library
+    implementation 'com.orhanobut:logger:2.2.0'
+
+    implementation 'com.wajahatkarim3.EasyFlipView:EasyFlipView:2.1.1'
 
 
 }

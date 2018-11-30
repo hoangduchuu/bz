@@ -150,4 +150,34 @@
         layout="@layout/notify_network_main"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="45dp" />
+
+    <TextView
+        android:id="@+id/timeOutNotification"
+        android:background="@color/bg_network_connecting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        android:gravity="center"
+        tools:visibility="visible"
+        android:text="Unable to complete request"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_view_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+    <com.ping.android.presentation.view.custom.facerecogloading.LoadingRecognizeView
+        android:layout_width="77dp"
+        android:layout_height="57dp"
+        android:layout_marginStart="8dp"
+        android:id="@+id/pbFaceId"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/chat_bottom_layout"
+        app:layout_constraintEnd_toEndOf="@+id/swiperefresh"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.664" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,6 +17,14 @@ public interface ProfilePresenter extends BasePresenter {
 
     void uploadUserProfile(String profileFilePath);
 
+    void checkPasswordBeforeDeleteFaceData(String password);
+
+    void checkPasswordBeforeTurnOffFaceData(String trim);
+
+    void onTrainingFaceTextClicked();
+
+    void onRequestTurnOffFaceData();
+
     interface View extends BaseView {
 
         void updateUser(User user);
@@ -24,5 +32,19 @@ public interface ProfilePresenter extends BasePresenter {
         void navigateToLogin();
 
         void showErrorLogoutFailed();
+
+        void showRequirePasswordFormBeforeDeleteFaceData();
+
+        void handleDeleteFaceIdSuccess();
+        void handleConfirmPasswordError(String errorMsg);
+
+        void handleRequireTurnOffFaceIDSError(String errorMsg);
+        void handleRequireTurnOffFaceIDSuccess();
+
+        void showRequirePasswordFormBeforeTurnOffFaceData();
+
+        void updateToggleIcon();
+
+        void hideSetupText();
     }
 }

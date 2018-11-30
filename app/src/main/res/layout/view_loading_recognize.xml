@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <com.wajahatkarim3.easyflipview.EasyFlipView
+        android:id="@+id/flipperSuccess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:flipDuration="200"
+        tools:visibility="visible"
+        app:flipEnabled="true"
+        app:flipFrom="front"
+        app:flipOnTouch="false"
+        app:flipType="horizontal">
+        <!-- Back Layout Goes Here -->
+
+        <include
+            android:id="@+id/templateStatus"
+            layout="@layout/view_loading_recognize_success"
+            android:visibility="gone" />
+        <!-- Front Layout Goes Here -->
+
+        <include layout="@layout/view_loading_recognize_processing" />
+
+    </com.wajahatkarim3.easyflipview.EasyFlipView>
+
+    <com.wajahatkarim3.easyflipview.EasyFlipView
+        android:id="@+id/flipperFalied"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:flipDuration="200"
+        app:flipEnabled="true"
+        app:flipFrom="front"
+        app:flipOnTouch="false"
+        app:flipType="horizontal">
+
+
+        <!-- Back Layout Goes Here -->
+
+        <include
+            android:id="@+id/templateStatus"
+            layout="@layout/view_loading_recognize_failed"
+            android:visibility="gone" />
+        <!-- Front Layout Goes Here -->
+
+        <include layout="@layout/view_loading_recognize_processing" />
+
+    </com.wajahatkarim3.easyflipview.EasyFlipView>
+
+</merge>

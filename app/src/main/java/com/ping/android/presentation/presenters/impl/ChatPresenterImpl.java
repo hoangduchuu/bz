@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.videorecorder.view.PhotoItem;
 import com.ping.android.data.entity.ChildData;
+import com.ping.android.data.repository.FaceIdStatusRepository;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.ObserveUserStatusUseCase;
 import com.ping.android.domain.usecase.RemoveUserBadgeUseCase;
@@ -39,6 +40,7 @@ import com.ping.android.domain.usecase.message.UpdateMaskChildMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
+import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -51,7 +53,7 @@ import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
+import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +64,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -138,6 +142,16 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveConversationColorUseCase observeConversationColorUseCase;
     @Inject
     ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
+
+    @Inject
+    FaceIdStatusRepository faceIdStatusRepository;
+
+    // TODO need time to create Usecase to execute FaceIdStatusRepository in stead call directly repository over here!
+
+
+    @Inject
+    CheckPasswordUseCase checkPasswordUseCase;
+
     // region Use cases for PVP conversation
     @Inject
     ObserveUserStatusUseCase observeUserStatusUseCase;
@@ -208,6 +222,15 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
+                view.hideLoading();
+                if (exception instanceof TimeoutException){
+                    view.showTimeouNotification();
+                }
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
                 view.hideLoading();
             }
         }, conversationId);
@@ -625,6 +648,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
                 view.hideLoading();
             }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+                view.hideLoading();
+            }
         }, params);
     }
 
@@ -686,6 +715,12 @@ public class ChatPresenterImpl implements ChatPresenter {
                 view.updateLastMessages(new ArrayList<>(), false);
                 observeMessageUpdate();
                 observeTypingEvent();
+                view.hideLoading();
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
                 view.hideLoading();
             }
         }, conversation);
@@ -1100,5 +1135,45 @@ public class ChatPresenterImpl implements ChatPresenter {
             }
         }
         message.messageStatus = messageStatus;
+    }
+
+
+    @Override
+    public void checkPassword(@NotNull String password) {
+        view.showLoading();
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                view.disableFaceID();
+                view.hideLoading();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.displayConfirmPasswordError(exception.getLocalizedMessage());
+                view.hideLoading();
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+                view.hideLoading();
+            }
+        }, password);    }
+
+
+    @Override
+    public void disableFaceID() {
+        // TODO HUU: create usecase instead
+        faceIdStatusRepository.disableFaceId();
+        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).disableFaceID();
+
+        //no remove data, if remove, we got crash?
+
+//
+//        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
+//        FaceRecognition.getInstance(this).removeTrainingData()
+//
+//        LiveSharePrefs.getInstance()?.changeFaceIDTrainingStatus(false)
     }
 }

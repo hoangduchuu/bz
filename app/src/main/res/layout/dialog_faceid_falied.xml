@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
+    android:layout_gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+android:background="@drawable/border_dialog"
+    android:orientation="vertical"
+>
+
+    <TextView
+        android:padding="@dimen/google_1x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:layout_gravity="center"
+        android:text="@string/chat_act_detect_faceid_failed"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+    <TextView
+        android:padding="@dimen/google_1x"
+        android:layout_width="wrap_content"
+        android:background="@color/white"
+        android:layout_height="wrap_content"
+        android:text="@string/chat_act_unable_detect_Face_id" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/white"
+        android:clickable="true"
+        android:id="@+id/btTryAgain"
+        android:focusable="true"
+        android:textAllCaps="false"
+        android:gravity="center"
+        android:text="@string/chat_act_try_again"
+        android:textAlignment="center" />
+
+
+    <View
+        android:background="@color/gray_color_20"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/white"
+        android:id="@+id/btTurnOffFaceId"
+        android:clickable="true"
+        android:textAllCaps="false"
+        android:focusable="true"
+        android:gravity="center"
+        android:text="@string/chat_act_turn_off_face_id"
+        android:textAlignment="center" />
+
+    <View
+        android:background="@color/trans_100"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"/>
+
+
+</LinearLayout>

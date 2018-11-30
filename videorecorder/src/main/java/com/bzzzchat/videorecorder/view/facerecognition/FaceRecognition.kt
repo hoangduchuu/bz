@@ -147,8 +147,8 @@ class FaceRecognition private constructor(context: Context) {
                 result += (refi-outi).pow(2)
             }
             result = Math.sqrt(result)
-            Toast.makeText(context, "Confidence: ${result}",
-                    Toast.LENGTH_LONG).show()
+//            Toast.makeText(context, "Confidence: ${result}",
+//                    Toast.LENGTH_LONG).show()
 
             Log.d(TAG, "Confidence: ${result}")
             if (result < 0.5) {

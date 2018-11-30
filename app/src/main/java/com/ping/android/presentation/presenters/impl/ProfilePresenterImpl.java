@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters.impl;
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.LogoutUseCase;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
+import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserNotificationSettingUseCase;
 import com.ping.android.domain.usecase.user.ToggleUserPrivateProfileSettingUseCase;
 import com.ping.android.domain.usecase.user.UploadUserProfileImageUseCase;
@@ -32,7 +33,11 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     UploadUserProfileImageUseCase uploadUserProfileImageUseCase;
 
     @Inject
-    public ProfilePresenterImpl() {}
+    public ProfilePresenterImpl() {
+    }
+
+    @Inject
+    CheckPasswordUseCase checkPasswordUseCase;
 
     @Override
     public void create() {
@@ -113,6 +118,71 @@ public class ProfilePresenterImpl implements ProfilePresenter {
     }
 
     @Override
+    public void checkPasswordBeforeDeleteFaceData(String password) {
+        view.showLoading();
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                if (aBoolean){
+                    view.handleDeleteFaceIdSuccess();
+                }else {
+                    view.handleConfirmPasswordError("Confirm Password Failed");
+
+                }
+                view.hideLoading();
+                view.updateToggleIcon();
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.handleConfirmPasswordError(exception.getLocalizedMessage());
+                view.hideLoading();
+                view.updateToggleIcon();
+
+
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+            }
+        }, password);
+    }
+
+    @Override
+    public void checkPasswordBeforeTurnOffFaceData(String password) {
+        view.showLoading();
+        checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
+            @Override
+            public void onNext(Boolean aBoolean) {
+                if (aBoolean){
+                    view.handleRequireTurnOffFaceIDSuccess();
+                }else {
+                    view.handleRequireTurnOffFaceIDSError("Confirm Password Failed");
+
+                }
+                view.hideLoading();
+                view.updateToggleIcon();
+
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                view.handleRequireTurnOffFaceIDSError(exception.getLocalizedMessage());
+                view.hideLoading();
+                view.updateToggleIcon();
+
+
+            }
+
+            @Override
+            public void onComplete() {
+                super.onComplete();
+            }
+        }, password);
+    }
+
+    @Override
     public void destroy() {
         view = null;
         logoutUseCase.dispose();
@@ -120,5 +190,20 @@ public class ProfilePresenterImpl implements ProfilePresenter {
         toggleUserNotificationSettingUseCase.dispose();
         toggleUserPrivateProfileSettingUseCase.dispose();
         uploadUserProfileImageUseCase.dispose();
+    }
+
+
+
+    // huu
+
+
+    @Override
+    public void onTrainingFaceTextClicked() {
+        view.showRequirePasswordFormBeforeDeleteFaceData();
+    }
+
+    @Override
+    public void onRequestTurnOffFaceData() {
+        view.showRequirePasswordFormBeforeTurnOffFaceData();
     }
 }

@@ -74,6 +74,12 @@ public interface ChatPresenter extends BasePresenter {
 
     void sendGifs(String gifUrl);
 
+    void checkPassword(@NotNull String password);
+
+
+    // face
+    void disableFaceID();
+
     interface View extends BaseView {
         void updateConversation(Conversation conversation);
 
@@ -110,5 +116,17 @@ public interface ChatPresenter extends BasePresenter {
         void refreshMessages();
 
         void updateUnreadMessageCount(int count);
+
+        void showFaceDetectFailedAfter10s();
+
+        void showRequirePasswordForm();
+
+        void disableFaceID();
+
+        void displayConfirmPasswordError(String message);
+
+        void showTimeouNotification();
+
+
     }
 }

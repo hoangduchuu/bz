@@ -12,7 +12,6 @@ import android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATIO
 import android.hardware.camera2.CameraCharacteristics.SENSOR_ORIENTATION
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
-import android.media.CamcorderProfile
 import android.media.ImageReader
 import android.media.MediaRecorder
 import android.os.Bundle
@@ -38,6 +37,7 @@ import java.io.IOException
 import java.util.*
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.ArrayList
 
 fun withDelay(delay : Long, block : () -> Unit) {
@@ -214,6 +214,12 @@ class Camera2VideoFragment : Fragment(),
 
     }
 
+
+    /**
+     * the state of button is selected or not
+     */
+    private var isBtnCanClick = AtomicBoolean(true)
+
     /**
      * Output file for video
      */
@@ -235,6 +241,7 @@ class Camera2VideoFragment : Fragment(),
         super.onCreate(savedInstanceState)
         arguments.apply {
             outputFolder = getString(VideoRecorderActivity.OUTPUT_FOLDER_EXTRA_KEY)
+
         }
     }
 
@@ -253,15 +260,21 @@ class Camera2VideoFragment : Fragment(),
         }
         videoButton.setListener(object : RecordButtonListener {
             override fun onTakeImage() {
+            if (isBtnCanClick.get()){
                 captureStillPicture()
+            }else{
+                // can not click to muck NotifyIfNeeded
+            }
             }
 
             override fun onStartRecord() {
+                setBtnCanotClick()
                 startRecordingVideo()
             }
 
             override fun onStopRecord() {
                 stopRecordingVideo()
+
             }
         })
         btnSwitchCamera.setOnClickListener {
@@ -860,5 +873,19 @@ class Camera2VideoFragment : Fragment(),
             arguments = extras
         }
     }
+
+
+    // region setter wrapper
+   private fun setBtnCanCLick(){
+        isBtnCanClick.set(true)
+        videoButton.enableTouch()
+    }
+
+   private fun setBtnCanotClick(){
+        isBtnCanClick.set(false)
+       videoButton.disableTouch()
+    }
+    // endregion
+
 
 }

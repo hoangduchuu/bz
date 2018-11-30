@@ -312,6 +312,65 @@ public class Utils {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
     }
 
+    /**
+     * The same with above but we scale 270 degrees
+     * @param image
+     * @return
+     */
+    public static Bitmap getBitmapFromImageAndScale(Image image){
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.capacity()];
+        buffer.get(bytes);
+        Bitmap temp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(270);
+        matrix.postScale(-1,1);
+        Bitmap scaledBitmap = Bitmap.createBitmap
+                (temp,0,0,temp.getWidth(),temp.getHeight(), matrix,true);
+        return getResizedBitmap(scaledBitmap,500);
+    }
+
+
+    /**
+     * Scale the bitmap smaler, because ImageView if so slow if the bitmap size too large
+     * @param bitmapInputSource
+     * @return bitmap
+     */
+    public static Bitmap scaleBitMap(Bitmap bitmapInputSource){
+        Matrix matrix = new Matrix();
+        matrix.postRotate(270);
+        matrix.postScale(-1,1);
+        Bitmap bitmap = Bitmap.createBitmap
+                (bitmapInputSource,0,0,bitmapInputSource.getWidth(),bitmapInputSource.getHeight(), matrix,true);
+        return getResizedBitmap(bitmap, 500);
+    }
+
+
+    /**
+     * helper for bitmap
+     * @param
+     * @param
+     * @return
+     */
+
+
+
+
+    public static Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 0) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
         Rect rect = face.getBoundingBox();
         return getFaceFromBitmap(bitmap, rect);

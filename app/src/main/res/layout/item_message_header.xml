@@ -9,6 +9,7 @@
     android:gravity="center">
 
     <View
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:layout_weight="1"
@@ -24,6 +25,7 @@
         tools:text="Yesterday"/>
 
     <View
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:layout_weight="1"

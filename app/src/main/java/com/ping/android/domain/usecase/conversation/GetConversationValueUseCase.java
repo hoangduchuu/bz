@@ -2,7 +2,7 @@ package com.ping.android.domain.usecase.conversation;
 
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
-import com.bzzzchat.cleanarchitecture.UseCase;
+import com.bzzzchat.cleanarchitecture.UseCaseWithTimeOut;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
 import com.ping.android.domain.repository.UserRepository;
@@ -22,7 +22,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 1/31/18.
  */
 
-public class GetConversationValueUseCase extends UseCase<Conversation, String> {
+public class GetConversationValueUseCase extends UseCaseWithTimeOut<Conversation, String> {
     @Inject
     ConversationRepository conversationRepository;
     @Inject
