@@ -12,9 +12,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:background="@null"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/content"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <FrameLayout
         android:id="@+id/content"

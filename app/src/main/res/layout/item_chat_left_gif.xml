@@ -12,8 +12,11 @@
         android:layout_marginStart="8dp"
         android:background="@null"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_user_profile"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageView
         android:id="@+id/item_chat_user_profile"
