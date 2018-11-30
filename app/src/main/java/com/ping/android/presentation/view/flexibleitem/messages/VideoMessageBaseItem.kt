@@ -3,13 +3,21 @@ package com.ping.android.presentation.view.flexibleitem.messages
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import android.text.TextUtils
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.inflate
 import com.bzzzchat.extensions.px
@@ -36,9 +44,12 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
         private var isVideoReady = false
         private var videoFile: File? = null
         private lateinit var loadingView:View
+        private  var width : Int? = null
+
 
         init {
             initGestureListener()
+            width = getFullWidth()
         }
 
         override fun bindData(item: MessageBaseItem<*>?, lastItem: Boolean) {
@@ -83,7 +94,20 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                         .placeholder(videoThumbnail.drawable)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .transform(RoundedCornersTransformation(radius, 0))
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                return true
+                            }
+
+                            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                val h = ( resource as BitmapDrawable).bitmap.height;
+                                val w = resource.bitmap.width;
+                                calculateImageViewSize(w.toFloat(),h.toFloat(),width!!.toFloat())
+                                return false
+                            }
+                        })
                         .into(videoThumbnail)
+
             } else {
                 val disposable = getLocalThumb(videoFile.absolutePath)
                         .subscribeOn(Schedulers.io())
@@ -93,6 +117,18 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                                     .load(thumbnail)
                                     .placeholder(videoThumbnail.drawable)
                                     .transform(RoundedCornersTransformation(radius, 0))
+                                    .listener(object : RequestListener<Drawable> {
+                                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                            return true
+                                        }
+
+                                        override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                                            val h = ( resource as BitmapDrawable).bitmap.height;
+                                            val w = resource.bitmap.width;
+                                            calculateImageViewSize(w.toFloat(),h.toFloat(),width!!.toFloat())
+                                            return false
+                                        }
+                                    })
                                     .into(videoThumbnail)
                         }
             }
@@ -156,6 +192,38 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 }
             }
             return cacheVideoPath
+        }
+
+
+        /**
+         * get Width of device
+         */
+        private fun getFullWidth(): Int {
+            val displayMetrics = DisplayMetrics()
+            (itemView.context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val height = displayMetrics.heightPixels
+            return displayMetrics.widthPixels
+        }
+
+
+        /**
+         * calculate ImageView size Based-on image ratio.
+         */
+        private fun calculateImageViewSize(w: Float, h: Float, parentWidth: Float) {
+            if (w > h) {
+                val imageViewWidth = (70 * parentWidth / 100).toInt()
+                val imageViewHeight: Int = (imageViewWidth * (w / h)).toInt()
+                val params = videoThumbnail.layoutParams;
+                params?.width = imageViewWidth
+                videoThumbnail.layoutParams = params
+            } else {
+                val imageViewHeight = (70 * parentWidth / 100).toInt()
+                val imageViewWidth: Int = (imageViewHeight * (w / h)).toInt()
+                val params = videoThumbnail.layoutParams;
+                params?.width = imageViewWidth
+                params?.height = imageViewHeight
+                videoThumbnail.layoutParams = params
+            }
         }
     }
 }
