@@ -203,6 +203,8 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
                 .setPositiveButton(getString(R.string.core_ok), (dialog, which) -> dialog.dismiss());
         if (dialog == null){
             dialog = dialogBuilder.create();
+        }else {
+            dialog = dialogBuilder.create();
         }
         new Handler().postDelayed(() -> {
             dialog.show();

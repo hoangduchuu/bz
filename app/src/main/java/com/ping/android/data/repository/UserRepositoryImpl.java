@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -529,6 +530,12 @@ public class UserRepositoryImpl implements UserRepository {
                             emitter.onNext(true);
                             emitter.onComplete();
                         }).addOnFailureListener(e -> {
+                            if (e instanceof FirebaseNetworkException){
+                                emitter.onNext(false);
+                                emitter.onError(new BzzzExeption(BzzzExeption.Companion.getFirebaseNetWorkExeption(), "Unable to turn off Face ID at this time due to no internet connection. \n Reconnect to internet and try again."));
+                                emitter.onComplete();
+                                return;
+                            }
                             emitter.onNext(false);
                             emitter.onError(new BzzzExeption(BzzzExeption.Companion.getUnknown(), e.getLocalizedMessage()));
                             emitter.onComplete();
