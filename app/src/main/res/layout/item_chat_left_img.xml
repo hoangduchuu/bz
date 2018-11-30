@@ -50,8 +50,7 @@
             android:maxWidth="200dp"
             android:maxHeight="200dp"
             android:minWidth="100dp"
-            android:minHeight="100dp"
-            android:scaleType="centerCrop" />
+            android:minHeight="100dp" />
 
         <RelativeLayout
             android:id="@+id/loading_container"
