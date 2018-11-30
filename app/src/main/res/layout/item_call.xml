@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         android:background="@null"
         android:layout_marginEnd="@dimen/default_padding"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <ImageView
         android:id="@+id/call_item_profile"
