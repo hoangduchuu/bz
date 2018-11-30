@@ -1,11 +1,14 @@
 package com.ping.android.presentation.view.flexibleitem.messages;
 
+import android.app.Activity;
 import android.graphics.Outline;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 import androidx.core.util.Pair;
 
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +27,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ping.android.R;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.Log;
 import com.ping.android.utils.ResourceUtils;
 import com.ping.android.utils.configs.Constant;
 
@@ -53,6 +57,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private ImageView imageView;
         private boolean isUpdated;
         private View loadingView;
+        private int width = 0;
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
@@ -68,11 +73,22 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                     outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radius);
                 }
             });
+            width = getFullWidth();
         }
 
         @Override
         protected View getClickableView() {
             return imageView;
+        }
+
+        /**
+         * get Width of device
+         */
+        private int getFullWidth(){
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+
+            ((Activity) itemView.getContext() ).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            return displayMetrics.widthPixels;
         }
 
         @Override
@@ -178,12 +194,46 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 //                        .placeholder(placeholder)
                         .dontAnimate()
                         .messageImage(message.key, bitmapMark)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        })
                         .into(imageView);
                 // should preload remote image
                 if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
                     StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
                     ((GlideRequests) this.glide).load(gsReference)
                             .messageImage(message.key, bitmapMark)
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    loadingView.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    loadingView.setVisibility(View.GONE);
+                                    float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                    float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                    float parentWith = width;
+                                    calculateImageViewSize(w,h,parentWith);
+                                    return false;
+                                }
+                            })
                             .preload();
                 }
                 loadingView.setVisibility(View.GONE);
@@ -205,10 +255,43 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (imageURL.startsWith("gs://")) {
                 StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
                 request = ((GlideRequests) this.glide)
-                        .load(gsReference);
+                        .load(gsReference)                    .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        });
             } else {
                 request = ((GlideRequests) this.glide)
-                        .load(new File(imageURL));
+                        .load(new File(imageURL))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        });
             }
 
             request
@@ -225,10 +308,30 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                             loadingView.setVisibility(View.GONE);
+                            float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                            float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                            float parentWith = width;
+                            calculateImageViewSize(w,h,parentWith);
                             return false;
                         }
                     })
                     .into(imageView);
+        }
+
+        private void calculateImageViewSize(float w, float h, float parentWidth) {
+            if (w>h){
+                int imageViewWidth = (int) (70 * parentWidth /100);
+                ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                params.width = imageViewWidth;
+                imageView.setLayoutParams(params);
+            }else {
+                int imageViewHeight = (int) (70 * parentWidth /100);
+                int imageViewWidth = (int) (imageViewHeight * (w/h));
+                ViewGroup.LayoutParams params = imageView.getLayoutParams();
+                params.width = imageViewWidth;
+                params.height = imageViewHeight;
+                imageView.setLayoutParams(params);
+            }
         }
     }
 }
