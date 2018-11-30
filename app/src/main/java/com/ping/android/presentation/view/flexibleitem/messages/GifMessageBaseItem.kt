@@ -1,7 +1,9 @@
 package com.ping.android.presentation.view.flexibleitem.messages
 
+import android.app.Activity
 import android.graphics.Outline
 import android.text.TextUtils
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +12,13 @@ import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.bzzzchat.configuration.GlideApp
 import com.ping.android.R
 import com.ping.android.model.Message
@@ -34,6 +41,7 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
         private val imageView: ImageView?
         private var isUpdated: Boolean = false
         private val loadingView: View
+        private var width: Int? =null
 
         init {
             content = itemView!!.findViewById(R.id.content)
@@ -47,8 +55,18 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
                     outline.setRoundRect(0, 0, view.width, view.height, radius.toFloat())
                 }
             }
+            width =  getFullWidth()
         }
 
+        /**
+         * get Width of device
+         */
+        private fun getFullWidth(): Int {
+            val displayMetrics = DisplayMetrics()
+            ( itemView.context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val height = displayMetrics.heightPixels
+            return displayMetrics.widthPixels
+        }
         override fun getClickableView(): View? {
             return imageView
         }
@@ -96,10 +114,38 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .placeholder(circularProgressDrawable)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .override(400, 400)
                     .error(R.drawable.ic_error_outline)
                     .fitCenter()
+                    .listener(object : RequestListener<GifDrawable>{
+                        override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<GifDrawable>?, isFirstResource: Boolean): Boolean {
+                            return true
+                        }
+                        override fun onResourceReady(resource: GifDrawable?, model: Any?, target: Target<GifDrawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                            calculateImageViewSize(resource?.intrinsicWidth!!.toFloat(), resource.intrinsicHeight.toFloat(), width!!.toFloat())
+                            return false
+                        }
+                    })
                     .into(imageView!!)
+        }
+
+        /**
+         * calculate ImageView size Based-on image ratio.
+         */
+        private fun calculateImageViewSize(w: Float, h: Float, parentWidth: Float) {
+             if (w>h){
+                 val imageViewWidth = (70 * parentWidth /100).toInt()
+                 val imageViewHeight :Int= (imageViewWidth * (w/h)).toInt()
+                 val params =  imageView?.layoutParams;
+                 params?.width = imageViewWidth
+                 imageView?.layoutParams = params
+             }else{
+                 val imageViewHeight = (70 * parentWidth /100).toInt()
+                 val imageViewWidth :Int= (imageViewHeight * (w/h)).toInt()
+                 val params =  imageView?.layoutParams;
+                 params?.width = imageViewWidth
+                 params?.height = imageViewHeight
+                 imageView?.layoutParams = params
+             }
         }
 
         private fun fetchAccentColor(): Int {

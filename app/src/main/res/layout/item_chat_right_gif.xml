@@ -30,8 +30,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:background="@color/gray_color_20"
-            android:scaleType="centerCrop" />
+            android:background="@color/gray_color_20" />
 
         <RelativeLayout
             android:id="@+id/loading_container"
