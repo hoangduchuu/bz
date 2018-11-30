@@ -194,12 +194,46 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 //                        .placeholder(placeholder)
                         .dontAnimate()
                         .messageImage(message.key, bitmapMark)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        })
                         .into(imageView);
                 // should preload remote image
                 if (!TextUtils.isEmpty(message.mediaUrl) && message.mediaUrl.startsWith("gs://")) {
                     StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(message.mediaUrl);
                     ((GlideRequests) this.glide).load(gsReference)
                             .messageImage(message.key, bitmapMark)
+                            .listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    loadingView.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    loadingView.setVisibility(View.GONE);
+                                    float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                    float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                    float parentWith = width;
+                                    calculateImageViewSize(w,h,parentWith);
+                                    return false;
+                                }
+                            })
                             .preload();
                 }
                 loadingView.setVisibility(View.GONE);
@@ -221,10 +255,43 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
             if (imageURL.startsWith("gs://")) {
                 StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(imageURL);
                 request = ((GlideRequests) this.glide)
-                        .load(gsReference);
+                        .load(gsReference)                    .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        });
             } else {
                 request = ((GlideRequests) this.glide)
-                        .load(new File(imageURL));
+                        .load(new File(imageURL))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        });
             }
 
             request
