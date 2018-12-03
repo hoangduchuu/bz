@@ -233,4 +233,9 @@ public abstract class CoreActivity extends AppCompatActivity implements NetworkC
 
     }
 
+    void showTimeOutNotification(){
+        LinearLayout notifyNetworkLayout = findViewById(R.id.timeoutLayout);
+        notifyNetworkLayout.setVisibility(View.VISIBLE);
+    }
+
 }

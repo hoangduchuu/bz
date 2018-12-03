@@ -1,12 +1,15 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.google.firebase.FirebaseNetworkException;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.domain.usecase.auth.AuthenticateUseCase;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.LoginPresenter;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
@@ -57,8 +60,13 @@ public class LoginPresenterImpl implements LoginPresenter {
             @Override
             public void onError(@NotNull Throwable exception) {
                 exception.printStackTrace();
-                view.hideLoading();
-                view.showMessageLoginFailed();
+                if (exception instanceof TimeoutException || exception instanceof FirebaseNetworkException){
+                    view.showTimeOutNotification();
+                    view.hideLoading();
+                }else {
+                    view.showMessageLoginFailed();
+                    view.hideLoading();
+                }
             }
         }, params);
     }

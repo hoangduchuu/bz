@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputLayout;
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.LoginPresenter;
-import com.ping.android.utils.BzLog;
 import com.ping.android.utils.BzzzLeftDrawableClickHelper;
 import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
@@ -211,5 +210,9 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
         return ret;
     }
 
+    @Override
+    public void showTimeOutNotification() {
+        super.showTimeOutNotification();
+    }
 }
 

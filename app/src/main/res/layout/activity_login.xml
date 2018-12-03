@@ -107,6 +107,17 @@
         app:layout_constraintStart_toEndOf="@+id/tv_register" />
 
     <include
-        layout="@layout/notify_network_other"
-        android:visibility="gone" />
+    layout="@layout/notify_network_other"
+    android:visibility="gone" />
+
+
+    <include
+        layout="@layout/notify_timeout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_network_connecting"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
