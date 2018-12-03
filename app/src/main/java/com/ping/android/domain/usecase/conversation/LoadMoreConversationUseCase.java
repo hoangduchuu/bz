@@ -99,7 +99,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                     //HUU
                                                                     String nick = conversation.nickNames.get(user1.key);
                                                                     assert nick != null;
-                                                                    if (nick!=null && nick.length() >0){
+                                                                    if (nick.length() > 0){
                                                                         conversation.senderName = nick;
                                                                     }else {
                                                                         conversation.senderName = user1.firstName;
