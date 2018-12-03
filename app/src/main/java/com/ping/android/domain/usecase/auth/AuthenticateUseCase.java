@@ -15,7 +15,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 
-public class AuthenticateUseCase extends UseCaseWithTimeOut<User, AuthenticateUseCase.Params> {
+public class AuthenticateUseCase extends UseCase<User, AuthenticateUseCase.Params> {
     @Inject
     SearchRepository searchRepository;
     @Inject

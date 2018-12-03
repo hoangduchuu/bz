@@ -437,4 +437,8 @@ public class RegistrationActivity extends CoreActivity implements View.OnClickLi
         return ret;
     }
 
+    @Override
+    public void showTimeOutNotification() {
+        super.showTimeOutNotification();
+    }
 }

@@ -176,4 +176,11 @@
     <include
         layout="@layout/notify_network_other"
         android:visibility="gone" />
+    <include
+        layout="@layout/notify_timeout"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent" />
 </com.ping.android.presentation.view.custom.KeyboardAwaredView>

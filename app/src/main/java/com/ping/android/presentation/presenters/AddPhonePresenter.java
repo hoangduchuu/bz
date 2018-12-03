@@ -7,6 +7,6 @@ public interface AddPhonePresenter extends BasePresenter {
     void updatePhone(String phoneNumber);
 
     interface View extends BaseView {
-
+        void showTimeOutNotification();
     }
 }
