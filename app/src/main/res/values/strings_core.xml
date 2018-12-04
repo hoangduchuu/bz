@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="core_ok">OK</string>
-    <string name="unable_to_complete_request">Unable to complete request</string>
+    <string name="unable_to_complete_request">Unable to complete request. Please check internet connection.</string>
 </resources>

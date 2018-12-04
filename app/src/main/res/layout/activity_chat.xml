@@ -160,7 +160,7 @@
         android:visibility="gone"
         android:gravity="center"
         tools:visibility="visible"
-        android:text="Unable to complete request"
+        android:text="@string/unable_to_complete_request"
         app:layout_constraintBottom_toTopOf="@+id/bottom_view_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
