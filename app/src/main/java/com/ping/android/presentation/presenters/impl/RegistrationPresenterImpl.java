@@ -1,10 +1,13 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.google.firebase.FirebaseNetworkException;
 import com.ping.android.domain.usecase.InitializeUserUseCase;
 import com.ping.android.presentation.presenters.RegistrationPresenter;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
@@ -34,7 +37,12 @@ public class RegistrationPresenterImpl implements RegistrationPresenter {
 
             @Override
             public void onError(@NotNull Throwable exception) {
-                view.hideLoading();
+                if (exception instanceof TimeoutException || exception instanceof FirebaseNetworkException){
+                    view.showTimeOutNotification();
+                    view.hideLoading();
+                }else {
+                    view.hideLoading();
+                }
             }
         }, null);
     }

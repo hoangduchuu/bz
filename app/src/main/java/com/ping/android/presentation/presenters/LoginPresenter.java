@@ -17,5 +17,8 @@ public interface LoginPresenter extends BasePresenter {
         void navigateToMainScreen();
 
         void showMessageLoginFailed();
+
+        void showTimeOutNotification();
+
     }
 }

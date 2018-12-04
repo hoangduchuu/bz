@@ -3,6 +3,7 @@ package com.ping.android.domain.usecase.auth;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.bzzzchat.cleanarchitecture.UseCaseWithTimeOut;
 import com.ping.android.domain.repository.SearchRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.InitializeUserUseCase;

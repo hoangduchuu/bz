@@ -13,5 +13,6 @@ public interface RegistrationPresenter extends BasePresenter {
     interface View extends BaseView {
 
         void navigateToMainScreen();
+        void showTimeOutNotification();
     }
 }

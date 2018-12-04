@@ -23,6 +23,10 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 
+import static com.google.firebase.database.DatabaseError.DISCONNECTED;
+import static com.google.firebase.database.DatabaseError.MAX_RETRIES;
+import static com.google.firebase.database.DatabaseError.NETWORK_ERROR;
+
 public class PhoneActivity extends CoreActivity implements View.OnClickListener, AddPhonePresenter.View {
 
     private FirebaseDatabase database;
@@ -108,9 +112,18 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener,
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                hideLoading();
+                if (databaseError.getCode() == NETWORK_ERROR || databaseError.getCode() == MAX_RETRIES || databaseError.getCode() == DISCONNECTED){
+                    showTimeOutNotification();
+                    hideLoading();
+                }else {
+                    hideLoading();
+                }
             }
         });
     }
 
+    @Override
+    public void showTimeOutNotification() {
+        super.showTimeOutNotification();
+    }
 }

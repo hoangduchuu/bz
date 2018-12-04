@@ -7,6 +7,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by tuanluong on 10/30/17.
@@ -55,6 +56,7 @@ abstract class UseCase<T, in Params>(private val threadExecutor: ThreadExecutor,
      */
     fun <O> execute(observer: O, params: Params) where O: DisposableObserver<T> {
         val observable = this.buildUseCaseObservable(params)
+                .timeout(BuildConfig.TIMEOUT_INTERVAL_INTERNET_CONNECTION,TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.from(threadExecutor))
                 .observeOn(postExecutionThread.scheduler)
         addDisposable(observable.subscribeWith(observer))
