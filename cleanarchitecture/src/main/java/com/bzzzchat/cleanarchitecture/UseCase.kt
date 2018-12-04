@@ -56,7 +56,6 @@ abstract class UseCase<T, in Params>(private val threadExecutor: ThreadExecutor,
      */
     fun <O> execute(observer: O, params: Params) where O: DisposableObserver<T> {
         val observable = this.buildUseCaseObservable(params)
-                .timeout(BuildConfig.TIMEOUT_INTERVAL_INTERNET_CONNECTION,TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.from(threadExecutor))
                 .observeOn(postExecutionThread.scheduler)
         addDisposable(observable.subscribeWith(observer))
