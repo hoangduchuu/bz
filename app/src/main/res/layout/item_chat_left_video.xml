@@ -22,7 +22,7 @@
         android:id="@+id/item_chat_user_profile"
         android:layout_width="@dimen/user_profile_icon_chat_width"
         android:layout_height="@dimen/user_profile_icon_chat_width"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/left_space_avatar"
         android:src="@drawable/ic_avatar_gray"
         app:layout_constraintBottom_toBottomOf="@+id/container"
         app:layout_constraintStart_toEndOf="@+id/item_chat_select" />

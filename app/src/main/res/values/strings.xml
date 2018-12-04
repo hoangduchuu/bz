@@ -309,4 +309,7 @@
 	<string name="stickers">Stickers</string>
 	<string name="gifs">GIFs</string>
 	<string name="emoj">Emoji</string>
+
+
+    <dimen name="left_space_avatar">3dp</dimen>
 </resources>
