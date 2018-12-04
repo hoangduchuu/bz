@@ -50,6 +50,12 @@ public class SplashPresenterImpl implements SplashPresenter {
                     onStepFinish();
                 }
             }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                super.onError(exception);
+                onStepFinish();
+            }
         }, null);
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
