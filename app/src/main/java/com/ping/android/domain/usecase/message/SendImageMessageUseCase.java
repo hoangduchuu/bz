@@ -17,7 +17,9 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.Utils;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -84,6 +86,8 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                                                 updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
                                                 updateValue.put(String.format("media/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
                                                 updateValue.put(String.format("media/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
+                                                updateValue.put(String.format("messages/%s/%s/status/%s", params.conversation.key, cachedMessage.key,params.currentUser.key),
+                                                        Constant.MESSAGE_STATUS_DELIVERED);
                                                 return commonRepository.updateBatchData(updateValue)
                                                         .map(aBoolean -> messageMapper.transform(message1, params.currentUser));
                                             }))
