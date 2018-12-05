@@ -67,4 +67,17 @@ public interface MessageRepository {
     void updateLocalMessageStatus(@NotNull String key, int status);
 
     Observable<Integer> getMessageStatus(String conversationId, String message, String userId);
+
+
+    //region Huu additional
+
+    /**
+     *
+     * @param conversationKey   : is conversationKey
+     * @param messageKey        : is messageKey
+     * @param currentUserKey    : currentUserKey
+     * @return                  : input path
+     */
+    Observable<String> updateMsgStatus(String conversationKey, String messageKey, String currentUserKey,String filePath);
+    // endregion
 }
