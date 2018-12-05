@@ -54,6 +54,7 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.utils.configs.Constant;
@@ -290,12 +291,16 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void updateReadStatus(Message message) {
-        if (!message.senderId.equals(currentUser.key)) {
-            if (message.messageStatusCode == Constant.MESSAGE_STATUS_SENT) {
+        if (!message.senderId.equals(currentUser.key) && canUpdateStatustoReadRule(message)) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
                         new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.type));
-            }
+            
         }
+    }
+
+    private boolean canUpdateStatustoReadRule(Message message) {
+        BzLog.INSTANCE.d("ruleUpdateMessageStatus: "+String.valueOf(message.status.get(message.senderId)));
+        return Integer.parseInt(String.valueOf(message.status.get(message.senderId))) == Constant.MESSAGE_STATUS_DELIVERED;
     }
 
     private void handleMessageData(ChildData<Message> messageChildData) {
