@@ -33,6 +33,7 @@ import com.ping.android.domain.usecase.message.SendGroupGameMessageUseCase;
 import com.ping.android.domain.usecase.message.SendGroupImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendImageMessageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendNewStickerMessageUseCase;
 import com.ping.android.domain.usecase.message.SendStickerMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.message.SendVideoMessageUseCase;
@@ -142,6 +143,9 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveConversationColorUseCase observeConversationColorUseCase;
     @Inject
     ObserveConversationBackgroundUseCase observeConversationBackgroundUseCase;
+
+    @Inject
+    SendNewStickerMessageUseCase sendNewStickerMessageUseCase;
 
     @Inject
     FaceIdStatusRepository faceIdStatusRepository;
@@ -945,7 +949,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 .setFileUrl(url)
                 .setMarkStatus(false)
                 .build();
-        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+        sendNewStickerMessageUseCase.execute(new DefaultObserver<Message>() {
             @Override
             public void onNext(Message message1) {
                 sendNotification(conversation, message1.key, message1.message, MessageType.STICKER);
