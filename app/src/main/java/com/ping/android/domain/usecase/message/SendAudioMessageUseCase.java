@@ -66,15 +66,16 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
                     temp.currentUserId = params.currentUser.key;
                     return Observable.just(temp)
                             .concatWith(sendMessageUseCase.buildUseCaseObservable(builder.build())
-                                    .flatMap(message -> sendMessage(params.conversation.key, message.key, params.filePath)
+                                    .flatMap(message -> sendMessage(params.conversation.key, message.key, params.filePath, message.currentUserId)
                                             .map(s -> message)));
                 });
 
     }
 
-    private Observable<String> sendMessage(String conversationId, String messageId, String filePath) {
+    private Observable<String> sendMessage(String conversationId, String messageId, String filePath,String currentUserKey) {
         return this.uploadFile(conversationId, filePath)
-                .flatMap(s -> messageRepository.updateAudioUrl(conversationId, messageId, s));
+                .flatMap(s -> messageRepository.updateAudioUrl(conversationId, messageId, s))
+                .flatMap(s-> messageRepository.updateMsgStatus(conversationId,messageId,currentUserKey,s));
     }
 
     private Observable<String> uploadFile(String conversationKey, String filePath) {
