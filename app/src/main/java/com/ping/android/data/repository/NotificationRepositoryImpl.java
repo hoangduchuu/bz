@@ -57,6 +57,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_badge", badgeNumber + 1);
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
+        object.addProperty("ios_voip", 1);
         object.addProperty("notificationType", "missed_call");
         object.addProperty("senderId", senderId);
         object.addProperty("senderProfile", senderProfileImage);
@@ -81,6 +82,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
         object.addProperty("ios_category", "incoming_message");
+        object.addProperty("ios_voip", 1);
         object.addProperty("notificationType", "incoming_message");
         object.addProperty("messageId",messageId);
         object.addProperty("conversationId", conversationId);
@@ -110,6 +112,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
         object.addProperty("ios_sound", "default");
         object.addProperty("ios_content_available", 1);
         object.addProperty("ios_category", "game_status");
+        object.addProperty("ios_voip", 1);
         object.addProperty("notificationType", "game_status");
         object.addProperty("senderName", displayName);
         object.addProperty("conversationId", conversationId);
