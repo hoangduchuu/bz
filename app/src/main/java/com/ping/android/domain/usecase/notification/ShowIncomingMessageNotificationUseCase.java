@@ -18,6 +18,8 @@ import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
@@ -33,6 +35,7 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
     UserManager userManager;
     @Inject
     RemoveUserBadgeUseCase removeUserBadgeUseCase;
+    private AtomicBoolean isSent = new AtomicBoolean(false);
 
     @Inject
     public ShowIncomingMessageNotificationUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
@@ -45,7 +48,8 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.getMessageStatus(params.conversationId, params.messageId, user.key)
                         .map(messageStatus -> {
-                            if (messageStatus != Constant.MESSAGE_STATUS_READ) {
+                            if ( (messageStatus == Constant.MESSAGE_STATUS_HIDE || messageStatus != Constant.MESSAGE_STATUS_READ ) && !isSent.get()) {
+                                isSent.set(true);
                                 notification.showMessageNotification(user, params.message, params.conversationId, params.senderProfile);
                                 return true;
                             }
