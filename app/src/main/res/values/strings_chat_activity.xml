@@ -6,4 +6,5 @@
     <string name="chat_act_try_again">Try Again</string>
     <string name="chat_act_unable_detect_Face_id">Unable to detect authorized user. Try again or turn off Face ID.
 </string>
+    <dimen name="margin_status">5dp</dimen>
 </resources>
