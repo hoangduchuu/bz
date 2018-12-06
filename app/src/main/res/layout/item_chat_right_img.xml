@@ -71,6 +71,7 @@
         tools:text="12:00 AM" />
 
     <TextView
+        android:layout_marginTop="@dimen/margin_status"
         android:id="@+id/item_chat_status"
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="wrap_content"
