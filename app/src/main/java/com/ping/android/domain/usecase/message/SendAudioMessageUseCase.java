@@ -75,7 +75,7 @@ public class SendAudioMessageUseCase extends UseCase<Message, SendAudioMessageUs
     private Observable<String> sendMessage(String conversationId, String messageId, String filePath,String currentUserKey) {
         return this.uploadFile(conversationId, filePath)
                 .flatMap(s -> messageRepository.updateAudioUrl(conversationId, messageId, s))
-                .flatMap(s-> messageRepository.updateMsgStatus(conversationId,messageId,currentUserKey,s));
+                .flatMap(s-> messageRepository.markSenderMessageStatusAsDelivered(conversationId,messageId,currentUserKey,s));
     }
 
     private Observable<String> uploadFile(String conversationKey, String filePath) {

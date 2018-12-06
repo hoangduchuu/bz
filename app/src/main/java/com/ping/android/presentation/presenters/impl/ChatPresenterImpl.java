@@ -299,7 +299,6 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private boolean canUpdateStatustoReadRule(Message message) {
-        BzLog.INSTANCE.d("ruleUpdateMessageStatus: "+String.valueOf(message.status.get(message.senderId)));
         return Integer.parseInt(String.valueOf(message.status.get(message.senderId))) == Constant.MESSAGE_STATUS_DELIVERED;
     }
 

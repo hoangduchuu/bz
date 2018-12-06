@@ -7,7 +7,6 @@ import com.ping.android.data.entity.MessageEntity
 import com.ping.android.domain.repository.ConversationRepository
 import com.ping.android.domain.repository.MessageRepository
 import com.ping.android.model.Message
-import com.ping.android.utils.BzLog
 
 import javax.inject.Inject
 
@@ -36,7 +35,7 @@ constructor(threadExecutor: ThreadExecutor, postExecutionThread: PostExecutionTh
                 }
                 .flatMap { message -> sendMessageUseCase.buildUseCaseObservable(params) }
                 .flatMap { message ->
-                    messageRepository.updateMsgStatus(params.conversation.key, message.key, message.currentUserId, message.mediaUrl)
+                    messageRepository.markSenderMessageStatusAsDelivered(params.conversation.key, message.key, message.currentUserId, message.mediaUrl)
                             .map { s -> message }
                 }
 

@@ -78,6 +78,6 @@ public interface MessageRepository {
      * @param currentUserKey    : currentUserKey
      * @return                  : input path
      */
-    Observable<String> updateMsgStatus(String conversationKey, String messageKey, String currentUserKey,String filePath);
+    Observable<String> markSenderMessageStatusAsDelivered(String conversationKey, String messageKey, String currentUserKey, String filePath);
     // endregion
 }

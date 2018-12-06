@@ -41,7 +41,7 @@ public class SendTextMessageUseCase extends UseCase<Message, SendMessageUseCase.
                 })
                 .flatMap(message ->
                         sendMessageUseCase.buildUseCaseObservable(params))
-                .flatMap(message -> messageRepository.updateMsgStatus(params.getConversation().key, message.key, message.currentUserId, "")
+                .flatMap(message -> messageRepository.markSenderMessageStatusAsDelivered(params.getConversation().key, message.key, message.currentUserId, "")
                         .map(
                                 s -> message
                         ));
