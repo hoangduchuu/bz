@@ -83,7 +83,8 @@ public class SendVideoMessageUseCase extends UseCase<Message, SendVideoMessageUs
         return uploadThumbnail(params.conversation.key, params.filePath)
                 .flatMap(thumb -> messageRepository.updateThumbnailImage(params.conversation.key, message.key, thumb))
                 .flatMap(s->this.uploadFile(params.conversation.key, params.filePath)
-                        .flatMap(filePath -> messageRepository.updateVideoUrl(params.conversation.key, message.key, filePath)));
+                        .flatMap(filePath -> messageRepository.updateVideoUrl(params.conversation.key, message.key, filePath)))
+                .flatMap(filePath -> messageRepository.updateMsgStatus(params.conversation.key, message.key, message.currentUserId,filePath));
     }
 
     private Observable<String> uploadThumbnail(String conversationKey, String videoPath) {

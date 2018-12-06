@@ -17,6 +17,7 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.Utils;
+import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -89,6 +90,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                     Map<String, Object> updateValue = new HashMap<>();
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
                     updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
+                    updateValue.put(String.format("messages/%s/%s/status/%s", params1.getConversation().key, message.key, params.currentUser.key), Constant.MESSAGE_STATUS_DELIVERED);
                     return commonRepository.updateBatchData(updateValue).map(aBoolean -> messageMapper.transform(message, params.currentUser));
                 });
     }

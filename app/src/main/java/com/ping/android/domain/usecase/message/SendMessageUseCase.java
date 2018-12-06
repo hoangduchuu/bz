@@ -97,7 +97,7 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         return commonRepository.updateBatchData(updateValue)
                 .flatMap(aB -> {
                     timer.cancel();
-                    return messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
+                    return messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_SENT)
                             .map(aBoolean1 -> messageMapper.transform(message, params.user));
                 });
     }

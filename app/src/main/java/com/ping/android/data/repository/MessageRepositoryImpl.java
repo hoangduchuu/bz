@@ -1,5 +1,7 @@
 package com.ping.android.data.repository;
 
+import android.annotation.SuppressLint;
+
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
@@ -12,6 +14,7 @@ import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.entity.MessageEntity_Table;
 import com.ping.android.data.mappers.MessageMapper;
 import com.ping.android.domain.repository.MessageRepository;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.configs.Constant;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -372,5 +375,17 @@ public class MessageRepositoryImpl implements MessageRepository {
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
         return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
                 .toObservable();
+    }
+
+
+    @Override
+    public Observable<String> updateMsgStatus(String conversationKey, String messageKey, String currentUserKey, String filePath) {
+        String path  = String.format("messages/%s/%s/status/%s", conversationKey, messageKey, currentUserKey);
+        DatabaseReference reference = database.getReference(path);
+        return RxFirebaseDatabase.setValue(reference, Constant.MESSAGE_STATUS_DELIVERED)
+                .map(databaseReference -> filePath)
+                .toObservable();
+
+
     }
 }

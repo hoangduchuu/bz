@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.domain.repository.ConversationRepository;
+import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.model.Message;
 
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,9 @@ public class SendTextMessageUseCase extends UseCase<Message, SendMessageUseCase.
     SendMessageUseCase sendMessageUseCase;
 
     @Inject
+    MessageRepository messageRepository;
+
+    @Inject
     public SendTextMessageUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
@@ -36,6 +40,10 @@ public class SendTextMessageUseCase extends UseCase<Message, SendMessageUseCase.
                     return params.getMessage();
                 })
                 .flatMap(message ->
-                        sendMessageUseCase.buildUseCaseObservable(params));
+                        sendMessageUseCase.buildUseCaseObservable(params))
+                .flatMap(message -> messageRepository.updateMsgStatus(params.getConversation().key, message.key, message.currentUserId, "")
+                        .map(
+                                s -> message
+                        ));
     }
 }
