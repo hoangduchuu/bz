@@ -545,4 +545,43 @@ public class UserRepositoryImpl implements UserRepository {
             }
         });
     }
+
+
+    @Override
+    public Observable<Integer> getQuickBloxIdByUserUUidKey(String UserUUidKey) {
+        DatabaseReference reference = database.getReference().child("users").child(UserUUidKey).child("quickBloxID");
+
+        return RxFirebaseDatabase.getInstance(reference)
+                .onSingleValueEvent()
+                .map(dataSnapshot -> dataSnapshot.getValue(Integer.class)).toObservable();
+    }
+
+    @Override
+    public Observable<User> getUserInfoByUUidKey(String userUUidKey) {
+        DatabaseReference reference = database.getReference().child("users").child(userUUidKey);
+        return RxFirebaseDatabase.getInstance(reference)
+                .onSingleValueEvent()
+                .map(User::new)
+                .toObservable();
+    }
+
+
+    @NotNull
+    @Override
+    public Observable<List<User>> getUsersProfileInfomation(ArrayList<User> users) {
+        List<Observable<User>> observables =
+                new ArrayList<>();
+        for (int i = 0; i < users.size(); i++) {
+            observables.add(getUserInfoByUUidKey(users.get(i).key));
+        }
+
+        return Observable.zip(observables, objects -> {
+            List<User> userlist = new ArrayList<>();
+            for (int i = 0; i < objects.length - 1; i++) {
+                User u = (User) objects[i];
+                userlist.add(u);
+            }
+            return userlist;
+        });
+    }
 }

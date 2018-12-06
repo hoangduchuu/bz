@@ -3,6 +3,7 @@ package com.ping.android.presentation.presenters;
 import com.bzzzchat.cleanarchitecture.BasePresenter;
 import com.bzzzchat.cleanarchitecture.BaseView;
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
+import com.ping.android.domain.usecase.conversation.NewCreatePVPConversationUseCase;
 import com.ping.android.model.User;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public interface NewChatPresenter extends BasePresenter {
     void createGroup(List<User> toUsers, String message);
-    void createPVPConversation(CreatePVPConversationUseCase.Params params);
+    void createPVPConversation(NewCreatePVPConversationUseCase.Params params);
 
     interface NewChatView extends BaseView {
         void moveToChatScreen(String conversationId);

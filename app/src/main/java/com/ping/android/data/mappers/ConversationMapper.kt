@@ -2,6 +2,7 @@ package com.ping.android.data.mappers
 
 import com.google.firebase.database.DataSnapshot
 import com.ping.android.model.Conversation
+import com.ping.android.model.Message
 import com.ping.android.model.User
 import com.ping.android.model.enums.MessageCallType
 import com.ping.android.model.enums.MessageType
@@ -36,6 +37,17 @@ class ConversationMapper @Inject constructor() {
         conversation.isMask = maskStatus// || maskMessage
         conversation.type = MessageType.from(conversation.messageType)
         conversation.messageCallType = MessageCallType.from(conversation.callType)
+        return conversation
+    }
+
+
+    /**
+     * use for mapping message.key into conversation lastedMessageIdWhenCreateNewChat to push notification
+     * @param message
+     * @param lastedMessageIdWhenCreateNewChat
+     */
+    fun combineMessageParamToConversation(message: Message, conversation: Conversation): Conversation{
+        conversation.lastedMessageIdWhenCreateNewChat = message.key
         return conversation
     }
 }

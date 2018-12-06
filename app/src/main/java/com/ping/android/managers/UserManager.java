@@ -13,6 +13,7 @@ import com.ping.android.utils.bus.events.ConversationUpdateEvent;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,5 +158,29 @@ public class UserManager {
         }
         user.badges.put(key, value);
         return user.badges;
+    }
+
+    /**
+     *
+     * @param userUUidKey: user key
+     * @return QuickBlox ID of User
+     */
+    public Observable<Integer> getQuickBloxIdByUserUUidKey(String userUUidKey){
+        return userRepository.getQuickBloxIdByUserUUidKey(userUUidKey);
+    }
+
+    /**
+     *
+     * @param userUUidKey: user key
+     * @return : UserInfo
+     * @see User
+     */
+    public Observable<User> getUserInfoByUserUUidKey(String userUUidKey){
+        return userRepository.getUserInfoByUUidKey(userUUidKey);
+    }
+
+
+    public Observable<List<User>> getUsersProfileInfomation(List<User> users){
+        return userRepository.getUsersProfileInfomation((ArrayList<User>) users);
     }
 }

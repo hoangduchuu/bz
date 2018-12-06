@@ -17,5 +17,6 @@ class BzzzExeption(val code: Int, override val message: String? = "") : Throwabl
         val Server_Error = 2
         val No_Configuration = 3
         val firebaseNetWorkExeption = 4
+        val firebaseQueryExeption = 5;
     }
 }

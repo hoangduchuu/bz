@@ -13,6 +13,7 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
