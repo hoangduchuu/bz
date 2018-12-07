@@ -27,8 +27,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by tuanluong on 2/28/18.
@@ -84,7 +82,7 @@ public class SendVideoMessageUseCase extends UseCase<Message, SendVideoMessageUs
                 .flatMap(thumb -> messageRepository.updateThumbnailImage(params.conversation.key, message.key, thumb))
                 .flatMap(s->this.uploadFile(params.conversation.key, params.filePath)
                         .flatMap(filePath -> messageRepository.updateVideoUrl(params.conversation.key, message.key, filePath)))
-                .flatMap(filePath -> messageRepository.updateMsgStatus(params.conversation.key, message.key, message.currentUserId,filePath));
+                .flatMap(filePath -> messageRepository.markSenderMessageStatusAsDelivered(params.conversation.key, message.key, message.currentUserId,filePath));
     }
 
     private Observable<String> uploadThumbnail(String conversationKey, String videoPath) {

@@ -379,7 +379,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
 
     @Override
-    public Observable<String> updateMsgStatus(String conversationKey, String messageKey, String currentUserKey, String filePath) {
+    public Observable<String> markSenderMessageStatusAsDelivered(String conversationKey, String messageKey, String currentUserKey, String filePath) {
         String path  = String.format("messages/%s/%s/status/%s", conversationKey, messageKey, currentUserKey);
         DatabaseReference reference = database.getReference(path);
         return RxFirebaseDatabase.setValue(reference, Constant.MESSAGE_STATUS_DELIVERED)
