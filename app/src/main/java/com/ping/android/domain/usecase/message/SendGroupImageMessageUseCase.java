@@ -87,7 +87,9 @@ public class SendGroupImageMessageUseCase extends UseCase<Message, SendGroupImag
                                                 Collections.sort(messages, (o1, o2) -> Double.compare(o2.timestamp, o1.timestamp));
                                                 return message;
                                             })
-                                    )
+                                            .flatMap(msg -> messageRepository.markSenderMessageStatusAsDelivered(params.conversation.key, message.key, message.currentUserId, "")
+                                                    .map(s -> message)
+                                            ))
                             );
                 });
     }
