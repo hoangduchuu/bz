@@ -9,6 +9,7 @@ import com.ping.android.model.User;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -90,4 +91,12 @@ public interface UserRepository {
     Observable<User> observeUsersChanged();
 
     Observable<Boolean> checkPassword(String password);
+
+    Observable<Integer> getQuickBloxIdByUserUUidKey(String UserUUidKey);
+
+    Observable<User> getUserInfoByUUidKey(String userUUidKey);
+
+
+    @NotNull
+    Observable<List<User>> getUsersProfileInfomation(ArrayList<User> users);
 }

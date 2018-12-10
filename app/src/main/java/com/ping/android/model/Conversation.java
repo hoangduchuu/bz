@@ -61,6 +61,10 @@ public class Conversation implements Parcelable {
     public Group group;
     public User opponentUser;
 
+
+    // HUU
+    public String lastedMessageIdWhenCreateNewChat;
+
     protected Conversation(Parcel in) {
         key = in.readString();
         messageType = in.readInt();
@@ -89,6 +93,8 @@ public class Conversation implements Parcelable {
 
         deleteTimestamp = in.readDouble();
         currentColor = Color.valueOf(in.readString());
+
+        lastedMessageIdWhenCreateNewChat = in.readString();
     }
 
     @Override
@@ -115,6 +121,7 @@ public class Conversation implements Parcelable {
         dest.writeString(jsonObject.toString());
         jsonObject = new JSONObject(deleteTimestamps);
         dest.writeString(jsonObject.toString());
+        dest.writeString(lastedMessageIdWhenCreateNewChat);
 
 
         //Conversation setting

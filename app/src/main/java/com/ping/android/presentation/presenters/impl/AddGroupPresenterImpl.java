@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
+import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
 
@@ -50,11 +51,11 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
         params.groupProfileImage = groupProfileImage;
         params.message = s;
         view.showLoading();
-        createGroupUseCase.execute(new DefaultObserver<String>() {
+        createGroupUseCase.execute(new DefaultObserver<Conversation>() {
             @Override
-            public void onNext(String conversationId) {
+            public void onNext(Conversation conversationId) {
                 view.hideLoading();
-                view.moveToChatScreen(conversationId);
+                view.moveToChatScreen(conversationId.key);
             }
 
             @Override

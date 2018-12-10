@@ -199,4 +199,30 @@ public class User implements Parcelable {
         jsonObject = new JSONObject(blockBys);
         parcel.writeString(jsonObject.toString());
     }
+
+    @Override
+    public String toString() {
+        return "Show infomation of: \n User{" +
+                "key='" + key + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", pingID='" + pingID + '\'' +
+                ", quickBloxID=" + quickBloxID +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", profile='" + profile + '\'' +
+                ", loginStatus=" + loginStatus +
+                ", showMappingConfirm=" + showMappingConfirm +
+                ", mappings=" + mappings +
+                ", settings=" + settings +
+                ", blocks=" + blocks +
+                ", blockBys=" + blockBys +
+                ", badges=" + badges +
+                ", devices=" + devices +
+                ", friends=" + friends +
+                ", typeFriend=" + typeFriend +
+                ", nickName='" + nickName + '\'' +
+                '}';
+    }
 }

@@ -31,6 +31,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.ping.android.R
 import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase
+import com.ping.android.domain.usecase.conversation.NewCreatePVPConversationUseCase
 import com.ping.android.model.User
 import com.ping.android.presentation.presenters.NewChatPresenter
 import com.ping.android.presentation.presenters.SearchUserPresenter
@@ -274,7 +275,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
             presenter.createGroup(toUsers, edMessage.text.toString())
         } else {
             val toUser = selectedUsers[0]
-            val params = CreatePVPConversationUseCase.Params()
+            val params = NewCreatePVPConversationUseCase.Params()
             params.toUser = toUser
             params.message = edMessage.text.toString()
             presenter.createPVPConversation(params)

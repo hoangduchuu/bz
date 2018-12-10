@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.GroupRepository;
@@ -31,7 +32,7 @@ import io.reactivex.Observable;
  * Created by tuanluong on 2/10/18.
  */
 
-public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Params> {
+public class CreateGroupUseCase extends UseCase<Conversation, CreateGroupUseCase.Params> {
     @Inject
     UserRepository userRepository;
     @Inject
@@ -49,13 +50,16 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
     private User currentUser;
 
     @Inject
+    ConversationMapper mapper;
+
+    @Inject
     public CreateGroupUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
 
     @NotNull
     @Override
-    public Observable<String> buildUseCaseObservable(Params params) {
+    public Observable<Conversation> buildUseCaseObservable(Params params) {
         return userManager.getCurrentUser()
                 .zipWith(groupRepository.getKey(), (user, s) -> {
                     currentUser = user;
@@ -102,7 +106,7 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                 )
                 .flatMap(conversation -> {
                     if (TextUtils.isEmpty(params.message)) {
-                        return Observable.just(conversation.key);
+                        return Observable.just(conversation);
                     } else {
                         return conversationRepository.getMessageKey(conversation.key)
                                 .map(messageKey -> new SendMessageUseCase.Params.Builder()
@@ -114,7 +118,7 @@ public class CreateGroupUseCase extends UseCase<String, CreateGroupUseCase.Param
                                         .setMessageKey(messageKey)
                                         .build())
                                 .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1)
-                                    .map(aBoolean -> conversation.key));
+                                    .map(message -> mapper.combineMessageParamToConversation(message,conversation)));
                     }
                 });
 
