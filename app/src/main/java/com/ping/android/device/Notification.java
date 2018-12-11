@@ -12,9 +12,9 @@ public interface Notification {
     void cancelOngoingCall(String tag);
 
     void showMissedCallNotification(String opponentUserId, String opponentProfile, String message,
-                                    boolean isVideo, String tag, boolean enableSound);
+                                    boolean isVideo, String tag, boolean enableSound, int badgeCount);
 
-    void showMessageNotification(User user, String message, String conversationId, String senderProfile);
+    void showMessageNotification(User user, String message, String conversationId, String senderProfile, int badgeCount);
 
     void clearAll();
 

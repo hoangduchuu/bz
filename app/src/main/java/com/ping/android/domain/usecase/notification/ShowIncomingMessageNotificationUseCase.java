@@ -50,7 +50,7 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
                         .map(messageStatus -> {
                             if ( (messageStatus == Constant.MESSAGE_STATUS_HIDE || messageStatus != Constant.MESSAGE_STATUS_READ ) && !isSent.get()) {
                                 isSent.set(true);
-                                notification.showMessageNotification(user, params.message, params.conversationId, params.senderProfile);
+                                notification.showMessageNotification(user, params.message, params.conversationId, params.senderProfile, params.badgeCount);
                                 return true;
                             }
                             return false;
@@ -69,12 +69,14 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
         private String conversationId;
         private String messageId;
         private String senderProfile;
+        private int badgeCount;
 
-        public Params(String message, String conversationId, String messageId, String senderProfile) {
+        public Params(String message, String conversationId, String messageId, String senderProfile, int badgeCount) {
             this.message = message;
             this.conversationId = conversationId;
             this.messageId = messageId;
             this.senderProfile = senderProfile;
+            this.badgeCount = badgeCount;
         }
     }
 }
