@@ -93,7 +93,7 @@ public class NotificationImpl implements com.ping.android.device.Notification {
 
     @Override
     public void showMissedCallNotification(String opponentUserId, String opponentProfile, String message,
-                                           boolean isVideo, String tag, boolean enableSound) {
+                                           boolean isVideo, String tag, boolean enableSound, int badgesCount) {
         Intent intent = new Intent(context, SplashActivity.class);
         intent.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
@@ -130,9 +130,10 @@ public class NotificationImpl implements com.ping.android.device.Notification {
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
                 channel.enableVibration(true);
-                channel.setShowBadge(false);
+                channel.setShowBadge(true);
                 notificationManager.createNotificationChannel(channel);
             }
+//            builder.setNumber(badgesCount);
             //builder.setChannelId("missed_call");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -158,12 +159,12 @@ public class NotificationImpl implements com.ping.android.device.Notification {
     }
 
     @Override
-    public void showMessageNotification(User user, String message, String conversationId, String senderProfile) {
+    public void showMessageNotification(User user, String message, String conversationId, String senderProfile, int badgesCount) {
         boolean soundNotification = user.settings.notification;
         NotificationMessage notificationMessage = new NotificationMessage(message, System.currentTimeMillis(), "");
         notificationMessageRepository.addMessage(conversationId, notificationMessage);
         List<NotificationMessage> messages = notificationMessageRepository.getMessages(conversationId);
-        updateMessagingStyleNotification(messages, conversationId, user, senderProfile);
+        updateMessagingStyleNotification(messages, conversationId, user, senderProfile, badgesCount);
 
         /*int notificationId = conversationId.hashCode();
         // 3. Build notification
@@ -290,7 +291,7 @@ public class NotificationImpl implements com.ping.android.device.Notification {
     }
 
     private void updateMessagingStyleNotification(List<NotificationMessage> messages, String conversationId,
-                                                  User user, String senderProfile) {
+                                                  User user, String senderProfile, int badgesCount) {
         boolean soundNotification = user.settings.notification;
         int notificationId = conversationId.hashCode();
         // Create pending intent, mention the Activity which needs to be
@@ -354,9 +355,10 @@ public class NotificationImpl implements com.ping.android.device.Notification {
                 channel.enableLights(true);
                 channel.setLightColor(Color.GREEN);
                 channel.enableVibration(true);
-                channel.setShowBadge(false);
+                channel.setShowBadge(true);
                 notificationManager.createNotificationChannel(channel);
             }
+//            builder.setNumber(badgesCount);
             //builder.setChannelId("missed_call");
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

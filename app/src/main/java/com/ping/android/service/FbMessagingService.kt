@@ -68,7 +68,7 @@ class FbMessagingService: QBFcmPushListenerService() {
 
             val conversationId = data["conversationId"] as? String ?: ""
             val senderProfile = data["senderProfile"] as? String ?: ""
-            val badgeCount = (data["badge_count"] as? String)?.toIntOrNull()
+            val badgeCount = (data["badge_count"] as? String)?.toIntOrNull() ?:0
             Log.d("new message: $message$conversationId$notificationType")
             when {
                 TextUtils.equals(notificationType, "missed_call") -> {
@@ -86,7 +86,7 @@ class FbMessagingService: QBFcmPushListenerService() {
                                             senderId,
                                             senderProfile,
                                             message,
-                                            isVideo == 1
+                                            isVideo == 1, badgeCount ?:0
                                     ))
                 }
                 TextUtils.equals(notificationType, "incoming_message") -> {
@@ -98,12 +98,12 @@ class FbMessagingService: QBFcmPushListenerService() {
                     val observer = object : DefaultObserver<Boolean>() {
                         override fun onNext(t: Boolean) {
                             if (t) {
-                                ShortcutBadger.applyCount(this@FbMessagingService, badgeCount ?: 0)
+                                ShortcutBadger.applyCount(this@FbMessagingService, badgeCount)
                             }
                         }
                     }
                     showIncomingMessageNotificationUseCase.execute(observer,
-                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, messageId, senderProfile))
+                            ShowIncomingMessageNotificationUseCase.Params(message, conversationId, messageId, senderProfile, badgeCount))
                 }
                 TextUtils.equals(notificationType, "game_status") -> {
                     if (!needDisplayNotification(conversationId)) {
@@ -112,7 +112,7 @@ class FbMessagingService: QBFcmPushListenerService() {
                     getCurrentUserUseCase.execute(object : DefaultObserver<User>() {
                         override fun onNext(user: User) {
                             try {
-                                postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile)
+                                postNotification(this@FbMessagingService, user, message!!, conversationId, senderProfile, badgeCount)
                             } catch (e: JSONException) {
                                 e.printStackTrace()
                             }
@@ -126,7 +126,7 @@ class FbMessagingService: QBFcmPushListenerService() {
 
     @Throws(JSONException::class)
     private fun postNotification(context: Context, currentUser: User?, message: String,
-                                 conversationId: String, profileImage: String) {
+                                 conversationId: String, profileImage: String, badgeCount: Int) {
         val soundNotification = currentUser == null || currentUser.settings.notification
         mNotificationId = getID()
         mConversationId = conversationId
@@ -149,6 +149,7 @@ class FbMessagingService: QBFcmPushListenerService() {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationBuilder.priority = NotificationManager.IMPORTANCE_HIGH
+//            notificationBuilder.setNumber(badgeCount)
         } else {
             notificationBuilder.priority = Notification.PRIORITY_HIGH
         }
