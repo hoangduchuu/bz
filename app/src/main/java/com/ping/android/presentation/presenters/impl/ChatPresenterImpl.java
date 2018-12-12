@@ -200,6 +200,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             handleMessageData(message);
         }
         messagesInBackground.clear();
+
     }
 
     @Override
@@ -291,10 +292,11 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void updateReadStatus(Message message) {
-        if (!message.senderId.equals(currentUser.key) && canUpdateStatustoReadRule(message)) {
+        if (!message.senderId.equals(currentUser.key)) {
+            if (message.messageStatusCode == Constant.MESSAGE_STATUS_SENT) {
                 updateMessageStatusUseCase.execute(new DefaultObserver<>(),
                         new UpdateMessageStatusUseCase.Params(conversation.key, Constant.MESSAGE_STATUS_READ, message.key, message.type));
-            
+            }
         }
     }
 
@@ -716,6 +718,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 for (Message message : output.messages) {
                     prepareMessageStatus(message);
                     addMessage(message);
+                    updateReadStatus(message);
                 }
                 observeMessageUpdate();
                 observeTypingEvent();
