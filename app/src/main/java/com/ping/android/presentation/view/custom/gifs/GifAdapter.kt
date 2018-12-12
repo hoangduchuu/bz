@@ -34,20 +34,11 @@ class GifAdapter(val context: Context,
     private lateinit var glide: RequestManager
     private val event = GifTapEvent()
     private lateinit var emmiter:GifsEmmiter
-    private var width: Int? =null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        width = getFullWidth(parent);
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.item_gif, parent, false))
     }
-
-    private fun getFullWidth(parent: ViewGroup): Int {
-        val displayMetrics = DisplayMetrics()
-        ( parent.context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val height = displayMetrics.heightPixels
-        return displayMetrics.widthPixels
-    }
-
+    
     override fun getItemCount(): Int {
         return listUrlGifs.size
     }
@@ -75,11 +66,11 @@ class GifAdapter(val context: Context,
                         return true
                     }
                     override fun onResourceReady(resource: GifDrawable?, model: Any?, target: Target<GifDrawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                        calculateImageViewSize(resource?.intrinsicWidth!!.toFloat(), resource.intrinsicHeight.toFloat(), width!!.toFloat())
+                        calculateImageViewSize(resource?.intrinsicWidth!!.toFloat(), resource.intrinsicHeight.toFloat())
                         return false
                     }
 
-                    private fun calculateImageViewSize(w: Float, h: Float, parentWidth: Float) {
+                    private fun calculateImageViewSize(w: Float, h: Float) {
                         val fixedH = holder.ivGifs.height
                         val imageViewW = ((w/  h )* fixedH).toInt()
                         val params =  holder.ivGifs?.layoutParams;
