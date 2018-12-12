@@ -34,7 +34,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.vanniktech.emoji.EmojiTextView
+        <com.ping.android.presentation.view.flexibleitem.messages.JustifiedTextView
             android:id="@+id/item_chat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

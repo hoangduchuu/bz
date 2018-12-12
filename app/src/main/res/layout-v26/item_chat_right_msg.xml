@@ -2,8 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
     style="@style/ItemChat"
-    android:layout_marginEnd="5dp">
+    android:orientation="vertical">
 
     <RadioButton
         android:id="@+id/item_chat_select"
@@ -16,63 +17,35 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="5dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"  />
-
-    <ImageView
-        android:id="@+id/item_chat_user_profile"
-        android:layout_width="@dimen/user_profile_icon_chat_width"
-        android:layout_height="@dimen/user_profile_icon_chat_width"
-        android:layout_marginStart="@dimen/left_space_avatar"
-        android:src="@drawable/ic_avatar_gray"
-        app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
-        app:layout_constraintStart_toEndOf="@+id/item_chat_select" />
-
-    <TextView
-        android:id="@+id/item_chat_info"
-        style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="10:20 AM"
-        tools:visibility="gone"/>
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <LinearLayout
         android:id="@+id/item_chat_message"
+        style="?attr/backgroundTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:background="@drawable/background_chat_left"
+        android:background="@drawable/background_chat_right"
         android:gravity="center_vertical|end"
         android:orientation="horizontal"
         android:paddingBottom="7dp"
         android:paddingEnd="15dp"
         android:paddingStart="15dp"
         android:paddingTop="7dp"
-        app:layout_constraintStart_toEndOf="@+id/item_chat_user_profile"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_info">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.ping.android.presentation.view.flexibleitem.messages.JustifiedTextView
+        <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/item_chat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="200dp"
+            android:justificationMode="inter_word"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/white"
             android:textIsSelectable="false"
-            android:textSelectHandle="@null"
             android:textSize="@dimen/text_size_large"
-            tools:text="Hi there." />
+            tools:text="Hello there" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/item_chat_status"
-        style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
-        tools:text="Delivered" />
 
     <TextView
         android:id="@+id/revealable_view"
@@ -88,4 +61,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/item_chat_message"
         tools:text="12:00 AM" />
+
+    <TextView
+        android:layout_marginTop="@dimen/margin_status"
+        android:id="@+id/item_chat_status"
+        style="@style/AppTextAppearance.VerySmall.Grey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/item_chat_message"
+        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
+        tools:text="Delivered" />
 </androidx.constraintlayout.widget.ConstraintLayout>
