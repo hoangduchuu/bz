@@ -97,7 +97,14 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         return commonRepository.updateBatchData(updateValue)
                 .flatMap(aB -> {
                     timer.cancel();
-                    return messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_SENT)
+                    if (message.messageType == Constant.MSG_TYPE_IMAGE
+                            || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP
+                            || message.messageType == Constant.MSG_TYPE_VOICE
+                            || message.messageType == Constant.MSG_TYPE_GAME
+                            ||  message.messageType == Constant.MSG_TYPE_VIDEO){
+                        return Observable.just( messageMapper.transform(message, params.user));
+                    }
+                 return  messageRepository.updateMessageStatus(conversation.key, message.key, message.senderId, Constant.MESSAGE_STATUS_DELIVERED)
                             .map(aBoolean1 -> messageMapper.transform(message, params.user));
                 });
     }
