@@ -99,7 +99,10 @@ public class CreateGroupUseCase extends UseCase<Conversation, CreateGroupUseCase
                                 updateValue.put(String.format("groups/%s/%s/conversationID", userKey, conversation.groupID), conversation.key);
                             }
                             return commonRepository.updateBatchData(updateValue)
-                                    .map(aBoolean -> conversation);
+                                    .map(aBoolean -> {
+                                        conversation.group = group;
+                                        return conversation;
+                                    });
                                     //.zipWith(groupRepository.updateGroupConversationId(conversation.groupID, conversation.key),
                                     //        (aBoolean, aBoolean2) -> conversation);
                         })
