@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
-
+import android.provider.Settings;
+import com.ping.android.data.repository.UserRepositoryImpl;
 import java.lang.ref.WeakReference;
 
 public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks {
     private static final long CHECK_DELAY = 500;
     private static ActivityLifecycle instance;
+    private static Application application;
     private WeakReference<Activity> foregroundActivity;
 
     private boolean foreground = false, paused = true;
@@ -24,6 +26,7 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
         if (instance == null) {
             instance = new ActivityLifecycle();
             app.registerActivityLifecycleCallbacks(instance);
+            application = app;
         }
     }
 
@@ -61,6 +64,9 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
 
         if (check != null)
             handler.removeCallbacks(check);
+
+        UserRepositoryImpl userRepository = new UserRepositoryImpl();
+        userRepository.updateDeviceId(getDeviceId()).subscribe();
     }
 
     @Override
@@ -88,5 +94,10 @@ public class ActivityLifecycle implements Application.ActivityLifecycleCallbacks
 
     @Override
     public void onActivityDestroyed(Activity activity) {
+    }
+
+    private String getDeviceId() {
+        return Settings.Secure.getString(application.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
     }
 }

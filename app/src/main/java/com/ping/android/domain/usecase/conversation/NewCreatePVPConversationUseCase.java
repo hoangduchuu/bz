@@ -51,60 +51,6 @@ public class NewCreatePVPConversationUseCase extends UseCase<Conversation, NewCr
         super(threadExecutor, postExecutionThread);
     }
 
-    @NotNull
-    public Observable<Conversation> buildUseCaseObservable2(Params params) {
-        return userManager.getCurrentUser()
-                .flatMap(user -> {
-                    List<User> members = new ArrayList<>();
-                    members.add(params.toUser);
-                    members.add(user);
-                    String conversationID = user.key.compareTo(params.toUser.key) > 0 ? user.key + params.toUser.key : params.toUser.key + user.key;
-                    return conversationRepository
-                            .getConversation(user.key, conversationID)
-                            .onErrorResumeNext(observer -> {
-                                Conversation newConversation = Conversation.createNewConversation(user.key, params.toUser.key);
-                                newConversation.key = conversationID;
-                                newConversation.opponentUser = params.toUser;
-                                newConversation.members = members;
-
-                                Map<String, Object> updateValue = new HashMap<>();
-                                //updateValue.put(String.format("conversations/%s", key), conversation.toMap());
-                                for (String userKey : newConversation.memberIDs.keySet()) {
-                                    updateValue.put(String.format("conversations/%s/%s", userKey, conversationID), newConversation.toMap());
-                                }
-                                return commonRepository.updateBatchData(updateValue)
-                                        .map(aBoolean -> newConversation);
-                            })
-                            .flatMap(conversation -> {
-                                conversation.opponentUser = params.toUser;
-                                conversation.members = members;
-                                // Turn notifications on for this opponentUser
-                                Map<String, Object> updateValue = new HashMap<>();
-                                //updateValue.put(String.format("conversations/%s/notifications/%s", conversation, userId), value);
-                                updateValue.put(String.format("conversations/%s/%s/notifications/%s", user.key, conversationID, user.key), true);
-                                return commonRepository.updateBatchData(updateValue)
-                                        .map(aBoolean -> conversation);
-                            })
-                            .flatMap(conversation -> {
-                                if (TextUtils.isEmpty(params.message)) {
-                                    return Observable.just(conversation);
-                                } else {
-                                    return conversationRepository.getMessageKey(conversation.key)
-                                            .map(messageKey -> new SendMessageUseCase.Params.Builder()
-                                                    .setMessageType(MessageType.TEXT)
-                                                    .setConversation(conversation)
-                                                    .setMarkStatus(false)
-                                                    .setCurrentUser(user)
-                                                    .setText(params.message)
-                                                    .setMessageKey(messageKey)
-                                                    .build())
-                                            .flatMap(params1 -> sendMessageUseCase.buildUseCaseObservable(params1)
-                                                    .map(message -> mapper.combineMessageParamToConversation(message, conversation)));
-                                }
-                            });
-                });
-    }
-
     public static class Params {
         public User toUser;
         public String message;
