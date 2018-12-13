@@ -303,13 +303,25 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<Boolean> updateDeviceId(Map<String, Double> devices) {
+    public Observable<Boolean> updateDeviceIds(Map<String, Double> devices) {
         if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
         String userId = auth.getUid();
         if (userId == null)
             return Observable.error(new NullPointerException("Current uuid is null"));
         DatabaseReference reference = database.getReference().child("users").child(userId).child("devices");
         return RxFirebaseDatabase.setValue(reference, devices)
+                .map(reference1 -> true)
+                .toObservable();
+    }
+
+    @Override
+    public Observable<Boolean> updateDeviceId(String device) {
+        if (auth == null) return Observable.error(new NullPointerException("FirebaseAuth is null"));
+        String userId = auth.getUid();
+        if (userId == null)
+            return Observable.error(new NullPointerException("Current uuid is null"));
+        DatabaseReference reference = database.getReference().child("users").child(userId).child("devices").child(device);
+        return RxFirebaseDatabase.setValue(reference, ((double) System.currentTimeMillis() / 1000))
                 .map(reference1 -> true)
                 .toObservable();
     }

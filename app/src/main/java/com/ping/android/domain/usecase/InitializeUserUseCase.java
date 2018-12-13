@@ -50,7 +50,7 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
     }
 
     private void updateDevicesId(User user) {
-        userRepository.updateDeviceId(user.devices)
+        userRepository.updateDeviceIds(user.devices)
                 .subscribe();
     }
 }

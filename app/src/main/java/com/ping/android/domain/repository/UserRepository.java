@@ -30,7 +30,10 @@ public interface UserRepository {
 
     Observable<Boolean> updateQuickbloxId(int qbId);
 
-    Observable<Boolean> updateDeviceId(Map<String, Double> devices);
+    Observable<Boolean> updateDeviceIds(Map<String, Double> devices);
+
+    Observable<Boolean> updateDeviceId(String device);
+
 
     Observable<Boolean> logout(String userId, String deviceId);
 
