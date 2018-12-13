@@ -13,6 +13,7 @@ import com.bzzzchat.videorecorder.view.PhotoItem
 import com.ping.android.R
 import com.ping.android.presentation.view.adapter.MediaAdapter
 import com.ping.android.presentation.view.adapter.MediaClickListener
+import com.ping.android.presentation.view.custom.gifs.GifItemDecorator
 
 interface MediaPickerListener {
     fun openGridMediaPicker()
@@ -37,6 +38,7 @@ class MediaPickerView @JvmOverloads constructor(
         button.setOnClickListener {
             listener?.openGridMediaPicker()
         }
+        recyclerView.addItemDecoration(GifItemDecorator(5))
     }
 
     fun initProvider(activity: Activity) {
