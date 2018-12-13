@@ -153,7 +153,7 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         protected MessageBaseItem item;
         protected boolean maskStatus;
         public boolean lastItem;
-        private float mInitialTranslateX = ResourceUtils.dpToPx(80);
+        private float mInitialTranslateX = ResourceUtils.dpToPx(58);
 
         @Nullable
         protected MessageListener messageListener;

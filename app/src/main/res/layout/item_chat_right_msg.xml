@@ -28,38 +28,40 @@
         android:gravity="center_vertical|end"
         android:orientation="horizontal"
         android:paddingBottom="7dp"
-        android:paddingEnd="15dp"
-        android:paddingStart="15dp"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
         android:paddingTop="7dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.ping.android.presentation.view.flexibleitem.messages.JustifiedTextView
+        <com.vanniktech.emoji.EmojiTextView
             android:id="@+id/item_chat_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="200dp"
+            android:maxWidth="@dimen/_220sdp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/white"
             android:textIsSelectable="false"
             android:textSize="@dimen/text_size_large"
-            tools:text="Hello there" />
+            tools:text="abode aside bodes adds sides" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/revealable_view"
         style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="80dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="8dp"
         android:gravity="end"
-        android:translationX="80dp"
+        android:textAlignment="center"
+        android:translationX="50dp"
+        android:textSize="@dimen/text_size_xxsmall"
         app:layout_constraintBottom_toBottomOf="@+id/item_chat_message"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/item_chat_message"
-        tools:text="12:00 AM" />
+        tools:text="12:49 PM" />
 
     <TextView
         android:layout_marginTop="@dimen/margin_status"
