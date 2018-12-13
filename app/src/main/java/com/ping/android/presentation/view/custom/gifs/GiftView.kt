@@ -45,6 +45,7 @@ class GiftView : LinearLayout, GifsEmmiter {
         gifAdapter.setEmmiter(this)
         rvGifts.adapter = gifAdapter;
         event = GifTapEvent()
+        rvGifts.addItemDecoration(GifItemDecorator(5))
     }
 
     override fun onGifselected(url: String) {
