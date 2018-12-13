@@ -273,6 +273,8 @@ dependencies {
 
     implementation 'com.wajahatkarim3.EasyFlipView:EasyFlipView:2.1.1'
 
+    implementation 'com.intuit.sdp:sdp-android:1.0.6'
+
 
 }
 
