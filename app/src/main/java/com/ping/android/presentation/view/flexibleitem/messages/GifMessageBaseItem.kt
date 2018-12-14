@@ -137,6 +137,7 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
                  val imageViewHeight :Int= (imageViewWidth * (w/h)).toInt()
                  val params =  imageView?.layoutParams;
                  params?.width = imageViewWidth
+                 params?.height = imageViewHeight
                  imageView?.layoutParams = params
              }else{
                  val imageViewHeight = (70 * parentWidth /100).toInt()

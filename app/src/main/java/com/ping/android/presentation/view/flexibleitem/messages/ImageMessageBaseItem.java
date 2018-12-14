@@ -75,6 +75,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 }
             });
             width = getFullWidth();
+            scaleLoadingViewHolder();
         }
 
         @Override
@@ -352,6 +353,18 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 params.height = imageViewHeight;
                 imageView.setLayoutParams(params);
             }
+        }
+
+        /**
+         * Scale ImageView Holder
+         */
+        private void scaleLoadingViewHolder() {
+            int holderHeight = 70 * width / 100;
+            int holderWidth = 4 * holderHeight / 6;
+            ViewGroup.LayoutParams params = loadingView.getLayoutParams();
+            params.height = holderHeight;
+            params.width = holderWidth;
+            loadingView.setLayoutParams(params);
         }
     }
 }
