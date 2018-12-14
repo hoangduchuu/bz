@@ -1,25 +1,29 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true">
 
-    <include layout="@layout/notify_network_other" />
+    <include layout="@layout/notify_network_other"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/puzzle_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:textSize="26sp"
+        android:text="30" />
 
     <RelativeLayout
+        android:layout_above="@id/btn_exit"
+        android:layout_below="@+id/puzzle_timer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
         android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/puzzle_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
-            android:textSize="26sp"
-            android:text="30" />
+
 
         <LinearLayout
             android:id="@+id/game_layout_puzzle"
@@ -120,13 +124,15 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
-        <Button
-            android:id="@+id/btn_exit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:padding="10dp"
-            android:text="Quit Game"
-            android:textAllCaps="true" />
+
+
     </RelativeLayout>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-8dp"
+        android:text="Quit Game"
+        android:textAllCaps="true" />
+</RelativeLayout>

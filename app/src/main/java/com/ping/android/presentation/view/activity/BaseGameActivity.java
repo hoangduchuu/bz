@@ -59,17 +59,26 @@ public abstract class BaseGameActivity extends CoreActivity {
 
         updateMessageStatus(Constant.MESSAGE_STATUS_GAME_PASS);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setCancelable(false)
-                .setPositiveButton("OK", (dialogInterface, i) -> {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setTitle(gameTitle())
+                .setMessage("Congratulations! You won.")
+                .setNegativeButton("OK",(dialog, i)->{
                     List<Message> messages = new ArrayList<>();
                     messages.add(message);
                     GroupImageGalleryActivity.start(this, conversationID, messages, 0, false, null);
                     finishAfterTransition();
-                })
-                .setMessage("Congratulations! You won.")
-                .setTitle(gameTitle());
-        alertDialogBuilder.create().show();
+                }).create();
+        alertDialog.show();
+
+        setDialogColor(alertDialog);
+
+
+    }
+
+    private void setDialogColor(AlertDialog alertDialog) {
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.white));
     }
 
     protected void onGameFailed() {
@@ -85,6 +94,8 @@ public abstract class BaseGameActivity extends CoreActivity {
                     finish();
                 }).create();
         alertDialog.show();
+
+        setDialogColor(alertDialog);
     }
 
     protected void quitGame() {

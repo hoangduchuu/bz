@@ -1,5 +1,6 @@
 package com.ping.android.presentation.view.activity;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -7,7 +8,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Vibrator;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
@@ -182,13 +182,17 @@ public class GamePuzzleActivity extends BaseGameActivity implements View.OnClick
     }
 
     private void displayPuzzle() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setCancelable(false)
+        AlertDialog alertDialogBuilder = new AlertDialog.Builder(this)
+                .setTitle("PUZZLE GAME")
+                .setMessage("You have 30 seconds to complete this game.")
+                .setCancelable(false)
                 .setPositiveButton("Start", (dialogInterface, i) -> {
                     startGame();
-                }).setMessage("You have 30 seconds to complete this game.")
-                .setTitle("PUZZLE GAME");
-        alertDialogBuilder.create().show();
+                }).create();
+        alertDialogBuilder.show();
+
+        alertDialogBuilder.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
+        alertDialogBuilder.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.white));
 
         int w = originalBitmap.getWidth();
         int h = originalBitmap.getHeight();
