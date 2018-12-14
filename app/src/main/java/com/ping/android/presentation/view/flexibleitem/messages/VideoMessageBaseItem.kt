@@ -74,6 +74,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 // Download video file
                 downloadVideoFile(videoItem.message.mediaUrl, cacheVideo)
             }
+            scaleLoadingViewHolder()
         }
 
         private fun setupUI(videoFile: File) {
@@ -225,6 +226,25 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 params?.height = imageViewHeight
                 videoThumbnail.layoutParams = params
             }
+        }
+
+
+        /**
+         * Scale ImageView Holder
+         */
+        private fun scaleLoadingViewHolder() {
+            val holderHeight = 70 * width!! / 100
+            val holderWidth = 4 * holderHeight / 6
+            val params = loadingView.layoutParams
+            params.height = holderHeight
+            params.width = holderWidth
+            loadingView.layoutParams = params
+
+
+            val paramsImgPlay = videoThumbnail.layoutParams
+            paramsImgPlay.height = holderHeight
+            paramsImgPlay.width = holderWidth
+            videoThumbnail.layoutParams = paramsImgPlay
         }
     }
 }
