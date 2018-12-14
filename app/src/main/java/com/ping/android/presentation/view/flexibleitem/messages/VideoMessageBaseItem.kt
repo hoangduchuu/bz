@@ -215,6 +215,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
                 val imageViewHeight: Int = (imageViewWidth * (w / h)).toInt()
                 val params = videoThumbnail.layoutParams;
                 params?.width = imageViewWidth
+                params?.height = imageViewHeight
                 videoThumbnail.layoutParams = params
             } else {
                 val imageViewHeight = (70 * parentWidth / 100).toInt()
