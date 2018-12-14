@@ -29,7 +29,6 @@
 
 
     <EditText
-        android:text="dev01"
         android:id="@+id/login_name"
         style="@style/InputTextStyle"
         android:layout_width="match_parent"
@@ -43,7 +42,6 @@
         app:layout_constraintTop_toBottomOf="@+id/topCropImageView" />
 
     <EditText
-        android:text="1234567890"
         android:id="@+id/login_password"
         style="@style/InputTextStyle"
         android:layout_width="match_parent"
