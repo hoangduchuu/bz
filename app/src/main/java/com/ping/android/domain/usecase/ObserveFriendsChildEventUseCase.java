@@ -38,8 +38,8 @@ public class ObserveFriendsChildEventUseCase extends UseCase<ChildData<User>, Vo
                         .flatMap(childEvent -> {
                             String friendId = childEvent.dataSnapshot.getKey();
                             boolean value = childEvent.dataSnapshot.getValue(Boolean.class);
-                            if (childEvent.type == ChildEvent.Type.CHILD_ADDED
-                                    || (childEvent.type == ChildEvent.Type.CHILD_CHANGED && value)) {
+                            if ((childEvent.type == ChildEvent.Type.CHILD_ADDED
+                                    || (childEvent.type == ChildEvent.Type.CHILD_CHANGED && value)) && !user.key.equals(friendId)) {
                                 return getUser(friendId)
                                         .map(friend -> {
                                             ChildData<User> childData = new ChildData(friend, childEvent.type);

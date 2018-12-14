@@ -68,7 +68,10 @@ public class UserManager {
     public void setFriendsData(Map<String, Boolean> map) {
         this.friends = map;
         if (this.user != null) {
+            //remove current user if available
+            map.remove(this.user.key);
             this.user.friends = map;
+            this.friends = map;
         }
     }
 
