@@ -3,6 +3,7 @@ package com.ping.android.presentation.view.activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -232,6 +233,11 @@ public class GameMemoryActivity extends BaseGameActivity implements View.OnClick
                     startGame();
                 }).create();
         alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.white));
+
+
     }
 
     public enum GamePattern {

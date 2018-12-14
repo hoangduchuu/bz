@@ -71,6 +71,9 @@ public class GameTicTacToeActivity extends BaseGameActivity implements View.OnCl
                     startGame();
                 }).create();
         alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.white));
     }
 
     @Override
