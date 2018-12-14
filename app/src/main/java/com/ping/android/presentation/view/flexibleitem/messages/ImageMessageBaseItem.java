@@ -16,6 +16,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
@@ -246,7 +247,24 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
                 return;
             }
             if (message.messageStatusCode == Constant.MESSAGE_STATUS_GAME_FAIL) {
-                imageView.setImageResource(R.drawable.img_game_over);
+                Glide.with(itemView.getContext())
+                        .load(R.drawable.img_game_over)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@androidx.annotation.Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                loadingView.setVisibility(View.GONE);
+                                float w = ((BitmapDrawable) resource).getBitmap().getWidth();
+                                float h = ((BitmapDrawable) resource).getBitmap().getHeight();
+                                float parentWith = width;
+                                calculateImageViewSize(w,h,parentWith);
+                                return false;
+                            }
+                        }).into(imageView);
                 loadingView.setVisibility(View.GONE);
                 return;
             }
