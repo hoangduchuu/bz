@@ -137,7 +137,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         reference.keepSynced(true);
         Query query = reference
                 .orderByChild("timestamp")
-                .limitToLast(1);
+                .limitToLast(50);
         return RxFirebaseDatabase.getInstance(query)
                 .onChildEvent()
                 .map(childEvent -> {
