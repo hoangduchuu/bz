@@ -31,7 +31,6 @@ import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.extensions.dp
 import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.*
-import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition
 import com.bzzzchat.videorecorder.view.facerecognition.HiddenCamera
 import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -41,7 +40,6 @@ import com.ping.android.data.repository.FaceIdStatusRepository
 import com.ping.android.device.hiddenCameraEvent.HiddenCameraListener
 import com.ping.android.device.hiddenCameraEvent.PhoneDegreeManager
 import com.ping.android.device.impl.ShakeEventManager
-import com.ping.android.domain.repository.CommonRepository
 import com.ping.android.managers.UserManager
 import com.ping.android.model.Conversation
 import com.ping.android.model.Message
@@ -61,7 +59,6 @@ import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem
 import com.ping.android.utils.*
 import com.ping.android.utils.bus.BusProvider
-import com.ping.android.utils.bus.LiveSharePrefs
 import com.ping.android.utils.bus.events.GifTapEvent
 import com.ping.android.utils.bus.events.GroupImagePositionEvent
 import com.ping.android.utils.bus.events.StickerTapEvent
@@ -213,7 +210,7 @@ class ChatActivity : CoreActivity(),
     private var originalText = ""
     private var selectPosition = 0
 
-    private var isScrollToTop = false
+    private var isScrollToBottom = false
     private var emojiContainerView: EmojiContainerView? = null
 
     private var selectedMessage: MessageBaseItem<*>? = null
@@ -677,7 +674,7 @@ class ChatActivity : CoreActivity(),
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val lastVisibleItem = mLinearLayoutManager!!.findLastCompletelyVisibleItemPosition()
-                isScrollToTop = lastVisibleItem == mLinearLayoutManager!!.itemCount - 1
+                isScrollToBottom = lastVisibleItem == mLinearLayoutManager!!.itemCount - 1
             }
         })
         recycleChatView!!.layoutManager = mLinearLayoutManager
@@ -1159,7 +1156,7 @@ class ChatActivity : CoreActivity(),
     override fun updateMessage(item: MessageBaseItem<*>, headerItem: MessageHeaderItem, higherHeaderItem: MessageHeaderItem?, added: Boolean) {
         recycleChatView?.post {
             messagesAdapter.handleNewMessage(item, headerItem, higherHeaderItem, added)
-            if (isScrollToTop) {
+            if (isScrollToBottom && added) {
                 recycleChatView!!.scrollToPosition(messagesAdapter.itemCount - 1)
             }
         }

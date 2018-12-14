@@ -339,8 +339,10 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
         private void calculateImageViewSize(float w, float h, float parentWidth) {
             if (w>h){
                 int imageViewWidth = (int) (70 * parentWidth /100);
+                int imageViewHeight = (int) (imageViewWidth * (h/w));
                 ViewGroup.LayoutParams params = imageView.getLayoutParams();
                 params.width = imageViewWidth;
+                params.height = imageViewHeight;
                 imageView.setLayoutParams(params);
             }else {
                 int imageViewHeight = (int) (70 * parentWidth /100);
