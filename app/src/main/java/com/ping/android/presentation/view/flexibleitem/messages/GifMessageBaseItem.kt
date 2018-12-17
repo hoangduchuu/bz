@@ -134,9 +134,10 @@ abstract class GifMessageBaseItem(message: Message) : MessageBaseItem<GifMessage
         private fun calculateImageViewSize(w: Float, h: Float, parentWidth: Float) {
              if (w>h){
                  val imageViewWidth = (70 * parentWidth /100).toInt()
-                 val imageViewHeight :Int= (imageViewWidth * (w/h)).toInt()
+                 val imageViewHeight :Int= (imageViewWidth * (h/w)).toInt()
                  val params =  imageView?.layoutParams;
                  params?.width = imageViewWidth
+                 params?.height = imageViewHeight
                  imageView?.layoutParams = params
              }else{
                  val imageViewHeight = (70 * parentWidth /100).toInt()
