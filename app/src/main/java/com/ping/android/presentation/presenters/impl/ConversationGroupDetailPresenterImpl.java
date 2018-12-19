@@ -12,9 +12,11 @@ import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.group.UpdateGroupNameUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
+import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.utils.CommonMethod;
 
@@ -52,6 +54,10 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     UpdateGroupNameUseCase updateGroupNameUseCase;
     @Inject
     UpdateConversationColorUseCase updateConversationColorUseCase;
+
+    @Inject
+    SendMessageNotificationUseCase sendMessageNotificationUseCase;;
+
     @Inject
     View view;
     private Conversation conversation;
@@ -131,7 +137,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     @Override
-    public void leaveGroup() {
+    public void leaveGroup(String conversationName) {
         view.showLoading();
         leaveGroupUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -140,6 +146,8 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 if (aBoolean) {
                     view.navigateToMain();
                 }
+                String notificationBody = String.format("%s : %s Left group.", conversationName,currentUser.firstName);
+                sendNotification(conversation,conversation.key,notificationBody);
             }
 
             @Override
@@ -280,5 +288,15 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         uploadGroupProfileImageUseCase.dispose();
         updateGroupNameUseCase.dispose();
         updateConversationColorUseCase.dispose();
+    }
+
+    /**
+     *  @param conversation
+     * @param messageId
+     * @param notificationBody
+     */
+    private void sendNotification(Conversation conversation, String messageId, String notificationBody) {
+        sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
+                new SendMessageNotificationUseCase.Params(conversation, messageId, notificationBody, MessageType.SYSTEM));
     }
 }

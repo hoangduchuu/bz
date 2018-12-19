@@ -53,10 +53,14 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                             senderName = nickname;
                         }
                     }
-                    if (params.conversation.group != null) {
+                    if (params.messageType == MessageType.SYSTEM){
+                        senderName = params.message;
+                    }else if
+                     (params.conversation.group != null) {
                         String groupName = params.conversation.group.groupName;
                         senderName = String.format("%s to %s", senderName, groupName);
                     }
+
                     ArrayList<User> validUsers = new ArrayList<>();
                     for (User user : params.conversation.members) {
                         if (user.quickBloxID > 0 && !user.key.equals(sender.key)) {
@@ -104,6 +108,9 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                                     break;
                                                 case GIF:
                                                     body = userName + ": [GIF]";
+                                                    break;
+                                                case SYSTEM:
+                                                    body =  params.message;
                                                     break;
                                                 default:
                                                     break;

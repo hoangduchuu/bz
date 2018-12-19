@@ -924,6 +924,7 @@ class ChatActivity : CoreActivity(),
         extras.putString(ConversationDetailActivity.CONVERSATION_KEY, originalConversation!!.key)
         extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation!!.conversationType)
         extras.putInt(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
+        extras.putString(ChatActivity.EXTRA_CONVERSATION_NAME, originalConversation?.conversationName)
         intent.putExtras(extras)
         startActivity(intent)
     }

@@ -16,7 +16,7 @@ public interface ConversationGroupDetailPresenter extends BasePresenter {
 
     void addUsersToGroup(List<User> selectedUsers);
 
-    void leaveGroup();
+    void leaveGroup(String conversationName);
 
     void toggleNotification(boolean isEnable);
 

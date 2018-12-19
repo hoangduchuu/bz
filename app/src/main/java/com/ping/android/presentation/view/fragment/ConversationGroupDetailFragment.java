@@ -24,6 +24,7 @@ import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.activity.ConversationDetailActivity;
 import com.ping.android.presentation.view.activity.CoreActivity;
 import com.ping.android.presentation.view.activity.GalleryActivity;
@@ -38,6 +39,8 @@ import com.ping.android.utils.ImagePickerHelper;
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
+
+import org.jivesoftware.smack.chat.Chat;
 
 import java.io.File;
 import java.util.List;
@@ -69,6 +72,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
 
     private ImagePickerHelper imagePickerHelper;
     private File groupProfileImage;
+    private String conversationName;
 
     @Inject
     ConversationGroupDetailPresenter presenter;
@@ -90,6 +94,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         if (getArguments() != null) {
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
             profileImageKey = getArguments().getString(EXTRA_IMAGE_KEY);
+            conversationName = getArguments().getString(ChatActivity.EXTRA_CONVERSATION_NAME);
         } else {
             throw new NullPointerException("Must set extras data");
         }
@@ -206,7 +211,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
                 .setMessage(R.string.warning_leave_group)
                 .setCancelable(false)
                 .setPositiveButton(R.string.Warning_leave_group_leave, (dialog, whichButton) -> {
-                    presenter.leaveGroup();
+                    presenter.leaveGroup(conversationName);
                 })
                 .setNegativeButton(R.string.gen_cancel, (dialog, which) -> {
                     dialog.dismiss();

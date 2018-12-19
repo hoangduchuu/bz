@@ -7,7 +7,7 @@ package com.ping.android.model.enums
 enum class MessageType {
     UNKNOWN, TEXT, IMAGE, VOICE, GAME, VIDEO, CALL, IMAGE_GROUP,
     STICKER, GIF,
-    GAME_GROUP;
+    GAME_GROUP,SYSTEM;
 
 
     companion object {
@@ -22,6 +22,7 @@ enum class MessageType {
                 7 -> IMAGE_GROUP
                 8 -> STICKER
                 9 -> GIF
+                11->SYSTEM
                 else -> TEXT
             }
         }

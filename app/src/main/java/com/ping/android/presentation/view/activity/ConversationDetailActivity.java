@@ -39,6 +39,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasSuppo
                 int color = bundle.getInt(ChatActivity.EXTRA_CONVERSATION_COLOR);
                 Color currentColor = Color.from(color);
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
+                String conversationName = bundle.getString(ChatActivity.EXTRA_CONVERSATION_NAME);
             }
         }
         setContentView(R.layout.activity_conversation_detail);
