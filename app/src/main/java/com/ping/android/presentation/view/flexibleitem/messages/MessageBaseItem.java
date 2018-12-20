@@ -112,6 +112,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
                     baseItem = new GifMessageLeftItem(message);
                 }
                 break;
+            case SYSTEM:
+                baseItem = new SystemMessageItem(message);
+                break;
             default:
                 if (message.senderId.equals(currentUserID)) {
                     baseItem = new TextMessageRightItem(message);

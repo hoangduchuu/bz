@@ -269,6 +269,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     case GIF:
                         message = buildGifMessage(currentUser, fileUrl);
                         break;
+                    case SYSTEM:
+                        message = buildSystemMessages(currentUser,text);
                     default:break;
                 }
                 message.key = messageKey;
@@ -327,6 +329,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return MessageEntity.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
+            }
+
+            private MessageEntity buildSystemMessages(User currentUser, String text) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return MessageEntity.createSystemMessage(text, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 

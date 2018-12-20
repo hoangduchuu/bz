@@ -25,6 +25,7 @@ public class Constant {
     public static final int MSG_TYPE_IMAGE_GROUP = 7;
     public static final int MSG_TYPE_STICKER = 8;
     public static final int MSG_TYPE_GIFS = 9;
+    public static final int MSG_TYPE_SYSTEM = 11;
 
     public static final int MSG_TYPE_TYPING = 10;
     public static final int MSG_TYPE_PADDING = 11;

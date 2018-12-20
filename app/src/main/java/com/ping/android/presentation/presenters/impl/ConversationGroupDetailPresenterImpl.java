@@ -12,9 +12,12 @@ import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.group.UpdateGroupNameUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
+import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
@@ -59,6 +62,9 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     @Inject
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
     ;
+
+    @Inject
+    SendTextMessageUseCase sendTextMessageUseCase;
 
     @Inject
     View view;
@@ -128,11 +134,11 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
          * @oldMembers
          * @selectedUsers
          */
-//        List<User> newAddedUsers = findAddedUsers(oldMembers,selectedUsers);
+        List<User> newAddedUsers = findAddedUsers(oldMembers,selectedUsers);
 
-        StringBuilder addedUsers = new StringBuilder();
-        for (User u : selectedUsers) {
-            addedUsers.append(u.email).append(", ");
+        StringBuilder addedUsersStringBuilder = new StringBuilder();
+        for (User u : newAddedUsers) {
+            addedUsersStringBuilder.append(u.email).append(", ");
         }
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
@@ -143,8 +149,10 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 for (User u : selectedUsers) {
                     builder.append(u.email).append(", ");
                 }
-                String notificationBody = String.format("%s : %s  has joined2 group. ", conversationName, addedUsers.substring(0,addedUsers.toString().length()-2));
+                String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
+                String notificationBody = String.format("%s : %s  has joined2 group. ", conversationName, joinedUsers);
                 sendNotification(conversation, conversation.key, notificationBody);
+                sendJoinedMessage(joinedUsers);
             // TODO compare to get exactly new User added
             }
 
@@ -160,18 +168,26 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
      *
      * @param oldMembers
      * @param selectedMembers
-     * @return user list has been joined
+     * @return new users added to group.
      */
     private List<User> findAddedUsers(List<User> oldMembers, List<User> selectedMembers) {
         List<User> newUser = new ArrayList<>();
 
         for (int i = 0; i <selectedMembers.size(); i++){
 
-            for (int j =0; j < oldMembers.size();i++){
-                if (selectedMembers.get(i).key != oldMembers.get(j).key){
-                    newUser.add(selectedMembers.get(i));
+            boolean isDuplicated = false;
+
+            for (int j =0; j < oldMembers.size();j++){
+                Log.e("HHH:" + selectedMembers.get(i) + "-- compare: "  + oldMembers.get(j));
+                if (selectedMembers.get(i).key.equals(oldMembers.get(j).key)){
+                    isDuplicated = true;
                 }
+
             }
+            if (!isDuplicated){
+                newUser.add(selectedMembers.get(i));
+            }
+
         }
 
         return newUser;
@@ -189,6 +205,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 }
                 String notificationBody = String.format("%s : %s Left group.", conversationName, currentUser.firstName);
                 sendNotification(conversation, conversation.key, notificationBody);
+                sendJoinedMessage(notificationBody);
             }
 
             @Override
@@ -339,5 +356,29 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     private void sendNotification(Conversation conversation, String messageId, String notificationBody) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, messageId, notificationBody, MessageType.SYSTEM));
+    }
+
+    private void sendJoinedMessage(String joinedUser){
+
+        String mesessage = joinedUser + " has joined group";
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.SYSTEM)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setText(mesessage)
+                .setMarkStatus(false)
+                .build();
+
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                //
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
     }
 }
