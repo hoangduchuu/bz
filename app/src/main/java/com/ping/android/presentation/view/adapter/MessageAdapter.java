@@ -400,6 +400,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 case GIF:
                     message = getLastedSenderNameIfNeeded(conversation)+ "[GIFs]";
                     break;
+                case SYSTEM:
+                    message = conversation.message;
+                    break;
             }
 
             this.tvMessage.setText(message);
