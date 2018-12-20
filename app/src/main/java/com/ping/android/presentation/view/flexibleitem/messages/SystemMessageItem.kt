@@ -51,8 +51,10 @@ class SystemMessageItem(message: Message) : MessageBaseItem<SystemMessageItem.Vi
             loadingView.visibility = View.GONE
             revealable_view?.visibility = View.GONE
             itemChatStatus?.visibility = View.GONE
+            tvMessageInfo.visibility = View.GONE
             initGestureListener()
             val radius = ResourceUtils.dpToPx(20)
+
 
             width =  getFullWidth()
         }

@@ -205,14 +205,13 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 }
                 String notificationBody = String.format("%s : %s Left group.", conversationName, currentUser.firstName);
                 sendNotification(conversation, conversation.key, notificationBody);
-                sendJoinedMessage(notificationBody);
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, conversation.group);
+        }, conversation);
     }
 
     @Override
