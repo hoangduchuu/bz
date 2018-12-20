@@ -1,6 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.mappers.UserMapper;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
@@ -65,6 +66,9 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     @Inject
     SendTextMessageUseCase sendTextMessageUseCase;
+
+    @Inject
+    UserMapper userMapper;
 
     @Inject
     View view;
@@ -138,7 +142,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
         StringBuilder addedUsersStringBuilder = new StringBuilder();
         for (User u : newAddedUsers) {
-            addedUsersStringBuilder.append(u.email).append(", ");
+            addedUsersStringBuilder.append(userMapper.getUserDisplay(u)).append(", ");
         }
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
@@ -147,10 +151,10 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 view.hideLoading();
                 StringBuilder builder = new StringBuilder();
                 for (User u : selectedUsers) {
-                    builder.append(u.email).append(", ");
+                    builder.append(userMapper.getUserDisplay(u)).append(", ");
                 }
                 String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
-                String notificationBody = String.format("%s : %s  has joined2 group. ", conversationName, joinedUsers);
+                String notificationBody = String.format("%s : %s  has joined group. ", conversationName, joinedUsers);
                 sendNotification(conversation, conversation.key, notificationBody);
                 sendJoinedMessage(joinedUsers);
             // TODO compare to get exactly new User added
@@ -203,7 +207,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 if (aBoolean) {
                     view.navigateToMain();
                 }
-                String notificationBody = String.format("%s : %s Left group.", conversationName, currentUser.firstName);
+                String notificationBody = String.format("%s : %s left group.", conversationName, currentUser.firstName);
                 sendNotification(conversation, conversation.key, notificationBody);
             }
 

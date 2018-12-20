@@ -21,14 +21,16 @@
 
 
     <TextView
+        android:visibility="gone"
+
         android:id="@+id/item_chat_info"
         style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="@+id/content"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="10:20 AM"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 
     <FrameLayout
         android:id="@+id/content"
