@@ -19,6 +19,7 @@ import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +57,8 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     UpdateConversationColorUseCase updateConversationColorUseCase;
 
     @Inject
-    SendMessageNotificationUseCase sendMessageNotificationUseCase;;
+    SendMessageNotificationUseCase sendMessageNotificationUseCase;
+    ;
 
     @Inject
     View view;
@@ -112,7 +114,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     @Override
-    public void addUsersToGroup(List<User> selectedUsers) {
+    public void addUsersToGroup(List<User> oldMembers, List<User> selectedUsers, String conversationName) {
         view.showLoading();
         List<String> ret = new ArrayList<>();
         for (User user : selectedUsers) {
@@ -121,11 +123,29 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 ret.add(user.key);
             }
         }
+
+        /**
+         * @oldMembers
+         * @selectedUsers
+         */
+//        List<User> newAddedUsers = findAddedUsers(oldMembers,selectedUsers);
+
+        StringBuilder addedUsers = new StringBuilder();
+        for (User u : selectedUsers) {
+            addedUsers.append(u.email).append(", ");
+        }
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
             public void onNext(List<User> users) {
                 view.updateGroupMembers(users);
                 view.hideLoading();
+                StringBuilder builder = new StringBuilder();
+                for (User u : selectedUsers) {
+                    builder.append(u.email).append(", ");
+                }
+                String notificationBody = String.format("%s : %s  has joined2 group. ", conversationName, addedUsers.substring(0,addedUsers.toString().length()-2));
+                sendNotification(conversation, conversation.key, notificationBody);
+            // TODO compare to get exactly new User added
             }
 
             @Override
@@ -134,6 +154,27 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 view.hideLoading();
             }
         }, new AddGroupMembersUseCase.Params(conversation, ret));
+    }
+
+    /**
+     *
+     * @param oldMembers
+     * @param selectedMembers
+     * @return user list has been joined
+     */
+    private List<User> findAddedUsers(List<User> oldMembers, List<User> selectedMembers) {
+        List<User> newUser = new ArrayList<>();
+
+        for (int i = 0; i <selectedMembers.size(); i++){
+
+            for (int j =0; j < oldMembers.size();i++){
+                if (selectedMembers.get(i).key != oldMembers.get(j).key){
+                    newUser.add(selectedMembers.get(i));
+                }
+            }
+        }
+
+        return newUser;
     }
 
     @Override
@@ -146,8 +187,8 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 if (aBoolean) {
                     view.navigateToMain();
                 }
-                String notificationBody = String.format("%s : %s Left group.", conversationName,currentUser.firstName);
-                sendNotification(conversation,conversation.key,notificationBody);
+                String notificationBody = String.format("%s : %s Left group.", conversationName, currentUser.firstName);
+                sendNotification(conversation, conversation.key, notificationBody);
             }
 
             @Override
@@ -291,7 +332,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     /**
-     *  @param conversation
+     * @param conversation
      * @param messageId
      * @param notificationBody
      */

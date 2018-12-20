@@ -14,7 +14,7 @@ import java.util.List;
 public interface ConversationGroupDetailPresenter extends BasePresenter {
     void initConversation(String conversationId);
 
-    void addUsersToGroup(List<User> selectedUsers);
+    void addUsersToGroup(List<User> oldMembers, List<User> selectedUsers, String conversationName);
 
     void leaveGroup(String conversationName);
 

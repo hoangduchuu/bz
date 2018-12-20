@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import com.ping.android.R;
+import com.ping.android.model.User;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.view.fragment.BaseFragment;
 import com.ping.android.presentation.view.fragment.ConversationGroupDetailFragment;
@@ -11,6 +12,8 @@ import com.ping.android.presentation.view.fragment.ConversationPVPDetailFragment
 import com.ping.android.utils.Navigator;
 import com.ping.android.utils.ThemeUtils;
 import com.ping.android.utils.configs.Constant;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -40,6 +43,7 @@ public class ConversationDetailActivity extends CoreActivity implements HasSuppo
                 Color currentColor = Color.from(color);
                 ThemeUtils.onActivityCreateSetTheme(this, currentColor);
                 String conversationName = bundle.getString(ChatActivity.EXTRA_CONVERSATION_NAME);
+                List<User> inConversationUsers = bundle.getParcelableArrayList(ChatActivity.USERS_IN_GROUP);
             }
         }
         setContentView(R.layout.activity_conversation_detail);

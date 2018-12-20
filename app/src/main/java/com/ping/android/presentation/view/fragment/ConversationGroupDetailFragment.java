@@ -74,6 +74,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
     private File groupProfileImage;
     private String conversationName;
 
+    private List<User> oldMembers;
+
     @Inject
     ConversationGroupDetailPresenter presenter;
     @Inject
@@ -95,6 +97,8 @@ public class ConversationGroupDetailFragment extends BaseFragment
             conversationId = getArguments().getString(ConversationDetailActivity.CONVERSATION_KEY);
             profileImageKey = getArguments().getString(EXTRA_IMAGE_KEY);
             conversationName = getArguments().getString(ChatActivity.EXTRA_CONVERSATION_NAME);
+            oldMembers = getArguments().getParcelableArrayList(ChatActivity.USERS_IN_GROUP);
+
         } else {
             throw new NullPointerException("Must set extras data");
         }
@@ -119,7 +123,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
         if (requestCode == Constant.SELECT_CONTACT_REQUEST) {
             if (resultCode == RESULT_OK) {
                 List<User> selectedUsers = data.getParcelableArrayListExtra(SelectContactActivity.SELECTED_USERS_KEY);
-                presenter.addUsersToGroup(selectedUsers);
+                presenter.addUsersToGroup(oldMembers,selectedUsers,conversationName);
             }
         }
     }

@@ -73,6 +73,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class ChatActivity : CoreActivity(),
         ChatPresenter.View,
@@ -925,6 +926,10 @@ class ChatActivity : CoreActivity(),
         extras.putInt(ConversationDetailActivity.CONVERSATION_TYPE_KEY, originalConversation!!.conversationType)
         extras.putInt(ChatActivity.EXTRA_CONVERSATION_COLOR, originalConversation!!.currentColor.code)
         extras.putString(ChatActivity.EXTRA_CONVERSATION_NAME, originalConversation?.conversationName)
+        if (originalConversation?.group?.members !=null){
+            val users = ArrayList( originalConversation?.group?.members!!)
+            intent.putParcelableArrayListExtra(ChatActivity.USERS_IN_GROUP,users)
+        }
         intent.putExtras(extras)
         startActivity(intent)
     }
@@ -1618,5 +1623,7 @@ class ChatActivity : CoreActivity(),
         const val EXTRA_CONVERSATION_COLOR = "EXTRA_CONVERSATION_COLOR"
 
         const val CONVERSATION_ID = "CONVERSATION_ID"
+
+        const val USERS_IN_GROUP = "USERS_IN_GROUP"
     }
 }
