@@ -142,7 +142,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
         StringBuilder addedUsersStringBuilder = new StringBuilder();
         for (User u : newAddedUsers) {
-            addedUsersStringBuilder.append(userMapper.getUserDisplay(u)).append(", ");
+            addedUsersStringBuilder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
         }
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
@@ -151,7 +151,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 view.hideLoading();
                 StringBuilder builder = new StringBuilder();
                 for (User u : selectedUsers) {
-                    builder.append(userMapper.getUserDisplay(u)).append(", ");
+                    builder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
                 }
                 String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
                 String notificationBody = String.format("%s : %s  has joined group. ", conversationName, joinedUsers);
@@ -207,7 +207,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 if (aBoolean) {
                     view.navigateToMain();
                 }
-                String notificationBody = String.format("%s : %s left group.", conversationName, currentUser.firstName);
+                String notificationBody = String.format("%s : %s left group.", conversationName, userMapper.getUserDisPlay(currentUser,conversation));
                 sendNotification(conversation, conversation.key, notificationBody);
             }
 

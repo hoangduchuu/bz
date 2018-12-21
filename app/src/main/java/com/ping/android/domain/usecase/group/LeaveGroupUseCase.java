@@ -4,6 +4,7 @@ import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
+import com.ping.android.data.mappers.UserMapper;
 import com.ping.android.domain.repository.CommonRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
@@ -43,6 +44,9 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Conversation> {
     SendTextMessageUseCase sendTextMessageUseCase;
 
     @Inject
+    UserMapper userMapper;
+
+    @Inject
     public LeaveGroupUseCase(@NotNull ThreadExecutor threadExecutor, @NotNull PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);
     }
@@ -76,7 +80,7 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Conversation> {
 
 
 
-                    String mesessage = user.getDisplayName() + " has left group";
+                    String mesessage = userMapper.getUserDisPlay(user,conversation) + " has left group";
                     SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                             .setMessageType(MessageType.SYSTEM)
                             .setConversation(conversation)
