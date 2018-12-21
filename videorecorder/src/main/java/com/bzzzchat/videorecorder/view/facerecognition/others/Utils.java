@@ -158,13 +158,15 @@ public class Utils {
         return crop(rotatedBitmap, face);
     }
 
-    public static Bitmap rotateImage(Bitmap img, int degree, float height) {
+    public static Bitmap rotateImage(Bitmap img, int degree, int length) {
         Matrix matrix = new Matrix();
-        float scale = img.getWidth() > img.getHeight()? height/img.getWidth() : height/img.getHeight();
+        float scale = img.getWidth() > img.getHeight()? (float)length/img.getWidth() : (float)length/img.getHeight();
+//        int newWidth = img.getWidth() > img.getHeight() ? length : (int)(length* scale);
+//        int newHeight = img.getWidth() > img.getHeight() ? (int)(length*scale) : length;
         matrix.postScale(scale, scale);
         matrix.postRotate(degree);
         Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(),img.getHeight(), matrix, true);
-        img.recycle();
+//        img.recycle();
         return rotatedImg;
     }
 
@@ -308,6 +310,8 @@ public class Utils {
     public static Bitmap getBitmapFromImage(Image image){
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.capacity()];
+        float scale = (float)image.getHeight()/image.getWidth();
+
         buffer.get(bytes);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
     }
@@ -361,12 +365,12 @@ public class Utils {
         int height = image.getHeight();
 
         float bitmapRatio = (float)width / (float) height;
-        if (bitmapRatio > 0) {
+        if (bitmapRatio > 1) {
             width = maxSize;
-            height = (int) (width / bitmapRatio);
+            height = (int) (bitmapRatio * maxSize);
         } else {
             height = maxSize;
-            width = (int) (height * bitmapRatio);
+            width = (int) (maxSize * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
@@ -402,34 +406,6 @@ public class Utils {
         return faceBitmap;
     }
 
-//    public static String saveMatToImage(Mat mat, String path){
-//        Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-//        org.opencv.android.Utils.matToBitmap(mat, bitmap);
-//        File file = new File(path);
-//        try {
-//            FileOutputStream os = new FileOutputStream(file);
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-//            os.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return path;
-//    }
-
-    public static void preProcessBitmap(Bitmap faceBitmap) {
-
-    }
-
-//    public static void smooth(String filename) {
-//        opencv_core.Mat image = imread(filename);
-//        if (image != null) {
-//            opencv_imgproc.GaussianBlur(image, image, new opencv_core.Size(3, 3), 0.0);
-//            imwrite(filename, image);
-//        }
-//    }
-
     public static void saveBitmap(Bitmap source, String filePath) {
         FileOutputStream out = null;
         try {
@@ -447,93 +423,4 @@ public class Utils {
             }
         }
     }
-
-//    /**
-//     *  \brief Automatic brightness and contrast optimization with optional histogram clipping
-//     *  \param [in]src Input image GRAY or BGR or BGRA
-//     *  \param [out]dst Destination image
-//     *  \param clipHistPercent cut wings of histogram at given percent tipical=>1, 0=>Disabled
-//     *  \note In case of BGRA image, we won't touch the transparency
-//     */
-//    public static opencv_core.Mat brightnessAndContrastAuto(String filePath)
-//    {
-//        opencv_core.Mat source = imread(filePath, CV_LOAD_IMAGE_GRAYSCALE);
-//        double[] minVal = new double[2], maxVal = new double[2];
-//        minMaxLoc(source, minVal, maxVal, null, null, null);
-////        CV_Assert(clipHistPercent >= 0);
-////        CV_Assert((src.type() == CV_8UC1) || (src.type() == CV_8UC3) || (src.type() == CV_8UC4));
-//
-//        int histSize = 256;
-//        float alpha, beta;
-//        double minGray = minVal[0], maxGray = maxVal[0];
-
-
-//        int l_bins = 20;
-//        int hist_size[] = {l_bins};
-//
-//        float v_ranges[] = {0, 100};
-//        float ranges[][] = {v_ranges};
-//
-//        //to calculate grayscale histogram
-//        opencv_core.Mat gray;
-//        if (src.type() == CV_8UC1) gray = src;
-//        else if (src.type() == CV_8UC3) cvtColor(src, gray, CV_BGR2GRAY);
-//        else if (src.type() == CV_8UC4) cvtColor(src, gray, CV_BGRA2GRAY);
-//        opencv_core.CvHistogram histogram = opencv_core.CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
-//
-//        if (clipHistPercent == 0) {
-//            // keep full available range
-//            minMaxLoc(gray, minGray, maxGray);
-//        }  else  {
-//            opencv_core.Mat hist; //the grayscale histogram
-//
-//            float range[] = { 0, 256 };
-//            histo
-//        const float* histRange = { range };
-//            bool uniform = true;
-//            bool accumulate = false;
-//            calcHist(&gray, 1, 0, cv::Mat (), hist, 1, &histSize, &histRange, uniform, accumulate);
-//
-//            // calculate cumulative distribution from the histogram
-//            std::vector<float> accumulator(histSize);
-//            accumulator[0] = hist.at<float>(0);
-//            for (int i = 1; i < histSize; i++)
-//            {
-//                accumulator[i] = accumulator[i - 1] + hist.at<float>(i);
-//            }
-//
-//            // locate points that cuts at required value
-//            float max = accumulator.back();
-//            clipHistPercent *= (max / 100.0); //make percent as absolute
-//            clipHistPercent /= 2.0; // left and right wings
-//            // locate left cut
-//            minGray = 0;
-//            while (accumulator[minGray] < clipHistPercent)
-//                minGray++;
-//
-//            // locate right cut
-//            maxGray = histSize - 1;
-//            while (accumulator[maxGray] >= (max - clipHistPercent))
-//                maxGray--;
-//        }
-
-        // current range
-//        float inputRange = (float) (maxGray - minGray);
-//
-//        alpha = (histSize - 1) / inputRange;   // alpha expands current range to histsize range
-//        beta = (float) (-minGray * alpha);             // beta shifts current range so that minGray will go to 0
-//
-//        // Apply brightness and contrast normalization
-//        // convertTo operates with saurate_cast
-//        opencv_core.Mat dst = new opencv_core.Mat();
-//        source.convertTo(dst, -1, alpha, beta);
-//        imwrite(filePath, dst);
-//        // restore alpha channel from source
-////        if (dst.type() == CV_8UC4)
-////        {
-////            int from_to[] = { 3, 3};
-////            cv::mixChannels(&src, 4, &dst,1, from_to, 1);
-////        }
-//        return dst;
-//    }
 }

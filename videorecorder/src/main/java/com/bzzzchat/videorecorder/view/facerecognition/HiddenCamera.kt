@@ -17,19 +17,13 @@ import com.bzzzchat.videorecorder.view.facerecognition.others.Camera2Source
 import com.bzzzchat.videorecorder.view.facerecognition.others.CameraSourcePreview
 import com.bzzzchat.videorecorder.view.facerecognition.others.GraphicOverlay
 import com.bzzzchat.videorecorder.view.facerecognition.others.Utils
-//import com.bzzzchat.videorecorder.view.facerecognition.preprocessor.PreProcessorFactory
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.Frame
 import com.google.android.gms.vision.MultiProcessor
 import com.google.android.gms.vision.Tracker
 import com.google.android.gms.vision.face.Face
 import com.google.android.gms.vision.face.FaceDetector
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,14 +35,11 @@ interface RecognitionCallback {
 
 class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private val TAG = "HiddenCamera"
-    private val confidenceThreshold = 30
-    private val minConfidenceThreshold = 20
     private lateinit var cameraPreview: CameraSourcePreview
     private lateinit var previewFaceDetector: FaceDetector
     private lateinit var myDetector: MyFaceDetector
     private lateinit var mCamera2Source: Camera2Source
-    private lateinit var visionDetector: FirebaseVisionFaceDetector
-//    private val preProcessorFactory = PreProcessorFactory(context)
+    private lateinit var mFaceDetector: FaceDetector
 
     private var wasActivityResumed = false
     private var isProcessingImage = AtomicBoolean(false)
@@ -61,65 +52,52 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
     fun initWithActivity(activity: Activity) {
         addPreview(activity)
-        setupFaceDetector()
+        val faceDetector = FaceDetector.Builder(context).setMode(FaceDetector.FAST_MODE)
+                .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                .setTrackingEnabled(false)
+                .setProminentFaceOnly(true)
+                .setMinFaceSize(0.25f)
+                .build()
+        mFaceDetector = faceDetector
     }
 
     private fun processFaceRecognition(path: String) {
         val result = FaceRecognition.getInstance(context).faceRecognition(path)
 //        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
         if (result == FaceRecognitionResult.SUCCESS){
-            onRecognizedUser(path)
+            callback.onRecognitionSuccess()
+            confidenceCounter.set(0)
+            stopCameraSource()
         }else{
             callback.onRecognizingError()
             confidenceCounter.incrementAndGet()
         }
-//        if (faceData.label > 0) {
-//            if (faceData.confidence < minConfidenceThreshold) {
-//                // Recognize user
-//                onRecognizedUser(path)
-//            }
-//            if (faceData.confidence < confidenceThreshold) {
-//                if (confidenceCounter.incrementAndGet() >= counter) {
-//                    onRecognizedUser(path)
-//                }
-//            }
-//        } else {
-//            confidenceCounter.set(0)
-//        }
-    }
-
-    private fun onRecognizedUser(path: String) {
-        callback.onRecognitionSuccess()
-        confidenceCounter.set(0)
-        stopCameraSource()
-        // Store this image for next recognition
-        //Utils.moveFile(File(path), File(FaceRecognition.instance.getTrainingFolder()))
-        //FaceRecognition.instance.trainModel()
     }
 
     internal val camera2SourceShutterCallback = Camera2Source.ShutterCallback { Log.d(TAG, "Shutter Callback for CAMERA2") }
 
     val that = this
     internal val camera2SourcePictureCallback = Camera2Source.PictureCallback { image ->
-        Log.d(TAG, "Taken picture is here!")
         if (isProcessingImage.get()) {
             image.close()
             return@PictureCallback
         }
         isProcessingImage.set(true)
-        val buffer = image.planes[0].buffer
-        val bytes = ByteArray(buffer.capacity())
-        buffer.get(bytes)
-        var picture = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
+
         var rotation = 0
         try {
             rotation = Utils.getRotationCompensation(mCamera2Source.cameraId, context as Activity)
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
-        val finalPicture = Utils.rotateImage(picture, rotation, 384f)
-        val visionImage = FirebaseVisionImage.fromBitmap(finalPicture)
+        val picture = Utils.getBitmapFromImage(image)
         image.close()
+        val finalPicture = Utils.rotateImage(picture, rotation, 384)
+
+
+
+        val visionImage = FirebaseVisionImage.fromBitmap(finalPicture)
         visionDetector.detectInImage(visionImage)
                 .addOnSuccessListener { faces ->
                     if (faces.size > 0) {
@@ -127,10 +105,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                         val faceBitmap = Utils.getFaceFromBitmap(finalPicture, face)
                         val fileName = "user.png"
                         val file = File(Environment.getExternalStorageDirectory(), fileName)
-                        //Utils.saveMatToImage(preProcessorFactory.processBitmap(faceBitmap), file.absolutePath)
                         Utils.saveBitmap(faceBitmap, file.absolutePath)
-//                        Utils.brightnessAndContrastAuto(file.absolutePath)
-//                        Utils.smooth(file.absolutePath)
                         processFaceRecognition(file.absolutePath)
                     }
                     isProcessingImage.set(false)
@@ -139,14 +114,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                     e.printStackTrace()
                     isProcessingImage.set(false)
                 }
-    }
-
-    private fun rotateImage(img: Bitmap, degree: Int): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degree.toFloat())
-        val rotatedImg = Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
-        img.recycle()
-        return rotatedImg
     }
 
     private inner class FaceTrackerFactory : MultiProcessor.Factory<Face> {
@@ -173,19 +140,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         }
     }
 
-    private fun setupFaceDetector() {
-        createCameraSourceFront()
-        val options = FirebaseVisionFaceDetectorOptions.Builder()
-                .setPerformanceMode(FirebaseVisionFaceDetectorOptions.FAST)
-                .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
-                .setClassificationMode(FirebaseVisionFaceDetectorOptions.NO_CLASSIFICATIONS)
-                .setMinFaceSize(0.15f)
-                .enableTracking()
-                .build()
-        visionDetector = FirebaseVision.getInstance()
-                .getVisionFaceDetector(options)
-    }
-
     private fun createCameraSourceFront() {
         // TODO need a plan to upgrade to mlkit
 
@@ -209,14 +163,11 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                 .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
                 .setFacing(Camera2Source.CAMERA_FACING_FRONT)
                 .build()
-        //IF CAMERA2 HARDWARE LEVEL IS LEGACY, CAMERA2 IS NOT NATIVE.
-        //WE WILL USE CAMERA1.
-//        if (mCamera2Source.isCamera2Native) {
+
         startCameraSource()
-//        }
     }
 
-    fun startCameraSource() {
+    private fun startCameraSource() {
         try {
             cameraPreview.start(mCamera2Source, GraphicOverlay(context))
         } catch (e: IOException) {
