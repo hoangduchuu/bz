@@ -154,7 +154,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                     builder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
                 }
                 String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
-                String notificationBody = String.format("%s : %s  has joined group. ", conversationName, joinedUsers);
+                String notificationBody = String.format("%s : %s  has joined ", conversationName, joinedUsers);
                 sendNotification(conversation, conversation.key, notificationBody);
                 sendJoinedMessage(joinedUsers);
             // TODO compare to get exactly new User added
@@ -363,7 +363,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
 
     private void sendJoinedMessage(String joinedUser){
 
-        String mesessage = joinedUser + " has joined group";
+        String mesessage = joinedUser + " has joined";
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.SYSTEM)
                 .setConversation(conversation)

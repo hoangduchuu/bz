@@ -20,7 +20,7 @@ class UserMapper @Inject constructor() {
         if (conversation.nickNames != null && map.containsKey(user.key)){
             return map.get(user.key)
         }
-        return "${user.firstName }  ${user.lastName}"
+        return "${user.firstName } ${user.lastName}"
 
     }
 }

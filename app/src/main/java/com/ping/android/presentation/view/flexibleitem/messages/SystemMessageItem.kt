@@ -106,7 +106,6 @@ class SystemMessageItem(message: Message) : MessageBaseItem<SystemMessageItem.Vi
         @RequiresApi(Build.VERSION_CODES.M)
         private fun setImageMessage(message: Message) {
             tvSystemMessage?.setText(message.message)
-            BzLog.d("HHH: ${message.message}")
         }
 
 

@@ -80,7 +80,7 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Conversation> {
 
 
 
-                    String mesessage = userMapper.getUserDisPlay(user,conversation) + " has left group";
+                    String mesessage = userMapper.getUserDisPlay(user,conversation) + " has left";
                     SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                             .setMessageType(MessageType.SYSTEM)
                             .setConversation(conversation)

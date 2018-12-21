@@ -87,7 +87,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         updateValue.put(String.format("messages/%s/%s", conversation.key, message.key), message.toMap());
         for (String toUser : conversation.memberIDs.keySet()) {
             if (!message.isReadable(toUser)) continue;
-            updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType != Constant.MSG_TYPE_SYSTEM){
+                updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            }
             if (message.messageType == Constant.MSG_TYPE_IMAGE
                     || message.messageType == Constant.MSG_TYPE_GAME
                     || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
