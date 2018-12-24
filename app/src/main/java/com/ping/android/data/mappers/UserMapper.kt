@@ -17,7 +17,7 @@ class UserMapper @Inject constructor() {
      */
     fun getUserDisPlay(user: User, conversation: Conversation): String? {
         val map = conversation.nickNames
-        if (conversation.nickNames != null && map.containsKey(user.key)){
+        if (conversation.nickNames != null && map.containsKey(user.key) && map.get(user.key)!!.isNotEmpty()){
             return map.get(user.key)
         }
         return "${user.firstName } ${user.lastName}"
