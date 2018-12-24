@@ -4,8 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.hardware.camera2.CameraAccessException
-import android.media.Image
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.util.SparseArray
 import android.view.ViewGroup
@@ -23,6 +24,7 @@ import com.google.android.gms.vision.MultiProcessor
 import com.google.android.gms.vision.Tracker
 import com.google.android.gms.vision.face.Face
 import com.google.android.gms.vision.face.FaceDetector
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -36,7 +38,6 @@ interface RecognitionCallback {
 class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private val TAG = "HiddenCamera"
     private lateinit var cameraPreview: CameraSourcePreview
-    private lateinit var previewFaceDetector: FaceDetector
     private lateinit var myDetector: MyFaceDetector
     private lateinit var mCamera2Source: Camera2Source
     private lateinit var mFaceDetector: FaceDetector
@@ -48,32 +49,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private var height: Int = 200
 
     private var confidenceCounter = AtomicInteger(0)
-    private val counter = 3
-
-    fun initWithActivity(activity: Activity) {
-        addPreview(activity)
-        val faceDetector = FaceDetector.Builder(context).setMode(FaceDetector.FAST_MODE)
-                .setLandmarkType(FaceDetector.NO_LANDMARKS)
-                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
-                .setTrackingEnabled(false)
-                .setProminentFaceOnly(true)
-                .setMinFaceSize(0.25f)
-                .build()
-        mFaceDetector = faceDetector
-    }
-
-    private fun processFaceRecognition(path: String) {
-        val result = FaceRecognition.getInstance(context).faceRecognition(path)
-//        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
-        if (result == FaceRecognitionResult.SUCCESS){
-            callback.onRecognitionSuccess()
-            confidenceCounter.set(0)
-            stopCameraSource()
-        }else{
-            callback.onRecognizingError()
-            confidenceCounter.incrementAndGet()
-        }
-    }
 
     internal val camera2SourceShutterCallback = Camera2Source.ShutterCallback { Log.d(TAG, "Shutter Callback for CAMERA2") }
 
@@ -96,24 +71,52 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         val finalPicture = Utils.rotateImage(picture, rotation, 384)
 
 
+        val frame = Frame.Builder().setBitmap(finalPicture).build()
+        val faces = mFaceDetector.detect(frame)
 
-        val visionImage = FirebaseVisionImage.fromBitmap(finalPicture)
-        visionDetector.detectInImage(visionImage)
-                .addOnSuccessListener { faces ->
-                    if (faces.size > 0) {
-                        val face = faces[0]
-                        val faceBitmap = Utils.getFaceFromBitmap(finalPicture, face)
-                        val fileName = "user.png"
-                        val file = File(Environment.getExternalStorageDirectory(), fileName)
-                        Utils.saveBitmap(faceBitmap, file.absolutePath)
-                        processFaceRecognition(file.absolutePath)
-                    }
-                    isProcessingImage.set(false)
-                }
-                .addOnFailureListener { e ->
-                    e.printStackTrace()
-                    isProcessingImage.set(false)
-                }
+        if (faces.size() > 0) {
+            val face = faces.valueAt(0)
+            val faceBitmap = Utils.getFaceFromBitmap(finalPicture, face)
+            val fileName = "user.png"
+            val file = File(Environment.getExternalStorageDirectory(), fileName)
+            Utils.saveBitmap(faceBitmap, file.absolutePath)
+            processFaceRecognition(file.absolutePath)
+        }
+        isProcessingImage.set(false)
+    }
+
+        fun initWithActivity(activity: Activity) {
+        addPreview(activity)
+        val faceDetector = FaceDetector.Builder(context).setMode(FaceDetector.FAST_MODE)
+                .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                .setTrackingEnabled(false)
+                .setProminentFaceOnly(true)
+                .setMinFaceSize(0.25f)
+                .build()
+        mFaceDetector = faceDetector
+
+        myDetector = MyFaceDetector()
+        myDetector.setProcessor(MultiProcessor.Builder<Face>(FaceTrackerFactory()).build())
+
+        createCameraSourceFront()
+    }
+
+    private fun processFaceRecognition(path: String) {
+        val result = FaceRecognition.getInstance(context).faceRecognition(path)
+//        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
+        val handler = Handler(Looper.getMainLooper())
+        handler.post {
+            if (result == FaceRecognitionResult.SUCCESS){
+                callback.onRecognitionSuccess()
+                confidenceCounter.set(0)
+                stopCameraSource()
+            }else{
+                callback.onRecognizingError()
+                confidenceCounter.incrementAndGet()
+            }
+            isProcessingImage.set(false)
+        }
     }
 
     private inner class FaceTrackerFactory : MultiProcessor.Factory<Face> {
@@ -124,7 +127,23 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
     private inner class FaceTracker : Tracker<Face>()
 
-    private inner class MyFaceDetector : Detector<Face>() {
+    private inner class MyFaceDetector : Detector<Face> {
+        private var previewFaceDetector: FaceDetector = FaceDetector.Builder(context)
+                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
+                .setLandmarkType(FaceDetector.NO_LANDMARKS)
+                .setMode(FaceDetector.FAST_MODE)
+                .setProminentFaceOnly(true)
+                .setTrackingEnabled(true)
+                .build()
+
+        constructor(){
+            if (previewFaceDetector.isOperational) {
+                previewFaceDetector.setProcessor(MultiProcessor.Builder<Face>(FaceTrackerFactory()).build())
+            } else {
+                Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         override fun detect(p0: Frame?): SparseArray<Face> {
             val faces = previewFaceDetector.detect(p0)
             if (faces.size() == 1) {
@@ -132,7 +151,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                     if (isProcessingImage.get()) {
                         return faces
                     }
-//                    camera2SourcePictureCallback.onPictureTaken()
                     mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback)
                 }
             }
@@ -141,22 +159,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     }
 
     private fun createCameraSourceFront() {
-        // TODO need a plan to upgrade to mlkit
-
-        previewFaceDetector = FaceDetector.Builder(context)
-                .setClassificationType(FaceDetector.NO_CLASSIFICATIONS)
-                .setLandmarkType(FaceDetector.NO_LANDMARKS)
-                .setMode(FaceDetector.ACCURATE_MODE)
-                .setProminentFaceOnly(true)
-                //.setTrackingEnabled(true)
-                .build()
-        myDetector = MyFaceDetector()
-        myDetector.setProcessor(MultiProcessor.Builder<Face>(FaceTrackerFactory()).build())
-        if (previewFaceDetector.isOperational) {
-            previewFaceDetector.setProcessor(MultiProcessor.Builder<Face>(FaceTrackerFactory()).build())
-        } else {
-            Toast.makeText(context, "FACE DETECTION NOT AVAILABLE", Toast.LENGTH_SHORT).show()
-        }
 
         mCamera2Source = Camera2Source.Builder(context, myDetector)
                 .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
@@ -164,10 +166,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                 .setFacing(Camera2Source.CAMERA_FACING_FRONT)
                 .build()
 
-        startCameraSource()
-    }
-
-    private fun startCameraSource() {
         try {
             cameraPreview.start(mCamera2Source, GraphicOverlay(context))
         } catch (e: IOException) {
@@ -182,7 +180,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         when (view) {
             is LinearLayout -> {
                 val params = LinearLayout.LayoutParams(width, height)
-                (view as LinearLayout).addView(cameraPreview, params!!)
+                view.addView(cameraPreview, params!!)
             }
             is RelativeLayout -> {
                 val params = RelativeLayout.LayoutParams(width, height)
@@ -211,12 +209,12 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
     fun onDestroy() {
         stopCameraSource()
-        if (previewFaceDetector != null) {
-            previewFaceDetector.release()
+        if (myDetector != null) {
+            myDetector.release()
         }
     }
 
-    fun stopCameraSource() {
+    private fun stopCameraSource() {
         cameraPreview.stop()
     }
 }

@@ -10,15 +10,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -32,24 +27,11 @@ import android.view.WindowManager;
 
 import com.bzzzchat.videorecorder.view.facerecognition.Configs;
 import com.google.android.gms.common.images.Size;
-import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
-import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
-//
-//import org.bytedeco.javacpp.opencv_core;
-//import org.bytedeco.javacpp.opencv_imgproc;
-//import org.opencv.core.Mat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 public class Utils {
 
@@ -109,55 +91,6 @@ public class Utils {
         return size;
     }
 
-    public static Bitmap cropToSquare(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int newWidth = (height > width) ? width : height;
-        int newHeight = (height > width) ? height - (height - width) : height;
-        int cropW = (width - height) / 2;
-        cropW = (cropW < 0) ? 0 : cropW;
-        int cropH = (height - width) / 2;
-        cropH = (cropH < 0) ? 0 : cropH;
-        Bitmap cropImg = Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
-
-        return cropImg;
-    }
-
-    public static Bitmap getProcessedImage(Frame frame, Face face) {
-        int rotationAngle = 0;
-        int width = frame.getMetadata().getWidth();
-        int height = frame.getMetadata().getHeight();
-
-        switch (frame.getMetadata().getRotation()) {
-            case 0:
-                break;
-            case 1:
-                rotationAngle = 90;
-                break;
-            case 2:
-                rotationAngle = 180;
-                break;
-            case 3:
-                rotationAngle = 270;
-                break;
-            default:
-                rotationAngle = 0;
-        }
-
-
-        YuvImage yuvImage = new YuvImage(frame.getGrayscaleImageData().array(), ImageFormat.NV21, width, height, null);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, byteArrayOutputStream);
-        byte[] jpegArray = byteArrayOutputStream.toByteArray();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(jpegArray, 0, jpegArray.length);
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationAngle);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-        return crop(rotatedBitmap, face);
-    }
-
     public static Bitmap rotateImage(Bitmap img, int degree, int length) {
         Matrix matrix = new Matrix();
         float scale = img.getWidth() > img.getHeight()? (float)length/img.getWidth() : (float)length/img.getHeight();
@@ -192,80 +125,6 @@ public class Utils {
         return rotationCompensation;
     }
 
-    public static Bitmap getProcessedImage(byte[] bytes, int width, int height, float rotationAngle) {
-        YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, width, height, null);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, byteArrayOutputStream);
-        byte[] jpegArray = byteArrayOutputStream.toByteArray();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(jpegArray, 0, jpegArray.length);
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationAngle);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-        return rotatedBitmap;
-    }
-
-    /**
-     * Draws the face annotations for position on the supplied canvas.
-     */
-    public static Bitmap crop(Bitmap bitmap, Face face) {
-        try {
-            float left = face.getPosition().x;
-            float top = face.getPosition().y;
-            float width = face.getWidth();
-            float height = face.getHeight();
-
-            if (left < 0) {
-                left = 0;
-            }
-            if (left + width > bitmap.getWidth()) {
-                width = bitmap.getWidth() - left - 1;
-            }
-            if (top < 0) {
-                top = 0;
-            }
-            if (top + height > bitmap.getHeight()) {
-                height = bitmap.getHeight() - top - 1;
-            }
-
-            return Bitmap.createBitmap(bitmap, (int) left, (int) top, (int) width, (int) height);
-        } catch (Exception e) {
-            return Bitmap.createBitmap(bitmap, 0, 0, 1, 1);
-        }
-    }
-
-    public static Bitmap toGrayscale(Bitmap bmpOriginal) {
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        Canvas c = new Canvas(bmpGrayscale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        return bmpGrayscale;
-    }
-
-    public static void moveFile(File file, File dir) throws IOException {
-        File newFile = new File(dir, file.getName());
-        FileChannel outputChannel = null;
-        FileChannel inputChannel = null;
-        try {
-            outputChannel = new FileOutputStream(newFile).getChannel();
-            inputChannel = new FileInputStream(file).getChannel();
-            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-            inputChannel.close();
-            file.delete();
-        } finally {
-            if (inputChannel != null) inputChannel.close();
-            if (outputChannel != null) outputChannel.close();
-        }
-
-    }
 
     public static Bitmap convertTo565(final Bitmap origin) {
 
@@ -373,11 +232,6 @@ public class Utils {
             width = (int) (maxSize * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
-    public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
-        Rect rect = face.getBoundingBox();
-        return getFaceFromBitmap(bitmap, rect);
     }
 
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, Face face) {

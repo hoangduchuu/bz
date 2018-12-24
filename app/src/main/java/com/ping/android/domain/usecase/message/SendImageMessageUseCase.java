@@ -17,7 +17,6 @@ import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
-import com.ping.android.utils.BzLog;
 import com.ping.android.utils.Utils;
 import com.ping.android.utils.configs.Constant;
 

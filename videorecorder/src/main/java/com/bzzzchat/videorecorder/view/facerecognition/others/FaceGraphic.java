@@ -17,7 +17,6 @@ import android.graphics.Rect;
 
 import com.bzzzchat.videorecorder.R;
 import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.Landmark;
 
 /**
  * Graphic instance for rendering face position, orientation, and landmarks within an associated

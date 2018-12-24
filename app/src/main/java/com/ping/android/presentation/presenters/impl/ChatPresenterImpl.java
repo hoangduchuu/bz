@@ -54,9 +54,7 @@ import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
-import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +65,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -167,7 +164,6 @@ public class ChatPresenterImpl implements ChatPresenter {
     // endregion
     Conversation conversation;
 
-    private boolean isUserRecognized = false;
     /**
      * Collections that contains new message update when chat screen come background
      */
@@ -234,7 +230,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 exception.printStackTrace();
                 view.hideLoading();
                 if (exception instanceof TimeoutException){
-                    view.showTimeouNotification();
+                    view.showTimeoutNotification();
                 }
             }
 
@@ -392,7 +388,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             higherHeaderItem = entry.getValue();
         }
         MessageBaseItem item = null;
-        if (isUserRecognized) {
+        if (faceIdStatusRepository.getFaceIdRecognitionStatus().get()) {
             message.isMask = false;
         }
         if (message.type == MessageType.IMAGE_GROUP) {
@@ -424,7 +420,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendTextMessage(String message, boolean markStatus) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.TEXT)
                 .setConversation(conversation)
@@ -447,7 +443,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendImageMessage(String photoUrl, String thumbUrl, boolean markStatus) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendImageMessageUseCase.Params params = new SendImageMessageUseCase.Params();
         params.filePath = photoUrl;
         params.thumbFilePath = thumbUrl;
@@ -476,7 +472,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendImagesMessage(List<PhotoItem> items, boolean markStatus) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendGroupImageMessageUseCase.Params params = new SendGroupImageMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -508,7 +504,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendGameMessage(String gameUrl, GameType gameType, boolean markStatus) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendGameMessageUseCase.Params params = new SendGameMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -557,7 +553,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendAudioMessage(String audioUrl, VoiceType voiceType) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendAudioMessageUseCase.Params params = new SendAudioMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -584,7 +580,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendVideoMessage(String videoPath) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendVideoMessageUseCase.Params params = new SendVideoMessageUseCase.Params();
         params.conversation = conversation;
         params.currentUser = currentUser;
@@ -947,11 +943,11 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void userRecognized() {
-        isUserRecognized = true;
+//        faceIdStatusRepository.setFaceIdRecognitionStatus(true);
         // TODO should refresh chat screen
     }
     public void sendSticker(String stickerPath) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         String url = stickerPath.replace("stickers/","").replace("/","_");
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.STICKER)
@@ -976,7 +972,7 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     @Override
     public void sendGifs(String url) {
-        if (!beAbleToSendMessage()) return;
+        if (!isAbleToSendMessage()) return;
         SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
                 .setMessageType(MessageType.GIF)
                 .setConversation(conversation)
@@ -1002,15 +998,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 new SendMessageNotificationUseCase.Params(conversation, messageId, message, messageType));
     }
 
-    private void checkMessageError(Message message) {
-        if (message.senderId.equals(currentUser.key)) {
-            if (message.messageStatusCode == Constant.MESSAGE_STATUS_ERROR && message.type == MessageType.TEXT) {
-                resendMessage(message);
-            }
-        }
-    }
-
-    private boolean beAbleToSendMessage() {
+    private boolean isAbleToSendMessage() {
         if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
             if (currentUser.blocks.containsKey(conversation.opponentUser.key)) {
                 String username = conversation.opponentUser.firstName;
@@ -1159,7 +1147,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         checkPasswordUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
-                view.disableFaceID();
+                faceIdStatusRepository.setFaceIdEnabled(false);
                 view.hideLoading();
             }
 
@@ -1174,21 +1162,7 @@ public class ChatPresenterImpl implements ChatPresenter {
                 super.onComplete();
                 view.hideLoading();
             }
-        }, password);    }
-
-
-    @Override
-    public void disableFaceID() {
-        // TODO HUU: create usecase instead
-        faceIdStatusRepository.disableFaceId();
-        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).disableFaceID();
-
-        //no remove data, if remove, we got crash?
-
-//
-//        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
-//        FaceRecognition.getInstance(this).removeTrainingData()
-//
-//        LiveSharePrefs.getInstance()?.changeFaceIDTrainingStatus(false)
+        }, password);
     }
+
 }

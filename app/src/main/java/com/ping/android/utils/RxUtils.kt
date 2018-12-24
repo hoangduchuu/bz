@@ -7,9 +7,9 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 object RxUtils{
-     fun countDownTenSeconds():Observable<Long>{
+     fun countDown(seconds: Long):Observable<Long>{
        return Observable.interval(1, TimeUnit.SECONDS)
-               .take(BuildConfig.TIME_PROCESS_FACE_ID)
+               .take(seconds)
                .map { t->t+1 }
                .subscribeOn(Schedulers.computation())
                .observeOn(AndroidSchedulers.mainThread())

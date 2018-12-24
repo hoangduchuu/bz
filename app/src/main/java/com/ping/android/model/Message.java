@@ -33,6 +33,7 @@ public class Message implements Parcelable {
     public int messageStatusCode;
     public long days;
     public boolean isMask;
+    public boolean faceIdRecognitionStatus = false;
     public MessageType type = MessageType.TEXT;
     public MessageCallType messageCallType = MessageCallType.VOICE_CALL;
     public boolean maskable;
@@ -70,6 +71,7 @@ public class Message implements Parcelable {
         messageStatusCode = in.readInt();
         days = in.readLong();
         isMask = in.readByte() != 0;
+        faceIdRecognitionStatus = in.readByte() != 0;
         showExtraInfo = in.readByte() != 0;
         opponentUser = in.readParcelable(User.class.getClassLoader());
         parentKey = in.readString();
@@ -125,6 +127,7 @@ public class Message implements Parcelable {
         dest.writeInt(messageStatusCode);
         dest.writeLong(days);
         dest.writeByte((byte) (isMask ? 1 : 0));
+        dest.writeByte((byte)(faceIdRecognitionStatus ? 1: 0));
         dest.writeByte((byte) (showExtraInfo ? 1 : 0));
         dest.writeParcelable(opponentUser, flags);
         dest.writeString(parentKey);

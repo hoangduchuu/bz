@@ -43,7 +43,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
     private ChatMessageListener messageListener;
     private List<MessageBaseItem> selectedMessages;
     private TypingItem typingItem;
-
+    private Boolean faceIdRecognitionStatus;
     private Map<String, String> nickNames = new HashMap<>();
 
     private Set<RecyclerView.ViewHolder> boundsViewHolder = new HashSet<>();
@@ -457,10 +457,11 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
         return messageBaseItems;
     }
 
-    public void userRecognized() {
+    public void userRecognized(Boolean value) {
+        faceIdRecognitionStatus = value;
         for (FlexibleItem item: this.items) {
             if (item instanceof MessageBaseItem) {
-                ((MessageBaseItem) item).message.isMask = false;
+                ((MessageBaseItem) item).message.faceIdRecognitionStatus = value;
             }
         }
         notifyDataSetChanged();
