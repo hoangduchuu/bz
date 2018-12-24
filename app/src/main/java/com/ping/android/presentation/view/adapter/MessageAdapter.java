@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
@@ -484,6 +485,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }else {
                 if (conversation.message == null){
                     return "";
+                }
+                if (conversation.senderName == null){
+                    return "Anonymous: ";
                 }
                 return conversation.senderName + ": ";
             }
