@@ -95,7 +95,13 @@ public class CreateGroupUseCase extends UseCase<Conversation, CreateGroupUseCase
                             Map<String, Object> updateValue = new HashMap<>();
                             //updateValue.put(String.format("conversations/%s", conversation.key), conversation.toMap());
                             for (String userKey : conversation.memberIDs.keySet()) {
-                                updateValue.put(String.format("conversations/%s/%s", userKey, conversation.key), conversation.toMap());
+                                if (params.message == null || params.message.isEmpty()) {
+                                    updateValue.put(String.format("conversations/%s/%s", userKey, conversation.key), conversation.toMapEmptyMessage());
+                                }
+                                else {
+                                    updateValue.put(String.format("conversations/%s/%s", userKey, conversation.key), conversation.toMap());
+
+                                }
                                 updateValue.put(String.format("groups/%s/%s/conversationID", userKey, conversation.groupID), conversation.key);
                             }
                             return commonRepository.updateBatchData(updateValue)
