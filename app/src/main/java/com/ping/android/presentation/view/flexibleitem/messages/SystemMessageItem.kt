@@ -14,12 +14,8 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bzzzchat.configuration.GlideApp
 import com.ping.android.R
 import com.ping.android.model.Message
-import com.ping.android.utils.BzLog
 import com.ping.android.utils.ResourceUtils
 
 /**

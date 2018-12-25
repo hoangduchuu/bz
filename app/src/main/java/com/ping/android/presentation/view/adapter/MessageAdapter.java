@@ -20,9 +20,7 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
-import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 

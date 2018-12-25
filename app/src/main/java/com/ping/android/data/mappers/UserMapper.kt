@@ -2,8 +2,6 @@ package com.ping.android.data.mappers;
 
 import com.ping.android.model.Conversation
 import com.ping.android.model.User
-import com.ping.android.utils.BzLog
-import com.ping.android.utils.Log
 import javax.inject.Inject
 
 /**
