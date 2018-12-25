@@ -85,7 +85,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
         isProcessingImage.set(false)
     }
 
-        fun initWithActivity(activity: Activity) {
+    fun initWithActivity(activity: Activity) {
         addPreview(activity)
         val faceDetector = FaceDetector.Builder(context).setMode(FaceDetector.FAST_MODE)
                 .setLandmarkType(FaceDetector.NO_LANDMARKS)

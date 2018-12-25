@@ -388,9 +388,8 @@ public class ChatPresenterImpl implements ChatPresenter {
             higherHeaderItem = entry.getValue();
         }
         MessageBaseItem item = null;
-        if (faceIdStatusRepository.getFaceIdRecognitionStatus().get()) {
-            message.isMask = false;
-        }
+        message.faceIdRecognitionStatus = faceIdStatusRepository.getFaceIdRecognitionStatus().get();
+
         if (message.type == MessageType.IMAGE_GROUP) {
             if (!message.isCached) {
                 for (Message child: message.childMessages) {

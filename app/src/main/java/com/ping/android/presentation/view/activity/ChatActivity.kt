@@ -115,16 +115,16 @@ class ChatActivity : CoreActivity(),
     /**
      * password dialog opening
      */
-    private var isPasswordDialogOpenning = AtomicBoolean(false)
+    private var isPasswordDialogOpening = AtomicBoolean(false)
 
     /**
-     * CompositeDisposable of Timmer
+     * CompositeDisposable of Timer
      */
-    private lateinit var disposableTimer: CompositeDisposable
+    private var disposableTimer = CompositeDisposable()
 
 
     @Inject
-    lateinit var faceidRepository: FaceIdStatusRepository
+    lateinit var faceIdStatusRepository: FaceIdStatusRepository
 
     private val chatGameMenu: BottomSheetDialog by lazy {
         // Bottom chat menu
@@ -733,16 +733,7 @@ class ChatActivity : CoreActivity(),
             keyboardHeightProvider.start()
         }
 
-        isEnabledFaceRecognize = (faceidRepository.isFaceIdEnabled() && SharedPrefsHelper.getInstance().isFaceIdCompleteTraining)
-
-        /**
-         * when user open chat screen, we check user have setup and enable FACE ID or not
-         */
-        if (isEnabledFaceRecognize) {
-            hiddenCamera.initWithActivity(this)
-            faceIdIndicator?.visibility =View.VISIBLE
-            faceIdIndicator?.showLoading()
-        }
+        isEnabledFaceRecognize = (faceIdStatusRepository.isFaceIdEnabled() && faceIdStatusRepository.isFaceIdTrained())
     }
 
     /**
@@ -1422,22 +1413,19 @@ class ChatActivity : CoreActivity(),
         /**
          * when user open chat screen, we check user have setup and enable FACE ID or not
          */
-        if (isEnabledFaceRecognize && !faceidRepository.faceIdRecognitionStatus.get() && !isPasswordDialogOpenning.get()) {
-            if (hiddenCamera == null) {
+        if (isEnabledFaceRecognize && !faceIdStatusRepository.faceIdRecognitionStatus.get() && !isPasswordDialogOpening.get()) {
+            if (!isHiddenCameraInitialized.get()) {
                 hiddenCamera.initWithActivity(this)
                 isHiddenCameraInitialized.set(true)
             }else{
                 hiddenCamera.onResume()
             }
-            faceIdIndicator?.visibility =View.VISIBLE
             faceIdIndicator?.showLoading()
+            faceIdIndicator?.visibility =View.VISIBLE
 
-            disposableTimer = CompositeDisposable()
             disposableTimer.clear()
-
             startCounterFaceIdProcess()
         }
-
     }
 
     /**
@@ -1445,12 +1433,18 @@ class ChatActivity : CoreActivity(),
      * callback Based on Phone'Degrees to start or stop camera
      */
     override fun handleStopCamera() {
-        if (isEnabledFaceRecognize && isHiddenCameraInitialized.get()){
+        //hide indicator
+        //stop timer
+        //stop camera
+        faceIdIndicator?.visibility = View.GONE
+        disposableTimer.clear()
+
+        if (isHiddenCameraInitialized.get()){
             hiddenCamera.onPause()
-            faceIdIndicator?.visibility = View.GONE
-            disposableTimer.clear()
         }
-        faceidRepository.faceIdRecognitionStatus.set(false)
+        if(faceIdStatusRepository.faceIdRecognitionStatus.getAndSet(false)){
+            messagesAdapter.userRecognized(false)
+        }
     }
 
     /**
@@ -1461,12 +1455,14 @@ class ChatActivity : CoreActivity(),
         hiddenCamera.onPause()
         presenter.userRecognized()
         // FIXME: for now, update directly in adapter
-        messagesAdapter.userRecognized()
-        faceidRepository.faceIdRecognitionStatus.set(true)
+        messagesAdapter.userRecognized(true)
+        faceIdStatusRepository.faceIdRecognitionStatus.set(true)
         faceIdIndicator?.showSuccess()
         val handler = Handler()
         handler.postDelayed({
             faceIdIndicator?.visibility = View.GONE
+            faceIdIndicator?.showLoading()
+
         }, 2000)
     }
 
@@ -1499,56 +1495,53 @@ class ChatActivity : CoreActivity(),
      * if after ten seconds process faceID not success, we open popup to authenticate with user and password
      */
     private fun handleFaceIdRecognitionTimeout() {
-        if (!faceidRepository.faceIdRecognitionStatus.get()){
+        disposableTimer.clear()
+        if (!faceIdStatusRepository.faceIdRecognitionStatus.get()){
             // open popup over here
             showFaceDetectFailed()
+            val handler = Handler()
+            handler.postDelayed({
+                faceIdIndicator?.visibility = View.GONE
+            }, 200)
         }
     }
 
     override fun showFaceDetectFailed() {
-        isPasswordDialogOpenning.set(true)
-        disposableTimer.clear()
+        isPasswordDialogOpening.set(true)
 
-            val promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_faceid_falied, null)
-            val btnTry = promptsView.findViewById<AppCompatButton>(R.id.btTryAgain)
-            val btTurnOfFaceID = promptsView.findViewById<AppCompatButton>(R.id.btTurnOffFaceId)
+        val promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_faceid_falied, null)
+        val btnTry = promptsView.findViewById<AppCompatButton>(R.id.btTryAgain)
+        val btTurnOfFaceID = promptsView.findViewById<AppCompatButton>(R.id.btTurnOffFaceId)
 
-            val dialog = AlertDialog.Builder(Objects.requireNonNull(this))
-                    .setTitle("")
-                    .setView(promptsView)
-                    .setOnCancelListener {
-                        isPasswordDialogOpenning.set(false)
-                    }
-                    .create()
-             dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            dialog.show()
+        val dialog = AlertDialog.Builder(Objects.requireNonNull(this))
+                .setTitle("")
+                .setView(promptsView)
+                .setOnCancelListener {
+                    isPasswordDialogOpening.set(false)
+                }
+                .create()
+         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        dialog.show()
 
-            /**
-             * require password before turn of Face ID
-             */
-            btTurnOfFaceID.setOnClickListener {
-                showRequirePasswordForm()
-                dialog.dismiss()
-            }
-            btnTry.setOnClickListener {
-                isPasswordDialogOpenning.set(false)
-                dialog.dismiss()
-            }
-
-
+        /**
+         * require password before turn of Face ID
+         */
+        btTurnOfFaceID.setOnClickListener {
+            showRequirePasswordForm()
+            dialog.dismiss()
+        }
+        btnTry.setOnClickListener {
+            isPasswordDialogOpening.set(false)
+            dialog.dismiss()
+            faceIdIndicator?.visibility = View.VISIBLE
+            handleStartCamera()
+        }
     }
 
     override fun displayConfirmPasswordError(mesage: String ) {
-        isPasswordDialogOpenning.set(true)
+        isPasswordDialogOpening.set(true)
         showDialogMessage(getString(R.string.chat_act_disable_faceid_failed),mesage)
     }
-
-//    override fun disableFaceID() {
-//        messagesAdapter.userRecognized()
-//        presenter.disableFaceID()
-//
-//    }
-
 
     private fun showDialogMessage(title: String, message: String) {
         if (this.dialogBuilder == null) {
@@ -1557,11 +1550,11 @@ class ChatActivity : CoreActivity(),
         dialogBuilder.setTitle(title).setMessage(message)
                 .setPositiveButton(getString(R.string.core_ok)) {
                     dialog, which -> dialog.dismiss()
-                    isPasswordDialogOpenning.set(false)
+                    isPasswordDialogOpening.set(false)
 
                 }
                 .setOnCancelListener{
-                    isPasswordDialogOpenning.set(false)
+                    isPasswordDialogOpening.set(false)
 
                 }
         if (this.dialog == null) {
@@ -1574,7 +1567,7 @@ class ChatActivity : CoreActivity(),
     }
 
     override fun showRequirePasswordForm() {
-        isPasswordDialogOpenning.set(true)
+        isPasswordDialogOpening.set(true)
         disposableTimer.clear()
         runOnUiThread {
             val promptsView = LayoutInflater.from(this).inflate(R.layout.dialog_check_password, null)

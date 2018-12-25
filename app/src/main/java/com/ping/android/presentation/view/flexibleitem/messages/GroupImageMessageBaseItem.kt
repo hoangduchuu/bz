@@ -149,10 +149,10 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
             val url = if (message.thumbUrl != null && !message.thumbUrl.isEmpty()) message.thumbUrl else message.mediaUrl
             if (message.localFilePath != null && !message.localFilePath.isEmpty()) {
                 Log.d(message.localFilePath)
-                UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.isMask)
+                UiUtils.loadImageFromFile(imageView, message.localFilePath, message.key, message.maskStatus())
                 (this.glide as GlideRequests)
                         .load(message.localFilePath)
-                        .messageImage(message.key, message.isMask)
+                        .messageImage(message.key, message.maskStatus())
                         .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                         .placeholder(R.drawable.rounded_item_img_group_msg)
                         .transition(DrawableTransitionOptions.withCrossFade())
@@ -172,7 +172,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
                 if (!TextUtils.isEmpty(url) && url.startsWith("gs://")) {
                     val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
                     (this.glide as GlideRequests).load(gsReference)
-                            .messageImage(message.key, message.isMask)
+                            .messageImage(message.key, message.maskStatus())
                             .preload()
                 }
                 return
@@ -181,7 +181,7 @@ class GroupImageAdapter(var data: List<Message>, var listener: GroupImageAdapter
             val gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(url)
             (glide as GlideRequests)
                     .load(gsReference)
-                    .messageImage(message.key, message.isMask)
+                    .messageImage(message.key, message.maskStatus())
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .placeholder(R.drawable.rounded_item_img_group_msg)
                     .override(128)

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.ping.android.R
+import com.wajahatkarim3.easyflipview.EasyFlipView
 
 /**
  * Created by Huu Hoang
@@ -44,6 +45,9 @@ class FaceRecognizeIndicator @JvmOverloads constructor(context: Context, attrs: 
     }
 
     fun showLoading() {
+        if (flipperSuccess.currentFlipState == EasyFlipView.FlipState.BACK_SIDE){
+            flipperSuccess.flipTheView()
+        }
         flipperSuccess.visibility = View.VISIBLE
         flipperFail.visibility = View.GONE
     }

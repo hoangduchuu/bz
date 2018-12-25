@@ -34,15 +34,15 @@ class PhoneDegreeManager(var context: Context, var activity: Activity, var busPr
 
         val ay: Float
         val az: Float
-        val angleyz: Float
+        val yz: Float
         ay = y
         az = z
 
 
-        angleyz = (Math.atan2(ay.toDouble(), az.toDouble()) / (Math.PI / 180)).toFloat()
+        yz = (Math.atan2(ay.toDouble(), az.toDouble()) / (Math.PI / 180)).toFloat()
 
 
-        if (angleyz > BuildConfig.DEGREES_TO_START_HIDDEN_CAMERA) {
+        if (yz > BuildConfig.DEGREES_TO_START_HIDDEN_CAMERA) {
             if (!isStart.get()) {
                 listener.handleStartCamera()
                 isStart.set(true)
