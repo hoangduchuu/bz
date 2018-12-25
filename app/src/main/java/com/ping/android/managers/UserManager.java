@@ -183,7 +183,4 @@ public class UserManager {
     }
 
 
-    public Observable<List<User>> getUsersProfileInfomation(List<User> users){
-        return userRepository.getUsersProfileInfomation((ArrayList<User>) users);
-    }
 }

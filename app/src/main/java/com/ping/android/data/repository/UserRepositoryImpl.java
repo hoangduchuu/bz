@@ -578,27 +578,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
 
-    @NotNull
-    @Override
-    public Observable<List<User>> getUsersProfileInfomation(ArrayList<User> users) {
-        List<Observable<User>> observables =
-                new ArrayList<>();
-        for (int i = 0; i < users.size(); i++) {
-            observables.add(getUserInfoByUUidKey(users.get(i).key));
-        }
-
-        return Observable.zip(observables, objects -> {
-            List<User> userlist = new ArrayList<>();
-            for (int i = 0; i < objects.length - 1; i++) {
-                User u = (User) objects[i];
-                userlist.add(u);
-            }
-            return userlist;
-        });
-    }
 
     @Override
-    public Observable<List<User>> getUsersProfileInfomationFromUserIds(ArrayList<String> userids) {
+    public Observable<List<User>> getUsersProfileInformationFromUserIds(ArrayList<String> userids) {
         List<Observable<User>> observables =
                 new ArrayList<>();
         for (int i = 0; i < userids.size(); i++) {
