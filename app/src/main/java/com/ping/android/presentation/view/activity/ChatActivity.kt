@@ -1463,7 +1463,7 @@ class ChatActivity : CoreActivity(),
             faceIdIndicator?.visibility = View.GONE
             faceIdIndicator?.showLoading()
 
-        }, 2000)
+        }, 1000)
     }
 
     /**
@@ -1475,7 +1475,7 @@ class ChatActivity : CoreActivity(),
         val handler = Handler()
         handler.postDelayed({
             faceIdIndicator?.nextLoading()
-        }, 2000)
+        }, 1000)
     }
 
 

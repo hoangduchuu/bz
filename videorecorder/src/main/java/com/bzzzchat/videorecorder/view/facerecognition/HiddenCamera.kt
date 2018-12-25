@@ -2,7 +2,6 @@ package com.bzzzchat.videorecorder.view.facerecognition
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
 import android.hardware.camera2.CameraAccessException
 import android.os.Environment
 import android.os.Handler
@@ -24,7 +23,6 @@ import com.google.android.gms.vision.MultiProcessor
 import com.google.android.gms.vision.Tracker
 import com.google.android.gms.vision.face.Face
 import com.google.android.gms.vision.face.FaceDetector
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,7 +37,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     private val TAG = "HiddenCamera"
     private lateinit var cameraPreview: CameraSourcePreview
     private lateinit var myDetector: MyFaceDetector
-    private lateinit var mCamera2Source: Camera2Source
+    private var mCamera2Source: Camera2Source? = null
     private lateinit var mFaceDetector: FaceDetector
 
     private var wasActivityResumed = false
@@ -62,7 +60,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
         var rotation = 0
         try {
-            rotation = Utils.getRotationCompensation(mCamera2Source.cameraId, context as Activity)
+            rotation = Utils.getRotationCompensation(mCamera2Source!!.cameraId, context as Activity)
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
@@ -151,7 +149,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                     if (isProcessingImage.get()) {
                         return faces
                     }
-                    mCamera2Source.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback)
+                    mCamera2Source?.takePicture(camera2SourceShutterCallback, camera2SourcePictureCallback)
                 }
             }
             return faces
@@ -159,7 +157,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     }
 
     private fun createCameraSourceFront() {
-
+        stopCameraSource()
         mCamera2Source = Camera2Source.Builder(context, myDetector)
                 .setFocusMode(Camera2Source.CAMERA_AF_AUTO)
                 .setFlashMode(Camera2Source.CAMERA_FLASH_AUTO)
@@ -167,9 +165,10 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
                 .build()
 
         try {
-            cameraPreview.start(mCamera2Source, GraphicOverlay(context))
+            cameraPreview.start(mCamera2Source!!, GraphicOverlay(context))
         } catch (e: IOException) {
-            mCamera2Source.release()
+            mCamera2Source?.release()
+            mCamera2Source = null
         }
     }
 

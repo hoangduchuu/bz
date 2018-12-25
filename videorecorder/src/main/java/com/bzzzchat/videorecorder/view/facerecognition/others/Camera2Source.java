@@ -1146,7 +1146,8 @@ public class Camera2Source {
             mPreviewRequestBuilder.addTarget(mImageReaderPreview.getSurface());
 
             // Here, we create a CameraCaptureSession for camera preview.
-            mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReaderPreview.getSurface(), mImageReaderStill.getSurface()), new CameraCaptureSession.StateCallback() {
+            mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReaderPreview.getSurface(), mImageReaderStill.getSurface()),
+                    new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     // The camera is already closed
@@ -1175,7 +1176,7 @@ public class Camera2Source {
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {Log.d(TAG, "Camera Configuration failed!");}
             }, mBackgroundHandler);
-        } catch (CameraAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
