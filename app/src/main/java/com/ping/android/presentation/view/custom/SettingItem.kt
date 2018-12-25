@@ -1,10 +1,8 @@
 package com.ping.android.presentation.view.custom
 
 import android.content.Context
-import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.method.LinkMovementMethod
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import android.util.AttributeSet
@@ -12,9 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.bzzzchat.extensions.inflate
 import com.ping.android.R
-import com.ping.android.utils.BzLog
 import kotlinx.android.synthetic.main.view_setting_item.view.*
-import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.style.TextAppearanceSpan
 
 

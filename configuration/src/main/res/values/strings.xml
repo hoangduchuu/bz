@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">configuration</string>
-    <string name="no_face_detect">No Face Detected</string>
+    <string name="no_face_detect_title">NO FACE DETECTED</string>
+    <string name="no_face_detect_msg">Unable to detect your face. Try again.</string>
 </resources>

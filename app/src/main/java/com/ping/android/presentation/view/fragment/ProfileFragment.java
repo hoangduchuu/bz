@@ -27,8 +27,6 @@ import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
-import com.ping.android.utils.BzLog;
-import com.ping.android.utils.bus.LiveSharePrefs;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
@@ -36,7 +34,6 @@ import com.ping.android.presentation.view.custom.SettingItem;
 import com.ping.android.service.CallService;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.ImagePickerHelper;
-import com.ping.android.utils.SharedPrefsHelper;
 import com.ping.android.utils.Toaster;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.UsersUtils;
@@ -57,14 +54,13 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private ImageView profileImage;
     private TextView tvName;
     private SwitchCompat rbNotification, rbShowProfile;
-    private SwitchCompat faceId;
+    private SwitchCompat faceIdSwitch;
     private SettingItem faceTrainingItem;
 
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
 
-    private Boolean isTrained = false;
     @Inject
     ProfilePresenter presenter;
 
@@ -75,29 +71,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidSupportInjection.inject(this);
-        registerOnFaceIDStatusChange();
     }
-
-    private void registerOnFaceIDStatusChange() {
-        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).registerListener(aBoolean -> {
-//            if (aBoolean) {
-//                faceTrainingItem.setVisibility(View.GONE);
-//            } else {
-//                showFaceTrainingItem();
-//            }
-
-            BzLog.INSTANCE.d(aBoolean.toString());
-            // update UI
-            hideFaceTrainingItem();
-            updateToggleIcon();
-//            showFaceTrainingItem();
-
-        });
-
-
-
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -112,7 +86,6 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     public void onDestroyView() {
         super.onDestroyView();
         presenter.destroy();
-        Objects.requireNonNull(LiveSharePrefs.Companion.getInstance()).unregister();
     }
 
     private void bindViews(View view) {
@@ -121,7 +94,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         profileImage = view.findViewById(R.id.profile_image);
         rbNotification = view.findViewById(R.id.profile_notification);
         rbShowProfile = view.findViewById(R.id.profile_show_profile);
-        faceId = view.findViewById(R.id.profile_faceid);
+        faceIdSwitch = view.findViewById(R.id.profile_faceid);
         faceTrainingItem = view.findViewById(R.id.profile_face_training);
 
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
@@ -136,17 +109,17 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         view.findViewById(R.id.profile_notification).setOnClickListener(this);
         view.findViewById(R.id.profile_show_profile).setOnClickListener(this);
         view.findViewById(R.id.profile_face_training).setOnClickListener(this);
-        faceId.setOnClickListener(this);
+        faceIdSwitch.setOnClickListener(this);
 
 
         /**
          * set toggle icon in the first time
          */
-        faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
+        faceIdSwitch.setChecked(faceIdStatusRepository.isFaceIdEnabled());
         if (!faceIdStatusRepository.isFaceIdEnabled()) {
             faceTrainingItem.setVisibility(View.GONE);
         } else {
-            showFaceTrainingItem();
+            setFaceTrainingItemHidden(false);
         }
 
     }
@@ -206,16 +179,16 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onFaceIdToggleButtonClicked() {
-        faceIdStatusRepository.setFaceIdEnable(faceId.isChecked());
+        faceIdStatusRepository.setFaceIdEnabled(faceIdSwitch.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
-        if (!faceId.isChecked()) {
-            if (faceIdStatusRepository.isFaceIdCompleteTraining() ) {
+        if (!faceIdSwitch.isChecked()) {
+            if (faceIdStatusRepository.isFaceIdTrained() ) {
                 presenter.onRequestTurnOffFaceData();
             } else {
-                hideFaceTrainingItem();
+                setFaceTrainingItemHidden(true);
             }
         } else {
-            showFaceTrainingItem();
+            setFaceTrainingItemHidden(false);
         }
     }
 
@@ -231,7 +204,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 })
                 .setNegativeButton(getString(R.string.profile_cancel), (dialog1, which) -> {
                     dialog1.dismiss();
-                    faceId.setChecked(true);
+                    faceIdSwitch.setChecked(true);
 
                 })
                 .setCancelable(false)
@@ -240,13 +213,13 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         dialog.show();
     }
 
-    private void hideFaceTrainingItem() {
-        faceTrainingItem.setVisibility(View.GONE);
-    }
-
-    private void showFaceTrainingItem() {
+    private void setFaceTrainingItemHidden(Boolean value) {
+        if (value){
+            faceTrainingItem.setVisibility(View.GONE);
+            return;
+        }
         faceTrainingItem.setVisibility(View.VISIBLE);
-        if (faceIdStatusRepository.isFaceIdCompleteTraining()) {
+        if (faceIdStatusRepository.isFaceIdTrained()) {
             faceTrainingItem.setTitle(getString(R.string.profile_delete_face_trained));
             faceTrainingItem.setTitleColor(getResources().getColor(R.color.button_end_call_pressed_color));
         } else {
@@ -256,7 +229,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onTrainingFaceTextClicked() {
-        if (faceIdStatusRepository.isFaceIdCompleteTraining()) {
+        if (faceIdStatusRepository.isFaceIdTrained()) {
             presenter.onTrainingFaceTextClicked();
         } else {
             Intent intent = new Intent(getContext(), FaceTrainingActivity.class);
@@ -360,8 +333,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         }
         if (requestCode == 1111) {
             if (resultCode == Activity.RESULT_OK) {
-                faceIdStatusRepository.markFaceIdIsTrainedSuccess();
-                showFaceTrainingItem();
+                faceIdStatusRepository.setFaceIdTrained(true);
+                setFaceTrainingItemHidden(false);
                 FaceRecognition.Companion.getInstance(this.getContext()).train();
             }
         }
@@ -469,9 +442,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleDeleteFaceIdSuccess() {
-        faceIdStatusRepository.markFaceIdIsNotTrained();
-        showFaceTrainingItem();
-        hideFaceTrainingItem();
+        faceIdStatusRepository.setFaceIdTrained(false);
+        setFaceTrainingItemHidden(true);
     }
 
     @Override
@@ -481,18 +453,18 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
     @Override
     public void handleRequireTurnOffFaceIDSuccess() {
-        faceIdStatusRepository.disableFaceId();
-        hideFaceTrainingItem();
+        faceIdStatusRepository.setFaceIdEnabled(false);
+        setFaceTrainingItemHidden(true);
     }
 
     @Override
     public void updateToggleIcon() {
-        if (!faceIdStatusRepository.isFaceIdCompleteTraining()){
-            faceId.setChecked(false);
+        if (!faceIdStatusRepository.isFaceIdTrained()){
+            faceIdSwitch.setChecked(false);
             return;
         }
 
-        faceId.setChecked(faceIdStatusRepository.isFaceIdEnabled());
+        faceIdSwitch.setChecked(faceIdStatusRepository.isFaceIdEnabled());
     }
 
     @Override

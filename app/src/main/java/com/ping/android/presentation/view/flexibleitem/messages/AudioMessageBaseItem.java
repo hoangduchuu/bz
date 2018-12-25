@@ -301,7 +301,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             VoiceType voiceType = VoiceType.from(message.voiceType);
             item.message.localFilePath = audioLocalPath;
             if (audioLocal.exists()) {
-                if (voiceType != VoiceType.DEFAULT && message.isMask) {
+                if (voiceType != VoiceType.DEFAULT && message.maskStatus()) {
                     prepareAudioMask(audioLocal);
                 } else {
                     initPlayer(AudioStatus.UNKNOWN);
@@ -311,7 +311,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                     StorageReference audioReference = storage.getReferenceFromUrl(message.mediaUrl);
                     audioReference.getFile(audioLocal).addOnSuccessListener(taskSnapshot -> {
                         // Prepare audio file
-                        if (voiceType != VoiceType.DEFAULT && message.isMask) {
+                        if (voiceType != VoiceType.DEFAULT && message.maskStatus()) {
                             prepareAudioMask(audioLocal);
                         } else {
                             initPlayer(AudioStatus.UNKNOWN);
@@ -336,7 +336,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             if (TextUtils.isEmpty(audioUrl)) return "";
             File localFile = new File(audioUrl);
             VoiceType voiceType = VoiceType.from(item.message.voiceType);
-            if (voiceType != VoiceType.DEFAULT && item.message.isMask) {
+            if (voiceType != VoiceType.DEFAULT && item.message.maskStatus()) {
                 String transformFileName = voiceType.toString() + localFile.getName();
                 File transformFile = new File(localFile.getParent(), transformFileName);
                 return transformFile.getAbsolutePath();

@@ -21,9 +21,9 @@
         <activity android:name=".view.VideoPlayerActivity"
             android:theme="@style/AppTheme.Fullscreen" />
 
-        <meta-data
-            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="face" />
+        <!--<meta-data-->
+            <!--android:name="com.google.firebase.ml.vision.DEPENDENCIES"-->
+            <!--android:value="face" />-->
     </application>
 
 </manifest>

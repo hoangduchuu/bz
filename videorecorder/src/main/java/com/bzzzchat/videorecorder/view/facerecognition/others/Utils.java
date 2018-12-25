@@ -10,15 +10,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -32,24 +27,11 @@ import android.view.WindowManager;
 
 import com.bzzzchat.videorecorder.view.facerecognition.Configs;
 import com.google.android.gms.common.images.Size;
-import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
-import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
-import com.google.firebase.ml.vision.face.FirebaseVisionFace;
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
-//
-//import org.bytedeco.javacpp.opencv_core;
-//import org.bytedeco.javacpp.opencv_imgproc;
-//import org.opencv.core.Mat;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 public class Utils {
 
@@ -109,62 +91,15 @@ public class Utils {
         return size;
     }
 
-    public static Bitmap cropToSquare(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int newWidth = (height > width) ? width : height;
-        int newHeight = (height > width) ? height - (height - width) : height;
-        int cropW = (width - height) / 2;
-        cropW = (cropW < 0) ? 0 : cropW;
-        int cropH = (height - width) / 2;
-        cropH = (cropH < 0) ? 0 : cropH;
-        Bitmap cropImg = Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
-
-        return cropImg;
-    }
-
-    public static Bitmap getProcessedImage(Frame frame, Face face) {
-        int rotationAngle = 0;
-        int width = frame.getMetadata().getWidth();
-        int height = frame.getMetadata().getHeight();
-
-        switch (frame.getMetadata().getRotation()) {
-            case 0:
-                break;
-            case 1:
-                rotationAngle = 90;
-                break;
-            case 2:
-                rotationAngle = 180;
-                break;
-            case 3:
-                rotationAngle = 270;
-                break;
-            default:
-                rotationAngle = 0;
-        }
-
-
-        YuvImage yuvImage = new YuvImage(frame.getGrayscaleImageData().array(), ImageFormat.NV21, width, height, null);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, byteArrayOutputStream);
-        byte[] jpegArray = byteArrayOutputStream.toByteArray();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(jpegArray, 0, jpegArray.length);
+    public static Bitmap rotateImage(Bitmap img, int degree, int length) {
         Matrix matrix = new Matrix();
-        matrix.postRotate(rotationAngle);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-
-        return crop(rotatedBitmap, face);
-    }
-
-    public static Bitmap rotateImage(Bitmap img, int degree, float height) {
-        Matrix matrix = new Matrix();
-        float scale = img.getWidth() > img.getHeight()? height/img.getWidth() : height/img.getHeight();
+        float scale = img.getWidth() > img.getHeight()? (float)length/img.getWidth() : (float)length/img.getHeight();
+//        int newWidth = img.getWidth() > img.getHeight() ? length : (int)(length* scale);
+//        int newHeight = img.getWidth() > img.getHeight() ? (int)(length*scale) : length;
         matrix.postScale(scale, scale);
         matrix.postRotate(degree);
         Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(),img.getHeight(), matrix, true);
-        img.recycle();
+//        img.recycle();
         return rotatedImg;
     }
 
@@ -190,80 +125,6 @@ public class Utils {
         return rotationCompensation;
     }
 
-    public static Bitmap getProcessedImage(byte[] bytes, int width, int height, float rotationAngle) {
-        YuvImage yuvImage = new YuvImage(bytes, ImageFormat.NV21, width, height, null);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, byteArrayOutputStream);
-        byte[] jpegArray = byteArrayOutputStream.toByteArray();
-        Bitmap bitmap = BitmapFactory.decodeByteArray(jpegArray, 0, jpegArray.length);
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationAngle);
-        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-        return rotatedBitmap;
-    }
-
-    /**
-     * Draws the face annotations for position on the supplied canvas.
-     */
-    public static Bitmap crop(Bitmap bitmap, Face face) {
-        try {
-            float left = face.getPosition().x;
-            float top = face.getPosition().y;
-            float width = face.getWidth();
-            float height = face.getHeight();
-
-            if (left < 0) {
-                left = 0;
-            }
-            if (left + width > bitmap.getWidth()) {
-                width = bitmap.getWidth() - left - 1;
-            }
-            if (top < 0) {
-                top = 0;
-            }
-            if (top + height > bitmap.getHeight()) {
-                height = bitmap.getHeight() - top - 1;
-            }
-
-            return Bitmap.createBitmap(bitmap, (int) left, (int) top, (int) width, (int) height);
-        } catch (Exception e) {
-            return Bitmap.createBitmap(bitmap, 0, 0, 1, 1);
-        }
-    }
-
-    public static Bitmap toGrayscale(Bitmap bmpOriginal) {
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        Canvas c = new Canvas(bmpGrayscale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        return bmpGrayscale;
-    }
-
-    public static void moveFile(File file, File dir) throws IOException {
-        File newFile = new File(dir, file.getName());
-        FileChannel outputChannel = null;
-        FileChannel inputChannel = null;
-        try {
-            outputChannel = new FileOutputStream(newFile).getChannel();
-            inputChannel = new FileInputStream(file).getChannel();
-            inputChannel.transferTo(0, inputChannel.size(), outputChannel);
-            inputChannel.close();
-            file.delete();
-        } finally {
-            if (inputChannel != null) inputChannel.close();
-            if (outputChannel != null) outputChannel.close();
-        }
-
-    }
 
     public static Bitmap convertTo565(final Bitmap origin) {
 
@@ -308,6 +169,8 @@ public class Utils {
     public static Bitmap getBitmapFromImage(Image image){
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.capacity()];
+        float scale = (float)image.getHeight()/image.getWidth();
+
         buffer.get(bytes);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
     }
@@ -361,19 +224,14 @@ public class Utils {
         int height = image.getHeight();
 
         float bitmapRatio = (float)width / (float) height;
-        if (bitmapRatio > 0) {
+        if (bitmapRatio > 1) {
             width = maxSize;
-            height = (int) (width / bitmapRatio);
+            height = (int) (bitmapRatio * maxSize);
         } else {
             height = maxSize;
-            width = (int) (height * bitmapRatio);
+            width = (int) (maxSize * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-
-    public static Bitmap getFaceFromBitmap(Bitmap bitmap, FirebaseVisionFace face) {
-        Rect rect = face.getBoundingBox();
-        return getFaceFromBitmap(bitmap, rect);
     }
 
     public static Bitmap getFaceFromBitmap(Bitmap bitmap, Face face) {
@@ -402,34 +260,6 @@ public class Utils {
         return faceBitmap;
     }
 
-//    public static String saveMatToImage(Mat mat, String path){
-//        Bitmap bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-//        org.opencv.android.Utils.matToBitmap(mat, bitmap);
-//        File file = new File(path);
-//        try {
-//            FileOutputStream os = new FileOutputStream(file);
-//            bitmap.compress(Bitmap.CompressFormat.PNG, 100, os);
-//            os.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return path;
-//    }
-
-    public static void preProcessBitmap(Bitmap faceBitmap) {
-
-    }
-
-//    public static void smooth(String filename) {
-//        opencv_core.Mat image = imread(filename);
-//        if (image != null) {
-//            opencv_imgproc.GaussianBlur(image, image, new opencv_core.Size(3, 3), 0.0);
-//            imwrite(filename, image);
-//        }
-//    }
-
     public static void saveBitmap(Bitmap source, String filePath) {
         FileOutputStream out = null;
         try {
@@ -447,93 +277,4 @@ public class Utils {
             }
         }
     }
-
-//    /**
-//     *  \brief Automatic brightness and contrast optimization with optional histogram clipping
-//     *  \param [in]src Input image GRAY or BGR or BGRA
-//     *  \param [out]dst Destination image
-//     *  \param clipHistPercent cut wings of histogram at given percent tipical=>1, 0=>Disabled
-//     *  \note In case of BGRA image, we won't touch the transparency
-//     */
-//    public static opencv_core.Mat brightnessAndContrastAuto(String filePath)
-//    {
-//        opencv_core.Mat source = imread(filePath, CV_LOAD_IMAGE_GRAYSCALE);
-//        double[] minVal = new double[2], maxVal = new double[2];
-//        minMaxLoc(source, minVal, maxVal, null, null, null);
-////        CV_Assert(clipHistPercent >= 0);
-////        CV_Assert((src.type() == CV_8UC1) || (src.type() == CV_8UC3) || (src.type() == CV_8UC4));
-//
-//        int histSize = 256;
-//        float alpha, beta;
-//        double minGray = minVal[0], maxGray = maxVal[0];
-
-
-//        int l_bins = 20;
-//        int hist_size[] = {l_bins};
-//
-//        float v_ranges[] = {0, 100};
-//        float ranges[][] = {v_ranges};
-//
-//        //to calculate grayscale histogram
-//        opencv_core.Mat gray;
-//        if (src.type() == CV_8UC1) gray = src;
-//        else if (src.type() == CV_8UC3) cvtColor(src, gray, CV_BGR2GRAY);
-//        else if (src.type() == CV_8UC4) cvtColor(src, gray, CV_BGRA2GRAY);
-//        opencv_core.CvHistogram histogram = opencv_core.CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
-//
-//        if (clipHistPercent == 0) {
-//            // keep full available range
-//            minMaxLoc(gray, minGray, maxGray);
-//        }  else  {
-//            opencv_core.Mat hist; //the grayscale histogram
-//
-//            float range[] = { 0, 256 };
-//            histo
-//        const float* histRange = { range };
-//            bool uniform = true;
-//            bool accumulate = false;
-//            calcHist(&gray, 1, 0, cv::Mat (), hist, 1, &histSize, &histRange, uniform, accumulate);
-//
-//            // calculate cumulative distribution from the histogram
-//            std::vector<float> accumulator(histSize);
-//            accumulator[0] = hist.at<float>(0);
-//            for (int i = 1; i < histSize; i++)
-//            {
-//                accumulator[i] = accumulator[i - 1] + hist.at<float>(i);
-//            }
-//
-//            // locate points that cuts at required value
-//            float max = accumulator.back();
-//            clipHistPercent *= (max / 100.0); //make percent as absolute
-//            clipHistPercent /= 2.0; // left and right wings
-//            // locate left cut
-//            minGray = 0;
-//            while (accumulator[minGray] < clipHistPercent)
-//                minGray++;
-//
-//            // locate right cut
-//            maxGray = histSize - 1;
-//            while (accumulator[maxGray] >= (max - clipHistPercent))
-//                maxGray--;
-//        }
-
-        // current range
-//        float inputRange = (float) (maxGray - minGray);
-//
-//        alpha = (histSize - 1) / inputRange;   // alpha expands current range to histsize range
-//        beta = (float) (-minGray * alpha);             // beta shifts current range so that minGray will go to 0
-//
-//        // Apply brightness and contrast normalization
-//        // convertTo operates with saurate_cast
-//        opencv_core.Mat dst = new opencv_core.Mat();
-//        source.convertTo(dst, -1, alpha, beta);
-//        imwrite(filePath, dst);
-//        // restore alpha channel from source
-////        if (dst.type() == CV_8UC4)
-////        {
-////            int from_to[] = { 3, 3};
-////            cv::mixChannels(&src, 4, &dst,1, from_to, 1);
-////        }
-//        return dst;
-//    }
 }

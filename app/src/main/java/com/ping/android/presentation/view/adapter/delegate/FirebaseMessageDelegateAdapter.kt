@@ -69,7 +69,7 @@ class FirebaseMessageDelegateAdapter(val glide: RequestManager, val listener: Fi
             (this.glide as GlideRequests)
                     .load(gsReference)
                     .error(R.drawable.img_loading_image)
-                    .messageImage(item.message.key, item.message.isMask)
+                    .messageImage(item.message.key, item.message.maskStatus())
                     .override(100)
                     .listener(listener)
                     .into(itemView.image)

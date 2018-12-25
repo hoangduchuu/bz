@@ -28,19 +28,16 @@ interface ShowFaceFragmentListener{
 }
 class ShowFaceFragment : Fragment() {
     private var listeners: ShowFaceFragmentListener? = null
-    lateinit var byte: ByteArray
+    var bitmap: Bitmap? = null
     lateinit var iv: ImageView
     lateinit var btnBack:ImageView
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val view = inflater!!.inflate(R.layout.fragment_face_data, container, false)
         iv = view.findViewById(R.id.ivFace)
         btnBack = view.findViewById(R.id.ic_back)
 
-        if (arguments != null) byte = arguments.getByteArray("path")
-        val bmp = BitmapFactory.decodeByteArray(byte, 0, byte.size) // get bundle
-
-        GlideApp.with(this).load(bmp).into(iv) // show img
+        if (bitmap != null)
+            GlideApp.with(this).load(bitmap).into(iv) // show img
 
         listeners?.onFragmentOpening()
 
@@ -57,12 +54,7 @@ class ShowFaceFragment : Fragment() {
      */
     fun newInstance(path: Bitmap): ShowFaceFragment {
         val myFragment = ShowFaceFragment()
-        val stream = ByteArrayOutputStream()
-        path.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        val byteArray = stream.toByteArray()
-        val args = Bundle()
-        args.putByteArray("path", byteArray)
-        myFragment.arguments = args
+        myFragment.bitmap = path
         return myFragment
     }
 

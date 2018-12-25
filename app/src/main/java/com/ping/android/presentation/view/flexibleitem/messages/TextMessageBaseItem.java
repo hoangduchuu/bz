@@ -70,7 +70,7 @@ public abstract class TextMessageBaseItem extends MessageBaseItem<TextMessageBas
 
         private void setTextMessage(Message message) {
             String messageText = message.message;
-            if (message.isMask) {
+            if (message.maskStatus()) {
                 messageText = userManager.encodeMessage(message.message);
             }
             txtMessage.setText(messageText);

@@ -1,33 +1,29 @@
 package com.ping.android.data.repository
 
 import com.ping.android.utils.SharedPrefsHelper
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
 class FaceIdStatusRepository @Inject constructor()  {
+
+    var faceIdRecognitionStatus: AtomicBoolean = AtomicBoolean(false)
+
     fun isFaceIdEnabled(): Boolean{
         return SharedPrefsHelper.getInstance().isFaceIdEnable
     }
 
-    fun isFaceIdCompleteTraining():Boolean{
+    fun isFaceIdTrained():Boolean{
         return SharedPrefsHelper.getInstance().isFaceIdCompleteTraining
     }
 
-    fun disableFaceId(){
-        SharedPrefsHelper.getInstance().isFaceIdEnable = false
+    fun setFaceIdEnabled(value: Boolean){
+        SharedPrefsHelper.getInstance().isFaceIdEnable = value
     }
 
-    fun enableFaceId(){
-        SharedPrefsHelper.getInstance().isFaceIdEnable = true
-    }
-
-    fun markFaceIdIsTrainedSuccess(){
-        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = true
-    }
-    fun markFaceIdIsNotTrained(){
-        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = false
-    }
-
-    fun setFaceIdEnable(state : Boolean){
-        SharedPrefsHelper.getInstance().isFaceIdEnable = state
+    fun setFaceIdTrained(value: Boolean){
+        SharedPrefsHelper.getInstance().isFaceIdCompleteTraining = value
     }
 }
