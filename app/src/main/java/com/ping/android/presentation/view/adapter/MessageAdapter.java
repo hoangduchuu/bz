@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.utils.BzLog;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.Log;
 import com.ping.android.utils.UiUtils;
@@ -118,47 +119,53 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 break;
             }
         }*/
-        for (int i = 0; i < displayConversations.size(); i++) {
-            Conversation item = displayConversations.get(i);
-            if (item.key.equals(conversation.key)) {
-                if (ignoreWhenDuplicate) {
-                    return;
-                }
-                isAdd = false;
-                previousIndex = i;
-                if (index == -1) {
-                    index = i;
-                }
-            }
-            if (conversation.timesstamps >= item.timesstamps) {
-                if (index == -1) {
-                    index = i;
-                }
-            }
-        }
-        if (index == -1) {
-            index = displayConversations.size();
-        }
-        if (index >= 0) {
-            if (isAdd) {
-                displayConversations.add(index, conversation);
-                notifyItemInserted(index);
-            } else {
-                if (previousIndex == index) {
-                    displayConversations.set(index, conversation);
-                    notifyItemChanged(index);
-                } else if (previousIndex > index) {
-                    displayConversations.remove(previousIndex);
-                    displayConversations.add(index, conversation);
-                    notifyItemMoved(previousIndex, index);
-                } else {
-                    displayConversations.add(index, conversation);
-                    displayConversations.remove(previousIndex);
-                    notifyItemMoved(previousIndex, index);
-                }
-            }
-        }
-        originalConversations.put(conversation.key, conversation);
+       if(conversation.senderId!=null){
+           for (int i = 0; i < displayConversations.size(); i++) {
+               Conversation item = displayConversations.get(i);
+               if (item.key.equals(conversation.key)) {
+                   if (ignoreWhenDuplicate) {
+                       return;
+                   }
+                   isAdd = false;
+                   previousIndex = i;
+                   if (index == -1) {
+                       index = i;
+                   }
+               }
+               if (conversation.timesstamps >= item.timesstamps) {
+                   if (index == -1) {
+                       index = i;
+                   }
+               }
+           }
+           if (index == -1) {
+               index = displayConversations.size();
+           }
+           if (index >= 0) {
+               if (isAdd) {
+                   displayConversations.add(index, conversation);
+                   notifyItemInserted(index);
+               } else {
+                   if (previousIndex == index) {
+                       displayConversations.set(index, conversation);
+                       notifyItemChanged(index);
+                   } else if (previousIndex > index) {
+                       displayConversations.remove(previousIndex);
+                       displayConversations.add(index, conversation);
+                       notifyItemMoved(previousIndex, index);
+                   } else {
+                       displayConversations.add(index, conversation);
+                       displayConversations.remove(previousIndex);
+                       notifyItemMoved(previousIndex, index);
+                   }
+               }
+           }
+           originalConversations.put(conversation.key, conversation);
+
+       }
+
+
+
     }
 
     public void deleteConversation(String conversationID) {
@@ -246,9 +253,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public void updateData(List<Conversation> conversations) {
         for (Conversation conversation : conversations) {
-            this.originalConversations.put(conversation.key, conversation);
+            if (conversation.senderId !=null){
+                this.originalConversations.put(conversation.key, conversation);
+                this.displayConversations.add(conversation);
+
+            }
         }
-        this.displayConversations = new ArrayList<>(conversations);
         notifyDataSetChanged();
     }
 
@@ -256,9 +266,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         Collections.sort(conversations, (o1, o2) -> Double.compare(o2.timesstamps, o1.timesstamps));
         int size = displayConversations.size();
         for (Conversation conversation : conversations) {
-            this.originalConversations.put(conversation.key, conversation);
+            if (conversation.senderId != null){
+                this.originalConversations.put(conversation.key, conversation);
+                this.displayConversations.add(conversation);
+
+            }
         }
-        this.displayConversations.addAll(conversations);
         notifyItemRangeInserted(size, conversations.size());
     }
 
@@ -400,6 +413,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 case GIF:
                     message = getLastedSenderNameIfNeeded(conversation)+ "[GIFs]";
                     break;
+                case SYSTEM:
+                    message = conversation.message;
+                    break;
             }
 
             this.tvMessage.setText(message);
@@ -462,6 +478,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
      * the rule in  ADR-335 ticket
      */
     private static String getLastedSenderNameIfNeeded(Conversation conversation){
+        if (conversation.senderId == null){
+            return " null senderID?";
+        }
         if (conversation.conversationType != Constant.CONVERSATION_TYPE_GROUP){
             if (conversation.senderId.equals(conversation.currentUserId)){
                 if (conversation.message == null){
@@ -481,6 +500,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             }else {
                 if (conversation.message == null){
                     return "";
+                }
+                if (conversation.senderName == null){
+                    return "Anonymous: ";
                 }
                 return conversation.senderName + ": ";
             }

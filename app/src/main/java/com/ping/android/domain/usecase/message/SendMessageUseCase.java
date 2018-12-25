@@ -87,7 +87,9 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
         updateValue.put(String.format("messages/%s/%s", conversation.key, message.key), message.toMap());
         for (String toUser : conversation.memberIDs.keySet()) {
             if (!message.isReadable(toUser)) continue;
-            updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            if (message.messageType != Constant.MSG_TYPE_SYSTEM){
+                updateValue.put(String.format("conversations/%s/%s", toUser, conversation.key), conversation.toMap());
+            }
             if (message.messageType == Constant.MSG_TYPE_IMAGE
                     || message.messageType == Constant.MSG_TYPE_GAME
                     || message.messageType == Constant.MSG_TYPE_IMAGE_GROUP) {
@@ -269,6 +271,8 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                     case GIF:
                         message = buildGifMessage(currentUser, fileUrl);
                         break;
+                    case SYSTEM:
+                        message = buildSystemMessages(currentUser,text);
                     default:break;
                 }
                 message.key = messageKey;
@@ -327,6 +331,13 @@ public class SendMessageUseCase extends UseCase<Message, SendMessageUseCase.Para
                 this.currentUser = currentUser;
                 Map<String, Boolean> allowance = getAllowance();
                 return MessageEntity.createTextMessage(text, currentUser.key, currentUser.getDisplayName(),
+                        timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
+            }
+
+            private MessageEntity buildSystemMessages(User currentUser, String text) {
+                this.currentUser = currentUser;
+                Map<String, Boolean> allowance = getAllowance();
+                return MessageEntity.createSystemMessage(text, currentUser.key, currentUser.getDisplayName(),
                         timestamp, getStatuses(), getMessageMaskStatuses(), getMessageDeleteStatuses(), allowance);
             }
 

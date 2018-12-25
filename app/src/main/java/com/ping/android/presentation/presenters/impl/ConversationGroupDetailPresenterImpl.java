@@ -1,6 +1,7 @@
 package com.ping.android.presentation.presenters.impl;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.mappers.UserMapper;
 import com.ping.android.domain.usecase.ObserveCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.ObserveConversationUpdateUseCase;
 import com.ping.android.domain.usecase.conversation.ToggleConversationNotificationSettingUseCase;
@@ -12,11 +13,17 @@ import com.ping.android.domain.usecase.group.LeaveGroupUseCase;
 import com.ping.android.domain.usecase.group.ObserveGroupValueUseCase;
 import com.ping.android.domain.usecase.group.UpdateGroupNameUseCase;
 import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
+import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
+import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
+import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.ConversationGroupDetailPresenter;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,6 +59,17 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     UpdateGroupNameUseCase updateGroupNameUseCase;
     @Inject
     UpdateConversationColorUseCase updateConversationColorUseCase;
+
+    @Inject
+    SendMessageNotificationUseCase sendMessageNotificationUseCase;
+    ;
+
+    @Inject
+    SendTextMessageUseCase sendTextMessageUseCase;
+
+    @Inject
+    UserMapper userMapper;
+
     @Inject
     View view;
     private Conversation conversation;
@@ -106,7 +124,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
     }
 
     @Override
-    public void addUsersToGroup(List<User> selectedUsers) {
+    public void addUsersToGroup(List<User> oldMembers, List<User> selectedUsers, String conversationName) {
         view.showLoading();
         List<String> ret = new ArrayList<>();
         for (User user : selectedUsers) {
@@ -115,11 +133,31 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 ret.add(user.key);
             }
         }
+
+        /**
+         * @oldMembers
+         * @selectedUsers
+         */
+        List<User> newAddedUsers = findAddedUsers(oldMembers,selectedUsers);
+
+        StringBuilder addedUsersStringBuilder = new StringBuilder();
+        for (User u : newAddedUsers) {
+            addedUsersStringBuilder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
+        }
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
             public void onNext(List<User> users) {
                 view.updateGroupMembers(users);
                 view.hideLoading();
+                StringBuilder builder = new StringBuilder();
+                for (User u : selectedUsers) {
+                    builder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
+                }
+                String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
+                String notificationBody = String.format("%s : %s  has joined ", conversationName, joinedUsers);
+                sendNotification(conversation, conversation.key, notificationBody);
+                sendJoinedMessage(joinedUsers);
+            // TODO compare to get exactly new User added
             }
 
             @Override
@@ -130,8 +168,37 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         }, new AddGroupMembersUseCase.Params(conversation, ret));
     }
 
+    /**
+     *
+     * @param oldMembers
+     * @param selectedMembers
+     * @return new users added to group.
+     */
+    private List<User> findAddedUsers(List<User> oldMembers, List<User> selectedMembers) {
+        List<User> newUser = new ArrayList<>();
+
+        for (int i = 0; i <selectedMembers.size(); i++){
+
+            boolean isDuplicated = false;
+
+            for (int j =0; j < oldMembers.size();j++){
+                Log.e("HHH:" + selectedMembers.get(i) + "-- compare: "  + oldMembers.get(j));
+                if (selectedMembers.get(i).key.equals(oldMembers.get(j).key)){
+                    isDuplicated = true;
+                }
+
+            }
+            if (!isDuplicated){
+                newUser.add(selectedMembers.get(i));
+            }
+
+        }
+
+        return newUser;
+    }
+
     @Override
-    public void leaveGroup() {
+    public void leaveGroup(String conversationName) {
         view.showLoading();
         leaveGroupUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
@@ -140,13 +207,15 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 if (aBoolean) {
                     view.navigateToMain();
                 }
+                String notificationBody = String.format("%s : %s left group.", conversationName, userMapper.getUserDisPlay(currentUser,conversation));
+                sendNotification(conversation, conversation.key, notificationBody);
             }
 
             @Override
             public void onError(@NotNull Throwable exception) {
                 view.hideLoading();
             }
-        }, conversation.group);
+        }, conversation);
     }
 
     @Override
@@ -280,5 +349,39 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
         uploadGroupProfileImageUseCase.dispose();
         updateGroupNameUseCase.dispose();
         updateConversationColorUseCase.dispose();
+    }
+
+    /**
+     * @param conversation
+     * @param messageId
+     * @param notificationBody
+     */
+    private void sendNotification(Conversation conversation, String messageId, String notificationBody) {
+        sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
+                new SendMessageNotificationUseCase.Params(conversation, messageId, notificationBody, MessageType.SYSTEM));
+    }
+
+    private void sendJoinedMessage(String joinedUser){
+
+        String mesessage = joinedUser + " has joined";
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.SYSTEM)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setText(mesessage)
+                .setMarkStatus(false)
+                .build();
+
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            @Override
+            public void onNext(Message message1) {
+                //
+            }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, params);
     }
 }

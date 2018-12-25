@@ -281,6 +281,38 @@ public class Conversation implements Parcelable {
         return result;
     }
 
+    /**
+     * No senderId if message is empty
+     * @return
+     */
+    @Exclude
+    public Map<String, Object> toMapEmptyMessage() {
+        HashMap<String, Object> result = new HashMap<>();
+        //result.put("key", key);
+        result.put("conversationType", conversationType);
+        result.put("messageType", messageType);
+        result.put("callType", callType);
+        result.put("lastMessage", message);
+        result.put("conversationName", conversationName);
+        result.put("conversationAvatarUrl", conversationAvatarUrl);
+        result.put("groupID", groupID);
+        result.put("timesstamps", timesstamps);
+        result.put("memberIDs", memberIDs);
+        result.put("markStatuses", markStatuses);
+        result.put("readStatuses", readStatuses);
+        result.put("deleteStatuses", deleteStatuses);
+        result.put("deleteTimestamps", deleteTimestamps);
+        result.put("notifications", notifications);
+        result.put("maskMessages", maskMessages);
+        result.put("puzzleMessages", puzzleMessages);
+        result.put("maskOutputs", maskOutputs);
+        result.put("nickNames", nickNames);
+        result.put("themes", themes);
+
+        return result;
+    }
+
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Conversation) {

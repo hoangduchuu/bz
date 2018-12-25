@@ -102,4 +102,5 @@ public interface UserRepository {
 
     @NotNull
     Observable<List<User>> getUsersProfileInfomation(ArrayList<User> users);
+    Observable<List<User>> getUsersProfileInfomationFromUserIds(ArrayList<String> users);
 }
