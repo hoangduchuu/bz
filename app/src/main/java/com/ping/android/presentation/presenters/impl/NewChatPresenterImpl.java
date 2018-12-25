@@ -4,17 +4,14 @@ import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
-import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase;
 import com.ping.android.domain.usecase.conversation.NewCreatePVPConversationUseCase;
 import com.ping.android.domain.usecase.group.CreateGroupUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.domain.usecase.user.GetUsersProfileUseCase;
+import com.ping.android.domain.usecase.user.GetUsersProfileFromUserIdsUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.NewChatPresenter;
-import com.ping.android.utils.Log;
-import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +39,7 @@ public class NewChatPresenterImpl implements NewChatPresenter {
     SendMessageNotificationUseCase sendMessageNotificationUseCase;
 
     @Inject
-    GetUsersProfileUseCase getUsersProfileUseCase;
+    GetUsersProfileFromUserIdsUseCase getUsersProfileFromUserIdsUseCase;
 
 
     @Inject
@@ -63,12 +60,13 @@ public class NewChatPresenterImpl implements NewChatPresenter {
     public void createGroup(List<User> toUsers, String message) {
         toUsers.add(currentUser);
         List<String> displayNames = new ArrayList<>();
-        ArrayList<User> l = new ArrayList<>(toUsers);
+        ArrayList<String> usersIds = new ArrayList<>();
         for (User user : toUsers) {
+            usersIds.add(user.key);
             displayNames.add(user.getDisplayName());
         }
 
-        getUsersProfileUseCase.execute(new DefaultObserver<List<User>>(){
+        getUsersProfileFromUserIdsUseCase.execute(new DefaultObserver<List<User>>(){
             @Override
             public void onError(@NotNull Throwable exception) {
                 super.onError(exception);
@@ -105,7 +103,7 @@ public class NewChatPresenterImpl implements NewChatPresenter {
             public void onComplete() {
                 super.onComplete();
             }
-        },new GetUsersProfileUseCase.Params(l));
+        },new GetUsersProfileFromUserIdsUseCase.Params(usersIds));
 
 
     }

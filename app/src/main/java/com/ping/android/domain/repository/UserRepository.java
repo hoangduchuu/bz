@@ -100,7 +100,5 @@ public interface UserRepository {
     Observable<User> getUserInfoByUUidKey(String userUUidKey);
 
 
-    @NotNull
-    Observable<List<User>> getUsersProfileInfomation(ArrayList<User> users);
-    Observable<List<User>> getUsersProfileInfomationFromUserIds(ArrayList<String> users);
+    Observable<List<User>> getUsersProfileInformationFromUserIds(ArrayList<String> users);
 }

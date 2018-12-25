@@ -8,15 +8,12 @@ import com.ping.android.domain.usecase.group.UploadGroupProfileImageUseCase;
 import com.ping.android.domain.usecase.message.SendMessageUseCase;
 import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
-import com.ping.android.domain.usecase.user.GetUsersProfileUseCase;
-import com.ping.android.domain.usecase.user.GetUsersProfileUseCaseFromUserIds;
+import com.ping.android.domain.usecase.user.GetUsersProfileFromUserIdsUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.AddGroupPresenter;
-import com.ping.android.utils.BzLog;
-import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,7 +47,7 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
     SendTextMessageUseCase sendTextMessageUseCase;
 
     @Inject
-    GetUsersProfileUseCaseFromUserIds getUsersProfileUseCaseFromUserIds;
+    GetUsersProfileFromUserIdsUseCase getUsersProfileFromUserIdsUseCase;
 
 
     @Inject
@@ -82,7 +79,7 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
 
                 List<String> list = new ArrayList<String>(conversation.memberIDs.keySet());
 
-                getUsersProfileUseCaseFromUserIds.execute(new DefaultObserver<List<User>>(){
+                getUsersProfileFromUserIdsUseCase.execute(new DefaultObserver<List<User>>(){
                     @Override
                     public void onComplete() {
                         super.onComplete();
@@ -107,7 +104,7 @@ public class AddGroupPresenterImpl implements AddGroupPresenter {
                     public void onError(@NotNull Throwable exception) {
                         super.onError(exception);
                     }
-                },new GetUsersProfileUseCaseFromUserIds.Params((ArrayList<String>) list));
+                },new GetUsersProfileFromUserIdsUseCase.Params((ArrayList<String>) list));
 
 
             }
