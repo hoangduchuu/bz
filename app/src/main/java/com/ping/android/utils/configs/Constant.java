@@ -68,6 +68,10 @@ public class Constant {
     public static final int LOAD_MORE_MESSAGE_AMOUNT = 20;
 
     public static final double MILLISECOND_PER_DAY = 1000 * 60 * 60 * 24;
+    /**
+     * [30 minutes] =  [1Day ÷ 24 ÷ 2]
+     */
+    public static final double MILLISECOND_PER_30_MIN = MILLISECOND_PER_DAY / 24 / 2;
 
     public enum TYPE_FRIEND {
         NON_FRIEND,
