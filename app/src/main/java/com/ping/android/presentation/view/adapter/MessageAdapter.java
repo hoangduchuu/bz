@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import io.fabric.sdk.android.Logger;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +19,7 @@ import android.widget.TextView;
 import com.ping.android.R;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
+import com.ping.android.presentation.view.customView.CustomFontTextView;
 import com.ping.android.utils.CommonMethod;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
@@ -285,11 +285,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView ivProfileImage;
-        TextView tvSender, tvMessage, tvTime, unreadCount;
+        TextView tvSender, unreadCount;
         RadioButton rbSelect;
         Conversation conversation;
         private ConversationItemListener listener;
         private ClickListener clickListener;
+        CustomFontTextView tvMessage, tvTime;
 
         MessageViewHolder(View itemView, ConversationItemListener listener) {
             super(itemView);
@@ -313,8 +314,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                 tvTime.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.text_color_grey));
             } else {
                 tvSender.setTypeface(Typeface.DEFAULT_BOLD);
-                tvMessage.setTypeface(Typeface.DEFAULT_BOLD);
-                tvTime.setTypeface(Typeface.DEFAULT_BOLD);
+                tvTime.applySemiBold();
+                tvMessage.applySemiBold();
                 tvMessage.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
                 tvTime.setTextColor(ContextCompat.getColor(itemView.getContext(), R.color.black));
             }

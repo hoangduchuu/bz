@@ -49,7 +49,7 @@
         app:layout_constraintEnd_toStartOf="@id/message_item_time"
         tools:text="John Doe" />
 
-    <TextView
+    <com.ping.android.presentation.view.customView.CustomFontTextView
         android:id="@+id/message_item_time"
         style="@style/AppTextAppearance.Small.Grey"
         android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
         tools:text="01-06-2017-06:54" />
 
 
-    <com.vanniktech.emoji.EmojiTextView
+    <com.ping.android.presentation.view.customView.CustomFontTextView
         android:id="@+id/message_item_message"
         style="@style/AppTextAppearance.Small.Grey"
         android:layout_width="0dp"

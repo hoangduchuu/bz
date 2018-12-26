@@ -37,4 +37,15 @@
         <attr name="headerText" format="string|reference" />
         <attr name="useHtml" format="boolean"/>
     </declare-styleable>
+
+
+
+    <item name="bound_observable" type="id" />
+    <declare-styleable name="CustomFontTextView">
+        <attr name="fontName">
+            <enum name="Semibold" value="2" />
+            <enum name="Bold" value="1" />
+            <enum name="Regular" value="3"/>
+        </attr>
+    </declare-styleable>
 </resources>
