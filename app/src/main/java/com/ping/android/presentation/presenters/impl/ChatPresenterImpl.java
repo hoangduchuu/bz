@@ -454,7 +454,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_30_MIN);
                     localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {
@@ -929,7 +929,7 @@ public class ChatPresenterImpl implements ChatPresenter {
             @Override
             public void onNext(Message message) {
                 if (message.isCached) {
-                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_DAY);
+                    message.days = (long) (message.timestamp * 1000 / Constant.MILLISECOND_PER_30_MIN);
                     localCacheFile.put(message.key, message.localFilePath);
                     addMessage(message);
                 } else {

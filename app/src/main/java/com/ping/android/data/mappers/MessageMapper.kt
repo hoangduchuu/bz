@@ -36,7 +36,7 @@ class MessageMapper @Inject constructor() {
         message.callType = entity.callType
         message.callDuration = entity.callDuration
         message.messageCallType = MessageCallType.from(entity.callType)
-        message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_DAY).toLong()
+        message.days = (entity.timestamp * 1000 / Constant.MILLISECOND_PER_30_MIN).toLong()
         message.status = entity.status ?: HashMap()
         message.messageStatusCode = entity.messageStatusCode
         message.localFilePath = entity.fileUrl
