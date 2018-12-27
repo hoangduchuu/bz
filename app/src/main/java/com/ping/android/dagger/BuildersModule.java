@@ -29,6 +29,7 @@ import com.ping.android.dagger.registration.RegistrationModule;
 import com.ping.android.dagger.registration.RegistrationViewModule;
 import com.ping.android.dagger.splash.SplashModule;
 import com.ping.android.dagger.scopes.PerActivity;
+import com.ping.android.dagger.tutorial.TutorialModule;
 import com.ping.android.presentation.view.activity.AddContactActivity;
 import com.ping.android.presentation.view.activity.AddGroupActivity;
 import com.ping.android.presentation.view.activity.BlockActivity;
@@ -51,6 +52,7 @@ import com.ping.android.presentation.view.activity.SelectContactActivity;
 import com.ping.android.presentation.view.activity.SplashActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
 import com.ping.android.presentation.view.activity.UserDetailActivity;
+import com.ping.android.presentation.view.tutorial.activity.TutorialActivity;
 
 import dagger.Module;
 import dagger.android.AndroidInjectionModule;
@@ -146,4 +148,10 @@ public abstract class BuildersModule {
     @PerActivity
     @ContributesAndroidInjector(modules = UserDetailModule.class)
     abstract UserDetailActivity bindUserDetailActivity();
+
+
+    // huu
+    @PerActivity
+    @ContributesAndroidInjector(modules = {TutorialModule.class})
+    abstract TutorialActivity bindTutorialActivity();
 }

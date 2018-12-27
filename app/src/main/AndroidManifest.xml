@@ -249,6 +249,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/video_provider_paths" />
         </provider>
+
+        <activity android:name=".presentation.view.tutorial.TutorialActivity" />
     </application>
 
 </manifest>
