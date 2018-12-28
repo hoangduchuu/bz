@@ -46,10 +46,15 @@ public class UpdateMaskChildMessagesUseCase extends UseCase<Boolean, UpdateMaskC
                         updateValue.put(String.format("messages/%s/%s/childMessages/%s/markStatuses/%s",
                                 params.conversationId, child.parentKey,
                                 child.key, user.key), params.isMask);
+
                         if (child.type == MessageType.IMAGE || child.type == MessageType.GAME) {
                             updateValue.put(String.format("media/%s/%s/childMessages/%s/markStatuses/%s",
                                     params.conversationId, child.parentKey, child.key, user.key), params.isMask);
                         }
+                        updateValue.put(String.format("messages/%s/%s/childMessages/%s/updateAt",
+                                params.conversationId, child.parentKey, child.key), System.currentTimeMillis()/1000d);
+                        updateValue.put(String.format("messages/%s/%s/updateAt",
+                                params.conversationId, child.parentKey), System.currentTimeMillis()/1000d);
                     }
                     return commonRepository.updateBatchData(updateValue);
                 });

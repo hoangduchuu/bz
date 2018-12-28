@@ -17,6 +17,7 @@ public class Message implements Parcelable {
     public String senderId;
     public String senderName;
     public double timestamp;
+    public double updateAt;
     public Map<String, Integer> status;
     public int callType;
     public int gameType;
@@ -58,6 +59,7 @@ public class Message implements Parcelable {
         senderId = in.readString();
         senderName = in.readString();
         timestamp = in.readDouble();
+        updateAt = in.readDouble();
         int messageType = in.readInt();
         type = MessageType.from(messageType);
         callType = in.readInt();
@@ -71,7 +73,6 @@ public class Message implements Parcelable {
         messageStatusCode = in.readInt();
         days = in.readLong();
         isMask = in.readByte() != 0;
-//        faceIdRecognitionStatus = in.readByte() != 0;
         showExtraInfo = in.readByte() != 0;
         opponentUser = in.readParcelable(User.class.getClassLoader());
         parentKey = in.readString();
@@ -121,6 +122,7 @@ public class Message implements Parcelable {
         dest.writeString(senderId);
         dest.writeString(senderName);
         dest.writeDouble(timestamp);
+        dest.writeDouble(updateAt);
         dest.writeInt(type.ordinal());
         dest.writeInt(callType);
         dest.writeInt(gameType);
@@ -133,7 +135,6 @@ public class Message implements Parcelable {
         dest.writeInt(messageStatusCode);
         dest.writeLong(days);
         dest.writeByte((byte) (isMask ? 1 : 0));
-//        dest.writeByte((byte)(faceIdRecognitionStatus ? 1: 0));
         dest.writeByte((byte) (showExtraInfo ? 1 : 0));
         dest.writeParcelable(opponentUser, flags);
         dest.writeString(parentKey);

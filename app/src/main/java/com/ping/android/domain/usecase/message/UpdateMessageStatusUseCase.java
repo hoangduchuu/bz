@@ -40,6 +40,7 @@ public class UpdateMessageStatusUseCase extends UseCase<Boolean, UpdateMessageSt
             if (params.messageType == MessageType.GAME) {
                 updateValue.put(String.format("media/%s/%s/status/%s", params.conversationId, params.messageId, user.key), params.status);
             }
+            updateValue.put(String.format("messages/%s/%s/updateAt", params.conversationId, params.messageId, user.key), System.currentTimeMillis()/1000d);
             return commonRepository.updateBatchData(updateValue);
         });
     }

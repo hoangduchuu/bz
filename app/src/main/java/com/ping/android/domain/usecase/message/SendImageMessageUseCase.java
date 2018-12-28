@@ -81,6 +81,7 @@ public class SendImageMessageUseCase extends UseCase<Message, SendImageMessageUs
                                     .flatMap(msg -> uploadImages(cachedMessage, params.conversation.key, cachedMessage.key, params.filePath)
                                             .flatMap(message1 -> {
                                                 Map<String, Object> updateValue = new HashMap<>();
+                                                updateValue.put(String.format("messages/%s/%s/updateAt", params.conversation.key, cachedMessage.key), System.currentTimeMillis()/1000d);
                                                 updateValue.put(String.format("messages/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);
                                                 updateValue.put(String.format("messages/%s/%s/thumbUrl", params.conversation.key, cachedMessage.key), message1.thumbUrl);
                                                 updateValue.put(String.format("media/%s/%s/photoUrl", params.conversation.key, cachedMessage.key), message1.photoUrl);

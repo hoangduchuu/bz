@@ -88,6 +88,7 @@ public class SendGameMessageUseCase extends UseCase<Message, SendGameMessageUseC
                 .flatMap(params1 -> {
                     MessageEntity message = params1.getMessage();
                     Map<String, Object> updateValue = new HashMap<>();
+                    updateValue.put(String.format("messages/%s/%s/updateAt", params1.getConversation().key, message.key), System.currentTimeMillis()/1000d);
                     updateValue.put(String.format("messages/%s/%s/gameUrl", params1.getConversation().key, message.key), message.gameUrl);
                     updateValue.put(String.format("media/%s/%s", params1.getConversation().key, message.key), message.toMap());
                     updateValue.put(String.format("messages/%s/%s/status/%s", params1.getConversation().key, message.key, params.currentUser.key), Constant.MESSAGE_STATUS_DELIVERED);
