@@ -11,5 +11,5 @@ import dagger.Module;
 @Module
 public abstract class TutorialViewModule {
     @Binds
-    abstract TutorialContract.View provideSplashView(TutorialActivity activity);
+    abstract TutorialContract.View provideTutoAcView(TutorialActivity activity);
 }

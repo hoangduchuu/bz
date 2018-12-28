@@ -14,9 +14,6 @@ import dagger.Provides;
 @Module
 public abstract class TutorialModule {
 
-    @Binds
-    public abstract TutorialContract.View view(TutorialActivity activity);
-
     @Provides
     @PerActivity
     static TutorialContract.Presenter providePresenter(TutorialPresenter presenter) {
