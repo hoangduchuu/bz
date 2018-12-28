@@ -105,5 +105,9 @@
     <dimen name="padding_emoji_box">5dp</dimen>
     <dimen name="padding_left_right_emoj_box">12dp</dimen>
 
+    <!--item conversation-->
+    <dimen name="size_conversation_item_content">15sp</dimen>
+    <dimen name="size_conversation_item_timestamps">15sp</dimen>
+    <dimen name="size_conversation_item_title">17sp</dimen>
 
 </resources>
