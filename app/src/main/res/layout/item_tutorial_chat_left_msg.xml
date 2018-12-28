@@ -52,17 +52,6 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/item_chat_status"
-        style="@style/AppTextAppearance.VerySmall.Grey"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/item_chat_message"
-        app:layout_constraintTop_toBottomOf="@+id/item_chat_message"
-        tools:text="Delivered" />
-
-    <TextView
         android:id="@+id/revealable_view"
         style="@style/AppTextAppearance.VerySmall.Grey"
         android:layout_width="50dp"

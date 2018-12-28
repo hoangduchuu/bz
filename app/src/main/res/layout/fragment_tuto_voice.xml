@@ -29,8 +29,15 @@
     <include
         layout="@layout/view_tutorial_input_chat_bottom_voice_icon"
         android:layout_width="match_parent"
+        android:id="@+id/_input"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />
-    <include layout="@layout/tuto_content_voice"/>
+    <RelativeLayout
+        android:layout_below="@id/_msg"
+        android:layout_above="@id/_input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include layout="@layout/tuto_content_voice"/>
+    </RelativeLayout>
 
 </RelativeLayout>

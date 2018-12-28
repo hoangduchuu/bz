@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_below="@+id/_msg"
-    android:layout_marginTop="50dp"
+    android:layout_centerVertical="true"
     android:background="@drawable/rounded_tutorial_container"
     android:orientation="horizontal">
 
