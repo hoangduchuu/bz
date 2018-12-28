@@ -13,7 +13,7 @@
         android:layout_marginTop="@dimen/space_tutorial_element_content"
         android:paddingStart="@dimen/padding_content"
         android:layout_width="0dp"
-        android:layout_height="@dimen/with_tutorial_container"
+        android:layout_height="@dimen/with_tutorial_shake_container"
         android:layout_weight="4"
         android:orientation="vertical"
         android:textAlignment="center">
@@ -38,7 +38,7 @@
 
     <RelativeLayout
         android:layout_width="0dp"
-        android:layout_height="@dimen/with_tutorial_container"
+        android:layout_height="@dimen/with_tutorial_shake_container"
         android:layout_weight="2">
         <com.ping.android.presentation.view.customView.CustomFontTextView
             android:layout_width="wrap_content"
@@ -55,7 +55,7 @@
         android:layout_marginTop="@dimen/space_tutorial_element_content"
         android:paddingRight="@dimen/padding_content"
         android:layout_width="0dp"
-        android:layout_height="@dimen/with_tutorial_container"
+        android:layout_height="@dimen/with_tutorial_shake_container"
         android:layout_weight="4"
         android:orientation="vertical"
         android:textAlignment="center">

@@ -8,5 +8,7 @@
     <string name="shake_you_phone"><![CDATA[Shake Your \n Phone]]></string>
     <string name="or">OR</string>
     <string name="today_timestamp">Today, 10:00 AM</string>
+    <string name="tab_show_icon">Tap Shown Icon \n Below To Activate</string>
+
 
 </resources>
