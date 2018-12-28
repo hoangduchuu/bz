@@ -49,6 +49,8 @@ public class UpdateMaskMessagesUseCase extends UseCase<Boolean, UpdateMaskMessag
                     for (String message : params.messageKeys) {
                         updateValue.put(String.format("messages/%s/%s/markStatuses/%s", params.conversationId,
                                 message, user.key), params.isMask);
+                        updateValue.put(String.format("messages/%s/%s/updateAt", params.conversationId,
+                                message, user.key), System.currentTimeMillis()/1000d);
                         messageRepository.updateLocalMaskStatus(message, params.isMask);
                     }
                     for (String message : params.mediaMessages) {

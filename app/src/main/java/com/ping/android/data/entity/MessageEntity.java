@@ -66,6 +66,7 @@ public class MessageEntity extends BaseModel {
     public int childCount;
     public boolean isCached;
     public String fileUrl;
+    public double updateAt = System.currentTimeMillis()/1000d;
 
     public MessageEntity() {
     }
@@ -266,6 +267,7 @@ public class MessageEntity extends BaseModel {
         result.put("gameUrl", gameUrl);
         result.put("videoUrl", videoUrl);
         result.put("timestamp", timestamp);
+        result.put("updateAt", updateAt);
         result.put("senderId", senderId);
         result.put("senderName", senderName);
         result.put("status", status);

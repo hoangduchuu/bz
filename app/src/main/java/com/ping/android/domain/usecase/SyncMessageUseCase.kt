@@ -76,6 +76,7 @@ class SyncMessageUseCase @Inject constructor(
         val updateValue = HashMap<String, Any>()
         for (entity in messages) {
             updateValue["messages/${entity.conversationId}/${entity.key}/status/${entity.senderId}"] = Constant.MESSAGE_STATUS_DELIVERED
+            updateValue["messages/${entity.conversationId}/${entity.key}/updateAt"] = System.currentTimeMillis()/1000.0
         }
         return commonRepository.updateBatchData(updateValue)
                 .concatWith(Observable.just(messages)
@@ -144,6 +145,7 @@ class SyncMessageUseCase @Inject constructor(
                                                 updateValue[String.format("messages/%s/%s/gameUrl", message.conversationId, message.key)] = photoUrl
                                                 updateValue[String.format("media/%s/%s/gameUrl", message.conversationId, message.key)] = photoUrl
                                             }
+                                            updateValue[String.format("messages/%s/%s/updateAt", message.conversationId, message.key)] = System.currentTimeMillis()/1000.0
                                             updateValue[String.format("messages/%s/%s/thumbUrl", message.conversationId, message.key)] = thumbUrl
                                             updateValue[String.format("media/%s/%s/thumbUrl", message.conversationId, message.key)] = thumbUrl
                                             updateValue["messages/${message.conversationId}/${message.key}/status/${message.senderId}"] = Constant.MESSAGE_STATUS_DELIVERED
@@ -188,6 +190,8 @@ class SyncMessageUseCase @Inject constructor(
                                     updateValue["messages/${message.conversationId}/${message.key}/videoUrl"] = audioUrl
                                 }
                                 updateValue["messages/${message.conversationId}/${message.key}/status/${message.senderId}"] = Constant.MESSAGE_STATUS_DELIVERED
+                                updateValue["messages/${message.conversationId}/${message.key}/updateAt"] = System.currentTimeMillis()/1000.0
+
                                 commonRepository.updateBatchData(updateValue)
                                         .flatMap {
                                             messageRepository.updateLocalMessageStatus(message.key, Constant.MESSAGE_STATUS_DELIVERED)

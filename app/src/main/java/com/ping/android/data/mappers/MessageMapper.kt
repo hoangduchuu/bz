@@ -29,6 +29,7 @@ class MessageMapper @Inject constructor() {
         message.thumbUrl = entity.thumbUrl ?: ""
         message.type = MessageType.from(entity.messageType)
         message.timestamp = entity.timestamp
+        message.updateAt = entity.updateAt
         message.senderId = entity.senderId
         message.senderName = entity.senderName
         message.gameType = entity.gameType
@@ -81,6 +82,7 @@ class MessageMapper @Inject constructor() {
         message.messageType = wrapper.getIntValue("messageType", Constant.MSG_TYPE_TEXT)
         val type = MessageType.from(message.messageType)
         message.timestamp = wrapper.getDoubleValue("timestamp", 0.0)
+        message.updateAt = wrapper.getDoubleValue("updateAt", 0.0)
         message.senderId = wrapper.getStringValue("senderId")
         message.senderName = wrapper.getStringValue("senderName")
         message.gameType = wrapper.getIntValue("gameType", 0)

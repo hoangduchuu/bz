@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import kotlin.SuspendKt;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -149,10 +150,10 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Observable<Boolean> updateMessageStatus(String conversationId, String messageId, String userId, int status) {
-        DatabaseReference reference = database.getReference("messages").child(conversationId).child(messageId).child("status").child(userId);
-        return RxFirebaseDatabase.setValue(reference, status)
-                .map(reference1 -> true)
-                .toObservable();
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/status/%s", conversationId, messageId, userId), status);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationId, messageId), System.currentTimeMillis()/1000d);
+        return updateBatchData(updateValue);
     }
 
     @Override
@@ -172,39 +173,44 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Observable<String> updateThumbnailImage(String conversationKey, String messageKey, String filePath) {
-        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("thumbUrl");
-        return RxFirebaseDatabase.setValue(reference, filePath)
-                .map(databaseReference -> filePath)
-                .toObservable();
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/thumbUrl", conversationKey, messageKey), filePath);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
+        return updateBatchData(updateValue)
+                .map(aBoolean -> filePath);
     }
 
     @Override
     public Observable<String> updateImage(String conversationKey, String messageKey, String filePath) {
-        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("photoUrl");
-        return RxFirebaseDatabase.setValue(reference, filePath)
-                .map(databaseReference -> filePath)
-                .toObservable();
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/photoUrl", conversationKey, messageKey), filePath);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
+        return updateBatchData(updateValue)
+                .map(aBoolean -> filePath);
     }
 
     @Override
     public Observable<String> updateAudioUrl(String conversationKey, String messageKey, String filePath) {
-        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("audioUrl");
-        return RxFirebaseDatabase.setValue(reference, filePath)
-                .map(databaseReference -> filePath)
-                .toObservable();
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/audioUrl", conversationKey, messageKey), filePath);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
+        return updateBatchData(updateValue)
+                .map(aBoolean -> filePath);
     }
 
     @Override
     public Observable<String> updateVideoUrl(String conversationKey, String messageKey, String filePath) {
-        DatabaseReference reference = database.getReference("messages").child(conversationKey).child(messageKey).child("videoUrl");
-        return RxFirebaseDatabase.setValue(reference, filePath)
-                .map(databaseReference -> filePath)
-                .toObservable();
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/videoUrl", conversationKey, messageKey), filePath);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
+        return updateBatchData(updateValue)
+                .map(aBoolean -> filePath);
     }
 
     @Override
     public Observable<MessageEntity> addChildMessage(String conversationKey, String messageKey, MessageEntity data) {
         Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
         updateValue.put(String.format("messages/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
         updateValue.put(String.format("media/%s/%s/childMessages/%s", conversationKey, messageKey, data.key), data.toMap());
         return updateBatchData(updateValue)
@@ -238,18 +244,23 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public Observable<Boolean> updateChildMessageImage(String conversationId, String parentMessageKey, String messageKey, String thumbnail, String image) {
         Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationId, parentMessageKey), System.currentTimeMillis()/1000d);
         updateValue.put(String.format("messages/%s/%s/childMessages/%s/thumbUrl", conversationId, parentMessageKey, messageKey), thumbnail);
         updateValue.put(String.format("messages/%s/%s/childMessages/%s/photoUrl", conversationId, parentMessageKey, messageKey), image);
         updateValue.put(String.format("media/%s/%s/childMessages/%s/thumbUrl", conversationId, parentMessageKey, messageKey), thumbnail);
         updateValue.put(String.format("media/%s/%s/childMessages/%s/photoUrl", conversationId, parentMessageKey, messageKey), image);
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s/updateAt", conversationId, parentMessageKey, messageKey), System.currentTimeMillis()/1000d);
         return updateBatchData(updateValue);
     }
 
     @Override
     public Observable<Boolean> updateChildMessageGame(String conversationId, String parentMessageKey, String messageKey, String gameUrl) {
         Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationId, parentMessageKey), System.currentTimeMillis()/1000d);
         updateValue.put(String.format("messages/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
         updateValue.put(String.format("media/%s/%s/childMessages/%s/gameUrl", conversationId, parentMessageKey, messageKey), gameUrl);
+        updateValue.put(String.format("messages/%s/%s/childMessages/%s/updateAt", conversationId, parentMessageKey, messageKey), System.currentTimeMillis()/1000d);
+
         return updateBatchData(updateValue);
     }
 
@@ -377,12 +388,11 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Observable<String> markSenderMessageStatusAsDelivered(String conversationKey, String messageKey, String currentUserKey, String filePath) {
-        String path  = String.format("messages/%s/%s/status/%s", conversationKey, messageKey, currentUserKey);
-        DatabaseReference reference = database.getReference(path);
-        return RxFirebaseDatabase.setValue(reference, Constant.MESSAGE_STATUS_DELIVERED)
-                .map(databaseReference -> filePath)
-                .toObservable();
 
+        Map<String, Object> updateValue = new HashMap<>();
+        updateValue.put(String.format("messages/%s/%s/status/%s", conversationKey, messageKey, currentUserKey), Constant.MESSAGE_STATUS_DELIVERED);
+        updateValue.put(String.format("messages/%s/%s/updateAt", conversationKey, messageKey), System.currentTimeMillis()/1000d);
 
+        return updateBatchData(updateValue).map(aBoolean -> filePath);
     }
 }

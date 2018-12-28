@@ -49,6 +49,8 @@ public class DeleteMessagesUseCase extends UseCase<Boolean, DeleteMessagesUseCas
                                 message.key, user.key), true);
                         updateValue.put(String.format("media/%s/%s/deleteStatuses/%s", params.conversationId,
                                 message.key, user.key), true);
+                        updateValue.put(String.format("messages/%s/%s/updateAt", params.conversationId,
+                                message.key, user.key), System.currentTimeMillis()/1000d);
                     }
                     return commonRepository.updateBatchData(updateValue)
                             .doOnNext(aBoolean -> {
