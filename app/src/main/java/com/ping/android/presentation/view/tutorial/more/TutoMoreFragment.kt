@@ -10,7 +10,7 @@ import com.ping.android.presentation.view.fragment.BaseFragment
 /**
  * Created by Huu Hoang on 27/12/2018
  */
-class TutoMoreFragment : BaseFragment() {
+class TutoMoreFragment : BaseFragment(), TutoMoreContract.View {
 
     //region variable region
 
@@ -25,7 +25,13 @@ class TutoMoreFragment : BaseFragment() {
 
 
     //region override method region
+    override fun showLoading() {
+        super<BaseFragment>.showLoading()
+    }
 
+    override fun hideLoading() {
+        super<BaseFragment>.hideLoading()
+    }
     // endregion
 
 

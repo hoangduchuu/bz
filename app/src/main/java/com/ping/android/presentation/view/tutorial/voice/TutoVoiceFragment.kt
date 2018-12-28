@@ -10,7 +10,7 @@ import com.ping.android.presentation.view.fragment.BaseFragment
 /**
  * Created by Huu Hoang on 27/12/2018
  */
-class TutoVoiceFragment : BaseFragment() {
+class TutoVoiceFragment : BaseFragment(),TutoVoiceContract.View {
     //region variable region
 
     // endregion
