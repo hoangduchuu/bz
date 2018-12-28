@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/_msg"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="100dp"
+    android:background="@drawable/rounded_tutorial_container"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_marginTop="@dimen/margin_medium"
+        android:id="@+id/_0"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:paddingTop="@dimen/space_tutorial_element_content"
+        android:src="@drawable/tuto_looking"
+        tools:ignore="ContentDescription" />
+
+    <com.ping.android.presentation.view.custom.SettingItem
+        style="@style/ItemSetting"
+        android:layout_marginStart="30dp"
+        app:leftIcon="@drawable/ic_conversation_notification_black"
+        app:showDivider="false"
+        app:titleText="Disguise All Notifications" />
+
+    <com.ping.android.presentation.view.custom.SettingItem
+        style="@style/ItemSetting"
+        android:layout_marginStart="30dp"
+        app:leftIcon="@drawable/ic_conversation_mask_message_grey_black"
+        app:showDivider="false"
+        app:titleText="Receive Disguised Messages" />
+
+    <com.ping.android.presentation.view.custom.SettingItem
+        style="@style/ItemSetting"
+        android:layout_marginStart="30dp"
+        app:leftIcon="@drawable/ic_conversation_mask_image_black"
+        app:showDivider="false"
+        app:titleText="Receive Puzzled Picturess" />
+
+    <com.ping.android.presentation.view.custom.SettingItem
+        style="@style/ItemSetting"
+        android:layout_marginStart="30dp"
+        app:leftIcon="@drawable/ic_chat_game_black"
+        app:showDivider="false"
+        app:titleText="Send Pictures As Games" />
+
+    <com.ping.android.presentation.view.custom.SettingItem
+        style="@style/ItemSetting"
+        android:layout_marginStart="30dp"
+        android:layout_marginBottom="30dp"
+        app:leftIcon="@drawable/ic_face_id_black"
+        app:showDivider="false"
+        app:titleText="Access Protected Content via Face IDs" />
+</LinearLayout>
