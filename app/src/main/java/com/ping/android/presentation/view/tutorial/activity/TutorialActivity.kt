@@ -61,6 +61,7 @@ class TutorialActivity : CoreActivity(),
 
         viewpager.adapter = adapter
         tab_layout.setupWithViewPager(viewpager,true);
+        viewpager.offscreenPageLimit = 4
     }
     // endregion
 
