@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="tutorial_title">TUTORIAL</string>
+    <string name="sender_name">Bzzz Support</string>
+    <string name="online">Online</string>
 </resources>
