@@ -263,12 +263,6 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
             return
         }
 
-        val text = edMessage.text.toString()
-        if (TextUtils.isEmpty(text)) {
-            Toaster.shortToast("Please enter message.")
-            return
-        }
-
         if (!isNetworkAvailable) {
             Toaster.shortToast("Please check network connection.")
             return
