@@ -1,42 +1,33 @@
 package com.ping.android.presentation.view.activity
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 
 import androidx.recyclerview.widget.LinearLayoutManager
 
-import android.text.TextUtils
+import android.util.TypedValue
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.bzzzchat.configuration.GlideApp
 import com.bzzzchat.configuration.GlideRequests
-import com.bzzzchat.extensions.toggleVisibility
 
 import com.google.android.material.chip.Chip
 import com.google.firebase.storage.FirebaseStorage
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.ping.android.R
-import com.ping.android.domain.usecase.conversation.CreatePVPConversationUseCase
 import com.ping.android.domain.usecase.conversation.NewCreatePVPConversationUseCase
 import com.ping.android.model.User
 import com.ping.android.presentation.presenters.NewChatPresenter
 import com.ping.android.presentation.presenters.SearchUserPresenter
 import com.ping.android.presentation.view.adapter.SelectContactAdapter
-import com.ping.android.utils.Log
 import com.ping.android.utils.Toaster
 import com.ping.android.utils.configs.Constant
 
@@ -44,7 +35,6 @@ import java.util.ArrayList
 
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_new_chat.*
-import java.io.File
 import javax.inject.Inject
 
 class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.NewChatView, SearchUserPresenter.View {
@@ -235,6 +225,28 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
 
     private fun checkReadySend() {
         btnDone?.isEnabled = !selectedUsers.isEmpty()
+        btnSend.setTextColor(getSendButtonColor())
+
+    }
+
+    private fun getSendButtonColor() : Int {
+      return  if (selectedUsers.isEmpty()) getColorAccent() else{
+            resources.getColor(R.color.orange)
+        }
+    }
+
+    /**
+     * get current color accent
+     */
+    private fun getColorAccent(): Int {
+        val typedValue = TypedValue()
+
+        val typeArray = obtainStyledAttributes(typedValue.data, intArrayOf(R.attr.colorAccent))
+        val color = typeArray.getColor(0, 0)
+
+        typeArray.recycle()
+
+        return color
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
