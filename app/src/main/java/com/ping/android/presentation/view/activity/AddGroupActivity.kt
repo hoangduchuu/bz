@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.TypedValue
 import android.view.View
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -165,6 +166,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
                 recipientsContainer.visibility = View.GONE
             }
         }
+
+        if (selectedUsers.size == 0) {
+            edtTo.hint = "Username"
+        }
+
         checkReadySend()
     }
 
@@ -203,6 +209,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
         recipientsContainer.visibility = View.VISIBLE
         recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
 
+
+          // Clear userName input when complete search
+        edtTo.setText("")
+        edtTo.hint = ""
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -238,7 +249,30 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
 //        new_group_send_message_btn.isEnabled = isEnabled
 //        isEnabled = selectedUsers.size >0 && TextUtils.isEmpty(etGroupName?.text.toString().trim())
         btSave?.isEnabled = isEnabled
+        new_group_send_message_btn.setTextColor(getSendButtonColor())
     }
+
+
+    private fun getSendButtonColor() : Int {
+        return  if (selectedUsers.isEmpty()) getColorAccent() else{
+            resources.getColor(R.color.orange)
+        }
+    }
+
+    /**
+     * get current color accent
+     */
+    private fun getColorAccent(): Int {
+        val typedValue = TypedValue()
+
+        val typeArray = obtainStyledAttributes(typedValue.data, intArrayOf(R.attr.colorAccent))
+        val color = typeArray.getColor(0, 0)
+
+        typeArray.recycle()
+
+        return color
+    }
+
 
     private fun selectContact() {
         val i = Intent(this, SelectContactActivity::class.java)

@@ -3,12 +3,16 @@ package com.ping.android.presentation.presenters.impl;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
+import com.ping.android.data.mappers.UserMapper;
 import com.ping.android.domain.usecase.GetCurrentUserUseCase;
 import com.ping.android.domain.usecase.conversation.NewCreatePVPConversationUseCase;
 import com.ping.android.domain.usecase.group.CreateGroupUseCase;
+import com.ping.android.domain.usecase.message.SendMessageUseCase;
+import com.ping.android.domain.usecase.message.SendTextMessageUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.domain.usecase.user.GetUsersProfileFromUserIdsUseCase;
 import com.ping.android.model.Conversation;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.presenters.NewChatPresenter;
@@ -41,6 +45,11 @@ public class NewChatPresenterImpl implements NewChatPresenter {
     @Inject
     GetUsersProfileFromUserIdsUseCase getUsersProfileFromUserIdsUseCase;
 
+    @Inject
+    SendTextMessageUseCase sendTextMessageUseCase;
+
+    @Inject
+    UserMapper userMapper;
 
     @Inject
     public NewChatPresenterImpl() {
@@ -87,6 +96,9 @@ public class NewChatPresenterImpl implements NewChatPresenter {
                         view.hideLoading();
                         view.moveToChatScreen(conversation.key);
                     conversation.members = users;
+                        for (User s : users) {
+                            sendJoinedMessage(userMapper.getUserDisPlay(s, conversation), conversation);
+                        }
                     sendNotification(conversation,conversation.key,params.message,MessageType.TEXT);
                     }
 
@@ -147,6 +159,22 @@ public class NewChatPresenterImpl implements NewChatPresenter {
     private void sendNotification(Conversation conversation, String messageId, String message, MessageType messageType) {
         sendMessageNotificationUseCase.execute(new DefaultObserver<>(),
                 new SendMessageNotificationUseCase.Params(conversation, messageId, message, messageType));
+    }
+
+    private void sendJoinedMessage(String joinedUser, Conversation conversation) {
+
+        String message = joinedUser + " has joined ";
+        SendMessageUseCase.Params params = new SendMessageUseCase.Params.Builder()
+                .setMessageType(MessageType.SYSTEM)
+                .setConversation(conversation)
+                .setCurrentUser(currentUser)
+                .setText(message)
+                .setMarkStatus(false)
+                .build();
+
+        sendTextMessageUseCase.execute(new DefaultObserver<Message>() {
+            // override methods if needed
+        }, params);
     }
 
 }
