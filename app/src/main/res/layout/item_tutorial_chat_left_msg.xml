@@ -47,6 +47,7 @@
             android:layout_height="wrap_content"
             android:maxWidth="@dimen/_190sdp"
             android:textIsSelectable="false"
+            android:maxLines="7"
             android:textSelectHandle="@null"
             android:textSize="@dimen/text_size_large" />
     </LinearLayout>
