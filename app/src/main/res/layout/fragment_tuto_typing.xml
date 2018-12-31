@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content" />
     <include
-        layout="@layout/view_tutorial_input_chat_bottom"
+        layout="@layout/view_tutorial_input_chat_bottom_typing"
         android:layout_width="match_parent"
         android:id="@+id/_input"
         android:layout_height="wrap_content"
