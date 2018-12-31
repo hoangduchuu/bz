@@ -98,7 +98,13 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
             R.id.chat_back -> onBackPressed()
             R.id.new_chat_select_contact -> selectContact()
             R.id.btnSend -> sendNewMessage()
-            R.id.btn_done -> handleDonePress()
+            R.id.btn_done -> {
+                if (isAddMember){
+                    handleDonePress()
+                }else{
+                    sendNewMessage()
+                }
+            }
         }
     }
 
@@ -216,7 +222,6 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
         val bottomLayout = findViewById<LinearLayout>(R.id.chat_layout_text)
         bottomLayout.visibility = if (isAddMember) View.GONE else View.VISIBLE
         tvTitle.text = if (isAddMember) "ADD MEMBER" else "NEW CHAT"
-        btnDone!!.visibility = if (isAddMember) View.VISIBLE else View.GONE
         btnDone!!.setOnClickListener(this)
         btnDone!!.isEnabled = selectedUsers.size > 0
 

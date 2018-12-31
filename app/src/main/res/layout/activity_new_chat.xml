@@ -34,7 +34,7 @@
                 android:layout_centerVertical="true"
                 android:text="DONE"
                 tools:visibility="visible"
-                android:visibility="gone" />
+                android:visibility="visible" />
         </RelativeLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
