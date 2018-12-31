@@ -166,6 +166,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
                 recipientsContainer.visibility = View.GONE
             }
         }
+
+        if (selectedUsers.size == 0) {
+            edtTo.hint = "Username"
+        }
+
         checkReadySend()
     }
 
@@ -203,6 +208,11 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
         // Scroll to bottom
         recipientsContainer.visibility = View.VISIBLE
         recipientsContainer.postDelayed({ recipientsContainer.fullScroll(View.FOCUS_DOWN) }, 500)
+
+
+          // Clear userName input when complete search
+        edtTo.setText("")
+        edtTo.hint = ""
 
     }
 
