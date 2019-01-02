@@ -41,7 +41,7 @@ class NewChatActivity : CoreActivity(), View.OnClickListener, NewChatPresenter.N
     private val TAG = NewChatActivity::class.java.simpleName
     //Views UI
     private var mLinearLayoutManager: LinearLayoutManager? = null
-    private var btBack: ImageView? = null
+    private var btBack: Button? = null
     private var btSelectContact: ImageView? = null
     private var noResultsView: LinearLayout? = null
     private var btnDone: Button? = null

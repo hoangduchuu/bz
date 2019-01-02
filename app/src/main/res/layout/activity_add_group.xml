@@ -15,9 +15,10 @@
 
         <RelativeLayout style="@style/TopMenu">
 
-            <ImageView
+            <Button
                 android:id="@+id/new_group_back"
-                style="@style/BackButton" />
+                style="@style/ActionButton.TopMenu"
+                android:text="CANCEL" />
 
             <TextView
                 style="@style/TextTitle"
