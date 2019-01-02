@@ -41,7 +41,7 @@ class AddGroupActivity : CoreActivity(), View.OnClickListener, SearchUserPresent
     private var etGroupName: EditText? = null
     private var edMessage: EditText? = null
     private var btSave: TextView? = null
-    private var btBack: ImageView? = null
+    private var btBack: Button? = null
     private var groupAvatar: ImageView? = null
     private var recycleChatView: RecyclerView? = null
     private var noResultsView: LinearLayout? = null

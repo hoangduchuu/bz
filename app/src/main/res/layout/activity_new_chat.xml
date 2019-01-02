@@ -18,9 +18,10 @@
 
         <RelativeLayout style="@style/TopMenu">
 
-            <ImageView
+            <Button
                 android:id="@+id/chat_back"
-                style="@style/BackButton" />
+                style="@style/ActionButton.TopMenu"
+                android:text="CANCEL" />
 
             <TextView
                 android:id="@+id/tvTitle"
