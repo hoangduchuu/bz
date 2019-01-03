@@ -73,9 +73,9 @@
 
         <activity
             android:name=".presentation.view.tutorial.activity.TutorialActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Fullscreen">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

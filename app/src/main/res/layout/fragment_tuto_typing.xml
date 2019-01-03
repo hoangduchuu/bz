@@ -40,6 +40,17 @@
         android:layout_height="wrap_content">
         <include layout="@layout/tuto_content_typing"/>
 
+        <com.ping.android.presentation.view.custom.revealable.RevealableViewRecyclerView
+            android:id="@+id/chat_list_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?backgroundChat"
+            android:clipToPadding="false"
+            android:descendantFocusability="blocksDescendants"
+            android:paddingBottom="20dp"
+            android:scrollbars="none"
+            tools:listitem="@layout/item_chat_right_msg" />
+
     </RelativeLayout>
 
 </RelativeLayout>

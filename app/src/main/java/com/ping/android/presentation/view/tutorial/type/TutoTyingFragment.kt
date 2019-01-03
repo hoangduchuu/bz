@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.ping.android.R
 import com.ping.android.presentation.view.custom.EmojiGifEditText
@@ -19,7 +20,6 @@ import com.ping.android.utils.KeyboardHelpers
 import com.ping.android.utils.Log
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.view_tutorial_input_chat_bottom_typing.*
-import kotlinx.android.synthetic.main.view_tutorial_input_chat_bottom_typing.tgMarkStatus
 import javax.inject.Inject
 
 /**
@@ -55,6 +55,7 @@ class TutoTyingFragment : BaseFragment(), TutoTypingContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
+        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

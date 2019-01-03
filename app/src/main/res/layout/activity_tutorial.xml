@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.ping.android.presentation.view.tutorial.activity.TutorialActivity">
@@ -33,6 +35,7 @@
 
     <androidx.viewpager.widget.ViewPager
         android:layout_below="@id/appBar"
+        android:windowSoftInputMode="adjustResize"
         android:id="@+id/viewpager"
         tools:background="@color/green"
         android:layout_width="match_parent"
