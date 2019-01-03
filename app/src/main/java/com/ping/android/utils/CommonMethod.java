@@ -129,10 +129,10 @@ public class CommonMethod {
      * <p/>
      *
      * <pre>
-     * // get Iterator of Strings (&quot;abc&quot;,&quot;def&quot;,&quot;123&quot;);
+     * // get Iterator of Strings (&quot;getPeopleEmoji&quot;,&quot;def&quot;,&quot;123&quot;);
      * Iterator i = getIterator();
      * out.print(TextUtils.join(&quot;, &quot;, i));
-     * // prints: &quot;abc, def, 123&quot;
+     * // prints: &quot;getPeopleEmoji, def, 123&quot;
      * </pre>
      *
      * @param glue Token to place between Strings.

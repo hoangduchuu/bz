@@ -7,7 +7,8 @@
     android:layout_height="wrap_content"
     android:background="@color/main_background_gray"
     android:elevation="10dp"
-    tools:background="@color/white">
+    tools:background="@color/white"
+    tools:ignore="MissingDefaultResource">
 
     <ImageButton
         android:id="@+id/tgMarkStatus"

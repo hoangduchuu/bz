@@ -48,7 +48,7 @@ public final class TicTacToeGame {
     // Cache of previously calculated scores
     public final ArrayMap<String, Integer> SCORE_CACHE = new ArrayMap<>();
 
-    // Mapping of grid indices to their x,y coordinates
+    // EmojiMapper of grid indices to their x,y coordinates
     private static final int[][] COORDINATES_MAPPING = {
             new int[] {0, 0},
             new int[] {1, 0},
@@ -61,7 +61,7 @@ public final class TicTacToeGame {
             new int[] {2, 2}
     };
 
-    // Mapping of coordinates to indices
+    // EmojiMapper of coordinates to indices
     private static final int[][] INDEX_MAPPING = {
             new int[] {0, 1, 2},
             new int[] {3, 4, 5},
