@@ -87,6 +87,8 @@ class TutoTyingFragment : BaseFragment(), TutoTypingContract.View {
 
         edMessage = edt_emoji_msg
 
+        originalText = context?.resources?.getString(R.string.content_demo_messages)!!
+
 
         tgMarkStatus.isSelected = false
         updateMaskTintColor(tgMarkStatus.isSelected)

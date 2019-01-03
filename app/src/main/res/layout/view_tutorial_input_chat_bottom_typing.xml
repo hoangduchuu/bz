@@ -42,6 +42,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_send"
         app:layout_constraintStart_toEndOf="@+id/tgMarkStatus"
         app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/content_demo_messages"
         tools:text="">
 
         <requestFocus />
