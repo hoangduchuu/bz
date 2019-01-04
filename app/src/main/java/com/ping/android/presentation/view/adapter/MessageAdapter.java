@@ -21,6 +21,7 @@ import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.presentation.view.customView.CustomFontTextView;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.DateUtils;
 import com.ping.android.utils.UiUtils;
 import com.ping.android.utils.configs.Constant;
 
@@ -375,7 +376,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         public void bindData(Conversation model, Map<String, String> mappings, boolean isSelected) {
             this.conversation = model;
             this.tvSender.setText(model.conversationName);
-            this.tvTime.setText(getDisplayTime(model.timesstamps));
+            this.tvTime.setText(DateUtils.convertTimestampToDate2(model.timesstamps));
             String message = "";
 
             switch (model.type) {

@@ -361,7 +361,7 @@ public class CallAdapter extends RecyclerView.Adapter<CallAdapter.ViewHolder> {
                 setInfoColor(Constant.CALL_STATUS_MISS);
             }
 
-            String time = info + DateUtils.convertTimestampToTime(call.timestamp);
+            String time = info + DateUtils.convertTimestampToDate2(call.timestamp);
             tvInfo.setText(time);
             tvName.setText(call.opponentName);
             setEditMode(isEditMode);

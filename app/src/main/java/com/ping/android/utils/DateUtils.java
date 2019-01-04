@@ -38,6 +38,26 @@ public class DateUtils {
         }
     }
 
+    /**
+     *
+     * @param seconds
+     * @return TIME IN STRING FORMAT TO MATCH ADR-370
+     */
+    public static String convertTimestampToDate2(double seconds) {
+        long milliSeconds = (long) (seconds * 1000);
+        long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
+        long days = (long)(milliSeconds / Constant.MILLISECOND_PER_DAY);
+        if (currentDays == days) {
+            return toString("h:mm a", seconds);
+        } else if (currentDays - days == 1) {
+            return "Yesterday";
+        } else if (currentDays - days <= 7) {
+            return toString("EEE", seconds);
+        } else {
+            return toString("MMM dd, yyyy", seconds);
+        }
+    }
+
     public static String convertTimestampToTime(double seconds) {
         long milliSeconds = (long) (seconds * 1000);
         long currentDays = (long)(new Date().getTime() / Constant.MILLISECOND_PER_DAY);
