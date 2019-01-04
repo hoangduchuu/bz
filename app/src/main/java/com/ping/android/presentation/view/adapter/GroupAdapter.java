@@ -221,7 +221,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             }
             tvGroupMember.setText(TextUtils.join(", ", displayNames));
             ivProfileImage.setTransitionName("imageProfile" + getAdapterPosition());
-            String time = "Created: " + DateUtils.convertTimestampToDate2(group.timestamp);
+            String time =  DateUtils.convertTimestampToDate2(group.timestamp);
             tvCreateTime.setText(time);
             if (TextUtils.isEmpty(group.groupAvatar)) {
                 ivProfileImage.setImageResource(R.drawable.ic_avatar_gray);
