@@ -269,8 +269,6 @@ public class Conversation implements Parcelable {
         result.put("memberIDs", memberIDs);
         result.put("markStatuses", markStatuses);
         result.put("readStatuses", readStatuses);
-        result.put("deleteStatuses", deleteStatuses);
-        result.put("deleteTimestamps", deleteTimestamps);
         result.put("notifications", notifications);
         result.put("maskMessages", maskMessages);
         result.put("puzzleMessages", puzzleMessages);
@@ -300,8 +298,6 @@ public class Conversation implements Parcelable {
         result.put("memberIDs", memberIDs);
         result.put("markStatuses", markStatuses);
         result.put("readStatuses", readStatuses);
-        result.put("deleteStatuses", deleteStatuses);
-        result.put("deleteTimestamps", deleteTimestamps);
         result.put("notifications", notifications);
         result.put("maskMessages", maskMessages);
         result.put("puzzleMessages", puzzleMessages);
