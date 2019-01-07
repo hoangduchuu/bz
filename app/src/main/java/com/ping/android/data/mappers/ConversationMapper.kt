@@ -14,7 +14,6 @@ class ConversationMapper @Inject constructor() {
         val conversation = dataSnapshot.getValue(Conversation::class.java)!!
         conversation.key = dataSnapshot.key
         conversation.currentUserId = user.key
-        conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, user.key)
         conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, user.key)
         conversation.currentColor = conversation.getColor(user.key)
         val maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, user.key)
@@ -29,7 +28,6 @@ class ConversationMapper @Inject constructor() {
         val conversation = dataSnapshot.getValue(Conversation::class.java)!!
         conversation.key = dataSnapshot.key
         conversation.currentUserId = userKey
-        conversation.deleteTimestamp = CommonMethod.getDoubleFrom(conversation.deleteTimestamps, userKey)
         conversation.isRead = CommonMethod.getBooleanFrom(conversation.readStatuses, userKey)
         conversation.currentColor = conversation.getColor(userKey)
         val maskStatus = CommonMethod.getBooleanFrom(conversation.markStatuses, userKey)

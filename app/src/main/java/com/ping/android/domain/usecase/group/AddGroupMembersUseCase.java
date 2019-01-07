@@ -48,7 +48,6 @@ public class AddGroupMembersUseCase extends UseCase<List<User>, AddGroupMembersU
             group.deleteStatuses.put(userId, null);
         }
         conversation.memberIDs = group.memberIDs;
-        conversation.deleteStatuses = group.deleteStatuses;
         // Update group
 //        updateValue.put(String.format("groups/%s", group.key), group.toMap());
 //        updateValue.put(String.format("conversations/%s/memberIDs", conversation.key), conversation.memberIDs);
@@ -56,7 +55,6 @@ public class AddGroupMembersUseCase extends UseCase<List<User>, AddGroupMembersU
         for (String userId: oldGroupMembers.keySet()) {
             updateValue.put(String.format("groups/%s/%s", userId, group.key), group.toMap());
             updateValue.put(String.format("conversations/%s/%s/memberIDs", userId, conversation.key), conversation.memberIDs);
-            updateValue.put(String.format("conversations/%s/%s/deleteStatuses", userId, conversation.key), conversation.deleteStatuses);
         }
         // Create conversation for new member with empty message
         conversation.message = "";

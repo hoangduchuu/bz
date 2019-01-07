@@ -3,9 +3,11 @@ package com.ping.android.data.repository;
 import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
@@ -18,6 +20,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Observable;
 
 /**
@@ -218,5 +221,34 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         DatabaseReference reference = database.getReference(CHILD_CONVERSATION).child(userId).child(conversationId);
         return RxFirebaseDatabase.updateBatchData(reference, values)
                 .toObservable();
+    }
+
+
+    @Override
+    public Observable<Double> getDeleteMessageTimeStamp(String userId, String conversationId) {
+        Query query = database.getReference("conversation_delete_time")
+                .child(userId)
+                .child(conversationId);
+        return Observable.create(emitter -> {
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()) {
+                        emitter.onNext(0.0);
+                    } else {
+                        double time = (double) dataSnapshot.getValue();
+                        emitter.onNext(time);
+                    }
+
+                    emitter.onComplete();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    emitter.onNext(0.0);
+                    emitter.onComplete();
+                }
+            });
+        });
     }
 }
