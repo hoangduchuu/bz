@@ -54,7 +54,7 @@ public class DateUtils {
         } else if (currentDays - days <= 7) {
             return toString("EEE", seconds).replace(".","");
         } else {
-            return toString("MMM dd, yyyy", seconds).replace(".","");
+            return toString("MMM d, yyyy", seconds).replace(".","");
         }
     }
 
