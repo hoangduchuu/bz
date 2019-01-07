@@ -786,7 +786,9 @@ public class ChatPresenterImpl implements ChatPresenter {
                 .execute(new DefaultObserver<Conversation>() {
                              @Override
                              public void onNext(Conversation conv) {
+                                 conv.deleteTimestamp  = conversation.timesstamps;
                                  conversation = conv;
+
                              }
                          },
                         new ObserveConversationValueFromExistsConversationUseCase.Params(conversation, currentUser));

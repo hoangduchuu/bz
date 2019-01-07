@@ -66,6 +66,7 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                             .doOnNext(aBoolean -> {
                                 for (Conversation conversation : conversations) {
                                     messageRepository.deleteCacheMessages(conversation.key);
+                                    userManager.removeConversation(conversation.key);
                                 }
                             });
                 });
