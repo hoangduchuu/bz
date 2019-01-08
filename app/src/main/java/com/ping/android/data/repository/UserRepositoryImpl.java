@@ -250,8 +250,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey) {
-        DatabaseReference databaseReference = database.getReference("users")
-                .child(userKey).child("badges");
+        DatabaseReference databaseReference = database.getReference("conversation_badge")
+                .child(userKey);
         return RxFirebaseDatabase.getInstance(databaseReference)
                 .onValueEvent()
                 .map(dataSnapshot -> {
@@ -264,8 +264,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<ChildData<Badge>> observeBadgeCountChildEvent(@NotNull String userKey) {
-        DatabaseReference databaseReference = database.getReference("users")
-                .child(userKey).child("badges");
+        DatabaseReference databaseReference = database.getReference("conversation_badge")
+                .child(userKey);
         return RxFirebaseDatabase.getInstance(databaseReference)
                 .onChildEvent()
                 .map(childEvent -> {
@@ -390,8 +390,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Boolean> removeUserBadge(String userId, String key) {
-        DatabaseReference databaseReference = database.getReference("users")
-                .child(userId).child("badges").child(key);
+        DatabaseReference databaseReference = database.getReference("conversation_badge")
+                .child(userId).child(key);
         return RxFirebaseDatabase.setValue(databaseReference, null)
                 .map(databaseReference1 -> true)
                 .toObservable();
@@ -446,12 +446,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Observable<Integer> readBadgeNumbers(String userId) {
-        final DatabaseReference userBadgesRef = database.getReference("users").child(userId).child("badges");
+        final DatabaseReference userBadgesRef = database.getReference("conversation_badge").child(userId);
         userBadgesRef.keepSynced(true);
-        DatabaseReference refreshMockReference = database.getReference("users").child(userId).child("badges")
-                .child("refreshMock");
-        return RxFirebaseDatabase.setValue(refreshMockReference, 0)
-                .flatMap(databaseReference -> RxFirebaseDatabase.getInstance(userBadgesRef)
+        return RxFirebaseDatabase.getInstance(userBadgesRef)
                         .onSingleValueEvent()
                         .map(dataSnapshot -> {
                             Map<String, Long> badges = (Map<String, Long>) dataSnapshot.getValue();
@@ -461,14 +458,13 @@ public class UserRepositoryImpl implements UserRepository {
                                 result += entry.getValue();
                             }
                             return result;
-                        })
-                ).toObservable();
+                        }).toObservable();
     }
 
     @Override
     public Observable<Boolean> increaseBadgeNumber(String userId, String key) {
         return Observable.create(emitter -> {
-            final DatabaseReference userBadgesRef = database.getReference("users").child(userId).child("badges").child(key);
+            final DatabaseReference userBadgesRef = database.getReference("conversation_badge").child(userId).child(key);
             userBadgesRef.runTransaction(new Transaction.Handler() {
                 @Override
                 public Transaction.Result doTransaction(MutableData mutableData) {
