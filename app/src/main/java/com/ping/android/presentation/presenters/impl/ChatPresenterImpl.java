@@ -1,5 +1,6 @@
 package com.ping.android.presentation.presenters.impl;
 
+import android.app.Activity;
 import android.text.TextUtils;
 
 import com.bzzzchat.cleanarchitecture.DefaultObserver;
@@ -43,6 +44,7 @@ import com.ping.android.domain.usecase.message.UpdateMaskMessagesUseCase;
 import com.ping.android.domain.usecase.message.UpdateMessageStatusUseCase;
 import com.ping.android.domain.usecase.notification.SendMessageNotificationUseCase;
 import com.ping.android.domain.usecase.user.CheckPasswordUseCase;
+import com.ping.android.domain.usecase.user.ObserveBadgeCountUseCase;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.Message;
@@ -52,9 +54,13 @@ import com.ping.android.model.enums.GameType;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.model.enums.VoiceType;
 import com.ping.android.presentation.presenters.ChatPresenter;
+import com.ping.android.presentation.view.activity.ChatActivity;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageBaseItem;
 import com.ping.android.presentation.view.flexibleitem.messages.MessageHeaderItem;
+import com.ping.android.utils.ActivityLifecycle;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.bus.BusProvider;
+import com.ping.android.utils.bus.events.BadgeCountUpdateEvent;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -154,6 +160,8 @@ public class ChatPresenterImpl implements ChatPresenter {
 
     // TODO need time to create Usecase to execute FaceIdStatusRepository in stead call directly repository over here!
 
+    @Inject
+    ObserveBadgeCountUseCase observeBadgeCountUseCase;
 
     @Inject
     CheckPasswordUseCase checkPasswordUseCase;
@@ -163,6 +171,10 @@ public class ChatPresenterImpl implements ChatPresenter {
     ObserveUserStatusUseCase observeUserStatusUseCase;
     // endregion
     Conversation conversation;
+
+
+    @Inject
+    BusProvider busProvider;
 
     /**
      * Collections that contains new message update when chat screen come background
@@ -1011,21 +1023,42 @@ public class ChatPresenterImpl implements ChatPresenter {
     }
 
     private void updateUnreadMessageCount() {
-        if (currentUser.badges != null) {
-            Map<String, Integer> stringMap = new HashMap<>(currentUser.badges);
-            stringMap.remove("refreshMock");
-            stringMap.remove("missed_call");
-            int messageCount = 0;
-            Number count = 0;
-            for (String key : stringMap.keySet()) {
-                if (conversation != null && key.equals(conversation.key)) {
-                    continue;
+        // huulog unBad usecase overhere
+
+        observeBadgeCountUseCase.execute(new DefaultObserver<Map<String, ? extends Integer>>() {
+            @Override
+            public void onNext(Map<String, ? extends Integer> stringMap) {
+                if (stringMap.containsKey("refreshMock")) {
+                    stringMap.remove("refreshMock");
                 }
-                count = stringMap.get(key);
-                messageCount += count.intValue();
+                Number missedCall = 0;
+                if (stringMap.containsKey("missed_call")) {
+                    missedCall = stringMap.get("missed_call");
+                }
+                stringMap.remove("missed_call");
+                int messageCount = 0;
+                Number count = 0;
+                String currentChat = "";
+                Activity activity = ActivityLifecycle.getInstance().getForegroundActivity();
+                if (activity instanceof ChatActivity) {
+                    currentChat = ((ChatActivity)activity).getConversationId();
+                }
+                stringMap.remove(currentChat);
+                for (String key : stringMap.keySet()) {
+                    count = stringMap.get(key);
+                    messageCount += count.intValue();
+                }
+                busProvider.post(new BadgeCountUpdateEvent(new HashMap<>(stringMap), messageCount, missedCall.intValue()));
+                view.updateUnreadMessageCount(messageCount);
+
             }
-            view.updateUnreadMessageCount(messageCount);
-        }
+
+            @Override
+            public void onError(@NotNull Throwable exception) {
+                exception.printStackTrace();
+            }
+        }, new Object());
+
     }
 
 
