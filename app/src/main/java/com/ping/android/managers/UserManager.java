@@ -143,6 +143,10 @@ public class UserManager {
         conversationMap.put(conversation.key, conversation);
     }
 
+    public void removeConversation(String conversationKey){
+        conversationMap.remove(conversationKey);
+    }
+
     @NotNull
     public void userUpdated(@NotNull User opponentUser) {
         String conversationID = user.key.compareTo(opponentUser.key) > 0 ? user.key + opponentUser.key : opponentUser.key + user.key;

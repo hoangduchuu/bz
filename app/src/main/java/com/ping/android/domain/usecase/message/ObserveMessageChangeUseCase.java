@@ -116,15 +116,7 @@ public class ObserveMessageChangeUseCase extends UseCase<ChildData<Message>, Obs
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(currentUser.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
+        return conversation.deleteTimestamp;
     }
 
     public static class Params {

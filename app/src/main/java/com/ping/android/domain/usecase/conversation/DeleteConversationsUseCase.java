@@ -48,9 +48,13 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                     for (Conversation conversation : conversations) {
                         //updateValue.put(String.format("conversations/%s/deleteStatuses/%s", conversation.key, opponentUser.key), true);
                         //updateValue.put(String.format("conversations/%s/deleteTimestamps/%s", conversation.key, opponentUser.key), timestamp);
+                        updateValue.put(String.format("conversation_delete_time/%s/%s",user.key,conversation.key), timestamp);
+                        updateValue.put(String.format("conversations/%s/%s", user.key, conversation.key), null);
+
                         for (String userId : conversation.memberIDs.keySet()) {
-                            updateValue.put(String.format("conversations/%s/%s/deleteStatuses/%s", userId, conversation.key, user.key), true);
-                            updateValue.put(String.format("conversations/%s/%s/deleteTimestamps/%s", userId, conversation.key, user.key), timestamp);
+                            if (userId.equals(user.key)){
+                                continue;
+                            }
                             // Reset conversation setting
                             updateValue.put(String.format("conversations/%s/%s/notifications/%s", userId, conversation.key, user.key), true);
                             updateValue.put(String.format("conversations/%s/%s/maskMessages/%s", userId, conversation.key, user.key), false);
@@ -62,6 +66,7 @@ public class DeleteConversationsUseCase extends UseCase<Boolean, List<Conversati
                             .doOnNext(aBoolean -> {
                                 for (Conversation conversation : conversations) {
                                     messageRepository.deleteCacheMessages(conversation.key);
+                                    userManager.removeConversation(conversation.key);
                                 }
                             });
                 });

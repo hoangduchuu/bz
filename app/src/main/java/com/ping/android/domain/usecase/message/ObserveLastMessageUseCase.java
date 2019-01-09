@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.MessageMapper;
+import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.domain.repository.MessageRepository;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -34,6 +35,9 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
     UserManager userManager;
     @Inject
     MessageMapper messageMapper;
+
+    @Inject
+    ConversationRepository conversationRepository;
 
     User currentUser;
 
@@ -104,15 +108,7 @@ public class ObserveLastMessageUseCase extends UseCase<ChildData<Message>, Obser
     }
 
     private Double getLastDeleteTimeStamp(Conversation conversation) {
-        if (conversation.deleteTimestamps == null || !conversation.deleteTimestamps.containsKey(currentUser.key)) {
-            return 0.0d;
-        }
-        Object value = conversation.deleteTimestamps.get(currentUser.key);
-        if (value instanceof Long) {
-            return ((Long) value).doubleValue();
-        } else {
-            return (Double) value;
-        }
+     return conversation.deleteTimestamp;
     }
 
     public static class Params {

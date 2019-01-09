@@ -48,9 +48,11 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.getMessageStatus(params.conversationId, params.messageId, user.key)
                         .map(messageStatus -> {
-                            if ( (messageStatus == Constant.MESSAGE_STATUS_HIDE || messageStatus != Constant.MESSAGE_STATUS_READ ) && !isSent.get()) {
-                                isSent.set(true);
-                                notification.showMessageNotification(user, params.message, params.conversationId, params.senderProfile, params.badgeCount);
+                            if (messageStatus != Constant.MESSAGE_STATUS_READ ) {
+                                if (!isSent.get()) {
+                                    isSent.set(true);
+                                    notification.showMessageNotification(user, params.message, params.conversationId, params.senderProfile, params.badgeCount);
+                                }
                                 return true;
                             }
                             return false;
