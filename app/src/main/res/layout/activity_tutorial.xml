@@ -42,6 +42,19 @@
         android:layout_height="match_parent">
     </androidx.viewpager.widget.ViewPager>
 
+    <Button
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:id="@+id/btnFinishTutorial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="60dp"
+        android:layout_margin="30dp"
+        android:backgroundTint="@color/orange"
+        android:text="@string/getting_started"
+        android:layout_alignParentBottom="true" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_alignParentBottom="true"
