@@ -72,7 +72,7 @@
         </receiver>
 
         <activity
-            android:name=".presentation.view.tutorial.activity.TutorialActivity"
+            android:name=".presentation.view.activity.SplashActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -250,7 +250,7 @@
                 android:resource="@xml/video_provider_paths" />
         </provider>
 
-        <activity android:name=".presentation.view.activity.SplashActivity" />
+        <activity android:name=".presentation.view.tutorial.activity.TutorialActivity" />
     </application>
 
 </manifest>

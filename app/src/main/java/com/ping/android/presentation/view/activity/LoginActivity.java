@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputLayout;
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.LoginPresenter;
+import com.ping.android.presentation.view.tutorial.activity.TutorialActivity;
 import com.ping.android.utils.BzzzLeftDrawableClickHelper;
 import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
@@ -153,7 +154,7 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
 
     @Override
     public void navigateToMainScreen() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, TutorialActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         //finish();

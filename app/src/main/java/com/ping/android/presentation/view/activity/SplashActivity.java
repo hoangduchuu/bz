@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.SplashPresenter;
+import com.ping.android.presentation.view.tutorial.activity.TutorialActivity;
 
 import javax.inject.Inject;
 
@@ -49,7 +50,7 @@ public class SplashActivity extends CoreActivity implements SplashPresenter.View
     @Override
     public void navigateToMainScreen() {
         Intent intent;
-        intent = new Intent(SplashActivity.this, MainActivity.class);
+        intent = new Intent(SplashActivity.this, TutorialActivity.class);
         startActivity(intent);
         finish();
     }
