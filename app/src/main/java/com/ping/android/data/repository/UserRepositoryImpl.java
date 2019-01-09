@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.data.mappers.CallEntityMapper;
@@ -444,21 +445,42 @@ public class UserRepositoryImpl implements UserRepository {
                 .toObservable();
     }
 
+    /**
+     *
+     * @param userId
+     * @return number of current badges count
+     *
+     * NOTE: if badges-count-key is not available, we set badges-count-value to zero
+     */
     @Override
     public Observable<Integer> readBadgeNumbers(String userId) {
         final DatabaseReference userBadgesRef = database.getReference("conversation_badge").child(userId);
         userBadgesRef.keepSynced(true);
-        return RxFirebaseDatabase.getInstance(userBadgesRef)
-                        .onSingleValueEvent()
-                        .map(dataSnapshot -> {
-                            Map<String, Long> badges = (Map<String, Long>) dataSnapshot.getValue();
-                            int result = 0;
-                            for (Map.Entry<String, Long> entry : badges.entrySet()
-                                    ) {
-                                result += entry.getValue();
-                            }
-                            return result;
-                        }).toObservable();
+        return Observable.create(emitter ->
+                userBadgesRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            emitter.onNext(0);
+                            emitter.onComplete();
+                            return;
+                        }
+                        Map<String, Long> badges = (Map<String, Long>) dataSnapshot.getValue();
+                        int result = 0;
+                        assert badges != null;
+                        for (Map.Entry<String, Long> entry : badges.entrySet()) {
+                            result += entry.getValue();
+                        }
+                        emitter.onNext(result);
+                        emitter.onComplete();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        emitter.onNext(0);
+                        emitter.onComplete();
+                    }
+                }));
     }
 
     @Override
