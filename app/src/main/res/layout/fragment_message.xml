@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/main_background_gray"
     android:clickable="true"
     android:focusable="true"
@@ -37,6 +38,19 @@
             android:layout_centerVertical="true"
             android:text="DELETE"
             android:visibility="gone" />
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/tutorial_dot_1_newchat"
+            style="@style/TutorialDotStyle"
+            android:layout_width="@dimen/dot_size"
+            android:layout_marginRight="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/_4sdp"
+            tools:background="@color/red"
+            android:layout_height="@dimen/dot_size"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:layout_alignParentEnd="true"
+            app:SpinKit_Color="#ffbb5b" />
     </RelativeLayout>
 
     <LinearLayout style="@style/SearchLayout">

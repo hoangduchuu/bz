@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tutorial_title">TUTORIAL</string>
+    <string name="sender_name">Bzzz Support</string>
+    <string name="online">Online</string>
+    <string name="content_messages"><![CDATA[Welcome & thank you for supporting Bzzz. Please contact us @ social@bzzz.chat if you have any quesitons or feedback. Follow us on Instagram & Facebook: @bzzzchat for updates.]]></string>
+    <string name="tap_bubble">Double Tap\nChat Bubble</string>
+    <string name="shake_you_phone"><![CDATA[Shake Your \n Phone]]></string>
+    <string name="or">OR</string>
+    <string name="today_timestamp">Today, 10:00 AM</string>
+    <string name="tab_show_icon">Tap Shown Icon \n Below To Activate</string>
+    <string name="hold_voice">Hold Down For Record \nSlide Down For Voice Charger</string>
+    <string name="content_demo_messages">This is pretty cool isn’t it?</string>
+    <string name="getting_started">Got It!</string>
+
+
+</resources>

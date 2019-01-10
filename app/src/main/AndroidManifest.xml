@@ -73,9 +73,9 @@
 
         <activity
             android:name=".presentation.view.activity.SplashActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme.Fullscreen">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -249,6 +249,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/video_provider_paths" />
         </provider>
+
+        <activity android:name=".presentation.view.tutorial.activity.TutorialActivity" />
     </application>
 
 </manifest>

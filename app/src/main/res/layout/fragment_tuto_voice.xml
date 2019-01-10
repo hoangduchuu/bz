@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="?backgroundChat"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/_appbar"
+        android:id="@+id/tv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:textColor="@color/text_color_grey"
+        android:text="@string/today_timestamp" />
+
+    <include layout="@layout/view_tutorial_chat_top"
+        android:id="@+id/_appbar" />
+
+    <include layout="@layout/item_tutorial_chat_left_msg"
+        android:layout_marginTop="30dp"
+        android:id="@+id/_msg"
+        android:layout_below="@+id/_appbar"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" />
+    <include
+        layout="@layout/view_tutorial_input_chat_bottom_voice_icon"
+        android:layout_width="match_parent"
+        android:id="@+id/_input"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+    <RelativeLayout
+        android:layout_below="@id/_msg"
+        android:layout_above="@id/_input"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include layout="@layout/tuto_content_voice"/>
+    </RelativeLayout>
+
+</RelativeLayout>

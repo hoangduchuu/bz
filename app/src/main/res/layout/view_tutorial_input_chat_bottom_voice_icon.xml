@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_layout_chat"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/main_background_gray"
+    android:elevation="10dp"
+    tools:background="@color/white">
+
+    <ImageButton
+        android:id="@+id/tgMarkOut"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/toggle_mask_msg"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_message_tv"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.ping.android.presentation.view.custom.EmojiGifEditText
+        android:id="@+id/chat_message_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:background="@null"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:hint="@string/hint_bzzz"
+        android:inputType="textCapSentences|textFilter|textMultiLine|textAutoCorrect"
+        android:maxLines="5"
+        android:scrollHorizontally="false"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/text_size_medium"
+        app:layout_constraintEnd_toStartOf="@+id/btn_send"
+        app:layout_constraintStart_toEndOf="@+id/tgMarkOut"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="">
+
+        <requestFocus />
+    </com.ping.android.presentation.view.custom.EmojiGifEditText>
+
+    <ImageButton
+        android:id="@+id/chat_emoji_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/button_ripple"
+        android:focusable="true"
+        android:minHeight="36dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_emoji_selector"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_message_tv"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/chat_camera_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/button_ripple"
+        android:focusable="true"
+        android:minHeight="36dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_camera_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/chat_game_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_image_btn" />
+
+    <ImageButton
+        android:id="@+id/chat_image_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/button_ripple"
+        android:focusable="true"
+        android:minHeight="36dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_picture_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/chat_camera_btn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_emoji_btn" />
+
+    <ImageButton
+        android:id="@+id/chat_game_btn"
+        style="?attr/backgroundTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="22dp"
+        android:background="@drawable/button_ripple"
+        android:focusable="true"
+        android:minHeight="36dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:scaleType="center"
+        android:src="@drawable/chat_game_selector"
+        app:layout_constraintBottom_toBottomOf="@+id/chat_emoji_btn"
+        app:layout_constraintEnd_toStartOf="@+id/btn_send"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/chat_camera_btn" />
+
+    <ImageView
+        android:id="@+id/btn_send"
+        style="?attr/backgroundTheme"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_chat_record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.04000002" />
+
+    <TextView
+        android:id="@+id/instruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/button"
+        android:layout_width="52dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/ic_chat_record_black_grey"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chat_camera_btn"
+        app:layout_constraintVertical_bias="1.0" />
+</androidx.constraintlayout.widget.ConstraintLayout>

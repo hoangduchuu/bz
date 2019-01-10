@@ -19,8 +19,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
+import com.ping.android.data.repository.TutorialHelper;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.Group;
 import com.ping.android.model.enums.NetworkStatus;
@@ -58,9 +60,13 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     private ImageView btnNewMessage;
     private MessageAdapter adapter;
     private boolean isEditMode;
+    private SpinKitView tutoView;
     //private boolean isScrollToTop = false;
 
     private SharedPreferences prefs;
+
+    @Inject
+    TutorialHelper tutorialHelper;
 
     @Inject
     ConversationListPresenter presenter;
@@ -73,6 +79,16 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         AndroidSupportInjection.inject(this);
         presenter.create();
         listenTransphabetChanged();
+    }
+
+    private void setupTutorial() {
+        if (!tutorialHelper.isTutorial01NewChatIconClicked()){
+            tutoView.setVisibility(View.VISIBLE);
+        }else {
+            tutoView.setVisibility(View.GONE);
+
+        }
+
     }
 
     @Override
@@ -89,6 +105,7 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
     public void onResume() {
         super.onResume();
         updateUnreadNumber();
+        setupTutorial();
     }
 
     @Override
@@ -102,6 +119,9 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         switch (view.getId()) {
             case R.id.message_add:
                 onNewChat();
+                if (!tutorialHelper.isTutorial01NewChatIconClicked()){
+                    tutorialHelper.markTutorial01NewChatClicked();
+                }
                 break;
             case R.id.message_edit:
                 onEdit();
@@ -141,6 +161,10 @@ public class ConversationFragment extends BaseFragment implements View.OnClickLi
         btnDeleteMessage.setOnClickListener(this);
         btnNewMessage = view.findViewById(R.id.message_add);
         btnNewMessage.setOnClickListener(this);
+        tutoView = view.findViewById(R.id.tutorial_dot_1_newchat);
+
+        setupTutorial();
+
     }
 
     private void bindData() {

@@ -12,8 +12,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.ping.android.R;
+import com.ping.android.data.repository.TutorialHelper;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ContactPresenter;
 import com.ping.android.presentation.view.activity.AddContactActivity;
@@ -33,9 +35,13 @@ public class ContactFragment extends BaseFragment
     private LinearLayoutManager mLinearLayoutManager;
     private EditText searchView;
     private ContactAdapter adapter;
+    private SpinKitView tutoView;
 
     @Inject
     ContactPresenter presenter;
+
+    @Inject
+    TutorialHelper tutorialHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,12 @@ public class ContactFragment extends BaseFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setupTutorial();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
     }
@@ -69,6 +81,9 @@ public class ContactFragment extends BaseFragment
         switch (view.getId()) {
             case R.id.contact_add:
                 onAddContact(view);
+                if (!tutorialHelper.isTutorial03AddFriendCLicked()){
+                    tutorialHelper.markTutorial03AddFriendCLicked();
+                }
                 break;
         }
     }
@@ -116,6 +131,8 @@ public class ContactFragment extends BaseFragment
         rvListContact = view.findViewById(R.id.contact_recycle_view);
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         searchView = view.findViewById(R.id.contact_search_view);
+        tutoView = view.findViewById(R.id.tutorial_dot_3);
+        setupTutorial();
     }
 
     private void init() {
@@ -160,5 +177,15 @@ public class ContactFragment extends BaseFragment
     @Override
     public void openCallScreen(User currentUser, User otherUser, boolean isVideo) {
         CallActivity.start(getContext(), currentUser, otherUser, isVideo);
+    }
+
+
+    private void setupTutorial() {
+        if (!tutorialHelper.isTutorial03AddFriendCLicked()){
+            tutoView.setVisibility(View.VISIBLE);
+        }else {
+            tutoView.setVisibility(View.GONE);
+
+        }
     }
 }

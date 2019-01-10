@@ -33,10 +33,12 @@ import com.bzzzchat.extensions.px
 import com.bzzzchat.videorecorder.view.*
 import com.bzzzchat.videorecorder.view.facerecognition.HiddenCamera
 import com.bzzzchat.videorecorder.view.facerecognition.RecognitionCallback
+import com.github.ybq.android.spinkit.SpinKitView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 import com.ping.android.R
 import com.ping.android.data.repository.FaceIdStatusRepository
+import com.ping.android.data.repository.TutorialHelper
 import com.ping.android.device.hiddenCameraEvent.HiddenCameraListener
 import com.ping.android.device.hiddenCameraEvent.PhoneDegreeManager
 import com.ping.android.device.impl.ShakeEventManager
@@ -101,6 +103,7 @@ class ChatActivity : CoreActivity(),
     private var tvNewMsgCount: TextView? = null
     private var btnSend: ImageView? = null
     private var faceIdIndicator : FaceRecognizeIndicator ? = null
+    private var tutoView : SpinKitView? = null
 
     /**
      * state of face recognize is enable or not
@@ -126,6 +129,10 @@ class ChatActivity : CoreActivity(),
 
     @Inject
     lateinit var faceIdStatusRepository: FaceIdStatusRepository
+
+
+    @Inject
+    lateinit var tutorialHelper: TutorialHelper
 
     private val chatGameMenu: BottomSheetDialog by lazy {
         // Bottom chat menu
@@ -283,6 +290,8 @@ class ChatActivity : CoreActivity(),
         resetButtonState()
         hideAllBottomViews()
         isScreenVisible = true
+
+        setupTutorial()
     }
 
     override fun onStop() {
@@ -338,7 +347,12 @@ class ChatActivity : CoreActivity(),
     override fun onClick(view: View) {
         val viewId = view.id
         when (viewId) {
-            R.id.chat_header_center, R.id.chat_person_name -> onOpenProfile()
+            R.id.chat_header_center, R.id.chat_person_name ->{
+                onOpenProfile()
+                if (!tutorialHelper.isTutorial07ChatNameClicked()){
+                    tutorialHelper.markTutorial07ChatNameClicked();
+                }
+            }
             R.id.chat_back -> onExitChat()
             R.id.chat_camera_btn -> {
                 setButtonsState(viewId)
@@ -576,6 +590,7 @@ class ChatActivity : CoreActivity(),
         btnMask = findViewById(R.id.chat_mask)
         btnUnmask = findViewById(R.id.chat_unmask)
         btnDelete = findViewById(R.id.btn_delete_messages)
+        tutoView = findViewById(R.id.tutorial_dot_7_name)
 
         tvNewMsgCount = findViewById(R.id.chat_new_message_count)
         val btEmoji = findViewById<ImageButton>(R.id.chat_emoji_btn)
@@ -629,6 +644,8 @@ class ChatActivity : CoreActivity(),
             }
         }
         btEmoji.setOnClickListener(this)
+
+        setupTutorial()
     }
 
     private fun initView() {
@@ -1605,6 +1622,15 @@ class ChatActivity : CoreActivity(),
                     presenter.getUpdatedMessages(it.timestamp)
                 }
             }
+        }
+    }
+
+    private fun setupTutorial() {
+        if (!tutorialHelper.isTutorial07ChatNameClicked()) {
+            tutoView?.visibility = View.VISIBLE
+        } else {
+            tutoView?.visibility = View.GONE
+
         }
     }
 
