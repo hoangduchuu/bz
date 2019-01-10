@@ -42,16 +42,22 @@
         android:layout_height="match_parent">
     </androidx.viewpager.widget.ViewPager>
 
-    <Button
+    <TextView
         android:visibility="gone"
         tools:visibility="visible"
         android:id="@+id/btnFinishTutorial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp"
-        android:layout_margin="30dp"
-        android:backgroundTint="@color/orange"
+        android:layout_marginBottom="30dp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="@dimen/_15sdp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:background="@drawable/button_got_it"
         android:text="@string/getting_started"
         android:layout_alignParentBottom="true" />
 

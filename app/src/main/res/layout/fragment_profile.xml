@@ -131,26 +131,27 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <com.ping.android.presentation.view.custom.SettingItem
                     android:id="@+id/profile_mapping"
                     style="@style/ItemSetting"
+                    android:layout_alignParentStart="true"
                     android:layout_marginTop="@dimen/setting_item_separate"
                     app:leftIcon="@drawable/ic_profile_transphabet"
                     app:showDivider="false"
                     app:titleText="@string/profile_transphabet">
 
-                    <ImageView
-                        style="@style/ItemSettingIconRight" />
+                    <ImageView style="@style/ItemSettingIconRight" />
                 </com.ping.android.presentation.view.custom.SettingItem>
                 <com.github.ybq.android.spinkit.SpinKitView
                     android:id="@+id/tutorial_dot_5_tranphabet"
-                    style="@style/SpinKitView.Small.DoubleBounce"
-                    android:layout_width="20dp"
+                    style="@style/TutorialDotStyle"
+                    android:layout_width="@dimen/dot_size"
                     android:layout_centerVertical="true"
-                    android:layout_marginTop="@dimen/_63sdp"
-                    android:layout_marginLeft="@dimen/_11sdp"
+                    android:layout_marginTop="@dimen/_76sdp"
+                    android:layout_marginLeft="@dimen/_117sdp"
                     tools:background="@color/red"
-                    android:layout_height="20dp"
+                    android:layout_height="@dimen/dot_size"
                     android:visibility="gone"
                     tools:visibility="visible"
                     android:layout_gravity="center"
