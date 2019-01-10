@@ -17,6 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.hbb20.CountryCodePicker;
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.AddPhonePresenter;
+import com.ping.android.presentation.view.tutorial.activity.TutorialActivity;
 import com.ping.android.utils.CommonMethod;
 
 import javax.inject.Inject;
@@ -105,7 +106,7 @@ public class PhoneActivity extends CoreActivity implements View.OnClickListener,
                     Toast.makeText(getApplicationContext(), getString(R.string.msg_duplicate_phone), Toast.LENGTH_SHORT).show();
                 } else {
                     presenter.updatePhone(phone);
-                    startActivity(new Intent(PhoneActivity.this, MainActivity.class));
+                    startActivity(new Intent(PhoneActivity.this, TutorialActivity.class));
                     finish();
                 }
             }

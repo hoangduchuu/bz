@@ -148,7 +148,7 @@
                     style="@style/TutorialDotStyle"
                     android:layout_width="@dimen/dot_size"
                     android:layout_centerVertical="true"
-                    android:layout_marginTop="@dimen/_76sdp"
+                    android:layout_marginTop="@dimen/_78sdp"
                     android:layout_marginLeft="@dimen/_117sdp"
                     tools:background="@color/red"
                     android:layout_height="@dimen/dot_size"
