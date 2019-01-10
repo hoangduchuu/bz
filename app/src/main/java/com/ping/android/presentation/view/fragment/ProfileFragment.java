@@ -21,8 +21,10 @@ import android.widget.TextView;
 
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
 import com.bzzzchat.videorecorder.view.facerecognition.FaceTrainingActivity;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.ping.android.R;
 import com.ping.android.data.repository.FaceIdStatusRepository;
+import com.ping.android.data.repository.TutorialHelper;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
@@ -60,12 +62,16 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     private User currentUser;
     private String profileFileName, profileFileFolder, profileFilePath;
     private TextView tvDisplayName;
+    private SpinKitView tutoTranphabet, tutoAvatar;
 
     @Inject
     ProfilePresenter presenter;
 
     @Inject
     FaceIdStatusRepository faceIdStatusRepository;
+
+    @Inject
+    TutorialHelper tutorialHelper;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +89,12 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setupTutorial();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         presenter.destroy();
@@ -96,6 +108,8 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
         rbShowProfile = view.findViewById(R.id.profile_show_profile);
         faceIdSwitch = view.findViewById(R.id.profile_faceid);
         faceTrainingItem = view.findViewById(R.id.profile_face_training);
+        tutoTranphabet = view.findViewById(R.id.tutorial_dot_5_tranphabet);
+        tutoAvatar = view.findViewById(R.id.tutorial_dot_6_avatar);
 
         view.findViewById(R.id.profile_username_detail).setOnClickListener(this);
         view.findViewById(R.id.profile_phone_detail).setOnClickListener(this);
@@ -122,6 +136,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
             setFaceTrainingItemHidden(false);
         }
 
+        setupTutorial();
+    }
+
+    private void setupTutorial() {
+        if (!tutorialHelper.isTutorial05TranPhabetClicked()){
+            tutoTranphabet.setVisibility(View.VISIBLE);
+        }else {
+            tutoTranphabet.setVisibility(View.GONE);
+
+        }
+
+        if (!tutorialHelper.isTutorial06AvatarClicked()){
+            tutoAvatar.setVisibility(View.VISIBLE);
+        }else {
+            tutoAvatar.setVisibility(View.GONE);
+
+        }
     }
 
     private void bindData() {
@@ -144,6 +175,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 break;
             case R.id.profile_mapping:
                 onEditMapping();
+                if (!tutorialHelper.isTutorial05TranPhabetClicked()){
+                    tutorialHelper.markTutorial05TranPhabetClicked();
+                }
                 break;
             case R.id.profile_change_password:
                 onChangePwd();
@@ -162,6 +196,9 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
                 break;
             case R.id.profile_image:
                 onChangeProfile(view);
+                if (!tutorialHelper.isTutorial06AvatarClicked()){
+                    tutorialHelper.markTutorial06AvatarClicked();
+                }
                 break;
             case R.id.profile_notification:
                 onNotificationClick();

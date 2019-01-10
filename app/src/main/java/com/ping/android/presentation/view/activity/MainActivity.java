@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import com.bzzzchat.videorecorder.view.facerecognition.FaceRecognition;
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -24,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ping.android.R;
+import com.ping.android.data.repository.TutorialHelper;
 import com.ping.android.model.Call;
 import com.ping.android.model.enums.Color;
 import com.ping.android.presentation.presenters.MainPresenter;
@@ -57,6 +59,7 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private ViewPagerAdapter viewPagerAdapter;
+    private SpinKitView tutoViewContact, tutoviewProfile;
 
     @Inject
     public MainPresenter presenter;
@@ -64,6 +67,9 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
     public BusProvider busProvider;
     @Inject
     DispatchingAndroidInjector<Fragment> fragmentInjector;
+
+    @Inject
+    TutorialHelper tutorialHelper;
 
     private boolean dispatchTouch = true;
 
@@ -171,7 +177,41 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
         tabLayout.getTabAt(2).setCustomView(getTabIcon(2, false));
         tabLayout.getTabAt(3).setCustomView(getTabIcon(3, false));
         tabLayout.getTabAt(4).setCustomView(getTabIcon(4, false));
+
+        checkContactTutorial();
+        checkProfileTutorial();
     }
+
+    /**
+     * check button contact navigation and show tutorial if needed
+     */
+    private void checkContactTutorial(){
+        if (!tutorialHelper.isTutorial02ContactNavigationCLicked()){
+            View v = tabLayout.getTabAt(3).getCustomView();
+            tutoViewContact = v.findViewById(R.id.tutorial_dot_nav);
+            tutoViewContact.setVisibility(View.VISIBLE);
+        }else {
+            View v = tabLayout.getTabAt(3).getCustomView();
+            tutoViewContact = v.findViewById(R.id.tutorial_dot_nav);
+            tutoViewContact.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * check button profile navigation and show tutorial if needed
+     */
+    private void checkProfileTutorial(){
+        if (!tutorialHelper.isTutorial04ProfileClicked()){
+            View v = tabLayout.getTabAt(4).getCustomView();
+            tutoviewProfile = v.findViewById(R.id.tutorial_dot_nav);
+            tutoviewProfile.setVisibility(View.VISIBLE);
+        }else {
+            View v = tabLayout.getTabAt(4).getCustomView();
+            tutoviewProfile = v.findViewById(R.id.tutorial_dot_nav);
+            tutoviewProfile.setVisibility(View.GONE);
+        }
+    }
+
 
     private void onChangeTab() {
         tabLayout.setOnTabSelectedListener(new
@@ -180,6 +220,18 @@ public class MainActivity extends CoreActivity implements HasSupportFragmentInje
                @Override
                public void onTabSelected(TabLayout.Tab tab) {
                    invalidateTabs(tab.getPosition());
+                   if (tab.getPosition() == 3){
+                       if (!tutorialHelper.isTutorial02ContactNavigationCLicked()){
+                           tutorialHelper.markTutorial02ContactNavigationCLicked();
+                           checkContactTutorial();
+                       }
+                   }
+                   if (tab.getPosition() == 4){
+                       if (!tutorialHelper.isTutorial04ProfileClicked()){
+                           tutorialHelper.marktutorial04ProfileClicked();
+                           checkProfileTutorial();
+                       }
+                   }
                }
 
                @Override

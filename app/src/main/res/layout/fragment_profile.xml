@@ -46,7 +46,6 @@
                     android:id="@+id/tutorial_dot_6_avatar"
                     style="@style/SpinKitView.Small.DoubleBounce"
                     android:layout_width="20dp"
-                    android:layout_centerVertical="true"
                     tools:background="@color/red"
                     android:layout_height="20dp"
                     android:visibility="gone"
