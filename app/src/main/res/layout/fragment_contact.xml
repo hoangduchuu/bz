@@ -22,14 +22,14 @@
             android:src="@null" />
         <com.github.ybq.android.spinkit.SpinKitView
             android:id="@+id/tutorial_dot_3"
-            style="@style/SpinKitView.Small.DoubleBounce"
-            android:layout_width="20dp"
+            style="@style/TutorialDotStyle"
+            android:layout_width="@dimen/dot_size"
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/default_padding"
             tools:background="@color/red"
             android:visibility="gone"
             tools:visibility="visible"
-            android:layout_height="20dp"
+            android:layout_height="@dimen/dot_size"
             android:layout_gravity="center"
             android:layout_alignParentEnd="true"
             app:SpinKit_Color="#ffbb5b" />

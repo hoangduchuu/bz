@@ -561,4 +561,8 @@
     <style name="BzzzEditextStyle">
         <item name="editTextStyle">@style/MyEditTextStyle</item>
     </style>
+
+
+    <!--TUTORIAL DOT STYLE-->
+    <style name="TutorialDotStyle" parent="SpinKitView.Small.DoubleBounce"/>
 </resources>

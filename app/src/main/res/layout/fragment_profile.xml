@@ -44,10 +44,10 @@
                     android:src="@drawable/ic_profile_camera" />
                 <com.github.ybq.android.spinkit.SpinKitView
                     android:id="@+id/tutorial_dot_6_avatar"
-                    style="@style/SpinKitView.Small.DoubleBounce"
-                    android:layout_width="20dp"
+                    style="@style/TutorialDotStyle"
+                    android:layout_width="@dimen/dot_size"
                     tools:background="@color/red"
-                    android:layout_height="20dp"
+                    android:layout_height="@dimen/dot_size"
                     android:visibility="gone"
                     tools:visibility="visible"
                     android:layout_gravity="center"

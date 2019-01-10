@@ -46,10 +46,10 @@
             android:layout_height="wrap_content">
             <com.github.ybq.android.spinkit.SpinKitView
                 android:id="@+id/tutorial_dot_7_name"
-                style="@style/SpinKitView.Small.DoubleBounce"
-                android:layout_width="20dp"
+                style="@style/TutorialDotStyle"
+                android:layout_width="@dimen/dot_size"
                 tools:background="@color/red"
-                android:layout_height="20dp"
+                android:layout_height="@dimen/dot_size"
                 android:visibility="visible"
                 tools:visibility="visible"
                 android:layout_gravity="center"

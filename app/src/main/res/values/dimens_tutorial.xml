@@ -4,4 +4,5 @@
     <dimen name="with_tutorial_typing_container">180dp</dimen>
     <dimen name="space_tutorial_element_content">8dp</dimen>
     <dimen name="padding_content">40dp</dimen>
+    <dimen name="dot_size">10dp</dimen>
 </resources>
