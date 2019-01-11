@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -69,7 +70,7 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                         }
                     }
                     final String userName = senderName;
-                    return Observable.fromArray(validUsers.toArray())
+                    return Observable.fromArray(Objects.requireNonNull(validUsers.toArray()))
                             .flatMap(object -> {
                                 User user = (User) object;
                                 return userRepository.readBadgeNumbers(user.key)
@@ -119,9 +120,11 @@ public class SendMessageNotificationUseCase extends UseCase<Boolean, SendMessage
                                             if (user.settings.private_profile) {
                                                 profile = "";
                                             }
-                                            return notificationRepository.sendMessageNotification(
-                                                    sender.key, profile, body, params.conversation.key, params.messageId, params.messageType.ordinal(), user, integer)
-                                                    .flatMap(aBoolean -> userRepository.increaseBadgeNumber(user.key, params.conversation.key));
+                                            String finalProfile = profile;
+                                            String finalBody = body;
+                                            return userRepository.increaseBadgeNumber(user.key, params.conversation.key)
+                                                    .flatMap(aBoolean -> notificationRepository.sendMessageNotification(
+                                                            sender.key, finalProfile, finalBody, params.conversation.key, params.messageId, params.messageType.ordinal(), user, integer));
                                         });
                             })
                             .take(validUsers.size());
