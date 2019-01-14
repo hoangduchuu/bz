@@ -147,7 +147,7 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
                 view.updateGroupMembers(users);
                 view.hideLoading();
                 for (User u : newAddedUsers) {
-                    String notificationBody = String.format("%s : %s  has joined ", conversationName, userMapper.getUserDisPlay(u, conversation));
+                    String notificationBody = String.format("%s: %s has joined ", conversationName, userMapper.getUserDisPlay(u, conversation));
                     sendNotification(conversation, conversation.key, notificationBody);
                     sendJoinedMessage(userMapper.getUserDisPlay(u, conversation));
                 }
