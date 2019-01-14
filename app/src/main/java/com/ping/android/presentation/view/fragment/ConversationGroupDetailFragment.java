@@ -304,6 +304,7 @@ public class ConversationGroupDetailFragment extends BaseFragment
     @Override
     public void updateConversation(Conversation conversation) {
         bindData(conversation);
+        oldMembers = conversation.members;
     }
 
     @Override
