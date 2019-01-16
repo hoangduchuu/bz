@@ -7,4 +7,5 @@
     <color name="playerControlText">#cca2a2a2</color>
     <color name="main_background_gray">#f7f8f9</color>
     <color name="colorAccent">#FF1212</color>
+    <color name="orange">#FBB040</color>
 </resources>

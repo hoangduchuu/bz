@@ -25,10 +25,12 @@ import com.github.ybq.android.spinkit.SpinKitView;
 import com.ping.android.R;
 import com.ping.android.data.repository.FaceIdStatusRepository;
 import com.ping.android.data.repository.TutorialHelper;
+import com.ping.android.model.Message;
 import com.ping.android.model.User;
 import com.ping.android.presentation.presenters.ProfilePresenter;
 import com.ping.android.presentation.view.activity.BlockActivity;
 import com.ping.android.presentation.view.activity.ChangePasswordActivity;
+import com.ping.android.presentation.view.activity.GroupImageGalleryActivity;
 import com.ping.android.presentation.view.activity.PrivacyAndTermActivity;
 import com.ping.android.presentation.view.activity.RegistrationActivity;
 import com.ping.android.presentation.view.activity.TransphabetActivity;
@@ -43,6 +45,8 @@ import com.ping.android.utils.configs.Constant;
 import com.quickblox.messages.services.SubscribeService;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -216,6 +220,23 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     }
 
     private void onFaceIdToggleButtonClicked() {
+        if (faceIdSwitch.isChecked()){
+            showLoading();
+            Boolean result = FaceRecognition.Companion.getInstance(this.getContext()).isFastEnough();
+            hideLoading();
+            if (!result){
+                faceIdSwitch.setChecked(false);
+                android.app.AlertDialog alertDialog = new android.app.AlertDialog.Builder(this.getContext())
+                        .setCancelable(false)
+                        .setTitle("Device Processing Error")
+                        .setMessage("Device do not have sufficient processing power to use this feature.")
+                        .setNegativeButton("OK",(dialog, i)->{
+
+                        }).create();
+                alertDialog.show();
+                return;
+            }
+        }
         faceIdStatusRepository.setFaceIdEnabled(faceIdSwitch.isChecked());
         TransitionManager.beginDelayedTransition((ViewGroup) getView());
         if (!faceIdSwitch.isChecked()) {

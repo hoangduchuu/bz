@@ -2,25 +2,21 @@ package com.bzzzchat.videorecorder.view.facerecognition
 
 import android.os.Environment
 import android.util.Log
-import java.io.File
-import java.io.FilenameFilter
 import java.nio.ByteBuffer
-import java.nio.IntBuffer
 import kotlin.concurrent.thread
-import java.nio.ByteOrder.nativeOrder
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.FaceDetector
+import android.icu.util.TimeUnit
 import org.tensorflow.lite.Interpreter
-import java.io.FileInputStream
-import java.io.IOException
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import kotlin.math.pow
-import android.widget.Toast
+import com.bzzzchat.videorecorder.R
+import com.bzzzchat.videorecorder.view.facerecognition.others.Utils
+import java.io.*
+import java.util.*
 
 
 enum class FaceRecognitionResult {
@@ -86,7 +82,7 @@ class FaceRecognition private constructor(context: Context) {
                 name.endsWith(".jpg") || name.endsWith(".pgm") || name.endsWith(".png")
             }
 
-            val imageFiles = root.listFiles(imgFilter)
+            val imageFiles = root.listFiles(imgFilter) ?: return@thread
             val ops = BitmapFactory.Options()
             ops.inPreferredConfig = Bitmap.Config.RGB_565
             val bitmap = BitmapFactory.decodeFile(imageFiles[0].absolutePath, ops)
@@ -94,6 +90,25 @@ class FaceRecognition private constructor(context: Context) {
 
             tflite!!.run(inputBuffer!!, referenceOutput!!)
         }
+    }
+
+    fun isFastEnough(): Boolean{
+        val start = Date()
+        val bm = context.resources.openRawResource(R.raw.jason)
+        val bufferedInputStream = BufferedInputStream(bm)
+        val bitmap = BitmapFactory.decodeStream(bufferedInputStream)
+
+        var bitmap96 = Bitmap.createScaledBitmap(bitmap, Configs.modelDimension, Configs.modelDimension, true)
+        bitmap.recycle()
+        bitmap96 = Utils.convertTo565(bitmap96)
+        var inputBuffer = convertBitmapToByteBuffer(bitmap96)
+        var output = Array(1) { ByteArray(128) }
+
+        tflite!!.run(inputBuffer, output)
+        val end = Date()
+        val diff = end.time - start.time
+        Log.e(TAG, "diff: $diff")
+        return diff / 1000.0 < 0.5
     }
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap?): ByteBuffer{
@@ -121,6 +136,7 @@ class FaceRecognition private constructor(context: Context) {
 //                imgData.putFloat(((currPixel and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
 //            }
 //        }
+        bitmap?.recycle()
         return imgData
     }
 

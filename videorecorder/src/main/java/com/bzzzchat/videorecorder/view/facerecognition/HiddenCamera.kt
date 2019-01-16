@@ -71,6 +71,7 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
 
         val frame = Frame.Builder().setBitmap(finalPicture).build()
         val faces = mFaceDetector.detect(frame)
+        isProcessingImage.set(false)
 
         if (faces.size() > 0) {
             val face = faces.valueAt(0)
@@ -80,7 +81,6 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
             Utils.saveBitmap(faceBitmap, file.absolutePath)
             processFaceRecognition(file.absolutePath)
         }
-        isProcessingImage.set(false)
     }
 
     fun initWithActivity(activity: Activity) {
@@ -101,19 +101,24 @@ class HiddenCamera(val context: Context, val callback: RecognitionCallback) {
     }
 
     private fun processFaceRecognition(path: String) {
-        val result = FaceRecognition.getInstance(context).faceRecognition(path)
+        if (isProcessingImage.get()){
+            return
+        }
+        Thread().run {
+            val result = FaceRecognition.getInstance(context).faceRecognition(path)
 //        Toast.makeText(context, "Confidence: ${faceData.confidence}", Toast.LENGTH_SHORT).show()
-        val handler = Handler(Looper.getMainLooper())
-        handler.post {
-            if (result == FaceRecognitionResult.SUCCESS){
-                callback.onRecognitionSuccess()
-                confidenceCounter.set(0)
-                stopCameraSource()
-            }else{
-                callback.onRecognizingError()
-                confidenceCounter.incrementAndGet()
+            val handler = Handler(Looper.getMainLooper())
+            handler.post {
+                if (result == FaceRecognitionResult.SUCCESS){
+                    callback.onRecognitionSuccess()
+                    confidenceCounter.set(0)
+                    stopCameraSource()
+                }else{
+                    callback.onRecognizingError()
+                    confidenceCounter.incrementAndGet()
+                }
+                isProcessingImage.set(false)
             }
-            isProcessingImage.set(false)
         }
     }
 
