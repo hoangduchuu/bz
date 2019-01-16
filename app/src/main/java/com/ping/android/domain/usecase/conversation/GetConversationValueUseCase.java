@@ -47,7 +47,7 @@ public class GetConversationValueUseCase extends UseCaseWithTimeOut<Conversation
                                 .flatMap(deleteTimestamp->{
                                     conversation.deleteTimestamp = deleteTimestamp;
                                     conversation.currentColor = conversation.getColor(user.key);
-                                    BzzzLog.INSTANCE.d(deleteTimestamp.toString());
+//                                    BzzzLog.INSTANCE.d(deleteTimestamp.toString());
                                     return userManager.getUserList(conversation.memberIDs)
                                             .flatMap(users -> {
                                                 for (User u : users) {

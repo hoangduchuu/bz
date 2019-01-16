@@ -171,7 +171,9 @@ class ChatActivity : CoreActivity(),
                 handleOnRecognitionSuccess()
             }
             override fun onRecognizingError() {
-                handleOnRecognitionError()
+                if (!faceIdStatusRepository.faceIdRecognitionStatus.get()) {
+                    faceIdIndicator?.showError()
+                }
             }
         })
     }
@@ -1481,26 +1483,8 @@ class ChatActivity : CoreActivity(),
         messagesAdapter.userRecognized(true)
         faceIdStatusRepository.faceIdRecognitionStatus.set(true)
         faceIdIndicator?.showSuccess()
-        val handler = Handler()
-        handler.postDelayed({
-            faceIdIndicator?.visibility = View.GONE
-            faceIdIndicator?.showLoading()
 
-        }, 1000)
     }
-
-    /**
-     * #FACEID
-     * handleOnRecognitionError
-     */
-    private fun handleOnRecognitionError(){
-        faceIdIndicator?.showError()
-        val handler = Handler()
-        handler.postDelayed({
-            faceIdIndicator?.nextLoading()
-        }, 1000)
-    }
-
 
     /**
      * while start process faceID,

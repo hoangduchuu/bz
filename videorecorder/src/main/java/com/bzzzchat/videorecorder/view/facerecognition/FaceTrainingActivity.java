@@ -21,6 +21,7 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,8 +68,6 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
     private FaceGraphic mFaceGraphic;
     private boolean wasActivityResumed = false;
     private CustomRecordButton takePictureButton;
-    private TextView progress;
-
     // DEFAULT CAMERA BEING OPENED
     private boolean usingFrontCamera = true;
 
@@ -87,8 +86,18 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         mPreview = findViewById(R.id.preview);
         mGraphicOverlay = findViewById(R.id.faceOverlay);
         ivAutoFocus = findViewById(R.id.ivAutoFocus);
-        progress = findViewById(R.id.progress);
-
+        findViewById(R.id.btnBack).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        findViewById(R.id.btnSwitchCamera).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleCameraSwitch();
+            }
+        });
         confirmPictureButton = findViewById(R.id.btnConfirm);
 
         File trainingFolder = new File(FaceRecognition.Companion.getInstance(context).getTrainingFolder());
@@ -115,6 +124,16 @@ public class FaceTrainingActivity extends AppCompatActivity implements ShowFaceF
         });
 
         mPreview.setOnTouchListener(CameraPreviewTouchListener);
+    }
+
+    private void handleCameraSwitch() {
+        stopCameraSource();
+        usingFrontCamera = !usingFrontCamera;
+        if (usingFrontCamera){
+            createCameraSourceFront();
+        }else{
+            createCameraSourceBack();
+        }
     }
 
     private void showErrorTraining(String title, String msg) {
