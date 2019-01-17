@@ -234,6 +234,7 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
 
                         }).create();
                 alertDialog.show();
+                setDialogColor(alertDialog);
                 return;
             }
         }
@@ -528,5 +529,10 @@ public class ProfileFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void hideSetupText() {
         faceTrainingItem.setVisibility(View.GONE);
+    }
+
+    private void setDialogColor(android.app.AlertDialog alertDialog) {
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.white));
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.white));
     }
 }
