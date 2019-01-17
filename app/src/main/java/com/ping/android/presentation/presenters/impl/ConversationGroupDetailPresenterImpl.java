@@ -140,23 +140,17 @@ public class ConversationGroupDetailPresenterImpl implements ConversationGroupDe
          */
         List<User> newAddedUsers = findAddedUsers(oldMembers,selectedUsers);
 
-        StringBuilder addedUsersStringBuilder = new StringBuilder();
-        for (User u : newAddedUsers) {
-            addedUsersStringBuilder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
-        }
+
         addGroupMembersUseCase.execute(new DefaultObserver<List<User>>() {
             @Override
             public void onNext(List<User> users) {
                 view.updateGroupMembers(users);
                 view.hideLoading();
-                StringBuilder builder = new StringBuilder();
-                for (User u : selectedUsers) {
-                    builder.append(userMapper.getUserDisPlay(u,conversation)).append(", ");
+                for (User u : newAddedUsers) {
+                    String notificationBody = String.format("%s: %s has joined ", conversation.conversationName, userMapper.getUserDisPlay(u, conversation));
+                    sendNotification(conversation, conversation.key, notificationBody);
+                    sendJoinedMessage(userMapper.getUserDisPlay(u, conversation));
                 }
-                String joinedUsers  = addedUsersStringBuilder.toString().substring(0,addedUsersStringBuilder.length()-2);
-                String notificationBody = String.format("%s : %s  has joined ", conversationName, joinedUsers);
-                sendNotification(conversation, conversation.key, notificationBody);
-                sendJoinedMessage(joinedUsers);
             // TODO compare to get exactly new User added
             }
 

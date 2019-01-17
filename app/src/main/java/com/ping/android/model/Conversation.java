@@ -37,6 +37,8 @@ public class Conversation implements Parcelable {
     public Map<String, Boolean> memberIDs = new HashMap<>();
     public Map<String, Boolean> markStatuses = new HashMap<>();
     public Map<String, Boolean> readStatuses = new HashMap<>();
+    public Map<String, Boolean> deleteStatuses = new HashMap<>();
+    public Map<String, Double> deleteTimestamps = new HashMap<>();
 
     //Conversation setting
     public HashMap<String, Boolean> notifications = new HashMap<>();
@@ -80,6 +82,8 @@ public class Conversation implements Parcelable {
         memberIDs = gson.fromJson(in.readString(), Map.class);
         markStatuses = gson.fromJson(in.readString(), Map.class);
         readStatuses = gson.fromJson(in.readString(), Map.class);
+        deleteStatuses = gson.fromJson(in.readString(), Map.class);
+        deleteTimestamps = gson.fromJson(in.readString(), Map.class);
 
         notifications = (HashMap<String, Boolean>) in.readSerializable();
         maskMessages = gson.fromJson(in.readString(), Map.class);
@@ -112,7 +116,9 @@ public class Conversation implements Parcelable {
         dest.writeString(jsonObject.toString());
         jsonObject = new JSONObject(readStatuses);
         dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(deleteStatuses);
         dest.writeString(jsonObject.toString());
+        jsonObject = new JSONObject(deleteTimestamps);
         dest.writeString(jsonObject.toString());
 
 
@@ -174,6 +180,8 @@ public class Conversation implements Parcelable {
             this.maskMessages = originalConversation.maskMessages;
             this.puzzleMessages = originalConversation.puzzleMessages;
             this.maskOutputs = originalConversation.maskOutputs;
+            this.deleteStatuses = originalConversation.deleteStatuses;
+            this.deleteTimestamps = originalConversation.deleteTimestamps;
             this.members = originalConversation.members;
             this.group = originalConversation.group;
             this.nickNames = originalConversation.nickNames;
@@ -203,7 +211,9 @@ public class Conversation implements Parcelable {
         conversation.memberIDs = defaultTrueValues;
         conversation.markStatuses = defaultTrueValues;
         conversation.readStatuses = defaultFalseValues;
+        conversation.deleteStatuses = defaultFalseValues;
         conversation.notifications = defaultTrueValues;
+        conversation.deleteTimestamps = new HashMap<>();
 
         return conversation;
     }
@@ -228,6 +238,8 @@ public class Conversation implements Parcelable {
         conversation.memberIDs = defaultTrueValues;
         conversation.markStatuses = defaultTrueValues;
         conversation.readStatuses = defaultFalseValues;
+        conversation.deleteStatuses = defaultFalseValues;
+        conversation.deleteTimestamps = new HashMap<>();
         conversation.notifications = defaultTrueValues;
 
         return conversation;

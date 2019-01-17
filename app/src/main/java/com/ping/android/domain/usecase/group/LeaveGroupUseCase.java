@@ -76,6 +76,7 @@ public class LeaveGroupUseCase extends UseCase<Boolean, Conversation> {
                         updateValue.put(String.format("conversations/%s/%s/deleteStatuses", id, conversation.group.conversationID),conversation.group.deleteStatuses);
                         updateValue.put(String.format("groups/%s/%s/memberIDs", id, conversation.group.key), conversation.group.memberIDs);
                         updateValue.put(String.format("conversations/%s/%s/memberIDs", id, conversation.group.conversationID), conversation.group.memberIDs);
+                        updateValue.put(String.format("conversations/%s/%s/notifications/%s",id,conversation.key,id),null);
                     }
 
 
