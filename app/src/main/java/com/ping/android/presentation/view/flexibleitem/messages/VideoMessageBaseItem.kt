@@ -167,7 +167,7 @@ abstract class VideoMessageBaseItem(message: Message) : MessageBaseItem<VideoMes
 
         override fun onSingleTap() {
             if (!isVideoReady || videoFile == null) return
-
+            if (faceIdStatusRepository.isFaceIdEnabled() && !faceIdStatusRepository.faceIdRecognitionStatus.get() ) return
             messageListener?.openVideo(videoFile!!.absolutePath)
         }
 

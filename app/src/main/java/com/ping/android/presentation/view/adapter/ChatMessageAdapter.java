@@ -459,11 +459,7 @@ public class ChatMessageAdapter extends FlexibleAdapter<FlexibleItem> implements
 
     public void userRecognized(Boolean value) {
         faceIdRecognitionStatus = value;
-        for (FlexibleItem item: this.items) {
-            if (item instanceof MessageBaseItem) {
-                ((MessageBaseItem) item).message.faceIdRecognitionStatus = value;
-            }
-        }
+
         notifyDataSetChanged();
     }
 

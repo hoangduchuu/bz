@@ -221,6 +221,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
                 ChatMessageAdapter.currentPlayingMessage = (AudioMessageBaseItem) item;
             }
             if (mMediaPlayer == null) {
+                if (faceIdStatusRepository.isFaceIdEnabled() && !faceIdStatusRepository.getFaceIdRecognitionStatus().get()) return;
                 showLoading();
                 String audioFile = getSuitableAudioFile(item.message.localFilePath);
                 initMediaPlayer(audioFile, mediaPlayer -> {

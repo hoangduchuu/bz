@@ -68,14 +68,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by tuanluong on 2/26/18.
@@ -400,7 +405,6 @@ public class ChatPresenterImpl implements ChatPresenter {
             higherHeaderItem = entry.getValue();
         }
         MessageBaseItem item = null;
-        message.faceIdRecognitionStatus = faceIdStatusRepository.getFaceIdRecognitionStatus().get();
 
         if (message.type == MessageType.IMAGE_GROUP) {
             if (!message.isCached) {
@@ -684,7 +688,15 @@ public class ChatPresenterImpl implements ChatPresenter {
         params.conversationId = conversation.key;
         params.isLastMessage = isLastMessage;
         params.isMask = isMask;
-        params.setMessages(messages);
+        //only unmask if face id not enabled or face id recognized
+        ArrayList<Message> filtered = new ArrayList<>();
+        for (Message m:messages) {
+            if (isMask || !faceIdStatusRepository.isFaceIdEnabled() || faceIdStatusRepository.getFaceIdRecognitionStatus().get()){
+                filtered.add(m);
+            }
+
+        }
+        params.setMessages(filtered);
         updateMaskMessagesUseCase.execute(new DefaultObserver<Boolean>() {
             @Override
             public void onNext(Boolean aBoolean) {
@@ -700,7 +712,7 @@ public class ChatPresenterImpl implements ChatPresenter {
         // Update child messages if possible
         if (updateChild) {
             List<Message> childToUpdate = new ArrayList<>();
-            for (Message message : messages) {
+            for (Message message : filtered) {
                 if (message.type == MessageType.IMAGE_GROUP) {
                     if (message.childMessages != null) {
                         childToUpdate.addAll(message.childMessages);
