@@ -62,6 +62,7 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+
             content = itemView.findViewById(R.id.content);
             imageView = itemView.findViewById(R.id.item_chat_image);
             loadingView = itemView.findViewById(R.id.loading_container);
@@ -178,13 +179,27 @@ public abstract class ImageMessageBaseItem extends MessageBaseItem {
 
         private void viewImage(boolean isPuzzled) {
             Pair imagePair = Pair.create(imageView, item.message.key);
-            if (messageListener != null) {
+            if (messageListener != null && (!faceIdStatusRepository.isFaceIdEnabled() || faceIdStatusRepository.getFaceIdRecognitionStatus().get())) {
                 messageListener.openImage(item.message, isPuzzled, imagePair);
             }
         }
 
         private void setImageMessage(Message message) {
             boolean bitmapMark = maskStatus;
+            if (!bitmapMark || (faceIdStatusRepository.isFaceIdEnabled() && faceIdStatusRepository.getFaceIdRecognitionStatus().get())) {
+                if (item.message.type == MessageType.GAME) {
+                    if (item.message.messageStatusCode != Constant.MESSAGE_STATUS_GAME_PASS
+                            && !item.message.isFromMe()) {
+                        bitmapMark = true;
+                    }else{
+                        bitmapMark = false;
+                    }
+                }else {
+                    bitmapMark = false;
+                }
+            }else{
+                bitmapMark = true;
+            }
             if (imageView == null) return;
             //Drawable placeholder = ContextCompat.getDrawable(imageView.getContext(), R.drawable.img_loading_image);
             if (!isUpdated) {

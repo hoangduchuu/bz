@@ -6,7 +6,9 @@ import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FaceIdStatusRepository @Inject constructor()  {
 
     var faceIdRecognitionStatus: AtomicBoolean = AtomicBoolean(false)

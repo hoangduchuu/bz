@@ -14,7 +14,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 import com.bzzzchat.flexibleadapter.FlexibleItem;
+import com.ping.android.App;
 import com.ping.android.R;
+import com.ping.android.data.repository.FaceIdStatusRepository;
+import com.ping.android.managers.UserManager;
 import com.ping.android.model.Message;
 import com.ping.android.model.enums.MessageType;
 import com.ping.android.presentation.view.adapter.ChatMessageAdapter;
@@ -152,6 +155,8 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
         protected TextView tvMessageInfo;
         protected TextView tvStatus;
         protected TextView revealableView;
+        FaceIdStatusRepository faceIdStatusRepository;
+        UserManager userManager;
 
         protected MessageBaseItem item;
         protected boolean maskStatus;
@@ -164,6 +169,9 @@ public abstract class MessageBaseItem<VH extends MessageBaseItem.ViewHolder> imp
 
         public ViewHolder(@Nullable View itemView) {
             super(itemView);
+            faceIdStatusRepository = ((App) itemView.getContext().getApplicationContext()).getComponent().provideFaceIdStatusRepository();
+            userManager = ((App)itemView.getContext().getApplicationContext()).getComponent().provideUserManager();
+
             rbSelection = itemView.findViewById(R.id.item_chat_select);
             tvMessageInfo = itemView.findViewById(R.id.item_chat_info);
             tvStatus = itemView.findViewById(R.id.item_chat_status);

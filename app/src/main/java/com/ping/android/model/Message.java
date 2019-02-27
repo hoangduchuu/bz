@@ -34,7 +34,6 @@ public class Message implements Parcelable {
     public int messageStatusCode;
     public long days;
     public boolean isMask;
-    public boolean faceIdRecognitionStatus = false;
     public MessageType type = MessageType.TEXT;
     public MessageCallType messageCallType = MessageCallType.VOICE_CALL;
     public boolean maskable;
@@ -79,8 +78,6 @@ public class Message implements Parcelable {
     }
 
     public boolean maskStatus() {
-        if (faceIdRecognitionStatus)
-            return false;
         return isMask;
     }
 

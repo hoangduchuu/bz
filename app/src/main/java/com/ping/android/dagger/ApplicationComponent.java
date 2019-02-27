@@ -1,6 +1,7 @@
 package com.ping.android.dagger;
 
 import com.ping.android.App;
+import com.ping.android.data.repository.FaceIdStatusRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.service.CallService;
 import com.ping.android.service.FbMessagingService;
@@ -45,6 +46,8 @@ public interface ApplicationComponent {
     void inject(@NotNull FbMessagingService fbMessagingService);
 
     UserManager provideUserManager();
+
+    FaceIdStatusRepository provideFaceIdStatusRepository();
 
     BusProvider provideBusProvider();
 
