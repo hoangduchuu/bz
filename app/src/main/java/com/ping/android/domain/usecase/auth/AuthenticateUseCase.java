@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.auth;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
@@ -31,8 +33,15 @@ public class AuthenticateUseCase extends UseCaseWithTimeOut<User, AuthenticateUs
     @NotNull
     @Override
     public Observable<User> buildUseCaseObservable(Params params) {
-        return userRepository.checkValidUser(params.userName)
-                .flatMap(user -> userRepository.loginByEmail(user.email, params.password)
+        return searchRepository.searchUsers(params.userName).map(users -> {
+            for (User user:users) {
+                if (TextUtils.equals(user.email,params.userName) || TextUtils.equals( user.phone,params.userName)
+                        || TextUtils.equals( user.pingID, params.userName)){
+                    return  user;
+                }
+            }
+            throw new NullPointerException();
+        }).flatMap(user -> userRepository.loginByEmail(user.email, params.password)
                         .flatMap(user1 -> initializeUserUseCase.buildUseCaseObservable(null)
                                 .map(aBoolean -> user)));
     }
