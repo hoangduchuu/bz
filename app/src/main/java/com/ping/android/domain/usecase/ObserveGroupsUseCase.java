@@ -38,15 +38,15 @@ public class ObserveGroupsUseCase extends UseCase<ChildData<Group>, ObserveGroup
         return userManager.getCurrentUser()
                 .flatMap(user -> groupRepository.groupsChange(user.key)
                         .flatMap(childEvent -> {
-                            Group group = Group.from(childEvent.dataSnapshot);
+                            Group group = Group.from(childEvent.getValue());
                             if (params.initUsers) {
                                 return userManager.getUserList(group.memberIDs)
                                         .map(users -> {
                                             group.members = users;
-                                            return new ChildData<>(group, childEvent.type);
+                                            return new ChildData<>(group, childEvent.getEventType());
                                         });
                             } else {
-                                ChildData<Group> childData = new ChildData<>(group, childEvent.type);
+                                ChildData<Group> childData = new ChildData<>(group, childEvent.getEventType());
                                 return Observable.just(childData);
                             }
                         }));

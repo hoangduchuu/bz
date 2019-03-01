@@ -6,6 +6,7 @@ import com.bzzzchat.cleanarchitecture.UseCase
 import com.ping.android.domain.repository.ConversationRepository
 import com.ping.android.managers.UserManager
 import io.reactivex.Observable
+import io.reactivex.Single
 import javax.inject.Inject
 
 class UpdateMaskOutputConversationUseCase @Inject constructor(
@@ -18,7 +19,7 @@ class UpdateMaskOutputConversationUseCase @Inject constructor(
 
     override fun buildUseCaseObservable(params: Params): Observable<Boolean> {
         return userManager.currentUser.flatMap {
-            conversationRepo.updateMaskOutput(it.key, params.conversationId, params.memberIds, params.isMask)
+            conversationRepo.updateMaskOutput(it.key, params.conversationId, params.memberIds, params.isMask).toObservable()
         }
     }
 

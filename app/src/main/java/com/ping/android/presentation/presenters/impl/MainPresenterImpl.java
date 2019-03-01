@@ -78,7 +78,6 @@ public class MainPresenterImpl implements MainPresenter {
         }, null);
         observeFriendsStatusUseCase.execute(new DefaultObserver<>(), null);
         syncMessageUseCase.execute(new DefaultObserver<>(), null);
-        observeUsersChangedUseCase.execute(new DefaultObserver<>(), null);
     }
 
     private void handleUserUpdate(User user) {

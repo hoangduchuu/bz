@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 12/6/17.
@@ -50,7 +51,7 @@ public class UserManager {
         if (user != null) {
             return Observable.just(user);
         } else {
-            return userRepository.getCurrentUser();
+            return userRepository.getCurrentUser().toObservable();
         }
     }
 
@@ -83,23 +84,21 @@ public class UserManager {
         return cachedUsers.get(userId);
     }
 
-    public Observable<User> getUser(String userId) {
+    public Single<User> getUser(String userId) {
         User user = getCacheUser(userId);
         if (user != null) {
             Log.e("User was cached " + user.getDisplayName());
-            return Observable.just(user);
+            return Single.just(user);
         } else {
             return userRepository.getUser(userId)
-                    .doOnNext(this::setCachedUser);
+                    .firstOrError().doOnSuccess(this::setCachedUser);
         }
     }
 
     public Observable<List<User>> getUserList(Map<String, Boolean> userIds) {
         return Observable.fromArray(userIds.keySet().toArray())
-                .flatMap(userId -> getUser((String) userId))
-                .take(userIds.size())
-                .toList()
-                .toObservable();
+                .flatMap(userId -> getUser((String) userId).toObservable())
+                .take(userIds.size()).toList().toObservable();
     }
 
     public void logout() {

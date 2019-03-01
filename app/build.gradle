@@ -152,9 +152,6 @@ dependencies {
     implementation project(path: ':flexibleadapter')
     implementation project(path: ':extensions')
     implementation project(path: ':videorecorder')
-    implementation(project(path: ':rxfirebase')) {
-        exclude group: 'com.google.firebase'
-    }
     implementation project(path: ':rxquickblox')
 
     //SUPPORT ANDROID
@@ -275,6 +272,8 @@ dependencies {
 
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
 
+    //rxfirebase
+    implementation 'com.github.FrangSierra:RxFirebase:1.5.6'
 
 }
 

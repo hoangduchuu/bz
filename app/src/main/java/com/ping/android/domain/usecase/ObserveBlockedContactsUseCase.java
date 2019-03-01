@@ -35,10 +35,10 @@ public class ObserveBlockedContactsUseCase extends UseCase<ChildData<User>, Void
         return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.observeBlockedContacts(user.key)
                         .flatMap(childEvent -> {
-                            String userId = childEvent.dataSnapshot.getKey();
+                            String userId = childEvent.getValue().getKey();
                             return userRepository.getUser(userId)
                                     .map(user1 -> {
-                                        ChildData<User> childData = new ChildData<>(user1, childEvent.type);
+                                        ChildData<User> childData = new ChildData<>(user1, childEvent.getEventType());
                                         return childData;
                                     });
                         })

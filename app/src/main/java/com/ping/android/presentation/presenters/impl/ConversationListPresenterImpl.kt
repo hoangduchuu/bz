@@ -43,11 +43,7 @@ constructor() : ConversationListPresenter {
     private var canLoadMore = true
     private var lastTimestamp = java.lang.Double.MAX_VALUE
     private val isLoading: AtomicBoolean = AtomicBoolean(false)
-    private val conversations: MutableList<Conversation>
-
-    init {
-        conversations = ArrayList()
-    }
+    private val conversations: MutableList<Conversation> = mutableListOf()
 
     override fun getConversations() {
 //        view?.showConnecting()
@@ -73,6 +69,7 @@ constructor() : ConversationListPresenter {
 //                view?.hideConnecting()
             }
         }, lastTimestamp)
+//        observeConversations()
     }
 
     private fun observeConversations() {

@@ -55,7 +55,7 @@ public class GetCallsUseCase extends UseCase<List<Call>, Void> {
                                 return Observable.fromArray(calls.toArray(callsArray))
                                         .flatMap(call -> {
                                             String opponentUserId = userId.equals(call.senderId) ? call.receiveId : call.senderId;
-                                            return userManager.getUser(opponentUserId)
+                                            return userManager.getUser(opponentUserId).toObservable()
                                                     .zipWith(getNickname(userId, call.conversationId, opponentUserId), ((user, nickName) -> {
                                                         call.opponentUser = user;
                                                         call.opponentName = TextUtils.isEmpty(nickName) ? call.opponentUser.getDisplayName() : nickName;
