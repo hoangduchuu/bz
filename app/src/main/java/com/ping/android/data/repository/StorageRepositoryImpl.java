@@ -3,7 +3,6 @@ package com.ping.android.data.repository;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import com.bzzzchat.rxfirebase.RxFirebaseStorage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ping.android.domain.repository.StorageRepository;
@@ -14,6 +13,7 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import durdinapps.rxfirebase2.RxFirebaseStorage;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -36,8 +36,7 @@ public class StorageRepositoryImpl implements StorageRepository {
         String fileName = System.currentTimeMillis() + file.getName();
         String imageStoragePath = "groups" + File.separator + groupId + File.separator + fileName;
         StorageReference photoRef = storage.getReference().child(imageStoragePath);
-        return RxFirebaseStorage.getInstance(photoRef)
-                .putFile(Uri.fromFile(file))
+        return RxFirebaseStorage.putFile(photoRef, Uri.fromFile(file))
                 .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
                 .toObservable();
     }
@@ -48,8 +47,8 @@ public class StorageRepositoryImpl implements StorageRepository {
         File file = new File(filePath);
         String conversationImagePath = "conversations/" + key + "/" + file.getName();
         StorageReference photoRef = storage.getReference().child(conversationImagePath);
-        return RxFirebaseStorage.getInstance(photoRef)
-                .putFile(Uri.fromFile(file))
+        return RxFirebaseStorage
+                .putFile(photoRef, Uri.fromFile(file))
                 .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
                 .toObservable();
     }
@@ -59,8 +58,7 @@ public class StorageRepositoryImpl implements StorageRepository {
         if (bytes == null) return Observable.just("");
         String conversationImagePath = "conversations/" + key + "/" + fileName;
         StorageReference photoRef = storage.getReference().child(conversationImagePath);
-        return RxFirebaseStorage.getInstance(photoRef)
-                .putByteArrays(bytes)
+        return RxFirebaseStorage.putBytes(photoRef, bytes)
                 .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
                 .toObservable();
     }
@@ -72,8 +70,8 @@ public class StorageRepositoryImpl implements StorageRepository {
         String fileName = System.currentTimeMillis() + file.getName();
         String imageStoragePath = "profiles" + File.separator + userId + File.separator + fileName;
         StorageReference photoRef = storage.getReference().child(imageStoragePath);
-        return RxFirebaseStorage.getInstance(photoRef)
-                .putFile(Uri.fromFile(file))
+        return RxFirebaseStorage
+                .putFile(photoRef, Uri.fromFile(file))
                 .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath())
                 .toObservable();
     }
@@ -81,7 +79,8 @@ public class StorageRepositoryImpl implements StorageRepository {
     @NotNull
     @Override
     public Observable<Boolean> downloadFile(@NotNull String url, @NotNull String saveFile) {
-        return RxFirebaseStorage.downloadFile(url, saveFile)
+        return RxFirebaseStorage.getFile(storage.getReference().child(url), Uri.parse(saveFile))
+                .map(taskSnapshot -> taskSnapshot.getTotalByteCount() == taskSnapshot.getBytesTransferred())
                 .toObservable();
     }
 
@@ -93,8 +92,7 @@ public class StorageRepositoryImpl implements StorageRepository {
         String stickerStoragePath = "stickers" + File.separator + fileName;
         StorageReference photoRef = storage.getReference().child(stickerStoragePath);
         return exists(photoRef)
-                .onErrorResumeNext(RxFirebaseStorage.getInstance(photoRef)
-                        .putFile(Uri.fromFile(file))
+                .onErrorResumeNext(RxFirebaseStorage.putFile(photoRef, Uri.fromFile(file))
                         .map(taskSnapshot -> getStorageRoot() + "/" + taskSnapshot.getMetadata().getPath()))
                 .toObservable();
     }

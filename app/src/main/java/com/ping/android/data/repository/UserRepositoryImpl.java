@@ -1,17 +1,8 @@
 package com.ping.android.data.repository;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 
-import com.bzzzchat.rxfirebase.RxFirebaseAuth;
-import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseNetworkException;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +19,6 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.exeption.BzzzExeption;
 import com.ping.android.model.Badge;
 import com.ping.android.model.User;
-import com.ping.android.utils.Log;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,9 +31,10 @@ import java.util.Objects;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import durdinapps.rxfirebase2.RxFirebaseAuth;
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
+import durdinapps.rxfirebase2.RxFirebaseDatabase;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 
 /**
@@ -69,19 +60,18 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<User> initializeUser() {
+    public Single<User> initializeUser() {
         if (TextUtils.isEmpty(auth.getUid())) {
-            return Observable.error(new NullPointerException());
+            return Single.error(new NullPointerException());
         }
-        return getUser(auth.getUid());
+        return getUser(auth.getUid()).firstOrError();
     }
 
     @Override
     public Observable<Map<String, Boolean>> observeFriendsValue(String userId) {
         Query query = database.getReference("friends")
                 .child(userId);
-        return RxFirebaseDatabase.getInstance(query).onValueEvent()
-                .map(dataSnapshot -> {
+        return RxFirebaseDatabase.observeValueEvent(query).toObservable().map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return (Map<String, Boolean>) dataSnapshot.getValue();
                     }
@@ -90,14 +80,14 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Observable<ChildEvent> observeFriendsChildEvent(String userId) {
+    public Observable<RxFirebaseChildEvent<DataSnapshot>> observeFriendsChildEvent(String userId) {
         Query query = database.getReference("friends")
                 .child(userId);
-        return RxFirebaseDatabase.getInstance(query).onChildEvent();
+        return RxFirebaseDatabase.observeChildEvent(query).toObservable();
     }
 
     @Override
-    public Observable<User> getCurrentUser() {
+    public Single<User> getCurrentUser() {
 //        if (user != null) {
 //            return Observable.just(user);
 //        } else {
@@ -110,8 +100,7 @@ public class UserRepositoryImpl implements UserRepository {
         return getCurrentUserId()
                 .flatMap(userId -> {
                     DatabaseReference userReference = database.getReference("users").child(userId);
-                    return RxFirebaseDatabase.getInstance(userReference)
-                            .onValueEvent()
+                    return RxFirebaseDatabase.observeValueEvent(userReference).toObservable()
                             .map(User::new);
                 });
     }
@@ -120,10 +109,9 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<User> getUser(String userId) {
         DatabaseReference userReference = database.getReference("users").child(userId);
         userReference.keepSynced(true);
-        return RxFirebaseDatabase.getInstance(userReference)
-                .onSingleValueEvent()
-                .map(User::new)
-                .toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(userReference)
+                .toObservable()
+                .map(User::new);
     }
 
     @Override
@@ -132,13 +120,12 @@ public class UserRepositoryImpl implements UserRepository {
                 database.getReference(CHILD_CALLS).child(userId)
                         .orderByChild("timestamp")
                         .limitToLast(10);
-        query.keepSynced(true);
-        return RxFirebaseDatabase.getInstance(query)
-                .onChildEvent()
+        return RxFirebaseDatabase.observeChildEvent(query)
+                .toObservable()
                 .map(childEvent -> {
-                    if (childEvent.dataSnapshot.exists()) {
-                        CallEntity callEntity = callEntityMapper.transform(childEvent.dataSnapshot);
-                        ChildData<CallEntity> childData = new ChildData<>(callEntity, ChildData.Type.from(childEvent.type));
+                    if (childEvent.getValue().exists()) {
+                        CallEntity callEntity = callEntityMapper.transform(childEvent.getValue());
+                        ChildData<CallEntity> childData = new ChildData<>(callEntity, ChildData.Type.from(childEvent.getEventType()));
                         return childData;
                     }
                     throw new NullPointerException();
@@ -150,8 +137,8 @@ public class UserRepositoryImpl implements UserRepository {
         DatabaseReference call = database.getReference(CHILD_CALLS).child(userId);
         call.keepSynced(true);
         Query query = call.orderByChild("timestamp");
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
@@ -161,8 +148,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     return callEntities;
-                })
-                .toObservable();
+                });
     }
 
     @Override
@@ -174,8 +160,8 @@ public class UserRepositoryImpl implements UserRepository {
                 .orderByChild("timesstamps")
                 .endAt(timestamp)
                 .limitToLast(15);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
@@ -185,8 +171,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     return callEntities;
-                })
-                .toObservable();
+                });
     }
 
     @Override
@@ -196,17 +181,16 @@ public class UserRepositoryImpl implements UserRepository {
         Map<String, Object> updateValue = new HashMap<>();
         updateValue.put(String.format("calls/%s/%s", entity.getSenderId(), callId), entity);
         updateValue.put(String.format("calls/%s/%s", entity.getReceiveId(), callId), entity);
-        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
+        return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue)
                 .toObservable();
     }
 
     @Override
-    public Observable<User> loginByEmail(String email, String password) {
-        return RxFirebaseAuth.loginByEmail(auth, email, password)
-                .toObservable()
-                .flatMap(authResult -> {
+    public Single<User> loginByEmail(String email, String password) {
+        return RxFirebaseAuth.signInWithEmailAndPassword(auth, email, password)
+                .flatMapSingle(authResult -> {
                     String userKey = authResult.getUser().getUid();
-                    return getUser(userKey);
+                    return getUser(userKey).firstOrError();
                 });
     }
 
@@ -216,8 +200,8 @@ public class UserRepositoryImpl implements UserRepository {
         Query pingIdQuery = userRef.orderByChild("ping_id").equalTo(userName);
         Query emailQuery = userRef.orderByChild("email").equalTo(userName);
         Query phoneQuery = userRef.orderByChild("phone").equalTo(userName);
-        Single<User> pingIdSingle = RxFirebaseDatabase.getInstance(pingIdQuery)
-                .onSingleValueEvent()
+        Single<User> pingIdSingle = RxFirebaseDatabase.observeSingleValueEvent(pingIdQuery)
+                .toSingle()
                 .flatMap(dataSnapshot -> {
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                         User user = new User(dataSnapshot.getChildren().iterator().next());
@@ -225,8 +209,8 @@ public class UserRepositoryImpl implements UserRepository {
                     }
                     throw new NullPointerException();
                 });
-        Single<User> emailSingle = RxFirebaseDatabase.getInstance(emailQuery)
-                .onSingleValueEvent()
+        Single<User> emailSingle = RxFirebaseDatabase.observeSingleValueEvent(emailQuery)
+                .toSingle()
                 .flatMap(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         User user = new User(dataSnapshot);
@@ -234,8 +218,8 @@ public class UserRepositoryImpl implements UserRepository {
                     }
                     throw new NullPointerException();
                 });
-        Single<User> phoneSingle = RxFirebaseDatabase.getInstance(phoneQuery)
-                .onSingleValueEvent()
+        Single<User> phoneSingle = RxFirebaseDatabase.observeSingleValueEvent(phoneQuery)
+                .toSingle()
                 .flatMap(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         User user = new User(dataSnapshot);
@@ -253,8 +237,8 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<Map<String, Integer>> observeBadgeCount(@NotNull String userKey) {
         DatabaseReference databaseReference = database.getReference("conversation_badge")
                 .child(userKey);
-        return RxFirebaseDatabase.getInstance(databaseReference)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(databaseReference)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return (Map<String, Integer>) dataSnapshot.getValue();
@@ -267,12 +251,12 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<ChildData<Badge>> observeBadgeCountChildEvent(@NotNull String userKey) {
         DatabaseReference databaseReference = database.getReference("conversation_badge")
                 .child(userKey);
-        return RxFirebaseDatabase.getInstance(databaseReference)
-                .onChildEvent()
+        return RxFirebaseDatabase.observeChildEvent(databaseReference)
+                .toObservable()
                 .map(childEvent -> {
-                    DataSnapshot dataSnapshot = childEvent.dataSnapshot;
+                    DataSnapshot dataSnapshot = childEvent.getValue();
                     Badge badge = new Badge(dataSnapshot.getKey(), dataSnapshot.getValue(Integer.class));
-                    ChildData<Badge> childData = new ChildData(badge, childEvent.type);
+                    ChildData<Badge> childData = new ChildData(badge, childEvent.getEventType());
                     return childData;
                 });
     }
@@ -280,13 +264,13 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Observable<User> observeUsersChanged() {
         DatabaseReference databaseReference = database.getReference("users");
-        return RxFirebaseDatabase.getInstance(databaseReference)
-                .onChildEvent()
+        return RxFirebaseDatabase.observeChildEvent(databaseReference)
+                .toObservable()
                 .flatMap(childEvent -> {
-                    if (childEvent.type != ChildEvent.Type.CHILD_CHANGED) {
+                    if (childEvent.getEventType() != RxFirebaseChildEvent.EventType.CHANGED) {
                         return Observable.empty();
                     }
-                    User user = new User(childEvent.dataSnapshot);
+                    User user = new User(childEvent.getValue());
                     return Observable.just(user);
                 });
     }
@@ -299,8 +283,7 @@ public class UserRepositoryImpl implements UserRepository {
             return Observable.error(new NullPointerException("Current uuid is null"));
         DatabaseReference reference = database.getReference().child("users").child(userId).child("quickBloxID");
         return RxFirebaseDatabase.setValue(reference, qbId)
-                .map(reference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
@@ -311,8 +294,7 @@ public class UserRepositoryImpl implements UserRepository {
             return Observable.error(new NullPointerException("Current uuid is null"));
         DatabaseReference reference = database.getReference().child("users").child(userId).child("devices");
         return RxFirebaseDatabase.setValue(reference, devices)
-                .map(reference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
@@ -323,39 +305,36 @@ public class UserRepositoryImpl implements UserRepository {
             return Observable.error(new NullPointerException("Current uuid is null"));
         DatabaseReference reference = database.getReference().child("users").child(userId).child("devices").child(device);
         return RxFirebaseDatabase.setValue(reference, ((double) System.currentTimeMillis() / 1000))
-                .map(reference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> logout(String userId, String deviceId) {
         DatabaseReference reference = database.getReference("users").child(userId).child("devices").child(deviceId);
-        return RxFirebaseDatabase.setValue(reference, null)
-                .map(databaseReference -> true)
-                .doOnSuccess(aBoolean -> auth.signOut())
-                .toObservable();
+        return RxFirebaseDatabase.setValue(reference, null).andThen(Observable.defer(() -> {
+            auth.signOut();
+            return Observable.just(true);
+        }));
     }
 
     @Override
     public Observable<DataSnapshot> observeUserStatus(String userId) {
         DatabaseReference reference = database.getReference("users").child(userId).child("devices");
-        return RxFirebaseDatabase.getInstance(reference)
-                .onValueEvent();
+        return RxFirebaseDatabase.observeValueEvent(reference).toObservable();
     }
 
     @Override
     public Observable<Boolean> deleteFriend(String userId, String friendId) {
         DatabaseReference reference = database.getReference("friends").child(userId).child(friendId);
         return RxFirebaseDatabase.setValue(reference, null)
-                .map(reference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> observeFriendStatus(String currentUserId, String friendId) {
         Query query = database.getReference("friends").child(currentUserId).child(friendId);
-        return RxFirebaseDatabase.getInstance(query)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(Boolean.class);
@@ -369,15 +348,14 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<Boolean> addContact(String currentUserId, String friendId) {
         DatabaseReference reference = database.getReference("friends").child(currentUserId).child(friendId);
         return RxFirebaseDatabase.setValue(reference, true)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<User> getUserByQuickBloxId(Integer qbId) {
         Query query = database.getReference("users").orderByChild("quickBloxID").equalTo(qbId);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -385,8 +363,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     throw new NullPointerException("");
-                })
-                .toObservable();
+                });
     }
 
     @Override
@@ -394,55 +371,48 @@ public class UserRepositoryImpl implements UserRepository {
         DatabaseReference databaseReference = database.getReference("conversation_badge")
                 .child(userId).child(key);
         return RxFirebaseDatabase.setValue(databaseReference, null)
-                .map(databaseReference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
-    public Observable<ChildEvent> observeBlockedContacts(String key) {
+    public Observable<RxFirebaseChildEvent<DataSnapshot>> observeBlockedContacts(String key) {
         Query query = database.getReference("users").child(key).child("blocks");
-        return RxFirebaseDatabase.getInstance(query)
-                .onChildEvent();
+        return RxFirebaseDatabase.observeChildEvent(query).toObservable();
     }
 
     @Override
     public Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean) {
         DatabaseReference reference = database.getReference("users").child(key).child("settings").child("notification");
         return RxFirebaseDatabase.setValue(reference, aBoolean)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updateUserPrivateProfileSetting(String key, Boolean aBoolean) {
         DatabaseReference reference = database.getReference("users").child(key).child("settings").child("profile_picture");
         return RxFirebaseDatabase.setValue(reference, aBoolean)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updateUserProfileImage(String userId, String s) {
         DatabaseReference reference = database.getReference("users").child(userId).child("profile");
         return RxFirebaseDatabase.setValue(reference, s)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updateUserMapping(String key, String mapKey, String mapValue) {
         DatabaseReference reference = database.getReference("users").child(key).child("mappings").child(mapKey);
         return RxFirebaseDatabase.setValue(reference, mapValue)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updateUserMappings(String key, Map<String, String> mappings) {
         DatabaseReference reference = database.getReference("users").child(key).child("mappings");
         return RxFirebaseDatabase.setValue(reference, mappings)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     /**
@@ -516,23 +486,21 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<Boolean> turnOffMappingConfirmation(String key) {
         DatabaseReference reference = database.getReference().child("users").child(key).child("show_mapping_confirm");
         return RxFirebaseDatabase.setValue(reference, true)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updatePhoneNumber(String userKey, String s) {
         DatabaseReference reference = database.getReference().child("users").child(userKey).child("phone");
         return RxFirebaseDatabase.setValue(reference, s)
-                .map(databaseReference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Map<String, String>> observeMappings(String key) {
         DatabaseReference reference = database.getReference().child("users").child(key).child("mappings");
-        return RxFirebaseDatabase.getInstance(reference)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(reference)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return (Map<String, String>) dataSnapshot.getValue();
@@ -581,18 +549,17 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<Integer> getQuickBloxIdByUserUUidKey(String UserUUidKey) {
         DatabaseReference reference = database.getReference().child("users").child(UserUUidKey).child("quickBloxID");
 
-        return RxFirebaseDatabase.getInstance(reference)
-                .onSingleValueEvent()
-                .map(dataSnapshot -> dataSnapshot.getValue(Integer.class)).toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(reference)
+                .toObservable()
+                .map(dataSnapshot -> dataSnapshot.getValue(Integer.class));
     }
 
     @Override
     public Observable<User> getUserInfoByUUidKey(String userUUidKey) {
         DatabaseReference reference = database.getReference().child("users").child(userUUidKey);
-        return RxFirebaseDatabase.getInstance(reference)
-                .onSingleValueEvent()
-                .map(User::new)
-                .toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(reference)
+                .toObservable()
+                .map(User::new);
     }
 
 

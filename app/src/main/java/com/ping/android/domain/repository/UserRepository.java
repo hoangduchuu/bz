@@ -1,6 +1,5 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.entity.CallEntity;
 import com.ping.android.data.entity.ChildData;
@@ -13,16 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 1/28/18.
  */
 
 public interface UserRepository {
-    Observable<User> initializeUser();
+    Single<User> initializeUser();
 
-    Observable<User> getCurrentUser();
+    Single<User> getCurrentUser();
 
     Observable<User> observeCurrentUser();
 
@@ -47,7 +48,7 @@ public interface UserRepository {
 
     Observable<User> getUserByQuickBloxId(Integer qbId);
 
-    Observable<ChildEvent> observeBlockedContacts(String key);
+    Observable<RxFirebaseChildEvent<DataSnapshot>> observeBlockedContacts(String key);
 
     Observable<Boolean> updateUserNotificationSetting(String key, Boolean aBoolean);
 
@@ -75,7 +76,7 @@ public interface UserRepository {
 
     Observable<Map<String, String>> observeMappings(String key);
 
-    Observable<ChildEvent> observeFriendsChildEvent(String userId);
+    Observable<RxFirebaseChildEvent<DataSnapshot>> observeFriendsChildEvent(String userId);
 
     Observable<Map<String, Boolean>> observeFriendsValue(String userId);
 
@@ -87,7 +88,7 @@ public interface UserRepository {
 
     Observable<Boolean> addCallHistory(CallEntity entity);
 
-    Observable<User> loginByEmail(String email, String password);
+    Single<User> loginByEmail(String email, String password);
 
     Observable<User> checkValidUser(String userName);
 

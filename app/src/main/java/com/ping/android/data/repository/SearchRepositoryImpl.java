@@ -1,6 +1,5 @@
 package com.ping.android.data.repository;
 
-import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -15,6 +14,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import durdinapps.rxfirebase2.RxFirebaseDatabase;
 import io.reactivex.Observable;
 
 /**
@@ -41,8 +41,8 @@ public class SearchRepositoryImpl implements SearchRepository {
         DatabaseReference searchReference = database.getReference().child("search");
         DatabaseReference requestReference = searchReference.child("request").push();
         requestReference.setValue(query);
-        return RxFirebaseDatabase.getInstance(searchReference.child("response").child(requestReference.getKey()))
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(searchReference.child("response").child(requestReference.getKey()))
+                .toObservable()
                 .flatMap(dataSnapshot -> {
                     List<User> users = new ArrayList<>();
                     if (dataSnapshot.exists()) {

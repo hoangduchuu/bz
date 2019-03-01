@@ -3,7 +3,6 @@ package com.ping.android.domain.usecase;
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.ping.android.data.entity.ChildData;
 import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
@@ -13,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
 import io.reactivex.Observable;
 
 /**
@@ -36,19 +36,19 @@ public class ObserveFriendsChildEventUseCase extends UseCase<ChildData<User>, Vo
         return userManager.getCurrentUser()
                 .flatMap(user -> userRepository.observeFriendsChildEvent(user.key)
                         .flatMap(childEvent -> {
-                            String friendId = childEvent.dataSnapshot.getKey();
-                            boolean value = childEvent.dataSnapshot.getValue(Boolean.class);
-                            if ((childEvent.type == ChildEvent.Type.CHILD_ADDED
-                                    || (childEvent.type == ChildEvent.Type.CHILD_CHANGED && value)) && !user.key.equals(friendId)) {
+                            String friendId = childEvent.getValue().getKey();
+                            boolean value = childEvent.getValue().getValue(Boolean.class);
+                            if ((childEvent.getEventType() == RxFirebaseChildEvent.EventType.ADDED
+                                    || (childEvent.getEventType() == RxFirebaseChildEvent.EventType.CHANGED && value)) && !user.key.equals(friendId)) {
                                 return getUser(friendId)
                                         .map(friend -> {
-                                            ChildData<User> childData = new ChildData(friend, childEvent.type);
+                                            ChildData<User> childData = new ChildData(friend, childEvent.getEventType());
                                             return childData;
                                         });
                             } else {
                                 User user1 = new User();
                                 user1.key = friendId;
-                                ChildData<User> childData = new ChildData(user1, ChildEvent.Type.CHILD_REMOVED);
+                                ChildData<User> childData = new ChildData(user1, RxFirebaseChildEvent.EventType.REMOVED);
                                 return Observable.just(childData);
                             }
                         })

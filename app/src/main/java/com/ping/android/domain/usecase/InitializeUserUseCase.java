@@ -44,7 +44,7 @@ public class InitializeUserUseCase extends UseCase<Boolean, Void> {
                     updateDevicesId(user);
                     userManager.setUser(user);
                     return user;
-                })
+                }).toObservable()
                 .doOnNext(userManager::setUser)
                 .map(qbUser -> true);
     }
