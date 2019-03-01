@@ -43,7 +43,7 @@ public class SearchRepositoryImpl implements SearchRepository {
         requestReference.setValue(query);
         return RxFirebaseDatabase.observeValueEvent(searchReference.child("response").child(requestReference.getKey()))
                 .toObservable()
-                .map(dataSnapshot -> {
+                .flatMap(dataSnapshot -> {
                     List<User> users = new ArrayList<>();
                     if (dataSnapshot.exists()) {
                         DataSnapshot usersSnapshot = dataSnapshot.child("hits").child("hits");
@@ -58,8 +58,9 @@ public class SearchRepositoryImpl implements SearchRepository {
                             user.profile = wrapper.getStringValue("profile", "");
                             users.add(user);
                         }
+                        return Observable.just(users);
                     }
-                    return users;
+                    return Observable.empty();
                 });
     }
 }
