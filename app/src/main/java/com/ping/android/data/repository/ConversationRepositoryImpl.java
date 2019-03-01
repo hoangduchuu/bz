@@ -94,8 +94,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                 updateValue.put(String.format("media/%s/%s", toUser, conversation.key), conversation.toMap());
             }
         }
-        return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue).toObservable()
-                .map(aBoolean -> message);
+        return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue)
+                .andThen(Observable.just(message));
     }
 
     @Override
@@ -214,7 +214,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<Boolean> updateConversation(String userId, String conversationId, Map<String, Object> values) {
         DatabaseReference reference = database.getReference(CHILD_CONVERSATION).child(userId).child(conversationId);
         return RxFirebaseDatabase.updateChildren(reference, values)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
 
