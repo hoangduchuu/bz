@@ -1,6 +1,6 @@
 package com.ping.android.data.entity
 
-import com.bzzzchat.rxfirebase.database.ChildEvent
+import durdinapps.rxfirebase2.RxFirebaseChildEvent
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -15,7 +15,7 @@ class ChildData<T> {
         this.type = type
     }
 
-    constructor(data: T, type: ChildEvent.Type) {
+    constructor(data: T, type: RxFirebaseChildEvent.EventType) {
         this.data = data
         this.type = Type.from(type)
     }
@@ -25,12 +25,12 @@ class ChildData<T> {
 
         companion object {
             @JvmStatic
-            fun from(type: ChildEvent.Type): Type {
+            fun from(type: RxFirebaseChildEvent.EventType): Type {
                 return when(type) {
-                    ChildEvent.Type.CHILD_ADDED -> CHILD_ADDED
-                    ChildEvent.Type.CHILD_CHANGED -> CHILD_CHANGED
-                    ChildEvent.Type.CHILD_REMOVED -> CHILD_REMOVED
-                    ChildEvent.Type.CHILD_MOVED -> CHILD_MOVED
+                    RxFirebaseChildEvent.EventType.ADDED -> CHILD_ADDED
+                    RxFirebaseChildEvent.EventType.CHANGED -> CHILD_CHANGED
+                    RxFirebaseChildEvent.EventType.REMOVED -> CHILD_REMOVED
+                    RxFirebaseChildEvent.EventType.MOVED -> CHILD_MOVED
                 }
             }
         }

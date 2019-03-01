@@ -1,5 +1,7 @@
 package com.ping.android.domain.usecase.conversation;
 
+import android.text.TextUtils;
+
 import com.bzzzchat.cleanarchitecture.PostExecutionThread;
 import com.bzzzchat.cleanarchitecture.ThreadExecutor;
 import com.bzzzchat.cleanarchitecture.UseCaseWithTimeOut;
@@ -63,6 +65,8 @@ public class GetConversationValueUseCase extends UseCaseWithTimeOut<Conversation
                                                     }
                                                     return Observable.just(conversation);
                                                 } else {
+                                                    if (TextUtils.isEmpty(conversation.groupID))
+                                                        return Observable.empty();
                                                     return groupRepository.getGroup(user.key, conversation.groupID)
                                                             .map(group -> {
                                                                 group.members = conversation.members;

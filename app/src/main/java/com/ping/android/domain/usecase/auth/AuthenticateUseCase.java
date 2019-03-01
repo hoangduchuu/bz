@@ -32,7 +32,7 @@ public class AuthenticateUseCase extends UseCaseWithTimeOut<User, AuthenticateUs
     @Override
     public Observable<User> buildUseCaseObservable(Params params) {
         return userRepository.checkValidUser(params.userName)
-                .flatMap(user -> userRepository.loginByEmail(user.email, params.password)
+                .flatMap(user -> userRepository.loginByEmail(user.email, params.password).toObservable()
                         .flatMap(user1 -> initializeUserUseCase.buildUseCaseObservable(null)
                                 .map(aBoolean -> user)));
     }

@@ -1,7 +1,6 @@
 package com.ping.android.data.repository;
 
-import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ping.android.domain.repository.GroupRepository;
@@ -9,6 +8,8 @@ import com.ping.android.model.Group;
 
 import javax.inject.Inject;
 
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
+import durdinapps.rxfirebase2.RxFirebaseDatabase;
 import io.reactivex.Observable;
 
 /**
@@ -32,40 +33,31 @@ public class GroupRepositoryImpl implements GroupRepository {
     @Override
     public Observable<Group> getGroup(String userId, String groupId) {
         DatabaseReference groupReference = database.getReference("groups").child(userId).child(groupId);
-        return RxFirebaseDatabase.getInstance(groupReference)
-                .onSingleValueEvent()
-                .map(Group::from)
-                .toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(groupReference).map(Group::from).toObservable();
     }
 
     @Override
     public Observable<Group> observeGroupValue(String userId, String groupId) {
         DatabaseReference groupReference = database.getReference("groups").child(userId).child(groupId);
-        return RxFirebaseDatabase.getInstance(groupReference)
-                .onValueEvent()
-                .map(Group::from);
+        return RxFirebaseDatabase.observeValueEvent(groupReference).toObservable().map(Group::from);
     }
 
     @Override
-    public Observable<ChildEvent> groupsChange(String userId) {
+    public Observable<RxFirebaseChildEvent<DataSnapshot>> groupsChange(String userId) {
         DatabaseReference groupReference = database.getReference("groups").child(userId);
-        return RxFirebaseDatabase.getInstance(groupReference)
-                .onChildEvent();
+        return RxFirebaseDatabase.observeChildEvent(groupReference).toObservable();
     }
 
     @Override
     public Observable<Boolean> createGroup(Group group) {
         DatabaseReference groupReference = database.getReference("groups");
-        return RxFirebaseDatabase.setValue(groupReference, group.toMap())
-                .map(reference -> true)
-                .toObservable();
+        return RxFirebaseDatabase.setValue(groupReference, group.toMap()).andThen(Observable.just(true));
     }
 
     @Override
     public Observable<Boolean> updateGroupConversationId(String groupId, String conversationId) {
         DatabaseReference groupReference = database.getReference("groups").child(groupId).child("conversationID");
         return RxFirebaseDatabase.setValue(groupReference, conversationId)
-                .map(reference -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 }

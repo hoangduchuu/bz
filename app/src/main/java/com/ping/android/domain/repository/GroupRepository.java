@@ -1,8 +1,9 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.database.ChildEvent;
+import com.google.firebase.database.DataSnapshot;
 import com.ping.android.model.Group;
 
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
 import io.reactivex.Observable;
 
 /**
@@ -13,7 +14,7 @@ public interface GroupRepository {
     Observable<String> getKey();
     Observable<Group> getGroup(String userId, String groupId);
     Observable<Group> observeGroupValue(String userId, String groupId);
-    Observable<ChildEvent> groupsChange(String userId);
+    Observable<RxFirebaseChildEvent<DataSnapshot>> groupsChange(String userId);
 
     Observable<Boolean> createGroup(Group group);
     Observable<Boolean> updateGroupConversationId(String groupId, String conversationId);

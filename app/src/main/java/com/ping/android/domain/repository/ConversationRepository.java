@@ -1,16 +1,14 @@
 package com.ping.android.domain.repository;
 
-import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.User;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -25,7 +23,7 @@ public interface ConversationRepository {
 
     Observable<Boolean> updateConversation(String userId, String conversationId, Map<String, Object> values);
 
-    Observable<ChildEvent> registerConversationsUpdate(String userId);
+    Observable<RxFirebaseChildEvent<DataSnapshot>> registerConversationsUpdate(String userId);
 
     Observable<DataSnapshot> observeConversationValue(String userId, String conversationId);
 
@@ -47,7 +45,7 @@ public interface ConversationRepository {
 
     Observable<DataSnapshot> getDefaultBackgrounds();
 
-    Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask);
+    Single<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask);
 
     Observable<Map<String,String>> observeNicknames(String userId, String conversationId);
 

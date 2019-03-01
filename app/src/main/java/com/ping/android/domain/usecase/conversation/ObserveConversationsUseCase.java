@@ -13,7 +13,6 @@ import com.ping.android.domain.repository.UserRepository;
 import com.ping.android.managers.UserManager;
 import com.ping.android.model.Conversation;
 import com.ping.android.model.User;
-import com.ping.android.utils.Log;
 import com.ping.android.utils.configs.Constant;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,9 +49,10 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
     @Override
     public Observable<ChildData<Conversation>> buildUseCaseObservable(Void aVoid) {
         return userManager.getCurrentUser()
-                .flatMap(currentUser -> conversationRepository.registerConversationsUpdate(currentUser.key)
+                .flatMap(currentUser ->
+                        conversationRepository.registerConversationsUpdate(currentUser.key)
                         .flatMap(childEvent -> {
-                            Conversation conversation = mapper.transform(childEvent.dataSnapshot, currentUser);
+                            Conversation conversation = mapper.transform(childEvent.getValue(), currentUser);
                             if (!conversation.memberIDs.containsKey(currentUser.key)) {
                                 return Observable.empty();
                             }
@@ -100,20 +100,10 @@ public class ObserveConversationsUseCase extends UseCase<ChildData<Conversation>
                                             }
                                             conversation.filterText = conversation.conversationName;
                                         }
-                                        ChildData<Conversation> childData = new ChildData<>(conversation, childEvent.type);
+                                        ChildData<Conversation> childData = new ChildData<>(conversation, childEvent.getEventType());
                                         return childData;
                                     });
                         }));
-    }
-
-    private  String getSenderNameFromSenderId(Conversation conversation) {
-        for (int i =0; i <= conversation.members.size();i++){
-            if (conversation.senderId.equals(conversation.members.get(i).key)){
-                return conversation.members.get(i).firstName;
-            }
-        }
-        return "can not get senderName";
-
     }
 
 }

@@ -1,7 +1,5 @@
 package com.ping.android.data.repository;
 
-import com.bzzzchat.rxfirebase.RxFirebaseDatabase;
-import com.bzzzchat.rxfirebase.database.ChildEvent;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -12,7 +10,6 @@ import com.ping.android.data.entity.MessageEntity;
 import com.ping.android.data.mappers.ConversationMapper;
 import com.ping.android.domain.repository.ConversationRepository;
 import com.ping.android.model.Conversation;
-import com.ping.android.model.User;
 import com.ping.android.utils.configs.Constant;
 
 import java.util.HashMap;
@@ -21,7 +18,10 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import durdinapps.rxfirebase2.RxFirebaseChildEvent;
+import durdinapps.rxfirebase2.RxFirebaseDatabase;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 /**
  * Created by tuanluong on 1/28/18.
@@ -54,26 +54,25 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                 .orderByChild("timesstamps")
                 .endAt(endTimestamps)
                 .limitToLast(15);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
                 .toObservable();
     }
 
     @Override
-    public Observable<ChildEvent> registerConversationsUpdate(String userId) {
+    public Observable<RxFirebaseChildEvent<DataSnapshot>> registerConversationsUpdate(String userId) {
         DatabaseReference reference = database.getReference("conversations")
                 .child(userId);
-        reference.keepSynced(true);
-        Query query = reference
-                .orderByChild("timesstamps");
+//        reference.keepSynced(true);
+        Query query = reference;
+//                .orderByChild("timesstamps");
         //.limitToLast(15);
-        return RxFirebaseDatabase.getInstance(query).onChildEvent();
+        return RxFirebaseDatabase.observeChildEvent(query).toObservable();
     }
 
     @Override
     public Observable<DataSnapshot> observeConversationValue(String userId, String conversationId) {
         Query query = database.getReference("conversations").child(userId).child(conversationId);
-        return RxFirebaseDatabase.getInstance(query).onValueEvent();
+        return RxFirebaseDatabase.observeValueEvent(query).toObservable();
     }
 
     @Override
@@ -95,26 +94,24 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                 updateValue.put(String.format("media/%s/%s", toUser, conversation.key), conversation.toMap());
             }
         }
-        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
-                .map(aBoolean -> message)
-                .toObservable();
+        return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue).toObservable()
+                .map(aBoolean -> message);
     }
 
     @Override
     public Observable<Conversation> getConversation(String userKey, String conversationID) {
         Query query = database.getReference("conversations")
                 .child(userKey).child(conversationID);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
-                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey))
-                .toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
+                .toObservable()
+                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey));
     }
 
     @Override
     public Observable<Map<String, Boolean>> observeTypingEvent(String conversationId, String userId) {
         Query query = database.getReference("conversations").child(userId).child(conversationId).child("typingIndicator");
-        return RxFirebaseDatabase.getInstance(query)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return (Map<String, Boolean>) dataSnapshot.getValue();
@@ -129,31 +126,29 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         DatabaseReference reference = database.getReference("conversations")
                 .child(userId).child(conversationId).child("readStatuses").child(userId);
         return RxFirebaseDatabase.setValue(reference, true)
-                .map(reference1 -> true)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override
     public Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId) {
         Query query = database.getReference("conversations").child(userId).child(conversationID).child("nickNames").child(opponentUserId);
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(String.class);
                     } else {
                         return "";
                     }
-                })
-                .toObservable();
+                });
     }
 
     @Override
     public Observable<Integer> observeConversationColor(String userId, String conversationId) {
         Query query = database.getReference("conversations").child(userId).child(conversationId)
                 .child("themes").child(userId).child("mainColor");
-        return RxFirebaseDatabase.getInstance(query)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(Integer.class);
@@ -166,8 +161,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<String> observeConversationBackground(String userId, String conversationId) {
         Query query = database.getReference("conversations").child(userId).child(conversationId)
                 .child("themes").child(userId).child("backgroundUrl");
-        return RxFirebaseDatabase.getInstance(query)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(String.class);
@@ -179,26 +174,25 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     @Override
     public Observable<DataSnapshot> getDefaultBackgrounds() {
         Query query = database.getReference().child("backgrounds");
-        return RxFirebaseDatabase.getInstance(query)
-                .onSingleValueEvent()
+        return RxFirebaseDatabase.observeSingleValueEvent(query)
                 .toObservable();
     }
 
     @Override
-    public Observable<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask) {
+    public Single<Boolean> updateMaskOutput(String userId, String conversationId, Map<String, Boolean> memberIds, boolean mask) {
         Map<String, Object> updateValue = new HashMap<>();
         for (String id : memberIds.keySet()) {
             updateValue.put(String.format("conversations/%s/%s/maskOutputs/%s", userId, conversationId, id), mask);
         }
-        return RxFirebaseDatabase.updateBatchData(database.getReference(), updateValue)
-                .toObservable();
+        return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue)
+                .andThen(Single.just(true));
     }
 
     @Override
     public Observable<Map<String, String>> observeNicknames(String userId, String conversationId) {
         Query query = database.getReference().child(String.format("conversations/%s/%s/nickNames", userId, conversationId));
-        return RxFirebaseDatabase.getInstance(query)
-                .onValueEvent()
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return (Map<String, String>)dataSnapshot.getValue();
@@ -219,7 +213,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     @Override
     public Observable<Boolean> updateConversation(String userId, String conversationId, Map<String, Object> values) {
         DatabaseReference reference = database.getReference(CHILD_CONVERSATION).child(userId).child(conversationId);
-        return RxFirebaseDatabase.updateBatchData(reference, values)
+        return RxFirebaseDatabase.updateChildren(reference, values)
                 .toObservable();
     }
 

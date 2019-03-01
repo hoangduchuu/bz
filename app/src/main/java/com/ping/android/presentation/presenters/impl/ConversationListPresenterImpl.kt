@@ -43,11 +43,7 @@ constructor() : ConversationListPresenter {
     private var canLoadMore = true
     private var lastTimestamp = java.lang.Double.MAX_VALUE
     private val isLoading: AtomicBoolean = AtomicBoolean(false)
-    private val conversations: MutableList<Conversation>
-
-    init {
-        conversations = ArrayList()
-    }
+    private val conversations: MutableList<Conversation> = mutableListOf()
 
     override fun getConversations() {
 //        view?.showConnecting()
@@ -56,23 +52,24 @@ constructor() : ConversationListPresenter {
                 view?.updateMappings(mappings)
             }
         }, null)
-        loadMoreConversationUseCase.execute(object : DefaultObserver<LoadMoreConversationUseCase.Output>() {
-            override fun onNext(output: LoadMoreConversationUseCase.Output) {
-                output.conversations.sortWith(Comparator { o1, o2 -> java.lang.Double.compare(o2.timesstamps, o1.timesstamps) })
-                conversations.addAll(output.conversations)
-                view?.updateConversationList(output.conversations)
-                canLoadMore = output.canLoadMore
-                lastTimestamp = output.lastTimestamp
-                observeConversations()
-//                view?.hideConnecting()
-            }
-
-            override fun onError(exception: Throwable) {
-                exception.printStackTrace()
-                observeConversations()
-//                view?.hideConnecting()
-            }
-        }, lastTimestamp)
+//        loadMoreConversationUseCase.execute(object : DefaultObserver<LoadMoreConversationUseCase.Output>() {
+//            override fun onNext(output: LoadMoreConversationUseCase.Output) {
+//                output.conversations.sortWith(Comparator { o1, o2 -> java.lang.Double.compare(o2.timesstamps, o1.timesstamps) })
+//                conversations.addAll(output.conversations)
+//                view?.updateConversationList(output.conversations)
+//                canLoadMore = output.canLoadMore
+//                lastTimestamp = output.lastTimestamp
+//                observeConversations()
+////                view?.hideConnecting()
+//            }
+//
+//            override fun onError(exception: Throwable) {
+//                exception.printStackTrace()
+//                observeConversations()
+////                view?.hideConnecting()
+//            }
+//        }, lastTimestamp)
+        observeConversations()
     }
 
     private fun observeConversations() {

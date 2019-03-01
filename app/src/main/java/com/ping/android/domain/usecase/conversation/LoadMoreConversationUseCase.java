@@ -47,18 +47,18 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
     @Override
     public Observable<Output> buildUseCaseObservable(Double params) {
         return userManager.getCurrentUser()
-                .flatMap(currenetUser -> conversationRepository.loadMoreConversation(currenetUser.key, params)
+                .flatMap(currentUser -> conversationRepository.loadMoreConversation(currentUser.key, params)
                         .flatMap(dataSnapshot -> {
                             List<Conversation> conversations = new ArrayList<>();
                             double lastTimestamp = Double.MAX_VALUE;
                             if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.exists()) continue;
-                                    Conversation conversation = mapper.transform(child, currenetUser);
+                                    Conversation conversation = mapper.transform(child, currentUser);
                                     if (lastTimestamp > conversation.timesstamps) {
                                         lastTimestamp = conversation.timesstamps;
                                     }
-                                    if (!conversation.memberIDs.containsKey(currenetUser.key)
+                                    if (!conversation.memberIDs.containsKey(currentUser.key)
                                             || !conversation.isValid()) continue;
                                     conversations.add(conversation);
                                 }
@@ -70,7 +70,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                             Conversation conversation = (Conversation) conversationObject;
                                             if (conversation.conversationType == Constant.CONVERSATION_TYPE_INDIVIDUAL) {
                                                 for (String userId : conversation.memberIDs.keySet()) {
-                                                    if (!currenetUser.key.equals(userId)) {
+                                                    if (!currentUser.key.equals(userId)) {
                                                         return getUser(userId)
                                                                 .map(user1 -> {
                                                                     conversation.senderName = user1.firstName;
@@ -80,7 +80,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                     String conversationName = TextUtils.isEmpty(nickName) ? user1.getDisplayName() : nickName;
                                                                     conversation.conversationName = conversationName;
                                                                     List<String> filterTextList = new ArrayList<>();
-                                                                    filterTextList.add(currenetUser.getDisplayName());
+                                                                    filterTextList.add(currentUser.getDisplayName());
                                                                     filterTextList.add(nickName);
                                                                     conversation.filterText = TextUtils.join(" ", filterTextList);
                                                                     return conversation;
@@ -88,12 +88,12 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                 .doOnNext(con -> userManager.setIndividualConversation(conversation));
                                                     }
                                                     else {
-                                                        conversation.senderName = currenetUser.firstName;
+                                                        conversation.senderName = currentUser.firstName;
                                                     }
                                                 }
                                             } else {
                                                 for (String userId : conversation.memberIDs.keySet()) {
-                                                    if (!currenetUser.key.equals(userId)) {
+                                                    if (!currentUser.key.equals(userId)) {
                                                         return getUser(userId)
                                                                 .map(user1 -> {
                                                                     //HUU
@@ -110,7 +110,7 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                 ;
                                                     }
                                                     else {
-                                                        conversation.senderName = currenetUser.firstName;
+                                                        conversation.senderName = currentUser.firstName;
                                                     }
                                                 }
                                                 conversation.filterText = conversation.conversationName;
