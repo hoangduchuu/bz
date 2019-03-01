@@ -182,7 +182,7 @@ public class UserRepositoryImpl implements UserRepository {
         updateValue.put(String.format("calls/%s/%s", entity.getSenderId(), callId), entity);
         updateValue.put(String.format("calls/%s/%s", entity.getReceiveId(), callId), entity);
         return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
     @Override

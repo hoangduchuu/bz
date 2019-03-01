@@ -375,7 +375,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     private Observable<Boolean> updateBatchData(Map<String, Object> updateValue) {
         return RxFirebaseDatabase.updateChildren(database.getReference(), updateValue)
-                .toObservable();
+                .andThen(Observable.just(true));
     }
 
 
