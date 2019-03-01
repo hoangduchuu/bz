@@ -52,24 +52,24 @@ constructor() : ConversationListPresenter {
                 view?.updateMappings(mappings)
             }
         }, null)
-//        loadMoreConversationUseCase.execute(object : DefaultObserver<LoadMoreConversationUseCase.Output>() {
-//            override fun onNext(output: LoadMoreConversationUseCase.Output) {
-//                output.conversations.sortWith(Comparator { o1, o2 -> java.lang.Double.compare(o2.timesstamps, o1.timesstamps) })
-//                conversations.addAll(output.conversations)
-//                view?.updateConversationList(output.conversations)
-//                canLoadMore = output.canLoadMore
-//                lastTimestamp = output.lastTimestamp
-//                observeConversations()
-////                view?.hideConnecting()
-//            }
-//
-//            override fun onError(exception: Throwable) {
-//                exception.printStackTrace()
-//                observeConversations()
-////                view?.hideConnecting()
-//            }
-//        }, lastTimestamp)
-        observeConversations()
+        loadMoreConversationUseCase.execute(object : DefaultObserver<LoadMoreConversationUseCase.Output>() {
+            override fun onNext(output: LoadMoreConversationUseCase.Output) {
+                output.conversations.sortWith(Comparator { o1, o2 -> java.lang.Double.compare(o2.timesstamps, o1.timesstamps) })
+                conversations.addAll(output.conversations)
+                view?.updateConversationList(output.conversations)
+                canLoadMore = output.canLoadMore
+                lastTimestamp = output.lastTimestamp
+                observeConversations()
+//                view?.hideConnecting()
+            }
+
+            override fun onError(exception: Throwable) {
+                exception.printStackTrace()
+                observeConversations()
+//                view?.hideConnecting()
+            }
+        }, lastTimestamp)
+//        observeConversations()
     }
 
     private fun observeConversations() {

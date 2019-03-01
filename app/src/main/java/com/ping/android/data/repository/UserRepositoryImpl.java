@@ -120,7 +120,6 @@ public class UserRepositoryImpl implements UserRepository {
                 database.getReference(CHILD_CALLS).child(userId)
                         .orderByChild("timestamp")
                         .limitToLast(10);
-        query.keepSynced(true);
         return RxFirebaseDatabase.observeChildEvent(query)
                 .toObservable()
                 .map(childEvent -> {
