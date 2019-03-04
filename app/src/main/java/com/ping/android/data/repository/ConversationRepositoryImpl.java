@@ -55,7 +55,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
                 .endAt(endTimestamps)
                 .limitToLast(15);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable();
+                .toSingle().toObservable();
     }
 
     @Override
@@ -103,8 +103,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
         Query query = database.getReference("conversations")
                 .child(userKey).child(conversationID);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
-                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey));
+                .toSingle()
+                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey)).toObservable();
     }
 
     @Override
@@ -133,14 +133,14 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<String> getConversationNickName(String userId, String conversationID, String opponentUserId) {
         Query query = database.getReference("conversations").child(userId).child(conversationID).child("nickNames").child(opponentUserId);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists()) {
                         return dataSnapshot.getValue(String.class);
                     } else {
                         return "";
                     }
-                });
+                }).toObservable();
     }
 
     @Override
@@ -175,7 +175,7 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<DataSnapshot> getDefaultBackgrounds() {
         Query query = database.getReference().child("backgrounds");
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable();
+                .toSingle().toObservable();
     }
 
     @Override

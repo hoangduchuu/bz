@@ -33,7 +33,7 @@ public class GroupRepositoryImpl implements GroupRepository {
     @Override
     public Observable<Group> getGroup(String userId, String groupId) {
         DatabaseReference groupReference = database.getReference("groups").child(userId).child(groupId);
-        return RxFirebaseDatabase.observeSingleValueEvent(groupReference).map(Group::from).toObservable();
+        return RxFirebaseDatabase.observeSingleValueEvent(groupReference).map(Group::from).toSingle().toObservable();
     }
 
     @Override

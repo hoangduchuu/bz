@@ -45,6 +45,20 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public Observable<MessageEntity> getMessages(String conversationId, String messageId) {
+        Query query = database.getReference("messages").child(conversationId).child(messageId);
+        return RxFirebaseDatabase.observeValueEvent(query)
+                .toObservable()
+                .flatMap(dataSnapshot -> {
+                    if (dataSnapshot.exists()){
+                        MessageEntity messageEntity = messageMapper.transform(dataSnapshot);
+                        return Observable.just(messageEntity);
+                    }
+                    return Observable.empty();
+                });
+    }
+
+    @Override
     public Observable<List<MessageEntity>> getLastMessages(String conversationId) {
         DatabaseReference reference = database.getReference("messages").child(conversationId);
         reference.keepSynced(true);
@@ -52,7 +66,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .orderByChild("timestamp")
                 .limitToLast(Constant.LATEST_RECENT_MESSAGES);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     List<MessageEntity> messages = new ArrayList<>();
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
@@ -63,7 +77,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                         }
                     }
                     return messages;
-                });
+                }).toObservable();
     }
 
     @Override
@@ -73,7 +87,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .endAt(endTimestamp)
                 .limitToLast(Constant.LOAD_MORE_MESSAGE_AMOUNT + 1);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     List<MessageEntity> messages = new ArrayList<>();
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
@@ -84,7 +98,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                         }
                     }
                     return messages;
-                });
+                }).toObservable();
     }
 
     @Override
@@ -96,7 +110,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .endAt(lastTimestamp)
                 .limitToLast(20);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     List<MessageEntity> messages = new ArrayList<>();
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
@@ -107,7 +121,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                         }
                     }
                     return messages;
-                });
+                }).toObservable();
     }
 
     @Override
@@ -335,8 +349,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .orderByChild("timestamp")
                 .startAt(timestamp);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
-                .map(dataSnapshot -> {
+                .toSingle().map(dataSnapshot -> {
                     List<MessageEntity> messages = new ArrayList<>();
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
@@ -346,7 +359,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                         }
                     }
                     return messages;
-                });
+                }).toObservable();
     }
 
     @Override

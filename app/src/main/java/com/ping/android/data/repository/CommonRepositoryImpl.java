@@ -41,7 +41,7 @@ public class CommonRepositoryImpl implements CommonRepository {
     @Override
     public Observable<Boolean> getConnectionState() {
         Query query = database.getReference(".info/connected");
-        return RxFirebaseDatabase.observeSingleValueEvent(query).toObservable()
-                .map(dataSnapshot -> dataSnapshot.getValue(Boolean.class));
+        return RxFirebaseDatabase.observeSingleValueEvent(query).toSingle()
+                .map(dataSnapshot -> dataSnapshot.getValue(Boolean.class)).toObservable();
     }
 }

@@ -110,8 +110,8 @@ public class UserRepositoryImpl implements UserRepository {
         DatabaseReference userReference = database.getReference("users").child(userId);
         userReference.keepSynced(true);
         return RxFirebaseDatabase.observeSingleValueEvent(userReference)
-                .toObservable()
-                .map(User::new);
+                .toSingle()
+                .map(User::new).toObservable();
     }
 
     @Override
@@ -138,7 +138,7 @@ public class UserRepositoryImpl implements UserRepository {
         call.keepSynced(true);
         Query query = call.orderByChild("timestamp");
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
@@ -148,7 +148,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     return callEntities;
-                });
+                }).toObservable();
     }
 
     @Override
@@ -161,7 +161,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .endAt(timestamp)
                 .limitToLast(15);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     List<CallEntity> callEntities = new ArrayList<>();
                     if (dataSnapshot.hasChildren()) {
@@ -171,7 +171,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     return callEntities;
-                });
+                }).toObservable();
     }
 
     @Override
@@ -355,7 +355,7 @@ public class UserRepositoryImpl implements UserRepository {
     public Observable<User> getUserByQuickBloxId(Integer qbId) {
         Query query = database.getReference("users").orderByChild("quickBloxID").equalTo(qbId);
         return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
+                .toSingle()
                 .map(dataSnapshot -> {
                     if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -363,7 +363,7 @@ public class UserRepositoryImpl implements UserRepository {
                         }
                     }
                     throw new NullPointerException("");
-                });
+                }).toObservable();
     }
 
     @Override
@@ -550,16 +550,16 @@ public class UserRepositoryImpl implements UserRepository {
         DatabaseReference reference = database.getReference().child("users").child(UserUUidKey).child("quickBloxID");
 
         return RxFirebaseDatabase.observeSingleValueEvent(reference)
-                .toObservable()
-                .map(dataSnapshot -> dataSnapshot.getValue(Integer.class));
+                .toSingle()
+                .map(dataSnapshot -> dataSnapshot.getValue(Integer.class)).toObservable();
     }
 
     @Override
     public Observable<User> getUserInfoByUUidKey(String userUUidKey) {
         DatabaseReference reference = database.getReference().child("users").child(userUUidKey);
         return RxFirebaseDatabase.observeSingleValueEvent(reference)
-                .toObservable()
-                .map(User::new);
+                .toSingle()
+                .map(User::new).toObservable();
     }
 
 
