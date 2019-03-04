@@ -102,9 +102,8 @@ public class ConversationRepositoryImpl implements ConversationRepository {
     public Observable<Conversation> getConversation(String userKey, String conversationID) {
         Query query = database.getReference("conversations")
                 .child(userKey).child(conversationID);
-        return RxFirebaseDatabase.observeSingleValueEvent(query)
-                .toObservable()
-                .map(dataSnapshot -> mapper.transform(dataSnapshot, userKey));
+        return RxFirebaseDatabase.observeSingleValueEvent(query).toSingle()
+                .map(dataSnapshot -> mapper.transform(dataSnapshot,userKey)).toObservable();
     }
 
     @Override
