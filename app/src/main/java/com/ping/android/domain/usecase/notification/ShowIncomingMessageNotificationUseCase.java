@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
+import durdinapps.rxfirebase2.RxFirebaseDatabase;
 import io.reactivex.Observable;
 
 public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, ShowIncomingMessageNotificationUseCase.Params> {
@@ -45,6 +46,8 @@ public class ShowIncomingMessageNotificationUseCase extends UseCase<Boolean, Sho
     @NotNull
     @Override
     public Observable<Boolean> buildUseCaseObservable(Params params) {
+
+        messageRepository.getMessages(params.conversationId, params.messageId).subscribe();
         return userManager.getCurrentUser()
                 .flatMap(user -> messageRepository.getMessageStatus(params.conversationId, params.messageId, user.key)
                         .map(messageStatus -> {

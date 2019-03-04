@@ -16,6 +16,9 @@ import io.reactivex.ObservableSource;
  */
 
 public interface MessageRepository {
+
+    Observable<MessageEntity> getMessages(String conversationId, String messageId);
+
     Observable<List<MessageEntity>> getLastMessages(String conversationId);
 
     Observable<List<MessageEntity>> loadMoreMessages(String conversationId, double endTimestamp);
