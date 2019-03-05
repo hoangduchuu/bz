@@ -43,7 +43,7 @@ class PhoneDegreeManager(var context: Context, var activity: Activity, var busPr
 
 
         if (yz > BuildConfig.DEGREES_TO_START_HIDDEN_CAMERA) {
-            if (!isStart.get()) {
+            if (!isStart.get() && listener.isAnyVisibleMessageMasked()) {
                 listener.handleStartCamera()
                 isStart.set(true)
             }

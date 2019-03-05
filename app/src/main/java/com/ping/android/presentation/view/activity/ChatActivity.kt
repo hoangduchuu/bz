@@ -1472,6 +1472,18 @@ class ChatActivity : CoreActivity(),
         }
     }
 
+    override fun isAnyVisibleMessageMasked():Boolean {
+        val firstVisible = mLinearLayoutManager!!.findFirstVisibleItemPosition()
+        val lastVisible = mLinearLayoutManager!!.findLastVisibleItemPosition()
+        val visibleMessages = messagesAdapter.findMessages(firstVisible, lastVisible)
+        for (message in visibleMessages) {
+            if (message.maskable && message.isMask) {
+                return true
+            }
+        }
+        return false
+    }
+
     /**
      * #FACEID
      * handleOnRecognitionSuccess
