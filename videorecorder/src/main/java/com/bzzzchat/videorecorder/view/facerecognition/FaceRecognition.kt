@@ -108,7 +108,7 @@ class FaceRecognition private constructor(context: Context) {
         val end = Date()
         val diff = end.time - start.time
         Log.e(TAG, "diff: $diff")
-        return diff / 1000.0 < 0.5
+        return true// diff / 1000.0 < 0.5
     }
 
     private fun convertBitmapToByteBuffer(bitmap: Bitmap?): ByteBuffer{
