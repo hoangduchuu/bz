@@ -13,11 +13,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.ping.android.R;
 import com.ping.android.presentation.presenters.LoginPresenter;
 import com.ping.android.utils.BzzzLeftDrawableClickHelper;
 import com.ping.android.utils.BzzzViewUtils;
 import com.ping.android.utils.CommonMethod;
+import com.ping.android.utils.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,9 +131,9 @@ public class LoginActivity extends CoreActivity implements View.OnClickListener,
                 .setPositiveButton("SEND", (dialog12, which) -> {
                     String emailString = email.getText().toString();
                     if (CommonMethod.isValidEmail(emailString)) {
-//                        auth.sendPasswordResetEmail(email.getText().toString())
-//                                .addOnSuccessListener(aVoid -> Log.d("Success"))
-//                                .addOnFailureListener(e -> Log.e(e));
+                        FirebaseAuth.getInstance().sendPasswordResetEmail(email.getText().toString())
+                                .addOnSuccessListener(aVoid -> Log.e("Success"))
+                                .addOnFailureListener(e -> Log.e("Failed: " + e));
                     } else {
                         showEmailInvalidDialog();
                     }
