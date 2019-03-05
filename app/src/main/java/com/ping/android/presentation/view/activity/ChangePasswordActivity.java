@@ -51,6 +51,7 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
         setContentView(R.layout.activity_change_password);
         AndroidInjection.inject(this);
         bindViews();
+        presenter.create();
         init();
     }
 
@@ -99,10 +100,6 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_password), Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!currentUser.password.equals(encryptedPassword)) {
-            Toast.makeText(getApplicationContext(), getString(R.string.msg_wrong_password), Toast.LENGTH_SHORT).show();
-            return;
-        }
         if (TextUtils.isEmpty(newPassword)) {
             Toast.makeText(getApplicationContext(), getString(R.string.msg_empty_new_password), Toast.LENGTH_SHORT).show();
             return;
@@ -133,9 +130,6 @@ public class ChangePasswordActivity extends CoreActivity implements View.OnClick
                                         public void onComplete(@NonNull Task<Void> task) {
                                             hideLoading();
                                             if (task.isSuccessful()) {
-                                                String encryptedNewPassword = CommonMethod.encryptPassword(newPassword);
-                                                mDatabase.child("users").child(currentUser.key).child("password").setValue(encryptedNewPassword);
-                                                currentUser.password = encryptedNewPassword;
                                                 Toast.makeText(getApplicationContext(), getString(R.string.msg_update_password_success), Toast.LENGTH_SHORT).show();
                                                 finish();
                                             } else {
