@@ -98,11 +98,12 @@ public class LoadMoreConversationUseCase extends UseCase<LoadMoreConversationUse
                                                                 .map(user1 -> {
                                                                     //HUU
                                                                     String nick = conversation.nickNames.get(user1.key);
-                                                                    assert nick != null;
-                                                                    if (nick.length() > 0){
-                                                                        conversation.senderName = nick;
-                                                                    }else {
-                                                                        conversation.senderName = user1.firstName;
+                                                                    if (nick != null) {
+                                                                        if (nick.length() > 0){
+                                                                            conversation.senderName = nick;
+                                                                        }else {
+                                                                            conversation.senderName = user1.firstName;
+                                                                        }
                                                                     }
                                                                     return conversation;
                                                                 })
