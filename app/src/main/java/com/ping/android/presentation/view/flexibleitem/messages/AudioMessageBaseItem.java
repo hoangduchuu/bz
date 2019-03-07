@@ -338,7 +338,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             File localFile = new File(audioUrl);
             VoiceType voiceType = VoiceType.from(item.message.voiceType);
             if (voiceType != VoiceType.DEFAULT && item.message.maskStatus()) {
-                String transformFileName = voiceType.toString() + localFile.getName();
+                String transformFileName = voiceType.toString() + "_"+ localFile.getName();
                 File transformFile = new File(localFile.getParent(), transformFileName);
                 return transformFile.getAbsolutePath();
             }
@@ -349,7 +349,7 @@ public abstract class AudioMessageBaseItem extends MessageBaseItem<AudioMessageB
             item.message.localFilePath = audioLocal.getAbsolutePath();
             VoiceType voiceType = VoiceType.from(item.message.voiceType);
             if (voiceType != VoiceType.DEFAULT) {
-                String transformFileName = voiceType.toString() + audioLocal.getName();
+                String transformFileName = voiceType.toString() + "_" + audioLocal.getName();
                 File transformFile = new File(audioLocal.getParent(), transformFileName);
                 if (transformFile.exists()) {
                     initPlayer(AudioStatus.UNKNOWN);
