@@ -29,18 +29,21 @@
         android:id="@+id/tab_item_number"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginStart="28dp"
         android:layout_marginEnd="180dp"
+        android:layout_marginBottom="12dp"
         android:background="@drawable/badge_circle"
         android:gravity="center"
         android:textColor="#FFF"
         android:textSize="@dimen/badge_font_size"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tab_item_icon"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/space"
-        app:layout_constraintTop_toTopOf="parent"
         tools:text="99"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/tab_item_icon"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/tutorial_dot_nav"
